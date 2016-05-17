@@ -20,12 +20,12 @@ if 'setuptools' in sys.modules:
     )
 
 setup(
-    name="PsyPyMC",
+    name="bambi",
     version=__version__,
     description="...",
     maintainer='Tal Yarkoni',
     maintainer_email='tyarkoni@gmail.com',
-    packages=["psypymc"],
+    packages=["bambi"],
     tests_require=tests_require,
     license='MIT',
     **extra_setuptools_args
