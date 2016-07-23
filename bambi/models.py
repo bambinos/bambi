@@ -3,8 +3,8 @@ import numpy as np
 # import xarray as xr
 from six import string_types
 from collections import OrderedDict
-import transformations as tr
-from utils import listify, transformer
+import bambi.transformations as tr
+from bambi.utils import listify, transformer
 import warnings
 
 
@@ -29,9 +29,9 @@ class Model(object):
     def reset(self):
         ''' Reset instance attributes to initial state. '''
         self.model = None
-        self.cache = OrderedDict()
+        # self.cache = OrderedDict()
         self.contrasts = OrderedDict()
-        self.X = OrderedDict()
+        self.terms = OrderedDict()
         self.y = None
 
     def build(self):
@@ -46,26 +46,41 @@ class Model(object):
     def set_y(self, label):
         ''' Set the outcome variable. '''
         if self.y is not None:
-            self.X[self.y.label] = self.y
-            self.y = self.X.pop(label)
+            self.terms[self.y.label] = self.y
+            self.y = self.terms.pop(label)
 
-    def add_term(self, *args, **kwargs):
+    def add_term(self, variable, data=None, label=None,
+                 categorical=False, random=False, split_by=None,
+                 transformations=None, drop_first=False):
         ''' Create a new Term and add it to the current Model. All positional
         and keyword arguments are passed directly to the Term initializer. '''
-        term = Term(self, *args, **kwargs)
-        self.cache[term.hash] = term
-        self.X[term.label] = term
+
+        if data is None:
+            data = self.data
+
+        # Extract splitting variable
+        if split_by is not None:
+            if split_by in self.terms:
+                split_by = self.terms[split_by].values
+            else:
+                split_by = Term(split_by, self.data, categorical=True).values
+            # split_by = self.get_cached_term(split_by, True).values
+
+        term = Term(variable, data, label, categorical, random, split_by,
+                    transformations, drop_first)
+        # self.cache[term.hash] = term
+        self.terms[term.label] = term
 
     # def add_contrast(self, *args, **kwargs):
     #     pass
 
-    def get_cached_term(self, variable, categorical):
-        ''' Retrieve a Term from the cache based on variable name and
-        categorical status. '''
-        key = hash((tuple(listify(variable)), categorical))
-        if key not in self.cache:
-            self.cache[key] = Term(self, variable, categorical=categorical)
-        return self.cache[key]
+    # def get_cached_term(self, variable, categorical):
+    #     ''' Retrieve a Term from the cache based on variable name and
+    #     categorical status. '''
+    #     key = hash((tuple(listify(variable)), categorical))
+    #     if key not in self.cache:
+    #         self.cache[key] = Term(variable, self.data, categorical=categorical)
+    #     return self.cache[key]
 
     def transform(self, terms, transformations, groupby=None, *args, **kwargs):
         ''' Apply one or more data transformations to one or more Terms.
@@ -85,24 +100,21 @@ class Model(object):
         '''
         for term in listify(terms):
             for trans in listify(transformations):
-                self.X[term].transform(trans, groupby, *args, **kwargs)
+                self.terms[term].transform(trans, groupby, *args, **kwargs)
 
 
 class Term(object):
 
-    def __init__(self, model, variable, label=None, data=None,
+    def __init__(self, variable, data, label=None,
                  categorical=False, random=False, split_by=None,
-                 transformations=None, drop_first=False):
+                 transformations=None, drop_first=False, **kwargs):
         '''
         Args:
-            model (Model): The owning Model instance.
             variable (str): The name of the DataFrame column that contains the
                 data to use for the Term.
+            data (DataFrame): The pandas DataFrame from which to draw data.
             label (str): Optional name of the Term. If None, the variable name
                 is reused.
-            data (DataFrame): The pandas DataFrame from which to draw data.
-                Typically this is not explicitly specified, in which case the
-                DataFrame stored in the associated Model instance will be used.
             categorical (bool): If True, the source variable is interpreted as
                 nominal/categorical. If False, the source variable is treated
                 as continuous.
@@ -112,24 +124,26 @@ class Term(object):
                 split the named variable on. Use to specify nesting/crossing
                 structures.
             transformations (list): List of transformations to apply to the
-                data as soon as it the Term is initialized.
+                data as soon as the Term is initialized.
             drop_first (bool): If True, uses n - 1 coding for categorical
                 variables (i.e., a variable with 8 levels is coded using 7
                 dummy variables, where each one is implicitly contrasted
                 against the omitted first level). If False, uses n dummies to
                 code n levels. Ignored if categorical = False.
+            kwargs: Optional keyword arguments passed to the model-building
+                back-end.
         '''
-        self.model = model
         self.variable = listify(variable)
         self.label = label or '_'.join(self.variable)
         self.transformations = []
         self.categorical = categorical
         self.random = random
         self.split_by = split_by
-        self.data_source = data or self.model.data
+        self.data_source = data
         self.drop_first = drop_first
         self.level_map = None
         self.hash = hash((tuple(self.variable), categorical))
+        self.kwargs = kwargs
 
         # Load data
         self._setup()
@@ -141,6 +155,7 @@ class Term(object):
     def _setup(self):
 
         data = self.data_source[self.variable].copy()
+        split_by = self.split_by
 
         if self.categorical:
             # Handle multiple variables; will fail gracefully if only 1 exists
@@ -161,11 +176,12 @@ class Term(object):
                         "(e.g., random factors).")
             data = data.convert_objects(convert_numeric=True)
 
-        if self.split_by is None:
+        if split_by is None:
             self.values = data.values
         else:
-            split_dm = self.model.get_cached_term(self.split_by, True).values
-            self.values = np.einsum('ab,ac->abc', data.values, split_dm)
+            if isinstance(split_by, string_types):
+                split_by = Term(split_by, self.data_source, categorical=True)
+            self.values = np.einsum('ab,ac->abc', data.values, split_by)
 
         self.data = data
 
