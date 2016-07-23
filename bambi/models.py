@@ -61,9 +61,9 @@ class Model(object):
         # Extract splitting variable
         if split_by is not None:
             if split_by in self.terms:
-                split_by = self.terms[split_by].values
+                split_by = self.terms[split_by]
             else:
-                split_by = Term(split_by, self.data, categorical=True).values
+                split_by = Term(split_by, self.data, categorical=True)
             # split_by = self.get_cached_term(split_by, True).values
 
         term = Term(variable, data, label, categorical, random, split_by,
@@ -120,7 +120,7 @@ class Term(object):
                 as continuous.
             random (bool): If True, the Term is added to the model as a random
                 effect; if False, treated as a fixed effect.
-            split_by (str, list): Optional name of variable or variables to
+            split_by (Term): a Term instance to split on.
                 split the named variable on. Use to specify nesting/crossing
                 structures.
             transformations (list): List of transformations to apply to the
@@ -141,7 +141,7 @@ class Term(object):
         self.split_by = split_by
         self.data_source = data
         self.drop_first = drop_first
-        self.level_map = None
+        self.levels = None
         self.hash = hash((tuple(self.variable), categorical))
         self.kwargs = kwargs
 
@@ -152,10 +152,14 @@ class Term(object):
             for t in listify(transformations):
                 self.transform(t)
 
+        self.values = self.data
+
+        if split_by is not None:
+            self.values = np.einsum('ab,ac->abc', self.values, self.split_by.values)
+
     def _setup(self):
 
         data = self.data_source[self.variable].copy()
-        split_by = self.split_by
 
         if self.categorical:
             # Handle multiple variables; will fail gracefully if only 1 exists
@@ -165,7 +169,7 @@ class Term(object):
             n_cols = data.nunique()
             levels = data.unique()
             mapping = OrderedDict(zip(levels, list(range(n_cols))))
-            self.level_map = mapping
+            self.levels = mapping
             recoded = data.loc[:, self.variable].replace(mapping).values
             data = pd.get_dummies(recoded, drop_first=self.drop_first)
 
@@ -175,13 +179,6 @@ class Term(object):
                         "supported for categorical variables "
                         "(e.g., random factors).")
             data = data.convert_objects(convert_numeric=True)
-
-        if split_by is None:
-            self.values = data.values
-        else:
-            if isinstance(split_by, string_types):
-                split_by = Term(split_by, self.data_source, categorical=True)
-            self.values = np.einsum('ab,ac->abc', data.values, split_by)
 
         self.data = data
 
@@ -196,14 +193,13 @@ class Term(object):
             args, kwargs: Optional positional and keyword arguments to pass
                 onto the transformation callable.
         '''
-        var = self.variable
         if not callable(transformation):
             transformation = getattr(tr, transformation)
         if groupby is not None:
             groups = self.data_source[groupby]
-            self.data = self.data.groupby(groups)[var].apply(transformation, *args, **kwargs)
+            self.data = self.data.groupby(groups).apply(transformation, *args, **kwargs)
         else:
-            self.data = transformation(self.data[var], *args, **kwargs)
+            self.data = transformation(self.data, *args, **kwargs)
         self.transformations.append(transformation.__name__)
 
 
