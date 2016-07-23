@@ -10,7 +10,7 @@ import warnings
 
 class Model(object):
 
-    def __init__(self, data):
+    def __init__(self, data, backend='pymc3'):
         '''
         Args:
             dataset (DataFrame): the pandas DF containing the data to use.
@@ -26,6 +26,10 @@ class Model(object):
                           "calls.")
         self.reset()
 
+        if backend.lower() == 'pymc3':
+            from bambi.backends import PyMC3BackEnd
+            self.backend = PyMC3BackEnd()
+
     def reset(self):
         ''' Reset instance attributes to initial state. '''
         self.model = None
@@ -36,7 +40,7 @@ class Model(object):
 
     def build(self):
         ''' Build the PyMC3 model. '''
-        pass
+        self.backend.build(self)
 
     # def run(self):
     #     ''' Run the MCMC sampler. '''
@@ -152,7 +156,7 @@ class Term(object):
             for t in listify(transformations):
                 self.transform(t)
 
-        self.values = self.data
+        self.values = self.data.values
 
         if split_by is not None:
             self.values = np.einsum('ab,ac->abc', self.values, self.split_by.values)
