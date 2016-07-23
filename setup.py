@@ -22,7 +22,7 @@ if 'setuptools' in sys.modules:
 setup(
     name="bambi",
     version=__version__,
-    description="...",
+    description="BAyesian Model Building Interface in Python",
     maintainer='Tal Yarkoni',
     maintainer_email='tyarkoni@gmail.com',
     packages=["bambi"],
