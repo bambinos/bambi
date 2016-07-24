@@ -1,30 +1,34 @@
 import pandas as pd
 import numpy as np
-# import xarray as xr
 from six import string_types
 from collections import OrderedDict
 import bambi.transformations as tr
-from bambi.utils import listify, transformer
+from bambi.utils import listify
 import warnings
 
 
 class Model(object):
 
-    def __init__(self, data, backend='pymc3'):
+    def __init__(self, data, intercept=True, backend='pymc3'):
         '''
         Args:
             dataset (DataFrame): the pandas DF containing the data to use.
         '''
         self.data = data
-        if 'intercept' not in self.data.columns:
-            self.data['intercept'] = 1
-        elif self.data['intercept'].nunique() > 1:
-            warnings.warn("The input dataset contains an existing column named"
-                          " 'intercept' that has more than one unique value. "
-                          "Note that this may cause unexpected behavior if "
-                          "intercepts are added to the model via add_term() "
-                          "calls.")
+        self.intercept = intercept
         self.reset()
+
+        if intercept:
+            if 'intercept' not in self.data.columns:
+                self.data['intercept'] = 1
+            elif self.data['intercept'].nunique() > 1:
+                warnings.warn("The input dataset contains an existing column named"
+                              " 'intercept' that has more than one unique value. "
+                              "Note that this may cause unexpected behavior if "
+                              "intercepts are added to the model via add_term() "
+                              "calls.")
+
+            self.add_term('intercept', self.data)
 
         if backend.lower() == 'pymc3':
             from bambi.backends import PyMC3BackEnd
@@ -57,7 +61,7 @@ class Model(object):
 
     def add_term(self, variable, data=None, label=None,
                  categorical=False, random=False, split_by=None,
-                 transformations=None, drop_first=False):
+                 transformations=None, drop_first=False, prior=None):
         ''' Create a new Term and add it to the current Model. All positional
         and keyword arguments are passed directly to the Term initializer. '''
 
@@ -192,10 +196,15 @@ class Term(object):
         if self.split_by is not None:
             self.values = np.einsum('ab,ac->abc', self.values, self.split_by.values)
 
-        # TODO: if no prior is specified, allow retrieval from module-level
-        # defaults, and raise error if none exist.
+        # TODO: come up with a more sensible way of getting/setting default priors
         if self.prior is None:
-            pass
+            from bambi.priors import default_priors
+            if self.label == 'intercept':
+                self.prior = default_priors['intercept']
+            elif self.random:
+                self.prior = default_priors['random']
+            else:
+                self.prior = default_priors['fixed']
 
     def transform(self, transformation, groupby=None, *args, **kwargs):
         ''' Apply an arbitrary transformation to the Term's data.

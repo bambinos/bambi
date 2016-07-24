@@ -59,12 +59,15 @@ class PyMC3BackEnd(BackEnd):
                     # User can pass sigma specification in sigma_kws.
                     # If not provided, default to HalfCauchy with beta = 10.
                     try:
-                        sigma_kws = t.sigma_kws
+                        sigma_dist_name = t.prior['sigma']['name']
+                        sigma_dist_args = t.prior['sigma']['args']
                     except:
-                        sigma_kws = {'dist': 'HalfCauchy', 'beta': 10}
+                        sigma_dist_name = 'HalfCauchy'
+                        sigma_dist_args = {'beta': 10}
                         
                     if t.split_by is None:
-                        sigma = self._build_dist('sigma_' + label, **sigma_kws)
+                        sigma = self._build_dist('sigma_' + label, sigma_dist_name,
+                                                 **sigma_dist_args)
                         dist_args['sd'] = sigma
                         u = self._build_dist('u_' + label, dist_name,
                                              shape=n_cols, **dist_args)
@@ -77,7 +80,8 @@ class PyMC3BackEnd(BackEnd):
                             selected = t.values[:, group_items, i]
                             # add the level effects to the model
                             name = '%s_%s' % (label, t.split_by.levels[i])
-                            sigma = self._build_dist('sigma_' + name, **sigma_kws)
+                            sigma = self._build_dist('sigma_' + name, sigma_dist_name,
+                                                     **sigma_dist_args)
                             name, size = 'u_' + name, selected.shape[1]
                             u = self._build_dist(name, dist_name, shape=size, **dist_args)
                             self.mu += pm.dot(selected, u)
