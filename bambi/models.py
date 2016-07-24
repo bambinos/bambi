@@ -111,9 +111,9 @@ class Model(object):
 
 class Term(object):
 
-    def __init__(self, variable, data, label=None,
-                 categorical=False, random=False, split_by=None,
-                 transformations=None, drop_first=False, **kwargs):
+    def __init__(self, variable, data, label=None, categorical=False,
+                 random=False, split_by=None, transformations=None,
+                 drop_first=False, prior=None, **kwargs):
         '''
         Args:
             variable (str): The name of the DataFrame column that contains the
@@ -136,6 +136,9 @@ class Term(object):
                 dummy variables, where each one is implicitly contrasted
                 against the omitted first level). If False, uses n dummies to
                 code n levels. Ignored if categorical = False.
+            prior (dict): A specification of the prior(s) to use.
+                Must have keys for 'name' and 'args'; optionally, can also
+                pass 'sigma', which is another dict with name/arg keys.
             kwargs: Optional keyword arguments passed to the model-building
                 back-end.
         '''
@@ -147,21 +150,13 @@ class Term(object):
         self.split_by = split_by
         self.data_source = data
         self.drop_first = drop_first
+        self.prior = prior
         self.levels = None
         # self.hash = hash((tuple(self.variable), categorical))
         self.kwargs = kwargs
 
         # Load data
         self._setup()
-
-        if transformations is not None:
-            for t in listify(transformations):
-                self.transform(t)
-
-        self.values = self.data.values
-
-        if split_by is not None:
-            self.values = np.einsum('ab,ac->abc', self.values, self.split_by.values)
 
     def _setup(self):
 
@@ -187,6 +182,20 @@ class Term(object):
             data = data.convert_objects(convert_numeric=True)
 
         self.data = data
+
+        if self.transformations is not None:
+            for t in listify(self.transformations):
+                self.transform(t)
+
+        self.values = self.data.values
+
+        if self.split_by is not None:
+            self.values = np.einsum('ab,ac->abc', self.values, self.split_by.values)
+
+        # TODO: if no prior is specified, allow retrieval from module-level
+        # defaults, and raise error if none exist.
+        if self.prior is None:
+            pass
 
     def transform(self, transformation, groupby=None, *args, **kwargs):
         ''' Apply an arbitrary transformation to the Term's data.

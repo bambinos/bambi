@@ -50,6 +50,8 @@ class PyMC3BackEnd(BackEnd):
 
                 n_cols = t.values.shape[1]
                 label = t.label
+                dist_name = t.prior['name']
+                dist_args = t.prior['args']
 
                 # Random effects
                 if t.random:
@@ -63,8 +65,9 @@ class PyMC3BackEnd(BackEnd):
                         
                     if t.split_by is None:
                         sigma = self._build_dist('sigma_' + label, **sigma_kws)
-                        u = self._build_dist('u_' + label, dist, mu=0, sd=sigma,
-                                             shape=n_cols, **t.kwargs)
+                        dist_args['sd'] = sigma
+                        u = self._build_dist('u_' + label, dist_name,
+                                             shape=n_cols, **dist_args)
                         self.mu += pm.dot(t.values, u)
                     else:
                         for i in range(t.values.shape[-1]):
@@ -76,13 +79,13 @@ class PyMC3BackEnd(BackEnd):
                             name = '%s_%s' % (label, t.split_by.levels[i])
                             sigma = self._build_dist('sigma_' + name, **sigma_kws)
                             name, size = 'u_' + name, selected.shape[1]
-                            u = self._build_dist(name, t.dist, shape=size, **t.dist_args)
+                            u = self._build_dist(name, dist_name, shape=size, **dist_args)
                             self.mu += pm.dot(selected, u)
 
                 # Fixed effects
                 else:
-                    b = self._build_dist('b_' + label, t.dist, shape=t.values.shape[-1],
-                                             **t.dist_args)
+                    b = self._build_dist('b_' + label, dist_name,
+                                         shape=t.values.shape[-1], **dist_args)
                     if t.split_by is not None:
                         t.values = np.squeeze(t.values)
                     self.mu += pm.dot(t.values, b)
