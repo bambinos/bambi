@@ -29,6 +29,8 @@ class Model(object):
         if backend.lower() == 'pymc3':
             from bambi.backends import PyMC3BackEnd
             self.backend = PyMC3BackEnd()
+        else:
+            raise ValueError("At the moment, only the PyMC3 backend is supported.")
 
     def reset(self):
         ''' Reset instance attributes to initial state. '''
@@ -146,7 +148,7 @@ class Term(object):
         self.data_source = data
         self.drop_first = drop_first
         self.levels = None
-        self.hash = hash((tuple(self.variable), categorical))
+        # self.hash = hash((tuple(self.variable), categorical))
         self.kwargs = kwargs
 
         # Load data
@@ -200,10 +202,11 @@ class Term(object):
         if not callable(transformation):
             transformation = getattr(tr, transformation)
         if groupby is not None:
+            data = pd.DataFrame(self.values)
             groups = self.data_source[groupby]
-            self.data = self.data.groupby(groups).apply(transformation, *args, **kwargs)
+            self.values = data.groupby(groups).apply(transformation, *args, **kwargs).values
         else:
-            self.data = transformation(self.data, *args, **kwargs)
+            self.values = transformation(self.values, *args, **kwargs)
         self.transformations.append(transformation.__name__)
 
 
