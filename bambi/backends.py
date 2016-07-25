@@ -25,10 +25,12 @@ class BackEnd(object):
 class PyMC3BackEnd(BackEnd):
 
     def __init__(self):
+        self.reset()
 
+    def reset(self):
+        self.model = pm.Model()
         self.mu = 0.
         self.dists = {}
-        self.model = pm.Model()
         self.shared_params = {}
 
     def _build_dist(self, label, dist, **kwargs):
@@ -40,11 +42,12 @@ class PyMC3BackEnd(BackEnd):
             dist = getattr(pm, dist)
         return dist(label, **kwargs)
 
-    def build(self, model):
+    def build(self, model, reset=True):
+
+        if reset:
+            self.reset()
 
         with self.model:
-
-            mu = 0.
 
             for t in model.terms.values():
 
@@ -84,7 +87,7 @@ class PyMC3BackEnd(BackEnd):
                                                      **sigma_dist_args)
                             name, size = 'u_' + name, selected.shape[1]
                             u = self._build_dist(name, dist_name, shape=size, **dist_args)
-                            self.mu += pm.dot(selected, u)
+                            self.mu += pm.dot(selected, u)[:, None]
 
                 # Fixed effects
                 else:
@@ -92,8 +95,12 @@ class PyMC3BackEnd(BackEnd):
                                          shape=t.values.shape[-1], **dist_args)
                     if t.split_by is not None:
                         t.values = np.squeeze(t.values)
-                    self.mu += pm.dot(t.values, b)
-        
+                    self.mu += pm.dot(t.values, b)[:, None]
+
+            # Likelihood
+            sigma = pm.HalfCauchy('sigma', beta=10)
+            y = model.y.values
+            y_obs = pm.Normal('y_pred', mu=self.mu, sd=sigma, observed=y)
 
     def run(self):
         pass

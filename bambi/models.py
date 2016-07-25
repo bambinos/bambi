@@ -37,27 +37,31 @@ class Model(object):
             raise ValueError("At the moment, only the PyMC3 backend is supported.")
 
     def reset(self):
-        ''' Reset instance attributes to initial state. '''
-        self.model = None
         # self.cache = OrderedDict()
         self.contrasts = OrderedDict()
         self.terms = OrderedDict()
         self.y = None
 
-    def build(self):
+    def build(self, y=None):
         ''' Build the PyMC3 model. '''
+        if y is not None:
+            self.set_y(y)
+        elif self.y is None:
+            raise ValueError("No outcome (y) variable is set! Please call "
+                             "set_y() before build(), or pass a term name "
+                             "in the y argument to build().")
         self.backend.build(self)
 
-    # def run(self):
-    #     ''' Run the MCMC sampler. '''
-    #     if self.model is None:
-    #         self.build()
+    def run(self, samples=1000, build=True, **kwargs):
+        ''' Run the MCMC sampler. '''
+        if self.model is None:
+            self.build()
 
     def set_y(self, label):
         ''' Set the outcome variable. '''
         if self.y is not None:
             self.terms[self.y.label] = self.y
-            self.y = self.terms.pop(label)
+        self.y = self.terms.pop(label)
 
     def add_term(self, variable, data=None, label=None,
                  categorical=False, random=False, split_by=None,
