@@ -184,7 +184,7 @@ class Term(object):
             n_cols = data.nunique()
             levels = data.unique()
             mapping = OrderedDict(zip(levels, list(range(n_cols))))
-            self.levels = mapping
+            self.levels = levels
             recoded = data.loc[:, self.variable].replace(mapping).values
             data = pd.get_dummies(recoded, drop_first=self.drop_first)
 
