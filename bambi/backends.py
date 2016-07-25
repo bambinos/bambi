@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from six import string_types
 import numpy as np
 import warnings
+from bambi.priors import default_priors
 try:
     import pymc3 as pm
 except:
@@ -97,8 +98,10 @@ class PyMC3BackEnd(BackEnd):
                         t.values = np.squeeze(t.values)
                     self.mu += pm.dot(t.values, b)[:, None]
 
-            # Likelihood
-            sigma = pm.HalfCauchy('sigma', beta=10)
+            # TODO: accept sigma params as an argument
+            sigma_params = default_priors['sigma']
+            sigma = self._build_dist('sigma', sigma_params['name'],
+                                     **sigma_params['args'])
             y = model.y.values
             y_obs = pm.Normal('y_pred', mu=self.mu, sd=sigma, observed=y)
 

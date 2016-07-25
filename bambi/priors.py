@@ -2,10 +2,10 @@ import numpy as np
 
 default_priors = {
     'intercept': {
-        'name': 'Uniform',
+        'name': 'Cauchy',
         'args': {
-            'lower': -1000,
-            'upper': 1000
+            'alpha': 0.,
+            'beta': 10.
         }
     },
     'fixed': {
@@ -24,9 +24,15 @@ default_priors = {
         'sigma': {
             'name': 'Uniform',
             'args': {
-                'lower': -1000,
+                'lower': 0,
                 'upper': 1000
             }
+        }
+    },
+    'sigma': {
+        'name': 'HalfCauchy',
+        'args': {
+            'beta': 10
         }
     }
 }
