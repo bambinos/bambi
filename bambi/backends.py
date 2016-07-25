@@ -102,5 +102,7 @@ class PyMC3BackEnd(BackEnd):
             y = model.y.values
             y_obs = pm.Normal('y_pred', mu=self.mu, sd=sigma, observed=y)
 
-    def run(self):
-        pass
+    def run(self, **kwargs):
+        samples = kwargs.pop('samples', 1000)
+        with self.model:
+            self.trace = pm.sample(samples, **kwargs)

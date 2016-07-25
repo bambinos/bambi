@@ -51,17 +51,22 @@ class Model(object):
                              "set_y() before build(), or pass a term name "
                              "in the y argument to build().")
         self.backend.build(self)
+        self.built = True
 
-    def run(self, samples=1000, build=True, **kwargs):
-        ''' Run the MCMC sampler. '''
-        if self.model is None:
-            self.build()
+    def run(self, y=None, **kwargs):
+        ''' Run the BackEnd to fit the model. '''
+        if not self.built:
+            warnings.warn("Current Bayesian model has not been built yet; "
+              "building it first before sampling begins.")
+            self.build(y)
+        self.backend.run(**kwargs)
 
     def set_y(self, label):
         ''' Set the outcome variable. '''
         if self.y is not None:
             self.terms[self.y.label] = self.y
         self.y = self.terms.pop(label)
+        self.built = False
 
     def add_term(self, variable, data=None, label=None,
                  categorical=False, random=False, split_by=None,
@@ -84,6 +89,7 @@ class Model(object):
                     transformations, drop_first)
         # self.cache[term.hash] = term
         self.terms[term.label] = term
+        self.built = False
 
     # def add_contrast(self, *args, **kwargs):
     #     pass
