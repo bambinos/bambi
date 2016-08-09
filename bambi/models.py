@@ -132,7 +132,10 @@ class Term(object):
         Args:
             variable (str): The name of the DataFrame column that contains the
                 data to use for the Term.
-            data (DataFrame): The pandas DataFrame from which to draw data.
+            data (DataFrame, ndarray): The pandas DataFrame or numpy array from
+                containing the data. If a DF is passed, the variable names
+                are used to extract the target columns. If a numpy array is
+                passed, all columns of the array are used, without selection.
             label (str): Optional name of the Term. If None, the variable name
                 is reused.
             categorical (bool): If True, the source variable is interpreted as
@@ -174,26 +177,31 @@ class Term(object):
 
     def _setup(self):
 
-        data = self.data_source[self.variable].copy()
+        data = self.data_source
 
-        if self.categorical:
-            # Handle multiple variables; will fail gracefully if only 1 exists
-            try:
-                data = data.stack()
-            except: pass
-            n_cols = data.nunique()
-            levels = data.unique()
-            mapping = OrderedDict(zip(levels, list(range(n_cols))))
-            self.levels = levels
-            recoded = data.loc[:, self.variable].replace(mapping).values
-            data = pd.get_dummies(recoded, drop_first=self.drop_first)
+        # for DFs, we do additional processing. if we get anything else, we
+        # assume the user wants the values modeled as-is.
+        if isinstance(data, pd.DataFrame):
+            data = data[self.variable].copy()
 
-        else:
-            if  len(self.variable) > 1:
-                raise ValueError("Adding a list of terms is only "
-                        "supported for categorical variables "
-                        "(e.g., random factors).")
-            data = data.convert_objects(convert_numeric=True)
+            if self.categorical:
+                # Handle multiple variables; will fail gracefully if only 1 exists
+                try:
+                    data = data.stack()
+                except: pass
+                n_cols = data.nunique()
+                levels = data.unique()
+                mapping = OrderedDict(zip(levels, list(range(n_cols))))
+                self.levels = levels
+                recoded = data.loc[:, self.variable].replace(mapping).values
+                data = pd.get_dummies(recoded, drop_first=self.drop_first)
+
+            else:
+                if  len(self.variable) > 1:
+                    raise ValueError("Adding a list of terms is only "
+                            "supported for categorical variables "
+                            "(e.g., random factors).")
+                data = data.convert_objects(convert_numeric=True)
 
         self.data = data
 
