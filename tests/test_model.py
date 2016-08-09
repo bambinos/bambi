@@ -15,7 +15,6 @@ def test_term_init(diabetes_data):
     term = Term('BMI', diabetes_data)
     # Test that all defaults are properly initialized
     assert term.label == 'BMI'
-    assert term.transformations == []
     assert term.categorical == False
     assert term.random == False
     assert term.split_by is None
@@ -30,29 +29,6 @@ def test_term_split(diabetes_data):
     assert term.values.shape == (442, 1, 2)
     term = Term('BMI', diabetes_data, categorical=True, split_by=split_by)
     assert term.values.shape == (442, 163, 2)
-
-def test_transformation(diabetes_data):
-
-    stdize = lambda x: (x - x.mean()) / x.std()
-
-    # Test predefined transformations
-    scaled = stdize(diabetes_data['BMI'].values)
-    term = Term('BMI', diabetes_data)
-    term.transform('scale')
-    assert (term.values.ravel() == scaled).all()
-
-    # Test transformation using callable
-    def add_ten(data):
-        return data + 10
-    term = Term('BMI', diabetes_data)
-    term.transform(add_ten)
-    assert ((diabetes_data['BMI'].values + 10) == term.values.ravel()).all()
-
-    # # Test groupby
-    scaled = diabetes_data.groupby('old')['BMI'].apply(stdize).values
-    term = Term('BMI', diabetes_data)
-    term.transform('scale', groupby='old')
-    assert (term.values.ravel() == scaled).all()
 
 def test_model_init(diabetes_data):
 
@@ -74,6 +50,6 @@ def test_add_term_to_model(diabetes_data):
     assert isinstance(model.terms['BMI'], Term)
     # Test that arguments are passed appropriately onto Term initializer
     model.add_term('BP', random=True, split_by='old', categorical=True,
-                   transformations='scale', drop_first=True)
+                   drop_first=True)
     assert isinstance(model.terms['BP'], Term)
     assert model.terms['BP'].values.shape == (442, 99, 2)

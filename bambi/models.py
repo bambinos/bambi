@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 from six import string_types
 from collections import OrderedDict
-import bambi.transformations as tr
 from bambi.utils import listify
 import warnings
 
@@ -70,7 +69,7 @@ class Model(object):
 
     def add_term(self, variable, data=None, label=None,
                  categorical=False, random=False, split_by=None,
-                 transformations=None, drop_first=False, prior=None):
+                 drop_first=False, prior=None):
         ''' Create a new Term and add it to the current Model. All positional
         and keyword arguments are passed directly to the Term initializer. '''
 
@@ -86,48 +85,17 @@ class Model(object):
             # split_by = self.get_cached_term(split_by, True).values
 
         term = Term(variable, data, label, categorical, random, split_by,
-                    transformations, drop_first)
+                    drop_first)
         # self.cache[term.hash] = term
         self.terms[term.label] = term
         self.built = False
-
-    # def add_contrast(self, *args, **kwargs):
-    #     pass
-
-    # def get_cached_term(self, variable, categorical):
-    #     ''' Retrieve a Term from the cache based on variable name and
-    #     categorical status. '''
-    #     key = hash((tuple(listify(variable)), categorical))
-    #     if key not in self.cache:
-    #         self.cache[key] = Term(variable, self.data, categorical=categorical)
-    #     return self.cache[key]
-
-    def transform(self, terms, transformations, groupby=None, *args, **kwargs):
-        ''' Apply one or more data transformations to one or more Terms.
-        Args:
-            terms (str, list): The label(s) of one or more Terms to transform.
-            transformations (callable, str, list): The transformations to apply
-                to the Terms. Can be a str (the name of a predefined method
-                found in the transformations module, e.g., 'scale'), a callable
-                that accepts an array as its first argument and returns another
-                array, or a list of strings or callables.
-            groupby (list): A list of variables to group the transformation(s)
-                by. For example, passing transformations='scale',
-                groupby=['subject'] would apply the scaling transformation
-                separately to each subject.
-            args, kwargs: Optional positional and keyword arguments passed
-                to the transformation method.
-        '''
-        for term in listify(terms):
-            for trans in listify(transformations):
-                self.terms[term].transform(trans, groupby, *args, **kwargs)
 
 
 class Term(object):
 
     def __init__(self, variable, data, label=None, categorical=False,
-                 random=False, split_by=None, transformations=None,
-                 drop_first=False, prior=None, **kwargs):
+                 random=False, split_by=None, drop_first=False, prior=None,
+                 **kwargs):
         '''
         Args:
             variable (str): The name of the DataFrame column that contains the
@@ -146,8 +114,6 @@ class Term(object):
             split_by (Term): a Term instance to split on.
                 split the named variable on. Use to specify nesting/crossing
                 structures.
-            transformations (list): List of transformations to apply to the
-                data as soon as the Term is initialized.
             drop_first (bool): If True, uses n - 1 coding for categorical
                 variables (i.e., a variable with 8 levels is coded using 7
                 dummy variables, where each one is implicitly contrasted
@@ -161,7 +127,6 @@ class Term(object):
         '''
         self.variable = listify(variable)
         self.label = label or '_'.join(self.variable)
-        self.transformations = []
         self.categorical = categorical
         self.random = random
         self.split_by = split_by
@@ -205,10 +170,6 @@ class Term(object):
 
         self.data = data
 
-        if self.transformations is not None:
-            for t in listify(self.transformations):
-                self.transform(t)
-
         self.values = self.data.values
 
         if self.split_by is not None:
@@ -223,28 +184,3 @@ class Term(object):
                 self.prior = default_priors['random']
             else:
                 self.prior = default_priors['fixed']
-
-    def transform(self, transformation, groupby=None, *args, **kwargs):
-        ''' Apply an arbitrary transformation to the Term's data.
-        Args:
-            transformation (str, callable): The transformation to apply. Either
-                the name of a predefined method in the transformations module
-                (e.g., 'scale'), or a callable.
-            groupby (str, list): Optional list of variables to group the
-                transformation by.
-            args, kwargs: Optional positional and keyword arguments to pass
-                onto the transformation callable.
-        '''
-        if not callable(transformation):
-            transformation = getattr(tr, transformation)
-        if groupby is not None:
-            data = pd.DataFrame(self.values)
-            groups = self.data_source[groupby]
-            self.values = data.groupby(groups).apply(transformation, *args, **kwargs).values
-        else:
-            self.values = transformation(self.values, *args, **kwargs)
-        self.transformations.append(transformation.__name__)
-
-
-# class ModelResults(object):
-#     pass
