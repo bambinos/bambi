@@ -3,31 +3,32 @@ import numpy as np
 from six import string_types
 from collections import OrderedDict
 from bambi.utils import listify
+from patsy import dmatrices
 import warnings
 
 
 class Model(object):
 
-    def __init__(self, data, intercept=True, backend='pymc3'):
+    def __init__(self, data=None, intercept=True, backend='pymc3'):
         '''
         Args:
             dataset (DataFrame): the pandas DF containing the data to use.
         '''
         self.data = data
-        self.intercept = intercept
+        # self.intercept = intercept
         self.reset()
 
-        if intercept:
-            if 'intercept' not in self.data.columns:
-                self.data['intercept'] = 1
-            elif self.data['intercept'].nunique() > 1:
-                warnings.warn("The input dataset contains an existing column named"
-                              " 'intercept' that has more than one unique value. "
-                              "Note that this may cause unexpected behavior if "
-                              "intercepts are added to the model via add_term() "
-                              "calls.")
+        # if intercept:
+        #     if 'intercept' not in self.data.columns:
+        #         self.data['intercept'] = 1
+        #     elif self.data['Intercept'].nunique() > 1:
+        #         warnings.warn("The input dataset contains an existing column named"
+        #                       " 'intercept' that has more than one unique value. "
+        #                       "Note that this may cause unexpected behavior if "
+        #                       "intercepts are added to the model via add_term() "
+        #                       "calls.")
 
-            self.add_term('intercept', self.data)
+        #     self.add_term('intercept', self.data)
 
         if backend.lower() == 'pymc3':
             from bambi.backends import PyMC3BackEnd
@@ -47,12 +48,11 @@ class Model(object):
             self.set_y(y)
         elif self.y is None:
             raise ValueError("No outcome (y) variable is set! Please call "
-                             "set_y() before build(), or pass a term name "
-                             "in the y argument to build().")
+                             "set_y() before build() or fit().")
         self.backend.build(self)
         self.built = True
 
-    def run(self, y=None, **kwargs):
+    def fit(self, formula=None, y=None, random=None, **kwargs):
         ''' Run the BackEnd to fit the model. '''
         if not self.built:
             warnings.warn("Current Bayesian model has not been built yet; "
@@ -178,8 +178,8 @@ class Term(object):
         # TODO: come up with a more sensible way of getting/setting default priors
         if self.prior is None:
             from bambi.priors import default_priors
-            if self.label == 'intercept':
-                self.prior = default_priors['intercept']
+            if self.label == 'Intercept':
+                self.prior = default_priors['Intercept']
             elif self.random:
                 self.prior = default_priors['random']
             else:
