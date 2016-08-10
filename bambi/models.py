@@ -42,23 +42,42 @@ class Model(object):
         self.terms = OrderedDict()
         self.y = None
 
-    def build(self, y=None):
+    def build(self):
         ''' Build the PyMC3 model. '''
-        if y is not None:
-            self.set_y(y)
-        elif self.y is None:
+        if self.y is None:
             raise ValueError("No outcome (y) variable is set! Please call "
                              "set_y() before build() or fit().")
         self.backend.build(self)
         self.built = True
 
-    def fit(self, formula=None, y=None, random=None, **kwargs):
+    def fit(self, formula=None, random=None, **kwargs):
+        if formula is not None:
+            self.formula(f, random=random, append=False)
         ''' Run the BackEnd to fit the model. '''
         if not self.built:
             warnings.warn("Current Bayesian model has not been built yet; "
               "building it first before sampling begins.")
-            self.build(y)
+            self.build()
         self.backend.run(**kwargs)
+
+    def add_formula(self, f, random=None, append=False, priors=None):
+
+        if not append:
+            self.reset()
+
+        if '~' in f:
+            y, X = dmatrices(f, data=self.data)
+            y_label = y.design_info.term_names[0]
+            self.terms.append(Term(y_label, y))
+            self.set_y(y_label)
+        else:
+            X = dmatrix(f, data=self.data)
+
+        # Loop over predictor terms
+        for _name, _slice in X.design_info.term_name_slices.items():
+            term_data = X[:, _slice]
+            self.add_term(_name, data=term_data)
+
 
     def set_y(self, label):
         ''' Set the outcome variable. '''
@@ -67,14 +86,12 @@ class Model(object):
         self.y = self.terms.pop(label)
         self.built = False
 
-    def add_term(self, variable, data=None, label=None,
-                 categorical=False, random=False, split_by=None,
-                 drop_first=False, prior=None):
+    def add_term(self, variable, label=None, categorical=False, random=False,
+                 split_by=None, drop_first=False, prior=None):
         ''' Create a new Term and add it to the current Model. All positional
         and keyword arguments are passed directly to the Term initializer. '''
 
-        if data is None:
-            data = self.data
+        data = self.data
 
         # Extract splitting variable
         if split_by is not None:
