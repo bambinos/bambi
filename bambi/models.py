@@ -1,10 +1,16 @@
 import pandas as pd
 import numpy as np
 from six import string_types
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from bambi.utils import listify
-from patsy import dmatrices
+from patsy import dmatrices, dmatrix
 import warnings
+from bambi.priors import default_priors
+import re
+
+
+def listify(obj):
+    return obj if isinstance(obj, (list, tuple)) else [obj]
 
 
 class Model(object):
@@ -15,20 +21,16 @@ class Model(object):
             dataset (DataFrame): the pandas DF containing the data to use.
         '''
         self.data = data
-        # self.intercept = intercept
+        # Some random effects stuff later requires us to make guesses about
+        # column groupings into terms based on patsy's naming scheme.
+        if re.search("[\[\]]+", ''.join(data.columns)):
+            warnings.warn("At least one of the column names in the specified "
+                          "dataset contain square brackets ('[' or ']')."
+                          "This may cause unexpected behavior if you specify "
+                          "models with random effects. You are encouraged to "
+                          "rename your columns to avoid square brackets.")
+
         self.reset()
-
-        # if intercept:
-        #     if 'intercept' not in self.data.columns:
-        #         self.data['intercept'] = 1
-        #     elif self.data['Intercept'].nunique() > 1:
-        #         warnings.warn("The input dataset contains an existing column named"
-        #                       " 'intercept' that has more than one unique value. "
-        #                       "Note that this may cause unexpected behavior if "
-        #                       "intercepts are added to the model via add_term() "
-        #                       "calls.")
-
-        #     self.add_term('intercept', self.data)
 
         if backend.lower() == 'pymc3':
             from bambi.backends import PyMC3BackEnd
@@ -60,24 +62,48 @@ class Model(object):
             self.build()
         self.backend.run(**kwargs)
 
-    def add_formula(self, f, random=None, append=False, priors=None):
+    def add_formula(self, f, random=None, append=False, priors=None,
+                    categorical=None):
+
+        data = self.data
 
         if not append:
             self.reset()
 
+        # Explicitly convert columns to category if desired--though this can
+        # also be done within the formula using C().
+        if categorical is not None:
+            data = data.copy()
+            categorical = listify(categorical)
+            data[categorical] = data[categorical].apply(lambda x: x.astype('category'))
+
         if '~' in f:
-            y, X = dmatrices(f, data=self.data)
+            y, X = dmatrices(f, data=data)
             y_label = y.design_info.term_names[0]
-            self.terms.append(Term(y_label, y))
+            self.terms[y_label] = Term(y_label, y)
             self.set_y(y_label)
         else:
-            X = dmatrix(f, data=self.data)
+            X = dmatrix(f, data=data)
 
         # Loop over predictor terms
         for _name, _slice in X.design_info.term_name_slices.items():
-            term_data = X[:, _slice]
+            cols = X.design_info.column_names[_slice]
+            term_data = pd.DataFrame(X[:, _slice], columns=cols)
             self.add_term(_name, data=term_data)
 
+        # Random effects
+        if random is not None:
+            random = listify(random)
+            for f in random:
+                kwargs = {'random': True, 'categorical': True}
+                # '1|factor' is considered identical to 'factor'
+                f = re.sub(r'^1\s+\|(.*)', r'\1', f).strip()
+                if '|' not in f:
+                    variable = f
+                else:
+                    variable, split_by = re.split('\s+\|\s+')
+                    kwargs['split_by'] = split_by
+                self.add_term(variable=variable, **kwargs)
 
     def set_y(self, label):
         ''' Set the outcome variable. '''
@@ -86,118 +112,103 @@ class Model(object):
         self.y = self.terms.pop(label)
         self.built = False
 
-    def add_term(self, variable, label=None, categorical=False, random=False,
-                 split_by=None, drop_first=False, prior=None):
+    def add_term(self, variable, data=None, label=None, categorical=False,
+                 random=False, split_by=None, prior=None):
         ''' Create a new Term and add it to the current Model. All positional
         and keyword arguments are passed directly to the Term initializer. '''
 
-        data = self.data
+        if data is None:
+            data = self.data.copy()
+
+        if categorical:
+            data[variable] = data[variable].astype('category')
+
+        if split_by is not None:
+            data[split_by] = data[split_by].astype('category')
 
         # Extract splitting variable
         if split_by is not None:
-            if split_by in self.terms:
-                split_by = self.terms[split_by]
-            else:
-                split_by = Term(split_by, self.data, categorical=True)
-            # split_by = self.get_cached_term(split_by, True).values
+            split_by = listify(split_by)
+            group_term = ':'.join(split_by)
+            f = '0 + %s : (%s)' % (variable, group_term)
+            data = dmatrix(f, data=data)
+            cols = data.design_info.column_names
+            data = pd.DataFrame(data, columns=cols)
 
-        term = Term(variable, data, label, categorical, random, split_by,
-                    drop_first)
-        # self.cache[term.hash] = term
-        self.terms[term.label] = term
+            # For random effects, separate the data by levels of split_by
+            if random:
+                if group_term not in self.terms:
+                    raise ValueError("The variable '%s' cannot be nested in or"
+                                 " crossed with '%s', because the latter does "
+                                 "not exist yet. Please make sure that you "
+                                 "explicitly add all terms to the model before"
+                                 " crossing or nesting with other terms." %
+                                 (variable, split_by))
+                split_data = {}
+                groups = list(set([re.sub(r'^.*?\:', '', c) for c in cols]))
+                for g in groups:
+                    patt = re.escape(r':%s' % g) + '$'
+                    level_data = data.filter(regex=patt)
+                    level_data.columns = [c.split(':')[0] for c in level_data.columns]
+                    split_data[g] = level_data.loc[:, (level_data!=0).any(axis=0)]
+                data = split_data
+
+        if label is None:
+            label = variable
+
+        term = Term(label, data, categorical=categorical)
+        self.terms[term.name] = term
         self.built = False
 
 
 class Term(object):
 
-    def __init__(self, variable, data, label=None, categorical=False,
-                 random=False, split_by=None, drop_first=False, prior=None,
-                 **kwargs):
+    type_ = 'fixed'
+
+    def __init__(self, name, data, categorical=False, prior=None, **kwargs):
         '''
         Args:
-            variable (str): The name of the DataFrame column that contains the
-                data to use for the Term.
+            name (str): Name of the term.
             data (DataFrame, ndarray): The pandas DataFrame or numpy array from
                 containing the data. If a DF is passed, the variable names
                 are used to extract the target columns. If a numpy array is
                 passed, all columns of the array are used, without selection.
-            label (str): Optional name of the Term. If None, the variable name
-                is reused.
             categorical (bool): If True, the source variable is interpreted as
                 nominal/categorical. If False, the source variable is treated
                 as continuous.
-            random (bool): If True, the Term is added to the model as a random
-                effect; if False, treated as a fixed effect.
-            split_by (Term): a Term instance to split on.
-                split the named variable on. Use to specify nesting/crossing
-                structures.
-            drop_first (bool): If True, uses n - 1 coding for categorical
-                variables (i.e., a variable with 8 levels is coded using 7
-                dummy variables, where each one is implicitly contrasted
-                against the omitted first level). If False, uses n dummies to
-                code n levels. Ignored if categorical = False.
             prior (dict): A specification of the prior(s) to use.
                 Must have keys for 'name' and 'args'; optionally, can also
                 pass 'sigma', which is another dict with name/arg keys.
             kwargs: Optional keyword arguments passed to the model-building
                 back-end.
         '''
-        self.variable = listify(variable)
-        self.label = label or '_'.join(self.variable)
+        self.name = name
         self.categorical = categorical
-        self.random = random
-        self.split_by = split_by
-        self.data_source = data
-        self.drop_first = drop_first
         self.prior = prior
-        self.levels = None
-        # self.hash = hash((tuple(self.variable), categorical))
-        self.kwargs = kwargs
-
-        # Load data
-        self._setup()
-
-    def _setup(self):
-
-        data = self.data_source
-
-        # for DFs, we do additional processing. if we get anything else, we
-        # assume the user wants the values modeled as-is.
         if isinstance(data, pd.DataFrame):
-            data = data[self.variable].copy()
-
-            if self.categorical:
-                # Handle multiple variables; will fail gracefully if only 1 exists
-                try:
-                    data = data.stack()
-                except: pass
-                n_cols = data.nunique()
-                levels = data.unique()
-                mapping = OrderedDict(zip(levels, list(range(n_cols))))
-                self.levels = levels
-                recoded = data.loc[:, self.variable].replace(mapping).values
-                data = pd.get_dummies(recoded, drop_first=self.drop_first)
-
-            else:
-                if  len(self.variable) > 1:
-                    raise ValueError("Adding a list of terms is only "
-                            "supported for categorical variables "
-                            "(e.g., random factors).")
-                data = data.convert_objects(convert_numeric=True)
-
+            self.levels = list(data.columns)
+            data = data.values
+        else:
+            self.levels = list(range(np.atleast_2d(data).shape[1]))
         self.data = data
-
-        self.values = self.data.values
-
-        if self.split_by is not None:
-            self.values = np.einsum('ab,ac->abc', self.values, self.split_by.values)
+        self.kwargs = kwargs
 
         # TODO: come up with a more sensible way of getting/setting default priors
         if self.prior is None:
-            from bambi.priors import default_priors
-            if self.label == 'Intercept':
-                self.prior = default_priors['Intercept']
-            elif self.random:
-                self.prior = default_priors['random']
+            if self.name == 'Intercept':
+                self.prior = default_priors['intercept']
             else:
                 self.prior = default_priors['fixed']
+
+
+class RandomTerm(Term):
+
+    type_ = 'random'
+
+    def __init__(self, data, name, yoke=None, prior=None, **kwargs):
+        self.yoke = yoke
+        if prior is None:
+            prior = default_priors['random']
+        super(RandomTerm, self).__init__(data, name, categorical=True,
+                                         prior=prior, **kwargs)
+
