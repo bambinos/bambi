@@ -62,6 +62,11 @@ class Model(object):
             self.build()
         self.backend.run(**kwargs)
 
+    def add_intercept(self):
+        n = len(self.data)
+        df = pd.DataFrame(np.ones((n, 1)), columns=['Intercept'])
+        self.add_term('Intercept', df)
+
     def add_formula(self, f, random=None, append=False, priors=None,
                     categorical=None):
 
@@ -112,6 +117,11 @@ class Model(object):
         self.y = self.terms.pop(label)
         self.built = False
 
+    def add_y(self, *args, **kwargs):
+        self.add_term(*args, **kwargs)
+        name = list(self.terms.values())[-1].name # last-added term
+        self.set_y(name)
+
     def add_term(self, variable, data=None, label=None, categorical=False,
                  random=False, split_by=None, prior=None):
         ''' Create a new Term and add it to the current Model. All positional
@@ -123,11 +133,9 @@ class Model(object):
         if categorical:
             data[variable] = data[variable].astype('category')
 
-        if split_by is not None:
-            data[split_by] = data[split_by].astype('category')
-
         # Extract splitting variable
         if split_by is not None:
+            data[split_by] = data[split_by].astype('category')
             split_by = listify(split_by)
             group_term = ':'.join(split_by)
             f = '0 + %s : (%s)' % (variable, group_term)
@@ -135,28 +143,37 @@ class Model(object):
             cols = data.design_info.column_names
             data = pd.DataFrame(data, columns=cols)
 
-            # For random effects, separate the data by levels of split_by
-            if random:
-                if group_term not in self.terms:
-                    raise ValueError("The variable '%s' cannot be nested in or"
-                                 " crossed with '%s', because the latter does "
-                                 "not exist yet. Please make sure that you "
-                                 "explicitly add all terms to the model before"
-                                 " crossing or nesting with other terms." %
-                                 (variable, split_by))
+            # For categorical random effects, one variance term per split_by level
+            if random and categorical:
+                # if group_term not in self.terms:
+                #     raise ValueError("The variable '%s' cannot be nested in or"
+                #                  " crossed with '%s', because the latter does "
+                #                  "not exist yet. Please make sure that you "
+                #                  "explicitly add all terms to the model before"
+                #                  " crossing or nesting with other terms." %
+                #                  (variable, split_by))
                 split_data = {}
                 groups = list(set([re.sub(r'^.*?\:', '', c) for c in cols]))
                 for g in groups:
                     patt = re.escape(r':%s' % g) + '$'
                     level_data = data.filter(regex=patt)
                     level_data.columns = [c.split(':')[0] for c in level_data.columns]
-                    split_data[g] = level_data.loc[:, (level_data!=0).any(axis=0)]
+                    level_data = level_data.loc[:, (level_data!=0).any(axis=0)]
+                    split_data[g] = level_data.values
                 data = split_data
+
+        elif categorical:
+            data = pd.get_dummies(data[variable])
+        else:
+            data = data[variable]
 
         if label is None:
             label = variable
 
-        term = Term(label, data, categorical=categorical)
+        if random:
+            term = RandomTerm(label, data, categorical=categorical)
+        else:
+            term = Term(label, data, categorical=categorical)
         self.terms[term.name] = term
         self.built = False
 
@@ -188,8 +205,11 @@ class Term(object):
         if isinstance(data, pd.DataFrame):
             self.levels = list(data.columns)
             data = data.values
+        elif isinstance(data, dict):
+            pass
         else:
-            self.levels = list(range(np.atleast_2d(data).shape[1]))
+            data = np.atleast_2d(data)
+            self.levels = list(range(data.shape[1]))
         self.data = data
         self.kwargs = kwargs
 
@@ -205,10 +225,9 @@ class RandomTerm(Term):
 
     type_ = 'random'
 
-    def __init__(self, data, name, yoke=None, prior=None, **kwargs):
+    def __init__(self, data, name, yoke=False, prior=None, **kwargs):
         self.yoke = yoke
         if prior is None:
             prior = default_priors['random']
-        super(RandomTerm, self).__init__(data, name, categorical=True,
-                                         prior=prior, **kwargs)
+        super(RandomTerm, self).__init__(data, name, prior=prior, **kwargs)
 

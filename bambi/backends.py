@@ -52,13 +52,13 @@ class PyMC3BackEnd(BackEnd):
 
             for t in model.terms.values():
 
-                n_cols = t.values.shape[1]
-                label = t.label
+                data = t.data
+                label = t.name
                 dist_name = t.prior['name']
                 dist_args = t.prior['args']
 
                 # Random effects
-                if t.random:
+                if t.type_ == 'random':
 
                     # User can pass sigma specification in sigma_kws.
                     # If not provided, default to HalfCauchy with beta = 10.
@@ -68,41 +68,39 @@ class PyMC3BackEnd(BackEnd):
                     except:
                         sigma_dist_name = 'HalfCauchy'
                         sigma_dist_args = {'beta': 10}
-                        
-                    if t.split_by is None:
+
+                    if isinstance(data, dict):
+                        for level, level_data in data.items():
+                            n_cols = level_data.shape[1]
+                            sigma_label = 'sigma_%s_%s' % (label, level)
+                            sigma = self._build_dist(sigma_label, sigma_dist_name,
+                                                     **sigma_dist_args)
+                            mu_label = 'u_%s_%s' % (label, level)
+                            dist_args['sd'] = sigma
+                            u = self._build_dist(mu_label, dist_name,
+                                                 shape=n_cols, **dist_args)
+                            self.mu += pm.dot(level_data, u)[:, None]
+                    else:
+                        n_cols = data.shape[1]
                         sigma = self._build_dist('sigma_' + label, sigma_dist_name,
                                                  **sigma_dist_args)
                         dist_args['sd'] = sigma
                         u = self._build_dist('u_' + label, dist_name,
                                              shape=n_cols, **dist_args)
-                        self.mu += pm.dot(t.values, u)
-                    else:
-                        for i in range(t.values.shape[-1]):
-                            # select just the factor levels that appear with the
-                            # current level of split_by
-                            group_items = t.values[:, :, i].any(0)
-                            selected = t.values[:, group_items, i]
-                            # add the level effects to the model
-                            name = '%s_%s' % (label, t.split_by.levels[i])
-                            sigma = self._build_dist('sigma_' + name, sigma_dist_name,
-                                                     **sigma_dist_args)
-                            name, size = 'u_' + name, selected.shape[1]
-                            u = self._build_dist(name, dist_name, shape=size, **dist_args)
-                            self.mu += pm.dot(selected, u)[:, None]
+                        self.mu += pm.dot(data, u)
 
                 # Fixed effects
                 else:
+                    n_cols = data.shape[1]
                     b = self._build_dist('b_' + label, dist_name,
-                                         shape=t.values.shape[-1], **dist_args)
-                    if t.split_by is not None:
-                        t.values = np.squeeze(t.values)
-                    self.mu += pm.dot(t.values, b)[:, None]
+                                         shape=n_cols, **dist_args)
+                    self.mu += pm.dot(data, b)
 
             # TODO: accept sigma params as an argument
             sigma_params = default_priors['sigma']
             sigma = self._build_dist('sigma', sigma_params['name'],
                                      **sigma_params['args'])
-            y = model.y.values
+            y = model.y.data
             y_obs = pm.Normal('y_pred', mu=self.mu, sd=sigma, observed=y)
 
     def run(self, **kwargs):
