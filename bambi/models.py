@@ -110,7 +110,7 @@ class Model(object):
                 else:
                     variable, split_by = re.split('\s*\|\s*', f)
                     kwargs['split_by'] = split_by
-                self.add_term(variable=variable, **kwargs)
+                self.add_term(variable=variable, label=f, **kwargs)
 
     def set_y(self, label):
         ''' Set the outcome variable. '''
@@ -164,7 +164,8 @@ class Model(object):
                     split_data[g] = level_data.values
                 data = split_data
 
-        elif categorical or data[variable].dtype.name in ['object', 'category']:
+        elif categorical or (variable in data.columns and \
+                             data[variable].dtype.name in ['object', 'category']):
             data = pd.get_dummies(data[variable])
         else:
             # If all columns have identical names except for levels in [],
