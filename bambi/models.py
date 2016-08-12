@@ -41,6 +41,9 @@ class Model(object):
         else:
             raise ValueError("At the moment, only the PyMC3 backend is supported.")
 
+        if intercept:
+            self.add_intercept()
+
     def reset(self):
         # self.cache = OrderedDict()
         self.contrasts = OrderedDict()
@@ -63,7 +66,7 @@ class Model(object):
             warnings.warn("Current Bayesian model has not been built yet; "
               "building it first before sampling begins.")
             self.build()
-        self.backend.run(**kwargs)
+        return self.backend.run(self, **kwargs)
 
     def add_intercept(self):
         n = len(self.data)

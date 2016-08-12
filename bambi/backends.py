@@ -3,6 +3,7 @@ from six import string_types
 import numpy as np
 import warnings
 from bambi.priors import default_priors
+from bambi.results import ModelResults
 import theano
 try:
     import pymc3 as pm
@@ -104,9 +105,10 @@ class PyMC3BackEnd(BackEnd):
             y = model.y.data
             y_obs = pm.Normal('y_pred', mu=self.mu, sd=sigma, observed=y)
 
-    def run(self, start=None, find_map=False, **kwargs):
+    def run(self, model_spec, start=None, find_map=False, **kwargs):
         samples = kwargs.pop('samples', 1000)
         with self.model:
             if start is None and find_map:
                 start = pm.find_MAP()
             self.trace = pm.sample(samples, start=start, **kwargs)
+        return ModelResults(model_spec, self.trace)
