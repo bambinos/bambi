@@ -3,6 +3,7 @@ from six import string_types
 import numpy as np
 import warnings
 from bambi.priors import default_priors
+import theano
 try:
     import pymc3 as pm
 except:
@@ -87,14 +88,14 @@ class PyMC3BackEnd(BackEnd):
                         dist_args['sd'] = sigma
                         u = self._build_dist('u_' + label, dist_name,
                                              shape=n_cols, **dist_args)
-                        self.mu += pm.dot(data, u)
+                        self.mu += pm.dot(data, u)[:, None]
 
                 # Fixed effects
                 else:
                     n_cols = data.shape[1]
                     b = self._build_dist('b_' + label, dist_name,
                                          shape=n_cols, **dist_args)
-                    self.mu += pm.dot(data, b)
+                    self.mu += pm.dot(data, b)[:, None]
 
             # TODO: accept sigma params as an argument
             sigma_params = default_priors['sigma']
@@ -103,7 +104,9 @@ class PyMC3BackEnd(BackEnd):
             y = model.y.data
             y_obs = pm.Normal('y_pred', mu=self.mu, sd=sigma, observed=y)
 
-    def run(self, **kwargs):
+    def run(self, start=None, find_map=False, **kwargs):
         samples = kwargs.pop('samples', 1000)
         with self.model:
-            self.trace = pm.sample(samples, **kwargs)
+            if start is None and find_map:
+                start = pm.find_MAP()
+            self.trace = pm.sample(samples, start=start, **kwargs)

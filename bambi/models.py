@@ -20,6 +20,9 @@ class Model(object):
         Args:
             dataset (DataFrame): the pandas DF containing the data to use.
         '''
+
+        obj_cols = data.select_dtypes(['object']).columns
+        data[obj_cols] = data[obj_cols].apply(lambda x: x.astype('category'))
         self.data = data
         # Some random effects stuff later requires us to make guesses about
         # column groupings into terms based on patsy's naming scheme.
@@ -52,9 +55,9 @@ class Model(object):
         self.backend.build(self)
         self.built = True
 
-    def fit(self, formula=None, random=None, **kwargs):
-        if formula is not None:
-            self.formula(f, random=random, append=False)
+    def fit(self, fixed=None, random=None, **kwargs):
+        if fixed is not None:
+            self.add_formula(fixed, random=random, append=False)
         ''' Run the BackEnd to fit the model. '''
         if not self.built:
             warnings.warn("Current Bayesian model has not been built yet; "
@@ -85,8 +88,7 @@ class Model(object):
         if '~' in f:
             y, X = dmatrices(f, data=data)
             y_label = y.design_info.term_names[0]
-            self.terms[y_label] = Term(y_label, y)
-            self.set_y(y_label)
+            self.add_y(y_label)
         else:
             X = dmatrix(f, data=data)
 
@@ -100,13 +102,13 @@ class Model(object):
         if random is not None:
             random = listify(random)
             for f in random:
-                kwargs = {'random': True, 'categorical': True}
+                kwargs = {'random': True, 'categorical': False}
                 # '1|factor' is considered identical to 'factor'
                 f = re.sub(r'^1\s+\|(.*)', r'\1', f).strip()
                 if '|' not in f:
                     variable = f
                 else:
-                    variable, split_by = re.split('\s+\|\s+')
+                    variable, split_by = re.split('\s*\|\s*', f)
                     kwargs['split_by'] = split_by
                 self.add_term(variable=variable, **kwargs)
 
@@ -162,10 +164,14 @@ class Model(object):
                     split_data[g] = level_data.values
                 data = split_data
 
-        elif categorical:
+        elif categorical or data[variable].dtype.name in ['object', 'category']:
             data = pd.get_dummies(data[variable])
         else:
-            data = data[variable]
+            # If all columns have identical names except for levels in [],
+            # assume they've already been contrast-coded, and pass data as-is
+            cols = [re.sub('\[.*?\]', '', c) for c in data.columns]
+            if len(set(cols)) > 1:
+                data = data[[variable]]
 
         if label is None:
             label = variable
