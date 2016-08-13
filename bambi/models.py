@@ -105,22 +105,16 @@ class Model(object):
         if random is not None:
             random = listify(random)
             for f in random:
-                kwargs = {'random': True, 'categorical': False}
+                kwargs = {'random': True}
                 # '1|factor' is considered identical to 'factor'
                 f = re.sub(r'^1\s+\|(.*)', r'\1', f).strip()
                 if '|' not in f:
+                    kwargs['categorical'] = True
                     variable = f
                 else:
                     variable, split_by = re.split('\s*\|\s*', f)
                     kwargs['split_by'] = split_by
                 self.add_term(variable=variable, label=f, **kwargs)
-
-    def set_y(self, label):
-        ''' Set the outcome variable. '''
-        if self.y is not None:
-            self.terms[self.y.label] = self.y
-        self.y = self.terms.pop(label)
-        self.built = False
 
     def add_y(self, *args, **kwargs):
         self.add_term(*args, **kwargs)
@@ -185,6 +179,13 @@ class Model(object):
         else:
             term = Term(label, data, categorical=categorical)
         self.terms[term.name] = term
+        self.built = False
+
+    def set_y(self, label):
+        ''' Set the outcome variable. '''
+        if self.y is not None:
+            self.terms[self.y.label] = self.y
+        self.y = self.terms.pop(label)
         self.built = False
 
 
