@@ -24,13 +24,12 @@ class ModelResults(object):
                 names.extend(self._random_terms)
         return trace, names
 
-    def plot_trace(self, fixed=True, random=True, names=None, burn_in=0,
+    def plot_trace(self, burn_in=0, fixed=True, random=True, names=None,
                    **kwargs):
         trace, names = self._select_samples(fixed, random, names, burn_in)
         return pm.traceplot(trace, varnames=names, **kwargs)
 
-    def summary(self, fixed=True, random=True, names=None, burn_in=0,
-                **kwargs):
+    def summary(self, burn_in=0, fixed=True, random=True, names=None, **kwargs):
         trace, names = self._select_samples(fixed, random, names, burn_in)
         return pm.summary(trace, varnames=names, **kwargs)
 
