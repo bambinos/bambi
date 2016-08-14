@@ -11,6 +11,7 @@ except:
     warnings.warn("PyMC3 could not be imported. You will not be able to use "
                   "PyMC3 as the back-end for your models.")
 
+theano.config.floatX = 'float64'
 
 class BackEnd(object):
 
