@@ -56,6 +56,8 @@ class Model(object):
         if self.y is None:
             raise ValueError("No outcome (y) variable is set! Please call "
                              "set_y() before build() or fit().")
+        for t in self.terms.values():
+            t._setup()
         self.backend.build(self)
         self.built = True
 
@@ -232,6 +234,7 @@ class Term(object):
         self.data = data
         self.kwargs = kwargs
 
+    def _setup(self):
         # TODO: come up with a more sensible way of getting/setting default priors
         if self.prior is None:
             y_data = self.model.y.data
@@ -252,14 +255,13 @@ class RandomTerm(Term):
     def __init__(self, model, name, data, yoke=False, prior=None, **kwargs):
 
         self.yoke = yoke
-
-        if prior is None:
-            prior = deepcopy(default_priors['random'])
-
-            # Rescale prior sd--need to implement better heuristic
-            mean_range = data.mean(0).max() - data.mean(0).min()
-            scl = max(mean_range, 1)
-            prior['sigma']['args']['beta'] *= (scl * 2 * model.y.data.std())
-
         super(RandomTerm, self).__init__(model, name, data, prior=prior, **kwargs)
 
+    def _setup(self):
+        if self.prior is None:
+            self.prior = deepcopy(default_priors['random'])
+
+            # Rescale prior sd--need to implement better heuristic
+            mean_range = self.data.mean(0).max() - self.data.mean(0).min()
+            scl = max(mean_range, 1)
+            self.prior['sigma']['args']['beta'] *= (scl * 2 * self.model.y.data.std())
