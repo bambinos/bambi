@@ -15,7 +15,7 @@ def listify(obj):
 
 class Model(object):
 
-    def __init__(self, data=None, intercept=True, backend='pymc3'):
+    def __init__(self, data=None, intercept=False, backend='pymc3'):
         '''
         Args:
             dataset (DataFrame): the pandas DF containing the data to use.
@@ -131,6 +131,10 @@ class Model(object):
 
         if categorical:
             data[variable] = data[variable].astype('category')
+        # Make sure user didn't forget to set categorical=True
+        elif data[[variable]].shape[1] == 1 and \
+             data[variable].dtype.name in ['object', 'category']:
+             categorical = True
 
         # Extract splitting variable
         if split_by is not None:
@@ -144,13 +148,6 @@ class Model(object):
 
             # For categorical random effects, one variance term per split_by level
             if random and categorical:
-                # if group_term not in self.terms:
-                #     raise ValueError("The variable '%s' cannot be nested in or"
-                #                  " crossed with '%s', because the latter does "
-                #                  "not exist yet. Please make sure that you "
-                #                  "explicitly add all terms to the model before"
-                #                  " crossing or nesting with other terms." %
-                #                  (variable, split_by))
                 split_data = {}
                 groups = list(set([re.sub(r'^.*?\:', '', c) for c in cols]))
                 for g in groups:
