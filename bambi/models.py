@@ -6,6 +6,7 @@ from bambi.utils import listify
 from patsy import dmatrices, dmatrix
 import warnings
 from bambi.priors import default_priors
+from copy import deepcopy
 import re
 
 
@@ -116,8 +117,11 @@ class Model(object):
                     kwargs['split_by'] = split_by
                 self.add_term(variable=variable, label=f, **kwargs)
 
-    def add_y(self, *args, **kwargs):
-        self.add_term(*args, **kwargs)
+    def add_y(self, variable, *args, **kwargs):
+        if 'prior' not in kwargs or kwargs['prior'] is None:
+            kwargs['prior'] = deepcopy(default_priors['sigma'])
+            kwargs['prior']['args']['beta'] *= self.data[variable].std()
+        self.add_term(variable, *args, **kwargs)
         name = list(self.terms.values())[-1].name # last-added term
         self.set_y(name)
 
@@ -172,9 +176,11 @@ class Model(object):
             label = variable
 
         if random:
-            term = RandomTerm(label, data, categorical=categorical)
+            term = RandomTerm(self, label, data, categorical=categorical,
+                              prior=prior)
         else:
-            term = Term(label, data, categorical=categorical)
+            term = Term(self, label, data, categorical=categorical,
+                        prior=prior)
         self.terms[term.name] = term
         self.built = False
 
@@ -190,9 +196,11 @@ class Term(object):
 
     type_ = 'fixed'
 
-    def __init__(self, name, data, categorical=False, prior=None, **kwargs):
+    def __init__(self, model, name, data, categorical=False, prior=None,
+                 **kwargs):
         '''
         Args:
+            model (Model): The associated Model instance.
             name (str): Name of the term.
             data (DataFrame, ndarray): The pandas DataFrame or numpy array from
                 containing the data. If a DF is passed, the variable names
@@ -207,9 +215,11 @@ class Term(object):
             kwargs: Optional keyword arguments passed to the model-building
                 back-end.
         '''
+        self.model = model
         self.name = name
         self.categorical = categorical
         self.prior = prior
+
         if isinstance(data, pd.DataFrame):
             self.levels = list(data.columns)
             data = data.values
@@ -218,24 +228,38 @@ class Term(object):
         else:
             data = np.atleast_2d(data)
             self.levels = list(range(data.shape[1]))
+
         self.data = data
         self.kwargs = kwargs
 
         # TODO: come up with a more sensible way of getting/setting default priors
         if self.prior is None:
+            y_data = self.model.y.data
             if self.name == 'Intercept':
-                self.prior = default_priors['intercept']
+                self.prior = deepcopy(default_priors['intercept'])
+                self.prior['args']['alpha'] = y_data.mean()
+                self.prior['args']['beta'] *= y_data.std()
             else:
-                self.prior = default_priors['fixed']
+                self.prior = deepcopy(default_priors['fixed'])
+                max_std = self.data.std(0).max()
+                self.prior['args']['sd'] *= max_std * 2 * y_data.std()
 
 
 class RandomTerm(Term):
 
     type_ = 'random'
 
-    def __init__(self, data, name, yoke=False, prior=None, **kwargs):
+    def __init__(self, model, name, data, yoke=False, prior=None, **kwargs):
+
         self.yoke = yoke
+
         if prior is None:
-            prior = default_priors['random']
-        super(RandomTerm, self).__init__(data, name, prior=prior, **kwargs)
+            prior = deepcopy(default_priors['random'])
+
+            # Rescale prior sd--need to implement better heuristic
+            mean_range = data.mean(0).max() - data.mean(0).min()
+            scl = max(mean_range, 1)
+            prior['sigma']['args']['beta'] *= (scl * 2 * model.y.data.std())
+
+        super(RandomTerm, self).__init__(model, name, data, prior=prior, **kwargs)
 

@@ -5,34 +5,32 @@ default_priors = {
         'name': 'Cauchy',
         'args': {
             'alpha': 0.,
-            'beta': 10.
+            'beta': 1.
         }
     },
     'fixed': {
         'name': 'Normal',
         'args': {
             'mu': 0.,
-            'sd': 10
+            'sd': 1.
         }
     },
     'random': {
         'name': 'Normal',
         'args': {
-            'mu': 0.,
-            'sd': 10
+            'mu': 0.
         },
         'sigma': {
-            'name': 'Uniform',
+            'name': 'HalfCauchy',
             'args': {
-                'lower': 0,
-                'upper': 1000
+                'beta': 1.
             }
         }
     },
     'sigma': {
         'name': 'HalfCauchy',
         'args': {
-            'beta': 10
+            'beta': 1.
         }
     }
 }

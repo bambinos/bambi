@@ -32,7 +32,7 @@ class PyMC3BackEnd(BackEnd):
 
     def reset(self):
         self.model = pm.Model()
-        self.mu = 0.
+        self.mu = None
         self.dists = {}
         self.shared_params = {}
 
@@ -50,7 +50,13 @@ class PyMC3BackEnd(BackEnd):
         if reset:
             self.reset()
 
+        def _downcast_params(params):
+            return {k: (v if isinstance(v, string_types) else np.float32(v)) \
+                    for (k, v) in params.items()}
+
         with self.model:
+
+            self.mu = theano.shared(np.zeros((len(model.y.data), 1)))
 
             for t in model.terms.values():
 
@@ -71,6 +77,10 @@ class PyMC3BackEnd(BackEnd):
                         sigma_dist_name = 'HalfCauchy'
                         sigma_dist_args = {'beta': 10}
 
+                    # # Theano can run into precision issues with 64-bit floats
+                    dist_args = _downcast_params(dist_args)
+                    sigma_dist_args = _downcast_params(sigma_dist_args)
+
                     if isinstance(data, dict):
                         for level, level_data in data.items():
                             n_cols = level_data.shape[1]
@@ -79,6 +89,7 @@ class PyMC3BackEnd(BackEnd):
                                                      **sigma_dist_args)
                             mu_label = 'u_%s_%s' % (label, level)
                             dist_args['sd'] = sigma
+
                             u = self._build_dist(mu_label, dist_name,
                                                  shape=n_cols, **dist_args)
                             self.mu += pm.dot(level_data, u)[:, None]
@@ -99,9 +110,9 @@ class PyMC3BackEnd(BackEnd):
                     self.mu += pm.dot(data, b)[:, None]
 
             # TODO: accept sigma params as an argument
-            sigma_params = default_priors['sigma']
+            sigma_params = model.y.prior
             sigma = self._build_dist('sigma', sigma_params['name'],
-                                     **sigma_params['args'])
+                                     **_downcast_params(sigma_params['args']))
             y = model.y.data
             y_obs = pm.Normal('y_pred', mu=self.mu, sd=sigma, observed=y)
 
