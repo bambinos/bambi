@@ -128,7 +128,7 @@ class Model(object):
         self.set_y(name)
 
     def add_term(self, variable, data=None, label=None, categorical=False,
-                 random=False, split_by=None, prior=None):
+                 random=False, split_by=None, prior=None, drop_first=True):
         ''' Create a new Term and add it to the current Model. All positional
         and keyword arguments are passed directly to the Term initializer. '''
 
@@ -166,7 +166,7 @@ class Model(object):
 
         elif categorical or (variable in data.columns and \
                              data[variable].dtype.name in ['object', 'category']):
-            data = pd.get_dummies(data[variable])
+            data = pd.get_dummies(data[variable], drop_first=drop_first)
         else:
             # If all columns have identical names except for levels in [],
             # assume they've already been contrast-coded, and pass data as-is
@@ -262,6 +262,15 @@ class RandomTerm(Term):
             self.prior = deepcopy(default_priors['random'])
 
             # Rescale prior sd--need to implement better heuristic
-            mean_range = self.data.mean(0).max() - self.data.mean(0).min()
-            scl = max(mean_range, 1)
+            data = self.data
+
+            # nested terms are in dicts, so put non-nested terms in dummy dict
+            max_range = 0.
+            if not isinstance(data, dict):
+                data = {'dummy': data}
+            for level in data.values():
+                lev_range = level.mean(0).max() - level.mean(0).min()
+                if lev_range > max_range:
+                    max_range = lev_range
+            scl = max(max_range, 1)
             self.prior['sigma']['args']['beta'] *= (scl * 2 * self.model.y.data.std())
