@@ -11,7 +11,6 @@ except:
     warnings.warn("PyMC3 could not be imported. You will not be able to use "
                   "PyMC3 as the back-end for your models.")
 
-theano.config.floatX = 'float64'
 
 class BackEnd(object):
 
@@ -78,27 +77,20 @@ class PyMC3BackEnd(BackEnd):
                 dist_name = t.prior.name
                 dist_args = t.prior.args
 
-                # Random effects
-                if t.type_ == 'random':
-
-                    if isinstance(data, dict):
-                        for level, level_data in data.items():
-                            n_cols = level_data.shape[1]
-                            u = self._build_dist(mu_label, dist_name,
-                                                 shape=n_cols, **dist_args)
-                            self.mu += pm.dot(level_data, u)[:, None]
-                    else:
-                        n_cols = data.shape[1]
-                        u = self._build_dist('u_' + label, dist_name,
+                # Effects w/ hyperparameters (i.e., random effects)
+                if isinstance(data, dict):
+                    for level, level_data in data.items():
+                        n_cols = level_data.shape[1]
+                        mu_label = 'u_%s_%s' % (label, level)
+                        u = self._build_dist(mu_label, dist_name,
                                              shape=n_cols, **dist_args)
-                        self.mu += pm.dot(data, u)[:, None]
-
-                # Fixed effects
+                        self.mu += pm.dot(level_data, u)[:, None]
                 else:
+                    prefix = 'b_' if t.type_ == 'fixed' else 'u_'
                     n_cols = data.shape[1]
-                    b = self._build_dist('b_' + label, dist_name,
+                    coef = self._build_dist(prefix + label, dist_name,
                                          shape=n_cols, **dist_args)
-                    self.mu += pm.dot(data, b)[:, None]
+                    self.mu += pm.dot(data, coef)[:, None]
 
             y = model.y.data
             y_prior = model.family.prior

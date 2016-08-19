@@ -54,13 +54,6 @@ class PriorFactory(object):
 
     def _get_prior(self, spec):
 
-        # def _expand(v):
-        #     if isinstance(v, dict):
-        #         return self._get_prior(v['name'], v['args'])
-        #     if isinstance(v, string_types):
-        #         return self._get_prior(**self.dists[v.lower()])
-        #     return v
-
         if isinstance(spec, string_types):
             spec = re.sub('^\#', '', spec)
             return self._get_prior(self.dists[spec])
@@ -76,9 +69,6 @@ class PriorFactory(object):
             return prior
         else:
             return spec
-
-        # args = {k: expand(v) for (k, v) in args.items()}
-        # return dict(name=name, args=args)
 
     def get(self, dist=None, term=None, family=None, **kwargs):
         if dist is not None:
