@@ -149,12 +149,13 @@ class Model(object):
         if data is None:
             data = self.data.copy()
 
-        if categorical:
-            data[variable] = data[variable].astype('category')
         # Make sure user didn't forget to set categorical=True
         elif variable in data.columns and \
              data.loc[:, variable].dtype.name in ['object', 'category']:
              categorical = True
+
+        if categorical:
+            data[variable] = data[variable].astype('category')
 
         # Extract splitting variable
         if split_by is not None:
@@ -236,11 +237,13 @@ class Term(object):
         self.categorical = categorical
         self.prior = prior
 
+        if isinstance(data, pd.Series):
+            data = data.to_frame()
         if isinstance(data, pd.DataFrame):
             self.levels = list(data.columns)
             data = data.values
         elif isinstance(data, dict):
-            pass
+            pass   # Random effects pass through here
         else:
             data = np.atleast_2d(data)
             self.levels = list(range(data.shape[1]))
