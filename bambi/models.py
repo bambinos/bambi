@@ -96,12 +96,12 @@ class Model(object):
             categorical = listify(categorical)
             data[categorical] = data[categorical].apply(lambda x: x.astype('category'))
 
-        if '~' in f:
-            y, X = dmatrices(f, data=data)
+        if '~' in fixed:
+            y, X = dmatrices(fixed, data=data)
             y_label = y.design_info.term_names[0]
             self.add_y(y_label, family=family, link=link)
         else:
-            X = dmatrix(f, data=data)
+            X = dmatrix(fixed, data=data)
 
         # Loop over predictor terms
         for _name, _slice in X.design_info.term_name_slices.items():
