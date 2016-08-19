@@ -36,7 +36,6 @@ class Model(object):
                           "This may cause unexpected behavior if you specify "
                           "models with random effects. You are encouraged to "
                           "rename your columns to avoid square brackets.")
-
         self.reset()
 
         if backend.lower() == 'pymc3':
@@ -118,6 +117,7 @@ class Model(object):
                 f = re.sub(r'^1\s+\|(.*)', r'\1', f).strip()
                 if '|' not in f:
                     kwargs['categorical'] = True
+                    kwargs['drop_first'] = False
                     variable = f
                 else:
                     variable, split_by = re.split('\s*\|\s*', f)
