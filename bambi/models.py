@@ -131,6 +131,10 @@ class Model(object):
             family = self.default_priors.get(family=family)
         self.family = family
 
+        # Override family's link if another is explicitly passed
+        if link is not None:
+            self.family.link = link
+
         prior = self.family.prior
         self.add_term(variable, prior=prior, *args, **kwargs)
         # use last-added term name b/c it could have been changed in add_term
