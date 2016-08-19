@@ -152,8 +152,8 @@ class Model(object):
         if categorical:
             data[variable] = data[variable].astype('category')
         # Make sure user didn't forget to set categorical=True
-        elif data[[variable]].shape[1] == 1 and \
-             data[variable].dtype.name in ['object', 'category']:
+        elif variable in data.columns and \
+             data.loc[:, variable].dtype.name in ['object', 'category']:
              categorical = True
 
         # Extract splitting variable
