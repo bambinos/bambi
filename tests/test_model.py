@@ -52,28 +52,32 @@ def test_term_split(diabetes_data):
     assert t['age_grp[0]'].shape == (442, 83)
 
 
-def test_model_init(diabetes_data):
+def test_model_init_and_intercept(diabetes_data):
 
-    model = Model(diabetes_data)
+    model = Model(diabetes_data, intercept=True)
     assert hasattr(model, 'data')
-    # assert model.intercept
-    # assert len(model.terms) == 1
-    # assert 'Intercept' in model.terms
+    assert 'Intercept' in model.terms
+    assert len(model.terms) == 1
     assert model.y is None
     assert hasattr(model, 'backend')
-
-    model = Model(diabetes_data, intercept=False)
+    model = Model(diabetes_data)
+    assert 'Intercept' not in model.terms
     assert not model.terms
 
 
-def test_add_term_to_model(diabetes_data):
+def test_add_term_to_model(base_model):
 
-    model = Model(diabetes_data)
-    model.add_term('BMI')
-    assert isinstance(model.terms['BMI'], Term)
-    model.add_term('age_grp', random=False, categorical=True)
+    base_model.add_term('BMI')
+    assert isinstance(base_model.terms['BMI'], Term)
+    base_model.add_term('age_grp', random=False, categorical=True)
     # Test that arguments are passed appropriately onto Term initializer
-    model.add_term('BP', random=True, split_by='age_grp', categorical=True)
-    assert isinstance(model.terms['BP'], Term)
-    # assert list(model.terms['BP'].data.values())[0].shape == (442, 99, 2)
+    base_model.add_term('BP', random=True, split_by='age_grp', categorical=True)
+    assert isinstance(base_model.terms['BP'], Term)
 
+
+def test_one_shot_formula_fit(base_model):
+    base_model.fit('BMI ~ S1 + S2', samples=50)
+    nv = base_model.backend.model.named_vars
+    targets = ['likelihood', 'b_S1', 'likelihood_sd_log_', 'b_Intercept']
+    assert len(set(nv.keys()) & set(targets)) == 4
+    assert len(base_model.backend.trace) == 50
