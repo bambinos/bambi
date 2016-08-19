@@ -1,0 +1,102 @@
+{
+  "terms": {
+    "intercept": "#cauchy",
+    "fixed": "#cauchy",
+    "random": [
+      "#normal",
+      {
+        "sd": "#halfcauchy"
+      }
+    ]
+  },
+  "families": {
+    "gaussian": {
+      "dist": [
+        "#normal",
+        {
+          "sd": "#halfcauchy"
+        }
+      ],
+      "link": "identity",
+      "parent": "mu"
+    },
+    "binomial": {
+      "dist": [
+        "#bernoulli",
+        {
+          "p": "beta"
+        }
+      ],
+      "link": "logit",
+      "parent": "p"
+    },
+    "poisson": {
+      "dist": [
+        "#poisson",
+        {
+          "mu": "#halfcauchy"
+        }
+      ],
+      "link": "exp",
+      "parent": "mu"
+    },
+    "t": {
+      "dist": [
+        "#t",
+        {
+          "lam": "#halfcauchy"
+        }
+      ],
+      "link": "identity",
+      "parent": "mu"
+    }
+  },
+  "dists": {
+    "normal": [
+      "Normal",
+      {
+        "mu": 0,
+        "sd": 1
+      }
+    ],
+    "cauchy": [
+      "Cauchy",
+      {
+        "alpha": 0,
+        "beta": 1
+      }
+    ],
+    "halfcauchy": [
+      "HalfCauchy",
+      {
+        "beta": 1
+      }
+    ],
+    "beta": [
+      "Beta",
+      {
+        "alpha": 1,
+        "beta": 1
+      }
+    ],
+    "poisson": [
+      "Poisson",
+      {
+        "mu": 1
+      }
+    ],
+    "t": [
+      "StudentT",
+      {
+        "lam": 1,
+        "nu": 1
+      }
+    ],
+    "bernoulli": [
+      "Bernoulli",
+      {
+        "p": 0.5
+      }
+    ]
+  }
+}

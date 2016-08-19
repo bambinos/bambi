@@ -5,7 +5,7 @@ from collections import OrderedDict, defaultdict
 from bambi.utils import listify
 from patsy import dmatrices, dmatrix
 import warnings
-from bambi.priors import default_priors
+from bambi.priors import PriorFactory
 from copy import deepcopy
 import re
 
@@ -16,11 +16,14 @@ def listify(obj):
 
 class Model(object):
 
-    def __init__(self, data=None, intercept=False, backend='pymc3'):
+    def __init__(self, data=None, intercept=False, backend='pymc3',
+                 default_priors=None):
         '''
         Args:
             dataset (DataFrame): the pandas DF containing the data to use.
         '''
+
+        self.default_priors = PriorFactory(default_priors)
 
         obj_cols = data.select_dtypes(['object']).columns
         data[obj_cols] = data[obj_cols].apply(lambda x: x.astype('category'))
@@ -61,9 +64,11 @@ class Model(object):
         self.backend.build(self)
         self.built = True
 
-    def fit(self, fixed=None, random=None, **kwargs):
+    def fit(self, fixed=None, random=None, family='gaussian', link=None,
+            **kwargs):
         if fixed is not None:
-            self.add_formula(fixed, random=random, append=False)
+            self.add_formula(fixed, random=random, append=False, family=family,
+                             link=link)
         ''' Run the BackEnd to fit the model. '''
         if not self.built:
             warnings.warn("Current Bayesian model has not been built yet; "
@@ -76,8 +81,8 @@ class Model(object):
         df = pd.DataFrame(np.ones((n, 1)), columns=['Intercept'])
         self.add_term('Intercept', df)
 
-    def add_formula(self, f, random=None, append=False, priors=None,
-                    categorical=None):
+    def add_formula(self, fixed, random=None, append=False, priors=None,
+                    categorical=None, family='gaussian', link=None):
 
         data = self.data
 
@@ -94,7 +99,7 @@ class Model(object):
         if '~' in f:
             y, X = dmatrices(f, data=data)
             y_label = y.design_info.term_names[0]
-            self.add_y(y_label)
+            self.add_y(y_label, family=family, link=link)
         else:
             X = dmatrix(f, data=data)
 
@@ -119,12 +124,17 @@ class Model(object):
                     kwargs['split_by'] = split_by
                 self.add_term(variable=variable, label=f, **kwargs)
 
-    def add_y(self, variable, *args, **kwargs):
-        if 'prior' not in kwargs or kwargs['prior'] is None:
-            kwargs['prior'] = deepcopy(default_priors['sigma'])
-            kwargs['prior']['args']['beta'] *= self.data[variable].std()
-        self.add_term(variable, *args, **kwargs)
-        name = list(self.terms.values())[-1].name # last-added term
+    def add_y(self, variable, family='gaussian', link=None, *args,
+              **kwargs):
+
+        if isinstance(family, string_types):
+            family = self.default_priors.get(family=family)
+        self.family = family
+
+        prior = self.family.prior
+        self.add_term(variable, prior=prior, *args, **kwargs)
+        # use last-added term name b/c it could have been changed in add_term
+        name = list(self.terms.values())[-1].name
         self.set_y(name)
 
     def add_term(self, variable, data=None, label=None, categorical=False,
@@ -237,15 +247,17 @@ class Term(object):
     def _setup(self):
         # TODO: come up with a more sensible way of getting/setting default priors
         if self.prior is None:
-            y_data = self.model.y.data
-            if self.name == 'Intercept':
-                self.prior = deepcopy(default_priors['intercept'])
-                self.prior['args']['alpha'] = y_data.mean()
-                self.prior['args']['beta'] *= y_data.std()
-            else:
-                self.prior = deepcopy(default_priors['fixed'])
-                max_std = self.data.std(0).max()
-                self.prior['args']['sd'] *= max_std * 2 * y_data.std()
+            # y_data = self.model.y.data
+            # if self.name == 'Intercept':
+            #     self.prior = deepcopy(default_priors['term']['intercept'])
+            #     self.prior['args']['alpha'] = y_data.mean()
+            #     self.prior['args']['beta'] *= y_data.std()
+            # else:
+            #     self.prior = deepcopy(default_priors['fixed'])
+            #     max_std = self.data.std(0).max()
+            #     self.prior['args']['sd'] *= max_std * 2 * y_data.std()
+            term_type = 'intercept' if self.name == 'Intercept' else 'fixed'
+            self.prior = self.model.default_priors.get(term=term_type)
 
 
 class RandomTerm(Term):
@@ -259,18 +271,18 @@ class RandomTerm(Term):
 
     def _setup(self):
         if self.prior is None:
-            self.prior = deepcopy(default_priors['random'])
+            self.prior = self.model.default_priors.get(term='random')
 
-            # Rescale prior sd--need to implement better heuristic
-            data = self.data
+            # # Rescale prior sd--need to implement better heuristic
+            # data = self.data
 
-            # nested terms are in dicts, so put non-nested terms in dummy dict
-            max_range = 0.
-            if not isinstance(data, dict):
-                data = {'dummy': data}
-            for level in data.values():
-                lev_range = level.mean(0).max() - level.mean(0).min()
-                if lev_range > max_range:
-                    max_range = lev_range
-            scl = max(max_range, 1)
-            self.prior['sigma']['args']['beta'] *= (scl * 2 * self.model.y.data.std())
+            # # nested terms are in dicts, so put non-nested terms in dummy dict
+            # max_range = 0.
+            # if not isinstance(data, dict):
+            #     data = {'dummy': data}
+            # for level in data.values():
+            #     lev_range = level.mean(0).max() - level.mean(0).min()
+            #     if lev_range > max_range:
+            #         max_range = lev_range
+            # scl = max(max_range, 1)
+            # self.prior['sigma']['args']['beta'] *= (scl * 2 * self.model.y.data.std())

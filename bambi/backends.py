@@ -2,8 +2,8 @@ from abc import ABCMeta, abstractmethod
 from six import string_types
 import numpy as np
 import warnings
-from bambi.priors import default_priors
 from bambi.results import ModelResults
+from bambi.priors import Prior
 import theano
 try:
     import pymc3 as pm
@@ -28,6 +28,14 @@ class BackEnd(object):
 
 class PyMC3BackEnd(BackEnd):
 
+    # Available link functions
+    links = {
+        'identity': lambda x: x,
+        'logit': theano.tensor.nnet.sigmoid,
+        'inverse': theano.tensor.inv,
+        'exp': theano.tensor.exp
+    }
+
     def __init__(self):
         self.reset()
 
@@ -44,16 +52,20 @@ class PyMC3BackEnd(BackEnd):
                 raise ValueError("The Distribution class '%s' was not "
                                  "found in PyMC3." % dist)
             dist = getattr(pm, dist)
+        # Inspect all args in case we have hyperparameters
+        def _expand_args(k, v, label):
+            if isinstance(v, Prior):
+                label = '%s_%s' % (label, k)
+                return self._build_dist(label, v.name, **v.args)
+            return v
+
+        kwargs = {k: _expand_args(k, v, label) for (k, v) in kwargs.items()}
         return dist(label, **kwargs)
 
     def build(self, model, reset=True):
 
         if reset:
             self.reset()
-
-        def _downcast_params(params):
-            return {k: (v if isinstance(v, string_types) else np.float32(v)) \
-                    for (k, v) in params.items()}
 
         with self.model:
 
@@ -63,42 +75,20 @@ class PyMC3BackEnd(BackEnd):
 
                 data = t.data
                 label = t.name
-                dist_name = t.prior['name']
-                dist_args = t.prior['args']
+                dist_name = t.prior.name
+                dist_args = t.prior.args
 
                 # Random effects
                 if t.type_ == 'random':
 
-                    # User can pass sigma specification in sigma_kws.
-                    # If not provided, default to HalfCauchy with beta = 10.
-                    try:
-                        sigma_dist_name = t.prior['sigma']['name']
-                        sigma_dist_args = t.prior['sigma']['args']
-                    except:
-                        sigma_dist_name = 'HalfCauchy'
-                        sigma_dist_args = {'beta': 10}
-
-                    # # Theano can run into precision issues with 64-bit floats
-                    dist_args = _downcast_params(dist_args)
-                    sigma_dist_args = _downcast_params(sigma_dist_args)
-
                     if isinstance(data, dict):
                         for level, level_data in data.items():
                             n_cols = level_data.shape[1]
-                            sigma_label = 'sigma_%s_%s' % (label, level)
-                            sigma = self._build_dist(sigma_label, sigma_dist_name,
-                                                     **sigma_dist_args)
-                            mu_label = 'u_%s_%s' % (label, level)
-                            dist_args['sd'] = sigma
-
                             u = self._build_dist(mu_label, dist_name,
                                                  shape=n_cols, **dist_args)
                             self.mu += pm.dot(level_data, u)[:, None]
                     else:
                         n_cols = data.shape[1]
-                        sigma = self._build_dist('sigma_' + label, sigma_dist_name,
-                                                 **sigma_dist_args)
-                        dist_args['sd'] = sigma
                         u = self._build_dist('u_' + label, dist_name,
                                              shape=n_cols, **dist_args)
                         self.mu += pm.dot(data, u)[:, None]
@@ -110,12 +100,12 @@ class PyMC3BackEnd(BackEnd):
                                          shape=n_cols, **dist_args)
                     self.mu += pm.dot(data, b)[:, None]
 
-            # TODO: accept sigma params as an argument
-            sigma_params = model.y.prior
-            sigma = self._build_dist('sigma', sigma_params['name'],
-                                     **_downcast_params(sigma_params['args']))
             y = model.y.data
-            y_obs = pm.Normal('y_pred', mu=self.mu, sd=sigma, observed=y)
+            y_prior = model.family.prior
+            link_f = self.links[model.family.link]
+            y_prior.args[model.family.parent] = link_f(self.mu)
+            y_prior.args['observed'] = y
+            y_like = self._build_dist('likelihood', y_prior.name, **y_prior.args)
 
     def run(self, model_spec, start=None, find_map=False, **kwargs):
         samples = kwargs.pop('samples', 1000)
