@@ -64,7 +64,7 @@ class Model(object):
         self.built = True
 
     def fit(self, fixed=None, random=None, family='gaussian', link=None,
-            **kwargs):
+            run=True, **kwargs):
         if fixed is not None:
             self.add_formula(fixed, random=random, append=False, family=family,
                              link=link)
@@ -73,7 +73,8 @@ class Model(object):
             warnings.warn("Current Bayesian model has not been built yet; "
               "building it first before sampling begins.")
             self.build()
-        return self.backend.run(self, **kwargs)
+        if run:
+            return self.backend.run(self, **kwargs)
 
     def add_intercept(self):
         n = len(self.data)
