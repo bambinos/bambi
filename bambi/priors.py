@@ -1,6 +1,6 @@
 import numpy as np
 from os.path import dirname, join
-from six import string_types
+from bambi.external.six import string_types
 from copy import deepcopy
 import json
 import re

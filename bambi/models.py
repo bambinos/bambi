@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from six import string_types
+from bambi.external.six import string_types
 from collections import OrderedDict, defaultdict
 from bambi.utils import listify
 from patsy import dmatrices, dmatrix

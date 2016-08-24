@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from six import string_types
+from bambi.external.six import string_types
 import numpy as np
 import warnings
 from bambi.results import ModelResults
