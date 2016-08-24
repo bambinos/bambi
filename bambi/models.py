@@ -66,8 +66,8 @@ class Model(object):
     def fit(self, fixed=None, random=None, family='gaussian', link=None,
             run=True, **kwargs):
         if fixed is not None:
-            self.add_formula(fixed, random=random, append=False, family=family,
-                             link=link)
+            self.add_formula(fixed=fixed, random=random, append=False,
+                             family=family, link=link)
         ''' Run the BackEnd to fit the model. '''
         if not self.built:
             warnings.warn("Current Bayesian model has not been built yet; "
@@ -81,7 +81,7 @@ class Model(object):
         df = pd.DataFrame(np.ones((n, 1)), columns=['Intercept'])
         self.add_term('Intercept', df)
 
-    def add_formula(self, fixed, random=None, append=False, priors=None,
+    def add_formula(self, fixed=None, random=None, append=False, priors=None,
                     categorical=None, family='gaussian', link=None):
 
         data = self.data
@@ -89,25 +89,26 @@ class Model(object):
         if not append:
             self.reset()
 
-        # Explicitly convert columns to category if desired--though this can
-        # also be done within the formula using C().
-        if categorical is not None:
-            data = data.copy()
-            categorical = listify(categorical)
-            data[categorical] = data[categorical].apply(lambda x: x.astype('category'))
+        if fixed is not None:
+            # Explicitly convert columns to category if desired--though this can
+            # also be done within the formula using C().
+            if categorical is not None:
+                data = data.copy()
+                categorical = listify(categorical)
+                data[categorical] = data[categorical].apply(lambda x: x.astype('category'))
 
-        if '~' in fixed:
-            y, X = dmatrices(fixed, data=data)
-            y_label = y.design_info.term_names[0]
-            self.add_y(y_label, family=family, link=link)
-        else:
-            X = dmatrix(fixed, data=data)
+            if '~' in fixed:
+                y, X = dmatrices(fixed, data=data)
+                y_label = y.design_info.term_names[0]
+                self.add_y(y_label, family=family, link=link)
+            else:
+                X = dmatrix(fixed, data=data)
 
-        # Loop over predictor terms
-        for _name, _slice in X.design_info.term_name_slices.items():
-            cols = X.design_info.column_names[_slice]
-            term_data = pd.DataFrame(X[:, _slice], columns=cols)
-            self.add_term(_name, data=term_data)
+            # Loop over predictor terms
+            for _name, _slice in X.design_info.term_name_slices.items():
+                cols = X.design_info.column_names[_slice]
+                term_data = pd.DataFrame(X[:, _slice], columns=cols)
+                self.add_term(_name, data=term_data)
 
         # Random effects
         if random is not None:
