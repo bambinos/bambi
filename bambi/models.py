@@ -121,7 +121,7 @@ class Model(object):
                         "than | are not currently supported in random effects "
                         "specifications.")
                 # '1|factor' is considered identical to 'factor'
-                f = re.sub(r'^1\s+\|(.*)', r'\1', f).strip()
+                f = re.sub(r'^1\s*\|(.*)', r'\1', f).strip()
                 if '|' not in f:
                     kwargs['categorical'] = True
                     kwargs['drop_first'] = False
