@@ -81,3 +81,8 @@ def test_one_shot_formula_fit(base_model):
     targets = ['likelihood', 'b_S1', 'likelihood_sd_log_', 'b_Intercept']
     assert len(set(nv.keys()) & set(targets)) == 4
     assert len(base_model.backend.trace) == 50
+
+
+def test_invalid_chars_in_random_effect(base_model):
+    with pytest.raises(ValueError):
+        base_model.fit(random=['1+BP|age_grp'])

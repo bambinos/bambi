@@ -65,7 +65,7 @@ class Model(object):
 
     def fit(self, fixed=None, random=None, family='gaussian', link=None,
             run=True, **kwargs):
-        if fixed is not None:
+        if fixed is not None or random is not None:
             self.add_formula(fixed=fixed, random=random, append=False,
                              family=family, link=link)
         ''' Run the BackEnd to fit the model. '''
@@ -115,6 +115,11 @@ class Model(object):
             random = listify(random)
             for f in random:
                 kwargs = {'random': True}
+                if re.search('[\*\(\)\+\-]+', f):
+                    raise ValueError("Random term '%s' contains an invalid "
+                        "character. Note that formula-style operators other "
+                        "than | are not currently supported in random effects "
+                        "specifications.")
                 # '1|factor' is considered identical to 'factor'
                 f = re.sub(r'^1\s+\|(.*)', r'\1', f).strip()
                 if '|' not in f:
