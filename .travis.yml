@@ -30,7 +30,7 @@ install:
 - pip install coveralls pytest-cov
 
 script:
-- py.test --pyargs bambi
+- py.test --pyargs bambi --cov-report term-missing --cov=bambi 
 
 after_success:
 - coveralls
