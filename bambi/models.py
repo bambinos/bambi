@@ -143,6 +143,11 @@ class Model(object):
             self.family.link = link
 
         prior = self.family.prior
+
+        # implement default HalfCauchy prior for normal sigma (beta = sd(Y))
+        if self.family.name=='gaussian':
+            prior.args['sd'].update(beta=self.data[variable].std())
+
         self.add_term(variable, prior=prior, *args, **kwargs)
         # use last-added term name b/c it could have been changed in add_term
         name = list(self.terms.values())[-1].name
