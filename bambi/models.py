@@ -4,6 +4,7 @@ from bambi.external.six import string_types
 from collections import OrderedDict, defaultdict
 from bambi.utils import listify
 from patsy import dmatrices, dmatrix
+import statsmodels.api as sm
 import warnings
 from bambi.priors import PriorFactory
 from copy import deepcopy
@@ -58,16 +59,31 @@ class Model(object):
         if self.y is None:
             raise ValueError("No outcome (y) variable is set! Please call "
                              "set_y() before build() or fit().")
+
+        # compute and store information used to set the default priors
+        # X = fixed effects design matrix
+        # R2X = 1 - 1/VIF for each x, i.e., R2 for predicting each x from all other x's
+        # R2Y = R2 for predicting y from all x's *other than* the current x
+        X = pd.concat([pd.DataFrame(x.data, columns=x.levels) for x in self.terms.values()
+            if x.type_=='fixed' and x.name != 'Intercept'], axis=1)
+        self.R2X = pd.Series({x:sm.OLS(X[x], sm.add_constant(X.drop(x, axis=1))).fit().rsquared
+            for x in list(X.columns)})
+        self.R2Y = pd.Series({x:sm.OLS(self.y.data, sm.add_constant(X.drop(x, axis=1))).fit().rsquared
+            for x in list(X.columns)})
+        self.SDX = X.std()
+        self.SDY = self.y.data.std()
+        self.meanX = X.mean(0)
+
         for t in self.terms.values():
-            t._setup()
+            t._setup() 
         self.backend.build(self)
         self.built = True
 
     def fit(self, fixed=None, random=None, family='gaussian', link=None,
-            run=True, **kwargs):
+            run=True, categorical=None, **kwargs):
         if fixed is not None or random is not None:
             self.add_formula(fixed=fixed, random=random, append=False,
-                             family=family, link=link)
+                             family=family, link=link, categorical=categorical)
         ''' Run the BackEnd to fit the model. '''
         if not self.built:
             warnings.warn("Current Bayesian model has not been built yet; "
@@ -264,19 +280,30 @@ class Term(object):
         self.kwargs = kwargs
 
     def _setup(self):
-        # TODO: come up with a more sensible way of getting/setting default priors
+        # set up default priors if no prior has been explicitly set
         if self.prior is None:
-            # y_data = self.model.y.data
-            # if self.name == 'Intercept':
-            #     self.prior = deepcopy(default_priors['term']['intercept'])
-            #     self.prior['args']['alpha'] = y_data.mean()
-            #     self.prior['args']['beta'] *= y_data.std()
-            # else:
-            #     self.prior = deepcopy(default_priors['fixed'])
-            #     max_std = self.data.std(0).max()
-            #     self.prior['args']['sd'] *= max_std * 2 * y_data.std()
             term_type = 'intercept' if self.name == 'Intercept' else 'fixed'
             self.prior = self.model.default_priors.get(term=term_type)
+            # these default priors are only defined for Normal priors, although we
+            # could probably easily handle Cauchy by just substituting 'sd' -> 'beta'
+            if self.prior.name=='Normal':
+                # the default 'wide' prior SD is sqrt(1/3) = .577 on the partial corr scale,
+                # which is the SD of a flat prior over [-1,1]. Wider than that would be weird
+                # TODO: support other defaults such as superwide = .8, medium = .4, narrow = .2
+                wide = 3**-.5
+                # handle slopes
+                if term_type=='fixed':
+                    slope_constant = self.model.SDY * (1 - self.model.R2Y[self.levels]) / \
+                                     self.model.SDX[self.levels] / (1 - self.model.R2X[self.levels])
+                    self.prior.update(sd = wide * slope_constant.values)
+                # handle the intercept
+                else:
+                    index = list(self.model.R2Y.index)
+                    intercept_SD = self.model.SDY * (1 - self.model.R2Y[index]) / \
+                        self.model.SDX[index] / (1 - self.model.R2X[index])
+                    intercept_SD *= wide
+                    intercept_SD = np.dot(intercept_SD**2, self.model.meanX[index]**2)**.5
+                    self.prior.update(sd = intercept_SD)
 
 
 class RandomTerm(Term):
@@ -289,19 +316,34 @@ class RandomTerm(Term):
         super(RandomTerm, self).__init__(model, name, data, prior=prior, **kwargs)
 
     def _setup(self):
+        # set up default priors if no prior has been explicitly set
         if self.prior is None:
+            term_type = 'intercept' if '|' not in self.name else 'slope'
             self.prior = self.model.default_priors.get(term='random')
+            # these default priors are only defined for HalfCauchy priors,
+            if self.prior.args['sd'].name=='HalfCauchy':
+                # as above, 'wide' prior SD is sqrt(1/3) = .577 on the partial corr scale,
+                # which is the SD of a flat prior over [-1,1]. Wider than that would be weird
+                # TODO: support other defaults such as superwide = .8, medium = .4, narrow = .2
+                wide = 3**-.5
+                # handle random slopes
+                if term_type=='slope':
+                    # get name of corresponding fixed effect
+                    fix = re.sub(r'\|.*', r'', self.name).strip()
+                    # only proceed if there does exist a corresponding fixed effect.
+                    # note that without this, it would break on random slopes for
+                    # categorical predictors! Here we simply skip that case, but we
+                    # should make it correctly handle default priors for that case
+                    if fix in list(self.model.R2Y.index):
+                        slope_constant = self.model.SDY * (1 - self.model.R2Y[fix]) / \
+                                         self.model.SDX[fix] / (1 - self.model.R2X[fix])
+                        self.prior.args['sd'].update(beta = wide * slope_constant)
+                # handle random intercepts
+                else:
+                    index = list(self.model.R2Y.index)
+                    intercept_beta = self.model.SDY * (1 - self.model.R2Y[index]) / \
+                        self.model.SDX[index] / (1 - self.model.R2X[index])
+                    intercept_beta *= wide
+                    intercept_beta = np.dot(intercept_beta**2, self.model.meanX[index]**2)**.5
+                    self.prior.args['sd'].update(beta = intercept_beta)
 
-            # # Rescale prior sd--need to implement better heuristic
-            # data = self.data
-
-            # # nested terms are in dicts, so put non-nested terms in dummy dict
-            # max_range = 0.
-            # if not isinstance(data, dict):
-            #     data = {'dummy': data}
-            # for level in data.values():
-            #     lev_range = level.mean(0).max() - level.mean(0).min()
-            #     if lev_range > max_range:
-            #         max_range = lev_range
-            # scl = max(max_range, 1)
-            # self.prior['sigma']['args']['beta'] *= (scl * 2 * self.model.y.data.std())
