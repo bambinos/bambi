@@ -52,6 +52,7 @@ class PyMC3BackEnd(BackEnd):
                                  "found in PyMC3." % dist)
             dist = getattr(pm, dist)
         # Inspect all args in case we have hyperparameters
+
         def _expand_args(k, v, label):
             if isinstance(v, Prior):
                 label = '%s_%s' % (label, k)
@@ -89,7 +90,7 @@ class PyMC3BackEnd(BackEnd):
                     prefix = 'b_' if t.type_ == 'fixed' else 'u_'
                     n_cols = data.shape[1]
                     coef = self._build_dist(prefix + label, dist_name,
-                                         shape=n_cols, **dist_args)
+                                            shape=n_cols, **dist_args)
                     self.mu += pm.dot(data, coef)[:, None]
 
             y = model.y.data
@@ -97,7 +98,8 @@ class PyMC3BackEnd(BackEnd):
             link_f = self.links[model.family.link]
             y_prior.args[model.family.parent] = link_f(self.mu)
             y_prior.args['observed'] = y
-            y_like = self._build_dist('likelihood', y_prior.name, **y_prior.args)
+            y_like = self._build_dist(
+                'likelihood', y_prior.name, **y_prior.args)
 
     def run(self, model_spec, start=None, find_map=False, **kwargs):
         samples = kwargs.pop('samples', 1000)

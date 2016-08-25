@@ -45,6 +45,7 @@ def test_prior_factory_init_from_config():
     assert 'hard' in pf.families
     assert 'yellow' in pf.terms
 
+
 def test_prior_retrieval():
     config_file = join(dirname(__file__), 'data', 'sample_priors.json')
     pf = PriorFactory(config_file)
