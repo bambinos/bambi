@@ -38,7 +38,7 @@ before_install:
 - conda install python=$PYTHON_VERSION $CONDA_DEPS
 
 install:
-- pip install -e .
+- pip install -r requirements.txt
 
 script:
 - py.test --pyargs bambi
