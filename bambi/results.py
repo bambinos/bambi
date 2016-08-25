@@ -9,6 +9,7 @@ class ModelResults(object):
         self.model = model
         self.terms = list(model.terms.values())
         self.trace = trace
+        self.diagnostics = model._diagnostics
         self.n_terms = len(model.terms)
         self.n_samples = len(trace)
         self._fixed_terms = [t.name for t in self.terms if t.type_=='fixed']
