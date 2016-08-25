@@ -27,12 +27,13 @@ before_install:
 
 install:
 - pip install -r requirements.txt
+- pip install coveralls pytest-cov
 
 script:
 - py.test --pyargs bambi
 
 after_success:
-- coveralls --config_file .coveragerc
+- coveralls
 
 before_cache:
 # clean unused packages & installed files from conda cache
