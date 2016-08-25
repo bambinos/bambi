@@ -1,13 +1,58 @@
-language: python
-python:
-  - "3.5"
-  - "3.3"
-  - "2.7"
-install:
-  - pip install python-coveralls coverage
-  - pip install -r requirements.txt
-  - pip install pytest
-script:  py.test
-after_success:
-  - coveralls --config_file .coveragerc
 sudo: false
+
+env:
+  global:
+    - CONDA_DEPS="pip flake8 pytest numpy matplotlib pandas"
+
+matrix:
+  include:
+    - os: osx
+      env:
+         - PYTHON_VERSION=2.7
+         - MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh"
+    - os: osx
+      env:
+         - PYTHON_VERSION=3.5
+         - MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh"
+    - os: linux
+      env:
+         - PYTHON_VERSION=2.7
+         - MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh"
+    - os: linux
+      env:
+         - PYTHON_VERSION=3.5
+         - MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh"
+
+
+before_install:
+- export MINICONDA=$HOME/miniconda
+- export PATH="$MINICONDA/bin:$PATH"
+- hash -r
+- echo $MINICONDA_URL
+- wget $MINICONDA_URL -O miniconda.sh;
+- bash miniconda.sh -b -f -p $MINICONDA;
+- conda config --set always_yes yes
+- conda update conda
+- conda info -a
+- conda config --add channels conda-forge
+- conda install python=$PYTHON_VERSION $CONDA_DEPS
+
+install:
+- pip install -e .
+
+script:
+- flake8 --ignore N802,N806 `find . -name \*.py | grep -v setup.py | grep -v /doc/`
+- py.test --pyargs bambi
+
+after_success:
+- coveralls --config_file .coveragerc
+
+before_cache:
+# clean unused packages & installed files from conda cache
+# this makes the cache rebuilt less frequently
+- conda clean --tarballs --packages --index-cache
+- rm -rf $HOME/miniconda/pkgs/cache
+
+cache:
+  directories:
+    - $HOME/miniconda
