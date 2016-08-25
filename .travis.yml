@@ -2,7 +2,7 @@ sudo: false
 
 env:
   global:
-    - CONDA_DEPS="pip flake8 pytest numpy matplotlib pandas"
+    - CONDA_DEPS="pip pytest numpy matplotlib pandas"
 
 matrix:
   include:
@@ -41,7 +41,6 @@ install:
 - pip install -e .
 
 script:
-- flake8 --ignore N802,N806 `find . -name \*.py | grep -v setup.py | grep -v /doc/`
 - py.test --pyargs bambi
 
 after_success:
