@@ -147,7 +147,7 @@ class Model(object):
                     kwargs['split_by'] = split_by
                 self.add_term(variable=variable, label=f, **kwargs)
 
-    def add_y(self, variable, family='gaussian', link=None, *args,
+    def add_y(self, variable, family='gaussian', link=None, prior=None, *args,
               **kwargs):
 
         if isinstance(family, string_types):
@@ -158,7 +158,8 @@ class Model(object):
         if link is not None:
             self.family.link = link
 
-        prior = self.family.prior
+        if prior is None:
+            prior = self.family.prior
 
         # implement default HalfCauchy prior for normal sigma (beta = sd(Y))
         if self.family.name=='gaussian':
