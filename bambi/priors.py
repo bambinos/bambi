@@ -75,7 +75,7 @@ class PriorFactory(object):
             if dist not in self.dists:
                 raise ValueError(
                     "'%s' is not a valid distribution name." % dist)
-            return self._get_prior(**self.dists[dist])
+            return self._get_prior(self.dists[dist])
         elif term is not None:
             if term not in self.terms:
                 raise ValueError("'%s' is not a valid term type." % term)
