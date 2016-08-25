@@ -21,8 +21,9 @@ def base_model(diabetes_data):
 
 
 def test_term_init(diabetes_data):
-    model = Model(diabetes_data)
-    term = Term(model, 'BMI', diabetes_data['BMI'])
+    # model = Model(diabetes_data)
+    # term = Term(model, 'BMI', diabetes_data['BMI'])
+    term = Term('BMI', diabetes_data['BMI'])
     # Test that all defaults are properly initialized
     assert term.name == 'BMI'
     assert term.categorical == False
@@ -78,8 +79,8 @@ def test_add_term_to_model(base_model):
 def test_one_shot_formula_fit(base_model):
     base_model.fit('BMI ~ S1 + S2', samples=50)
     nv = base_model.backend.model.named_vars
-    targets = ['likelihood', 'b_S1', 'likelihood_sd_log_', 'b_Intercept']
-    assert len(set(nv.keys()) & set(targets)) == 4
+    targets = ['likelihood', 'b_S1', 'b_Intercept']
+    assert len(set(nv.keys()) & set(targets)) == 3
     assert len(base_model.backend.trace) == 50
 
 
