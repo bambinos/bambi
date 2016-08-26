@@ -36,18 +36,21 @@ def test_term_split(diabetes_data):
     # Split a continuous fixed variable
     model = Model(diabetes_data)
     model.add_term('BMI', split_by='age_grp')
-    assert model.terms['BMI'].data.shape == (442, 3)
+    assert model.terms['BMI'].data.shape == (442, 2)
     # Split a categorical fixed variable
     model.reset()
-    model.add_term('BMI', split_by='age_grp', categorical=True)
+    model.add_term('BMI', split_by='age_grp', categorical=True,
+                   drop_first=False)
     assert model.terms['BMI'].data.shape == (442, 489)
     # Split a continuous random variable
     model.reset()
-    model.add_term('BMI', split_by='age_grp', categorical=False, random=True)
-    assert model.terms['BMI'].data.shape == (442, 3)
+    model.add_term('BMI', split_by='age_grp', categorical=False, random=True,
+                   drop_first=True)
+    assert model.terms['BMI'].data.shape == (442, 2)
     # Split a categorical random variable
     model.reset()
-    model.add_term('BMI', split_by='age_grp', categorical=True, random=True)
+    model.add_term('BMI', split_by='age_grp', categorical=True, random=True,
+                   drop_first=False)
     t = model.terms['BMI'].data
     assert isinstance(t, dict)
     assert t['age_grp[0]'].shape == (442, 83)
