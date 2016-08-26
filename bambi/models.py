@@ -142,22 +142,45 @@ class Model(object):
         if random is not None:
             random = listify(random)
             for f in random:
+                f = f.strip()
                 kwargs = {'random': True}
-                if re.search('[\*\(\)\+\-]+', f):
+                if re.search('[\*\(\)]+', f):
                     raise ValueError("Random term '%s' contains an invalid "
-                        "character. Note that formula-style operators other "
-                        "than | are not currently supported in random effects "
-                        "specifications.")
-                # '1|factor' is considered identical to 'factor'
-                f = re.sub(r'^1\s*\|(.*)', r'\1', f).strip()
-                if '|' not in f:
-                    kwargs['categorical'] = True
-                    kwargs['drop_first'] = False
-                    variable = f
+                        "character. Note that only the | and + operators are "
+                        "currently supported in random effects specifications.")
+
+                # Split specification into intercept, predictor, and grouper
+                patt = r'^([01]+)*[\s\+]*([^\|]+)\|*(.*)'
+                intcpt, pred, grpr = re.search(patt, f).groups()
+                label = '{}|{}'.format(pred, grpr) if grpr else pred
+
+                # Default to including random intercepts
+                if intcpt is None:
+                    intcpt = 1
+                intcpt = int(intcpt)
+
+                # If there's no grouper, we must be adding random intercepts
+                if not grpr:
+                    kwargs.update(dict(categorical=True, drop_first=False))
+                    variable = pred
+
                 else:
-                    variable, split_by = re.split('\s*\|\s*', f)
-                    kwargs['split_by'] = split_by
-                self.add_term(variable=variable, label=f, **kwargs)
+                    # Add random slopes unless they were explicitly excluded
+                    if intcpt and grpr not in self.terms:
+                        self.add_term(variable=grpr, categorical=True,
+                                      random=True, drop_first=False)
+                    # For categoricals, flip the predictor and grouper before
+                    # passing to add_term(). This allows us to take advantage
+                    # of the convenient split_by semantics.
+                    if self.data[pred].dtype.name in ['object', 'category']:
+                        variable, kwargs['split_by'] = grpr, pred
+                        kwargs['categorical'] = True
+                        if not intcpt:
+                            kwargs['drop_first'] = False
+                    else:
+                        variable, kwargs['split_by'] = pred, grpr
+
+                self.add_term(variable=variable, label=label, **kwargs)
 
     def add_y(self, variable, family='gaussian', link=None, prior=None, *args,
               **kwargs):
@@ -198,17 +221,21 @@ class Model(object):
         if categorical:
             data[variable] = data[variable].astype('category')
 
-        # Extract splitting variable
         if split_by is not None:
-            data[split_by] = data[split_by].astype('category')
-            split_by = listify(split_by)
-            group_term = ':'.join(split_by)
-            f = '0 + %s : (%s)' % (variable, group_term)
+            # Extract splitting variable. We do the dummy-coding of the
+            # grouping variable in pandas rather than patsy because there's
+            # no easy way to get the desired coding (reduced-rank for the
+            # grouping variable, but full-rank for the predictor) in patsy
+            # without using custom contrast schemes and totally screwing up
+            # the variable naming scheme.
+            grps = pd.get_dummies(data[split_by], drop_first=drop_first)
+            data = {split_by: grps.values, variable: data[variable].values}
+            f = '0 + %s:%s' % (variable, split_by)
             data = dmatrix(f, data=data)
             cols = data.design_info.column_names
             data = pd.DataFrame(data, columns=cols)
 
-            # For categorical random effects, one variance term per split_by level
+            # For categorical effects, one variance term per split_by level
             if random and categorical:
                 split_data = {}
                 groups = list(set([re.sub(r'^.*?\:', '', c) for c in cols]))
