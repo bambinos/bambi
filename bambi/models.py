@@ -162,6 +162,7 @@ class Model(object):
                 # If there's no grouper, we must be adding random intercepts
                 if not grpr:
                     kwargs.update(dict(categorical=True, drop_first=False))
+                    variable = pred
 
                 else:
                     # Add random slopes unless they were explicitly excluded
@@ -220,17 +221,21 @@ class Model(object):
         if categorical:
             data[variable] = data[variable].astype('category')
 
-        # Extract splitting variable
         if split_by is not None:
-            data[split_by] = data[split_by].astype('category')
-            split_by = listify(split_by)
-            group_term = ':'.join(split_by)
-            f = '0 + %s : (%s)' % (variable, group_term)
+            # Extract splitting variable. We do the dummy-coding of the
+            # grouping variable in pandas rather than patsy because there's
+            # no easy way to get the desired coding (reduced-rank for the
+            # grouping variable, but full-rank for the predictor) in patsy
+            # without using custom contrast schemes and totally screwing up
+            # the variable naming scheme.
+            grps = pd.get_dummies(data[split_by], drop_first=drop_first)
+            data = {split_by: grps.values, variable: data[variable].values}
+            f = '0 + %s:%s' % (variable, split_by)
             data = dmatrix(f, data=data)
             cols = data.design_info.column_names
             data = pd.DataFrame(data, columns=cols)
 
-            # For categorical random effects, one variance term per split_by level
+            # For categorical effects, one variance term per split_by level
             if random and categorical:
                 split_data = {}
                 groups = list(set([re.sub(r'^.*?\:', '', c) for c in cols]))
