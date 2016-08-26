@@ -155,8 +155,11 @@ class Model(object):
                     kwargs['drop_first'] = False
                     variable = f
                 else:
-                    variable, split_by = re.split('\s*\|\s*', f)
-                    kwargs['split_by'] = split_by
+                    a, b = re.split('\s*\|\s*', f)
+                    if self.data[a].dtype.name in ['object', 'category']:
+                        variable, kwargs['split_by'] = b, a
+                    else:
+                        variable, kwargs['split_by'] = a, b
                 self.add_term(variable=variable, label=f, **kwargs)
 
     def add_y(self, variable, family='gaussian', link=None, prior=None, *args,
