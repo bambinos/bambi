@@ -142,25 +142,44 @@ class Model(object):
         if random is not None:
             random = listify(random)
             for f in random:
+                f = f.strip()
                 kwargs = {'random': True}
-                if re.search('[\*\(\)\+\-]+', f):
+                if re.search('[\*\(\)]+', f):
                     raise ValueError("Random term '%s' contains an invalid "
-                        "character. Note that formula-style operators other "
-                        "than | are not currently supported in random effects "
-                        "specifications.")
-                # '1|factor' is considered identical to 'factor'
-                f = re.sub(r'^1\s*\|(.*)', r'\1', f).strip()
-                if '|' not in f:
-                    kwargs['categorical'] = True
-                    kwargs['drop_first'] = False
-                    variable = f
+                        "character. Note that only the | and + operators are "
+                        "currently supported in random effects specifications.")
+
+                # Split specification into intercept, predictor, and grouper
+                patt = r'^([01]+)*[\s\+]*([^\|]+)\|*(.*)'
+                intcpt, pred, grpr = re.search(patt, f).groups()
+                label = '{}|{}'.format(pred, grpr) if grpr else pred
+
+                # Default to including random intercepts
+                if intcpt is None:
+                    intcpt = 1
+                intcpt = int(intcpt)
+
+                # If there's no grouper, we must be adding random intercepts
+                if not grpr:
+                    kwargs.update(dict(categorical=True, drop_first=False))
+
                 else:
-                    a, b = re.split('\s*\|\s*', f)
-                    if self.data[a].dtype.name in ['object', 'category']:
-                        variable, kwargs['split_by'] = b, a
+                    # Add random slopes unless they were explicitly excluded
+                    if intcpt and grpr not in self.terms:
+                        self.add_term(variable=grpr, categorical=True,
+                                      random=True, drop_first=False)
+                    # For categoricals, flip the predictor and grouper before
+                    # passing to add_term(). This allows us to take advantage
+                    # of the convenient split_by semantics.
+                    if self.data[pred].dtype.name in ['object', 'category']:
+                        variable, kwargs['split_by'] = grpr, pred
+                        kwargs['categorical'] = True
+                        if not intcpt:
+                            kwargs['drop_first'] = False
                     else:
-                        variable, kwargs['split_by'] = a, b
-                self.add_term(variable=variable, label=f, **kwargs)
+                        variable, kwargs['split_by'] = pred, grpr
+
+                self.add_term(variable=variable, label=label, **kwargs)
 
     def add_y(self, variable, family='gaussian', link=None, prior=None, *args,
               **kwargs):
