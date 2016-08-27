@@ -44,7 +44,12 @@ def test_prior_factory_init_from_config():
     assert 'feta' in pf.dists
     assert 'hard' in pf.families
     assert 'yellow' in pf.terms
-
+    pf = PriorFactory(dists=config_dict['dists'])
+    assert 'feta' in pf.dists
+    pf = PriorFactory(terms=config_dict['terms'])
+    assert 'yellow' in pf.terms
+    pf = PriorFactory(families=config_dict['families'])    
+    assert 'hard' in pf.families
 
 def test_prior_retrieval():
     config_file = join(dirname(__file__), 'data', 'sample_priors.json')
@@ -63,3 +68,11 @@ def test_prior_retrieval():
     assert backup.args['flavor'] == 10000
     prior = pf.get(term='yellow')
     assert prior.name == 'Swiss'
+
+    # Test exception raising
+    with pytest.raises(ValueError):
+        pf.get(dist='apple')
+    with pytest.raises(ValueError):
+        pf.get(term='banana')
+    with pytest.raises(ValueError):
+        pf.get(family='cantaloupe')
