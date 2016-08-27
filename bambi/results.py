@@ -49,7 +49,7 @@ class PyMC3ModelResults(ModelResults):
         Plots posterior distributions and sample traces. Currently just a
         wrapper for pm.traceplot().
         '''
-        return pm.traceplot(trace[burn_in:], varnames=names, **kwargs)
+        return pm.traceplot(self.trace[burn_in:], varnames=names, **kwargs)
 
     def summary(self, burn_in=0, fixed=True, random=True, names=None,
                 **kwargs):
@@ -57,4 +57,4 @@ class PyMC3ModelResults(ModelResults):
         Summarizes all parameter estimates. Currently just a wrapper for
         pm.summary().
         '''
-        return pm.summary(trace[burn_in:], varnames=names, **kwargs)
+        return pm.summary(self.trace[burn_in:], varnames=names, **kwargs)
