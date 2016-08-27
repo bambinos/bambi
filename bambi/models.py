@@ -16,7 +16,19 @@ class Model(object):
                  default_priors=None):
         '''
         Args:
-            dataset (DataFrame): the pandas DF containing the data to use.
+            data (DataFrame, str): the dataset to use. Either a pandas
+                DataFrame, or the name of the file containing the data, which
+                will be passed to pd.read_table().
+            intercept (bool): If True, an intercept term is added to the model
+                at initialization. Defaults to False, as both fixed and random
+                effect specifications will add an intercept by default.
+            backend (str): The name of the BackEnd to use. Currently only
+                'pymc3' is supported.
+            default_priors (dict, str): An optional specification of the
+                default priors to use for all model terms. Either a dict
+                containing named distributions, families, and terms (see the
+                documentation in priors.PriorFactory for details), or the name
+                of a JSON file containing the same information.
         '''
 
         if isinstance(data, string_types):
@@ -47,13 +59,17 @@ class Model(object):
             self.add_intercept()
 
     def reset(self):
-        # self.cache = OrderedDict()
-        self.contrasts = OrderedDict()
+        '''
+        Reset list of terms and y-variable.
+        '''
         self.terms = OrderedDict()
         self.y = None
 
     def build(self):
-        ''' Build the PyMC3 model. '''
+        ''' Set up the model for sampling/fitting. Performs any steps that
+        require access to all model terms (e.g., scaling priors on each term),
+        then calls the BackEnd's build() method.
+        '''
         if self.y is None:
             raise ValueError("No outcome (y) variable is set! Please call "
                              "set_y() before build() or fit().")
@@ -92,6 +108,33 @@ class Model(object):
 
     def fit(self, fixed=None, random=None, family='gaussian', link=None,
             run=True, categorical=None, **kwargs):
+        '''
+        Fit the model using the current BackEnd.
+        Args:
+            fixed (str): Optional formula specification of fixed effects.
+            random (list): Optional list-based specification of random effects.
+            family (str, Family): A specification of the model family
+                (analogous to the family object in R). Either a string, or an
+                instance of class priors.Family. If a string is passed, a
+                family with the corresponding name must be defined in the
+                defaults loaded at Model initialization. Valid pre-defined
+                families are 'gaussian', 'binomial', 'poisson', and 't'.
+            link (str): The model link function to use. Can be either a string
+                (must be one of the options defined in the current backend;
+                typically this will include at least 'identity', 'logit',
+                'inverse', and 'exp'), or a callable that takes a 1D ndarray
+                or theano tensor as the sole argument and returns one with
+                the same shape.
+            run (bool): Whether or not to immediately begin fitting the model
+                once any set up of passed arguments is complete.
+            categorical (str, list): The names of any variables to treat as
+                categorical. Can be either a single variable name, or a list
+                of names. If categorical is None, the data type of the columns
+                in the DataFrame will be used to infer handling. In cases where
+                numeric columns are to be treated as categoricals (e.g., random
+                factors coded as numerical IDs), explicitly passing variable
+                names via this argument is recommended.
+        '''
         if fixed is not None or random is not None:
             self.add_formula(fixed=fixed, random=random, append=False,
                              family=family, link=link, categorical=categorical)
@@ -104,13 +147,50 @@ class Model(object):
             return self.backend.run(**kwargs)
 
     def add_intercept(self):
+        '''
+        Adds a constant term to the model. Generally unnecessary when using the
+        formula interface, but useful when specifying the model via add_term().
+        '''
         n = len(self.data)
         df = pd.DataFrame(np.ones((n, 1)), columns=['Intercept'])
         self.add_term('Intercept', df)
 
-    def add_formula(self, fixed=None, random=None, append=False, priors=None,
-                    categorical=None, family='gaussian', link=None):
-
+    def add_formula(self, fixed=None, random=None, priors=None,
+                    family='gaussian', link=None, categorical=None,
+                    append=False):
+        '''
+        Adds one or more terms to the model via an R-like formula syntax.
+        Args:
+            fixed (str): Optional formula specification of fixed effects.
+            random (list): Optional list-based specification of random effects.
+            priors (dict): Optional specification of priors for one or more
+                terms. A dict where the keys are the names of terms in the
+                model, and the values are either instances of class
+                priors.Prior or ints or floats that specify the width of the
+                priors on a standardized scale. NOTE: CURRENTLY UNIMPLEMENTED.
+            family (str, Family): A specification of the model family
+                (analogous to the family object in R). Either a string, or an
+                instance of class priors.Family. If a string is passed, a
+                family with the corresponding name must be defined in the
+                defaults loaded at Model initialization. Valid pre-defined
+                families are 'gaussian', 'binomial', 'poisson', and 't'.
+            link (str): The model link function to use. Can be either a string
+                (must be one of the options defined in the current backend;
+                typically this will include at least 'identity', 'logit',
+                'inverse', and 'exp'), or a callable that takes a 1D ndarray
+                or theano tensor as the sole argument and returns one with
+                the same shape.
+            categorical (str, list): The names of any variables to treat as
+                categorical. Can be either a single variable name, or a list
+                of names. If categorical is None, the data type of the columns
+                in the DataFrame will be used to infer handling. In cases where
+                numeric columns are to be treated as categoricals (e.g., random
+                factors coded as numerical IDs), explicitly passing variable
+                names via this argument is recommended.
+            append (bool): if True, terms are appended to the existing model
+                rather than replacing any existing terms. This allows
+                formula-based specification of the model in stages.
+        '''
         data = self.data
 
         if not append:
@@ -181,9 +261,33 @@ class Model(object):
 
                 self.add_term(variable=variable, label=label, **kwargs)
 
-    def add_y(self, variable, family='gaussian', link=None, prior=None, *args,
+    def add_y(self, variable, prior=None, family='gaussian', link=None, *args,
               **kwargs):
-
+        '''
+        Add a dependent (or outcome) variable to the model.
+        Args:
+            variable (str): the name of the dataset column containing the
+                y values.
+            prior (Prior, int, float): Optional specification of the prior.
+                Can be either an instance of priors.Prior, or a numeric value.
+                In the latter case, the distribution specified in the defaults
+                will be used, and the passed value will be used to scale the
+                appropriate variance parameter.
+            family (str, Family): A specification of the model family
+                (analogous to the family object in R). Either a string, or an
+                instance of class priors.Family. If a string is passed, a
+                family with the corresponding name must be defined in the
+                defaults loaded at Model initialization. Valid pre-defined
+                families are 'gaussian', 'binomial', 'poisson', and 't'.
+            link (str): The model link function to use. Can be either a string
+                (must be one of the options defined in the current backend;
+                typically this will include at least 'identity', 'logit',
+                'inverse', and 'exp'), or a callable that takes a 1D ndarray
+                or theano tensor as the sole argument and returns one with
+                the same shape.
+            args, kwargs: Optional positional and keyword arguments to pass
+                onto add_term().
+        '''
         if isinstance(family, string_types):
             family = self.default_priors.get(family=family)
         self.family = family
@@ -206,8 +310,51 @@ class Model(object):
 
     def add_term(self, variable, data=None, label=None, categorical=False,
                  random=False, split_by=None, prior=None, drop_first=True):
-        ''' Create a new Term and add it to the current Model. All positional
-        and keyword arguments are passed directly to the Term initializer. '''
+        '''
+        Add a term to the model.
+        Args:
+            variable (str): The name of the dataset column to use; also used
+                as the Term instance label if not otherwise specified using
+                the label argument.
+            data (DataFrame): Optional pandas DataFrame containing the term
+                values to use. If None (default), the correct column will be
+                extracted from the dataset currently loaded into the model
+                (based on the name passed in the variable argument).
+            label (str): Optional label/name to use for the term. If None, the
+                label will be automatically generated based on the variable
+                name and additional arguments.
+            categorical (bool): Whether or not the input variable should be
+                treated as categorical (defaults to False).
+            random (bool): If True, the predictor variable is modeled as a
+                random effect; if False, the predictor is modeled as a fixed
+                effect.
+            split_by (str): An optional name of another dataset column to
+                "split" the target variable on. In practice, this is primarily
+                used to specify the grouping variable when adding random
+                slopes or intercepts. For example, if variable='subject',
+                categorical=True, random=True, and split_by='condition',
+                a separate set of random subject slopes will be added for each
+                level of the condition variable. In this case, this would be
+                roughly analogous to an lme4-style specification like
+                'condition|subject'.
+            prior (Prior, int, float): Optional specification of the prior.
+                Can be either an instance of priors.Prior, or a numeric value.
+                In the latter case, the distribution specified in the defaults
+                will be used, and the passed value will be used to scale the
+                appropriate variance parameter.
+            drop_first (bool): indicates whether to use full rank or N-1 coding
+                when the predictor is categorical. If True, the N levels of the
+                categorical variable will be represented using N dummy columns.
+                If False, the predictor will be represented using N-1 binary
+                indicators, where each indicator codes the contrast between
+                the N_j and N_0 columns, for j = {1..N-1}.
+
+        Notes: One can think of bambi's split_by operation as a sequence of two
+            steps. First, the target variable is multiplied by the splitting
+            variable. This is equivalent to a formula call like 'A:B'. Second,
+            the columns of the resulting matrix are "grouped" by the levels
+            of the split_by variable.
+        '''
 
         if data is None:
             data = self.data.copy()
@@ -280,23 +427,16 @@ class Term(object):
 
     type_ = 'fixed'
 
-    def __init__(self, name, data, categorical=False, prior=None,
-                 **kwargs):
+    def __init__(self, name, data, categorical=False, prior=None):
         '''
         Args:
             name (str): Name of the term.
-            data (DataFrame, ndarray): The pandas DataFrame or numpy array from
-                containing the data. If a DF is passed, the variable names
-                are used to extract the target columns. If a numpy array is
-                passed, all columns of the array are used, without selection.
+            data (DataFrame, Series, ndarray): The term values.
             categorical (bool): If True, the source variable is interpreted as
                 nominal/categorical. If False, the source variable is treated
                 as continuous.
-            prior (dict): A specification of the prior(s) to use.
-                Must have keys for 'name' and 'args'; optionally, can also
-                pass 'sigma', which is another dict with name/arg keys.
-            kwargs: Optional keyword arguments passed to the model-building
-                back-end.
+            prior (Prior): A specification of the prior(s) to use. An instance
+                of class priors.Prior.
         '''
         self.name = name
         self.categorical = categorical
@@ -314,7 +454,6 @@ class Term(object):
             self.levels = list(range(data.shape[1]))
 
         self.data = data
-        self.kwargs = kwargs
 
     def _setup(self, model, default_prior_info):
         # set up default priors if no prior has been explicitly set
