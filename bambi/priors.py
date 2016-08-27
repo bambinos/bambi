@@ -158,3 +158,95 @@ class PriorFactory(object):
             _f = self.families[family]
             prior = self._get_prior(_f['dist'])
             return Family(family, prior, _f['link'], _f['parent'])
+
+
+class PriorScaler(object):
+
+    # Default is 'wide'. The wide prior SD is sqrt(1/3) = .577 on the partial
+    # corr scale, which is the SD of a flat prior over [-1,1].
+    names = {
+        'narrow': 0.2,
+        'medium': 0.4,
+        'wide': 3 ** -0.5,
+        'superwide': 0.8
+    }
+
+    def __init__(self, model):
+        self.model = model
+        self.stats = model.dm_statistics # purely for brevity
+
+    def _scale_intercept(self, term, value):
+
+        # default priors are only defined for Normal priors, although
+        # we could probably easily handle Cauchy by just substituting
+        # 'sd' -> 'beta'
+        if term.prior.name != 'Normal':
+            return
+
+        index = list(self.stats['r2_y'].index)
+        sd = self.stats['sd_y'] * (1 - self.stats['r2_y'][index]) / \
+            self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])
+        sd *= value
+        sd = np.dot(sd**2, self.stats['mean_x'][index]**2)**.5
+        term.prior.update(mu=self.stats['mean_y'], sd=sd)
+
+    def _scale_fixed(self, term, value):
+
+        if term.prior.name != 'Normal':
+            return
+
+        slope_constant = self.stats['sd_y'] * \
+            (1 - self.stats['r2_y'][term.levels]) / \
+            self.stats['sd_x'][term.levels] / \
+            (1 - self.stats['r2_x'][term.levels])
+        term.prior.update(sd=value * slope_constant.values)
+
+    def _scale_random(self, term, value):
+
+        term_type = 'intercept' if '|' not in self.name else 'slope'
+
+        # these default priors are only defined for HalfCauchy priors
+        if term.prior.args['sd'].name != 'HalfCauchy':
+            return
+
+        # handle random slopes
+        if term_type == 'slope':
+            # get name of corresponding fixed effect
+            fix = re.sub(r'\|.*', r'', term.name).strip()
+            # only proceed if there does exist a corresponding fixed
+            # effect. note that without this, it would break on random
+            # slopes for categorical predictors! Here we simply skip
+            # that case, but we should make it correctly handle default
+            # priors for that case
+            if fix not in list(self.stats['r2_y'].index):
+                return
+            slope_constant = self.stats['sd_y'] * \
+                (1 - self.stats['r2_y'][fix]) / self.stats['sd_x'][fix] / \
+                (1 - self.stats['r2_x'][fix])
+            term.prior.args['sd'].update(beta=wide * slope_constant)
+        # handle random intercepts
+        else:
+            index = list(self.stats['r2_y'].index)
+            beta = self.stats['sd_y'] * (1 - self.stats['r2_y'][index]) / \
+                self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])
+            beta *= wide
+            beta = np.dot(beta**2, self.stats['mean_x'][index]**2)**.5
+            term.prior.args['sd'].update(beta=beta)
+
+    def scale(self, term):
+
+        if term.name == 'Intercept':
+            term_type = 'intercept'
+        else:
+            term_type = term.type_.lower()
+
+        if term.prior is None:
+            value = 'wide'
+        else:
+            value = term.prior
+
+        if isinstance(value, string_types):
+            value = PriorScaler.names[value]
+
+        term.prior = self.model.default_priors.get(term=term_type)
+        getattr(self, '_scale_%s' % term_type)(term, value)

@@ -5,7 +5,7 @@ from collections import OrderedDict, defaultdict
 from bambi.utils import listify
 from patsy import dmatrices, dmatrix
 import warnings
-from bambi.priors import PriorFactory
+from bambi.priors import PriorFactory, PriorScaler, Prior
 from copy import deepcopy
 import re
 
@@ -85,7 +85,7 @@ class Model(object):
         X = pd.concat([pd.DataFrame(x.data, columns=x.levels)
                        for x in self.terms.values()
                        if x.type_ == 'fixed' and x.name != 'Intercept'], axis=1)
-        default_prior_info = {
+        self.dm_statistics = {
             'r2_x': pd.Series({
                 x: pd.stats.api.ols(
                     y=X[x], x=X.drop(x, axis=1)).r2
@@ -100,20 +100,24 @@ class Model(object):
             'mean_y': self.y.data.mean()
         }
 
-        # save potentially useful info for diagnostics and send toModelResults
+        # save potentially useful info for diagnostics and send to ModelResults
         # mat = correlation matrix of X, w/ diagonal replaced by X means
         mat = X.corr()
         for x in list(mat.columns):
-            mat.loc[x, x] = default_prior_info['mean_x'][x]
+            mat.loc[x, x] = self.dm_statistics['mean_x'][x]
         self._diagnostics = {
             # the Variance Inflation Factors (VIF), which is possibly useful
             # for diagnostics
-            'VIF': 1/(1 - default_prior_info['r2_x']),
+            'VIF': 1/(1 - self.dm_statistics['r2_x']),
             'corr_mean_X': mat
         }
 
+        # Get and scale default priors if none are defined yet
+        scaler = PriorScaler(self)
         for t in self.terms.values():
-            t._setup(model=self, default_prior_info=default_prior_info)
+            if not isinstance(t.prior, Prior):
+                scaler.scale(t)
+
         self.backend.build(self)
         self.built = True
 
@@ -127,8 +131,8 @@ class Model(object):
             priors (dict): Optional specification of priors for one or more
                 terms. A dict where the keys are the names of terms in the
                 model, and the values are either instances of class Prior or
-                ints or floats that specify the width of the priors on a
-                standardized scale.
+                ints, floats, or strings that specify the width of the priors
+                on a standardized scale.
             family (str, Family): A specification of the model family
                 (analogous to the family object in R). Either a string, or an
                 instance of class priors.Family. If a string is passed, a
@@ -183,8 +187,8 @@ class Model(object):
             priors (dict): Optional specification of priors for one or more
                 terms. A dict where the keys are the names of terms in the
                 model, and the values are either instances of class Prior or
-                ints or floats that specify the width of the priors on a
-                standardized scale.
+                ints, floats, or strings that specify the width of the priors
+                on a standardized scale.
             family (str, Family): A specification of the model family
                 (analogous to the family object in R). Either a string, or an
                 instance of class priors.Family. If a string is passed, a
@@ -291,11 +295,13 @@ class Model(object):
         Args:
             variable (str): the name of the dataset column containing the
                 y values.
-            prior (Prior, int, float): Optional specification of the prior.
-                Can be either an instance of priors.Prior, or a numeric value.
-                In the latter case, the distribution specified in the defaults
-                will be used, and the passed value will be used to scale the
-                appropriate variance parameter.
+            prior (Prior, int, float, str): Optional specification of prior.
+                Can be an instance of class Prior, a numeric value, or a string
+                describing the width. In the numeric case, the distribution
+                specified in the defaults will be used, and the passed value
+                will be used to scale the appropriate variance parameter. For
+                strings (e.g., 'wide', 'narrow', 'medium', or 'superwide'),
+                predefined values will be used.
             family (str, Family): A specification of the model family
                 (analogous to the family object in R). Either a string, or an
                 instance of class priors.Family. If a string is passed, a
@@ -361,11 +367,13 @@ class Model(object):
                 level of the condition variable. In this case, this would be
                 roughly analogous to an lme4-style specification like
                 'condition|subject'.
-            prior (Prior, int, float): Optional specification of the prior.
-                Can be either an instance of priors.Prior, or a numeric value.
-                In the latter case, the distribution specified in the defaults
-                will be used, and the passed value will be used to scale the
-                appropriate variance parameter.
+            prior (Prior, int, float, str): Optional specification of prior.
+                Can be an instance of class Prior, a numeric value, or a string
+                describing the width. In the numeric case, the distribution
+                specified in the defaults will be used, and the passed value
+                will be used to scale the appropriate variance parameter. For
+                strings (e.g., 'wide', 'narrow', 'medium', or 'superwide'),
+                predefined values will be used.
             drop_first (bool): indicates whether to use full rank or N-1 coding
                 when the predictor is categorical. If True, the N levels of the
                 categorical variable will be represented using N dummy columns.
@@ -450,10 +458,10 @@ class Model(object):
                 or an int or float that scales the default priors). Note that
                 a tuple can be passed as the key, in which case the same prior
                 will be applied to all terms named in the tuple.
-            fixed (Prior, int, float): a prior specification to apply to all
-                fixed terms currently included in the model.
-            random (Prior, int, float): a prior specification to apply to all
-                random terms currently included in the model.
+            fixed (Prior, int, float, str): a prior specification to apply to
+                all fixed terms currently included in the model.
+            random (Prior, int, float, str): a prior specification to apply to
+                all random terms currently included in the model.
         '''
 
         targets = {}
@@ -526,41 +534,6 @@ class Term(object):
 
         self.data = data
 
-    def _setup(self, model, default_prior_info):
-        # set up default priors if no prior has been explicitly set
-        if self.prior is None:
-            term_type = 'intercept' if self.name == 'Intercept' else 'fixed'
-            self.prior = model.default_priors.get(term=term_type)
-            # these default priors are only defined for Normal priors, although
-            # we could probably easily handle Cauchy by just substituting
-            # 'sd' -> 'beta'
-            if self.prior.name == 'Normal':
-                # the default 'wide' prior SD is sqrt(1/3) = .577 on the
-                # partial corr scale, which is the SD of a flat prior over
-                # [-1,1]. Wider than that would be weird. TODO: support other
-                # defaults such as superwide = .8, medium = .4, narrow = .2
-                wide = 3**-.5
-
-                # handle slopes
-                if term_type == 'fixed':
-                    slope_constant = default_prior_info['sd_y'] * \
-                        (1 - default_prior_info['r2_y'][self.levels]) / \
-                        default_prior_info['sd_x'][self.levels] / \
-                        (1 - default_prior_info['r2_x'][self.levels])
-                    self.prior.update(sd=wide * slope_constant.values)
-
-                # handle the intercept
-                else:
-                    index = list(default_prior_info['r2_y'].index)
-                    sd = default_prior_info['sd_y'] * \
-                        (1 - default_prior_info['r2_y'][index]) / \
-                        default_prior_info['sd_x'][index] / \
-                        (1 - default_prior_info['r2_x'][index])
-                    sd *= wide
-                    sd = np.dot(
-                        sd**2, default_prior_info['mean_x'][index]**2)**.5
-                    self.prior.update(mu=default_prior_info['mean_y'], sd=sd)
-
 
 class RandomTerm(Term):
 
@@ -569,43 +542,3 @@ class RandomTerm(Term):
     def __init__(self, name, data, prior=None, **kwargs):
 
         super(RandomTerm, self).__init__(name, data, prior=prior, **kwargs)
-
-    def _setup(self, model, default_prior_info):
-        # set up default priors if no prior has been explicitly set
-        if self.prior is None:
-            term_type = 'intercept' if '|' not in self.name else 'slope'
-            self.prior = model.default_priors.get(term='random')
-            # these default priors are only defined for HalfCauchy priors,
-            if self.prior.args['sd'].name == 'HalfCauchy':
-                # as above, 'wide' prior SD is sqrt(1/3) = .577 on the partial
-                # corr scale, which is the SD of a flat prior over [-1,1].
-                # Wider than that would be weird. TODO: support other defaults
-                # such as superwide = .8, medium = .4, narrow = .2
-                wide = 3**-.5
-                # handle random slopes
-                if term_type == 'slope':
-                    # get name of corresponding fixed effect
-                    fix = re.sub(r'\|.*', r'', self.name).strip()
-                    # only proceed if there does exist a corresponding fixed
-                    # effect. note that without this, it would break on random
-                    # slopes for categorical predictors! Here we simply skip
-                    # that case, but we should make it correctly handle default
-                    # priors for that case
-                    if fix in list(default_prior_info['r2_y'].index):
-                        slope_constant = default_prior_info['sd_y'] * \
-                            (1 - default_prior_info['r2_y'][fix]) / \
-                            default_prior_info['sd_x'][fix] / \
-                            (1 - default_prior_info['r2_x'][fix])
-                        self.prior.args['sd'].update(
-                            beta=wide * slope_constant)
-                # handle random intercepts
-                else:
-                    index = list(default_prior_info['r2_y'].index)
-                    beta = default_prior_info['sd_y'] * \
-                        (1 - default_prior_info['r2_y'][index]) / \
-                        default_prior_info['sd_x'][index] / \
-                        (1 - default_prior_info['r2_x'][index])
-                    beta *= wide
-                    beta = np.dot(
-                        beta**2, default_prior_info['mean_x'][index]**2)**.5
-                    self.prior.args['sd'].update(beta=beta)
