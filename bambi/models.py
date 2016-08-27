@@ -107,13 +107,18 @@ class Model(object):
         self.backend.build(self)
         self.built = True
 
-    def fit(self, fixed=None, random=None, family='gaussian', link=None,
-            run=True, categorical=None, **kwargs):
+    def fit(self, fixed=None, random=None, priors=None, family='gaussian',
+            link=None, run=True, categorical=None, **kwargs):
         '''
         Fit the model using the current BackEnd.
         Args:
             fixed (str): Optional formula specification of fixed effects.
             random (list): Optional list-based specification of random effects.
+            priors (dict): Optional specification of priors for one or more
+                terms. A dict where the keys are the names of terms in the
+                model, and the values are either instances of class Prior or
+                ints or floats that specify the width of the priors on a
+                standardized scale.
             family (str, Family): A specification of the model family
                 (analogous to the family object in R). Either a string, or an
                 instance of class priors.Family. If a string is passed, a
@@ -137,8 +142,9 @@ class Model(object):
                 names via this argument is recommended.
         '''
         if fixed is not None or random is not None:
-            self.add_formula(fixed=fixed, random=random, append=False,
-                             family=family, link=link, categorical=categorical)
+            self.add_formula(fixed=fixed, random=random, priors=priors,
+                             family=family, link=link, categorical=categorical,
+                             append=False)
         ''' Run the BackEnd to fit the model. '''
         if not self.built:
             warnings.warn("Current Bayesian model has not been built yet; "
@@ -166,9 +172,9 @@ class Model(object):
             random (list): Optional list-based specification of random effects.
             priors (dict): Optional specification of priors for one or more
                 terms. A dict where the keys are the names of terms in the
-                model, and the values are either instances of class
-                priors.Prior or ints or floats that specify the width of the
-                priors on a standardized scale. NOTE: CURRENTLY UNIMPLEMENTED.
+                model, and the values are either instances of class Prior or
+                ints or floats that specify the width of the priors on a
+                standardized scale.
             family (str, Family): A specification of the model family
                 (analogous to the family object in R). Either a string, or an
                 instance of class priors.Family. If a string is passed, a
@@ -194,16 +200,19 @@ class Model(object):
         '''
         data = self.data
 
+        if priors is None:
+            priors = {}
+
         if not append:
             self.reset()
 
         if fixed is not None:
-            # Explicitly convert columns to category if desired--though this can
-            # also be done within the formula using C().
+            # Explicitly convert columns to category if desired--though this
+            # can also be done within the formula using C().
             if categorical is not None:
                 data = data.copy()
-                categorical = listify(categorical)
-                data[categorical] = data[categorical].apply(lambda x: x.astype('category'))
+                cats = listify(categorical)
+                data[cats] = data[cats].apply(lambda x: x.astype('category'))
 
             if '~' in fixed:
                 y, X = dmatrices(fixed, data=data)
@@ -216,7 +225,8 @@ class Model(object):
             for _name, _slice in X.design_info.term_name_slices.items():
                 cols = X.design_info.column_names[_slice]
                 term_data = pd.DataFrame(X[:, _slice], columns=cols)
-                self.add_term(_name, data=term_data)
+                prior = priors.pop(_name, priors.pop('fixed', None))
+                self.add_term(_name, data=term_data, prior=prior)
 
         # Random effects
         if random is not None:
@@ -260,6 +270,7 @@ class Model(object):
                     else:
                         variable, kwargs['split_by'] = pred, grpr
 
+                prior = priors.pop(label, priors.pop('random', None))
                 self.add_term(variable=variable, label=label, **kwargs)
 
     def add_y(self, variable, prior=None, family='gaussian', link=None, *args,
