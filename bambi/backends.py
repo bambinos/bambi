@@ -39,6 +39,9 @@ class PyMC3BackEnd(BackEnd):
         self.reset()
 
     def reset(self):
+        '''
+        Reset PyMC3 model and all tracked distributions and parameters.
+        '''
         self.model = pm.Model()
         self.mu = None
         self.dists = {}
@@ -62,16 +65,23 @@ class PyMC3BackEnd(BackEnd):
         kwargs = {k: _expand_args(k, v, label) for (k, v) in kwargs.items()}
         return dist(label, **kwargs)
 
-    def build(self, model, reset=True):
-
+    def build(self, spec, reset=True):
+        '''
+        Compile the PyMC3 model from an abstract model specification.
+        Args:
+            spec (Model): A bambi Model instance containing the abstract
+                specification of the model to compile.
+            reset (bool): if True (default), resets the PyMC3BackEnd instance
+                before compiling.
+        '''
         if reset:
             self.reset()
 
         with self.model:
 
-            self.mu = theano.shared(np.zeros((len(model.y.data), 1)))
+            self.mu = theano.shared(np.zeros((len(spec.y.data), 1)))
 
-            for t in model.terms.values():
+            for t in spec.terms.values():
 
                 data = t.data
                 label = t.name
@@ -93,18 +103,30 @@ class PyMC3BackEnd(BackEnd):
                                             shape=n_cols, **dist_args)
                     self.mu += pm.dot(data, coef)[:, None]
 
-            y = model.y.data
-            y_prior = model.family.prior
-            link_f = self.links[model.family.link]
-            y_prior.args[model.family.parent] = link_f(self.mu)
+            y = spec.y.data
+            y_prior = spec.family.prior
+            link_f = self.links[spec.family.link]
+            y_prior.args[spec.family.parent] = link_f(self.mu)
             y_prior.args['observed'] = y
             y_like = self._build_dist(
                 'likelihood', y_prior.name, **y_prior.args)
 
-    def run(self, model_spec, start=None, find_map=False, **kwargs):
+            self.spec = spec
+
+    def run(self, start=None, find_map=False, **kwargs):
+        '''
+        Run the PyMC3 MCMC sampler.
+        Args:
+            start: Starting parameter values to pass to sampler; see
+                pm.sample() documentation for details.
+            find_map (bool): whether or not to use the maximum a posteriori
+                estimate as a starting point; passed directly to PyMC3.
+            kwargs (dict): Optional keyword arguments passed onto the sampler.
+
+        '''
         samples = kwargs.pop('samples', 1000)
         with self.model:
             if start is None and find_map:
                 start = pm.find_MAP()
             self.trace = pm.sample(samples, start=start, **kwargs)
-        return ModelResults(model_spec, self.trace)
+        return ModelResults(self.spec, self.trace)

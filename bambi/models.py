@@ -98,7 +98,7 @@ class Model(object):
               "building it first before sampling begins.")
             self.build()
         if run:
-            return self.backend.run(self, **kwargs)
+            return self.backend.run(**kwargs)
 
     def add_intercept(self):
         n = len(self.data)
