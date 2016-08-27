@@ -162,13 +162,13 @@ class PriorFactory(object):
 
 class PriorScaler(object):
 
-    # Default is 'wide'. The wide prior SD is sqrt(1/3) = .577 on the partial
+    # Default is 'value'. The value prior SD is sqrt(1/3) = .577 on the partial
     # corr scale, which is the SD of a flat prior over [-1,1].
     names = {
         'narrow': 0.2,
         'medium': 0.4,
-        'wide': 3 ** -0.5,
-        'superwide': 0.8
+        'value': 3 ** -0.5,
+        'supervalue': 0.8
     }
 
     def __init__(self, model):
@@ -203,7 +203,7 @@ class PriorScaler(object):
 
     def _scale_random(self, term, value):
 
-        term_type = 'intercept' if '|' not in self.name else 'slope'
+        term_type = 'intercept' if '|' not in term.name else 'slope'
 
         # these default priors are only defined for HalfCauchy priors
         if term.prior.args['sd'].name != 'HalfCauchy':
@@ -223,13 +223,13 @@ class PriorScaler(object):
             slope_constant = self.stats['sd_y'] * \
                 (1 - self.stats['r2_y'][fix]) / self.stats['sd_x'][fix] / \
                 (1 - self.stats['r2_x'][fix])
-            term.prior.args['sd'].update(beta=wide * slope_constant)
+            term.prior.args['sd'].update(beta=value * slope_constant)
         # handle random intercepts
         else:
             index = list(self.stats['r2_y'].index)
             beta = self.stats['sd_y'] * (1 - self.stats['r2_y'][index]) / \
                 self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])
-            beta *= wide
+            beta *= value
             beta = np.dot(beta**2, self.stats['mean_x'][index]**2)**.5
             term.prior.args['sd'].update(beta=beta)
 
@@ -241,7 +241,7 @@ class PriorScaler(object):
             term_type = term.type_.lower()
 
         if term.prior is None:
-            value = 'wide'
+            value = 'value'
         else:
             value = term.prior
 
