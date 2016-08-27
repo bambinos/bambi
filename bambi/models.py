@@ -72,7 +72,8 @@ class Model(object):
         '''
         if self.y is None:
             raise ValueError("No outcome (y) variable is set! Please call "
-                             "set_y() before build() or fit().")
+                             "add_y() or specify an outcome variable using the"
+                             " formula interface before build() or fit().")
 
         # compute information used to set the default priors
         # X = fixed effects design matrix (excluding intercept/constant term)
@@ -304,9 +305,10 @@ class Model(object):
             prior.args['sd'].update(beta=self.data[variable].std())
 
         self.add_term(variable, prior=prior, *args, **kwargs)
-        # use last-added term name b/c it could have been changed in add_term
+        # use last-added term name b/c it could have been changed by add_term
         name = list(self.terms.values())[-1].name
-        self.set_y(name)
+        self.y = self.terms.pop(name)
+        self.built = False
 
     def add_term(self, variable, data=None, label=None, categorical=False,
                  random=False, split_by=None, prior=None, drop_first=True):
@@ -413,13 +415,6 @@ class Model(object):
             term = Term(name=label, data=data, categorical=categorical,
                         prior=prior)
         self.terms[term.name] = term
-        self.built = False
-
-    def set_y(self, label):
-        ''' Set the outcome variable. '''
-        if self.y is not None:
-            self.terms[self.y.label] = self.y
-        self.y = self.terms.pop(label)
         self.built = False
 
 
