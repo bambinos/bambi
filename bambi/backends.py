@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from bambi.external.six import string_types
 import numpy as np
 import warnings
-from bambi.results import ModelResults
+from bambi.results import PyMC3ModelResults
 from bambi.priors import Prior
 import theano
 try:
@@ -122,11 +122,11 @@ class PyMC3BackEnd(BackEnd):
             find_map (bool): whether or not to use the maximum a posteriori
                 estimate as a starting point; passed directly to PyMC3.
             kwargs (dict): Optional keyword arguments passed onto the sampler.
-
+        Returns: A PyMC3ModelResults instance.
         '''
         samples = kwargs.pop('samples', 1000)
         with self.model:
             if start is None and find_map:
                 start = pm.find_MAP()
             self.trace = pm.sample(samples, start=start, **kwargs)
-        return ModelResults(self.spec, self.trace)
+        return PyMC3ModelResults(self.spec, self.trace)
