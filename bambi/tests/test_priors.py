@@ -48,8 +48,9 @@ def test_prior_factory_init_from_config():
     assert 'feta' in pf.dists
     pf = PriorFactory(terms=config_dict['terms'])
     assert 'yellow' in pf.terms
-    pf = PriorFactory(families=config_dict['families'])    
+    pf = PriorFactory(families=config_dict['families'])
     assert 'hard' in pf.families
+
 
 def test_prior_retrieval():
     config_file = join(dirname(__file__), 'data', 'sample_priors.json')

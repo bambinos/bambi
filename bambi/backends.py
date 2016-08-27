@@ -13,6 +13,7 @@ except:
 
 
 class BackEnd(object):
+
     '''
     Base class for BackEnd hierarchy.
     '''
@@ -28,6 +29,7 @@ class BackEnd(object):
 
 
 class PyMC3BackEnd(BackEnd):
+
     '''
     PyMC3 model-fitting back-end.
     '''

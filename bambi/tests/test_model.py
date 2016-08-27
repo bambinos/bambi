@@ -94,7 +94,8 @@ def test_add_term_to_model(base_model):
     assert isinstance(base_model.terms['BMI'], Term)
     base_model.add_term('age_grp', random=False, categorical=True)
     # Test that arguments are passed appropriately onto Term initializer
-    base_model.add_term('BP', random=True, split_by='age_grp', categorical=True)
+    base_model.add_term(
+        'BP', random=True, split_by='age_grp', categorical=True)
     assert isinstance(base_model.terms['BP'], Term)
 
 
@@ -124,7 +125,7 @@ def test_update_term_priors_after_init(diabetes_data):
     assert model.terms['S1'].prior.args['beta'] == 2
     assert model.terms['BMI'].prior == 0.3
 
-    model.set_priors({('S1', 'BMI'): p1 })
+    model.set_priors({('S1', 'BMI'): p1})
     assert model.terms['S1'].prior.args['sd'] == 10
     assert model.terms['BMI'].prior.args['mu'] == -10
 

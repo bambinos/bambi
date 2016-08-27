@@ -7,6 +7,7 @@ import re
 
 
 class Family(object):
+
     '''
     A specification of model family.
     Args:
@@ -17,6 +18,7 @@ class Family(object):
         parent (str): The name of the prior parameter to set to the link-
             transformed predicted outcome (e.g., mu, p, etc.).
     '''
+
     def __init__(self, name, prior, link, parent):
         self.name = name
         self.prior = prior
@@ -25,6 +27,7 @@ class Family(object):
 
 
 class Prior(object):
+
     '''
     Abstract specification of a term prior.
     Args:
@@ -32,6 +35,7 @@ class Prior(object):
         kwargs (dict): Optional keywords specifying the parameters of the
             named distribution.
     '''
+
     def __init__(self, name, **kwargs):
         self.name = name
         self.args = {}
@@ -47,6 +51,7 @@ class Prior(object):
 
 
 class PriorFactory(object):
+
     '''
     An object that supports specification and easy retrieval of default priors.
     Args:
@@ -82,6 +87,7 @@ class PriorFactory(object):
         >>>                             link:'identity', parent: 'mu'}}
         >>> pf = PriorFactory(dists=dists, families=families)
     '''
+
     def __init__(self, defaults=None, dists=None, terms=None, families=None):
 
         if defaults is None:

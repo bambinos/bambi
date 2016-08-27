@@ -12,24 +12,25 @@ import re
 
 class Model(object):
 
+    '''
+    Args:
+        data (DataFrame, str): the dataset to use. Either a pandas
+            DataFrame, or the name of the file containing the data, which
+            will be passed to pd.read_table().
+        intercept (bool): If True, an intercept term is added to the model
+            at initialization. Defaults to False, as both fixed and random
+            effect specifications will add an intercept by default.
+        backend (str): The name of the BackEnd to use. Currently only
+            'pymc3' is supported.
+        default_priors (dict, str): An optional specification of the
+            default priors to use for all model terms. Either a dict
+            containing named distributions, families, and terms (see the
+            documentation in priors.PriorFactory for details), or the name
+            of a JSON file containing the same information.
+    '''
+
     def __init__(self, data=None, intercept=False, backend='pymc3',
                  default_priors=None):
-        '''
-        Args:
-            data (DataFrame, str): the dataset to use. Either a pandas
-                DataFrame, or the name of the file containing the data, which
-                will be passed to pd.read_table().
-            intercept (bool): If True, an intercept term is added to the model
-                at initialization. Defaults to False, as both fixed and random
-                effect specifications will add an intercept by default.
-            backend (str): The name of the BackEnd to use. Currently only
-                'pymc3' is supported.
-            default_priors (dict, str): An optional specification of the
-                default priors to use for all model terms. Either a dict
-                containing named distributions, families, and terms (see the
-                documentation in priors.PriorFactory for details), or the name
-                of a JSON file containing the same information.
-        '''
 
         if isinstance(data, string_types):
             data = pd.read_table(data, sep=None)
@@ -53,7 +54,8 @@ class Model(object):
             from bambi.backends import PyMC3BackEnd
             self.backend = PyMC3BackEnd()
         else:
-            raise ValueError("At the moment, only the PyMC3 backend is supported.")
+            raise ValueError(
+                "At the moment, only the PyMC3 backend is supported.")
 
         if intercept:
             self.add_intercept()
@@ -77,33 +79,41 @@ class Model(object):
 
         # compute information used to set the default priors
         # X = fixed effects design matrix (excluding intercept/constant term)
-        # r2_x = 1 - 1/VIF for each x, i.e., R2 for predicting each x from all other x's
-        # r2_y = R2 for predicting y from all x's *other than* the current x
-        X = pd.concat([pd.DataFrame(x.data, columns=x.levels) for x in self.terms.values()
-            if x.type_=='fixed' and x.name != 'Intercept'], axis=1)
+        # r2_x = 1 - 1/VIF for each x, i.e., R2 for predicting each x from all
+        # other x's r2_y = R2 for predicting y from all x's *other than* the
+        # current x
+        X = pd.concat([pd.DataFrame(x.data, columns=x.levels)
+                       for x in self.terms.values()
+                       if x.type_ == 'fixed' and x.name != 'Intercept'], axis=1)
         default_prior_info = {
-            'r2_x':pd.Series({x:pd.stats.api.ols(y=X[x], x=X.drop(x, axis=1)).r2
+            'r2_x': pd.Series({
+                x: pd.stats.api.ols(
+                    y=X[x], x=X.drop(x, axis=1)).r2
                 for x in list(X.columns)}),
-            'r2_y':pd.Series({x:pd.stats.api.ols(y=self.y.data.squeeze(), x=X.drop(x, axis=1)).r2
+            'r2_y': pd.Series({
+                x: pd.stats.api.ols(
+                    y=self.y.data.squeeze(), x=X.drop(x, axis=1)).r2
                 for x in list(X.columns)}),
-            'sd_x':X.std(),
-            'sd_y':self.y.data.std(),
-            'mean_x':X.mean(axis=0),
-            'mean_y':self.y.data.mean()
+            'sd_x': X.std(),
+            'sd_y': self.y.data.std(),
+            'mean_x': X.mean(axis=0),
+            'mean_y': self.y.data.mean()
         }
 
-        # save some info possibly useful for diagnostics, and send to ModelResults
+        # save potentially useful info for diagnostics and send toModelResults
         # mat = correlation matrix of X, w/ diagonal replaced by X means
         mat = X.corr()
-        for x in list(mat.columns): mat.loc[x,x] = default_prior_info['mean_x'][x]
+        for x in list(mat.columns):
+            mat.loc[x, x] = default_prior_info['mean_x'][x]
         self._diagnostics = {
-            # the Variance Inflation Factors (VIF), which is possibly useful for diagnostics
-            'VIF':1/(1 - default_prior_info['r2_x']),
-            'corr_mean_X':mat
+            # the Variance Inflation Factors (VIF), which is possibly useful
+            # for diagnostics
+            'VIF': 1/(1 - default_prior_info['r2_x']),
+            'corr_mean_X': mat
         }
 
         for t in self.terms.values():
-            t._setup(model=self, default_prior_info=default_prior_info) 
+            t._setup(model=self, default_prior_info=default_prior_info)
         self.backend.build(self)
         self.built = True
 
@@ -148,7 +158,7 @@ class Model(object):
         ''' Run the BackEnd to fit the model. '''
         if not self.built:
             warnings.warn("Current Bayesian model has not been built yet; "
-              "building it first before sampling begins.")
+                          "building it first before sampling begins.")
             self.build()
         if run:
             return self.backend.run(**kwargs)
@@ -236,8 +246,9 @@ class Model(object):
                 kwargs = {'random': True}
                 if re.search('[\*\(\)]+', f):
                     raise ValueError("Random term '%s' contains an invalid "
-                        "character. Note that only the | and + operators are "
-                        "currently supported in random effects specifications.")
+                                     "character. Note that only the | and + "
+                                     "operators are currently supported in "
+                                     "random effects specifications.")
 
                 # Split specification into intercept, predictor, and grouper
                 patt = r'^([01]+)*[\s\+]*([^\|]+)\|*(.*)'
@@ -312,7 +323,7 @@ class Model(object):
             prior = self.family.prior
 
         # implement default HalfCauchy prior for normal sigma (beta = sd(Y))
-        if self.family.name=='gaussian':
+        if self.family.name == 'gaussian':
             prior.args['sd'].update(beta=self.data[variable].std())
 
         self.add_term(variable, prior=prior, *args, **kwargs)
@@ -374,8 +385,8 @@ class Model(object):
 
         # Make sure user didn't forget to set categorical=True
         elif variable in data.columns and \
-             data.loc[:, variable].dtype.name in ['object', 'category']:
-             categorical = True
+                data.loc[:, variable].dtype.name in ['object', 'category']:
+            categorical = True
 
         if categorical:
             data[variable] = data[variable].astype('category')
@@ -401,12 +412,14 @@ class Model(object):
                 for g in groups:
                     patt = re.escape(r':%s' % g) + '$'
                     level_data = data.filter(regex=patt)
-                    level_data.columns = [c.split(':')[0] for c in level_data.columns]
-                    level_data = level_data.loc[:, (level_data!=0).any(axis=0)]
+                    level_data.columns = [
+                        c.split(':')[0] for c in level_data.columns]
+                    level_data = level_data.loc[
+                        :, (level_data != 0).any(axis=0)]
                     split_data[g] = level_data.values
                 data = split_data
 
-        elif categorical or (variable in data.columns and \
+        elif categorical or (variable in data.columns and
                              data[variable].dtype.name in ['object', 'category']):
             data = pd.get_dummies(data[variable], drop_first=drop_first)
         else:
@@ -470,29 +483,32 @@ class Model(object):
     @property
     def fixed_terms(self):
         ''' Return dict of all and only fixed effects in model. '''
-        return { k: v for (k, v) in self.terms.items() if v.type_ == 'fixed' }
+        return {k: v for (k, v) in self.terms.items() if v.type_ == 'fixed'}
 
     @property
     def random_terms(self):
         ''' Return dict of all and only random effects in model. '''
-        return { k: v for (k, v) in self.terms.items() if v.type_ == 'random' }
+        return {k: v for (k, v) in self.terms.items() if v.type_ == 'random'}
 
 
 class Term(object):
 
+    '''
+    Representation of a single model term.
+    Args:
+        name (str): Name of the term.
+        data (DataFrame, Series, ndarray): The term values.
+        categorical (bool): If True, the source variable is interpreted as
+            nominal/categorical. If False, the source variable is treated
+            as continuous.
+        prior (Prior): A specification of the prior(s) to use. An instance
+            of class priors.Prior.
+    '''
+
     type_ = 'fixed'
 
     def __init__(self, name, data, categorical=False, prior=None):
-        '''
-        Args:
-            name (str): Name of the term.
-            data (DataFrame, Series, ndarray): The term values.
-            categorical (bool): If True, the source variable is interpreted as
-                nominal/categorical. If False, the source variable is treated
-                as continuous.
-            prior (Prior): A specification of the prior(s) to use. An instance
-                of class priors.Prior.
-        '''
+
         self.name = name
         self.categorical = categorical
         self.prior = prior
@@ -515,35 +531,43 @@ class Term(object):
         if self.prior is None:
             term_type = 'intercept' if self.name == 'Intercept' else 'fixed'
             self.prior = model.default_priors.get(term=term_type)
-            # these default priors are only defined for Normal priors, although we
-            # could probably easily handle Cauchy by just substituting 'sd' -> 'beta'
-            if self.prior.name=='Normal':
-                # the default 'wide' prior SD is sqrt(1/3) = .577 on the partial corr scale,
-                # which is the SD of a flat prior over [-1,1]. Wider than that would be weird
-                # TODO: support other defaults such as superwide = .8, medium = .4, narrow = .2
+            # these default priors are only defined for Normal priors, although
+            # we could probably easily handle Cauchy by just substituting
+            # 'sd' -> 'beta'
+            if self.prior.name == 'Normal':
+                # the default 'wide' prior SD is sqrt(1/3) = .577 on the
+                # partial corr scale, which is the SD of a flat prior over
+                # [-1,1]. Wider than that would be weird. TODO: support other
+                # defaults such as superwide = .8, medium = .4, narrow = .2
                 wide = 3**-.5
+
                 # handle slopes
-                if term_type=='fixed':
-                    slope_constant = default_prior_info['sd_y'] * (1 - default_prior_info['r2_y'][self.levels]) / \
-                                     default_prior_info['sd_x'][self.levels] / (1 - default_prior_info['r2_x'][self.levels])
-                    self.prior.update(sd = wide * slope_constant.values)
+                if term_type == 'fixed':
+                    slope_constant = default_prior_info['sd_y'] * \
+                        (1 - default_prior_info['r2_y'][self.levels]) / \
+                        default_prior_info['sd_x'][self.levels] / \
+                        (1 - default_prior_info['r2_x'][self.levels])
+                    self.prior.update(sd=wide * slope_constant.values)
+
                 # handle the intercept
                 else:
                     index = list(default_prior_info['r2_y'].index)
-                    intercept_SD = default_prior_info['sd_y'] * (1 - default_prior_info['r2_y'][index]) / \
-                        default_prior_info['sd_x'][index] / (1 - default_prior_info['r2_x'][index])
-                    intercept_SD *= wide
-                    intercept_SD = np.dot(intercept_SD**2, default_prior_info['mean_x'][index]**2)**.5
-                    self.prior.update(mu=default_prior_info['mean_y'], sd=intercept_SD)
+                    sd = default_prior_info['sd_y'] * \
+                        (1 - default_prior_info['r2_y'][index]) / \
+                        default_prior_info['sd_x'][index] / \
+                        (1 - default_prior_info['r2_x'][index])
+                    sd *= wide
+                    sd = np.dot(
+                        sd**2, default_prior_info['mean_x'][index]**2)**.5
+                    self.prior.update(mu=default_prior_info['mean_y'], sd=sd)
 
 
 class RandomTerm(Term):
 
     type_ = 'random'
 
-    def __init__(self, name, data, yoke=False, prior=None, **kwargs):
+    def __init__(self, name, data, prior=None, **kwargs):
 
-        self.yoke = yoke
         super(RandomTerm, self).__init__(name, data, prior=prior, **kwargs)
 
     def _setup(self, model, default_prior_info):
@@ -552,29 +576,36 @@ class RandomTerm(Term):
             term_type = 'intercept' if '|' not in self.name else 'slope'
             self.prior = model.default_priors.get(term='random')
             # these default priors are only defined for HalfCauchy priors,
-            if self.prior.args['sd'].name=='HalfCauchy':
-                # as above, 'wide' prior SD is sqrt(1/3) = .577 on the partial corr scale,
-                # which is the SD of a flat prior over [-1,1]. Wider than that would be weird
-                # TODO: support other defaults such as superwide = .8, medium = .4, narrow = .2
+            if self.prior.args['sd'].name == 'HalfCauchy':
+                # as above, 'wide' prior SD is sqrt(1/3) = .577 on the partial
+                # corr scale, which is the SD of a flat prior over [-1,1].
+                # Wider than that would be weird. TODO: support other defaults
+                # such as superwide = .8, medium = .4, narrow = .2
                 wide = 3**-.5
                 # handle random slopes
-                if term_type=='slope':
+                if term_type == 'slope':
                     # get name of corresponding fixed effect
                     fix = re.sub(r'\|.*', r'', self.name).strip()
-                    # only proceed if there does exist a corresponding fixed effect.
-                    # note that without this, it would break on random slopes for
-                    # categorical predictors! Here we simply skip that case, but we
-                    # should make it correctly handle default priors for that case
+                    # only proceed if there does exist a corresponding fixed
+                    # effect. note that without this, it would break on random
+                    # slopes for categorical predictors! Here we simply skip
+                    # that case, but we should make it correctly handle default
+                    # priors for that case
                     if fix in list(default_prior_info['r2_y'].index):
-                        slope_constant = default_prior_info['sd_y'] * (1 - default_prior_info['r2_y'][fix]) / \
-                                         default_prior_info['sd_x'][fix] / (1 - default_prior_info['r2_x'][fix])
-                        self.prior.args['sd'].update(beta = wide * slope_constant)
+                        slope_constant = default_prior_info['sd_y'] * \
+                            (1 - default_prior_info['r2_y'][fix]) / \
+                            default_prior_info['sd_x'][fix] / \
+                            (1 - default_prior_info['r2_x'][fix])
+                        self.prior.args['sd'].update(
+                            beta=wide * slope_constant)
                 # handle random intercepts
                 else:
                     index = list(default_prior_info['r2_y'].index)
-                    intercept_beta = default_prior_info['sd_y'] * (1 - default_prior_info['r2_y'][index]) / \
-                        default_prior_info['sd_x'][index] / (1 - default_prior_info['r2_x'][index])
-                    intercept_beta *= wide
-                    intercept_beta = np.dot(intercept_beta**2, default_prior_info['mean_x'][index]**2)**.5
-                    self.prior.args['sd'].update(beta = intercept_beta)
-
+                    beta = default_prior_info['sd_y'] * \
+                        (1 - default_prior_info['r2_y'][index]) / \
+                        default_prior_info['sd_x'][index] / \
+                        (1 - default_prior_info['r2_x'][index])
+                    beta *= wide
+                    beta = np.dot(
+                        beta**2, default_prior_info['mean_x'][index]**2)**.5
+                    self.prior.args['sd'].update(beta=beta)
