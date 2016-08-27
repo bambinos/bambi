@@ -10,10 +10,6 @@ from copy import deepcopy
 import re
 
 
-def listify(obj):
-    return obj if isinstance(obj, (list, tuple)) else [obj]
-
-
 class Model(object):
 
     def __init__(self, data=None, intercept=False, backend='pymc3',
