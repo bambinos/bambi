@@ -39,6 +39,7 @@ class PyMC3ModelResults(ModelResults):
 
         self.trace = trace
         self.n_samples = len(trace)
+        super(PyMC3ModelResults, self).__init__(model)
 
     def plot(self, burn_in=0, names=None, **kwargs):
         '''
