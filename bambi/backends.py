@@ -13,7 +13,9 @@ except:
 
 
 class BackEnd(object):
-
+    '''
+    Base class for BackEnd hierarchy.
+    '''
     __metaclass__ = ABCMeta
 
     @abstractmethod
@@ -26,6 +28,9 @@ class BackEnd(object):
 
 
 class PyMC3BackEnd(BackEnd):
+    '''
+    PyMC3 model-fitting back-end.
+    '''
 
     # Available link functions
     links = {
