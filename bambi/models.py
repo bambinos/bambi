@@ -19,6 +19,9 @@ class Model(object):
             dataset (DataFrame): the pandas DF containing the data to use.
         '''
 
+        if isinstance(data, string_types):
+            data = pd.read_table(data, sep=None)
+
         self.default_priors = PriorFactory(default_priors)
 
         obj_cols = data.select_dtypes(['object']).columns

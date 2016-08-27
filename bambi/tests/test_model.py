@@ -56,6 +56,16 @@ def test_term_split(diabetes_data):
     assert t['age_grp[0]'].shape == (442, 83)
 
 
+def test_model_init_from_filename():
+    from os.path import dirname, join
+    data_dir = join(dirname(__file__), 'data')
+    filename = join(data_dir, 'diabetes.txt')
+    model = Model(filename)
+    assert isinstance(model.data, pd.DataFrame)
+    assert model.data.shape == (442, 11)
+    assert 'BMI' in model.data.columns
+
+
 def test_model_init_and_intercept(diabetes_data):
 
     model = Model(diabetes_data, intercept=True)
