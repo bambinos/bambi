@@ -79,6 +79,14 @@ def test_model_init_and_intercept(diabetes_data):
     assert not model.terms
 
 
+def test_model_term_names_property(diabetes_data):
+    model = Model(diabetes_data)
+    model.add_term('BMI')
+    model.add_term('BP')
+    model.add_term('S1')
+    assert model.term_names == ['BMI', 'BP', 'S1']
+
+
 def test_add_term_to_model(base_model):
 
     base_model.add_term('BMI')

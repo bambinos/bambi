@@ -417,6 +417,10 @@ class Model(object):
         self.terms[term.name] = term
         self.built = False
 
+    @property
+    def term_names(self):
+        return list(self.terms.keys())
+
 
 class Term(object):
 
