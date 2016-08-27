@@ -428,9 +428,54 @@ class Model(object):
         self.terms[term.name] = term
         self.built = False
 
+    def set_priors(self, priors=None, fixed=None, random=None):
+        '''
+        Set priors for one or more existing terms.
+        Args:
+            priors (dict): Dict of priors to update. Keys are names of terms
+                to update; values are the new priors (either a Prior instance,
+                or an int or float that scales the default priors). Note that
+                a tuple can be passed as the key, in which case the same prior
+                will be applied to all terms named in the tuple.
+            fixed (Prior, int, float): a prior specification to apply to all
+                fixed terms currently included in the model.
+            random (Prior, int, float): a prior specification to apply to all
+                random terms currently included in the model.
+        '''
+
+        targets = {}
+
+        if fixed is not None:
+            targets.update({name: fixed for name in self.fixed_terms.keys()})
+
+        if random is not None:
+            targets.update({name: random for name in self.random_terms.keys()})
+
+        if priors is not None:
+            for k, prior in priors.items():
+                for name in listify(k):
+                    if name not in self.terms:
+                        raise ValueError("The model contains no term with "
+                                         "the name '%s'." % name)
+                    targets[name] = prior
+
+        for name, prior in targets.items():
+            self.terms[name].prior = prior
+
     @property
     def term_names(self):
+        ''' Return names of all terms in order of addition to model. '''
         return list(self.terms.keys())
+
+    @property
+    def fixed_terms(self):
+        ''' Return dict of all and only fixed effects in model. '''
+        return { k: v for (k, v) in self.terms.items() if v.type_ == 'fixed' }
+
+    @property
+    def random_terms(self):
+        ''' Return dict of all and only random effects in model. '''
+        return { k: v for (k, v) in self.terms.items() if v.type_ == 'random' }
 
 
 class Term(object):
