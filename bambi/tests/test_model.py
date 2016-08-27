@@ -1,5 +1,6 @@
 import pytest
 from bambi.models import Term, Model
+from bambi.priors import Prior
 from os.path import dirname, join
 import pandas as pd
 
@@ -108,3 +109,26 @@ def test_one_shot_formula_fit(base_model):
 def test_invalid_chars_in_random_effect(base_model):
     with pytest.raises(ValueError):
         base_model.fit(random=['1+BP|age_grp'])
+
+
+def test_update_term_priors_after_init(diabetes_data):
+    model = Model(diabetes_data)
+    model.add_term('BMI')
+    model.add_term('S1')
+    model.add_term('BP', random=True, split_by='age_grp')
+
+    p1 = Prior('Normal', mu=-10, sd=10)
+    p2 = Prior('Beta', alpha=2, beta=2)
+
+    model.set_priors({'BMI': 0.3, 'S1': p2})
+    assert model.terms['S1'].prior.args['beta'] == 2
+    assert model.terms['BMI'].prior == 0.3
+
+    model.set_priors({('S1', 'BMI'): p1 })
+    assert model.terms['S1'].prior.args['sd'] == 10
+    assert model.terms['BMI'].prior.args['mu'] == -10
+
+    p3 = Prior('Normal', mu=0, sd=Prior('Normal', mu=0, sd=7))
+    model.set_priors(fixed=0.4, random=p3)
+    assert model.terms['BMI'].prior == 0.4
+    assert model.terms['BP'].prior.args['sd'].args['sd'] == 7
