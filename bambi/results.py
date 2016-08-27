@@ -4,6 +4,7 @@ from abc import abstractmethod, ABCMeta
 
 
 class ModelResults(object):
+
     '''
     Base class for ModelResults hierarchy.
     Args:
@@ -29,12 +30,14 @@ class ModelResults(object):
 
 
 class PyMC3ModelResults(ModelResults):
+
     '''
     Holds PyMC3 sampler results and provides plotting and summarization tools.
     Args:
         model (Model): a bambi Model instance specifying the model.
         trace (MultiTrace): a PyMC3 MultiTrace object returned by the sampler. 
     '''
+
     def __init__(self, model, trace):
 
         self.trace = trace
