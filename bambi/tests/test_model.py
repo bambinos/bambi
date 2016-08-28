@@ -165,31 +165,53 @@ def test_empty_model(crossed_data):
     model0 = Model(crossed_data)
     model0.add_y('Y')
     model0.build()
+    model0.fit(samples=1)
 
     # using add_term
     model1 = Model(crossed_data)
     model1.fit('Y ~ 0', run=False)
     model1.build()
+    model1.fit(samples=1)
 
 
 def test_intercept_only_model(crossed_data):
     # using formula
     model0 = Model(crossed_data)
-    model0.add_y('Y')
-    model0.add_intercept()
+    model0.fit('Y ~ 1', run=False)
     model0.build()
+    model0.fit(samples=1)
 
     # using add_term
     model1 = Model(crossed_data)
-    model1.fit('Y ~ 1', run=False)
+    model1.add_y('Y')
+    model1.add_intercept()
     model1.build()
+    model1.fit(samples=1)
 
+
+def test_slope_only_model(crossed_data):
+    # using formula
+    model0 = Model(crossed_data)
+    model0.fit('Y ~ 0 + continuous', run=False)
+    model0.build()
+    model0.fit(samples=1)
+
+    # using add_term
+    model1 = Model(crossed_data)
+    model1.add_y('Y')
+    model1.add_term('continuous')
+    model1.build()
+    model1.fit(samples=1)
+
+    # check that term names agree
+    assert set(model0.term_names) == set(model1.term_names)
 
 def test_fixed_only_and_check_agreement(crossed_data):
     # build model using formula
     model0 = Model(crossed_data)
     model0.fit('Y ~ continuous + dummy + threecats', run=False)
     model0.build()
+    model0.fit(samples=1)
 
     # build model using add_term
     model1 = Model(crossed_data)
@@ -199,6 +221,7 @@ def test_fixed_only_and_check_agreement(crossed_data):
     model1.add_term('dummy')
     model1.add_term('threecats')
     model1.build()
+    model1.fit(samples=1)
 
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)
@@ -215,12 +238,14 @@ def test_three_level_categorical_cell_means_parameterization(crossed_data):
     model0 = Model(crossed_data)
     model0.fit('Y ~ 0 + threecats', run=False)
     model0.build()
+    model0.fit(samples=1)
 
     # build model using add_term
     model1 = Model(crossed_data)
     model1.add_y('Y')
     model1.add_term('threecats', drop_first=False)
     model1.build()
+    model1.fit(samples=1)
 
     # check that design matries are the same,
     # even if term names / level names / order of columns is different
@@ -234,11 +259,13 @@ def test_random_intercepts(crossed_data):
     model0 = Model(crossed_data)
     model0.fit('Y ~ continuous', random=['subj','item','site'], run=False)
     model0.build()
+    model0.fit(samples=1)
 
     # using formula and '1|' syntax
     model1 = Model(crossed_data)
     model1.fit('Y ~ continuous', random=['1|subj','1|item','1|site'], run=False)
     model1.build()
+    model1.fit(samples=1)
 
     # check that they have the same random terms
     assert set(model0.random_terms) == set(model1.random_terms)
@@ -251,6 +278,7 @@ def test_random_intercepts(crossed_data):
     model2.add_term('item', random=True)
     model2.add_term('site', random=True)
     model2.build()
+    model2.fit(samples=1)
 
     # check that this has the same random terms as above
     assert set(model0.random_terms) == set(model2.random_terms)
@@ -262,6 +290,7 @@ def test_random_and_check_agreement(crossed_data):
     model0.fit('Y ~ continuous',
         random=['0+threecats|subj','continuous|item','dummy|item','threecats|site'], run=False)
     model0.build()
+    model0.fit(samples=1)
 
     # build model using add_term
     model1 = Model(crossed_data)
@@ -276,6 +305,7 @@ def test_random_and_check_agreement(crossed_data):
     model1.add_term('site', random=True)
     model1.add_term('site', split_by='threecats', random=True)
     model1.build()
+    model1.fit(samples=1)
 
     # check that they have the same random terms
     assert set(model0.random_terms) == set(model1.random_terms)
