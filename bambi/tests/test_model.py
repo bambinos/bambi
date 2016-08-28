@@ -227,7 +227,7 @@ def test_simple_regression(crossed_data):
     assert set(model0.term_names) == set(model1.term_names)
 
 
-def test_fixed_only_and_check_agreement(crossed_data):
+def test_many_fixed_effects(crossed_data):
     # build model using formula
     model0 = Model(crossed_data)
     model0.fit('Y ~ continuous + dummy + threecats', run=False)
@@ -254,7 +254,7 @@ def test_fixed_only_and_check_agreement(crossed_data):
     assert X0 == X1
 
 
-def test_three_level_categorical_cell_means_parameterization(crossed_data):
+def test_cell_means_parameterization(crossed_data):
     # build model using formula
     model0 = Model(crossed_data)
     model0.fit('Y ~ 0 + threecats', run=False)
@@ -273,6 +273,27 @@ def test_three_level_categorical_cell_means_parameterization(crossed_data):
     X0 = set([tuple(t.data[:,lev]) for t in model0.terms.values() for lev in range(len(t.levels))])
     X1 = set([tuple(t.data[:,lev]) for t in model1.terms.values() for lev in range(len(t.levels))])
     assert X0 == X1
+
+
+def test_3x4_fixed_anova(crossed_data):
+    # add a four-level category that's perfectly crossed with threecats
+    crossed_data['fourcats'] = sum([[x]*10 for x in ['a','b','c','d']], list())*3
+
+    # using formula, with intercept
+    model0 = Model(crossed_data)
+    model0.fit('Y ~ threecats*fourcats', run=False)
+    model0.build()
+    fitted0 = model0.fit(samples=1)
+    # make sure X has 11 columns (not including the intercept)
+    assert len(fitted0.diagnostics['VIF']) == 11
+
+    # using formula, without intercept (i.e., 2-factor cell means model)
+    model1 = Model(crossed_data)
+    model1.fit('Y ~ 0 + threecats*fourcats', run=False)
+    model1.build()
+    fitted1 = model1.fit(samples=1)
+    # make sure X has 12 columns
+    assert len(fitted1.diagnostics['VIF']) == 12
 
 
 def test_cell_means_with_covariate(crossed_data):
@@ -298,6 +319,31 @@ def test_cell_means_with_covariate(crossed_data):
 
     # check that threecats priors have finite variance
     assert not any(np.isinf(model0.terms['threecats'].prior.args['sd']))
+
+
+def test_cell_means_with_random_intercepts(crossed_data):
+    # using formula
+    model0 = Model(crossed_data)
+    model0.fit('Y ~ 0 + threecats', random=['subj'], run=False)
+    model0.build()
+    model0.fit(samples=1)
+
+    # using add_term
+    model1 = Model(crossed_data, intercept=False)
+    model1.add_y('Y')
+    model1.add_term('threecats', categorical=True, drop_first=False)
+    model1.add_term('subj', categorical=True, random=True, drop_first=False)
+    model1.build()
+    fitted0 = model1.fit()
+
+    # check that they have the same random terms
+    assert set(model0.random_terms) == set(model1.random_terms)
+
+    # check that design matries are the same,
+    # even if term names / level names / order of columns is different
+    X0 = set([tuple(t.data[:,lev]) for t in model0.terms.values() for lev in range(len(t.levels))])
+    X1 = set([tuple(t.data[:,lev]) for t in model1.terms.values() for lev in range(len(t.levels))])
+    assert X0 == X1
 
 
 def test_random_intercepts(crossed_data):
@@ -330,7 +376,7 @@ def test_random_intercepts(crossed_data):
     assert set(model0.random_terms) == set(model2.random_terms)
 
 
-def test_random_and_check_agreement(crossed_data):
+def test_many_random_effects(crossed_data):
     # build model using formula
     model0 = Model(crossed_data)
     model0.fit('Y ~ continuous',
