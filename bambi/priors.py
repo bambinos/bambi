@@ -173,7 +173,7 @@ class PriorScaler(object):
 
     def __init__(self, model):
         self.model = model
-        self.stats = model.dm_statistics # purely for brevity
+        self.stats = model.dm_statistics if hasattr(model, 'dm_statistics') else None
 
     def _scale_intercept(self, term, value):
 
@@ -183,12 +183,16 @@ class PriorScaler(object):
         if term.prior.name != 'Normal':
             return
 
-        index = list(self.stats['r2_y'].index)
-        sd = self.stats['sd_y'] * (1 - self.stats['r2_y'][index]) / \
-            self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])
-        sd *= value
-        sd = np.dot(sd**2, self.stats['mean_x'][index]**2)**.5
-        term.prior.update(mu=self.stats['mean_y'], sd=sd)
+        if self.stats is not None:
+            index = list(self.stats['r2_y'].index)
+            sd = self.stats['sd_y'] * (1 - self.stats['r2_y'][index]) / \
+                self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])
+            sd *= value
+            sd = np.dot(sd**2, self.stats['mean_x'][index]**2)**.5
+        else: # this handles intercept-only models
+            sd = self.model.y.data.std()
+
+        term.prior.update(mu=self.model.y.data.mean(), sd=sd)
 
     def _scale_fixed(self, term, value):
 

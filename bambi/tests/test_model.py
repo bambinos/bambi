@@ -206,6 +206,26 @@ def test_slope_only_model(crossed_data):
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)
 
+
+def test_simple_regression(crossed_data):
+    # using formula
+    model0 = Model(crossed_data)
+    model0.fit('Y ~ continuous', run=False)
+    model0.build()
+    model0.fit(samples=1)
+
+    # using add_term
+    model1 = Model(crossed_data)
+    model1.add_y('Y')
+    model1.add_intercept()
+    model1.add_term('continuous')
+    model1.build()
+    model1.fit(samples=1)
+
+    # check that term names agree
+    assert set(model0.term_names) == set(model1.term_names)
+
+
 def test_fixed_only_and_check_agreement(crossed_data):
     # build model using formula
     model0 = Model(crossed_data)
