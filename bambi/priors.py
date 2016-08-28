@@ -1,4 +1,5 @@
 import numpy as np
+from pandas import Series
 from os.path import dirname, join
 from bambi.external.six import string_types
 from copy import deepcopy
@@ -199,11 +200,28 @@ class PriorScaler(object):
         if term.prior.name != 'Normal':
             return
 
-        slope_constant = self.stats['sd_y'] * \
-            (1 - self.stats['r2_y'][term.levels]) / \
-            self.stats['sd_x'][term.levels] / \
-            (1 - self.stats['r2_x'][term.levels])
-        term.prior.update(sd=value * slope_constant.values)
+        if self.stats is not None:
+            slope_constant = self.stats['sd_y'] * \
+                (1 - self.stats['r2_y'][term.levels]) / \
+                self.stats['sd_x'][term.levels] / \
+                (1 - self.stats['r2_x'][term.levels])
+            mu = 0
+        else: # case this handles slope-only models.
+            # this prior is a bit contrived, but then, slope-only models are a bit contrived.
+            # basically we set the mean to the OLS estimate, and the SD proportional to the
+            # absolute difference between the OLS est. and the OLS est. if Y shifted by 1 SD
+            data = term.data
+            # more than 1 column implies this is a cell-means model.
+            # sum over rows so that resulting mu = mean(Y)
+            if data.shape[1] > 1: data = data.sum(axis=1)
+            mu = np.dot(data.flatten(), self.model.y.data) / \
+                np.dot(data.flatten(), data.flatten())
+            mu_shift = np.dot(data.flatten(), self.model.y.data + self.model.y.data.std()) / \
+                np.dot(data.flatten(), data.flatten())
+            # multiply scale by 2 in the cell-means case so prior is nice and wide
+            slope_constant = Series(np.abs(mu - mu_shift)) * len(np.squeeze(term.data).shape)
+
+        term.prior.update(mu = mu, sd=value * slope_constant.values)
 
     def _scale_random(self, term, value):
 
