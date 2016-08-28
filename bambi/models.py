@@ -90,11 +90,13 @@ class Model(object):
             self.dm_statistics = {
                 'r2_x': pd.Series({
                     x: pd.stats.api.ols(
-                        y=X[x], x=X.drop(x, axis=1)).r2
+                        y=X[x], x=X.drop(x, axis=1),
+                        intercept=True if 'Intercept' in self.term_names else False).r2
                     for x in list(X.columns)}),
                 'r2_y': pd.Series({
                     x: pd.stats.api.ols(
-                        y=self.y.data.squeeze(), x=X.drop(x, axis=1)).r2
+                        y=self.y.data.squeeze(), x=X.drop(x, axis=1),
+                        intercept=True if 'Intercept' in self.term_names else False).r2
                     for x in list(X.columns)}),
                 'sd_x': X.std(),
                 'sd_y': self.y.data.std(),
@@ -112,6 +114,13 @@ class Model(object):
                 'VIF': 1/(1 - self.dm_statistics['r2_x']),
                 'corr_mean_X': mat
             }
+
+            # throw informative error if there is perfect collinearity among the fixed effects
+            if any(self.dm_statistics['r2_x'] > .999):
+                raise ValueError("There is perfect collinearity among the fixed effects!\n" + \
+                    "Printing some design matrix statistics:\n" + \
+                    str(self.dm_statistics) + '\n' + \
+                    str(self._diagnostics))
 
         # only set priors if there is at least one term in the model
         if len(self.terms) > 0:
