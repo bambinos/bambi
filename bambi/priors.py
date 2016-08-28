@@ -200,7 +200,7 @@ class PriorScaler(object):
         if term.prior.name != 'Normal':
             return
 
-        if self.stats is not None:
+        if self.stats is not None and not term.categorical:
             slope_constant = self.stats['sd_y'] * \
                 (1 - self.stats['r2_y'][term.levels]) / \
                 self.stats['sd_x'][term.levels] / \

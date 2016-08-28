@@ -86,7 +86,8 @@ class Model(object):
         if len(self.terms) > 1:
             X = pd.concat([pd.DataFrame(x.data, columns=x.levels)
                            for x in self.terms.values()
-                           if x.type_ == 'fixed' and x.name != 'Intercept'], axis=1)
+                           if x.type_ == 'fixed' and x.name != 'Intercept'], axis=1,
+                           ignore_index=False)
             self.dm_statistics = {
                 'r2_x': pd.Series({
                     x: pd.stats.api.ols(
