@@ -248,11 +248,12 @@ class PriorScaler(object):
             term.prior.args['sd'].update(beta=value * slope_constant)
         # handle random intercepts
         else:
-            index = list(self.stats['r2_y'].index)
-            beta = self.stats['sd_y'] * (1 - self.stats['r2_y'][index]) / \
-                self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])
-            beta *= value
-            beta = np.dot(beta**2, self.stats['mean_x'][index]**2)**.5
+            beta = self.stats['sd_y'] * value
+            if 'r2_x' in self.stats:
+                index = list(self.stats['r2_y'].index)
+                beta *= (1 - self.stats['r2_y'][index]) / \
+                    self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])
+                beta = np.dot(beta**2, self.stats['mean_x'][index]**2)**.5
             term.prior.args['sd'].update(beta=beta)
 
     def scale(self, term):

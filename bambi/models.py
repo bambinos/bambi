@@ -83,12 +83,18 @@ class Model(object):
         # other x's r2_y = R2 for predicting y from all x's *other than* the
         # current x.
         # only compute these stats if there are multiple terms in the model
+        terms = [t for t in self.fixed_terms.values() if t.name != 'Intercept']
+
+        self.dm_statistics = {
+            'sd_y': self.y.data.std()
+        }
+
         if len(self.terms) > 1:
-            X = pd.concat([pd.DataFrame(x.data, columns=x.levels)
-                           for x in self.terms.values()
-                           if x.type_ == 'fixed' and x.name != 'Intercept'], axis=1,
-                           ignore_index=False)
-            self.dm_statistics = {
+
+            X = [pd.DataFrame(x.data, columns=x.levels) for x in terms]
+            X = pd.concat(X, axis=1)
+
+            self.dm_statistics.update({
                 'r2_x': pd.Series({
                     x: pd.stats.api.ols(
                         y=X[x], x=X.drop(x, axis=1),
@@ -100,9 +106,8 @@ class Model(object):
                         intercept=True if 'Intercept' in self.term_names else False).r2
                     for x in list(X.columns)}),
                 'sd_x': X.std(),
-                'sd_y': self.y.data.std(),
                 'mean_x': X.mean(axis=0)
-            }
+            })
 
             # save potentially useful info for diagnostics and send to ModelResults
             # mat = correlation matrix of X, w/ diagonal replaced by X means
