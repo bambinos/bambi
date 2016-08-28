@@ -82,41 +82,42 @@ class Model(object):
         # r2_x = 1 - 1/VIF for each x, i.e., R2 for predicting each x from all
         # other x's r2_y = R2 for predicting y from all x's *other than* the
         # current x
-        X = pd.concat([pd.DataFrame(x.data, columns=x.levels)
-                       for x in self.terms.values()
-                       if x.type_ == 'fixed' and x.name != 'Intercept'], axis=1)
-        self.dm_statistics = {
-            'r2_x': pd.Series({
-                x: pd.stats.api.ols(
-                    y=X[x], x=X.drop(x, axis=1)).r2
-                for x in list(X.columns)}),
-            'r2_y': pd.Series({
-                x: pd.stats.api.ols(
-                    y=self.y.data.squeeze(), x=X.drop(x, axis=1)).r2
-                for x in list(X.columns)}),
-            'sd_x': X.std(),
-            'sd_y': self.y.data.std(),
-            'mean_x': X.mean(axis=0),
-            'mean_y': self.y.data.mean()
-        }
+        if len(self.terms) > 1:
+            X = pd.concat([pd.DataFrame(x.data, columns=x.levels)
+                           for x in self.terms.values()
+                           if x.type_ == 'fixed' and x.name != 'Intercept'], axis=1)
+            self.dm_statistics = {
+                'r2_x': pd.Series({
+                    x: pd.stats.api.ols(
+                        y=X[x], x=X.drop(x, axis=1)).r2
+                    for x in list(X.columns)}),
+                'r2_y': pd.Series({
+                    x: pd.stats.api.ols(
+                        y=self.y.data.squeeze(), x=X.drop(x, axis=1)).r2
+                    for x in list(X.columns)}),
+                'sd_x': X.std(),
+                'sd_y': self.y.data.std(),
+                'mean_x': X.mean(axis=0),
+                'mean_y': self.y.data.mean()
+            }
 
-        # save potentially useful info for diagnostics and send to ModelResults
-        # mat = correlation matrix of X, w/ diagonal replaced by X means
-        mat = X.corr()
-        for x in list(mat.columns):
-            mat.loc[x, x] = self.dm_statistics['mean_x'][x]
-        self._diagnostics = {
-            # the Variance Inflation Factors (VIF), which is possibly useful
-            # for diagnostics
-            'VIF': 1/(1 - self.dm_statistics['r2_x']),
-            'corr_mean_X': mat
-        }
+            # save potentially useful info for diagnostics and send to ModelResults
+            # mat = correlation matrix of X, w/ diagonal replaced by X means
+            mat = X.corr()
+            for x in list(mat.columns):
+                mat.loc[x, x] = self.dm_statistics['mean_x'][x]
+            self._diagnostics = {
+                # the Variance Inflation Factors (VIF), which is possibly useful
+                # for diagnostics
+                'VIF': 1/(1 - self.dm_statistics['r2_x']),
+                'corr_mean_X': mat
+            }
 
-        # Get and scale default priors if none are defined yet
-        scaler = PriorScaler(self)
-        for t in self.terms.values():
-            if not isinstance(t.prior, Prior):
-                scaler.scale(t)
+            # Get and scale default priors if none are defined yet
+            scaler = PriorScaler(self)
+            for t in self.terms.values():
+                if not isinstance(t.prior, Prior):
+                    scaler.scale(t)
 
         self.backend.build(self)
         self.built = True
