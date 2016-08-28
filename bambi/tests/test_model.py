@@ -3,6 +3,7 @@ from bambi.models import Term, Model
 from bambi.priors import Prior
 from os.path import dirname, join
 import pandas as pd
+import numpy as np
 
 
 @pytest.fixture(scope="module")
@@ -158,7 +159,7 @@ def test_update_term_priors_after_init(diabetes_data):
     assert model.terms['BP'].prior.args['sd'].args['sd'] == 7
 
 # All tests above this point do not build the model.
-# All tests below this point build the model, but do not fit it
+# All tests below this point build and fit the model.
 
 def test_empty_model(crossed_data):
     # using formula
@@ -272,6 +273,31 @@ def test_three_level_categorical_cell_means_parameterization(crossed_data):
     X0 = set([tuple(t.data[:,lev]) for t in model0.terms.values() for lev in range(len(t.levels))])
     X1 = set([tuple(t.data[:,lev]) for t in model1.terms.values() for lev in range(len(t.levels))])
     assert X0 == X1
+
+
+def test_cell_means_with_covariate(crossed_data):
+    # build model using formula
+    model0 = Model(crossed_data)
+    model0.fit('Y ~ 0 + threecats + continuous', run=False)
+    model0.build()
+    model0.fit(samples=1)
+
+    # build model using add_term
+    model1 = Model(crossed_data)
+    model1.add_y('Y')
+    model1.add_term('threecats', drop_first=False)
+    model1.add_term('continuous')
+    model1.build()
+    model1.fit(samples=1)
+
+    # check that design matries are the same,
+    # even if term names / level names / order of columns is different
+    X0 = set([tuple(t.data[:,lev]) for t in model0.terms.values() for lev in range(len(t.levels))])
+    X1 = set([tuple(t.data[:,lev]) for t in model1.terms.values() for lev in range(len(t.levels))])
+    assert X0 == X1
+
+    # check that threecats priors have finite variance
+    assert not any(np.isinf(model0.terms['threecats'].prior.args['sd']))
 
 
 def test_random_intercepts(crossed_data):
