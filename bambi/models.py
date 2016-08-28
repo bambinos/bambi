@@ -81,7 +81,8 @@ class Model(object):
         # X = fixed effects design matrix (excluding intercept/constant term)
         # r2_x = 1 - 1/VIF for each x, i.e., R2 for predicting each x from all
         # other x's r2_y = R2 for predicting y from all x's *other than* the
-        # current x
+        # current x.
+        # only compute these stats if there are multiple terms in the model
         if len(self.terms) > 1:
             X = pd.concat([pd.DataFrame(x.data, columns=x.levels)
                            for x in self.terms.values()
@@ -97,8 +98,7 @@ class Model(object):
                     for x in list(X.columns)}),
                 'sd_x': X.std(),
                 'sd_y': self.y.data.std(),
-                'mean_x': X.mean(axis=0),
-                'mean_y': self.y.data.mean()
+                'mean_x': X.mean(axis=0)
             }
 
             # save potentially useful info for diagnostics and send to ModelResults
@@ -113,6 +113,8 @@ class Model(object):
                 'corr_mean_X': mat
             }
 
+        # only set priors if there is at least one term in the model
+        if len(self.terms) > 0:
             # Get and scale default priors if none are defined yet
             scaler = PriorScaler(self)
             for t in self.terms.values():
