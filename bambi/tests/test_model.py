@@ -68,7 +68,6 @@ def test_distribute_random_effect_over(diabetes_data):
                    drop_first=False)
     t = model.terms['age_grp|BMI'].data
     assert isinstance(t, dict)
-    print(t.keys())
     assert t['age_grp[0]'].shape == (442, 83)
 
 
@@ -147,7 +146,7 @@ def test_update_term_priors_after_init(diabetes_data):
     p3 = Prior('Normal', mu=0, sd=Prior('Normal', mu=0, sd=7))
     model.set_priors(fixed=0.4, random=p3)
     assert model.terms['BMI'].prior == 0.4
-    assert model.terms['BP'].prior.args['sd'].args['sd'] == 7
+    assert model.terms['age_grp|BP'].prior.args['sd'].args['sd'] == 7
 
 # All tests above this point do not build the model.
 # All tests below this point build and fit the model.
@@ -383,11 +382,12 @@ def test_many_random_effects(crossed_data):
     model1.add_intercept()
     model1.add_term('continuous')
     # random effects
-    model1.add_term('subj', split_by='threecats', drop_first=False, random=True)
-    model1.add_term('continuous', split_by='item', random=True)
-    model1.add_term('item', split_by='dummy', random=True)
-    model1.add_term('site', random=True)
-    model1.add_term('site', split_by='threecats', random=True)
+    model1.add_term('threecats', over='subj', drop_first=False, random=True,
+                    categorical=True)
+    model1.add_term('continuous', over='item', random=True)
+    model1.add_term('dummy', over='item', random=True)
+    model1.add_term('site', random=True, categorical=True)
+    model1.add_term('threecats', over='site', random=True, categorical=True)
     model1.build()
     model1.fit(samples=1)
 

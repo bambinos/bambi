@@ -296,12 +296,9 @@ class Model(object):
                     # passing to add_term(). This allows us to take advantage
                     # of the convenient split_by semantics.
                     if self.data[pred].dtype.name in ['object', 'category']:
-                    #     variable, kwargs['split_by'] = grpr, pred
                         kwargs['categorical'] = True
                         if not intcpt:
                             kwargs['drop_first'] = False
-                    # else:
-                    #     variable, kwargs['split_by'] = pred, grpr
                     variable, kwargs['over'] = pred, grpr
 
                 prior = priors.pop(label, priors.pop('random', None))
@@ -408,82 +405,47 @@ class Model(object):
             data = self.data.copy()
 
         # Make sure user didn't forget to set categorical=True
-        elif variable in data.columns and \
+        if variable in data.columns and \
                 data.loc[:, variable].dtype.name in ['object', 'category']:
             categorical = True
 
-        # if categorical:
-            # data[variable] = data[variable].astype('category')
+        else:
+            # If all columns have identical names except for levels in [],
+            # assume they've already been contrast-coded, and pass data as-is
+            cols = [re.sub('\[.*?\]', '', c) for c in data.columns]
+            if len(set(cols)) > 1:
+                X = data[[variable]]
 
         if categorical:
-            pred_var = pd.get_dummies(data[variable], drop_first=drop_first)
+            X = pd.get_dummies(data[variable], drop_first=drop_first)
+        elif variable in data.columns:
+            X = data[[variable]]
         else:
-            pred_var = data[variable]
+            X = data
 
-        if random:
-            if over is not None:
-                id_var = pd.get_dummies(data[over], drop_first=False)
-                data = {over: id_var.values, variable: pred_var.values}
-                f = '0 + %s:%s' % (over, variable)
-                data = dmatrix(f, data=data)
-                cols = data.design_info.column_names
-                data = pd.DataFrame(data, columns=cols)                
+        if random and over is not None:
+            id_var = pd.get_dummies(data[over], drop_first=False)
+            data = {over: id_var.values, variable: X.values}
+            f = '0 + %s:%s' % (over, variable)
+            data = dmatrix(f, data=data)
+            cols = data.design_info.column_names
+            data = pd.DataFrame(data, columns=cols)
 
-                # For categorical effects, one variance term per predictor level
-                if categorical:
-                    split_data = {}
-                    groups = list(set([re.sub(r'^.*?\:', '', c) for c in cols]))
-                    for g in groups:
-                        patt = re.escape(r':%s' % g) + '$'
-                        level_data = data.filter(regex=patt)
-                        level_data.columns = [
-                            c.split(':')[0] for c in level_data.columns]
-                        level_data = level_data.loc[
-                            :, (level_data != 0).any(axis=0)]
-                        split_data[g] = level_data.values
-                    data = split_data
-
-            else:
-                data = pred_var
+            # For categorical effects, one variance term per predictor level
+            if categorical:
+                split_data = {}
+                groups = list(set([re.sub(r'^.*?\:', '', c) for c in cols]))
+                for g in groups:
+                    patt = re.escape(r':%s' % g) + '$'
+                    level_data = data.filter(regex=patt)
+                    level_data.columns = [
+                        c.split(':')[0] for c in level_data.columns]
+                    level_data = level_data.loc[
+                        :, (level_data != 0).any(axis=0)]
+                    split_data[g] = level_data.values
+                data = split_data
         else:
-            data = pred_var
-        # if split_by is not None:
-        #     # Extract splitting variable. We do the dummy-coding of the
-        #     # grouping variable in pandas rather than patsy because there's
-        #     # no easy way to get the desired coding (reduced-rank for the
-        #     # grouping variable, but full-rank for the predictor) in patsy
-        #     # without using custom contrast schemes and totally screwing up
-        #     # the variable naming scheme.
-        #     grps = pd.get_dummies(data[split_by], drop_first=drop_first)
-        #     data = {split_by: grps.values, variable: data[variable].values}
-        #     f = '0 + %s:%s' % (variable, split_by)
-        #     data = dmatrix(f, data=data)
-        #     cols = data.design_info.column_names
-        #     data = pd.DataFrame(data, columns=cols)
-
-            # # For categorical effects, one variance term per split_by level
-            # if random and categorical:
-            #     split_data = {}
-            #     groups = list(set([re.sub(r'^.*?\:', '', c) for c in cols]))
-            #     for g in groups:
-            #         patt = re.escape(r':%s' % g) + '$'
-            #         level_data = data.filter(regex=patt)
-            #         level_data.columns = [
-            #             c.split(':')[0] for c in level_data.columns]
-            #         level_data = level_data.loc[
-            #             :, (level_data != 0).any(axis=0)]
-            #         split_data[g] = level_data.values
-            #     data = split_data
-
-        # elif categorical or (variable in data.columns and
-        #                      data[variable].dtype.name in ['object', 'category']):
-        #     data = pd.get_dummies(data[variable], drop_first=drop_first)
-        # else:
-        #     # If all columns have identical names except for levels in [],
-        #     # assume they've already been contrast-coded, and pass data as-is
-        #     cols = [re.sub('\[.*?\]', '', c) for c in data.columns]
-        #     if len(set(cols)) > 1:
-        #         data = data[[variable]]
+            data = X
 
         if label is None:
             label = variable
