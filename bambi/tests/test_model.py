@@ -33,27 +33,18 @@ def test_term_init(diabetes_data):
     assert term.data.shape == (442, 1)
 
 
-def test_term_split(diabetes_data):
-    # Split a continuous fixed variable
+def test_distribute_random_effect_over(diabetes_data):
+    # Random slopes
     model = Model(diabetes_data)
-    model.add_term('BMI', split_by='age_grp')
-    assert model.terms['BMI'].data.shape == (442, 2)
-    # Split a categorical fixed variable
+    model.add_term('age_grp', over='BMI', categorical=False, random=True)
+    assert model.terms['age_grp|BMI'].data.shape == (442, 163)
+    # Nested or crossed random intercepts
     model.reset()
-    model.add_term('BMI', split_by='age_grp', categorical=True,
+    model.add_term('age_grp', over='BMI', categorical=True, random=True,
                    drop_first=False)
-    assert model.terms['BMI'].data.shape == (442, 489)
-    # Split a continuous random variable
-    model.reset()
-    model.add_term('BMI', split_by='age_grp', categorical=False, random=True,
-                   drop_first=True)
-    assert model.terms['BMI'].data.shape == (442, 2)
-    # Split a categorical random variable
-    model.reset()
-    model.add_term('BMI', split_by='age_grp', categorical=True, random=True,
-                   drop_first=False)
-    t = model.terms['BMI'].data
+    t = model.terms['age_grp|BMI'].data
     assert isinstance(t, dict)
+    print(t.keys())
     assert t['age_grp[0]'].shape == (442, 83)
 
 
@@ -95,8 +86,8 @@ def test_add_term_to_model(base_model):
     base_model.add_term('age_grp', random=False, categorical=True)
     # Test that arguments are passed appropriately onto Term initializer
     base_model.add_term(
-        'BP', random=True, split_by='age_grp', categorical=True)
-    assert isinstance(base_model.terms['BP'], Term)
+        'age_grp', random=True, over='BP', categorical=True)
+    assert isinstance(base_model.terms['age_grp|BP'], Term)
 
 
 def test_one_shot_formula_fit(base_model):
@@ -116,7 +107,7 @@ def test_update_term_priors_after_init(diabetes_data):
     model = Model(diabetes_data)
     model.add_term('BMI')
     model.add_term('S1')
-    model.add_term('BP', random=True, split_by='age_grp')
+    model.add_term('age_grp', random=True, over='BP')
 
     p1 = Prior('Normal', mu=-10, sd=10)
     p2 = Prior('Beta', alpha=2, beta=2)
@@ -132,4 +123,4 @@ def test_update_term_priors_after_init(diabetes_data):
     p3 = Prior('Normal', mu=0, sd=Prior('Normal', mu=0, sd=7))
     model.set_priors(fixed=0.4, random=p3)
     assert model.terms['BMI'].prior == 0.4
-    assert model.terms['BP'].prior.args['sd'].args['sd'] == 7
+    assert model.terms['age_grp|BP'].prior.args['sd'].args['sd'] == 7

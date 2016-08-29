@@ -104,7 +104,7 @@ class PyMC3BackEnd(BackEnd):
                                              shape=n_cols, **dist_args)
                         self.mu += pm.dot(level_data, u)[:, None]
                 else:
-                    prefix = 'b_' if t.type_ == 'fixed' else 'u_'
+                    prefix = 'u_' if t.random else 'b_'
                     n_cols = data.shape[1]
                     coef = self._build_dist(prefix + label, dist_name,
                                             shape=n_cols, **dist_args)
