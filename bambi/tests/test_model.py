@@ -164,6 +164,11 @@ def test_empty_model(crossed_data):
     model1.build()
     model1.fit(samples=1)
 
+    # check that add_formula and add_term models have same priors for fixed effects
+    priors0 = {x.name:x.prior.args for x in model0.terms.values() if not x.random}
+    priors1 = {x.name:x.prior.args for x in model1.terms.values() if not x.random}
+    assert set(priors0) == set(priors1)
+
 
 def test_intercept_only_model(crossed_data):
     # using formula
@@ -178,6 +183,11 @@ def test_intercept_only_model(crossed_data):
     model1.add_intercept()
     model1.build()
     model1.fit(samples=1)
+
+    # check that add_formula and add_term models have same priors for fixed effects
+    priors0 = {x.name:x.prior.args for x in model0.terms.values() if not x.random}
+    priors1 = {x.name:x.prior.args for x in model1.terms.values() if not x.random}
+    assert set(priors0) == set(priors1)
 
 
 def test_slope_only_model(crossed_data):
@@ -197,6 +207,11 @@ def test_slope_only_model(crossed_data):
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)
 
+    # check that add_formula and add_term models have same priors for fixed effects
+    priors0 = {x.name:x.prior.args for x in model0.terms.values() if not x.random}
+    priors1 = {x.name:x.prior.args for x in model1.terms.values() if not x.random}
+    assert set(priors0) == set(priors1)
+
 
 def test_simple_regression(crossed_data):
     # using formula
@@ -215,6 +230,11 @@ def test_simple_regression(crossed_data):
 
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)
+
+    # check that add_formula and add_term models have same priors for fixed effects
+    priors0 = {x.name:x.prior.args for x in model0.terms.values() if not x.random}
+    priors1 = {x.name:x.prior.args for x in model1.terms.values() if not x.random}
+    assert set(priors0) == set(priors1)
 
 
 def test_many_fixed_effects(crossed_data):
@@ -239,9 +259,14 @@ def test_many_fixed_effects(crossed_data):
 
     # check that design matries are the same,
     # even if term names / level names / order of columns is different
-    X0 = set([tuple(t.data[:,lev]) for t in model0.terms.values() for lev in range(len(t.levels))])
-    X1 = set([tuple(t.data[:,lev]) for t in model1.terms.values() for lev in range(len(t.levels))])
+    X0 = set([tuple(t.data[:,lev]) for t in model0.fixed_terms.values() for lev in range(len(t.levels))])
+    X1 = set([tuple(t.data[:,lev]) for t in model1.fixed_terms.values() for lev in range(len(t.levels))])
     assert X0 == X1
+
+    # check that add_formula and add_term models have same priors for fixed effects
+    priors0 = {x.name:x.prior.args for x in model0.terms.values() if not x.random}
+    priors1 = {x.name:x.prior.args for x in model1.terms.values() if not x.random}
+    assert set(priors0) == set(priors1)
 
 
 def test_cell_means_parameterization(crossed_data):
@@ -260,9 +285,14 @@ def test_cell_means_parameterization(crossed_data):
 
     # check that design matries are the same,
     # even if term names / level names / order of columns is different
-    X0 = set([tuple(t.data[:,lev]) for t in model0.terms.values() for lev in range(len(t.levels))])
-    X1 = set([tuple(t.data[:,lev]) for t in model1.terms.values() for lev in range(len(t.levels))])
+    X0 = set([tuple(t.data[:,lev]) for t in model0.fixed_terms.values() for lev in range(len(t.levels))])
+    X1 = set([tuple(t.data[:,lev]) for t in model1.fixed_terms.values() for lev in range(len(t.levels))])
     assert X0 == X1
+
+    # check that add_formula and add_term models have same priors for fixed effects
+    priors0 = {x.name:x.prior.args for x in model0.terms.values() if not x.random}
+    priors1 = {x.name:x.prior.args for x in model1.terms.values() if not x.random}
+    assert set(priors0) == set(priors1)
 
 
 def test_3x4_fixed_anova(crossed_data):
@@ -303,12 +333,17 @@ def test_cell_means_with_covariate(crossed_data):
 
     # check that design matries are the same,
     # even if term names / level names / order of columns is different
-    X0 = set([tuple(t.data[:,lev]) for t in model0.terms.values() for lev in range(len(t.levels))])
-    X1 = set([tuple(t.data[:,lev]) for t in model1.terms.values() for lev in range(len(t.levels))])
+    X0 = set([tuple(t.data[:,lev]) for t in model0.fixed_terms.values() for lev in range(len(t.levels))])
+    X1 = set([tuple(t.data[:,lev]) for t in model1.fixed_terms.values() for lev in range(len(t.levels))])
     assert X0 == X1
 
     # check that threecats priors have finite variance
     assert not any(np.isinf(model0.terms['threecats'].prior.args['sd']))
+
+    # check that add_formula and add_term models have same priors for fixed effects
+    priors0 = {x.name:x.prior.args for x in model0.terms.values() if not x.random}
+    priors1 = {x.name:x.prior.args for x in model1.terms.values() if not x.random}
+    assert set(priors0) == set(priors1)
 
 
 def test_cell_means_with_random_intercepts(crossed_data):
@@ -329,11 +364,21 @@ def test_cell_means_with_random_intercepts(crossed_data):
     # check that they have the same random terms
     assert set(model0.random_terms) == set(model1.random_terms)
 
-    # check that design matries are the same,
+    # check that fixed effect design matries are the same,
     # even if term names / level names / order of columns is different
-    X0 = set([tuple(t.data[:,lev]) for t in model0.terms.values() for lev in range(len(t.levels))])
-    X1 = set([tuple(t.data[:,lev]) for t in model1.terms.values() for lev in range(len(t.levels))])
+    X0 = set([tuple(t.data[:,lev]) for t in model0.fixed_terms.values() for lev in range(len(t.levels))])
+    X1 = set([tuple(t.data[:,lev]) for t in model1.fixed_terms.values() for lev in range(len(t.levels))])
     assert X0 == X1
+
+    # check that add_formula and add_term models have same priors for fixed effects
+    priors0 = {x.name:x.prior.args for x in model0.terms.values() if not x.random}
+    priors1 = {x.name:x.prior.args for x in model1.terms.values() if not x.random}
+    assert set(priors0) == set(priors1)
+
+    # check that add_formula and add_term models have same priors for random effects
+    priors0 = {x.name:x.prior.args['sd'].args for x in model0.terms.values() if x.random}
+    priors1 = {x.name:x.prior.args['sd'].args for x in model1.terms.values() if x.random}
+    assert set(priors0) == set(priors1)
 
 
 def test_random_intercepts(crossed_data):
@@ -366,6 +411,16 @@ def test_random_intercepts(crossed_data):
     # check that this has the same random terms as above
     assert set(model1.random_terms) == set(model2.random_terms)
 
+    # check that add_formula and add_term models have same priors for fixed effects
+    priors0 = {x.name:x.prior.args for x in model0.terms.values() if not x.random}
+    priors2 = {x.name:x.prior.args for x in model2.terms.values() if not x.random}
+    assert set(priors0) == set(priors2)
+
+    # check that add_formula and add_term models have same priors for random effects
+    priors0 = {x.name:x.prior.args['sd'].args for x in model0.terms.values() if x.random}
+    priors2 = {x.name:x.prior.args['sd'].args for x in model2.terms.values() if x.random}
+    assert set(priors0) == set(priors2)
+
 
 def test_many_random_effects(crossed_data):
     # build model using formula
@@ -384,6 +439,7 @@ def test_many_random_effects(crossed_data):
     # random effects
     model1.add_term('threecats', over='subj', drop_first=False, random=True,
                     categorical=True)
+    model1.add_term('item', random=True, categorical=True)
     model1.add_term('continuous', over='item', random=True)
     model1.add_term('dummy', over='item', random=True)
     model1.add_term('site', random=True, categorical=True)
@@ -405,4 +461,77 @@ def test_many_random_effects(crossed_data):
     X0_set = set(tuple(X0.iloc[:,i]) for i in range(len(X0.columns)))
     X1_set = set(tuple(X1.iloc[:,i]) for i in range(len(X1.columns)))
     assert X0_set == X1_set
+
+    # check that fixed effect design matries are the same,
+    # even if term names / level names / order of columns is different
+    X0 = set([tuple(t.data[:,lev]) for t in model0.fixed_terms.values() for lev in range(len(t.levels))])
+    X1 = set([tuple(t.data[:,lev]) for t in model1.fixed_terms.values() for lev in range(len(t.levels))])
+    assert X0 == X1
+
+    # check that add_formula and add_term models have same priors for fixed effects
+    priors0 = {x.name:x.prior.args for x in model0.terms.values() if not x.random}
+    priors1 = {x.name:x.prior.args for x in model1.terms.values() if not x.random}
+    assert set(priors0) == set(priors1)
+
+    # check that add_formula and add_term models have same priors for random effects
+    priors0 = {x.name:x.prior.args['sd'].args for x in model0.terms.values() if x.random}
+    priors1 = {x.name:x.prior.args['sd'].args for x in model1.terms.values() if x.random}
+    assert set(priors0) == set(priors1)
+
+
+def test_cell_means_with_many_random_effects(crossed_data):
+    # build model using formula
+    model0 = Model(crossed_data)
+    model0.fit('Y ~ 0 + threecats',
+        random=['0+threecats|subj','continuous|item','dummy|item','threecats|site'], run=False)
+    model0.build()
+    model0.fit(samples=1)
+
+    # build model using add_term
+    model1 = Model(crossed_data)
+    model1.add_y('Y')
+    # fixed effects
+    model1.add_term('threecats', drop_first=False)
+    # random effects
+    model1.add_term('threecats', over='subj', drop_first=False, random=True,
+                    categorical=True)
+    model1.add_term('item', random=True, categorical=True)
+    model1.add_term('continuous', over='item', random=True)
+    model1.add_term('dummy', over='item', random=True)
+    model1.add_term('site', random=True, categorical=True)
+    model1.add_term('threecats', over='site', random=True, categorical=True)
+    model1.build()
+    model1.fit(samples=1)
+
+    # check that the random effects design matrices have the same shape
+    X0 = pd.concat([pd.DataFrame(t.data) if not isinstance(t.data, dict) else
+                    pd.concat([pd.DataFrame(t.data[x]) for x in t.data.keys()], axis=1)
+                    for t in model0.random_terms.values()], axis=1)
+    X1 = pd.concat([pd.DataFrame(t.data) if not isinstance(t.data, dict) else
+                    pd.concat([pd.DataFrame(t.data[x]) for x in t.data.keys()], axis=1)
+                    for t in model0.random_terms.values()], axis=1)
+    assert X0.shape == X1.shape
+
+    # check that the random effect design matrix contain the same columns,
+    # even if term names / columns names / order of columns is different
+    X0_set = set(tuple(X0.iloc[:,i]) for i in range(len(X0.columns)))
+    X1_set = set(tuple(X1.iloc[:,i]) for i in range(len(X1.columns)))
+    assert X0_set == X1_set
+
+    # check that fixed effect design matries are the same,
+    # even if term names / level names / order of columns is different
+    X0 = set([tuple(t.data[:,lev]) for t in model0.fixed_terms.values() for lev in range(len(t.levels))])
+    X1 = set([tuple(t.data[:,lev]) for t in model1.fixed_terms.values() for lev in range(len(t.levels))])
+    assert X0 == X1
+
+    # check that add_formula and add_term models have same priors for fixed effects
+    priors0 = {x.name:x.prior.args for x in model0.terms.values() if not x.random}
+    priors1 = {x.name:x.prior.args for x in model1.terms.values() if not x.random}
+    assert set(priors0) == set(priors1)
+
+    # check that add_formula and add_term models have same priors for random effects
+    priors0 = {x.name:x.prior.args['sd'].args for x in model0.terms.values() if x.random}
+    priors1 = {x.name:x.prior.args['sd'].args for x in model1.terms.values() if x.random}
+    assert set(priors0) == set(priors1)
+
 
