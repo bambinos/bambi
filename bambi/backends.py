@@ -86,7 +86,7 @@ class PyMC3BackEnd(BackEnd):
 
         with self.model:
 
-            self.mu = theano.shared(np.zeros((len(spec.y.data), 1)))
+            self.mu = 0.
 
             for t in spec.terms.values():
 
