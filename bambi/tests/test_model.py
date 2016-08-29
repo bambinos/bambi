@@ -347,24 +347,25 @@ def test_cell_means_with_random_intercepts(crossed_data):
 
 
 def test_random_intercepts(crossed_data):
-    # using formula and 'subj' syntax
+    # using formula and '1|' syntax
     model0 = Model(crossed_data)
-    model0.fit('Y ~ continuous', random=['subj','item','site'], run=False)
+    model0.fit('Y ~ continuous', random=['1|subj','1|item','1|site'], run=False)
     model0.build()
     model0.fit(samples=1)
 
-    # using formula and '1|' syntax
+    # using formula and 'subj' syntax
     model1 = Model(crossed_data)
-    model1.fit('Y ~ continuous', random=['1|subj','1|item','1|site'], run=False)
+    model1.fit('Y ~ continuous', random=['subj','item','site'], run=False)
     model1.build()
     model1.fit(samples=1)
 
     # check that they have the same random terms
-    assert set(model0.random_terms) == set(model1.random_terms)
+    assert set(model1.random_terms) == set(model0.random_terms)
 
     # using add_term
     model2 = Model(crossed_data)
     model2.add_y('Y')
+    model2.add_intercept()
     model2.add_term('continuous')
     model2.add_term('subj', random=True)
     model2.add_term('item', random=True)
@@ -373,7 +374,7 @@ def test_random_intercepts(crossed_data):
     model2.fit(samples=1)
 
     # check that this has the same random terms as above
-    assert set(model0.random_terms) == set(model2.random_terms)
+    assert set(model1.random_terms) == set(model2.random_terms)
 
 
 def test_many_random_effects(crossed_data):
@@ -399,6 +400,18 @@ def test_many_random_effects(crossed_data):
     model1.build()
     model1.fit(samples=1)
 
-    # check that they have the same random terms
-    assert set(model0.random_terms) == set(model1.random_terms)
+    # check that the random effects design matrices have the same shape
+    X0 = pd.concat([pd.DataFrame(t.data) if not isinstance(t.data, dict) else
+                    pd.concat([pd.DataFrame(t.data[x]) for x in t.data.keys()], axis=1)
+                    for t in model0.random_terms.values()], axis=1)
+    X1 = pd.concat([pd.DataFrame(t.data) if not isinstance(t.data, dict) else
+                    pd.concat([pd.DataFrame(t.data[x]) for x in t.data.keys()], axis=1)
+                    for t in model0.random_terms.values()], axis=1)
+    assert X0.shape == X1.shape
+
+    # check that the random effect design matrix contain the same columns,
+    # even if term names / columns names / order of columns is different
+    X0_set = set(tuple(X0.iloc[:,i]) for i in range(len(X0.columns)))
+    X1_set = set(tuple(X1.iloc[:,i]) for i in range(len(X1.columns)))
+    assert X0_set == X1_set
 

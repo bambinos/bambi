@@ -85,16 +85,12 @@ class Model(object):
         # only compute these stats if there are multiple terms in the model
         terms = [t for t in self.fixed_terms.values() if t.name != 'Intercept']
 
-        self.dm_statistics = {
-            'sd_y': self.y.data.std()
-        }
-
-        if len(self.terms) > 1:
+        if len(self.fixed_terms) > 1:
 
             X = [pd.DataFrame(x.data, columns=x.levels) for x in terms]
             X = pd.concat(X, axis=1)
 
-            self.dm_statistics.update({
+            self.dm_statistics = {
                 'r2_x': pd.Series({
                     x: pd.stats.api.ols(
                         y=X[x], x=X.drop(x, axis=1),
@@ -106,8 +102,9 @@ class Model(object):
                         intercept=True if 'Intercept' in self.term_names else False).r2
                     for x in list(X.columns)}),
                 'sd_x': X.std(),
+                'sd_y': self.y.data.std(),
                 'mean_x': X.mean(axis=0)
-            })
+            }
 
             # save potentially useful info for diagnostics and send to ModelResults
             # mat = correlation matrix of X, w/ diagonal replaced by X means
@@ -271,6 +268,9 @@ class Model(object):
                                      "character. Note that only the | and + "
                                      "operators are currently supported in "
                                      "random effects specifications.")
+
+                # replace explicit intercept terms like '1|subj' with just 'subj'
+                f = re.sub(r'^1\s*\|(.*)', r'\1', f).strip()
 
                 # Split specification into intercept, predictor, and grouper
                 patt = r'^([01]+)*[\s\+]*([^\|]+)\|*(.*)'
