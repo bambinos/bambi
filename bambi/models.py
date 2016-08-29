@@ -269,9 +269,6 @@ class Model(object):
                                      "operators are currently supported in "
                                      "random effects specifications.")
 
-                # replace explicit intercept terms like '1|subj' with just 'subj'
-                f = re.sub(r'^1\s*\|(.*)', r'\1', f).strip()
-
                 # Split specification into intercept, predictor, and grouper
                 patt = r'^([01]+)*[\s\+]*([^\|]+)\|*(.*)'
                 intcpt, pred, grpr = re.search(patt, f).groups()
@@ -296,12 +293,13 @@ class Model(object):
                     # passing to add_term(). This allows us to take advantage
                     # of the convenient split_by semantics.
                     if self.data[pred].dtype.name in ['object', 'category']:
-                        variable, kwargs['split_by'] = grpr, pred
+                    #     variable, kwargs['split_by'] = grpr, pred
                         kwargs['categorical'] = True
                         if not intcpt:
                             kwargs['drop_first'] = False
-                    else:
-                        variable, kwargs['split_by'] = pred, grpr
+                    # else:
+                    #     variable, kwargs['split_by'] = pred, grpr
+                    variable, kwargs['over'] = pred, grpr
 
                 prior = priors.pop(label, priors.pop('random', None))
                 self.add_term(variable=variable, label=label, **kwargs)
@@ -357,7 +355,7 @@ class Model(object):
         self.built = False
 
     def add_term(self, variable, data=None, label=None, categorical=False,
-                 random=False, split_by=None, prior=None, drop_first=True):
+                 random=False, over=None, prior=None, drop_first=True):
         '''
         Add a term to the model.
         Args:
@@ -376,15 +374,12 @@ class Model(object):
             random (bool): If True, the predictor variable is modeled as a
                 random effect; if False, the predictor is modeled as a fixed
                 effect.
-            split_by (str): An optional name of another dataset column to
-                "split" the target variable on. In practice, this is primarily
-                used to specify the grouping variable when adding random
-                slopes or intercepts. For example, if variable='subject',
-                categorical=True, random=True, and split_by='condition',
-                a separate set of random subject slopes will be added for each
-                level of the condition variable. In this case, this would be
-                roughly analogous to an lme4-style specification like
-                'condition|subject'.
+            over (str): When adding random slopes, the name of the variable the
+                slopes are randomly distributed over. For example, if
+                variable='condition', categorical=True, random=True, and
+                over='subject', a separate set of random subject slopes will be
+                added for each level of the condition variable. This is
+                analogous to the lme4 specification of 'condition|subject'.
             prior (Prior, int, float, str): Optional specification of prior.
                 Can be an instance of class Prior, a numeric value, or a string
                 describing the width. In the numeric case, the distribution
@@ -414,56 +409,86 @@ class Model(object):
                 data.loc[:, variable].dtype.name in ['object', 'category']:
             categorical = True
 
+        # if categorical:
+            # data[variable] = data[variable].astype('category')
+
         if categorical:
-            data[variable] = data[variable].astype('category')
-
-        if split_by is not None:
-            # Extract splitting variable. We do the dummy-coding of the
-            # grouping variable in pandas rather than patsy because there's
-            # no easy way to get the desired coding (reduced-rank for the
-            # grouping variable, but full-rank for the predictor) in patsy
-            # without using custom contrast schemes and totally screwing up
-            # the variable naming scheme.
-            grps = pd.get_dummies(data[split_by], drop_first=drop_first)
-            data = {split_by: grps.values, variable: data[variable].values}
-            f = '0 + %s:%s' % (variable, split_by)
-            data = dmatrix(f, data=data)
-            cols = data.design_info.column_names
-            data = pd.DataFrame(data, columns=cols)
-
-            # For categorical effects, one variance term per split_by level
-            if random and categorical:
-                split_data = {}
-                groups = list(set([re.sub(r'^.*?\:', '', c) for c in cols]))
-                for g in groups:
-                    patt = re.escape(r':%s' % g) + '$'
-                    level_data = data.filter(regex=patt)
-                    level_data.columns = [
-                        c.split(':')[0] for c in level_data.columns]
-                    level_data = level_data.loc[
-                        :, (level_data != 0).any(axis=0)]
-                    split_data[g] = level_data.values
-                data = split_data
-
-        elif categorical or (variable in data.columns and
-                             data[variable].dtype.name in ['object', 'category']):
-            data = pd.get_dummies(data[variable], drop_first=drop_first)
+            pred_var = pd.get_dummies(data[variable], drop_first=drop_first)
         else:
-            # If all columns have identical names except for levels in [],
-            # assume they've already been contrast-coded, and pass data as-is
-            cols = [re.sub('\[.*?\]', '', c) for c in data.columns]
-            if len(set(cols)) > 1:
-                data = data[[variable]]
+            pred_var = data[variable]
+
+        if random:
+            if over is not None:
+                id_var = pd.get_dummies(data[over], drop_first=False)
+                data = {over: id_var.values, variable: pred_var.values}
+                f = '0 + %s:%s' % (over, variable)
+                data = dmatrix(f, data=data)
+                cols = data.design_info.column_names
+                data = pd.DataFrame(data, columns=cols)                
+
+                # For categorical effects, one variance term per predictor level
+                if categorical:
+                    split_data = {}
+                    groups = list(set([re.sub(r'^.*?\:', '', c) for c in cols]))
+                    for g in groups:
+                        patt = re.escape(r':%s' % g) + '$'
+                        level_data = data.filter(regex=patt)
+                        level_data.columns = [
+                            c.split(':')[0] for c in level_data.columns]
+                        level_data = level_data.loc[
+                            :, (level_data != 0).any(axis=0)]
+                        split_data[g] = level_data.values
+                    data = split_data
+
+            else:
+                data = pred_var
+        else:
+            data = pred_var
+        # if split_by is not None:
+        #     # Extract splitting variable. We do the dummy-coding of the
+        #     # grouping variable in pandas rather than patsy because there's
+        #     # no easy way to get the desired coding (reduced-rank for the
+        #     # grouping variable, but full-rank for the predictor) in patsy
+        #     # without using custom contrast schemes and totally screwing up
+        #     # the variable naming scheme.
+        #     grps = pd.get_dummies(data[split_by], drop_first=drop_first)
+        #     data = {split_by: grps.values, variable: data[variable].values}
+        #     f = '0 + %s:%s' % (variable, split_by)
+        #     data = dmatrix(f, data=data)
+        #     cols = data.design_info.column_names
+        #     data = pd.DataFrame(data, columns=cols)
+
+            # # For categorical effects, one variance term per split_by level
+            # if random and categorical:
+            #     split_data = {}
+            #     groups = list(set([re.sub(r'^.*?\:', '', c) for c in cols]))
+            #     for g in groups:
+            #         patt = re.escape(r':%s' % g) + '$'
+            #         level_data = data.filter(regex=patt)
+            #         level_data.columns = [
+            #             c.split(':')[0] for c in level_data.columns]
+            #         level_data = level_data.loc[
+            #             :, (level_data != 0).any(axis=0)]
+            #         split_data[g] = level_data.values
+            #     data = split_data
+
+        # elif categorical or (variable in data.columns and
+        #                      data[variable].dtype.name in ['object', 'category']):
+        #     data = pd.get_dummies(data[variable], drop_first=drop_first)
+        # else:
+        #     # If all columns have identical names except for levels in [],
+        #     # assume they've already been contrast-coded, and pass data as-is
+        #     cols = [re.sub('\[.*?\]', '', c) for c in data.columns]
+        #     if len(set(cols)) > 1:
+        #         data = data[[variable]]
 
         if label is None:
             label = variable
+            if over is not None:
+                label += '|%s' % over
 
-        if random:
-            term = RandomTerm(name=label, data=data, categorical=categorical,
-                              prior=prior)
-        else:
-            term = Term(name=label, data=data, categorical=categorical,
-                        prior=prior)
+        term = Term(name=label, data=data, categorical=categorical,
+                    random=random, prior=prior)
         self.terms[term.name] = term
         self.built = False
 
@@ -509,12 +534,12 @@ class Model(object):
     @property
     def fixed_terms(self):
         ''' Return dict of all and only fixed effects in model. '''
-        return {k: v for (k, v) in self.terms.items() if v.type_ == 'fixed'}
+        return {k: v for (k, v) in self.terms.items() if not v.random}
 
     @property
     def random_terms(self):
         ''' Return dict of all and only random effects in model. '''
-        return {k: v for (k, v) in self.terms.items() if v.type_ == 'random'}
+        return {k: v for (k, v) in self.terms.items() if v.random}
 
 
 class Term(object):
@@ -530,13 +555,11 @@ class Term(object):
         prior (Prior): A specification of the prior(s) to use. An instance
             of class priors.Prior.
     '''
-
-    type_ = 'fixed'
-
-    def __init__(self, name, data, categorical=False, prior=None):
+    def __init__(self, name, data, categorical=False, random=False, prior=None):
 
         self.name = name
         self.categorical = categorical
+        self.random = random
         self.prior = prior
 
         if isinstance(data, pd.Series):
@@ -551,12 +574,3 @@ class Term(object):
             self.levels = list(range(data.shape[1]))
 
         self.data = data
-
-
-class RandomTerm(Term):
-
-    type_ = 'random'
-
-    def __init__(self, name, data, prior=None, **kwargs):
-
-        super(RandomTerm, self).__init__(name, data, prior=prior, **kwargs)
