@@ -28,7 +28,7 @@ def test_term_init(diabetes_data):
     # Test that all defaults are properly initialized
     assert term.name == 'BMI'
     assert term.categorical == False
-    assert term.type_ == 'fixed'
+    assert not term.random
     assert term.levels is not None
     assert term.data.shape == (442, 1)
 

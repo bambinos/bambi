@@ -238,7 +238,7 @@ class PriorScaler(object):
         if term.name == 'Intercept':
             term_type = 'intercept'
         else:
-            term_type = term.type_.lower()
+            term_type = 'random' if term.random else 'fixed'
 
         if term.prior is None:
             value = 'value'
