@@ -81,42 +81,57 @@ class Model(object):
         # X = fixed effects design matrix (excluding intercept/constant term)
         # r2_x = 1 - 1/VIF for each x, i.e., R2 for predicting each x from all
         # other x's r2_y = R2 for predicting y from all x's *other than* the
-        # current x
-        X = pd.concat([pd.DataFrame(x.data, columns=x.levels)
-                       for x in self.terms.values()
-                       if x.type_ == 'fixed' and x.name != 'Intercept'], axis=1)
-        self.dm_statistics = {
-            'r2_x': pd.Series({
-                x: pd.stats.api.ols(
-                    y=X[x], x=X.drop(x, axis=1)).r2
-                for x in list(X.columns)}),
-            'r2_y': pd.Series({
-                x: pd.stats.api.ols(
-                    y=self.y.data.squeeze(), x=X.drop(x, axis=1)).r2
-                for x in list(X.columns)}),
-            'sd_x': X.std(),
-            'sd_y': self.y.data.std(),
-            'mean_x': X.mean(axis=0),
-            'mean_y': self.y.data.mean()
-        }
+        # current x.
+        # only compute these stats if there are multiple terms in the model
+        terms = [t for t in self.fixed_terms.values() if t.name != 'Intercept']
 
-        # save potentially useful info for diagnostics and send to ModelResults
-        # mat = correlation matrix of X, w/ diagonal replaced by X means
-        mat = X.corr()
-        for x in list(mat.columns):
-            mat.loc[x, x] = self.dm_statistics['mean_x'][x]
-        self._diagnostics = {
-            # the Variance Inflation Factors (VIF), which is possibly useful
-            # for diagnostics
-            'VIF': 1/(1 - self.dm_statistics['r2_x']),
-            'corr_mean_X': mat
-        }
+        if len(self.fixed_terms) > 1:
 
-        # Get and scale default priors if none are defined yet
-        scaler = PriorScaler(self)
-        for t in self.terms.values():
-            if not isinstance(t.prior, Prior):
-                scaler.scale(t)
+            X = [pd.DataFrame(x.data, columns=x.levels) for x in terms]
+            X = pd.concat(X, axis=1)
+
+            self.dm_statistics = {
+                'r2_x': pd.Series({
+                    x: pd.stats.api.ols(
+                        y=X[x], x=X.drop(x, axis=1),
+                        intercept=True if 'Intercept' in self.term_names else False).r2
+                    for x in list(X.columns)}),
+                'r2_y': pd.Series({
+                    x: pd.stats.api.ols(
+                        y=self.y.data.squeeze(), x=X.drop(x, axis=1),
+                        intercept=True if 'Intercept' in self.term_names else False).r2
+                    for x in list(X.columns)}),
+                'sd_x': X.std(),
+                'sd_y': self.y.data.std(),
+                'mean_x': X.mean(axis=0)
+            }
+
+            # save potentially useful info for diagnostics and send to ModelResults
+            # mat = correlation matrix of X, w/ diagonal replaced by X means
+            mat = X.corr()
+            for x in list(mat.columns):
+                mat.loc[x, x] = self.dm_statistics['mean_x'][x]
+            self._diagnostics = {
+                # the Variance Inflation Factors (VIF), which is possibly useful
+                # for diagnostics
+                'VIF': 1/(1 - self.dm_statistics['r2_x']),
+                'corr_mean_X': mat
+            }
+
+            # throw informative error if there is perfect collinearity among the fixed effects
+            if any(self.dm_statistics['r2_x'] > .999):
+                raise ValueError("There is perfect collinearity among the fixed effects!\n" + \
+                    "Printing some design matrix statistics:\n" + \
+                    str(self.dm_statistics) + '\n' + \
+                    str(self._diagnostics))
+
+        # only set priors if there is at least one term in the model
+        if len(self.terms) > 0:
+            # Get and scale default priors if none are defined yet
+            scaler = PriorScaler(self)
+            for t in self.terms.values():
+                if not isinstance(t.prior, Prior):
+                    scaler.scale(t)
 
         self.backend.build(self)
         self.built = True
@@ -253,6 +268,9 @@ class Model(object):
                                      "character. Note that only the | and + "
                                      "operators are currently supported in "
                                      "random effects specifications.")
+
+                # replace explicit intercept terms like '1|subj' with just 'subj'
+                f = re.sub(r'^1\s*\|(.*)', r'\1', f).strip()
 
                 # Split specification into intercept, predictor, and grouper
                 patt = r'^([01]+)*[\s\+]*([^\|]+)\|*(.*)'

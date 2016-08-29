@@ -1,4 +1,5 @@
 import numpy as np
+from pandas import Series
 from os.path import dirname, join
 from bambi.external.six import string_types
 from copy import deepcopy
@@ -173,7 +174,7 @@ class PriorScaler(object):
 
     def __init__(self, model):
         self.model = model
-        self.stats = model.dm_statistics # purely for brevity
+        self.stats = model.dm_statistics if hasattr(model, 'dm_statistics') else None
 
     def _scale_intercept(self, term, value):
 
@@ -183,26 +184,47 @@ class PriorScaler(object):
         if term.prior.name != 'Normal':
             return
 
-        index = list(self.stats['r2_y'].index)
-        sd = self.stats['sd_y'] * (1 - self.stats['r2_y'][index]) / \
-            self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])
-        sd *= value
-        sd = np.dot(sd**2, self.stats['mean_x'][index]**2)**.5
-        term.prior.update(mu=self.stats['mean_y'], sd=sd)
+        if self.stats is not None:
+            index = list(self.stats['r2_y'].index)
+            sd = self.stats['sd_y'] * (1 - self.stats['r2_y'][index]) / \
+                self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])
+            sd *= value
+            sd = np.dot(sd**2, self.stats['mean_x'][index]**2)**.5
+        else: # this handles intercept-only models
+            sd = self.model.y.data.std()
+
+        term.prior.update(mu=self.model.y.data.mean(), sd=sd)
 
     def _scale_fixed(self, term, value):
 
         if term.prior.name != 'Normal':
             return
 
-        slope_constant = self.stats['sd_y'] * \
-            (1 - self.stats['r2_y'][term.levels]) / \
-            self.stats['sd_x'][term.levels] / \
-            (1 - self.stats['r2_x'][term.levels])
-        term.prior.update(sd=value * slope_constant.values)
+        if self.stats is not None:
+            slope_constant = self.stats['sd_y'] * \
+                (1 - self.stats['r2_y'][term.levels]) / \
+                self.stats['sd_x'][term.levels] / \
+                (1 - self.stats['r2_x'][term.levels])
+            mu = 0
+        else: # this case handles slope-only models.
+            # this prior is a bit contrived, but then, slope-only models are a bit contrived.
+            # basically we set the mean to the OLS estimate, and the SD proportional to the
+            # absolute difference between the OLS est. and the OLS est. if Y shifted by 1 SD
+            data = term.data
+            # more than 1 column implies this is a cell-means model.
+            # sum over rows so that resulting mu = mean(Y)
+            if data.shape[1] > 1: data = data.sum(axis=1)
+            mu = np.dot(data.flatten(), self.model.y.data) / \
+                np.dot(data.flatten(), data.flatten())
+            mu_shift = np.dot(data.flatten(), self.model.y.data + self.model.y.data.std()) / \
+                np.dot(data.flatten(), data.flatten())
+            # multiply scale by 2 in the cell-means case so prior is nice and wide
+            slope_constant = Series(np.abs(mu - mu_shift)) * len(np.squeeze(term.data).shape)
+
+        term.prior.update(mu = mu, sd=value * slope_constant.values)
 
     def _scale_random(self, term, value):
-
+        # classify as random intercept or random slope
         term_type = 'intercept' if '|' not in term.name else 'slope'
 
         # these default priors are only defined for HalfCauchy priors
@@ -213,25 +235,41 @@ class PriorScaler(object):
         if term_type == 'slope':
             # get name of corresponding fixed effect
             fix = re.sub(r'\|.*', r'', term.name).strip()
-            # only proceed if there does exist a corresponding fixed
-            # effect. note that without this, it would break on random
-            # slopes for categorical predictors! Here we simply skip
-            # that case, but we should make it correctly handle default
-            # priors for that case
-            if fix not in list(self.stats['r2_y'].index):
-                return
-            slope_constant = self.stats['sd_y'] * \
-                (1 - self.stats['r2_y'][fix]) / self.stats['sd_x'][fix] / \
-                (1 - self.stats['r2_x'][fix])
+
+            # handle case where there are multiple fixed effects, including intercept
+            if self.stats is not None:
+                # handle case where there is a corresponding fixed term
+                if fix in list(self.stats['r2_y'].index):
+                    slope_constant = self.stats['sd_y'] * \
+                        (1 - self.stats['r2_y'][fix]) / self.stats['sd_x'][fix] / \
+                        (1 - self.stats['r2_x'][fix])
+                else:
+                    # recreate the corresponding fixed effect data
+                    fix_data = term.data.sum(axis=1) if not isinstance(term.data, dict) \
+                        else np.vstack([term.data[x].sum(axis=1) \
+                        for x in term.data.keys()]).T
+                    # set prior on the standardized beta instead of the partial corr
+                    slope_constant = self.stats['sd_y'] / fix_data.std()
+            # TODO: handle the case where fixed effects are intercept-only or cell-means
+            else:
+                slope_constant = 1
+
             term.prior.args['sd'].update(beta=value * slope_constant)
+
         # handle random intercepts
         else:
-            index = list(self.stats['r2_y'].index)
-            beta = self.stats['sd_y'] * (1 - self.stats['r2_y'][index]) / \
-                self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])
-            beta *= value
-            beta = np.dot(beta**2, self.stats['mean_x'][index]**2)**.5
-            term.prior.args['sd'].update(beta=beta)
+            # this handles the usual cases: usually, intercept + at least one fixed effect.
+            # less commonly, cell means + covariate model (i.e., no intercept)
+            if self.stats is not None:
+                index = list(self.stats['r2_y'].index)
+                beta = self.stats['sd_y'] * (1 - self.stats['r2_y'][index]) / \
+                    self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])
+                beta = np.dot(beta**2, self.stats['mean_x'][index]**2)**.5
+            # this handles the case where fixed effects are intercept-only or cell-means
+            else:
+                # use the same beta as we use in a fixed-intercept-only model
+                beta = self.model.y.data.std()
+            term.prior.args['sd'].update(beta=value * beta)
 
     def scale(self, term):
 

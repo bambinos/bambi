@@ -17,7 +17,7 @@ class ModelResults(object):
 
         self.model = model
         self.terms = list(model.terms.values())
-        self.diagnostics = model._diagnostics
+        self.diagnostics = model._diagnostics if hasattr(model, '_diagnostics') else None
         self.n_terms = len(model.terms)
 
     @abstractmethod
