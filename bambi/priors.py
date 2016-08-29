@@ -163,13 +163,13 @@ class PriorFactory(object):
 
 class PriorScaler(object):
 
-    # Default is 'value'. The value prior SD is sqrt(1/3) = .577 on the partial
+    # Default is 'wide'. The wide prior SD is sqrt(1/3) = .577 on the partial
     # corr scale, which is the SD of a flat prior over [-1,1].
     names = {
         'narrow': 0.2,
         'medium': 0.4,
-        'value': 3 ** -0.5,
-        'supervalue': 0.8
+        'wide': 3 ** -0.5,
+        'superwide': 0.8
     }
 
     def __init__(self, model):
@@ -279,7 +279,7 @@ class PriorScaler(object):
             term_type = 'random' if term.random else 'fixed'
 
         if term.prior is None:
-            value = 'value'
+            value = 'wide'
         else:
             value = term.prior
 
