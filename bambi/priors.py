@@ -221,7 +221,7 @@ class PriorScaler(object):
             # multiply scale by 2 in the cell-means case so prior is nice and wide
             slope_constant = Series(np.abs(mu - mu_shift)) * len(np.squeeze(term.data).shape)
 
-        term.prior.update(mu = mu, sd=value * slope_constant.values)
+        term.prior.update(mu = mu, sd=value * slope_constant.values[:, None])
 
     def _scale_random(self, term, value):
         # classify as random intercept or random slope
