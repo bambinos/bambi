@@ -175,11 +175,11 @@ class Model(object):
                              family=family, link=link, categorical=categorical,
                              append=False)
         ''' Run the BackEnd to fit the model. '''
-        if not self.built:
-            warnings.warn("Current Bayesian model has not been built yet; "
-                          "building it first before sampling begins.")
-            self.build()
         if run:
+            if not self.built:
+                warnings.warn("Current Bayesian model has not been built yet; "
+                              "building it first before sampling begins.")
+                self.build()
             return self.backend.run(**kwargs)
 
     def add_intercept(self):
@@ -268,6 +268,9 @@ class Model(object):
                                      "character. Note that only the | and + "
                                      "operators are currently supported in "
                                      "random effects specifications.")
+
+                # replace explicit intercept terms like '1|subj' with just 'subj'
+                f = re.sub(r'^1\s*\|(.*)', r'\1', f).strip()
 
                 # Split specification into intercept, predictor, and grouper
                 patt = r'^([01]+)*[\s\+]*([^\|]+)\|*(.*)'
