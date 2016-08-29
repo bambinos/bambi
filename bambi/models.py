@@ -84,7 +84,7 @@ class Model(object):
         # current x
         X = pd.concat([pd.DataFrame(x.data, columns=x.levels)
                        for x in self.terms.values()
-                       if x.type_ == 'fixed' and x.name != 'Intercept'], axis=1)
+                       if not x.random and x.name != 'Intercept'], axis=1)
         self.dm_statistics = {
             'r2_x': pd.Series({
                 x: pd.stats.api.ols(
@@ -440,12 +440,8 @@ class Model(object):
         if label is None:
             label = variable
 
-        if random:
-            term = RandomTerm(name=label, data=data, categorical=categorical,
-                              prior=prior)
-        else:
-            term = Term(name=label, data=data, categorical=categorical,
-                        prior=prior)
+        term = Term(name=label, data=data, categorical=categorical,
+                    random=random, prior=prior)
         self.terms[term.name] = term
         self.built = False
 
@@ -491,12 +487,12 @@ class Model(object):
     @property
     def fixed_terms(self):
         ''' Return dict of all and only fixed effects in model. '''
-        return {k: v for (k, v) in self.terms.items() if v.type_ == 'fixed'}
+        return {k: v for (k, v) in self.terms.items() if not v.random}
 
     @property
     def random_terms(self):
         ''' Return dict of all and only random effects in model. '''
-        return {k: v for (k, v) in self.terms.items() if v.type_ == 'random'}
+        return {k: v for (k, v) in self.terms.items() if v.random}
 
 
 class Term(object):
@@ -512,13 +508,11 @@ class Term(object):
         prior (Prior): A specification of the prior(s) to use. An instance
             of class priors.Prior.
     '''
-
-    type_ = 'fixed'
-
-    def __init__(self, name, data, categorical=False, prior=None):
+    def __init__(self, name, data, categorical=False, random=False, prior=None):
 
         self.name = name
         self.categorical = categorical
+        self.random = random
         self.prior = prior
 
         if isinstance(data, pd.Series):
@@ -533,12 +527,3 @@ class Term(object):
             self.levels = list(range(data.shape[1]))
 
         self.data = data
-
-
-class RandomTerm(Term):
-
-    type_ = 'random'
-
-    def __init__(self, name, data, prior=None, **kwargs):
-
-        super(RandomTerm, self).__init__(name, data, prior=prior, **kwargs)
