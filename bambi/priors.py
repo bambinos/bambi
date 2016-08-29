@@ -221,6 +221,7 @@ class PriorScaler(object):
             # multiply scale by 2 in the cell-means case so prior is nice and wide
             slope_constant = Series(np.abs(mu - mu_shift)) * len(np.squeeze(term.data).shape)
 
+
         term.prior.update(mu = mu, sd=value * slope_constant.values)
 
     def _scale_random(self, term, value):
@@ -250,11 +251,23 @@ class PriorScaler(object):
                         for x in term.data.keys()]).T
                     # set prior on the standardized beta instead of the partial corr
                     slope_constant = self.stats['sd_y'] / fix_data.std()
-            # TODO: handle the case where fixed effects are intercept-only or cell-means
-            else:
-                slope_constant = 1
 
-            term.prior.args['sd'].update(beta=value * slope_constant)
+            # handle the case where fixed effects are intercept-only or cell-means
+            else:
+                fix_data = term.data.sum(axis=1) if not isinstance(term.data, dict) \
+                    else np.vstack([term.data[x].sum(axis=1) \
+                    for x in term.data.keys()]).T
+                # more than 1 column implies this these are cell-means random effects
+                # sum over rows so that resulting mu = mean(Y)
+                if len(fix_data.shape) > 1 and fix_data.shape[1] > 1:
+                    fix_data = fix_data.sum(axis=1)
+                mu = np.dot(fix_data.flatten(), self.model.y.data) / \
+                    np.dot(fix_data.flatten(), fix_data.flatten())
+                mu_shift = np.dot(fix_data.flatten(), self.model.y.data + self.model.y.data.std()) / \
+                    np.dot(fix_data.flatten(), fix_data.flatten())
+                slope_constant = np.abs(mu - mu_shift)
+
+            term.prior.args['sd'].update(beta=value * np.asscalar(slope_constant))
 
         # handle random intercepts
         else:
