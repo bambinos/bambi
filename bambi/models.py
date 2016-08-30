@@ -136,7 +136,6 @@ class Model(object):
             # Get and scale default priors if none are defined yet
             scaler = PriorScaler(self)
             for t in self.terms.values():
-                print(t.name, t.prior, t.prior.name, isinstance(t.prior, Prior), type(t.prior))
                 if not isinstance(t.prior, Prior):
                     scaler.scale(t)
 
