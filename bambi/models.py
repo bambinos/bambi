@@ -27,10 +27,14 @@ class Model(object):
             containing named distributions, families, and terms (see the
             documentation in priors.PriorFactory for details), or the name
             of a JSON file containing the same information.
+        auto_scale (bool): If True (default), priors are automatically rescaled
+            to the data (to be weakly informative) any time default priors are
+            used. Note that any priors explicitly set by the user will always
+            take precedence over default priors.
     '''
 
     def __init__(self, data=None, intercept=False, backend='pymc3',
-                 default_priors=None):
+                 default_priors=None, auto_scale=True):
 
         if isinstance(data, string_types):
             data = pd.read_table(data, sep=None)
@@ -59,6 +63,8 @@ class Model(object):
 
         if intercept:
             self.add_intercept()
+
+        self.auto_scale = auto_scale
 
     def reset(self):
         '''
@@ -130,6 +136,7 @@ class Model(object):
             # Get and scale default priors if none are defined yet
             scaler = PriorScaler(self)
             for t in self.terms.values():
+                print(t.name, t.prior, t.prior.name, isinstance(t.prior, Prior), type(t.prior))
                 if not isinstance(t.prior, Prior):
                     scaler.scale(t)
 
@@ -288,13 +295,11 @@ class Model(object):
                     variable = pred
 
                 else:
-                    # Add random slopes unless they were explicitly excluded
+                    # If we're adding slopes, add random intercepts as well,
+                    # unless they were explicitly excluded
                     if intcpt and grpr not in self.terms:
                         self.add_term(variable=grpr, categorical=True,
                                       random=True, drop_first=False)
-                    # For categoricals, flip the predictor and grouper before
-                    # passing to add_term(). This allows us to take advantage
-                    # of the convenient split_by semantics.
                     if self.data[pred].dtype.name in ['object', 'category']:
                         kwargs['categorical'] = True
                         if not intcpt:

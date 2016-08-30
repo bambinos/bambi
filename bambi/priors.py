@@ -291,13 +291,16 @@ class PriorScaler(object):
         else:
             term_type = 'random' if term.random else 'fixed'
 
-        if term.prior is None:
+        value = term.prior
+
+        term.prior = self.model.default_priors.get(term=term_type)
+
+        if value is None:
+            if not self.model.auto_scale:
+                return
             value = 'wide'
-        else:
-            value = term.prior
 
         if isinstance(value, string_types):
             value = PriorScaler.names[value]
 
-        term.prior = self.model.default_priors.get(term=term_type)
         getattr(self, '_scale_%s' % term_type)(term, value)
