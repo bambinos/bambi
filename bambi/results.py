@@ -45,7 +45,7 @@ class PyMC3ModelResults(ModelResults):
         self.n_samples = len(trace)
         super(PyMC3ModelResults, self).__init__(model)
 
-    def plot(self, burn_in=0, names=None, **kwargs):
+    def plot(self, burn_in=0, names=None, annotate=True, **kwargs):
         '''
         Plots posterior distributions and sample traces. Code slightly modified from:
         https://pymc-devs.github.io/pymc3/notebooks/GLM-model-selection.html
@@ -56,12 +56,14 @@ class PyMC3ModelResults(ModelResults):
         ax = pm.traceplot(self.trace[burn_in:], varnames=names,
             figsize=(12,len(names)*1.5), lines={re.sub('\__0$', '', k): v['mean']
             for k, v in pm.df_summary(self.trace[burn_in:]).iterrows()}, **kwargs)
+
         # add lines and annotation for the means of all parameters
-        means = [self.trace[param][50:].mean() for param in names]
-        for i, mn in enumerate(means):
-            ax[i,0].annotate('{:.2f}'.format(mn), xy=(mn,0), xycoords='data'
-            ,xytext=(5,10), textcoords='offset points', rotation=90
-            ,va='bottom', fontsize='large', color='#AA0022')
+        if annotate:
+            means = [self.trace[param][burn_in:].mean() for param in names]
+            for i, mn in enumerate(means):
+                ax[i,0].annotate('{:.2f}'.format(mn), xy=(mn,0),
+                    xycoords='data', xytext=(5,10), textcoords='offset points',
+                    rotation=90, va='bottom', fontsize='large', color='#AA0022')
 
         return ax
 
