@@ -1,6 +1,7 @@
 import pandas as pd
 import pymc3 as pm
 from abc import abstractmethod, ABCMeta
+import re
 
 
 class ModelResults(object):
@@ -46,10 +47,23 @@ class PyMC3ModelResults(ModelResults):
 
     def plot(self, burn_in=0, names=None, **kwargs):
         '''
-        Plots posterior distributions and sample traces. Currently just a
-        wrapper for pm.traceplot().
+        Plots posterior distributions and sample traces. Code slightly modified from:
+        https://pymc-devs.github.io/pymc3/notebooks/GLM-model-selection.html
         '''
-        return pm.traceplot(self.trace[burn_in:], varnames=names, **kwargs)
+        if names is None: names = self.trace.varnames
+
+        # make the basic traceplot
+        ax = pm.traceplot(self.trace[burn_in:], varnames=names,
+            figsize=(12,len(names)*1.5), lines={re.sub('\__0$', '', k): v['mean']
+            for k, v in pm.df_summary(self.trace[burn_in:]).iterrows()}, **kwargs)
+        # add lines and annotation for the means of all parameters
+        means = [self.trace[param][50:].mean() for param in names]
+        for i, mn in enumerate(means):
+            ax[i,0].annotate('{:.2f}'.format(mn), xy=(mn,0), xycoords='data'
+            ,xytext=(5,10), textcoords='offset points', rotation=90
+            ,va='bottom', fontsize='large', color='#AA0022')
+
+        return ax
 
     def summary(self, burn_in=0, fixed=True, random=True, names=None,
                 **kwargs):
