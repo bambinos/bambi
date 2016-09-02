@@ -336,18 +336,7 @@ If no `link` argument is explicitly set (see below), a sensible default will be 
 #### Families
 Following the convention used in many R packages, the error distribution to use for a GLMM is specified in a `Family` class that indicates how the response variable and its error are distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility. In the following example, we show how the built-in 'binomial' family could be constructed on-the-fly:
 
-```
-    "binomial": {
-      "dist": [
-        "#bernoulli",
-        {
-          "p": "#beta"
-        }
-      ],
-      "link": "logit",
-      "parent": "p"
-    },
-
+```python
 from bambi import Family, Prior
 import theano.tensor as tt
 
