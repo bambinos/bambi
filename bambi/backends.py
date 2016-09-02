@@ -112,7 +112,9 @@ class PyMC3BackEnd(BackEnd):
 
             y = spec.y.data
             y_prior = spec.family.prior
-            link_f = self.links[spec.family.link]
+            link_f = spec.family.link
+            if not callable(link_f):
+                link_f = self.links[link_f]
             y_prior.args[spec.family.parent] = link_f(self.mu)
             y_prior.args['observed'] = y
             y_like = self._build_dist(
