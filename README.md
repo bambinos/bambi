@@ -188,7 +188,7 @@ By default, Bambi will intelligently generate weakly informative priors for all 
 #### Different ways of specifying priors
 
 Bambi provides two ways to specify a custom prior. First, one can manually specify only the scale of the prior, while retaining the default distribution. 
-By default, Bambi sets a "wide" prior on all fixed and random effects. Priors are specified on a partial correlation scale that quantifies the expected standardized contribution of each individual term to the outcome variable when controlling for other terms. The default wide prior sets the scale of the prior distribution (either a normal or a cauchy distribution, depending on the type of term) to sqrt(3). In cases where we want to keep the default prior distributions, but alter their scale, we can specify either a numeric scale value or pass the name of a predefined constant. For example:
+By default, Bambi sets a "wide" prior on all fixed and random effects. Priors are specified on a partial correlation scale that quantifies the expected standardized contribution of each individual term to the outcome variable when controlling for other terms. The default wide prior sets the scale of the prior distribution (either a normal or a cauchy distribution, depending on the type of term) to sqrt(1/3). In cases where we want to keep the default prior distributions, but alter their scale, we can specify either a numeric scale value or pass the name of a predefined constant. For example:
 
 ```python
 model = Model(data)
@@ -198,7 +198,7 @@ model.add_term('condition', prior='superwide')
 model.add_term('subject', random=True, prior=0.1)
 ```
 
-Named scales include 'superwide' (scale = 0.8), 'wide' (sqrt(3)), 'normal' (0.4), and 'narrow' (0.2). The ability to specify prior scales this way is helpful, but also limited: we will sometimes find ourselves wanting to use something other than a normal or cauchy distribution to model our priors. Fortunately, Bambi is built on top of PyMC3, which means that we can seamlessly use any of the over 40 `Distribution` classes defined in PyMC3. We can specify such priors in Bambi using the `Prior` class, which initializes with a `name` argument (which must map on exactly to the name of a valid PyMC3 `Distribution`) followed by any of the parameters accepted by the corresponding `distribution`. For example:
+Named scales include 'superwide' (scale = 0.8), 'wide' (sqrt(1/3)), 'normal' (0.4), and 'narrow' (0.2). The ability to specify prior scales this way is helpful, but also limited: we will sometimes find ourselves wanting to use something other than a normal or cauchy distribution to model our priors. Fortunately, Bambi is built on top of PyMC3, which means that we can seamlessly use any of the over 40 `Distribution` classes defined in PyMC3. We can specify such priors in Bambi using the `Prior` class, which initializes with a `name` argument (which must map on exactly to the name of a valid PyMC3 `Distribution`) followed by any of the parameters accepted by the corresponding `distribution`. For example:
 
 ```python
 from bambi import Prior
