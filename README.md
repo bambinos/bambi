@@ -37,10 +37,11 @@ Bambi requires working versions of numpy, pandas, matplotlib, patsy, pymc3, and 
         * [Model specification notes](#model-specification-notes)
             - [Term naming caveats](#term-naming-caveats)
     + [Fitting the model](#fitting-the-model)
-    + [Generalized linear mixed models](#generalized-linear-mixed-models)
     + [Specifying priors](#specifying-priors)
         * [Different ways of specifying priors](#different-ways-of-specifying-priors)
         * [Mapping priors onto terms](#mapping-priors-onto-terms)
+    + [Generalized linear mixed models](#generalized-linear-mixed-models)
+        * [Families](#families)
     * [Results](#results)
     * [Accessing PyMC3 objects](#accessing-pymc3-objects)
 
@@ -175,10 +176,36 @@ model.add_term('condition', random=True, over='subject')
 To avoid any potential conflicts, we generally recommend giving the terms in your model sensible names by explicitly setting the `label` value whenever appropriate. (This is not possible when using the formula interface, as term names will be generated dynamically based on the formula specification.)
 
 ### Fitting the model
-Coming soon...
+Once a model is fully specified, we need to run the PyMC3 sampler to generate parameter estimates. If we're using the one-line `fit()` interface, sampling will begin right away:
 
-### Generalized linear mixed models
-Coming soon...
+```python
+model = Model(data)
+results = model.fit('rt ~ condition + gender + age', random='condition|subject')
+```
+
+The above code will obtain 1,000 samples (the default value) and return them as a `ModelResults` instance (for more details, see the [Results](#results) section). The `fit()` method accepts optional keyword arguments to pass onto PyMC3's `sample()` method, so any methods accepted by `sample()` can be specified here. We can also explicitly set the number of samples via the `samples` argument. For example, if we call `fit('y ~ X1', samples=2000, njobs=2)`, the PyMC3 sampler will run 2 parallel jobs, drawing 2,000 samples for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see the [PyMC3 documentation](https://pymc-devs.github.io/pymc3/api.html#pymc3.sampling.sample)).
+
+Alternatively, we can specify our model in steps, and only call `fit()` once the model is complete:
+
+```python
+# Initializing with intercept=True adds an intercept right away
+model = Model(data, intercept=True)
+model.add_term('food_type', categorical=True)
+model.add_term('subject', categorical=True, random=True)
+...
+model.fit(samples=5000)
+```
+
+#### Building the model
+When `fit()` is called, Bambi internally performs two separate steps. First, the model is built or compiled, via a `build()` call. During the build, the PyMC3 model is compiled by Theano, in order to optimize the underlying Theano graph and improve sampling efficiency. This process can be fairly time-consuming, depending on the size and complexity of the model. It's possible to build the model explicitly, without beginning the sampling process, by calling `build()` directly on the model:
+
+```python
+model = Model(data)
+model.add.formula('rt ~ condition + gender + age', random='condition|subject')
+model.build()
+```
+
+The above code compiles the model, but doesn't begin sampling. This can be useful if we want to inspect the internal PyMC3 model before we start the (potentially long) sampling process. Once we're satisfied, and wish to run the sampler, we can then simply call `model.fit()`, and the sampler will start running.
 
 ### Specifying priors
 Bayesian inference requires one to specify *prior* probability distributions that represent the analyst's belief (in advance of seeing the data) about the likely values of the model parameters. In practice, analysts often lack sufficient information to formulate well-defined priors, and instead opt to use "weakly informative" priors that mainly serve to keep the model from exploring completely pathological parts of the parameter space (e.g., when defining a prior on the distribution of human heights, a value of 3,000 cms should be assigned a probability of exactly 0).
@@ -198,7 +225,7 @@ model.add_term('condition', prior='superwide')
 model.add_term('subject', random=True, prior=0.1)
 ```
 
-Named scales include 'superwide' (scale = 0.8), 'wide' (sqrt(1/3)), 'normal' (0.4), and 'narrow' (0.2). The ability to specify prior scales this way is helpful, but also limited: we will sometimes find ourselves wanting to use something other than a normal or cauchy distribution to model our priors. Fortunately, Bambi is built on top of PyMC3, which means that we can seamlessly use any of the over 40 `Distribution` classes defined in PyMC3. We can specify such priors in Bambi using the `Prior` class, which initializes with a `name` argument (which must map on exactly to the name of a valid PyMC3 `Distribution`) followed by any of the parameters accepted by the corresponding `distribution`. For example:
+Named scales include 'superwide' (scale = 0.8), 'wide' (sqrt(1/3)), 'medium' (0.4), and 'narrow' (0.2). The ability to specify prior scales this way is helpful, but also limited: we will sometimes find ourselves wanting to use something other than a normal or cauchy distribution to model our priors. Fortunately, Bambi is built on top of PyMC3, which means that we can seamlessly use any of the over 40 `Distribution` classes defined in PyMC3. We can specify such priors in Bambi using the `Prior` class, which initializes with a `name` argument (which must map on exactly to the name of a valid PyMC3 `Distribution`) followed by any of the parameters accepted by the corresponding `distribution`. For example:
 
 ```python
 from bambi import Prior
@@ -262,6 +289,65 @@ model.add_term('subject', random=True, prior=random_prior)
 ```
 
 It's important to note that explicitly setting priors by passing in `Prior` objects will disable Bambi's default behavior of scaling priors to the data in order to ensure that they remain weakly informative. This means that if you specify your own prior, you have to be sure not only to specify the distribution you want, but also any relevant scale parameters. For example, the 0.5 in `Prior('Normal', mu=0, sd=0.5)` will be specified on the scale of the data, not the bounded partial correlation scale that Bambi uses for default priors. This means that if your outcome variable has a mean value of 10,000 and a standard deviation of, say, 1,000, you could potentially have some problems getting the model to produce reasonable estimates, since from the perspective of the data, you're specifying an extremely strong prior.
+
+### Generalized linear mixed models
+Bambi supports the construction of mixed models with non-normal error distributions (i.e., generalized linear mixed models, or GLMMs). GLMMs are specified in the same way as LMMs, except that the user must specify the distribution to use for the errors, and (optionally) the link function with which to transform the linear model prediction into the desired non-normal response. The easiest way to construct a GLMM is to simple set the `family` argument in the `fit()` call:
+
+```python
+model = Model(data)
+model.fit('graduate ~ attendance + GPA', random='1|student', family='binomial')
+```
+
+If no `link` argument is explicitly set (see below), a sensible default will be used. The following table summarizes the currently available families and their associated links (the default is `gaussian`):
+
+| Family name | Response distribution | Default link |
+|-------------|-----------------------|--------------|
+| gaussian    | Normal                | identity     |
+| binomial    | Bernoulli             | logit        |
+| poisson     | Poisson               | log          |
+| t           | StudentT              | identity     |
+
+#### Families
+Following the convention used in many R packages, the error distribution to use for a GLMM is specified in a `Family` class that indicates how the response variable and its error are distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility. In the following example, we show how the built-in 'binomial' family could be constructed on-the-fly:
+
+```
+    "binomial": {
+      "dist": [
+        "#bernoulli",
+        {
+          "p": "#beta"
+        }
+      ],
+      "link": "logit",
+      "parent": "p"
+    },
+
+from bambi import Family, Prior
+import theano.tensor as tt
+
+# Specify how the Bernoulli p parameter is distributed
+prior_p = Prior('Beta', alpha=2, beta=2)
+
+# The response variable distribution
+prior = Prior('Bernoulli', p=prior_p)
+
+# Set the link function. Alternatively, we could just set
+# the link to 'logit', since it's already built into Bambi.
+# Note that we could pass in our own function here; the link
+# function doesn't have to be predefined.
+link = tt.nnet.sigmoid
+
+# Construct the family
+new_fam = Family('binomial', prior=prior, link=link, parent='p')
+
+# Now it's business as usual
+model = Model(data)
+model.fit('graduate ~ attendance + GPA', random='1|student', family=new_fam)
+```
+
+The above example produces results identical to simply setting `family='binomial'`.
+
+One (minor) complication in specifying a custom `Family` is that the link function must be able to operate over theano tensors rather than numpy arrays, so you'll probably need to rely on tensor operations provided in `theano.tensor` (many of which are also wrapped by PyMC3) when defining a new link.
 
 ### Results
 Coming soon...
