@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from bambi.external.six import string_types
 import numpy as np
 import warnings
-from bambi.results import PyMC3ModelResults
+from bambi.results import PyMC3Results, PyMC3ADVIResults
 from bambi.priors import Prior
 import theano
 try:
@@ -120,20 +120,31 @@ class PyMC3BackEnd(BackEnd):
 
             self.spec = spec
 
-    def run(self, start=None, find_map=False, **kwargs):
+    def run(self, start=None, method='mcmc', find_map=False, **kwargs):
         '''
         Run the PyMC3 MCMC sampler.
         Args:
             start: Starting parameter values to pass to sampler; see
                 pm.sample() documentation for details.
+            method: The method to use for fitting the model. By default,
+                'mcmc', in which case the PyMC3 sampler will be used.
+                Alternatively, 'advi', in which case the model will be fitted
+                using  automatic differentiation variational inference as
+                implemented in PyMC3.
             find_map (bool): whether or not to use the maximum a posteriori
                 estimate as a starting point; passed directly to PyMC3.
             kwargs (dict): Optional keyword arguments passed onto the sampler.
         Returns: A PyMC3ModelResults instance.
         '''
-        samples = kwargs.pop('samples', 1000)
-        with self.model:
-            if start is None and find_map:
-                start = pm.find_MAP()
-            self.trace = pm.sample(samples, start=start, **kwargs)
-        return PyMC3ModelResults(self.spec, self.trace)
+        if method == 'mcmc':
+            samples = kwargs.pop('samples', 1000)
+            with self.model:
+                if start is None and find_map:
+                    start = pm.find_MAP()
+                self.trace = pm.sample(samples, start=start, **kwargs)
+            return PyMC3Results(self.spec, self.trace)
+
+        elif method == 'advi':
+            with self.model:
+                self.advi_params = pm.variational.advi(start, **kwargs)
+            return PyMC3ADVIResults(self.spec, self.advi_params)

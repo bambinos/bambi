@@ -30,7 +30,7 @@ class ModelResults(object):
         pass
 
 
-class PyMC3ModelResults(ModelResults):
+class PyMC3Results(ModelResults):
 
     '''
     Holds PyMC3 sampler results and provides plotting and summarization tools.
@@ -43,7 +43,7 @@ class PyMC3ModelResults(ModelResults):
 
         self.trace = trace
         self.n_samples = len(trace)
-        super(PyMC3ModelResults, self).__init__(model)
+        super(PyMC3Results, self).__init__(model)
 
     def plot(self, burn_in=0, names=None, annotate=True, **kwargs):
         '''
@@ -53,9 +53,11 @@ class PyMC3ModelResults(ModelResults):
         if names is None: names = self.trace.varnames
 
         # make the basic traceplot
+        if annotate:
+            kwargs['lines'] = {re.sub('\__0$', '', k): v['mean']
+                for k, v in pm.df_summary(self.trace[burn_in:]).iterrows()}
         ax = pm.traceplot(self.trace[burn_in:], varnames=names,
-            figsize=(12,len(names)*1.5), lines={re.sub('\__0$', '', k): v['mean']
-            for k, v in pm.df_summary(self.trace[burn_in:]).iterrows()}, **kwargs)
+            figsize=(12,len(names)*1.5), **kwargs)
 
         # add lines and annotation for the means of all parameters
         if annotate:
@@ -74,3 +76,13 @@ class PyMC3ModelResults(ModelResults):
         pm.summary().
         '''
         return pm.summary(self.trace[burn_in:], varnames=names, **kwargs)
+
+
+class PyMC3ADVIResults(ModelResults):
+
+    def __init__(self, model, params):
+
+        self.means = params['means']
+        self.sds = params['stds']
+        self.elbo_vals = params['elbo_vals']
+        super(PyMC3ADVIResults, self).__init__(model)
