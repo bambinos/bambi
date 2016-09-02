@@ -1,13 +1,18 @@
 import sys
-from setuptools import setup
+from setuptools import setup, find_packages
 
 __version__ = '0.0.1'
 
 if len(set(('test', 'easy_install')).intersection(sys.argv)) > 0:
     import setuptools
 
+requirements, dependency_links = [], []
 with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+    for dep in f.read().splitlines():
+        if '-e' in dep:
+            dependency_links.append(dep.split(' ')[1])
+        else:
+            requirements.append(dep)
 
 tests_require = []
 extra_setuptools_args = {}
@@ -19,13 +24,17 @@ if 'setuptools' in sys.modules:
             test='nose>=0.10.1')
     )
 
+print(requirements)
 setup(
     name="bambi",
     version=__version__,
     description="BAyesian Model Building Interface in Python",
+    install_requires=requirements,
+    dependency_links=dependency_links,
     maintainer='Tal Yarkoni',
     maintainer_email='tyarkoni@gmail.com',
-    packages=["bambi"],
+    packages=find_packages(exclude=['tests', 'test_*']),
+    package_data={'bambi': ["config/*"]},
     tests_require=tests_require,
     license='MIT',
     **extra_setuptools_args
