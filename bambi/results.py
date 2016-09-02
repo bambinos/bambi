@@ -79,7 +79,12 @@ class PyMC3Results(ModelResults):
 
 
 class PyMC3ADVIResults(ModelResults):
-
+    '''
+    Holds PyMC3 ADVI results and provides plotting and summarization tools.
+    Args:
+        model (Model): a bambi Model instance specifying the model.
+        params (MultiTrace): ADVI parameters returned by PyMC3.
+    '''
     def __init__(self, model, params):
 
         self.means = params['means']
