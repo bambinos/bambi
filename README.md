@@ -378,7 +378,7 @@ results.plot(500)
 ```
 
 This produces a plot like the following:
-![Sample PyMC3 trace plot](docs/images/sample_traceplot.png)
+![Sample PyMC3 trace plot](https://github.com/bambinos/bambi/blob/master/bambi/docs/images/sample_traceplot.png)
 
 More details on this plot are available in the [PyMC3 documentation](http://pymc-devs.github.io/pymc3/notebooks/getting_started.html#Posterior-analysis).
 
