@@ -37,6 +37,7 @@ Bambi requires working versions of numpy, pandas, matplotlib, patsy, pymc3, and 
         * [Model specification notes](#model-specification-notes)
             - [Term naming caveats](#term-naming-caveats)
     + [Fitting the model](#fitting-the-model)
+        * [Building the model](#building-the-model)
     + [Specifying priors](#specifying-priors)
         * [Different ways of specifying priors](#different-ways-of-specifying-priors)
         * [Mapping priors onto terms](#mapping-priors-onto-terms)
@@ -48,7 +49,17 @@ Bambi requires working versions of numpy, pandas, matplotlib, patsy, pymc3, and 
 
 ## Quickstart
 
-Coming soon...
+Suppose we have data for a typical within-subjects psychology experiment with 2 experimental conditions. Stimuli are nested within condition, and subjects are crossed with condition. We want to fit a model predicting reaction time (RT) from the fixed effect of condition, random intercepts for subjects, random condition slopes for students, and random intercepts for stimuli. We can fit this model and summarize its results as follows in bambi:
+
+```python
+from bambi import Model
+
+# Assume we already have our data loaded
+model = Model(data)
+results = model.fit('rt ~ condition', random=['condition|subject', '1|stimulus'], samples=5000)
+results.plot(burn_in=1000)
+results.summary(1000)
+```
 
 ## User guide
 
@@ -67,6 +78,21 @@ model = Model(data)
 ```
 
 Typically, we'll initialize a bambi `Model` by passing it a pandas `DataFrame` as the only argument. We get back a model that we can immediately start adding terms to.
+
+#### Data format
+As with most mixed effect modeling packages, Bambi expects data in "long" format--meaning that each row should reflect a single observation at the most fine-grained level of analysis. For example, given a model where students are nested into classrooms and classrooms are nested into schools, we would want data with the following kind of structure:
+
+| student | gender | gpa | class | school |
+|---------|--------|-----|-------|--------|
+| 1       | F      | 3.4 | 1     | 1      |
+| 2       | F      | 3.7 | 1     | 1      |
+| 3       | M      | 2.2 | 1     | 1      |
+| 4       | F      | 3.9 | 2     | 1      |
+| 5       | M      | 3.6 | 2     | 1      |
+| 6       | M      | 3.5 | 2     | 1      |
+| 7       | F      | 2.8 | 3     | 2      |
+| 8       | M      | 3.9 | 3     | 2      |
+| 9       | F      | 4.0 | 3     | 2      |
 
 ### Model specification
 Bambi provides two (mutually compatible) ways to specify a mixed-effects model: a high-level, formula-based API, and a lower-level, term-based API.
