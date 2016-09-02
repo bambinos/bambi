@@ -321,7 +321,7 @@ Bambi supports the construction of mixed models with non-normal error distributi
 
 ```python
 model = Model(data)
-model.fit('graduate ~ attendance + GPA', random='1|student', family='binomial')
+model.fit('graduate ~ attendance_record + GPA', random='1|school', family='binomial')
 ```
 
 If no `link` argument is explicitly set (see below), a sensible default will be used. The following table summarizes the currently available families and their associated links (the default is `gaussian`):
@@ -357,7 +357,7 @@ new_fam = Family('binomial', prior=prior, link=link, parent='p')
 
 # Now it's business as usual
 model = Model(data)
-model.fit('graduate ~ attendance + GPA', random='1|student', family=new_fam)
+model.fit('graduate ~ attendance_record + GPA', random='1|school', family=new_fam)
 ```
 
 The above example produces results identical to simply setting `family='binomial'`.
