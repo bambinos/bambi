@@ -357,7 +357,7 @@ new_fam = Family('binomial', prior=prior, link=link, parent='p')
 
 # Now it's business as usual
 model = Model(data)
-model.fit('graduate ~ attendance + GPA', random='1|student', family=new_fam)
+model.fit('graduate ~ attendance_record + GPA', random='1|school', family=new_fam)
 ```
 
 The above example produces results identical to simply setting `family='binomial'`.
