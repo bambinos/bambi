@@ -155,7 +155,7 @@ Here we add two fixed predictors, as well as random intercepts and slopes for su
 
 We could, of course, just as easily have specified the equivalent model in a single line:
 
-```
+```python
 model = Model(data)
 model.fit('rt ~ condition + gender + age', random='condition|subject')
 ```
@@ -184,8 +184,9 @@ Note that the above only holds for the formula-based specification approach. Whe
 ```python
 # Add random subject intercept--1 per subject
 model.add_term('subject', random=True, categorical=True, drop_first=False)
+
 # Add N - 1 random condition slopes, each distributed over all subjects
-model.add_term('condition', random=True, categorical=True, drop_first=False)
+model.add_term('condition', random=True, categorical=True, over='subject', drop_first=False)
 ```
 
 #### Model specification notes
@@ -195,6 +196,7 @@ You might notice that the `add_term()` method takes both a `variable` and a `lab
 ```python
 # This will add a term named 'condition'
 model.add_term('condition')
+
 # This will generate a term named 'condition|subject', and *not* 'condition'!
 model.add_term('condition', random=True, over='subject')
 ```
@@ -234,7 +236,7 @@ model.build()
 The above code compiles the model, but doesn't begin sampling. This can be useful if we want to inspect the internal PyMC3 model before we start the (potentially long) sampling process. Once we're satisfied, and wish to run the sampler, we can then simply call `model.fit()`, and the sampler will start running.
 
 ### Specifying priors
-Bayesian inference requires one to specify *prior* probability distributions that represent the analyst's belief (in advance of seeing the data) about the likely values of the model parameters. In practice, analysts often lack sufficient information to formulate well-defined priors, and instead opt to use "weakly informative" priors that mainly serve to keep the model from exploring completely pathological parts of the parameter space (e.g., when defining a prior on the distribution of human heights, a value of 3,000 cms should be assigned a probability of exactly 0).
+Bayesian inference requires one to specify prior probability distributions that represent the analyst's belief (in advance of seeing the data) about the likely values of the model parameters. In practice, analysts often lack sufficient information to formulate well-defined priors, and instead opt to use "weakly informative" priors that mainly serve to keep the model from exploring completely pathological parts of the parameter space (e.g., when defining a prior on the distribution of human heights, a value of 3,000 cms should be assigned a probability of exactly 0).
 
 By default, Bambi will intelligently generate weakly informative priors for all model terms, by loosely scaling them to the observed data. While the default priors will behave well in most typical settings, there are many cases where an analyst will want to specify their own priors--and in general, when informative priors are available, it's a good idea to use them.
 
@@ -247,14 +249,18 @@ By default, Bambi sets a "wide" prior on all fixed and random effects. Priors ar
 model = Model(data)
 # Add condition to the model as a fixed effect with a very wide prior
 model.add_term('condition', prior='superwide')
+
 # Add random subject slopes to the model, with a narrow prior on their variance
 model.add_term('subject', random=True, prior=0.1)
 ```
 
-Named scales include 'superwide' (scale = 0.8), 'wide' (sqrt(1/3)), 'medium' (0.4), and 'narrow' (0.2). The ability to specify prior scales this way is helpful, but also limited: we will sometimes find ourselves wanting to use something other than a normal or cauchy distribution to model our priors. Fortunately, Bambi is built on top of PyMC3, which means that we can seamlessly use any of the over 40 `Distribution` classes defined in PyMC3. We can specify such priors in Bambi using the `Prior` class, which initializes with a `name` argument (which must map on exactly to the name of a valid PyMC3 `Distribution`) followed by any of the parameters accepted by the corresponding `distribution`. For example:
+Predefined named scales include 'superwide' (scale = 0.8), 'wide' (sqrt(1/3)), 'medium' (0.4), and 'narrow' (0.2).
+
+The ability to specify prior scales this way is helpful, but also limited: we will sometimes find ourselves wanting to use something other than a normal or cauchy distribution to model our priors. Fortunately, Bambi is built on top of PyMC3, which means that we can seamlessly use any of the over 40 `Distribution` classes defined in PyMC3. We can specify such priors in Bambi using the `Prior` class, which initializes with a `name` argument (which must map on exactly to the name of a valid PyMC3 `Distribution`) followed by any of the parameters accepted by the corresponding `distribution`. For example:
 
 ```python
 from bambi import Prior
+
 # A laplace prior with mean of 0 and scale of 10
 my_favorite_prior = Prior('Laplace', mu=0., b=10)
 
@@ -270,7 +276,7 @@ subject_prior = Prior('Normal', mu=0, sd=subject_sd)
 model.add_term('subject', random=True, prior=subject_prior)
 ```
 
-The above prior specification indicates that each individual subject's intercept should be modeled as a normal distribution with mean of 0, where the the individual intercepts are assumed to be randomly sampled from a higher-order half-cauchy distribution with a beta of 5.
+The above prior specification indicates that the individual subject intercepts are to be treated as if they are randomly sampled from the same underlying normal distribution, where the variance of that normal distribution is parameterized by a separate hyperprior (a half-cauchy with beta = 5).
 
 #### Mapping priors onto terms
 Bambi provides several different ways to map custom priors onto their corresponding model terms. The most convenient approach is probably to use the `Model` instance's `set_priors()` method, which allows us to easily apply multiple priors to any/all of the terms that have already been added to the model. There are also `fixed` and `random` arguments that make it easy to apply the same priors to all fixed or random effects in the model. For example:
@@ -309,7 +315,7 @@ Here we stipulate that terms X1 and X4 will use the same normal prior, X2 will u
 
 Finally, and as we've already seen in other examples above, each term's prior can be set when adding it to the model with `add_term()`:
 
-```
+```python
 random_prior = Prior('Normal', sd=Prior('Uniform', lower=10, upper=100))
 model.add_term('subject', random=True, prior=random_prior)
 ```
