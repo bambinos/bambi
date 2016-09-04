@@ -44,6 +44,20 @@ class PyMC3Results(ModelResults):
 
         self.trace = trace
         self.n_samples = len(trace)
+
+        # here we determine which variables have been internally transformed 
+        # (e.g., sd_log). transformed variables are actually 'untransformed' from 
+        # the PyMC3 model's perspective, and it's the backtransformed (e.g., sd)
+        # variable that is 'transformed'. So the logic of this is to find and
+        # remove 'untranformed' variables that have a 'transformed' counterpart,
+        # in that 'untransformed' varname is the 'transfornmed' varname plus
+        # some suffix (such as '_log' or '_interval')
+        rvs = model.backend.model.unobserved_RVs
+        trans = set(var.name for var in rvs if isinstance(var, TransformedRV))
+        untrans = set(var.name for var in rvs) - trans
+        untrans = set(x for x in untrans if not any([t in x for t in trans]))
+        self.untransformed_vars = [x for x in trace.varnames if x in trans | untrans]
+
         super(PyMC3Results, self).__init__(model)
 
     def plot(self, burn_in=0, names=None, annotate=True, hide_transformed=True, **kwargs):
@@ -52,19 +66,7 @@ class PyMC3Results(ModelResults):
         https://pymc-devs.github.io/pymc3/notebooks/GLM-model-selection.html
         '''
         if names is None:
-            if hide_transformed:
-                # transformed variables (e.g., sd_log) are actually 'untransformed' from 
-                # the PyMC3 model's perspective, and it's the backtransformed (e.g., sd)
-                # variable that is 'transformed'. So the logic of this is to find and
-                # remove 'untranformed' variables that have a 'transformed' counterpart,
-                # in that 'untransformed' varname is the 'transfornmed' varname plus
-                # some suffix (such as '_log' or '_interval')
-                rvs = self.model.backend.model.unobserved_RVs
-                trans = set(var.name for var in rvs if isinstance(var, TransformedRV))
-                untrans = set(var.name for var in rvs) - trans
-                untrans = set(x for x in untrans if not any([t in x for t in trans]))
-                names = [x for x in self.trace.varnames if x in trans | untrans]
-            else: names = self.trace.varnames
+            names = self.untransformed_vars if hide_transformed else self.trace.varnames
 
         # make the basic traceplot
         if annotate:
@@ -85,11 +87,14 @@ class PyMC3Results(ModelResults):
         return ax
 
     def summary(self, burn_in=0, fixed=True, random=True, names=None,
-                **kwargs):
+                hide_transformed=True, **kwargs):
         '''
         Summarizes all parameter estimates. Currently just a wrapper for
         pm.summary().
         '''
+        if names is None:
+            names = self.untransformed_vars if hide_transformed else self.trace.varnames
+
         return pm.summary(self.trace[burn_in:], varnames=names, **kwargs)
 
 
