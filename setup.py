@@ -31,6 +31,7 @@ setup(
     name="bambi",
     version=__version__,
     description="BAyesian Model Building Interface in Python",
+    url='http://github.com/bambinos/bambi',
     download_url='https://github.com/bambinos/bambi/archive/%s.tar.gz' % __version__,
     install_requires=requirements,
     dependency_links=dependency_links,
