@@ -68,21 +68,48 @@ class PyMC3Results(ModelResults):
         if names is None:
             names = self.untransformed_vars if hide_transformed else self.trace.varnames
 
-        # make the basic traceplot
+        # compute means for all variables and factors
         if annotate:
-            # kwargs['lines'] = {re.sub('\__0$', '', k): v['mean']
-            #     for k, v in pm.df_summary(self.trace[burn_in:]).iterrows()}
             kwargs['lines'] = {param: self.trace[param][burn_in:].mean() for param in names}
+            # factors (i.e., fixed terms with shape > 1) must be handled separately
+            factors = {}
+            for fix in self.model.fixed_terms.values():
+                if 'b_'+fix.name in names and len(fix.levels)>1:
+                    # remove factor from dictionary of lines to plot
+                    kwargs['lines'].pop('b_'+fix.name)
+                    # add factor and its column means to dictionary of factors
+                    factors.update({'b_'+fix.name:
+                        {':'.join(re.findall('\[([^]]+)\]', x)):
+                         self.trace['b_'+fix.name][burn_in:].mean(0)[i]
+                         for i,x in enumerate(fix.levels)}})
+
+        # make the traceplot
         ax = pm.traceplot(self.trace[burn_in:], varnames=names,
             figsize=(12,len(names)*1.5), **kwargs)
 
-        # add lines and annotation for the means of all parameters
         if annotate:
-            means = [self.trace[param][burn_in:].mean() for param in names]
-            for i, mn in enumerate(means):
-                ax[i,0].annotate('{:.2f}'.format(mn), xy=(mn,0),
-                    xycoords='data', xytext=(5,10), textcoords='offset points',
-                    rotation=90, va='bottom', fontsize='large', color='#AA0022')
+            # add lines and annotation for the factors
+            for f in factors.keys():
+                for lev in factors[f]:
+                    # draw line
+                    ax[names.index(f),0].axvline(x=factors[f][lev], color="r", lw=1.5)
+                    # write the mean
+                    ax[names.index(f),0].annotate('{:.2f}'.format(factors[f][lev]),
+                        xy=(factors[f][lev],0), xycoords='data', xytext=(5,10),
+                        textcoords='offset points', rotation=90, va='bottom',
+                        fontsize='large', color='#AA0022')
+                    # write the factor level name
+                    ax[names.index(f),0].annotate(lev,
+                        xy=(factors[f][lev],0), xycoords='data', xytext=(-11,5),
+                        textcoords='offset points', rotation=90, va='bottom',
+                        fontsize='large', color='#AA0022')
+            # add lines and annotation for the rest of the variables
+            for v in kwargs['lines'].keys():
+                ax[names.index(v),0].annotate('{:.2f}'.format(kwargs['lines'][v]),
+                    xy=(kwargs['lines'][v],0), xycoords='data', xytext=(5,10),
+                    textcoords='offset points', rotation=90, va='bottom',
+                    fontsize='large', color='#AA0022')
+
 
         return ax
 
