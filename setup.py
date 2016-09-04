@@ -7,14 +7,8 @@ __version__ = '0.0.2'
 if len(set(('test', 'easy_install')).intersection(sys.argv)) > 0:
     import setuptools
 
-requirements, dependency_links = [], []
-req_file = join(dirname(__file__), 'requirements.txt')
-with open(req_file) as f:
-    for dep in f.read().splitlines():
-        if '-e' in dep:
-            dependency_links.append(dep.split(' ')[1])
-        else:
-            requirements.append(dep)
+requirements = ['numpy', 'pandas', 'patsy', 'statsmodels']
+dependency_links = ['git://github.com/pymc-devs/pymc3.git#egg=pymc3']
 
 tests_require = []
 extra_setuptools_args = {}
