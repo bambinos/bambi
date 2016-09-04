@@ -1,5 +1,4 @@
 import pandas as pd
-import pymc3 as pm
 from abc import abstractmethod, ABCMeta
 import re
 
@@ -50,6 +49,7 @@ class PyMC3Results(ModelResults):
         Plots posterior distributions and sample traces. Code slightly modified from:
         https://pymc-devs.github.io/pymc3/notebooks/GLM-model-selection.html
         '''
+        import pymc3 as pm
         if names is None: names = self.trace.varnames
 
         # make the basic traceplot
@@ -75,6 +75,7 @@ class PyMC3Results(ModelResults):
         Summarizes all parameter estimates. Currently just a wrapper for
         pm.summary().
         '''
+        import pymc3 as pm
         return pm.summary(self.trace[burn_in:], varnames=names, **kwargs)
 
 
