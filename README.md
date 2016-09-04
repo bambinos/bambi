@@ -14,11 +14,15 @@ Bambi is a high-level Bayesian model-building interface written in Python. It's 
 
 Bambi requires a working Python interpreter (either 2.7+ or 3+). We recommend installing Python and key numerical libraries using the [Anaconda Distribution](https://www.continuum.io/downloads), which has one-click installers available on all major platforms.
 
-Assuming a standard Python environment is installed on your machine (including pip), Bambi can be installed in one line using pip:
+Assuming a standard Python environment is installed on your machine (including pip), Bambi itself can be installed in one line using pip:
 
     pip install bambi
 
-For advanced users, or those who intend to contribute to Bambi development, we recommend installing PyMC3 manually before installing Bambi with pip. Follow the instructions on the [PyMC3 repo](https://github.com/pymc-devs/pymc3) to install PyMC3 with a development version of Theano, then run the above to intall Bambi.
+You'll also need to install PyMC3 in order to fit most models. You can install PyMC3 from the command line as follows (for details, see the full [installation instructions](pip install git+https://github.com/pymc-devs/pymc3) on the PyMC3 repository:
+
+    pip install git+https://github.com/pymc-devs/pymc3
+
+Once both packages are installed, you should be ready to fit models with Bambi.
 
 ### Dependencies
 
