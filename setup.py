@@ -1,5 +1,6 @@
 import sys
 from setuptools import setup, find_packages
+from os.path import join, dirname
 
 __version__ = '0.0.1'
 
@@ -7,7 +8,8 @@ if len(set(('test', 'easy_install')).intersection(sys.argv)) > 0:
     import setuptools
 
 requirements, dependency_links = [], []
-with open('requirements.txt') as f:
+req_file = join(dirname(__file__), 'requirements.txt')
+with open(req_file) as f:
     for dep in f.read().splitlines():
         if '-e' in dep:
             dependency_links.append(dep.split(' ')[1])
