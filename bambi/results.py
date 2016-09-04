@@ -1,5 +1,6 @@
 import pandas as pd
 import pymc3 as pm
+from pymc3.model import TransformedRV
 from abc import abstractmethod, ABCMeta
 import re
 
@@ -45,17 +46,31 @@ class PyMC3Results(ModelResults):
         self.n_samples = len(trace)
         super(PyMC3Results, self).__init__(model)
 
-    def plot(self, burn_in=0, names=None, annotate=True, **kwargs):
+    def plot(self, burn_in=0, names=None, annotate=True, hide_transformed=True, **kwargs):
         '''
         Plots posterior distributions and sample traces. Code slightly modified from:
         https://pymc-devs.github.io/pymc3/notebooks/GLM-model-selection.html
         '''
-        if names is None: names = self.trace.varnames
+        if names is None:
+            if hide_transformed:
+                # transformed variables (e.g., sd_log) are actually 'untransformed' from 
+                # the PyMC3 model's perspective, and it's the backtransformed (e.g., sd)
+                # variable that is 'transformed'. So the logic of this is to find and
+                # remove 'untranformed' variables that have a 'transformed' counterpart,
+                # in that 'untransformed' varname is the 'transfornmed' varname plus
+                # some suffix (such as '_log' or '_interval')
+                rvs = self.model.backend.model.unobserved_RVs
+                trans = set(var.name for var in rvs if isinstance(var, TransformedRV))
+                untrans = set(var.name for var in rvs) - trans
+                untrans = set(x for x in untrans if not any([t in x for t in trans]))
+                names = [x for x in self.trace.varnames if x in trans | untrans]
+            else: names = self.trace.varnames
 
         # make the basic traceplot
         if annotate:
-            kwargs['lines'] = {re.sub('\__0$', '', k): v['mean']
-                for k, v in pm.df_summary(self.trace[burn_in:]).iterrows()}
+            # kwargs['lines'] = {re.sub('\__0$', '', k): v['mean']
+            #     for k, v in pm.df_summary(self.trace[burn_in:]).iterrows()}
+            kwargs['lines'] = {param: self.trace[param][burn_in:].mean() for param in names}
         ax = pm.traceplot(self.trace[burn_in:], varnames=names,
             figsize=(12,len(names)*1.5), **kwargs)
 
