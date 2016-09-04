@@ -2,7 +2,7 @@ import sys
 from setuptools import setup, find_packages
 from os.path import join, dirname
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 if len(set(('test', 'easy_install')).intersection(sys.argv)) > 0:
     import setuptools
