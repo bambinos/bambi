@@ -116,7 +116,7 @@ def test_add_term_to_model(base_model):
 def test_one_shot_formula_fit(base_model):
     base_model.fit('BMI ~ S1 + S2', samples=50)
     nv = base_model.backend.model.named_vars
-    targets = ['likelihood', 'b_S1', 'b_Intercept']
+    targets = ['BMI', 'b_S1', 'b_Intercept']
     assert len(set(nv.keys()) & set(targets)) == 3
     assert len(base_model.backend.trace) == 50
 
