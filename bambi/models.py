@@ -380,9 +380,9 @@ class Model(object):
         if prior is None:
             prior = self.family.prior
 
-        # implement default HalfCauchy prior for normal sigma (beta = sd(Y))
+        # implement default Uniform [0, sd(Y)] prior for residual SD
         if self.family.name == 'gaussian':
-            prior.args['sd'].update(beta=self.data[variable].std())
+            prior.update(sd=Prior('Uniform', lower=0, upper=self.data[variable].std()))
 
         self.add_term(variable, prior=prior, *args, **kwargs)
         # use last-added term name b/c it could have been changed by add_term
