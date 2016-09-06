@@ -118,7 +118,7 @@ class PyMC3BackEnd(BackEnd):
             y_prior.args[spec.family.parent] = link_f(self.mu)
             y_prior.args['observed'] = y
             y_like = self._build_dist(
-                'likelihood', y_prior.name, **y_prior.args)
+                spec.y.name, y_prior.name, **y_prior.args)
 
             self.spec = spec
 
