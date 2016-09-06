@@ -60,11 +60,15 @@ class PyMC3Results(ModelResults):
 
         super(PyMC3Results, self).__init__(model)
 
-    def plot(self, burn_in=0, names=None, annotate=True, hide_transformed=True, **kwargs):
+    def plot(self, burn_in=0, names=None, annotate=True, hide_transformed=True,
+        kind='trace', **kwargs):
         '''
         Plots posterior distributions and sample traces. Code slightly modified from:
         https://pymc-devs.github.io/pymc3/notebooks/GLM-model-selection.html
         '''
+        if kind == 'priors':
+            return self.model.plot()
+
         if names is None:
             names = self.untransformed_vars if hide_transformed else self.trace.varnames
 
