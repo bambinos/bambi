@@ -228,8 +228,8 @@ class PriorScaler(object):
         # classify as random intercept or random slope
         term_type = 'intercept' if '|' not in term.name else 'slope'
 
-        # these default priors are only defined for HalfCauchy priors
-        if term.prior.args['sd'].name != 'HalfCauchy':
+        # these default priors are only defined for HalfNormal priors
+        if term.prior.args['sd'].name != 'HalfNormal':
             return
 
         # handle random slopes
@@ -267,7 +267,7 @@ class PriorScaler(object):
                     np.dot(fix_data.flatten(), fix_data.flatten())
                 slope_constant = np.abs(mu - mu_shift)
 
-            term.prior.args['sd'].update(beta=value * np.asscalar(slope_constant))
+            term.prior.args['sd'].update(sd=value * np.asscalar(slope_constant))
 
         # handle random intercepts
         else:
@@ -275,14 +275,14 @@ class PriorScaler(object):
             # less commonly, cell means + covariate model (i.e., no intercept)
             if self.stats is not None:
                 index = list(self.stats['r2_y'].index)
-                beta = self.stats['sd_y'] * (1 - self.stats['r2_y'][index])**.5 / \
+                sd = self.stats['sd_y'] * (1 - self.stats['r2_y'][index])**.5 / \
                     self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])**.5
-                beta = np.dot(beta**2, self.stats['mean_x'][index]**2)**.5
+                sd = np.dot(sd**2, self.stats['mean_x'][index]**2)**.5
             # this handles the case where fixed effects are intercept-only or cell-means
             else:
-                # use the same beta as we use in a fixed-intercept-only model
-                beta = self.model.y.data.std()
-            term.prior.args['sd'].update(beta=value * beta)
+                # use the same sd as we use in a fixed-intercept-only model
+                sd = self.model.y.data.std()
+            term.prior.args['sd'].update(sd=value * sd)
 
     def scale(self, term):
 
