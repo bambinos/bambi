@@ -186,8 +186,8 @@ class PriorScaler(object):
 
         if self.stats is not None:
             index = list(self.stats['r2_y'].index)
-            sd = self.stats['sd_y'] * (1 - self.stats['r2_y'][index]) / \
-                self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])
+            sd = self.stats['sd_y'] * (1 - self.stats['r2_y'][index])**.5 / \
+                self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])**.5
             sd *= value
             sd = np.dot(sd**2, self.stats['mean_x'][index]**2)**.5
         else: # this handles intercept-only models
@@ -202,9 +202,9 @@ class PriorScaler(object):
 
         if self.stats is not None:
             slope_constant = self.stats['sd_y'] * \
-                (1 - self.stats['r2_y'][term.levels]) / \
+                (1 - self.stats['r2_y'][term.levels])**.5 / \
                 self.stats['sd_x'][term.levels] / \
-                (1 - self.stats['r2_x'][term.levels])
+                (1 - self.stats['r2_x'][term.levels])**.5
             mu = 0
         else: # this case handles slope-only models.
             # this prior is a bit contrived, but then, slope-only models are a bit contrived.
@@ -242,8 +242,8 @@ class PriorScaler(object):
                 # handle case where there is a corresponding fixed term
                 if fix in list(self.stats['r2_y'].index):
                     slope_constant = self.stats['sd_y'] * \
-                        (1 - self.stats['r2_y'][fix]) / self.stats['sd_x'][fix] / \
-                        (1 - self.stats['r2_x'][fix])
+                        (1 - self.stats['r2_y'][fix])**.5 / self.stats['sd_x'][fix] / \
+                        (1 - self.stats['r2_x'][fix])**.5
                 else:
                     # recreate the corresponding fixed effect data
                     fix_data = term.data.sum(axis=1) if not isinstance(term.data, dict) \
@@ -275,8 +275,8 @@ class PriorScaler(object):
             # less commonly, cell means + covariate model (i.e., no intercept)
             if self.stats is not None:
                 index = list(self.stats['r2_y'].index)
-                beta = self.stats['sd_y'] * (1 - self.stats['r2_y'][index]) / \
-                    self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])
+                beta = self.stats['sd_y'] * (1 - self.stats['r2_y'][index])**.5 / \
+                    self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])**.5
                 beta = np.dot(beta**2, self.stats['mean_x'][index]**2)**.5
             # this handles the case where fixed effects are intercept-only or cell-means
             else:
