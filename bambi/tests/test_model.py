@@ -351,7 +351,7 @@ def test_cell_means_with_random_intercepts(crossed_data):
     model0 = Model(crossed_data)
     model0.fit('Y ~ 0 + threecats', random=['subj'], run=False)
     model0.build()
-    model0.fit(samples=1)
+    fitted = model0.fit(samples=10)
 
     # using add_term
     model1 = Model(crossed_data, intercept=False)
@@ -379,6 +379,14 @@ def test_cell_means_with_random_intercepts(crossed_data):
     priors0 = {x.name:x.prior.args['sd'].args for x in model0.terms.values() if x.random}
     priors1 = {x.name:x.prior.args['sd'].args for x in model1.terms.values() if x.random}
     assert set(priors0) == set(priors1)
+
+    # test summary
+    fitted.summary()
+    fitted.summary(exclude_ranefs=False)
+
+    # test plots
+    fitted.plot(kind='priors')
+    fitted.plot()
 
 
 def test_random_intercepts(crossed_data):

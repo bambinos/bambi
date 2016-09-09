@@ -63,8 +63,21 @@ class PyMC3Results(ModelResults):
     def plot(self, burn_in=0, names=None, annotate=True, hide_transformed=True,
         kind='trace', **kwargs):
         '''
-        Plots posterior distributions and sample traces. Code slightly modified from:
+        Plots posterior distributions and sample traces. Basically a wrapper
+        for pm.traceplot() plus some niceties, based partly on code from:
         https://pymc-devs.github.io/pymc3/notebooks/GLM-model-selection.html
+        Args:
+            burn_in (int): Number of initial samples to exclude before
+                summary statistics are computed.
+            names (list): Optional list of variable names to summarize.
+            annotate (bool): If True (default), add lines marking the
+                posterior means, write the posterior means next to the
+                lines, and add factor level names for fixed factors with
+                more than one distribution on the traceplot.
+            hide_transformed (bool): If True (default), do not print
+                summary statistics for internally transformed variables.
+            kind (str): Either 'trace' (default) or 'priors'. If 'priors',
+                this just internally calls Model.plot()
         '''
         if kind == 'priors':
             return self.model.plot()
@@ -117,16 +130,46 @@ class PyMC3Results(ModelResults):
 
         return ax
 
-    def summary(self, burn_in=0, fixed=True, random=True, names=None,
+    def summary(self, burn_in=0, exclude_ranefs=True, names=None,
                 hide_transformed=True, **kwargs):
         '''
-        Summarizes all parameter estimates. Currently just a wrapper for
-        pm.summary().
+        Summarizes all parameter estimates. Basically a wrapper for
+        pm.df_summary() plus some niceties.
+        Args:
+            burn_in (int): Number of initial samples to exclude before
+                summary statistics are computed.
+            exclude_ranefs (bool): If True (default), do not print
+                summary statistics for individual random effects.
+            names (list): Optional list of variable names to summarize.
+            hide_transformed (bool): If True (default), do not print
+                summary statistics for internally transformed variables.
         '''
+
+        # if no 'names' specified, filter out unwanted variables
         if names is None:
             names = self.untransformed_vars if hide_transformed else self.trace.varnames
+            if exclude_ranefs:
+                names = [x for x in names
+                    if x[2:] not in list(self.model.random_terms.keys())]
 
-        return pm.summary(self.trace[burn_in:], varnames=names, **kwargs)
+        # get the basic DataFrame
+        df = pm.df_summary(self.trace[burn_in:], varnames=names, **kwargs)
+
+        # replace the "__\d" suffixes with an informative factor level name
+        match = [re.match('^(.*)(?:__)(\d+)?$', x) for x in df.index]
+        def replace_with_name(match):
+            term = self.model.terms[match.group(1)[2:]]
+            # handle fixed effects
+            if term in self.model.fixed_terms.values():
+                return term.levels[int(match.group(2))]
+            # handle random effects
+            else:
+                return '{}[{}]'.format(term.name, term.levels[int(match.group(2))])
+        new = [replace_with_name(x) if x is not None else df.index[i]
+            for i,x in enumerate(match)]
+        df.set_index([new], inplace=True)
+
+        return df
 
 
 class PyMC3ADVIResults(ModelResults):
