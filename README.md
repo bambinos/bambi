@@ -327,7 +327,7 @@ model.add_term('subject', random=True, prior=random_prior)
 It's important to note that explicitly setting priors by passing in `Prior` objects will disable Bambi's default behavior of scaling priors to the data in order to ensure that they remain weakly informative. This means that if you specify your own prior, you have to be sure not only to specify the distribution you want, but also any relevant scale parameters. For example, the 0.5 in `Prior('Normal', mu=0, sd=0.5)` will be specified on the scale of the data, not the bounded partial correlation scale that Bambi uses for default priors. This means that if your outcome variable has a mean value of 10,000 and a standard deviation of, say, 1,000, you could potentially have some problems getting the model to produce reasonable estimates, since from the perspective of the data, you're specifying an extremely strong prior.
 
 ### Generalized linear mixed models
-Bambi supports the construction of mixed models with non-normal error distributions (i.e., generalized linear mixed models, or GLMMs). GLMMs are specified in the same way as LMMs, except that the user must specify the distribution to use for the errors, and (optionally) the link function with which to transform the linear model prediction into the desired non-normal response. The easiest way to construct a GLMM is to simple set the `family` argument in the `fit()` call:
+Bambi supports the construction of mixed models with non-normal response distributions (i.e., generalized linear mixed models, or GLMMs). GLMMs are specified in the same way as LMMs, except that the user must specify the distribution to use for the response, and (optionally) the link function with which to transform the linear model prediction into the desired non-normal response. The easiest way to construct a GLMM is to simple set the `family` argument in the `fit()` call:
 
 ```python
 model = Model(data)
@@ -344,7 +344,7 @@ If no `link` argument is explicitly set (see below), a sensible default will be 
 | t           | StudentT              | identity     |
 
 #### Families
-Following the convention used in many R packages, the error distribution to use for a GLMM is specified in a `Family` class that indicates how the response variable and its error are distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility. In the following example, we show how the built-in 'binomial' family could be constructed on-the-fly:
+Following the convention used in many R packages, the response distribution to use for a GLMM is specified in a `Family` class that indicates how the response variable is distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility. In the following example, we show how the built-in 'binomial' family could be constructed on-the-fly:
 
 ```python
 from bambi import Family, Prior
