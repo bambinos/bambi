@@ -351,7 +351,7 @@ def test_cell_means_with_random_intercepts(crossed_data):
     model0 = Model(crossed_data)
     model0.fit('Y ~ 0 + threecats', random=['subj'], run=False)
     model0.build()
-    fitted = model0.fit(samples=10)
+    fitted = model0.fit(samples=100)
 
     # using add_term
     model1 = Model(crossed_data, intercept=False)
