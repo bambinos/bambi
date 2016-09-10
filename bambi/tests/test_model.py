@@ -388,6 +388,9 @@ def test_cell_means_with_random_intercepts(crossed_data):
     fitted.plot(kind='priors')
     fitted.plot()
 
+    # test get_trace
+    fitted.get_trace()
+
 
 def test_random_intercepts(crossed_data):
     # using formula and '1|' syntax

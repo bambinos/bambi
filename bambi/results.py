@@ -30,6 +30,10 @@ class ModelResults(object):
     def summary(self):
         pass
 
+    @abstractmethod
+    def get_trace(self):
+        pass
+
 
 class PyMC3Results(ModelResults):
 
@@ -170,6 +174,40 @@ class PyMC3Results(ModelResults):
         df.set_index([new], inplace=True)
 
         return df
+
+    def get_trace(self, burn_in=0, names=None, hide_transformed=True):
+        '''
+        Returns the MCMC samples in a nice, neat DataFrame.
+        Args:
+            burn_in (int): Number of initial samples to exclude from
+                each chain before returning the trace DataFrame.
+            names (list): Optional list of variable names to get samples for.
+            hide_transformed (bool): If True (default), do not return
+            samples for internally transformed variables.
+        '''
+        if names is None:
+            names = self.untransformed_vars if hide_transformed else self.trace.varnames
+
+        # helper function to label the trace DataFrame columns appropriately
+        def get_cols(var):
+            # handle terms with a single level
+            if len(self.trace[var].shape)==1 or self.trace[var].shape[1]==1:
+                return [var]
+            else:
+                # handle fixed terms with multiple levels
+                # (slice off the 'b_' or 'u_')
+                if var[2:] in self.model.fixed_terms.keys():
+                    return self.model.terms[var[2:]].levels
+                # handle random terms with multiple levels
+                else:
+                    return ['{}[{}]'.format(var[2:], x)
+                            for x in self.model.terms[var[2:]].levels]
+
+        # construct the trace DataFrame
+        trace_df = pd.concat([pd.DataFrame(self.trace[burn_in:][x], columns=get_cols(x))
+                              for x in names], axis=1)
+
+        return trace_df
 
 
 class PyMC3ADVIResults(ModelResults):
