@@ -4,6 +4,8 @@ from bambi.priors import Prior
 from os.path import dirname, join
 import pandas as pd
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 
 
 @pytest.fixture(scope="module")
