@@ -1,4 +1,4 @@
-import pytest
+import pytest, re
 from bambi.models import Term, Model
 from bambi.priors import Prior
 from os.path import dirname, join
@@ -383,7 +383,10 @@ def test_cell_means_with_random_intercepts(crossed_data):
     assert set(priors0) == set(priors1)
 
     # test summary
-    full = set(fitted.summary(exclude_ranefs=False, hide_transformed=False).index)
+    # it looks like some versions of pymc3 add a trailing '_' to transformed vars and
+    # some dont. so here for consistency we strip out any trailing '_' that we find
+    full = fitted.summary(exclude_ranefs=False, hide_transformed=False).index
+    full = set([re.sub(r'_$', r'', x) for x in full])
     test_set = set(fitted.summary(exclude_ranefs=False).index)
     assert test_set == full.difference(set(['Y_sd_interval','u_subj_sd_log']))
     test_set = set(fitted.summary(hide_transformed=False).index)
