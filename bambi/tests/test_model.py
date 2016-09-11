@@ -387,13 +387,16 @@ def test_cell_means_with_random_intercepts(crossed_data):
     # some dont. so here for consistency we strip out any trailing '_' that we find
     full = fitted.summary(exclude_ranefs=False, hide_transformed=False).index
     full = set([re.sub(r'_$', r'', x) for x in full])
-    test_set = set(fitted.summary(exclude_ranefs=False).index)
+    test_set = fitted.summary(exclude_ranefs=False).index
+    test_set = set([re.sub(r'_$', r'', x) for x in test_set])
     assert test_set == full.difference(set(['Y_sd_interval','u_subj_sd_log']))
-    test_set = set(fitted.summary(hide_transformed=False).index)
+    test_set = fitted.summary(hide_transformed=False).index
+    test_set = set([re.sub(r'_$', r'', x) for x in test_set])
     assert test_set == full.difference(set(['subj[{}]'.format(i) for i in range(10)]))
 
     # test get_trace
-    test_set = set(fitted.get_trace().columns)
+    test_set = fitted.get_trace().columns
+    test_set = set([re.sub(r'_$', r'', x) for x in test_set])
     assert test_set == full.difference(set(['Y_sd_interval','u_subj_sd_log']))\
         .difference(set(['subj[{}]'.format(i) for i in range(10)]))
 
