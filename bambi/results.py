@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import pymc3 as pm
 from pymc3.model import TransformedRV
 from abc import abstractmethod, ABCMeta
@@ -131,6 +132,12 @@ class PyMC3Results(ModelResults):
                     textcoords='offset points', rotation=90, va='bottom',
                     fontsize='large', color='#AA0022')
 
+        # For binomial models with n_trials = 1 (most common use case),
+        # tell user which event is being modeled
+        if self.model.family.name=='binomial' and np.max(self.model.y.data) < 1.01:
+            event = next(i for i,x in enumerate(self.model.y.data.flatten()) if x==1)
+            print('NOTE: Modeling the probability that {}==\'{}\''.format(
+                self.model.y.name, str(self.model.data[self.model.y.name][event])))
 
         return ax
 
@@ -172,6 +179,13 @@ class PyMC3Results(ModelResults):
         new = [replace_with_name(x) if x is not None else df.index[i]
             for i,x in enumerate(match)]
         df.set_index([new], inplace=True)
+
+        # For binomial models with n_trials = 1 (most common use case),
+        # tell user which event is being modeled
+        if self.model.family.name=='binomial' and np.max(self.model.y.data) < 1.01:
+            event = next(i for i,x in enumerate(self.model.y.data.flatten()) if x==1)
+            print('NOTE: Modeling the probability that {}==\'{}\''.format(
+                self.model.y.name, str(self.model.data[self.model.y.name][event])))
 
         return df
 

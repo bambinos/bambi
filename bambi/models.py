@@ -174,6 +174,13 @@ class Model(object):
                 if not isinstance(t.prior, Prior):
                     scaler.scale(t)
 
+        # For binomial models with n_trials = 1 (most common use case),
+        # tell user which event is being modeled
+        if self.family.name=='binomial' and np.max(self.y.data) < 1.01:
+            event = next(i for i,x in enumerate(self.y.data.flatten()) if x==1)
+            print('NOTE: Modeling the probability that {}==\'{}\''.format(
+                self.y.name, str(self.data[self.y.name][event])))
+
         self.backend.build(self)
         self.built = True
 
@@ -285,9 +292,15 @@ class Model(object):
                 data[cats] = data[cats].apply(lambda x: x.astype('category'))
 
             if '~' in fixed:
+                event = re.match(r'^((\S+)\[(\S+)\])\s*~(.*)$', fixed)
+                if event is not None:
+                    fixed = '{}~{}'.format(event.group(2),event.group(4))
                 y, X = dmatrices(fixed, data=data)
                 y_label = y.design_info.term_names[0]
-                self.add_y(y_label, family=family, link=link)
+                self.add_y(y_label, family=family, link=link,
+                    data=None if event is None else
+                    pd.DataFrame({event.group(3):
+                        y[:,y.design_info.column_names.index(event.group(1))]}))
             else:
                 X = dmatrix(fixed, data=data)
 
