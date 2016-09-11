@@ -383,15 +383,20 @@ def test_cell_means_with_random_intercepts(crossed_data):
     assert set(priors0) == set(priors1)
 
     # test summary
-    fitted.summary()
-    fitted.summary(exclude_ranefs=False)
+    full = set(fitted.summary(exclude_ranefs=False, hide_transformed=False).index)
+    test_set = set(fitted.summary(exclude_ranefs=False).index)
+    assert test_set == full.difference(set(['Y_sd_interval','u_subj_sd_log']))
+    test_set = set(fitted.summary(hide_transformed=False).index)
+    assert test_set == full.difference(set(['subj[{}]'.format(i) for i in range(10)]))
+
+    # test get_trace
+    test_set = set(fitted.get_trace().columns)
+    assert test_set == full.difference(set(['Y_sd_interval','u_subj_sd_log']))\
+        .difference(set(['subj[{}]'.format(i) for i in range(10)]))
 
     # test plots
     fitted.plot(kind='priors')
     fitted.plot()
-
-    # test get_trace
-    fitted.get_trace()
 
 
 def test_random_intercepts(crossed_data):

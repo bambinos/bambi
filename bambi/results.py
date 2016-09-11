@@ -3,7 +3,7 @@ import numpy as np
 import pymc3 as pm
 from pymc3.model import TransformedRV
 from abc import abstractmethod, ABCMeta
-import re
+import re, warnings
 
 
 class ModelResults(object):
@@ -29,10 +29,6 @@ class ModelResults(object):
 
     @abstractmethod
     def summary(self):
-        pass
-
-    @abstractmethod
-    def get_trace(self):
         pass
 
 
@@ -65,8 +61,17 @@ class PyMC3Results(ModelResults):
 
         super(PyMC3Results, self).__init__(model)
 
-    def plot(self, burn_in=0, names=None, annotate=True, hide_transformed=True,
-        kind='trace', **kwargs):
+
+    def _filter_names(self, names, exclude_ranefs=True, hide_transformed=True):
+        names = self.untransformed_vars if hide_transformed else self.trace.varnames
+        if exclude_ranefs:
+            names = [x for x in names
+                if x[2:] not in list(self.model.random_terms.keys())]
+        return names
+
+
+    def plot(self, burn_in=0, names=None, annotate=True, exclude_ranefs=False, 
+        hide_transformed=True, kind='trace', **kwargs):
         '''
         Plots posterior distributions and sample traces. Basically a wrapper
         for pm.traceplot() plus some niceties, based partly on code from:
@@ -79,16 +84,19 @@ class PyMC3Results(ModelResults):
                 posterior means, write the posterior means next to the
                 lines, and add factor level names for fixed factors with
                 more than one distribution on the traceplot.
-            hide_transformed (bool): If True (default), do not print
-                summary statistics for internally transformed variables.
+            exclude_ranefs (bool): If True, do not show trace plots for
+                individual random effects. Defaults to False.
+            hide_transformed (bool): If True (default), do not show trace
+                plots for internally transformed variables.
             kind (str): Either 'trace' (default) or 'priors'. If 'priors',
                 this just internally calls Model.plot()
         '''
         if kind == 'priors':
             return self.model.plot()
 
+        # if no 'names' specified, filter out unwanted variables
         if names is None:
-            names = self.untransformed_vars if hide_transformed else self.trace.varnames
+            names = self._filter_names(names, exclude_ranefs, hide_transformed)
 
         # compute means for all variables and factors
         if annotate:
@@ -135,8 +143,8 @@ class PyMC3Results(ModelResults):
         # For binomial models with n_trials = 1 (most common use case),
         # tell user which event is being modeled
         if self.model.family.name=='binomial' and np.max(self.model.y.data) < 1.01:
-            event = next(i for i,x in enumerate(self.model.y.data.flatten()) if x==1)
-            print('NOTE: Modeling the probability that {}==\'{}\''.format(
+            event = next(i for i,x in enumerate(self.model.y.data.flatten()) if x>.99)
+            warnings.warn('Modeling the probability that {}==\'{}\''.format(
                 self.model.y.name, str(self.model.data[self.model.y.name][event])))
 
         return ax
@@ -158,10 +166,7 @@ class PyMC3Results(ModelResults):
 
         # if no 'names' specified, filter out unwanted variables
         if names is None:
-            names = self.untransformed_vars if hide_transformed else self.trace.varnames
-            if exclude_ranefs:
-                names = [x for x in names
-                    if x[2:] not in list(self.model.random_terms.keys())]
+            names = self._filter_names(names, exclude_ranefs, hide_transformed)
 
         # get the basic DataFrame
         df = pm.df_summary(self.trace[burn_in:], varnames=names, **kwargs)
@@ -183,24 +188,28 @@ class PyMC3Results(ModelResults):
         # For binomial models with n_trials = 1 (most common use case),
         # tell user which event is being modeled
         if self.model.family.name=='binomial' and np.max(self.model.y.data) < 1.01:
-            event = next(i for i,x in enumerate(self.model.y.data.flatten()) if x==1)
-            print('NOTE: Modeling the probability that {}==\'{}\''.format(
+            event = next(i for i,x in enumerate(self.model.y.data.flatten()) if x>.99)
+            warnings.warn('Modeling the probability that {}==\'{}\''.format(
                 self.model.y.name, str(self.model.data[self.model.y.name][event])))
 
         return df
 
-    def get_trace(self, burn_in=0, names=None, hide_transformed=True):
+    def get_trace(self, burn_in=0, names=None, exclude_ranefs=True,
+        hide_transformed=True):
         '''
         Returns the MCMC samples in a nice, neat DataFrame.
         Args:
             burn_in (int): Number of initial samples to exclude from
                 each chain before returning the trace DataFrame.
             names (list): Optional list of variable names to get samples for.
+            exclude_ranefs (bool): If True (default), do not return samples
+                for individual random effects.
             hide_transformed (bool): If True (default), do not return
             samples for internally transformed variables.
         '''
+        # if no 'names' specified, filter out unwanted variables
         if names is None:
-            names = self.untransformed_vars if hide_transformed else self.trace.varnames
+            names = self._filter_names(names, exclude_ranefs, hide_transformed)
 
         # helper function to label the trace DataFrame columns appropriately
         def get_cols(var):
