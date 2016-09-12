@@ -7,10 +7,9 @@ from bambi.external.six import string_types
 from collections import OrderedDict, defaultdict
 from bambi.utils import listify
 from patsy import dmatrices, dmatrix
-import warnings
+import re, warnings
 from bambi.priors import PriorFactory, PriorScaler, Prior
 from copy import deepcopy
-import re
 
 
 class Model(object):
@@ -174,6 +173,13 @@ class Model(object):
                 if not isinstance(t.prior, Prior):
                     scaler.scale(t)
 
+        # For binomial models with n_trials = 1 (most common use case),
+        # tell user which event is being modeled
+        if self.family.name=='binomial' and np.max(self.y.data) < 1.01:
+            event = next(i for i,x in enumerate(self.y.data.flatten()) if x>.99)
+            warnings.warn('Modeling the probability that {}==\'{}\''.format(
+                self.y.name, str(self.data[self.y.name][event])))
+
         self.backend.build(self)
         self.built = True
 
@@ -285,9 +291,23 @@ class Model(object):
                 data[cats] = data[cats].apply(lambda x: x.astype('category'))
 
             if '~' in fixed:
+                # check to see if formula is using the 'y[event] ~ x' syntax
+                # (for binomial models). If so, chop it into groups:
+                # 1 = 'y[event]', 2 = 'y', 3 = 'event', 4 = 'x'
+                # If this syntax is not being used, event = None
+                event = re.match(r'^((\S+)\[(\S+)\])\s*~(.*)$', fixed)
+                if event is not None:
+                    fixed = '{}~{}'.format(event.group(2),event.group(4))
                 y, X = dmatrices(fixed, data=data)
                 y_label = y.design_info.term_names[0]
-                self.add_y(y_label, family=family, link=link)
+                if event is not None:
+                    # pass in new Y data that has 1 if y=event and 0 otherwise
+                    y_data = y[:,y.design_info.column_names.index(event.group(1))]
+                    y_data = pd.DataFrame({event.group(3): y_data})
+                    self.add_y(y_label, family=family, link=link, data=y_data)
+                else:
+                    # use Y as-is
+                    self.add_y(y_label, family=family, link=link)
             else:
                 X = dmatrix(fixed, data=data)
 
