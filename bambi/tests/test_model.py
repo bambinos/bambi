@@ -1,9 +1,11 @@
-import pytest
+import pytest, re
 from bambi.models import Term, Model
 from bambi.priors import Prior
 from os.path import dirname, join
 import pandas as pd
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 
 
 @pytest.fixture(scope="module")
@@ -351,7 +353,7 @@ def test_cell_means_with_random_intercepts(crossed_data):
     model0 = Model(crossed_data)
     model0.fit('Y ~ 0 + threecats', random=['subj'], run=False)
     model0.build()
-    model0.fit(samples=1)
+    fitted = model0.fit(samples=100)
 
     # using add_term
     model1 = Model(crossed_data, intercept=False)
@@ -379,6 +381,28 @@ def test_cell_means_with_random_intercepts(crossed_data):
     priors0 = {x.name:x.prior.args['sd'].args for x in model0.terms.values() if x.random}
     priors1 = {x.name:x.prior.args['sd'].args for x in model1.terms.values() if x.random}
     assert set(priors0) == set(priors1)
+
+    # test summary
+    # it looks like some versions of pymc3 add a trailing '_' to transformed vars and
+    # some dont. so here for consistency we strip out any trailing '_' that we find
+    full = fitted.summary(exclude_ranefs=False, hide_transformed=False).index
+    full = set([re.sub(r'_$', r'', x) for x in full])
+    test_set = fitted.summary(exclude_ranefs=False).index
+    test_set = set([re.sub(r'_$', r'', x) for x in test_set])
+    assert test_set == full.difference(set(['Y_sd_interval','u_subj_sd_log']))
+    test_set = fitted.summary(hide_transformed=False).index
+    test_set = set([re.sub(r'_$', r'', x) for x in test_set])
+    assert test_set == full.difference(set(['subj[{}]'.format(i) for i in range(10)]))
+
+    # test get_trace
+    test_set = fitted.get_trace().columns
+    test_set = set([re.sub(r'_$', r'', x) for x in test_set])
+    assert test_set == full.difference(set(['Y_sd_interval','u_subj_sd_log']))\
+        .difference(set(['subj[{}]'.format(i) for i in range(10)]))
+
+    # test plots
+    fitted.plot(kind='priors')
+    fitted.plot()
 
 
 def test_random_intercepts(crossed_data):
@@ -534,4 +558,41 @@ def test_cell_means_with_many_random_effects(crossed_data):
     priors1 = {x.name:x.prior.args['sd'].args for x in model1.terms.values() if x.random}
     assert set(priors0) == set(priors1)
 
+
+def test_logistic_regression(crossed_data):
+    # build model using formula
+    model0 = Model(crossed_data)
+    model0.fit('threecats[b] ~ continuous + dummy', family='binomial', link='logit', run=False)
+    model0.build()
+    fitted = model0.fit(samples=100)
+
+    # build model using add_term
+    model1 = Model(crossed_data)
+    model1.add_y('threecats', data=pd.DataFrame(1*(crossed_data['threecats']=='b')),
+                 family='binomial', link='logit')
+    model1.add_intercept()
+    model1.add_term('continuous')
+    model1.add_term('dummy')
+    model1.build()
+    model1.fit(samples=1)
+
+    # check that term names agree
+    assert set(model0.term_names) == set(model1.term_names)
+
+    # check that design matries are the same,
+    # even if term names / level names / order of columns is different
+    X0 = set([tuple(t.data[:,lev]) for t in model0.fixed_terms.values() for lev in range(len(t.levels))])
+    X1 = set([tuple(t.data[:,lev]) for t in model1.fixed_terms.values() for lev in range(len(t.levels))])
+    assert X0 == X1
+
+    # check that add_formula and add_term models have same priors for fixed effects
+    priors0 = {x.name:x.prior.args for x in model0.terms.values() if not x.random}
+    priors1 = {x.name:x.prior.args for x in model1.terms.values() if not x.random}
+    assert set(priors0) == set(priors1)
+
+    # test that summary reminds user which event is being modeled
+    fitted.summary()
+
+    # test that traceplot reminds user which event is being modeled
+    fitted.plot()
 
