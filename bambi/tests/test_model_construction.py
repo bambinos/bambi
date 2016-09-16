@@ -10,7 +10,6 @@ matplotlib.use('Agg')
 
 @pytest.fixture(scope="module")
 def diabetes_data():
-    from os.path import dirname, join
     data_dir = join(dirname(__file__), 'data')
     data = pd.read_csv(join(data_dir, 'diabetes.txt'), sep='\t')
     data['age_grp'] = 0
