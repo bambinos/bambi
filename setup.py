@@ -8,7 +8,8 @@ if len(set(('test', 'easy_install')).intersection(sys.argv)) > 0:
     import setuptools
 
 requirements = ['numpy', 'pandas', 'patsy', 'statsmodels']
-dependency_links = ['git://github.com/pymc-devs/pymc3.git#egg=pymc3']
+# dependency_links = ['git://github.com/pymc-devs/pymc3.git#egg=pymc3']
+dependency_links = []
 
 tests_require = []
 extra_setuptools_args = {}
@@ -20,7 +21,6 @@ if 'setuptools' in sys.modules:
             test='nose>=0.10.1')
     )
 
-print(requirements)
 setup(
     name="bambi",
     version=__version__,

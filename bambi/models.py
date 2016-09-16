@@ -240,7 +240,7 @@ class Model(object):
 
     def add_formula(self, fixed=None, random=None, priors=None,
                     family='gaussian', link=None, categorical=None,
-                    append=False):
+                    append=True):
         '''
         Adds one or more terms to the model via an R-like formula syntax.
         Args:

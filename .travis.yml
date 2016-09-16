@@ -8,8 +8,12 @@ matrix:
   include:
     - os: linux
       env:
+         - PYTHON_VERSION=2.7
+         - MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh"
+    - os: linux
+      env:
          - PYTHON_VERSION=3.5
-         - MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh"
+         - MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh"
 
 
 before_install:
@@ -28,6 +32,8 @@ before_install:
 install:
 - pip install -r requirements.txt
 - pip install coveralls pytest-cov
+- pip install git+https://github.com/pymc-devs/pymc3
+- python setup.py install
 
 before_script:
 - "export DISPLAY=:99.0"
@@ -35,7 +41,7 @@ before_script:
 - sleep 3 # give xvfb some time to start
 
 script:
-- py.test --pyargs bambi --cov-report term-missing --cov=bambi 
+- py.test -s --cov-report term-missing --cov=bambi 
 
 after_success:
 - coveralls
