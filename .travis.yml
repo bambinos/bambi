@@ -41,7 +41,7 @@ before_script:
 - sleep 3 # give xvfb some time to start
 
 script:
-- py.test -s --cov-report term-missing --cov=bambi 
+- py.test --pyargs bambi --cov-report term-missing --cov=bambi
 
 after_success:
 - coveralls
