@@ -8,8 +8,12 @@ matrix:
   include:
     - os: linux
       env:
+         - PYTHON_VERSION=2.7
+         - MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh"
+    - os: linux
+      env:
          - PYTHON_VERSION=3.5
-         - MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh"
+         - MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh"
 
 
 before_install:
