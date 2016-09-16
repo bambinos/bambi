@@ -4,6 +4,7 @@ from bambi.priors import Prior
 import pandas as pd
 import numpy as np
 import matplotlib
+import re
 matplotlib.use('Agg')
 
 
