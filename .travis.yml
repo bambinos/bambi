@@ -28,13 +28,11 @@ before_install:
 - conda info -a
 - conda config --add channels conda-forge
 - conda install python=$PYTHON_VERSION $CONDA_DEPS
-- export PYTHONPATH="."
 
 install:
 - pip install -r requirements.txt
 - pip install coveralls pytest-cov
 - pip install git+https://github.com/pymc-devs/pymc3
-- python setup.py install
 
 before_script:
 - "export DISPLAY=:99.0"
@@ -42,7 +40,7 @@ before_script:
 - sleep 3 # give xvfb some time to start
 
 script:
-- py.test --cov-report term-missing --cov
+- py.test --pyargs bambi --cov-report term-missing --cov=bambi
 
 after_success:
 - coveralls
