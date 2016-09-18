@@ -33,10 +33,13 @@ class Model(object):
             to the data (to be weakly informative) any time default priors are
             used. Note that any priors explicitly set by the user will always
             take precedence over default priors.
+        dropna (bool): When True, rows with any missing values in either the
+            predictors or outcome are automatically dropped from the dataset in
+            a listwise manner.
     '''
 
     def __init__(self, data=None, intercept=False, backend='pymc3',
-                 default_priors=None, auto_scale=True):
+                 default_priors=None, auto_scale=True, dropna=False):
 
         if isinstance(data, string_types):
             data = pd.read_table(data, sep=None)
@@ -67,6 +70,7 @@ class Model(object):
             self.add_intercept()
 
         self.auto_scale = auto_scale
+        self.dropna = dropna
 
     def reset(self):
         '''
@@ -84,6 +88,22 @@ class Model(object):
             raise ValueError("No outcome (y) variable is set! Please call "
                              "add_y() or specify an outcome variable using the"
                              " formula interface before build() or fit().")
+
+        # Check for NaNs and halt if dropna is False--otherwise issue warning.
+        X = np.concatenate([t.data for t in self.terms.values()] + 
+                           [self.y.data], axis=1)
+        num_na = np.isnan(X).any(1).sum()
+        if num_na:
+            msg = "%d rows were found contain at least one missing value." % num_na
+            if not self.dropna:
+                msg += "Please make sure the dataset contains no missing " \
+                       "values. Alternatively, if you want rows with missing " \
+                       "values to be automatically deleted in a list-wise " \
+                       "manner (not recommended), please set dropna=True at " \
+                       "model initialization."
+                raise ValueError(msg)
+            msg += " Automatically removing %d rows from the dataset." % num_na
+            warnings.warn(msg)
 
         # compute information used to set the default priors
         # X = fixed effects design matrix (excluding intercept/constant term)
