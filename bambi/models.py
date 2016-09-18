@@ -90,8 +90,13 @@ class Model(object):
                              " formula interface before build() or fit().")
 
         # Check for NaNs and halt if dropna is False--otherwise issue warning.
-        X = np.concatenate([t.data for t in self.terms.values()] + 
-                           [self.y.data], axis=1)
+        arrs = []
+        for t in self.terms.values():
+            if isinstance(t.data, dict):
+                arrs.extend(list(t.data.values()))
+            else:
+                arrs.append(t.data)
+        X = np.concatenate(arrs + [self.y.data], axis=1)
         num_na = np.isnan(X).any(1).sum()
         if num_na:
             msg = "%d rows were found contain at least one missing value." % num_na
