@@ -55,6 +55,25 @@ def test_empty_model(crossed_data):
     assert set(priors0) == set(priors1)
 
 
+def test_nan_handling(crossed_data):
+    data = crossed_data.copy()
+
+    # Should fail because predictor has NaN
+    model_fail_na = Model(crossed_data)
+    model_fail_na.fit('Y ~ continuous', run=False)
+    model_fail_na.terms['continuous'].data[[4, 6, 8], :] = np.nan
+    with pytest.raises(ValueError):
+        model_fail_na.build()
+
+    # Should drop 3 rows with warning
+    model_drop_na = Model(crossed_data, dropna=True)
+    model_drop_na.fit('Y ~ continuous', run=False)
+    model_drop_na.terms['continuous'].data[[4, 6, 8], :] = np.nan
+    with pytest.warns(UserWarning) as w:
+        model_drop_na.build()
+    assert '3 rows' in w[0].message.args[0]
+
+
 def test_intercept_only_model(crossed_data):
     # using formula
     model0 = Model(crossed_data)
