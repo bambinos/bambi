@@ -39,7 +39,7 @@ class PyMC3BackEnd(BackEnd):
         'identity': lambda x: x,
         'logit': theano.tensor.nnet.sigmoid,
         'inverse': theano.tensor.inv,
-        'exp': theano.tensor.exp
+        'log': theano.tensor.log
     }
 
     def __init__(self):

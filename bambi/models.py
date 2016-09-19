@@ -130,28 +130,28 @@ class Model(object):
                     'logit': self.y.data.std(),
                     'probit': self.y.data.std(),
                     'inverse': self.y.data.std(),
-                    'exp': self.y.data.std()
+                    'log': self.y.data.std()
                 },
                 'binomial': {
                     'identity': self.y.data.std(),
                     'logit': np.pi / 3**.5,
                     'probit': 1,
                     'inverse': self.y.data.std(),
-                    'exp': self.y.data.std()
+                    'log': self.y.data.std()
                 },
                 'poisson': {
                     'identity': self.y.data.std(),
                     'logit': self.y.data.std(),
                     'probit': self.y.data.std(),
                     'inverse': self.y.data.std(),
-                    'exp': self.y.data.std()
+                    'log': self.y.data.std()
                 },
                 't': {
                     'identity': self.y.data.std(),
                     'logit': self.y.data.std(),
                     'probit': self.y.data.std(),
                     'inverse': self.y.data.std(),
-                    'exp': self.y.data.std()
+                    'log': self.y.data.std()
                 }
             }
 
@@ -229,7 +229,7 @@ class Model(object):
             link (str): The model link function to use. Can be either a string
                 (must be one of the options defined in the current backend;
                 typically this will include at least 'identity', 'logit',
-                'inverse', and 'exp'), or a callable that takes a 1D ndarray
+                'inverse', and 'log'), or a callable that takes a 1D ndarray
                 or theano tensor as the sole argument and returns one with
                 the same shape.
             run (bool): Whether or not to immediately begin fitting the model
@@ -285,7 +285,7 @@ class Model(object):
             link (str): The model link function to use. Can be either a string
                 (must be one of the options defined in the current backend;
                 typically this will include at least 'identity', 'logit',
-                'inverse', and 'exp'), or a callable that takes a 1D ndarray
+                'inverse', and 'log'), or a callable that takes a 1D ndarray
                 or theano tensor as the sole argument and returns one with
                 the same shape.
             categorical (str, list): The names of any variables to treat as
@@ -411,7 +411,7 @@ class Model(object):
             link (str): The model link function to use. Can be either a string
                 (must be one of the options defined in the current backend;
                 typically this will include at least 'identity', 'logit',
-                'inverse', and 'exp'), or a callable that takes a 1D ndarray
+                'inverse', and 'log'), or a callable that takes a 1D ndarray
                 or theano tensor as the sole argument and returns one with
                 the same shape.
             args, kwargs: Optional positional and keyword arguments to pass
