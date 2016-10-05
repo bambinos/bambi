@@ -102,13 +102,13 @@ class PyMC3BackEnd(BackEnd):
                         mu_label = 'u_%s_%s' % (label, level)
                         u = self._build_dist(mu_label, dist_name,
                                              shape=n_cols, **dist_args)
-                        self.mu += pm.dot(level_data, u)[:, None]
+                        self.mu += pm.math.dot(level_data, u)[:, None]
                 else:
                     prefix = 'u_' if t.random else 'b_'
                     n_cols = data.shape[1]
                     coef = self._build_dist(prefix + label, dist_name,
                                             shape=n_cols, **dist_args)
-                    self.mu += pm.dot(data, coef)[:, None]
+                    self.mu += pm.math.dot(data, coef)[:, None]
 
             y = spec.y.data
             y_prior = spec.family.prior
