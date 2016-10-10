@@ -604,7 +604,7 @@ class Model(object):
                         p[0]]), **p[1].args)]
             
             # make the plot!
-            p = len(dists)
+            p = float(len(dists))
             fig, axes = plt.subplots(int(np.ceil(p/2)), 2,
                 figsize=(12,np.ceil(p/2)*2))
             # in case there is only 1 row
