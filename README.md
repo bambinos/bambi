@@ -18,11 +18,9 @@ Assuming a standard Python environment is installed on your machine (including p
 
     pip install bambi
 
-You'll also need to install PyMC3 in order to fit most models. You can install PyMC3 from the command line as follows (for details, see the full [installation instructions](pip install git+https://github.com/pymc-devs/pymc3) on the PyMC3 repository:
+Alternatively, if you want the bleeding edge version of the package, you can install from GitHub:
 
-    pip install git+https://github.com/pymc-devs/pymc3
-
-Once both packages are installed, you should be ready to fit models with Bambi.
+    pip install git+https://github.com/bambinos/bambi.git
 
 ### Dependencies
 
