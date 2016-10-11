@@ -581,13 +581,19 @@ class Model(object):
             raise ValueError("Cannot plot priors until model is built!")
 
         with pm.Model():
-            # get priors separately for each level of each predictor
+            # get priors for fixed fx, separately for each level of each predictor
             dists = []
             for t in self.fixed_terms.values():
                 for i,l in enumerate(t.levels):
                     params = {k: v[i % len(v)] if isinstance(v, np.ndarray) else v
                         for k,v in t.prior.args.items()}
                     dists += [getattr(pm, t.prior.name)(l, **params)]
+
+            # get priors for random effect SDs
+            for t in self.random_terms.values():
+                prior = t.prior.args['sd'].name
+                params = t.prior.args['sd'].args
+                dists += [getattr(pm, prior)(t.name+'_sd', **params)]
 
             # add priors on Y params if applicable
             y_prior = [(k,v) for k,v in self.y.prior.args.items()
@@ -598,7 +604,7 @@ class Model(object):
                         p[0]]), **p[1].args)]
             
             # make the plot!
-            p = len(dists)
+            p = float(len(dists))
             fig, axes = plt.subplots(int(np.ceil(p/2)), 2,
                 figsize=(12,np.ceil(p/2)*2))
             # in case there is only 1 row
