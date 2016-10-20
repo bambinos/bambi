@@ -203,7 +203,7 @@ class Model(object):
         if self.family.name=='binomial' and np.max(self.y.data) < 1.01:
             event = next(i for i,x in enumerate(self.y.data.flatten()) if x>.99)
             warnings.warn('Modeling the probability that {}==\'{}\''.format(
-                self.y.name, str(self.data[self.y.name][event])))
+                self.y.name, str(self.data[self.y.name].iloc[event])))
 
         self.backend.build(self)
         self.built = True
