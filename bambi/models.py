@@ -190,6 +190,10 @@ class Model(object):
                     str(self.dm_statistics) + '\n' + \
                     str(self._diagnostics))
 
+        # throw informative error message if any categorical predictors have 1 category
+        if any(np.array([x.data.size for x in self.fixed_terms.values()])==0):
+            raise ValueError("At least one categorical predictor contains only 1 category!")
+
         # only set priors if there is at least one term in the model
         if len(self.terms) > 0:
             # Get and scale default priors if none are defined yet
