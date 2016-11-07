@@ -1,10 +1,12 @@
 import numpy as np
+import pandas as pd
 from pandas import Series
 from os.path import dirname, join
 from bambi.external.six import string_types
 from copy import deepcopy
 import json
 import re
+import statsmodels.api as sm
 
 
 class Family(object):
@@ -25,6 +27,12 @@ class Family(object):
         self.prior = prior
         self.link = link
         self.parent = parent
+        self.smfamily = {
+            'gaussian': sm.families.Gaussian,
+            'binomial': sm.families.Binomial,
+            'poisson': sm.families.Poisson,
+            't': None # not implemented in statsmodels
+        }[name]
 
 
 class Prior(object):
@@ -175,6 +183,9 @@ class PriorScaler(object):
     def __init__(self, model):
         self.model = model
         self.stats = model.dm_statistics if hasattr(model, 'dm_statistics') else None
+        self.dm = pd.DataFrame({'{}[{}]'.format(t.name, lev): t.data[:, lev]
+                   for t in model.fixed_terms.values()
+                   for lev in range(len(t.levels))})
 
     def _scale_intercept(self, term, value):
 
@@ -197,32 +208,62 @@ class PriorScaler(object):
 
     def _scale_fixed(self, term, value):
 
-        if term.prior.name != 'Normal':
-            return
+        # if term.prior.name != 'Normal':
+        #     return
 
-        if self.stats is not None:
-            slope_constant = self.stats['sd_y'] * \
-                (1 - self.stats['r2_y'][term.levels])**.5 / \
-                self.stats['sd_x'][term.levels] / \
-                (1 - self.stats['r2_x'][term.levels])**.5
-            mu = 0
-        else: # this case handles slope-only models.
-            # this prior is a bit contrived, but then, slope-only models are a bit contrived.
-            # basically we set the mean to the OLS estimate, and the SD proportional to the
-            # absolute difference between the OLS est. and the OLS est. if Y shifted by 1 SD
-            data = term.data
-            # more than 1 column implies this is a cell-means model.
-            # sum over rows so that resulting mu = mean(Y)
-            if data.shape[1] > 1: data = data.sum(axis=1)
-            mu = np.dot(data.flatten(), self.model.y.data) / \
-                np.dot(data.flatten(), data.flatten())
-            mu_shift = np.dot(data.flatten(), self.model.y.data + self.model.y.data.std()) / \
-                np.dot(data.flatten(), data.flatten())
-            # multiply scale by 2 in the cell-means case so prior is nice and wide
-            slope_constant = Series(np.abs(mu - mu_shift)) * len(np.squeeze(term.data).shape)
+        # if self.stats is not None:
+        #     slope_constant = self.stats['sd_y'] * \
+        #         (1 - self.stats['r2_y'][term.levels])**.5 / \
+        #         self.stats['sd_x'][term.levels] / \
+        #         (1 - self.stats['r2_x'][term.levels])**.5
+        #     mu = 0
+        # else: # this case handles slope-only models.
+        #     # this prior is a bit contrived, but then, slope-only models are a bit contrived.
+        #     # basically we set the mean to the OLS estimate, and the SD proportional to the
+        #     # absolute difference between the OLS est. and the OLS est. if Y shifted by 1 SD
+        #     data = term.data
+        #     # more than 1 column implies this is a cell-means model.
+        #     # sum over rows so that resulting mu = mean(Y)
+        #     if data.shape[1] > 1: data = data.sum(axis=1)
+        #     mu = np.dot(data.flatten(), self.model.y.data) / \
+        #         np.dot(data.flatten(), data.flatten())
+        #     mu_shift = np.dot(data.flatten(), self.model.y.data + self.model.y.data.std()) / \
+        #         np.dot(data.flatten(), data.flatten())
+        #     # multiply scale by 2 in the cell-means case so prior is nice and wide
+        #     slope_constant = Series(np.abs(mu - mu_shift)) * len(np.squeeze(term.data).shape)
 
+        # term.prior.update(mu = mu, sd=value * slope_constant.values[:, None])
 
-        term.prior.update(mu = mu, sd=value * slope_constant.values[:, None])
+        mu = []
+        sd = []
+        for pred in term.data.T:
+            # figure out which column of dm to drop
+            keeps = [i for i,x in enumerate(list(self.dm.columns))
+                if not np.array_equal(pred, self.dm[x].values.flatten())]
+
+            # fit null model
+            null = sm.GLM(endog=self.model.y.data, exog=self.dm[keeps],
+                family=self.model.family.smfamily(),
+                missing='drop' if self.model.dropna else 'none').fit()
+
+            # compute 2nd derivative of log-likelihood w.r.t. predictor
+            mod = sm.GLM(endog=self.model.y.data, exog=self.dm,
+                family=self.model.family.smfamily(),
+                missing='drop' if self.model.dropna else 'none')
+            params = pd.Series([0]*len(mod.exog_names), index=mod.exog_names, dtype='float64')
+            for lab, val in zip(null.params.index, null.params):
+                params[lab] = val
+            mod.fit()
+            pos = [x for x in range(len(params)) if x not in keeps][0]
+            d2 = mod.hessian(params=params, scale=null.scale, observed=True)[pos,pos]
+            # should check that d2 is < 0 ?
+
+            # get and return tuning parameter
+            mu += [0]
+            sd += [(len(self.model.y.data) * np.log(1 - value**2) / d2)**.5]
+
+        # NOTE: SDs expanded by factor of 2 for now (remove this hack later)
+        term.prior.update(mu = np.array(mu), sd=2*np.array(sd))
 
     def _scale_random(self, term, value):
         # classify as random intercept or random slope
