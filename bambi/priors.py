@@ -27,12 +27,13 @@ class Family(object):
         self.prior = prior
         self.link = link
         self.parent = parent
-        self.smfamily = {
+        fams = {
             'gaussian': sm.families.Gaussian,
             'binomial': sm.families.Binomial,
             'poisson': sm.families.Poisson,
             't': None # not implemented in statsmodels
-        }[name]
+        }
+        self.smfamily = fams[name] if name in fams.keys() else None
 
 
 class Prior(object):
