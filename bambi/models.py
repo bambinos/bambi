@@ -97,9 +97,9 @@ class Model(object):
             else:
                 arrs.append(t.data)
         X = np.concatenate(arrs + [self.y.data], axis=1)
-        num_na = np.isnan(X).any(1).sum()
-        if num_na:
-            msg = "%d rows were found contain at least one missing value." % num_na
+        na_index = np.isnan(X).any(1)
+        if na_index.sum():
+            msg = "%d rows were found contain at least one missing value." % na_index.sum()
             if not self.dropna:
                 msg += "Please make sure the dataset contains no missing " \
                        "values. Alternatively, if you want rows with missing " \
@@ -107,8 +107,14 @@ class Model(object):
                        "manner (not recommended), please set dropna=True at " \
                        "model initialization."
                 raise ValueError(msg)
-            msg += " Automatically removing %d rows from the dataset." % num_na
+
+            # warn and then remove missing values
+            msg += " Automatically removing %d rows from the dataset." % na_index.sum()
             warnings.warn(msg)
+            keeps = np.invert(na_index)
+            for t in self.fixed_terms.values():
+                t.data = t.data[keeps]
+            self.y.data = self.y.data[keeps]
 
         # compute information used to set the default priors
         # X = fixed effects design matrix (excluding intercept/constant term)

@@ -237,12 +237,13 @@ class PriorScaler(object):
         mu = []
         sd = []
         for pred in term.data.T:
-            # figure out which column of dm to drop
+            # figure out which column of dm to drop for the null model
             keeps = [i for i,x in enumerate(list(self.dm.columns))
                 if not np.array_equal(pred, self.dm[x].values.flatten())]
 
             # fit null model
-            null = sm.GLM(endog=self.model.y.data, exog=self.dm[keeps],
+            null = sm.GLM(endog=self.model.y.data,
+                exog=self.dm[keeps] if keeps else np.repeat(0, len(self.model.y.data)),
                 family=self.model.family.smfamily(),
                 missing='drop' if self.model.dropna else 'none').fit()
 
@@ -251,8 +252,9 @@ class PriorScaler(object):
                 family=self.model.family.smfamily(),
                 missing='drop' if self.model.dropna else 'none')
             params = pd.Series([0]*len(mod.exog_names), index=mod.exog_names, dtype='float64')
-            for lab, val in zip(null.params.index, null.params):
-                params[lab] = val
+            if hasattr(null.params, 'index'):
+                for lab, val in zip(null.params.index, null.params):
+                    params[lab] = val
             mod.fit()
             pos = [x for x in range(len(params)) if x not in keeps][0]
             d2 = mod.hessian(params=params, scale=null.scale, observed=True)[pos,pos]
