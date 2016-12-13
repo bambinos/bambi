@@ -200,9 +200,7 @@ class Model(object):
         if len(self.terms) > 0:
             # Get and scale default priors if none are defined yet
             scaler = PriorScaler(self)
-            for t in self.terms.values():
-                if not isinstance(t.prior, Prior):
-                    scaler.scale(t)
+            scaler.scale()
 
         # For binomial models with n_trials = 1 (most common use case),
         # tell user which event is being modeled
