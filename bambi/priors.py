@@ -187,53 +187,13 @@ class PriorScaler(object):
         self.dm = pd.DataFrame({'{}[{}]'.format(t.name, lev): t.data[:, lev]
                    for t in model.fixed_terms.values()
                    for lev in range(len(t.levels))})
-
-    def _scale_intercept(self, term, value):
-
-        # default priors are only defined for Normal priors, although
-        # we could probably easily handle Cauchy by just substituting
-        # 'sd' -> 'beta'
-        if term.prior.name != 'Normal':
-            return
-
-        if self.stats is not None:
-            index = list(self.stats['r2_y'].index)
-            sd = self.stats['sd_y'] * (1 - self.stats['r2_y'][index])**.5 / \
-                self.stats['sd_x'][index] / (1 - self.stats['r2_x'][index])**.5
-            sd *= value
-            sd = np.dot(sd**2, self.stats['mean_x'][index]**2)**.5
-        else: # this handles intercept-only models
-            sd = self.model.y.data.std()
-
-        term.prior.update(mu=self.model.y.data.mean(), sd=sd)
+        self.slope_priors = {}
 
     def _scale_fixed(self, term, value):
 
-        # if term.prior.name != 'Normal':
-        #     return
-
-        # if self.stats is not None:
-        #     slope_constant = self.stats['sd_y'] * \
-        #         (1 - self.stats['r2_y'][term.levels])**.5 / \
-        #         self.stats['sd_x'][term.levels] / \
-        #         (1 - self.stats['r2_x'][term.levels])**.5
-        #     mu = 0
-        # else: # this case handles slope-only models.
-        #     # this prior is a bit contrived, but then, slope-only models are a bit contrived.
-        #     # basically we set the mean to the OLS estimate, and the SD proportional to the
-        #     # absolute difference between the OLS est. and the OLS est. if Y shifted by 1 SD
-        #     data = term.data
-        #     # more than 1 column implies this is a cell-means model.
-        #     # sum over rows so that resulting mu = mean(Y)
-        #     if data.shape[1] > 1: data = data.sum(axis=1)
-        #     mu = np.dot(data.flatten(), self.model.y.data) / \
-        #         np.dot(data.flatten(), data.flatten())
-        #     mu_shift = np.dot(data.flatten(), self.model.y.data + self.model.y.data.std()) / \
-        #         np.dot(data.flatten(), data.flatten())
-        #     # multiply scale by 2 in the cell-means case so prior is nice and wide
-        #     slope_constant = Series(np.abs(mu - mu_shift)) * len(np.squeeze(term.data).shape)
-
-        # term.prior.update(mu = mu, sd=value * slope_constant.values[:, None])
+        # these defaults are only defined for Normal priors
+        if term.prior.name != 'Normal':
+            return
 
         mu = []
         sd = []
@@ -265,8 +225,42 @@ class PriorScaler(object):
             mu += [0]
             sd += [(len(self.model.y.data) * np.log(1 - value**2) / d2)**.5]
 
+        # save and set prior
         # NOTE: SDs expanded by factor of 2 for now (remove this hack later)
+        self.slope_priors.update({term.name: {
+            'mu':np.array(mu), 'sd':2*np.array(sd), 'levels':term.levels,
+            }})
         term.prior.update(mu = np.array(mu), sd=2*np.array(sd))
+
+    def _scale_intercept(self, term, value):
+
+        # default priors are only defined for Normal priors
+        if term.prior.name != 'Normal':
+            return
+
+        # start with mean and variance of Y on the link scale
+        mod = sm.GLM(endog=self.model.y.data, exog=np.repeat(1, len(self.model.y.data)),
+            family=self.model.family.smfamily(),
+            missing='drop' if self.model.dropna else 'none').fit()
+        mu = mod.params
+        # multiply SE by sqrt(N) to turn it into (approx.) SD(Y) on the link scale
+        sd = (mod.cov_params()[0] * len(mod.mu))**.5
+
+        # modify mu and sd based on means and SDs of slope priors
+        if len(self.slope_priors):
+            # get order
+            index = sum([p['levels'] for p in self.slope_priors.values()], [])
+            # get slope prior means and SDs
+            means = np.concatenate([p['mu'] for p in self.slope_priors.values()]).ravel()
+            means = pd.Series(means, index=index)
+            sds = np.concatenate([p['sd'] for p in self.slope_priors.values()]).ravel()
+            sds = pd.Series(sds, index=index)
+            # add to intercept prior
+            mu -= np.dot(means, self.stats['mean_x'][index])
+            sd = (sd**2 + np.dot(sds**2, self.stats['mean_x'][index]**2))**.5
+
+        # set prior
+        term.prior.update(mu=mu, sd=sd)
 
     def _scale_random(self, term, value):
         # classify as random intercept or random slope
@@ -328,23 +322,40 @@ class PriorScaler(object):
                 sd = self.model.y.data.std()
             term.prior.args['sd'].update(sd=value * sd)
 
-    def scale(self, term):
+    def scale(self):
+        # classify all terms
+        fixed_intercepts = [t for t in self.model.terms.values()
+            if not t.random and t.name == 'Intercept']
+        fixed_slopes = [t for t in self.model.terms.values()
+            if not t.random and t.name != 'Intercept']
+        random_terms = [t for t in self.model.terms.values() if t.random]
 
-        if term.name == 'Intercept':
-            term_type = 'intercept'
-        else:
-            term_type = 'random' if term.random else 'fixed'
+        # arrange them in the order in which they should be initialized
+        term_list = fixed_slopes + fixed_intercepts + random_terms
+        term_types = ['fixed']*len(fixed_slopes) + \
+            ['intercept']*len(fixed_intercepts) + \
+            ['random']*len(random_terms)
 
-        value = term.prior
+        # initialize them in order
+        for t, term_type in zip(term_list, term_types):
 
-        term.prior = self.model.default_priors.get(term=term_type)
+            # only set default priors if no prior defined yet
+            if not isinstance(t.prior, Prior):
 
-        if value is None:
-            if not self.model.auto_scale:
-                return
-            value = 'wide'
+                # decide scale
+                value = t.prior
+                if value is None:
+                    if not self.model.auto_scale:
+                        return
+                    value = 'wide'
 
-        if isinstance(value, string_types):
-            value = PriorScaler.names[value]
+                # set scale
+                if isinstance(value, string_types):
+                    value = PriorScaler.names[value]
 
-        getattr(self, '_scale_%s' % term_type)(term, value)
+                # impute default
+                t.prior = self.model.default_priors.get(term=term_type)
+
+                # scale it!
+                getattr(self, '_scale_%s' % term_type)(t, value)
+
