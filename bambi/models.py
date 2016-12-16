@@ -99,7 +99,8 @@ class Model(object):
         X = np.concatenate(arrs + [self.y.data], axis=1)
         na_index = np.isnan(X).any(1)
         if na_index.sum():
-            msg = "%d rows were found contain at least one missing value." % na_index.sum()
+            msg = "%d rows were found contain at least one missing value." \
+                % na_index.sum()
             if not self.dropna:
                 msg += "Please make sure the dataset contains no missing " \
                        "values. Alternatively, if you want rows with missing " \
@@ -109,7 +110,8 @@ class Model(object):
                 raise ValueError(msg)
 
             # warn and then remove missing values
-            msg += " Automatically removing %d rows from the dataset." % na_index.sum()
+            msg += " Automatically removing %d rows from the dataset." \
+                % na_index.sum()
             warnings.warn(msg)
             keeps = np.invert(na_index)
             for t in self.fixed_terms.values():
@@ -165,19 +167,21 @@ class Model(object):
                 'r2_x': pd.Series({
                     x: pd.stats.api.ols(
                         y=X[x], x=X.drop(x, axis=1),
-                        intercept=True if 'Intercept' in self.term_names else False).r2
+                        intercept=True if 'Intercept' in self.term_names \
+                            else False).r2
                     for x in list(X.columns)}),
                 'r2_y': pd.Series({
                     x: pd.stats.api.ols(
                         y=self.y.data.squeeze(), x=X.drop(x, axis=1),
-                        intercept=True if 'Intercept' in self.term_names else False).r2
+                        intercept=True if 'Intercept' in self.term_names \
+                            else False).r2
                     for x in list(X.columns)}),
                 'sd_x': X.std(),
                 'sd_y': sd_y_defaults[self.family.name][self.family.link],
                 'mean_x': X.mean(axis=0)
             }
 
-            # save potentially useful info for diagnostics and send to ModelResults
+            # save potentially useful info for diagnostics, send to ModelResults
             # mat = correlation matrix of X, w/ diagonal replaced by X means
             mat = X.corr()
             for x in list(mat.columns):
@@ -189,9 +193,10 @@ class Model(object):
                 'corr_mean_X': mat
             }
 
-            # throw informative error if there is perfect collinearity among the fixed effects
+            # throw informative error if perfect collinearity among fixed fx
             if any(self.dm_statistics['r2_x'] > .999):
-                raise ValueError("There is perfect collinearity among the fixed effects!\n" + \
+                raise ValueError(
+                    "There is perfect collinearity among the fixed effects!\n"+\
                     "Printing some design matrix statistics:\n" + \
                     str(self.dm_statistics) + '\n' + \
                     str(self._diagnostics))
@@ -331,7 +336,8 @@ class Model(object):
                 y_label = y.design_info.term_names[0]
                 if event is not None:
                     # pass in new Y data that has 1 if y=event and 0 otherwise
-                    y_data = y[:,y.design_info.column_names.index(event.group(1))]
+                    y_data = y[:, 
+                               y.design_info.column_names.index(event.group(1))]
                     y_data = pd.DataFrame({event.group(3): y_data})
                     self.add_y(y_label, family=family, link=link, data=y_data)
                 else:
@@ -359,7 +365,7 @@ class Model(object):
                                      "operators are currently supported in "
                                      "random effects specifications.")
 
-                # replace explicit intercept terms like '1|subj' with just 'subj'
+                # replace explicit intercept terms like '1|subj' with 'subj'
                 f = re.sub(r'^1\s*\|(.*)', r'\1', f).strip()
 
                 # Split specification into intercept, predictor, and grouper
@@ -434,7 +440,8 @@ class Model(object):
 
         # implement default Uniform [0, sd(Y)] prior for residual SD
         if self.family.name == 'gaussian':
-            prior.update(sd=Prior('Uniform', lower=0, upper=self.data[variable].std()))
+            prior.update(sd=Prior('Uniform', lower=0,
+                upper=self.data[variable].std()))
 
         self.add_term(variable, prior=prior, *args, **kwargs)
         # use last-added term name b/c it could have been changed by add_term
@@ -589,7 +596,8 @@ class Model(object):
             dists = []
             for t in self.fixed_terms.values():
                 for i,l in enumerate(t.levels):
-                    params = {k: v[i % len(v)] if isinstance(v, np.ndarray) else v
+                    params = {k: v[i % len(v)] \
+                        if isinstance(v, np.ndarray) else v
                         for k,v in t.prior.args.items()}
                     dists += [getattr(pm, t.prior.name)(l, **params)]
 
