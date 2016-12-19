@@ -188,7 +188,7 @@ class PriorScaler(object):
         self.dm = pd.DataFrame({'{}[{}]'.format(t.name, lev): t.data[:, lev]
                    for t in model.fixed_terms.values()
                    for lev in range(len(t.levels))})
-        self.slope_priors = {}
+        self.priors = {}
 
     def _scale_fixed(self, term, value):
 
@@ -231,7 +231,7 @@ class PriorScaler(object):
 
         # save and set prior
         # NOTE: SDs expanded by factor of 2 for now (remove this hack later)
-        self.slope_priors.update({term.name: {
+        self.priors.update({term.name: {
             'mu':np.array(mu), 'sd':2*np.array(sd), 'levels':term.levels,
             }})
         term.prior.update(mu = np.array(mu), sd=2*np.array(sd))
@@ -252,21 +252,24 @@ class PriorScaler(object):
         sd = (mod.cov_params()[0] * len(mod.mu))**.5
 
         # modify mu and sd based on means and SDs of slope priors
-        if len(self.slope_priors):
+        if len(self.priors):
             # get order
-            index = sum([p['levels'] for p in self.slope_priors.values()], [])
+            index = sum([p['levels'] for p in self.priors.values()], [])
             # get slope prior means and SDs
             means = np.concatenate([p['mu'] \
-                for p in self.slope_priors.values()]).ravel()
+                for p in self.priors.values()]).ravel()
             means = pd.Series(means, index=index)
             sds = np.concatenate([p['sd'] \
-                for p in self.slope_priors.values()]).ravel()
+                for p in self.priors.values()]).ravel()
             sds = pd.Series(sds, index=index)
             # add to intercept prior
             mu -= np.dot(means, self.stats['mean_x'][index])
             sd = (sd**2 + np.dot(sds**2, self.stats['mean_x'][index]**2))**.5
 
-        # set prior
+        # save and set prior
+        self.priors.update({term.name: {
+            'mu':np.array(mu), 'sd':2*np.array(sd), 'levels':term.levels,
+            }})
         term.prior.update(mu=mu, sd=sd)
 
     def _scale_random(self, term, value):
@@ -338,9 +341,9 @@ class PriorScaler(object):
     def scale(self):
         # classify all terms
         fixed_intercepts = [t for t in self.model.terms.values()
-            if not t.random and t.name == 'Intercept']
+            if not t.random and t.data.sum(1).var()==0]
         fixed_slopes = [t for t in self.model.terms.values()
-            if not t.random and t.name != 'Intercept']
+            if not t.random and not t.data.sum(1).var()==0]
         random_terms = [t for t in self.model.terms.values() if t.random]
 
         # arrange them in the order in which they should be initialized
