@@ -190,6 +190,61 @@ class PriorScaler(object):
                    for lev in range(len(t.levels))})
         self.priors = {}
 
+    def _get_second_deriv(self, exog, predictor):
+        # figure out which column of exog to drop for the null model
+        keeps = [i for i,x in enumerate(list(exog.columns))
+            if not np.array_equal(predictor, exog[x].values.flatten())]
+
+        # fit the null model
+        null = sm.GLM(endog=self.model.y.data,
+            exog=exog.iloc[:,keeps] if keeps \
+                else np.repeat(0, len(self.model.y.data)),
+            family=self.model.family.smfamily(),
+            missing='drop' if self.model.dropna else 'none').fit()
+
+        # fit model with coefficient of interest constrained to 0
+        mod = sm.GLM(endog=self.model.y.data, exog=exog,
+            family=self.model.family.smfamily(),
+            missing='drop' if self.model.dropna else 'none')
+        params = pd.Series([0]*len(mod.exog_names), index=mod.exog_names,
+            dtype='float64')
+        if hasattr(null.params, 'index'):
+            for lab, val in zip(null.params.index, null.params):
+                params[lab] = val
+        mod.fit()
+        pos = [x for x in range(len(params)) if x not in keeps][0]
+
+        # return 2nd derivative of log-likelihood w.r.t. predictor
+        return mod.hessian(params=params, scale=null.scale,
+            observed=True)[pos,pos]
+
+    def _get_intercept_stats(self):
+        # start with mean and variance of Y on the link scale
+        mod = sm.GLM(endog=self.model.y.data,
+            exog=np.repeat(1, len(self.model.y.data)),
+            family=self.model.family.smfamily(),
+            missing='drop' if self.model.dropna else 'none').fit()
+        mu = mod.params
+        # multiply SE by sqrt(N) to turn it into (approx.) SD(Y) on link scale
+        sd = (mod.cov_params()[0] * len(mod.mu))**.5
+
+        # modify mu and sd based on means and SDs of slope priors.
+        if len(self.model.fixed_terms) > 1:
+            # get order
+            index = sum([p['levels'] for p in self.priors.values()], [])
+            # get slope prior means and SDs
+            means = np.concatenate([p['mu'] \
+                for p in self.priors.values()]).ravel()
+            means = pd.Series(means, index=index)
+            sds = np.concatenate([p['sd'] \
+                for p in self.priors.values()]).ravel()
+            sds = pd.Series(sds, index=index)
+            # add to intercept prior
+            mu -= np.dot(means, self.stats['mean_x'][index])
+            sd = (sd**2 + np.dot(sds**2, self.stats['mean_x'][index]**2))**.5
+
+        return mu, sd
+
     def _scale_fixed(self, term, value):
 
         # these defaults are only defined for Normal priors
@@ -199,33 +254,7 @@ class PriorScaler(object):
         mu = []
         sd = []
         for pred in term.data.T:
-            # figure out which column of dm to drop for the null model
-            keeps = [i for i,x in enumerate(list(self.dm.columns))
-                if not np.array_equal(pred, self.dm[x].values.flatten())]
-
-            # fit null model
-            null = sm.GLM(endog=self.model.y.data,
-                exog=self.dm[keeps] if keeps \
-                    else np.repeat(0, len(self.model.y.data)),
-                family=self.model.family.smfamily(),
-                missing='drop' if self.model.dropna else 'none').fit()
-
-            # compute 2nd derivative of log-likelihood w.r.t. predictor
-            mod = sm.GLM(endog=self.model.y.data, exog=self.dm,
-                family=self.model.family.smfamily(),
-                missing='drop' if self.model.dropna else 'none')
-            params = pd.Series([0]*len(mod.exog_names), index=mod.exog_names,
-                dtype='float64')
-            if hasattr(null.params, 'index'):
-                for lab, val in zip(null.params.index, null.params):
-                    params[lab] = val
-            mod.fit()
-            pos = [x for x in range(len(params)) if x not in keeps][0]
-            d2 = mod.hessian(params=params, scale=null.scale,
-                observed=True)[pos,pos]
-            # should check that d2 is < 0 ?
-
-            # get and return tuning parameter
+            d2 = self._get_second_deriv(exog=self.dm, predictor=pred)
             mu += [0]
             sd += [(len(self.model.y.data) * np.log(1 - value**2) / d2)**.5]
 
@@ -242,29 +271,9 @@ class PriorScaler(object):
         if term.prior.name != 'Normal':
             return
 
-        # start with mean and variance of Y on the link scale
-        mod = sm.GLM(endog=self.model.y.data,
-            exog=np.repeat(1, len(self.model.y.data)),
-            family=self.model.family.smfamily(),
-            missing='drop' if self.model.dropna else 'none').fit()
-        mu = mod.params
-        # multiply SE by sqrt(N) to turn it into (approx.) SD(Y) on link scale
-        sd = (mod.cov_params()[0] * len(mod.mu))**.5
-
-        # modify mu and sd based on means and SDs of slope priors
-        if len(self.priors):
-            # get order
-            index = sum([p['levels'] for p in self.priors.values()], [])
-            # get slope prior means and SDs
-            means = np.concatenate([p['mu'] \
-                for p in self.priors.values()]).ravel()
-            means = pd.Series(means, index=index)
-            sds = np.concatenate([p['sd'] \
-                for p in self.priors.values()]).ravel()
-            sds = pd.Series(sds, index=index)
-            # add to intercept prior
-            mu -= np.dot(means, self.stats['mean_x'][index])
-            sd = (sd**2 + np.dot(sds**2, self.stats['mean_x'][index]**2))**.5
+        # get prior mean and SD for fixed intercept
+        mu, sd = self._get_intercept_stats()
+        sd *= value
 
         # save and set prior
         self.priors.update({term.name: {
@@ -273,70 +282,50 @@ class PriorScaler(object):
         term.prior.update(mu=mu, sd=sd)
 
     def _scale_random(self, term, value):
-        # classify as random intercept or random slope
-        term_type = 'intercept' if '|' not in term.name else 'slope'
-
         # these default priors are only defined for HalfNormal priors
         if term.prior.args['sd'].name != 'HalfNormal':
             return
 
-        # handle random slopes
-        if term_type == 'slope':
-            # get name of corresponding fixed effect
-            fix = re.sub(r'\|.*', r'', term.name).strip()
+        # recreate the corresponding fixed effect data
+        fix_data = term.data.sum(axis=1) \
+            if not isinstance(term.data, dict) \
+            else np.vstack([term.data[x].sum(axis=1) \
+            for x in term.data.keys()]).T
 
-            # handle case of multiple fixed effects, including intercept
-            if self.stats is not None:
-                # handle case where there is a corresponding fixed term
-                if fix in list(self.stats['r2_y'].index):
-                    slope_constant = self.stats['sd_y'] * \
-                        (1 - self.stats['r2_y'][fix])**.5 / \
-                        self.stats['sd_x'][fix] / \
-                        (1 - self.stats['r2_x'][fix])**.5
-                else:
-                    # recreate the corresponding fixed effect data
-                    fix_data = term.data.sum(axis=1) \
-                        if not isinstance(term.data, dict) \
-                        else np.vstack([term.data[x].sum(axis=1) \
-                        for x in term.data.keys()]).T
-                    # set prior on standardized beta instead of partial corr
-                    slope_constant = self.stats['sd_y'] / fix_data.std()
+        # classify as random intercept or random slope
+        term_type = 'intercept' if np.atleast_2d(fix_data.T).T.sum(1).var()==0 \
+            else 'fixed'
 
-            # handle the case where fixed fx are intercept-only or cell-means
-            else:
-                fix_data = term.data.sum(axis=1) \
-                    if not isinstance(term.data, dict) \
-                    else np.vstack([term.data[x].sum(axis=1) \
-                    for x in term.data.keys()]).T
-                # more than 1 column implies this these are cell-means random fx
-                # sum over rows so that resulting mu = mean(Y)
-                if len(fix_data.shape) > 1 and fix_data.shape[1] > 1:
-                    fix_data = fix_data.sum(axis=1)
-                mu = np.dot(fix_data.flatten(), self.model.y.data) / \
-                    np.dot(fix_data.flatten(), fix_data.flatten())
-                mu_shift = np.dot(fix_data.flatten(),
-                    self.model.y.data + self.model.y.data.std()) / \
-                    np.dot(fix_data.flatten(), fix_data.flatten())
-                slope_constant = np.abs(mu - mu_shift)
+        # get name of corresponding fixed effect
+        fix = re.sub(r'\|.*', r'', term.name).strip() \
+            if term_type=='fixed' else 'Intercept'
 
-            term.prior.args['sd'].update(sd=value * np.asscalar(slope_constant))
+        # handle case where there IS a corresponding fixed effect
+        if fix in self.model.fixed_terms.keys():
+            sd = self.priors[fix]['sd']
 
-        # handle random intercepts
-        else:
-            # this handles the usual cases: usually, intercept and >0 fixed fx
-            # less commonly, cell means + covariate model (i.e., no intercept)
-            if self.stats is not None:
-                index = list(self.stats['r2_y'].index)
-                sd = self.stats['sd_y'] * \
-                    (1 - self.stats['r2_y'][index])**.5 / \
-                    self.stats['sd_x'][index] / \
-                    (1 - self.stats['r2_x'][index])**.5
-                sd = np.dot(sd**2, self.stats['mean_x'][index]**2)**.5
-            # this handles case where fixed fx are intercept-only or cell-means
-            else:
-                # use the same sd as we use in a fixed-intercept-only model
-                sd = self.model.y.data.std()
-            term.prior.args['sd'].update(sd=value * sd)
+        # handle case where there IS NOT a corresponding fixed effect
+        else: 
+            # handle intercepts and slopes separately
+            if term_type=='intercept':
+                mu, sd = self._get_intercept_stats()
+                sd *= value
+            if term_type=='fixed':
+                mu = []
+                sd = []
+                exog = self.dm.join(pd.DataFrame(fix_data))
+                # loop over the columns of fix_data
+                ncols = exog.shape[1] - self.dm.shape[1]
+                for pred in range(ncols):
+                    d2 = self._get_second_deriv(exog=exog,
+                        predictor=np.atleast_2d(fix_data.T).T[:,pred])
+                    mu += [0]
+                    sd += [(len(self.model.y.data)
+                        * np.log(1 - value**2) / d2)**.5]
+
+        # set the prior SD.
+        # if there are multiple SDs for multiple categories, use mean for all
+        term.prior.args['sd'].update(sd=np.array(sd).mean())
 
     def scale(self):
         # classify all terms

@@ -10,6 +10,7 @@ from patsy import dmatrices, dmatrix
 import re, warnings
 from bambi.priors import PriorFactory, PriorScaler, Prior
 from copy import deepcopy
+import statsmodels.api as sm
 
 
 class Model(object):
@@ -118,11 +119,8 @@ class Model(object):
                 t.data = t.data[keeps]
             self.y.data = self.y.data[keeps]
 
-        # compute information used to set the default priors
         # X = fixed effects design matrix (excluding intercept/constant term)
-        # r2_x = 1 - 1/VIF for each x, i.e., R2 for predicting each x from all
-        # other x's r2_y = R2 for predicting y from all x's *other than* the
-        # current x.
+        # r2_x = 1 - 1/VIF, i.e., R2 for predicting each x from all other x's.
         # only compute these stats if there are multiple terms in the model
         terms = [t for t in self.fixed_terms.values() if t.name != 'Intercept']
 
@@ -165,16 +163,10 @@ class Model(object):
 
             self.dm_statistics = {
                 'r2_x': pd.Series({
-                    x: pd.stats.api.ols(
-                        y=X[x], x=X.drop(x, axis=1),
-                        intercept=True if 'Intercept' in self.term_names \
-                            else False).r2
-                    for x in list(X.columns)}),
-                'r2_y': pd.Series({
-                    x: pd.stats.api.ols(
-                        y=self.y.data.squeeze(), x=X.drop(x, axis=1),
-                        intercept=True if 'Intercept' in self.term_names \
-                            else False).r2
+                    x: sm.OLS(endog=X[x],
+                        exog=sm.add_constant(X.drop(x, axis=1)) \
+                            if 'Intercept' in self.term_names \
+                            else X.drop(x, axis=1)).fit().rsquared
                     for x in list(X.columns)}),
                 'sd_x': X.std(),
                 'sd_y': sd_y_defaults[self.family.name][self.family.link],
