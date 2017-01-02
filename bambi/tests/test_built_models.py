@@ -364,9 +364,9 @@ def test_random_intercepts(crossed_data):
     model2.add_y('Y')
     model2.add_intercept()
     model2.add_term('continuous')
-    model2.add_term('subj', random=True)
-    model2.add_term('item', random=True)
-    model2.add_term('site', random=True)
+    model2.add_term('subj', random=True, categorical=True, drop_first=False)
+    model2.add_term('item', random=True, categorical=True, drop_first=False)
+    model2.add_term('site', random=True, categorical=True, drop_first=False)
     model2.build()
     # model2.fit(samples=1)
 
@@ -408,10 +408,10 @@ def test_many_random_effects(crossed_data):
     # random effects
     model1.add_term('threecats', over='subj', drop_first=False, random=True,
                     categorical=True)
-    model1.add_term('item', random=True, categorical=True)
+    model1.add_term('item', random=True, categorical=True, drop_first=False)
     model1.add_term('continuous', over='item', random=True)
     model1.add_term('dummy', over='item', random=True)
-    model1.add_term('site', random=True, categorical=True)
+    model1.add_term('site', random=True, categorical=True, drop_first=False)
     model1.add_term('threecats', over='site', random=True, categorical=True)
     model1.build()
     # model1.fit(samples=1)
@@ -475,10 +475,10 @@ def test_cell_means_with_many_random_effects(crossed_data):
     # random effects
     model1.add_term('threecats', over='subj', drop_first=False, random=True,
                     categorical=True)
-    model1.add_term('item', random=True, categorical=True)
+    model1.add_term('item', random=True, categorical=True, drop_first=False)
     model1.add_term('continuous', over='item', random=True)
     model1.add_term('dummy', over='item', random=True)
-    model1.add_term('site', random=True, categorical=True)
+    model1.add_term('site', random=True, categorical=True, drop_first=False)
     model1.add_term('threecats', over='site', random=True, categorical=True)
     model1.build()
     # model1.fit(samples=1)
