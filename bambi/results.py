@@ -20,7 +20,8 @@ class ModelResults(object):
 
         self.model = model
         self.terms = list(model.terms.values())
-        self.diagnostics = model._diagnostics if hasattr(model, '_diagnostics') else None
+        self.diagnostics = model._diagnostics \
+            if hasattr(model, '_diagnostics') else None
         self.n_terms = len(model.terms)
 
     @abstractmethod
@@ -47,7 +48,7 @@ class PyMC3Results(ModelResults):
         self.n_samples = len(trace)
 
         # here we determine which variables have been internally transformed 
-        # (e.g., sd_log). transformed variables are actually 'untransformed' from 
+        # (e.g., sd_log). transformed vars are actually 'untransformed' from 
         # the PyMC3 model's perspective, and it's the backtransformed (e.g., sd)
         # variable that is 'transformed'. So the logic of this is to find and
         # remove 'untranformed' variables that have a 'transformed' counterpart,
@@ -57,13 +58,15 @@ class PyMC3Results(ModelResults):
         trans = set(var.name for var in rvs if isinstance(var, TransformedRV))
         untrans = set(var.name for var in rvs) - trans
         untrans = set(x for x in untrans if not any([t in x for t in trans]))
-        self.untransformed_vars = [x for x in trace.varnames if x in trans | untrans]
+        self.untransformed_vars = [x for x in trace.varnames \
+            if x in trans | untrans]
 
         super(PyMC3Results, self).__init__(model)
 
 
     def _filter_names(self, names, exclude_ranefs=True, hide_transformed=True):
-        names = self.untransformed_vars if hide_transformed else self.trace.varnames
+        names = self.untransformed_vars \
+            if hide_transformed else self.trace.varnames
         if exclude_ranefs:
             names = [x for x in names
                 if x[2:] not in list(self.model.random_terms.keys())]
@@ -100,8 +103,9 @@ class PyMC3Results(ModelResults):
 
         # compute means for all variables and factors
         if annotate:
-            kwargs['lines'] = {param: self.trace[param][burn_in:].mean() for param in names}
-            # factors (i.e., fixed terms with shape > 1) must be handled separately
+            kwargs['lines'] = {param: self.trace[param][burn_in:].mean() \
+                for param in names}
+            # factors (fixed terms with shape > 1) must be handled separately
             factors = {}
             for fix in self.model.fixed_terms.values():
                 if 'b_'+fix.name in names and len(fix.levels)>1:
@@ -122,9 +126,11 @@ class PyMC3Results(ModelResults):
             for f in factors.keys():
                 for lev in factors[f]:
                     # draw line
-                    ax[names.index(f),0].axvline(x=factors[f][lev], color="r", lw=1.5)
+                    ax[names.index(f),0].axvline(x=factors[f][lev],
+                        color="r", lw=1.5)
                     # write the mean
-                    ax[names.index(f),0].annotate('{:.2f}'.format(factors[f][lev]),
+                    ax[names.index(f),0].annotate(
+                        '{:.2f}'.format(factors[f][lev]),
                         xy=(factors[f][lev],0), xycoords='data', xytext=(5,10),
                         textcoords='offset points', rotation=90, va='bottom',
                         fontsize='large', color='#AA0022')
@@ -135,17 +141,21 @@ class PyMC3Results(ModelResults):
                         fontsize='large', color='#AA0022')
             # add lines and annotation for the rest of the variables
             for v in kwargs['lines'].keys():
-                ax[names.index(v),0].annotate('{:.2f}'.format(kwargs['lines'][v]),
+                ax[names.index(v),0].annotate(
+                    '{:.2f}'.format(kwargs['lines'][v]),
                     xy=(kwargs['lines'][v],0), xycoords='data', xytext=(5,10),
                     textcoords='offset points', rotation=90, va='bottom',
                     fontsize='large', color='#AA0022')
 
         # For binomial models with n_trials = 1 (most common use case),
         # tell user which event is being modeled
-        if self.model.family.name=='binomial' and np.max(self.model.y.data) < 1.01:
-            event = next(i for i,x in enumerate(self.model.y.data.flatten()) if x>.99)
+        if self.model.family.name=='binomial' and \
+            np.max(self.model.y.data) < 1.01:
+            event = next(i for i,x in enumerate(self.model.y.data.flatten()) \
+                if x>.99)
             warnings.warn('Modeling the probability that {}==\'{}\''.format(
-                self.model.y.name, str(self.model.data[self.model.y.name][event])))
+                self.model.y.name,
+                str(self.model.data[self.model.y.name][event])))
 
         return ax
 
@@ -180,17 +190,21 @@ class PyMC3Results(ModelResults):
                 return term.levels[int(match.group(2))]
             # handle random effects
             else:
-                return '{}[{}]'.format(term.name, term.levels[int(match.group(2))])
+                return '{}[{}]'.format(term.name,
+                    term.levels[int(match.group(2))])
         new = [replace_with_name(x) if x is not None else df.index[i]
             for i,x in enumerate(match)]
         df.set_index([new], inplace=True)
 
         # For binomial models with n_trials = 1 (most common use case),
         # tell user which event is being modeled
-        if self.model.family.name=='binomial' and np.max(self.model.y.data) < 1.01:
-            event = next(i for i,x in enumerate(self.model.y.data.flatten()) if x>.99)
+        if self.model.family.name=='binomial' and \
+            np.max(self.model.y.data) < 1.01:
+            event = next(i for i,x in enumerate(self.model.y.data.flatten()) \
+                if x>.99)
             warnings.warn('Modeling the probability that {}==\'{}\''.format(
-                self.model.y.name, str(self.model.data[self.model.y.name][event])))
+                self.model.y.name,
+                str(self.model.data[self.model.y.name][event])))
 
         return df
 
@@ -227,7 +241,8 @@ class PyMC3Results(ModelResults):
                             for x in self.model.terms[var[2:]].levels]
 
         # construct the trace DataFrame
-        trace_df = pd.concat([pd.DataFrame(self.trace[burn_in:][x], columns=get_cols(x))
+        trace_df = pd.concat([pd.DataFrame(self.trace[burn_in:][x],
+                                           columns=get_cols(x))
                               for x in names], axis=1)
 
         return trace_df

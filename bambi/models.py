@@ -10,6 +10,7 @@ from patsy import dmatrices, dmatrix
 import re, warnings
 from bambi.priors import PriorFactory, PriorScaler, Prior
 from copy import deepcopy
+import statsmodels.api as sm
 
 
 class Model(object):
@@ -97,9 +98,10 @@ class Model(object):
             else:
                 arrs.append(t.data)
         X = np.concatenate(arrs + [self.y.data], axis=1)
-        num_na = np.isnan(X).any(1).sum()
-        if num_na:
-            msg = "%d rows were found contain at least one missing value." % num_na
+        na_index = np.isnan(X).any(1)
+        if na_index.sum():
+            msg = "%d rows were found contain at least one missing value." \
+                % na_index.sum()
             if not self.dropna:
                 msg += "Please make sure the dataset contains no missing " \
                        "values. Alternatively, if you want rows with missing " \
@@ -107,14 +109,18 @@ class Model(object):
                        "manner (not recommended), please set dropna=True at " \
                        "model initialization."
                 raise ValueError(msg)
-            msg += " Automatically removing %d rows from the dataset." % num_na
-            warnings.warn(msg)
 
-        # compute information used to set the default priors
+            # warn and then remove missing values
+            msg += " Automatically removing %d rows from the dataset." \
+                % na_index.sum()
+            warnings.warn(msg)
+            keeps = np.invert(na_index)
+            for t in self.fixed_terms.values():
+                t.data = t.data[keeps]
+            self.y.data = self.y.data[keeps]
+
         # X = fixed effects design matrix (excluding intercept/constant term)
-        # r2_x = 1 - 1/VIF for each x, i.e., R2 for predicting each x from all
-        # other x's r2_y = R2 for predicting y from all x's *other than* the
-        # current x.
+        # r2_x = 1 - 1/VIF, i.e., R2 for predicting each x from all other x's.
         # only compute these stats if there are multiple terms in the model
         terms = [t for t in self.fixed_terms.values() if t.name != 'Intercept']
 
@@ -157,21 +163,17 @@ class Model(object):
 
             self.dm_statistics = {
                 'r2_x': pd.Series({
-                    x: pd.stats.api.ols(
-                        y=X[x], x=X.drop(x, axis=1),
-                        intercept=True if 'Intercept' in self.term_names else False).r2
-                    for x in list(X.columns)}),
-                'r2_y': pd.Series({
-                    x: pd.stats.api.ols(
-                        y=self.y.data.squeeze(), x=X.drop(x, axis=1),
-                        intercept=True if 'Intercept' in self.term_names else False).r2
+                    x: sm.OLS(endog=X[x],
+                        exog=sm.add_constant(X.drop(x, axis=1)) \
+                            if 'Intercept' in self.term_names \
+                            else X.drop(x, axis=1)).fit().rsquared
                     for x in list(X.columns)}),
                 'sd_x': X.std(),
                 'sd_y': sd_y_defaults[self.family.name][self.family.link],
                 'mean_x': X.mean(axis=0)
             }
 
-            # save potentially useful info for diagnostics and send to ModelResults
+            # save potentially useful info for diagnostics, send to ModelResults
             # mat = correlation matrix of X, w/ diagonal replaced by X means
             mat = X.corr()
             for x in list(mat.columns):
@@ -183,9 +185,10 @@ class Model(object):
                 'corr_mean_X': mat
             }
 
-            # throw informative error if there is perfect collinearity among the fixed effects
+            # throw informative error if perfect collinearity among fixed fx
             if any(self.dm_statistics['r2_x'] > .999):
-                raise ValueError("There is perfect collinearity among the fixed effects!\n" + \
+                raise ValueError(
+                    "There is perfect collinearity among the fixed effects!\n"+\
                     "Printing some design matrix statistics:\n" + \
                     str(self.dm_statistics) + '\n' + \
                     str(self._diagnostics))
@@ -198,9 +201,7 @@ class Model(object):
         if len(self.terms) > 0:
             # Get and scale default priors if none are defined yet
             scaler = PriorScaler(self)
-            for t in self.terms.values():
-                if not isinstance(t.prior, Prior):
-                    scaler.scale(t)
+            scaler.scale()
 
         # For binomial models with n_trials = 1 (most common use case),
         # tell user which event is being modeled
@@ -331,7 +332,8 @@ class Model(object):
                 y_label = y.design_info.term_names[0]
                 if event is not None:
                     # pass in new Y data that has 1 if y=event and 0 otherwise
-                    y_data = y[:,y.design_info.column_names.index(event.group(1))]
+                    y_data = y[:, 
+                               y.design_info.column_names.index(event.group(1))]
                     y_data = pd.DataFrame({event.group(3): y_data})
                     self.add_y(y_label, family=family, link=link, data=y_data)
                 else:
@@ -359,7 +361,7 @@ class Model(object):
                                      "operators are currently supported in "
                                      "random effects specifications.")
 
-                # replace explicit intercept terms like '1|subj' with just 'subj'
+                # replace explicit intercept terms like '1|subj' with 'subj'
                 f = re.sub(r'^1\s*\|(.*)', r'\1', f).strip()
 
                 # Split specification into intercept, predictor, and grouper
@@ -434,7 +436,8 @@ class Model(object):
 
         # implement default Uniform [0, sd(Y)] prior for residual SD
         if self.family.name == 'gaussian':
-            prior.update(sd=Prior('Uniform', lower=0, upper=self.data[variable].std()))
+            prior.update(sd=Prior('Uniform', lower=0,
+                upper=self.data[variable].std()))
 
         self.add_term(variable, prior=prior, *args, **kwargs)
         # use last-added term name b/c it could have been changed by add_term
@@ -589,7 +592,8 @@ class Model(object):
             dists = []
             for t in self.fixed_terms.values():
                 for i,l in enumerate(t.levels):
-                    params = {k: v[i % len(v)] if isinstance(v, np.ndarray) else v
+                    params = {k: v[i % len(v)] \
+                        if isinstance(v, np.ndarray) else v
                         for k,v in t.prior.args.items()}
                     dists += [getattr(pm, t.prior.name)(l, **params)]
 
