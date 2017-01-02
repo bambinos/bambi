@@ -189,36 +189,42 @@ class PriorScaler(object):
                    for t in model.fixed_terms.values()
                    for lev in range(len(t.levels))})
         self.priors = {}
-
-    def _get_second_deriv(self, exog, predictor):
-        # figure out which column of exog to drop for the null model
-        keeps = [i for i,x in enumerate(list(exog.columns))
-            if not np.array_equal(predictor, exog[x].values.flatten())]
-
-        # fit the null model
-        null = sm.GLM(endog=self.model.y.data,
-            exog=exog.iloc[:,keeps] if keeps \
-                else np.repeat(0, len(self.model.y.data)),
+        self.mle = sm.GLM(endog=self.model.y.data, exog=self.dm,
             family=self.model.family.smfamily(),
             missing='drop' if self.model.dropna else 'none').fit()
 
-        # fit model with coefficient of interest constrained to 0
-        mod = sm.GLM(endog=self.model.y.data, exog=exog,
-            family=self.model.family.smfamily(),
-            missing='drop' if self.model.dropna else 'none')
-        params = pd.Series([0]*len(mod.exog_names), index=mod.exog_names,
-            dtype='float64')
-        if hasattr(null.params, 'index'):
-            for lab, val in zip(null.params.index, null.params):
-                params[lab] = val
-        mod.fit()
-        pos = [x for x in range(len(params)) if x not in keeps][0]
+    def _get_second_deriv(self, exog, predictor, full_mod=None,
+        length=3, increment=.2):
+        # full_mod: statsmodels GLM to replace MLE model. For when 'predictor'
+        #     is not in the fixed part of the model.
+        # length: number of points to use for LL approximation (must be >= 3)
+        # increment: distance between points (in standardized slope units)
 
-        # return 2nd derivative of log-likelihood w.r.t. predictor
-        return mod.hessian(params=params, scale=null.scale,
-            observed=True)[pos,pos]
+        if full_mod is None:
+            full_mod = self.mle
 
-    def _get_intercept_stats(self):
+        # figure out which column of exog to drop for the null model
+        keeps = [i for i,x in enumerate(list(exog.columns))
+            if not np.array_equal(predictor, exog[x].values.flatten())]
+        pos = [x for x in range(exog.shape[1]) if x not in keeps][0]
+
+        # fit models above and below MLE value
+        increment *= full_mod.bse[pos] * len(self.model.y.data)**.5
+        steps = [x - int(length/2) for x in range(length) if x - int(length/2)]
+        starts = np.delete(full_mod.params.values, pos) \
+            if len(full_mod.params.values) > 1 else None
+        null = [sm.GLM(endog=np.squeeze(self.model.y.data) - \
+            (full_mod.params[pos] + x*increment)*predictor,
+            exog=exog.iloc[:,keeps] if keeps \
+            else np.repeat(0, len(self.model.y.data))).fit(scale=full_mod.scale,
+            start_params=starts) for x in steps]
+        null = np.insert(null, int(length/2), full_mod)
+
+        # return 2nd derivative
+        ll = np.array([x.llf for x in null])
+        return np.asscalar(np.diff(np.diff(ll)/increment)/increment)
+
+    def _get_intercept_stats(self, add_slopes=True):
         # start with mean and variance of Y on the link scale
         mod = sm.GLM(endog=self.model.y.data,
             exog=np.repeat(1, len(self.model.y.data)),
@@ -229,7 +235,7 @@ class PriorScaler(object):
         sd = (mod.cov_params()[0] * len(mod.mu))**.5
 
         # modify mu and sd based on means and SDs of slope priors.
-        if len(self.model.fixed_terms) > 1:
+        if len(self.model.fixed_terms) > 1 and add_slopes:
             # get order
             index = sum([p['levels'] for p in self.priors.values()], [])
             # get slope prior means and SDs
@@ -259,11 +265,10 @@ class PriorScaler(object):
             sd += [(len(self.model.y.data) * np.log(1 - value**2) / d2)**.5]
 
         # save and set prior
-        # NOTE: SDs expanded by factor of 2 for now (remove this hack later)
         self.priors.update({term.name: {
-            'mu':np.array(mu), 'sd':2*np.array(sd), 'levels':term.levels,
+            'mu':np.array(mu), 'sd':np.array(sd), 'levels':term.levels,
             }})
-        term.prior.update(mu = np.array(mu), sd=2*np.array(sd))
+        term.prior.update(mu = np.array(mu), sd=np.array(sd))
 
     def _scale_intercept(self, term, value):
 
@@ -273,11 +278,11 @@ class PriorScaler(object):
 
         # get prior mean and SD for fixed intercept
         mu, sd = self._get_intercept_stats()
-        sd *= value
+        # sd *= value
 
         # save and set prior
         self.priors.update({term.name: {
-            'mu':np.array(mu), 'sd':2*np.array(sd), 'levels':term.levels,
+            'mu':np.array(mu), 'sd':np.array(sd), 'levels':term.levels,
             }})
         term.prior.update(mu=mu, sd=sd)
 
@@ -314,11 +319,15 @@ class PriorScaler(object):
                 mu = []
                 sd = []
                 exog = self.dm.join(pd.DataFrame(fix_data))
+                full_mod = sm.GLM(endog=self.model.y.data, exog=exog,
+                    family=self.model.family.smfamily(),
+                    missing='drop' if self.model.dropna else 'none').fit()
                 # loop over the columns of fix_data
                 ncols = exog.shape[1] - self.dm.shape[1]
                 for pred in range(ncols):
                     d2 = self._get_second_deriv(exog=exog,
-                        predictor=np.atleast_2d(fix_data.T).T[:,pred])
+                        predictor=np.atleast_2d(fix_data.T).T[:,pred],
+                        full_mod=full_mod)
                     mu += [0]
                     sd += [(len(self.model.y.data)
                         * np.log(1 - value**2) / d2)**.5]
@@ -352,7 +361,8 @@ class PriorScaler(object):
                 if value is None:
                     if not self.model.auto_scale:
                         return
-                    value = 'wide'
+                    value = 'wide' if self.model.family.name == 'gaussian' \
+                        else 'superwide'
 
                 # set scale
                 if isinstance(value, string_types):
