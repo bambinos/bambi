@@ -193,12 +193,10 @@ class PriorScaler(object):
             family=self.model.family.smfamily(),
             missing='drop' if self.model.dropna else 'none').fit()
 
-    def _get_second_deriv(self, exog, predictor, full_mod=None,
-        length=3, increment=.1):
+    def _get_second_deriv(self, exog, predictor, full_mod=None, points=3):
         # full_mod: statsmodels GLM to replace MLE model. For when 'predictor'
         #     is not in the fixed part of the model.
-        # length: number of points to use for LL approximation (must be >= 3)
-        # increment: distance between points (in standardized slope units)
+        # points: number of points to use for LL approximation (must be >= 3)
 
         if full_mod is None:
             full_mod = self.mle
@@ -208,24 +206,23 @@ class PriorScaler(object):
             if not np.array_equal(predictor, exog[x].values.flatten())]
         i = [x for x in range(exog.shape[1]) if x not in keeps][0]
 
-        # fit models above and below MLE value
-        increment *= full_mod.bse[i] * len(self.model.y.data)**.5
-        steps = [x - int(length/2) for x in range(length) if x - int(length/2)]
+        # get LL values from beta=0 to beta=MLE
+        values = np.linspace(0., full_mod.params[i], points)[:-1]
+        increment = np.diff(values)[0]
         # if there are multiple predictors, use statsmodels to optimize the LL
         if keeps:
             null = [sm.GLM(endog=self.model.y.data, exog=exog,
                 family=self.model.family.smfamily()).fit_constrained(
-                str(exog.columns[i])+'='+str(full_mod.params[i] + x*increment),
-                start_params=full_mod.params.values) for x in steps]
-            null = np.insert(null, int(length/2), full_mod)
+                str(exog.columns[i])+'='+str(val),
+                start_params=full_mod.params.values) for val in values]
+            null = np.append(null, full_mod)
             ll = np.array([x.llf for x in null])
         # if just a single predictor, use statsmodels to evaluate the LL
         else:
             null = [sm.GLM(endog=self.model.y.data,
                 exog=exog, family=self.model.family.smfamily()).loglike(
-                np.squeeze(self.model.y.data), 
-                (full_mod.params[i] + x*increment)*predictor) for x in steps]
-            ll = np.insert(null, int(length/2), full_mod.llf)
+                np.squeeze(self.model.y.data), val*predictor) for val in values]
+            ll = np.append(null, full_mod.llf)
 
         # return 2nd derivative
         return np.asscalar(np.diff(np.diff(ll)/increment)/increment)
@@ -373,8 +370,7 @@ class PriorScaler(object):
                 if value is None:
                     if not self.model.auto_scale:
                         return
-                    value = 'wide' if self.model.family.name == 'gaussian' \
-                        else 'superwide'
+                    value = 'wide'
 
                 # set scale
                 if isinstance(value, string_types):
