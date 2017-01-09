@@ -193,12 +193,10 @@ class PriorScaler(object):
             family=self.model.family.smfamily(),
             missing='drop' if self.model.dropna else 'none').fit()
 
-    def _get_second_deriv(self, exog, predictor, full_mod=None,
-        length=3, increment=.2):
+    def _get_second_deriv(self, exog, predictor, full_mod=None, points=3):
         # full_mod: statsmodels GLM to replace MLE model. For when 'predictor'
         #     is not in the fixed part of the model.
-        # length: number of points to use for LL approximation (must be >= 3)
-        # increment: distance between points (in standardized slope units)
+        # points: number of points to use for LL approximation (must be >= 3)
 
         if full_mod is None:
             full_mod = self.mle
@@ -206,22 +204,27 @@ class PriorScaler(object):
         # figure out which column of exog to drop for the null model
         keeps = [i for i,x in enumerate(list(exog.columns))
             if not np.array_equal(predictor, exog[x].values.flatten())]
-        pos = [x for x in range(exog.shape[1]) if x not in keeps][0]
+        i = [x for x in range(exog.shape[1]) if x not in keeps][0]
 
-        # fit models above and below MLE value
-        increment *= full_mod.bse[pos] * len(self.model.y.data)**.5
-        steps = [x - int(length/2) for x in range(length) if x - int(length/2)]
-        starts = np.delete(full_mod.params.values, pos) \
-            if len(full_mod.params.values) > 1 else None
-        null = [sm.GLM(endog=np.squeeze(self.model.y.data) - \
-            (full_mod.params[pos] + x*increment)*predictor,
-            exog=exog.iloc[:,keeps] if keeps \
-            else np.repeat(0, len(self.model.y.data))).fit(scale=full_mod.scale,
-            start_params=starts) for x in steps]
-        null = np.insert(null, int(length/2), full_mod)
+        # get LL values from beta=0 to beta=MLE
+        values = np.linspace(0., full_mod.params[i], points)[:-1]
+        increment = np.diff(values)[0]
+        # if there are multiple predictors, use statsmodels to optimize the LL
+        if keeps:
+            null = [sm.GLM(endog=self.model.y.data, exog=exog,
+                family=self.model.family.smfamily()).fit_constrained(
+                str(exog.columns[i])+'='+str(val),
+                start_params=full_mod.params.values) for val in values]
+            null = np.append(null, full_mod)
+            ll = np.array([x.llf for x in null])
+        # if just a single predictor, use statsmodels to evaluate the LL
+        else:
+            null = [sm.GLM(endog=self.model.y.data,
+                exog=exog, family=self.model.family.smfamily()).loglike(
+                np.squeeze(self.model.y.data), val*predictor) for val in values]
+            ll = np.append(null, full_mod.llf)
 
         # return 2nd derivative
-        ll = np.array([x.llf for x in null])
         return np.asscalar(np.diff(np.diff(ll)/increment)/increment)
 
     def _get_intercept_stats(self, add_slopes=True):
@@ -318,7 +321,13 @@ class PriorScaler(object):
             if term_type=='fixed':
                 mu = []
                 sd = []
-                exog = self.dm.join(pd.DataFrame(fix_data))
+                fix_dataframe = pd.DataFrame(fix_data)
+                # things break if column names are integers (the default)
+                fix_dataframe.rename(
+                    columns={c:'_'+str(c) for c in fix_dataframe.columns},
+                    inplace=True)
+                exog = self.dm.join(fix_dataframe)
+                # this will replace self.mle (which is missing predictors)
                 full_mod = sm.GLM(endog=self.model.y.data, exog=exog,
                     family=self.model.family.smfamily(),
                     missing='drop' if self.model.dropna else 'none').fit()
@@ -361,8 +370,7 @@ class PriorScaler(object):
                 if value is None:
                     if not self.model.auto_scale:
                         return
-                    value = 'wide' if self.model.family.name == 'gaussian' \
-                        else 'superwide'
+                    value = 'wide'
 
                 # set scale
                 if isinstance(value, string_types):
