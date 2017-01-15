@@ -245,51 +245,47 @@ class PriorScaler(object):
         q = (1-m)*(m*(1-m)/v - 1)
         n = len(self.model.y.data)
         # function to return central moments of rescaled beta distribution
-        def moment(k):
-            return (-2)**k * (-p/(p+q))**k * hyp2f1(p, -k, p+q, (p+q)/p)
-        # functions to return 1st, 2nd, and 3rd derivatives of beta = f(corr).
+        def moment(k): return (-2*p/(p+q))**k * hyp2f1(p, -k, p+q, (p+q)/p)
+        # d1, d2, d3 = 1st, 2nd, and 3rd derivatives of beta = f(corr). 
         # these ugly expressions are pasted from sympy and could be simplified.
-        # the derivatives do not exist at r=0, but evaluating at a point very
-        # close to 0 (r=.001) gives good results
-        def d1(r=.001):
-            return 0.5*a*n*r*((-b/2 - (2*a*n*np.log(-r**2 + 1) + b**2)**0.5/2)\
-                /a)**0.5*(2*a*n*np.log(-r**2 + 1) + b**2)**(-0.5)/((-b/2 - (2\
-                *a*n*np.log(-r**2 + 1)+ b**2)**0.5/2)*(-r**2 + 1))
-        def d2(r=.001):
-            return a*n*(-(b + (2*a*n*np.log(-r**2 + 1) + b**2)**0.5)/a)**0.5\
-                *(-1.4142135623731*a*n*r**2*(2*a*n*np.log(-r**2 + 1) + b**2)\
-                **(-1.5)/(r**2 - 1) - 0.707106781186548*a*n*r**2*(2*a*n*\
-                np.log(-r**2 + 1) + b**2)**(-1.0)/((b + (2*a*n*np.log(-r**2 \
-                + 1) + b**2)**0.5)*(r**2 - 1)) - 1.4142135623731*r**2*(2*a*n*\
-                np.log(-r**2 + 1) + b**2)**(-0.5)/(r**2 - 1)\
-                + 0.707106781186548*(2*a*n*np.log(-r**2 + 1) + b**2)**(-0.5))\
-                /((b + (2*a*n*np.log(-r**2 + 1)+ b**2)**0.5)*(r**2 - 1))
-        def d3(r=.001):
-            return a*n*r*(-(b + (2*a*n*np.log(-r**2 + 1) + b**2)**0.5)/a)**0.5\
-                *(8.48528137423857*a**2*n**2*r**2*(2*a*n*np.log(-r**2 + 1)\
-                + b**2)**(-2.5)/(r**2 - 1) + 4.24264068711929*a**2*n**2*r**2*\
-                (2*a*n*np.log(-r**2 + 1)+ b**2)**(-2.0)/((b + (2*a*n\
-                *np.log(-r**2 + 1) + b**2)**0.5)*(r**2 - 1))+ 2.12132034355964\
-                *a**2*n**2*r**2*(2*a*n*np.log(-r**2 + 1) + b**2)**(-1.5)/((b\
-                + (2*a*n*np.log(-r**2 + 1) + b**2)**0.5)**2*(r**2 - 1))\
-                + 8.48528137423857*a*n*r**2*(2*a*n*np.log(-r**2 + 1) + b**2)\
-                **(-1.5)/(r**2 - 1) + 4.24264068711929*a*n*r**2*(2*a*n*\
-                np.log(-r**2 + 1) + b**2)**(-1.0)/((b + (2*a*n*np.log(-r**2\
-                + 1) + b**2)**0.5)*(r**2 - 1)) - 4.24264068711929*a*n*(2*a*n\
-                *np.log(-r**2 + 1) + b**2)**(-1.5) - 2.12132034355964*a*n*(2*a\
-                *n*np.log(-r**2 + 1) + b**2)**(-1.0)/(b + (2*a*n*np.log(-r**2\
-                + 1) + b**2)**0.5) + 5.65685424949238*r**2*(2*a*n*np.log(-r**2\
-                + 1) + b**2)**(-0.5)/(r**2 - 1) - 4.24264068711929*(2*a*n\
-                *np.log(-r**2 + 1) + b**2)**(-0.5))/((b + (2*a*n*np.log(-r**2\
-                + 1) + b**2)**0.5)*(r**2 - 1)**2)
+        # the derivatives do not exist at corr=0, but evaluating at a point
+        # very close to 0 (corr = .001) gives good results
+        r = .001
+        d1 = 0.5*a*n*r*((-b/2 - (2*a*n*np.log(-r**2 + 1) + b**2)**0.5/2)/a)\
+            **0.5*(2*a*n*np.log(-r**2 + 1) + b**2)**(-0.5)/((-b/2 - (2*a*n\
+            *np.log(-r**2 + 1)+ b**2)**0.5/2)*(-r**2 + 1))
+        d2 = a*n*(-(b + (2*a*n*np.log(-r**2 + 1) + b**2)**0.5)/a)**0.5\
+            *(-1.4142135623731*a*n*r**2*(2*a*n*np.log(-r**2 + 1) + b**2)\
+            **(-1.5)/(r**2 - 1) - 0.707106781186548*a*n*r**2*(2*a*n*np.log(-r\
+            **2 + 1) + b**2)**(-1.0)/((b + (2*a*n*np.log(-r**2 + 1) + b**2)\
+            **0.5)*(r**2 - 1)) - 1.4142135623731*r**2*(2*a*n*np.log(-r**2 \
+            + 1) + b**2)**(-0.5)/(r**2 - 1)+ 0.707106781186548*(2*a*n\
+            *np.log(-r**2 + 1) + b**2)**(-0.5))/((b + (2*a*n*np.log(-r**2 + 1)\
+            + b**2)**0.5)*(r**2 - 1))
+        d3 = a*n*r*(-(b + (2*a*n*np.log(-r**2 + 1) + b**2)**0.5)/a)**0.5\
+            *(8.48528137423857*a**2*n**2*r**2*(2*a*n*np.log(-r**2 + 1)+ b**2)\
+            **(-2.5)/(r**2 - 1) + 4.24264068711929*a**2*n**2*r**2*(2*a*n\
+            *np.log(-r**2 + 1)+ b**2)**(-2.0)/((b + (2*a*n*np.log(-r**2 + 1) \
+            + b**2)**0.5)*(r**2 - 1))+ 2.12132034355964*a**2*n**2*r**2*(2*a*n\
+            *np.log(-r**2 + 1) + b**2)**(-1.5)/((b+ (2*a*n*np.log(-r**2 + 1) \
+            + b**2)**0.5)**2*(r**2 - 1))+ 8.48528137423857*a*n*r**2*(2*a*n\
+            *np.log(-r**2 + 1) + b**2)**(-1.5)/(r**2 - 1) + 4.24264068711929*a\
+            *n*r**2*(2*a*n*np.log(-r**2 + 1) + b**2)**(-1.0)/((b + (2*a*n\
+            *np.log(-r**2+ 1) + b**2)**0.5)*(r**2 - 1)) - 4.24264068711929*a*n\
+            *(2*a*n*np.log(-r**2 + 1) + b**2)**(-1.5) - 2.12132034355964*a*n\
+            *(2*a*n*np.log(-r**2 + 1) + b**2)**(-1.0)/(b + (2*a*n*np.log(-r**2\
+            + 1) + b**2)**0.5) + 5.65685424949238*r**2*(2*a*n*np.log(-r**2+ 1)\
+            + b**2)**(-0.5)/(r**2 - 1) - 4.24264068711929*(2*a*n*np.log(-r**2 \
+            + 1) + b**2)**(-0.5))/((b + (2*a*n*np.log(-r**2+ 1) + b**2)**0.5)\
+            *(r**2 - 1)**2)
 
         # return the approximate SD
-        return (d1()**2*moment(2)\
-            + 1/4*d2()**2*(moment(4) - moment(2)**2)\
-            + 1/36*d3()**2*(moment(6) - moment(3)**2)\
-            + d1()*d2()*moment(3)\
-            + 1/3*d1()*d3()*moment(4)\
-            + 1/6*d2()*d3()*(moment(5) - moment(2)*moment(3)))**.5
+        return (d1**2*moment(2)\
+            + 1/4*d2**2*(moment(4) - moment(2)**2)\
+            + 1/36*d3**2*(moment(6) - moment(3)**2)\
+            + d1*d2*moment(3)\
+            + 1/3*d1*d3*moment(4)\
+            + 1/6*d2*d3*(moment(5) - moment(2)*moment(3)))**.5
 
     def _get_intercept_stats(self, add_slopes=True):
         # start with mean and variance of Y on the link scale
