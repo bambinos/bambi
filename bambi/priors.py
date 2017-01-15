@@ -182,7 +182,7 @@ class PriorScaler(object):
         'superwide': 0.8
     }
 
-    def __init__(self, model):
+    def __init__(self, model, taylor):
         self.model = model
         self.stats = model.dm_statistics if hasattr(model, 'dm_statistics') \
             else None
@@ -193,6 +193,9 @@ class PriorScaler(object):
         self.mle = sm.GLM(endog=self.model.y.data, exog=self.dm,
             family=self.model.family.smfamily(),
             missing='drop' if self.model.dropna else 'none').fit()
+        self.taylor = taylor
+        with open(join(dirname(__file__),'config','derivs.txt'), 'r') as file:
+            self.deriv = [next(file).strip('\n') for x in range(taylor+1)]
 
     def _get_slope_stats(self, exog, predictor, sd_corr, full_mod=None,
         points=4):
@@ -236,56 +239,34 @@ class PriorScaler(object):
                        (values+d)**2]).T
         a, b = np.squeeze((np.linalg.inv(X.T * X) * X.T * (ll[:,None] - c)).A)
 
-        # compute approximate SD(beta) via 3rd-order Taylor approximation
         # m, v: mean and variance of beta distribution of correlations
         # p, q: corresponding shape parameters of beta distribution
         m = .5
         v = sd_corr**2/4
         p = m*(m*(1-m)/v - 1)
         q = (1-m)*(m*(1-m)/v - 1)
-        n = len(self.model.y.data)
-        # function to return central moments of rescaled beta distribution
-        def moment(k): return (-2*p/(p+q))**k * hyp2f1(p, -k, p+q, (p+q)/p)
-        # d1, d2, d3 = 1st, 2nd, and 3rd derivatives of beta = f(corr). 
-        # these ugly expressions are pasted from sympy and could be simplified.
-        # the derivatives do not exist at corr=0, but evaluating at a point
-        # very close to 0 (corr = .001) gives good results
-        r = .001
-        d1 = 0.5*a*n*r*((-b/2 - (2*a*n*np.log(-r**2 + 1) + b**2)**0.5/2)/a)\
-            **0.5*(2*a*n*np.log(-r**2 + 1) + b**2)**(-0.5)/((-b/2 - (2*a*n\
-            *np.log(-r**2 + 1)+ b**2)**0.5/2)*(-r**2 + 1))
-        d2 = a*n*(-(b + (2*a*n*np.log(-r**2 + 1) + b**2)**0.5)/a)**0.5\
-            *(-1.4142135623731*a*n*r**2*(2*a*n*np.log(-r**2 + 1) + b**2)\
-            **(-1.5)/(r**2 - 1) - 0.707106781186548*a*n*r**2*(2*a*n*np.log(-r\
-            **2 + 1) + b**2)**(-1.0)/((b + (2*a*n*np.log(-r**2 + 1) + b**2)\
-            **0.5)*(r**2 - 1)) - 1.4142135623731*r**2*(2*a*n*np.log(-r**2 \
-            + 1) + b**2)**(-0.5)/(r**2 - 1)+ 0.707106781186548*(2*a*n\
-            *np.log(-r**2 + 1) + b**2)**(-0.5))/((b + (2*a*n*np.log(-r**2 + 1)\
-            + b**2)**0.5)*(r**2 - 1))
-        d3 = a*n*r*(-(b + (2*a*n*np.log(-r**2 + 1) + b**2)**0.5)/a)**0.5\
-            *(8.48528137423857*a**2*n**2*r**2*(2*a*n*np.log(-r**2 + 1)+ b**2)\
-            **(-2.5)/(r**2 - 1) + 4.24264068711929*a**2*n**2*r**2*(2*a*n\
-            *np.log(-r**2 + 1)+ b**2)**(-2.0)/((b + (2*a*n*np.log(-r**2 + 1) \
-            + b**2)**0.5)*(r**2 - 1))+ 2.12132034355964*a**2*n**2*r**2*(2*a*n\
-            *np.log(-r**2 + 1) + b**2)**(-1.5)/((b+ (2*a*n*np.log(-r**2 + 1) \
-            + b**2)**0.5)**2*(r**2 - 1))+ 8.48528137423857*a*n*r**2*(2*a*n\
-            *np.log(-r**2 + 1) + b**2)**(-1.5)/(r**2 - 1) + 4.24264068711929*a\
-            *n*r**2*(2*a*n*np.log(-r**2 + 1) + b**2)**(-1.0)/((b + (2*a*n\
-            *np.log(-r**2+ 1) + b**2)**0.5)*(r**2 - 1)) - 4.24264068711929*a*n\
-            *(2*a*n*np.log(-r**2 + 1) + b**2)**(-1.5) - 2.12132034355964*a*n\
-            *(2*a*n*np.log(-r**2 + 1) + b**2)**(-1.0)/(b + (2*a*n*np.log(-r**2\
-            + 1) + b**2)**0.5) + 5.65685424949238*r**2*(2*a*n*np.log(-r**2+ 1)\
-            + b**2)**(-0.5)/(r**2 - 1) - 4.24264068711929*(2*a*n*np.log(-r**2 \
-            + 1) + b**2)**(-0.5))/((b + (2*a*n*np.log(-r**2+ 1) + b**2)**0.5)\
-            *(r**2 - 1)**2)
 
-        # return the approximate SD
-        return (d1**2*moment(2)\
-            + 1/4*d2**2*(moment(4) - moment(2)**2)\
-            + 1/36*d3**2*(moment(6) - moment(3)**2)\
-            + d1*d2*moment(3)\
-            + 1/3*d1*d3*moment(4)\
-            + 1/6*d2*d3*(moment(5) - moment(2)*moment(3)))**.5
+        # function to return central moments of rescaled beta distribution
+        def moment(k): return (2*p/(p+q))**k * hyp2f1(p, -k, p+q, (p+q)/p)
+
+        # evaluate the derivatives of beta = f(correlation).
+        # dict 'point' gives points about which to Taylor expand. We want to 
+        # expand about the mean (generally 0), but some of the derivatives
+        # do not exist at 0. Evaluating at a point very close to 0 (e.g., .001)
+        # generally gives good results, but the higher order the expansion, the
+        # further from 0 we need to evaluate the derivatives, or they blow up.
+        point = dict(zip(range(1,14), 2**np.linspace(-1,5,13)/100))
+        vals = dict(a=a, b=b, n=len(self.model.y.data), r=point[self.taylor])
+        _deriv = [eval(x, globals(), vals) for x in self.deriv]
+
+        # compute and return the approximate SD
+        def term(i, j):
+            return 1/np.math.factorial(i) * 1/np.math.factorial(j) \
+                * _deriv[i] * _deriv[j] \
+                * (moment(i+j) - moment(i)*moment(j))
+        terms = [term(i,j)
+            for i in range(1,self.taylor+1) for j in range(1,self.taylor+1)]
+        return np.array(terms).sum()**.5
 
     def _get_intercept_stats(self, add_slopes=True):
         # start with mean and variance of Y on the link scale

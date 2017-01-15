@@ -37,10 +37,18 @@ class Model(object):
         dropna (bool): When True, rows with any missing values in either the
             predictors or outcome are automatically dropped from the dataset in
             a listwise manner.
+        taylor (int): Order of Taylor expansion to use in approximate variance
+            when constructing the default priors. Should be between 1 and 13.
+            Lower values are less accurate, tending to undershoot the correct
+            prior width, but are faster to compute and more stable. Odd-
+            numbered values tend to work better. Defaults to 5 for Normal 
+            models and 1 for non-Normal models. Values higher than the defaults
+            are generally not recommended as they can be unstable.
     '''
 
     def __init__(self, data=None, intercept=False, backend='pymc3',
-                 default_priors=None, auto_scale=True, dropna=False):
+                 default_priors=None, auto_scale=True, dropna=False,
+                 taylor=None):
 
         if isinstance(data, string_types):
             data = pd.read_table(data, sep=None)
@@ -72,6 +80,7 @@ class Model(object):
 
         self.auto_scale = auto_scale
         self.dropna = dropna
+        self.taylor = taylor
 
     def reset(self):
         '''
@@ -200,7 +209,11 @@ class Model(object):
         # only set priors if there is at least one term in the model
         if len(self.terms) > 0:
             # Get and scale default priors if none are defined yet
-            scaler = PriorScaler(self)
+            if self.taylor is not None:
+                taylor = self.taylor
+            else:
+                taylor = 5 if self.family.name=='gaussian' else 1
+            scaler = PriorScaler(self, taylor=taylor)
             scaler.scale()
 
         # For binomial models with n_trials = 1 (most common use case),
