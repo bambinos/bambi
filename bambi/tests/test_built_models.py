@@ -568,3 +568,41 @@ def test_logistic_regression(crossed_data):
 
     # test that traceplot reminds user which event is being modeled
     fitted.plot()
+
+def test_poisson_regression(crossed_data):
+    # build model using formula
+    crossed_data['count'] = (crossed_data['Y'] - crossed_data['Y'].min()).round()
+    model0 = Model(crossed_data)
+    model0.fit('count ~ threecats + continuous + dummy',
+        family='poisson', run=False)
+    model0.build()
+    model0.fit(samples=1)
+
+    # build model using add_term
+    model1 = Model(crossed_data)
+    model1.add_y('count', family='poisson')
+    model1.add_intercept()
+    model1.add_term('threecats')
+    model1.add_term('continuous')
+    model1.add_term('dummy')
+    model1.build()
+    model1.fit(samples=1)
+
+    # check that term names agree
+    assert set(model0.term_names) == set(model1.term_names)
+
+    # check that design matries are the same,
+    # even if term names / level names / order of columns is different
+    X0 = set([tuple(t.data[:, lev]) for t in model0.fixed_terms.values()
+              for lev in range(len(t.levels))])
+    X1 = set([tuple(t.data[:, lev]) for t in model1.fixed_terms.values()
+              for lev in range(len(t.levels))])
+    assert X0 == X1
+
+    # check that add_formula and add_term models have same priors for fixed
+    # effects
+    priors0 = {
+        x.name: x.prior.args for x in model0.terms.values() if not x.random}
+    priors1 = {
+        x.name: x.prior.args for x in model1.terms.values() if not x.random}
+    assert set(priors0) == set(priors1)
