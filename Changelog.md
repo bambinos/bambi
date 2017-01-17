@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.5 (January 17, 2017)
+* Weakly informative default priors now work the same for all response families & link functions
+* Minor bug fixes/tweaks
+
 ## 0.0.4 (October 11, 2016)
 * Fixes referencing of Theano ops after PyMC3 namespace clean-up
 * Added example Jupyter notebooks
