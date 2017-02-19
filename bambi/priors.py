@@ -225,8 +225,7 @@ class PriorScaler(object):
             ll = np.array([x.llf for x in null])
         # if just a single predictor, use statsmodels to evaluate the LL
         else:
-            null = [sm.GLM(endog=self.model.y.data, exog=np.squeeze(exog),
-                family=self.model.family.smfamily()).loglike(
+            null = [self.model.family.smfamily().loglike(
                 np.squeeze(self.model.y.data), val*predictor)
                 for val in values[:-1]]
             ll = np.append(null, full_mod.llf)
