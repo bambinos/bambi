@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import pymc3 as pm
 from pymc3.model import TransformedRV
+import pymc3.diagnostics as pmd
 from abc import abstractmethod, ABCMeta
 import re, warnings
 
@@ -160,7 +161,7 @@ class PyMC3Results(ModelResults):
         return ax
 
     def summary(self, burn_in=0, exclude_ranefs=True, names=None,
-                hide_transformed=True, **kwargs):
+                hide_transformed=True, mc_error=False, **kwargs):
         '''
         Summarizes all parameter estimates. Basically a wrapper for
         pm.df_summary() plus some niceties.
@@ -172,6 +173,8 @@ class PyMC3Results(ModelResults):
             names (list): Optional list of variable names to summarize.
             hide_transformed (bool): If True (default), do not print
                 summary statistics for internally transformed variables.
+            mc_error (bool): If True (defaults to False), include the monte
+                carlo error for each parameter estimate.
         '''
 
         # if no 'names' specified, filter out unwanted variables
@@ -180,9 +183,43 @@ class PyMC3Results(ModelResults):
 
         # get the basic DataFrame
         df = pm.df_summary(self.trace[burn_in:], varnames=names, **kwargs)
+        old_index = df.index
 
-        # replace the "__\d" suffixes with an informative factor level name
-        match = [re.match('^(.*)(?:__)(\d+)?$', x) for x in df.index]
+        # find parameters with a '__\d' suffix
+        matches = [re.match('^(.*)(?:__)(\d+)?$', x) for x in df.index]
+        wo_suffix = [x.group(1) if x is not None else x for x in matches]
+
+        # append diagnostic info if there are multiple chains.
+        if self.trace.nchains > 1:
+            # first remove unwanted variables so we don't waste time on those
+            diag_trace = self.trace[burn_in:]
+            for var in set(diag_trace.varnames) - set(names):
+                diag_trace.varnames.remove(var)
+            # append each diagnostic statistic
+            for diag_fn,diag_name in zip([pmd.effective_n, pmd.gelman_rubin],
+                                         ['effective_n',   'gelman_rubin']):
+                # compute the diagnostic statistic
+                stat = pd.DataFrame(diag_fn(diag_trace)).T
+                stat.columns = [diag_name]
+                # rename stat indices to match df indices
+                new_index = [wo_suffix.index(x) if x in wo_suffix else None \
+                    for x in stat.index]
+                new_index = [matches[i].group(0) if i is not None else x \
+                    for i,x in zip(new_index, stat.index)]
+                stat.set_index([new_index], inplace=True)
+                # append to df
+                df = df.merge(stat, left_index=True, right_index=True)
+            # put df back in its original order
+            df = df.reindex(old_index)
+        else:
+            warnings.warn('Multiple MCMC chains (i.e., njobs > 1) are required'
+                          ' in order to compute convergence diagnostics.')
+
+        # drop the mc_error column if requested
+        if not mc_error:
+            df = df.drop('mc_error', axis=1)
+
+        # replace the '__\d' suffixes with informative factor level names
         def replace_with_name(match):
             term = self.model.terms[match.group(1)[2:]]
             # handle fixed effects
@@ -193,7 +230,7 @@ class PyMC3Results(ModelResults):
                 return '{}[{}]'.format(term.name,
                     term.levels[int(match.group(2))])
         new = [replace_with_name(x) if x is not None else df.index[i]
-            for i,x in enumerate(match)]
+            for i,x in enumerate(matches)]
         df.set_index([new], inplace=True)
 
         # For binomial models with n_trials = 1 (most common use case),
