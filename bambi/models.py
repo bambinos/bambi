@@ -138,38 +138,6 @@ class Model(object):
             X = [pd.DataFrame(x.data, columns=x.levels) for x in terms]
             X = pd.concat(X, axis=1)
 
-            # interim solution for handling non-normal models
-            sd_y_defaults = {
-                'gaussian': {
-                    'identity': self.y.data.std(),
-                    'logit': self.y.data.std(),
-                    'probit': self.y.data.std(),
-                    'inverse': self.y.data.std(),
-                    'log': self.y.data.std()
-                },
-                'binomial': {
-                    'identity': self.y.data.std(),
-                    'logit': np.pi / 3**.5,
-                    'probit': 1,
-                    'inverse': self.y.data.std(),
-                    'log': self.y.data.std()
-                },
-                'poisson': {
-                    'identity': self.y.data.std(),
-                    'logit': self.y.data.std(),
-                    'probit': self.y.data.std(),
-                    'inverse': self.y.data.std(),
-                    'log': self.y.data.std()
-                },
-                't': {
-                    'identity': self.y.data.std(),
-                    'logit': self.y.data.std(),
-                    'probit': self.y.data.std(),
-                    'inverse': self.y.data.std(),
-                    'log': self.y.data.std()
-                }
-            }
-
             self.dm_statistics = {
                 'r2_x': pd.Series({
                     x: sm.OLS(endog=X[x],
@@ -178,7 +146,6 @@ class Model(object):
                             else X.drop(x, axis=1)).fit().rsquared
                     for x in list(X.columns)}),
                 'sd_x': X.std(),
-                'sd_y': sd_y_defaults[self.family.name][self.family.link],
                 'mean_x': X.mean(axis=0)
             }
 
