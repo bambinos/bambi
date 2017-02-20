@@ -404,7 +404,7 @@ class Model(object):
                             kwargs['drop_first'] = False
                     variable, kwargs['over'] = pred, grpr
 
-                prior = priors.pop(label, priors.pop('random', None))
+                kwargs['prior'] = priors.pop(label, priors.get('random', None))
                 self.add_term(variable=variable, label=label, **kwargs)
 
     def add_y(self, variable, prior=None, family='gaussian', link=None, *args,
