@@ -4,6 +4,7 @@ import pymc3 as pm
 from pymc3.model import FreeRV
 import matplotlib.pyplot as plt
 from bambi.external.six import string_types
+from bambi.external.patsy import Ignore_NA
 from collections import OrderedDict, defaultdict
 from bambi.utils import listify
 from patsy import dmatrices, dmatrix
@@ -124,8 +125,14 @@ class Model(object):
                 % na_index.sum()
             warnings.warn(msg)
             keeps = np.invert(na_index)
-            for t in self.fixed_terms.values():
-                t.data = t.data[keeps]
+            for t in self.terms.values():
+                # remove missing values from random effects
+                if isinstance(t.data, dict):
+                    t.data[list(t.data.keys())[0]] = \
+                        t.data[list(t.data.keys())[0]][keeps]
+                # remove missing values from fixed effects
+                else:
+                    t.data = t.data[keeps]
             self.y.data = self.y.data[keeps]
 
         # X = fixed effects design matrix (excluding intercept/constant term)
@@ -138,38 +145,6 @@ class Model(object):
             X = [pd.DataFrame(x.data, columns=x.levels) for x in terms]
             X = pd.concat(X, axis=1)
 
-            # interim solution for handling non-normal models
-            sd_y_defaults = {
-                'gaussian': {
-                    'identity': self.y.data.std(),
-                    'logit': self.y.data.std(),
-                    'probit': self.y.data.std(),
-                    'inverse': self.y.data.std(),
-                    'log': self.y.data.std()
-                },
-                'binomial': {
-                    'identity': self.y.data.std(),
-                    'logit': np.pi / 3**.5,
-                    'probit': 1,
-                    'inverse': self.y.data.std(),
-                    'log': self.y.data.std()
-                },
-                'poisson': {
-                    'identity': self.y.data.std(),
-                    'logit': self.y.data.std(),
-                    'probit': self.y.data.std(),
-                    'inverse': self.y.data.std(),
-                    'log': self.y.data.std()
-                },
-                't': {
-                    'identity': self.y.data.std(),
-                    'logit': self.y.data.std(),
-                    'probit': self.y.data.std(),
-                    'inverse': self.y.data.std(),
-                    'log': self.y.data.std()
-                }
-            }
-
             self.dm_statistics = {
                 'r2_x': pd.Series({
                     x: sm.OLS(endog=X[x],
@@ -178,7 +153,6 @@ class Model(object):
                             else X.drop(x, axis=1)).fit().rsquared
                     for x in list(X.columns)}),
                 'sd_x': X.std(),
-                'sd_y': sd_y_defaults[self.family.name][self.family.link],
                 'mean_x': X.mean(axis=0)
             }
 
@@ -341,7 +315,7 @@ class Model(object):
                 event = re.match(r'^((\S+)\[(\S+)\])\s*~(.*)$', fixed)
                 if event is not None:
                     fixed = '{}~{}'.format(event.group(2),event.group(4))
-                y, X = dmatrices(fixed, data=data)
+                y, X = dmatrices(fixed, data=data, NA_action=Ignore_NA())
                 y_label = y.design_info.term_names[0]
                 if event is not None:
                     # pass in new Y data that has 1 if y=event and 0 otherwise
@@ -353,7 +327,7 @@ class Model(object):
                     # use Y as-is
                     self.add_y(y_label, family=family, link=link)
             else:
-                X = dmatrix(fixed, data=data)
+                X = dmatrix(fixed, data=data, NA_action=Ignore_NA())
 
             # Loop over predictor terms
             for _name, _slice in X.design_info.term_name_slices.items():
@@ -531,7 +505,7 @@ class Model(object):
             id_var = pd.get_dummies(data[over], drop_first=False)
             data = {over: id_var.values, variable: X.values}
             f = '0 + %s:%s' % (over, variable)
-            data = dmatrix(f, data=data)
+            data = dmatrix(f, data=data, NA_action=Ignore_NA())
             cols = data.design_info.column_names
             data = pd.DataFrame(data, columns=cols)
 
@@ -690,3 +664,4 @@ class Term(object):
             self.levels = list(range(data.shape[1]))
 
         self.data = data
+        
