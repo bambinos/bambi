@@ -308,7 +308,7 @@ class Model(object):
                 event = re.match(r'^((\S+)\[(\S+)\])\s*~(.*)$', fixed)
                 if event is not None:
                     fixed = '{}~{}'.format(event.group(2),event.group(4))
-                y, X = dmatrices(fixed, data=data)
+                y, X = dmatrices(fixed, data=data, NA_action=Ignore_NA())
                 y_label = y.design_info.term_names[0]
                 if event is not None:
                     # pass in new Y data that has 1 if y=event and 0 otherwise
@@ -320,7 +320,7 @@ class Model(object):
                     # use Y as-is
                     self.add_y(y_label, family=family, link=link)
             else:
-                X = dmatrix(fixed, data=data)
+                X = dmatrix(fixed, data=data, NA_action=Ignore_NA())
 
             # Loop over predictor terms
             for _name, _slice in X.design_info.term_name_slices.items():
@@ -498,7 +498,7 @@ class Model(object):
             id_var = pd.get_dummies(data[over], drop_first=False)
             data = {over: id_var.values, variable: X.values}
             f = '0 + %s:%s' % (over, variable)
-            data = dmatrix(f, data=data)
+            data = dmatrix(f, data=data, NA_action=Ignore_NA())
             cols = data.design_info.column_names
             data = pd.DataFrame(data, columns=cols)
 
@@ -657,3 +657,34 @@ class Term(object):
             self.levels = list(range(data.shape[1]))
 
         self.data = data
+
+class Ignore_NA(object):
+    """
+    Custom patsy.missing.NAAction class to force Patsy to ignore missing values.
+    See Patsy code/API for NAAction documentation.
+    """
+    def __init__(self, on_NA="ignore", NA_types=["None", "NaN"]):
+        self.on_NA = on_NA
+        if isinstance(NA_types, str):
+            raise ValueError("NA_types should be a list of strings")
+        self.NA_types = tuple(NA_types)
+
+    def is_categorical_NA(self, obj):
+        if "NaN" in self.NA_types and safe_scalar_isnan(obj):
+            return True
+        if "None" in self.NA_types and obj is None:
+            return True
+        return False
+
+    def is_numerical_NA(self, arr):
+        mask = np.zeros(arr.shape, dtype=bool)
+        if "NaN" in self.NA_types:
+            mask |= np.isnan(arr)
+        if mask.ndim > 1:
+            mask = np.any(mask, axis=1)
+        return mask
+
+    def handle_NA(self, values, is_NAs, origins):
+        return values
+
+
