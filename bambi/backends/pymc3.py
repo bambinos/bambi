@@ -1,8 +1,8 @@
-from abc import ABCMeta, abstractmethod
+from .base import BackEnd
 from bambi.external.six import string_types
 import numpy as np
 import warnings
-from bambi.results import PyMC3Results, PyMC3ADVIResults
+from bambi.results import MCMCResults, PyMC3ADVIResults
 from bambi.priors import Prior
 import theano
 try:
@@ -10,22 +10,6 @@ try:
 except:
     warnings.warn("PyMC3 could not be imported. You will not be able to use "
                   "PyMC3 as the back-end for your models.")
-
-
-class BackEnd(object):
-
-    '''
-    Base class for BackEnd hierarchy.
-    '''
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def build(self):
-        pass
-
-    @abstractmethod
-    def run(self):
-        pass
 
 
 class PyMC3BackEnd(BackEnd):
@@ -151,7 +135,7 @@ class PyMC3BackEnd(BackEnd):
                     start = pm.find_MAP()
                 self.trace = pm.sample(samples, start=start, init=init,
                                        n_init=n_init, **kwargs)
-            return PyMC3Results(self.spec, self.trace)
+            return MCMCResults(self.spec, self.trace)
 
         elif method == 'advi':
             with self.model:

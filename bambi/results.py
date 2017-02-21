@@ -34,8 +34,7 @@ class ModelResults(object):
         pass
 
 
-class PyMC3Results(ModelResults):
-
+class MCMCResults(ModelResults):
     '''
     Holds PyMC3 sampler results and provides plotting and summarization tools.
     Args:
@@ -62,8 +61,7 @@ class PyMC3Results(ModelResults):
         self.untransformed_vars = [x for x in trace.varnames \
             if x in trans | untrans]
 
-        super(PyMC3Results, self).__init__(model)
-
+        super(MCMCResults, self).__init__(model)
 
     def _filter_names(self, names, exclude_ranefs=True, hide_transformed=True):
         names = self.untransformed_vars \
