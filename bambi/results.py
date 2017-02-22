@@ -40,26 +40,20 @@ class MCMCResults(ModelResults):
     Args:
         model (Model): a bambi Model instance specifying the model.
         trace (MultiTrace): a PyMC3 MultiTrace object returned by the sampler. 
+        transformed (list): Optional list of variable names to treat as
+            transformed--and hence, to exclude from the output by default.
     '''
 
-    def __init__(self, model, trace):
+    def __init__(self, model, trace, transformed_vars=None):
 
         self.trace = trace
         self.n_samples = len(trace)
 
-        # here we determine which variables have been internally transformed 
-        # (e.g., sd_log). transformed vars are actually 'untransformed' from 
-        # the PyMC3 model's perspective, and it's the backtransformed (e.g., sd)
-        # variable that is 'transformed'. So the logic of this is to find and
-        # remove 'untranformed' variables that have a 'transformed' counterpart,
-        # in that 'untransformed' varname is the 'transfornmed' varname plus
-        # some suffix (such as '_log' or '_interval')
-        rvs = model.backend.model.unobserved_RVs
-        trans = set(var.name for var in rvs if isinstance(var, TransformedRV))
-        untrans = set(var.name for var in rvs) - trans
-        untrans = set(x for x in untrans if not any([t in x for t in trans]))
-        self.untransformed_vars = [x for x in trace.varnames \
-            if x in trans | untrans]
+        if transformed_vars is not None:
+            utv = list(set(trace.varnames) - set(transformed_vars))
+        else:
+            utv = trace.varnames
+        self.untransformed_vars = utv
 
         super(MCMCResults, self).__init__(model)
 

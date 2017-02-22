@@ -67,9 +67,13 @@ class Model(object):
                           "rename your columns to avoid square brackets.")
         self.reset()
 
-        if backend.lower() == 'pymc3':
+        backend = backend.lower()
+        if backend == 'pymc3':
             from bambi.backends import PyMC3BackEnd
             self.backend = PyMC3BackEnd()
+        elif backend == 'stan':
+            from bambi.backends import StanBackEnd
+            self.backend = StanBackEnd()
         else:
             raise ValueError(
                 "At the moment, only the PyMC3 backend is supported.")
