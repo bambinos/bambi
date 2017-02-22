@@ -6,7 +6,7 @@ from bambi.priors import Prior
 import theano
 try:
     import pymc3 as pm
-    pymc3.model import FreeRV
+    from pymc3.model import FreeRV
 except:
     pm = None
 
@@ -128,6 +128,21 @@ class PyMC3BackEnd(BackEnd):
             kwargs (dict): Optional keyword arguments passed onto the sampler.
         Returns: A PyMC3ModelResults instance.
         '''
+
+        # here we determine which variables have been internally transformed
+        # (e.g., sd_log). transformed vars are actually 'untransformed' from
+        # the PyMC3 model's perspective, and it's the backtransformed (e.g.,
+        # sd) variable that is 'transformed'. So the logic of this is to find
+        # and remove 'untransformed' variables that have a 'transformed'
+        # counterpart, in that 'untransformed' varname is the 'transformed'
+        # varname plus some suffix (such as '_log' or '_interval')
+        rvs = model.backend.model.unobserved_RVs
+        trans = set(var.name for var in rvs if isinstance(var, TransformedRV))
+        untrans = set(var.name for var in rvs) - trans
+        untrans = set(x for x in untrans if not any([t in x for t in trans]))
+        transformed_vars = [x for x in trace.varnames \
+                            if x not in (trans | untrans)]
+
         if method == 'mcmc':
             samples = kwargs.pop('samples', 1000)
             with self.model:
@@ -135,7 +150,8 @@ class PyMC3BackEnd(BackEnd):
                     start = pm.find_MAP()
                 self.trace = pm.sample(samples, start=start, init=init,
                                        n_init=n_init, **kwargs)
-            return MCMCResults(self.spec, self.trace)
+            return MCMCResults(self.spec, self.trace,
+                               transformed_vars=transformed_vars)
 
         elif method == 'advi':
             with self.model:
