@@ -1,14 +1,12 @@
 from .base import BackEnd
 from bambi.external.six import string_types
 import numpy as np
-import pandas as pd
 from bambi.results import MCMCResults, PyMC3ADVIResults
 from bambi.priors import Prior
-import matplotlib.pyplot as plt
 import theano
 try:
     import pymc3 as pm
-    from pymc3.model import FreeRV, TransformedRV
+    from pymc3.model import TransformedRV
 except:
     pm = None
 
@@ -160,50 +158,3 @@ class PyMC3BackEnd(BackEnd):
                 self.advi_params = pm.variational.advi(start, **kwargs)
             return PyMC3ADVIResults(self.spec, self.advi_params,
                                     transformed_vars=self._get_transformed_vars())
-
-    def plot_priors(self, model):
-        # Currently this only supports plotting priors for fixed effects
-        if not model.built:
-            raise ValueError("Cannot plot priors until model is built!")
-
-        with pm.Model():
-            # get priors for fixed fx, separately for each level of each predictor
-            dists = []
-            for t in model.fixed_terms.values():
-                for i,l in enumerate(t.levels):
-                    params = {k: v[i % len(v)] \
-                        if isinstance(v, np.ndarray) else v
-                        for k,v in t.prior.args.items()}
-                    dists += [getattr(pm, t.prior.name)(l, **params)]
-
-            # get priors for random effect SDs
-            for t in model.random_terms.values():
-                prior = t.prior.args['sd'].name
-                params = t.prior.args['sd'].args
-                dists += [getattr(pm, prior)(t.name+'_sd', **params)]
-
-            # add priors on Y params if applicable
-            y_prior = [(k,v) for k,v in model.y.prior.args.items()
-                if isinstance(v, Prior)]
-            if len(y_prior):
-                for p in y_prior:
-                    dists += [getattr(pm, p[1].name)('_'.join([model.y.name,
-                        p[0]]), **p[1].args)]
-
-            # make the plot!
-            p = float(len(dists))
-            fig, axes = plt.subplots(int(np.ceil(p/2)), 2,
-                figsize=(12,np.ceil(p/2)*2))
-            # in case there is only 1 row
-            if int(np.ceil(p/2))<2: axes = axes[None,:]
-            for i,d in enumerate(dists):
-                dist = d.distribution if isinstance(d, FreeRV) else d
-                samp = pd.Series(dist.random(size=1000).flatten())
-                samp.plot(kind='hist', ax=axes[divmod(i,2)[0], divmod(i,2)[1]],
-                    normed=True)
-                samp.plot(kind='kde', ax=axes[divmod(i,2)[0], divmod(i,2)[1]],
-                    color='b')
-                axes[divmod(i,2)[0], divmod(i,2)[1]].set_title(d.name)
-            fig.tight_layout()
-
-        return axes

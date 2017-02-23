@@ -204,7 +204,3 @@ class StanBackEnd(BackEnd):
 
         self.trace = pm.backends.base.MultiTrace(straces)
         return MCMCResults(self.spec, self.trace, self._suppress_vars)
-
-    def plot_priors(self, model):
-        raise ValueError("Prior plotting has not been implemented yet for "
-                         "the Stan back-end; sorry!")
