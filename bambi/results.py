@@ -1,10 +1,12 @@
 import pandas as pd
 import numpy as np
-import pymc3 as pm
-from pymc3.model import TransformedRV
-import pymc3.diagnostics as pmd
 from abc import abstractmethod, ABCMeta
 import re, warnings
+import pymc3 as pm
+from pymc3 import diagnostics as pmd
+
+
+__all__ = ['MCMCResults', 'PyMC3ADVIResults']
 
 
 class ModelResults(object):

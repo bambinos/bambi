@@ -1,11 +1,11 @@
 import pytest
-from bambi.models import Term, Model
-from bambi.priors import Prior
 from os.path import dirname, join
 import pandas as pd
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
+from bambi.models import Term, Model
+from bambi.priors import Prior
 
 
 @pytest.fixture(scope="module")
