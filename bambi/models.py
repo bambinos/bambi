@@ -1,15 +1,15 @@
 import pandas as pd
 import numpy as np
-from bambi.external.six import string_types
-from bambi.external.patsy import Ignore_NA
 from collections import OrderedDict, defaultdict
-from bambi.utils import listify
 from patsy import dmatrices, dmatrix
 import re, warnings
-from bambi.priors import PriorFactory, PriorScaler, Prior
 from copy import deepcopy
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
+from bambi.external.six import string_types
+from bambi.external.patsy import Ignore_NA
+from bambi.priors import PriorFactory, PriorScaler, Prior
+from bambi.utils import listify
 import pymc3 as pm
 
 
@@ -69,6 +69,7 @@ class Model(object):
         self.reset()
 
         backend = backend.lower()
+
         if backend == 'pymc3':
             from bambi.backends import PyMC3BackEnd
             self.backend = PyMC3BackEnd()
@@ -77,7 +78,7 @@ class Model(object):
             self.backend = StanBackEnd()
         else:
             raise ValueError(
-                "At the moment, only the PyMC3 backend is supported.")
+                "At the moment, only the PyMC3 and Stan backends are supported.")
 
         if intercept:
             self.add_intercept()

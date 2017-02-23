@@ -3,11 +3,11 @@ import pandas as pd
 from scipy.special import hyp2f1
 from pandas import Series
 from os.path import dirname, join
-from bambi.external.six import string_types
 from copy import deepcopy
 import json
 import re
 import statsmodels.api as sm
+from bambi.external.six import string_types
 
 
 class Family(object):
