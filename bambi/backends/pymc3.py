@@ -1,6 +1,7 @@
 from .base import BackEnd
 from bambi.external.six import string_types
 import numpy as np
+import pandas as pd
 from bambi.results import MCMCResults, PyMC3ADVIResults
 from bambi.priors import Prior
 import matplotlib.pyplot as plt
