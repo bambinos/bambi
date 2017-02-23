@@ -3,10 +3,11 @@ from bambi.external.six import string_types
 import numpy as np
 from bambi.results import MCMCResults, PyMC3ADVIResults
 from bambi.priors import Prior
+import matplotlib.pyplot as plt
 import theano
 try:
     import pymc3 as pm
-    from pymc3.model import FreeRV
+    from pymc3.model import FreeRV, TransformedRV
 except:
     pm = None
 
@@ -106,6 +107,20 @@ class PyMC3BackEnd(BackEnd):
 
             self.spec = spec
 
+    def _get_transformed_vars(self):
+        # here we determine which variables have been internally transformed
+        # (e.g., sd_log). transformed vars are actually 'untransformed' from
+        # the PyMC3 model's perspective, and it's the backtransformed (e.g.,
+        # sd) variable that is 'transformed'. So the logic of this is to find
+        # and remove 'untransformed' variables that have a 'transformed'
+        # counterpart, in that 'untransformed' varname is the 'transformed'
+        # varname plus some suffix (such as '_log' or '_interval')
+        rvs = self.model.unobserved_RVs
+        trans = set(var.name for var in rvs if isinstance(var, TransformedRV))
+        untrans = set(var.name for var in rvs) - trans
+        untrans = set(x for x in untrans if not any([t in x for t in trans]))
+        return [x for x in self.trace.varnames if x not in (trans | untrans)]
+
     def run(self, start=None, method='mcmc', init=None, n_init=10000,
             find_map=False, **kwargs):
         '''
@@ -129,20 +144,6 @@ class PyMC3BackEnd(BackEnd):
         Returns: A PyMC3ModelResults instance.
         '''
 
-        # here we determine which variables have been internally transformed
-        # (e.g., sd_log). transformed vars are actually 'untransformed' from
-        # the PyMC3 model's perspective, and it's the backtransformed (e.g.,
-        # sd) variable that is 'transformed'. So the logic of this is to find
-        # and remove 'untransformed' variables that have a 'transformed'
-        # counterpart, in that 'untransformed' varname is the 'transformed'
-        # varname plus some suffix (such as '_log' or '_interval')
-        rvs = model.backend.model.unobserved_RVs
-        trans = set(var.name for var in rvs if isinstance(var, TransformedRV))
-        untrans = set(var.name for var in rvs) - trans
-        untrans = set(x for x in untrans if not any([t in x for t in trans]))
-        transformed_vars = [x for x in trace.varnames \
-                            if x not in (trans | untrans)]
-
         if method == 'mcmc':
             samples = kwargs.pop('samples', 1000)
             with self.model:
@@ -151,12 +152,13 @@ class PyMC3BackEnd(BackEnd):
                 self.trace = pm.sample(samples, start=start, init=init,
                                        n_init=n_init, **kwargs)
             return MCMCResults(self.spec, self.trace,
-                               transformed_vars=transformed_vars)
+                               transformed_vars=self._get_transformed_vars())
 
         elif method == 'advi':
             with self.model:
                 self.advi_params = pm.variational.advi(start, **kwargs)
-            return PyMC3ADVIResults(self.spec, self.advi_params)
+            return PyMC3ADVIResults(self.spec, self.advi_params,
+                                    transformed_vars=self._get_transformed_vars())
 
     def plot_priors(self, model):
         # Currently this only supports plotting priors for fixed effects
