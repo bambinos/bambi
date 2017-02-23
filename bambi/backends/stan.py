@@ -16,8 +16,12 @@ class StanBackEnd(BackEnd):
     '''
 
     dists = {
-        'Normal': ('normal', ['mu', 'sd']),
-        'Cauchy': ('cauchy', ['alpha', 'beta'])
+        'Normal': {'name': 'normal', 'args': ['#mu', '#sd']},
+        'Cauchy': {'name': 'cauchy', 'args': ['#alpha', '#beta']},
+        'HalfNormal': {'name': 'normal', 'args': ['0', '#sd'],
+                       'bounds':'<lower=0>'},
+        'HalfCauchy': {'name': 'cauchy', 'args': ['0', '#beta'],
+                       'bounds': '<lower=0>'}
     }
 
     def __init__(self):
@@ -39,34 +43,6 @@ class StanBackEnd(BackEnd):
         self.mu = []
         self._suppress_vars = []  # variables to suppress in output
 
-    # def _build_dist(self, label, dist, **kwargs):
-    #     ''' Build and return a Stan Distribution. '''
-    #     if dist not in self.dists:
-    #         raise ValueError("There is no distribution named '%s' in Stan."
-    #                          % dist)
-
-    #     def _expand_args(k, v, label):
-    #         if isinstance(v, Prior):
-    #             label = '%s_%s' % (label, k)
-    #             return self._build_dist(label, v.name, **v.args)
-    #         return v
-
-    #     kwargs = {k: _expand_args(k, v, label) for (k, v) in kwargs.items()}
-    #     return dist(label, **kwargs)
-
-    def _map_dist(self, dist, **kwargs):
-        if dist not in self.dists:
-            raise ValueError("There is no distribution named '%s' in Stan."
-                             % dist)
-        dist_name, dist_params = self.dists[dist]
-        missing = set(dist_params) - set(list(kwargs.keys()))
-        if missing:
-            raise ValueError("The following mandatory parameters of the %s "
-                             "distribution are missing: %s." % (dist, missing))
-        dp = [kwargs[p] for p in dist_params]
-        dp = [float(p[0]) if hasattr(p, 'shape') else p for p in dp]
-        return '%s(%s);' % (dist_name, ', '.join([str(p) for p in dp]))
-
     def build(self, spec, reset=True):
         '''
         Compile the Stan model from an abstract model specification.
@@ -81,6 +57,70 @@ class StanBackEnd(BackEnd):
 
         n_cases = len(spec.y.data)
 
+        def _map_dist(dist, **kwargs):
+            ''' Maps PyMC3 distribution names and attrs in the Prior object
+            to the corresponding Stan names and argument order. '''
+            if dist not in self.dists:
+                raise ValueError("There is no distribution named '%s' "
+                                 "in Stan." % dist)
+
+            stan_dist = self.dists[dist]
+            dist_name = stan_dist['name']
+            dist_args = stan_dist['args']
+            dist_bounds = stan_dist.get('bounds', '')
+
+            lookup_args = [a[1:] for a in dist_args if a.startswith('#')]
+            missing = set(lookup_args) - set(list(kwargs.keys()))
+            if missing:
+                raise ValueError("The following mandatory parameters of "
+                                 "the %s distribution are missing: %s." 
+                                 % (dist, missing))
+
+            # Named arguments to take from the Prior object are denoted with
+            # a '#'; otherwise we take the value in the self.dists dict as-is.
+            dp = [kwargs[p[1:]] if p.startswith('#') else p for p in dist_args]
+
+            # Sometimes we get numpy arrays at this stage, so convert to float
+            dp = [float(p[0]) if isinstance(p, np.ndarray) else p for p in dp]
+
+            dist_term = '%s(%s);' % (dist_name, ', '.join([str(p) for p in dp]))
+
+            return dist_term, dist_bounds
+
+        def _add_data(name, data):
+            ''' Add all model components that directly touch or relate to data.
+            '''
+            if n_cols == 1:
+                stan_data = 'vector[%d]' % (n_cases)
+            else:
+                stan_data = 'matrix[%d, %d]' % (n_cases, n_cols)
+            self.data.append('%s %s_data;' % (stan_data, name))
+            self.X[name + '_data'] = data.squeeze().astype(float)
+            self.mu.append('%s_data * %s' % (name, name))
+
+        def _add_parameters(name, dist_name, n_cols, **dist_args):
+            ''' Add all model components related to latent parameters. We
+            handle these separately from the data components, as the parameters
+            can have nested specifications (in the case of random effects). '''
+
+            def _expand_args(k, v, name):
+                if isinstance(v, Prior):
+                    name = '%s_%s' % (name, k)
+                    return _add_parameters(name, v.name, 1, **v.args)
+                return v
+
+            kwargs = {k: _expand_args(k, v, name) for (k, v) in dist_args.items()}
+            _dist, _bounds = _map_dist(dist_name, **kwargs)
+
+            if n_cols == 1:
+                stan_par = 'real'
+            else:
+                stan_par = 'vector[%d]' % n_cols
+
+            self.parameters.append('%s%s %s;' % (stan_par, _bounds, name))
+            self.model.append('%s ~ %s;' % (name, _dist))
+            return name
+
         for t in spec.terms.values():
 
             data = t.data
@@ -90,34 +130,20 @@ class StanBackEnd(BackEnd):
 
             # Effects with hyperpriors (i.e., random effects)
             if isinstance(data, dict):
-                pass
-                # for level, level_data in data.items():
-                #     n_cols = level_data.shape[1]
-                #     mu_label = 'u_%s_%s' % (label, level)
-                #     u = self._build_dist(mu_label, dist_name,
-                #                          shape=n_cols, **dist_args)
-                #     self.mu += pm.math.dot(level_data, u)[:, None]
+                for level, level_data in data.items():
+                    n_cols = level_data.shape[1]
+                    name = 'u_%s_%s' % (label, level)
+                    _add_data(name, level_data)
+                    _add_parameters(name, dist_name, n_cols, **dist_args)
+
             else:
                 prefix = 'u_' if t.random else 'b_'
                 n_cols = data.shape[1]
                 name = prefix + label
 
-                if n_cols == 1:
-                    stan_par = 'real'
-                    stan_data = 'vector[%d]' % (n_cases)
-                else:
-                    stan_par = 'vector[%d]' % n_cols
-                    stan_data = 'matrix[%d, %d]' % (n_cases, n_cols)
-
                 # Add to Stan model
-                self.data.append('%s %s_data;' % (stan_data, name))
-                self.parameters.append('%s %s;' % (stan_par, name))
-                _dist = self._map_dist(dist_name, **dist_args)
-                self.model.append('%s ~ %s;' % (name, _dist))
-                self.mu.append('%s_data * %s' % (name, name))
-
-                # Add to PyStan input data
-                self.X[name + '_data'] = data.squeeze()
+                _add_data(name, data)
+                _add_parameters(name, dist_name, n_cols, **dist_args)
 
         # yhat
         yhat = 'yhat = ' + ' + '.join(self.mu) + ';'
@@ -179,6 +205,6 @@ class StanBackEnd(BackEnd):
         self.trace = pm.backends.base.MultiTrace(straces)
         return MCMCResults(self.spec, self.trace, self._suppress_vars)
 
-    def plot_priors(self):
+    def plot_priors(self, model):
         raise ValueError("Prior plotting has not been implemented yet for "
                          "the Stan back-end; sorry!")
