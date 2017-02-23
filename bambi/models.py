@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from bambi.external.six import string_types
 from bambi.external.patsy import Ignore_NA
 from collections import OrderedDict, defaultdict
