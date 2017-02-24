@@ -361,6 +361,7 @@ class StanBackEnd(BackEnd):
         for i in range(n_chains):
             _strace = pm.backends.NDArray(model=dummy)
             _strace.setup(n_samples, i)
+            _strace.draw_idx = _strace.draws
             _strace.varnames = varnames
             for k, par in result.items():
                 start = i * n_samples
