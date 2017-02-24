@@ -257,7 +257,7 @@ class MCMCResults(ModelResults):
             names = self._filter_names(names, exclude_ranefs, hide_transformed)
 
         # helper function to label the trace DataFrame columns appropriately
-        def get_cols(var):
+        def _get_cols(var):
             # handle terms with a single level
             if len(self.trace[var].shape)==1 or self.trace[var].shape[1]==1:
                 return [var]
@@ -272,8 +272,13 @@ class MCMCResults(ModelResults):
                             for x in self.model.terms[var[2:]].levels]
 
         # construct the trace DataFrame
-        trace_df = pd.concat([pd.DataFrame(self.trace[burn_in:][x],
-                                           columns=get_cols(x))
+        def _slice_helper(trace):
+            sliced = trace[burn_in:]
+            sliced.varnames = trace.varnames
+            return sliced
+        trace_df = pm.backends.base.MultiTrace([_slice_helper(trace) \
+            for trace in self.trace._straces.values()])
+        trace_df = pd.concat([pd.DataFrame(trace_df[x], columns=_get_cols(x))
                               for x in names], axis=1)
 
         return trace_df
