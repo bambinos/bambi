@@ -329,13 +329,13 @@ def test_cell_means_with_random_intercepts(crossed_data):
     test_set = fitted.summary(hide_transformed=False).index
     test_set = set([re.sub(r'_$', r'', x) for x in test_set])
     assert test_set == full.difference(
-        set(['subj[{}]'.format(i) for i in range(10)]))
+        set(['1|subj[{}]'.format(i) for i in range(10)]))
 
     # test get_trace
     test_set = fitted.get_trace().columns
     test_set = set([re.sub(r'_$', r'', x) for x in test_set])
     assert test_set == full.difference(set(['Y_sd_interval', 'u_subj_sd_log'])) \
-        .difference(set(['subj[{}]'.format(i) for i in range(10)]))
+        .difference(set(['1|subj[{}]'.format(i) for i in range(10)]))
 
     # test plots
     fitted.plot(kind='priors')
