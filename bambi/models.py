@@ -508,7 +508,6 @@ class Model(object):
             data = dmatrix(f, data=data, NA_action=Ignore_NA())
             cols = data.design_info.column_names
             data = pd.DataFrame(data, columns=cols)
-            # data = pd.DataFrame(data, columns=[c.split(':')[0] for c in cols])
 
             # For categorical effects, one variance term per predictor level
             if categorical:
@@ -521,7 +520,7 @@ class Model(object):
                         c.split(':')[0] for c in level_data.columns]
                     level_data = level_data.loc[
                         :, (level_data != 0).any(axis=0)]
-                    split_data[g] = level_data#.values
+                    split_data[g] = level_data
                 data = split_data
             else:
                 data.columns = [c.split(':')[0] for c in cols]
@@ -532,7 +531,7 @@ class Model(object):
             label = variable
             if over is not None:
                 label += '|%s' % over
-        
+
         term = Term(name=label, data=data, categorical=categorical,
                     random=random, prior=prior)
         self.terms[term.name] = term
@@ -660,11 +659,11 @@ class Term(object):
         if isinstance(data, pd.DataFrame):
             self.levels = list(data.columns)
             data = data.values
+        # Random effects pass through here
         elif isinstance(data, dict):
             self.levels = list(data[list(data.keys())[0]].columns)
             for k, v in data.items():
                 data[k] = v.values
-            # pass   # Random effects pass through here
         else:
             data = np.atleast_2d(data)
             self.levels = list(range(data.shape[1]))
