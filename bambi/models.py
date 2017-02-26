@@ -512,7 +512,7 @@ class Model(object):
             # For categorical effects, one variance term per predictor level
             if categorical:
                 split_data = {}
-                groups = list(set([re.sub(r'^.*?\:', '', c) for c in cols]))
+                groups = list(set([c.split(':')[1] for c in cols]))
                 for g in groups:
                     patt = re.escape(r':%s' % g) + '$'
                     level_data = data.filter(regex=patt)
@@ -520,8 +520,10 @@ class Model(object):
                         c.split(':')[0] for c in level_data.columns]
                     level_data = level_data.loc[
                         :, (level_data != 0).any(axis=0)]
-                    split_data[g] = level_data.values
+                    split_data[g] = level_data
                 data = split_data
+            else:
+                data.columns = [c.split(':')[0] for c in cols]
         else:
             data = X
 
@@ -657,8 +659,11 @@ class Term(object):
         if isinstance(data, pd.DataFrame):
             self.levels = list(data.columns)
             data = data.values
+        # Random effects pass through here
         elif isinstance(data, dict):
-            pass   # Random effects pass through here
+            self.levels = list(data[list(data.keys())[0]].columns)
+            for k, v in data.items():
+                data[k] = v.values
         else:
             data = np.atleast_2d(data)
             self.levels = list(range(data.shape[1]))
