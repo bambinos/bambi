@@ -68,11 +68,45 @@ class PyMC3Results(ModelResults):
     def _filter_names(self, names, exclude_ranefs=True, hide_transformed=True):
         names = self.untransformed_vars \
             if hide_transformed else self.trace.varnames
+        def _format(name):
+            regex = re.match(r'^u_([^\|]+)\|([^_\1]+)_\1', name)
+            return name if regex is None else 'u_{}|{}'.format(
+                regex.group(1), regex.group(2))
         if exclude_ranefs:
             names = [x for x in names
-                if x[2:] not in list(self.model.random_terms.keys())]
+                if _format(x)[2:] not in list(self.model.random_terms.keys())]
         return names
 
+    def _prettify_name(self, old_name):
+        # re1 chops 'u_subj__7' into 3 groups: {1:'u_', 2:'subj', 3:'7'}
+        re1 = re.match(r'^([bu]_)?(.+[^__\d+]+)(__\d+)?$', old_name)
+        # params like the residual SD will have no matches, so just return
+        if re1 is None:
+            return old_name
+        else:
+            # handle random slopes first because their format is weird.
+            # re2 chops 'x|subj_x[a]' into {1:'x', 2:'subj', 3:'x[a]'}
+            re2 = re.match(r'^([^\|]+)\|([^_\1]+)(_\1\[.+\])?$', re1.group(2))
+            if re2 is not None:
+                term = self.model.terms['{}|{}'.format(
+                    re2.group(1), re2.group(2))]
+                # random slopes of factors
+                if re2.group(3) is not None:
+                    return '{}|{}'.format(
+                        re2.group(3)[1:], term.levels[int(re1.group(3)[2:])])
+                # random slopes of continuous predictors
+                else:
+                    return '{}|{}'.format(
+                        re2.group(1), term.levels[int(re1.group(3)[2:])])
+            # handle SD terms by just chopping off the 'u_'
+            if re1.group(3) is None: return re1.group(2)
+            # handle fixed effects and random intercepts
+            term = self.model.terms[re1.group(2)]
+            if re1.group(1)=='b_':
+                return term.levels[int(re1.group(3)[2:])]
+            if re1.group(1)=='u_':
+                return '1|{}[{}]'.format(
+                    re1.group(2), term.levels[int(re1.group(3)[2:])])
 
     def plot(self, burn_in=0, names=None, annotate=True, exclude_ranefs=False, 
         hide_transformed=True, kind='trace', **kwargs):
@@ -183,11 +217,7 @@ class PyMC3Results(ModelResults):
 
         # get the basic DataFrame
         df = pm.df_summary(self.trace[burn_in:], varnames=names, **kwargs)
-        old_index = df.index
-
-        # find parameters with a '__\d' suffix
-        matches = [re.match('^(.*)(?:__)(\d+)?$', x) for x in df.index]
-        wo_suffix = [x.group(1) if x is not None else x for x in matches]
+        df.set_index([[self._prettify_name(x) for x in df.index]], inplace=True)
 
         # append diagnostic info if there are multiple chains.
         if self.trace.nchains > 1:
@@ -199,18 +229,21 @@ class PyMC3Results(ModelResults):
             for diag_fn,diag_name in zip([pmd.effective_n, pmd.gelman_rubin],
                                          ['effective_n',   'gelman_rubin']):
                 # compute the diagnostic statistic
-                stat = pd.DataFrame(diag_fn(diag_trace)).T
-                stat.columns = [diag_name]
+                stat = diag_fn(diag_trace)
                 # rename stat indices to match df indices
-                new_index = [wo_suffix.index(x) if x in wo_suffix else None \
-                    for x in stat.index]
-                new_index = [matches[i].group(0) if i is not None else x \
-                    for i,x in zip(new_index, stat.index)]
-                stat.set_index([new_index], inplace=True)
+                for k, v in list(stat.items()):
+                    stat.pop(k)
+                    # handle categorical predictors w/ >3 levels
+                    if isinstance(v, np.ndarray) and len(v) > 1:
+                        for i,x in enumerate(v):
+                            ugly_name = '{}__{}'.format(k, i)
+                            stat[self._prettify_name(ugly_name)] = x
+                    # handle all other variables
+                    else:
+                        stat[self._prettify_name(k)] = v
                 # append to df
+                stat = pd.DataFrame(stat, index=[diag_name]).T
                 df = df.merge(stat, left_index=True, right_index=True)
-            # put df back in its original order
-            df = df.reindex(old_index)
         else:
             warnings.warn('Multiple MCMC chains (i.e., njobs > 1) are required'
                           ' in order to compute convergence diagnostics.')
@@ -218,20 +251,6 @@ class PyMC3Results(ModelResults):
         # drop the mc_error column if requested
         if not mc_error:
             df = df.drop('mc_error', axis=1)
-
-        # replace the '__\d' suffixes with informative factor level names
-        def replace_with_name(match):
-            term = self.model.terms[match.group(1)[2:]]
-            # handle fixed effects
-            if term in self.model.fixed_terms.values():
-                return term.levels[int(match.group(2))]
-            # handle random effects
-            else:
-                return '{}[{}]'.format(term.name,
-                    term.levels[int(match.group(2))])
-        new = [replace_with_name(x) if x is not None else df.index[i]
-            for i,x in enumerate(matches)]
-        df.set_index([new], inplace=True)
 
         # For binomial models with n_trials = 1 (most common use case),
         # tell user which event is being modeled
@@ -266,7 +285,7 @@ class PyMC3Results(ModelResults):
         def get_cols(var):
             # handle terms with a single level
             if len(self.trace[var].shape)==1 or self.trace[var].shape[1]==1:
-                return [var]
+                return [self._prettify_name(var)]
             else:
                 # handle fixed terms with multiple levels
                 # (slice off the 'b_' or 'u_')
