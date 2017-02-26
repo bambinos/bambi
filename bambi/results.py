@@ -68,6 +68,7 @@ class PyMC3Results(ModelResults):
     def _filter_names(self, names, exclude_ranefs=True, hide_transformed=True):
         names = self.untransformed_vars \
             if hide_transformed else self.trace.varnames
+        # helper function to put parameter names in same format as random_terms
         def _format(name):
             regex = re.match(r'^u_([^\|]+)\|([^_\1]+)_\1', name)
             return name if regex is None else 'u_{}|{}'.format(
