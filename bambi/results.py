@@ -304,7 +304,6 @@ class MCMCResults(ModelResults):
         trace_df = pm.backends.base.MultiTrace([_slice_helper(trace) \
             for trace in self.trace._straces.values()])
         trace_df = pd.concat([pd.DataFrame(trace_df[x], columns=_get_cols(x))
-                                           columns=get_cols(x))
                               for x in names], axis=1)
 
         return trace_df
