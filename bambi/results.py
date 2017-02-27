@@ -64,44 +64,49 @@ class MCMCResults(ModelResults):
             if hide_transformed else self.trace.varnames
         # helper function to put parameter names in same format as random_terms
         def _format(name):
-            regex = re.match(r'^u_([^\|]+)\|([^_\1]+)_\1', name)
-            return name if regex is None else 'u_{}|{}'.format(
-                regex.group(1), regex.group(2))
+            regex = re.match(r'^u_([^\|]+)\|([^_\1]+)_\1(.*_sd$)?', name)
+            return name if regex is None or regex.group(3) is not None \
+                else 'u_{}|{}'.format(regex.group(1), regex.group(2))
         if exclude_ranefs:
             names = [x for x in names
                 if _format(x)[2:] not in list(self.model.random_terms.keys())]
         return names
 
     def _prettify_name(self, old_name):
-        # re1 chops 'u_subj__7' into 3 groups: {1:'u_', 2:'subj', 3:'7'}
-        re1 = re.match(r'^([bu]_)?(.+[^__\d+]+)(__\d+)?$', old_name)
+        # re1 chops 'u_subj__7' into {1:'u_', 2:'subj', 3:'7'}
+        re1 = re.match(r'^([bu]_)(.+[^__\d+]+)(__\d+)?$', old_name)
         # params like the residual SD will have no matches, so just return
         if re1 is None:
             return old_name
-        else:
-            # handle random slopes first because their format is weird.
-            # re2 chops 'x|subj_x[a]' into {1:'x', 2:'subj', 3:'x[a]'}
-            re2 = re.match(r'^([^\|]+)\|([^_\1]+)(_\1\[.+\])?$', re1.group(2))
-            if re2 is not None:
-                term = self.model.terms['{}|{}'.format(
-                    re2.group(1), re2.group(2))]
-                # random slopes of factors
-                if re2.group(3) is not None:
-                    return '{}|{}'.format(
-                        re2.group(3)[1:], term.levels[int(re1.group(3)[2:])])
-                # random slopes of continuous predictors
-                else:
-                    return '{}|{}'.format(
-                        re2.group(1), term.levels[int(re1.group(3)[2:])])
-            # handle SD terms by just chopping off the 'u_'
-            if re1.group(3) is None: return re1.group(2)
-            # handle fixed effects and random intercepts
-            term = self.model.terms[re1.group(2)]
-            if re1.group(1)=='b_':
-                return term.levels[int(re1.group(3)[2:])]
-            if re1.group(1)=='u_':
-                return '1|{}[{}]'.format(
-                    re1.group(2), term.levels[int(re1.group(3)[2:])])
+        # handle random slopes first because their format is weird.
+        # re2 chops 'x|subj_x[a]' into {1:'x', 2:'subj', 3:'x', 4:'[a]'}
+        re2 = re.match(r'^([^\|]+)\|([^_\1]+)(_\1)?(\[.+\])?$', re1.group(2))
+        if re2 is not None:
+            term = self.model.terms['{}|{}'.format(re2.group(1), re2.group(2))]
+            # random slopes of factors
+            if re2.group(4) is not None:
+                return '{}{}|{}'.format(re2.group(3)[1:],
+                    re2.group(4), term.levels[int(re1.group(3)[2:])])
+            # random slopes of continuous predictors
+            else:
+                return '{}|{}'.format(
+                    re2.group(1), term.levels[int(re1.group(3)[2:])])
+        # handle SD terms
+        # re3 chops 'u_x|subj_x[a]_sd' into {'x', '|subj', '_x', '[a]'}
+        re3 = re.match(r'^([^\|]+)(\|[^_\1]+)?(_\1)?(\[\d+\])?_sd$',
+            re1.group(2))
+        if re1.group(3) is None and re3 is not None:
+            if re3.group(2) is None: return '1|{}_sd'.format(re3.group(1))
+            if re3.group(4) is not None: return '{}{}{}_sd'.format(
+                re3.group(3)[1:], re3.group(4), re3.group(2))
+            return '{}{}_sd'.format(re3.group(1), re3.group(2))
+        # handle fixed effects and random intercepts
+        term = self.model.terms[re1.group(2)]
+        if re1.group(1)=='b_': return re1.group(2) if re1.group(3) is None \
+            else term.levels[int(re1.group(3)[2:])]
+        if re1.group(1)=='u_':
+            return '1|{}[{}]'.format(
+                re1.group(2), term.levels[int(re1.group(3)[2:])])
 
     def plot(self, burn_in=0, names=None, annotate=True, exclude_ranefs=False, 
         hide_transformed=True, kind='trace', **kwargs):
@@ -133,7 +138,7 @@ class MCMCResults(ModelResults):
 
         # compute means for all variables and factors
         if annotate:
-            kwargs['lines'] = {param: self.trace[param][burn_in:].mean() \
+            kwargs['lines'] = {param: self.trace[param, burn_in:].mean() \
                 for param in names}
             # factors (fixed terms with shape > 1) must be handled separately
             factors = {}
@@ -144,7 +149,7 @@ class MCMCResults(ModelResults):
                     # add factor and its column means to dictionary of factors
                     factors.update({'b_'+fix.name:
                         {':'.join(re.findall('\[([^]]+)\]', x)):
-                         self.trace['b_'+fix.name][burn_in:].mean(0)[i]
+                         self.trace['b_'+fix.name, burn_in:].mean(0)[i]
                          for i,x in enumerate(fix.levels)}})
 
         # make the traceplot
@@ -238,7 +243,7 @@ class MCMCResults(ModelResults):
                         stat[self._prettify_name(k)] = v
                 # append to df
                 stat = pd.DataFrame(stat, index=[diag_name]).T
-                df = df.merge(stat, left_index=True, right_index=True)
+                df = df.merge(stat, how='left', left_index=True, right_index=True)
         else:
             warnings.warn('Multiple MCMC chains (i.e., njobs > 1) are required'
                           ' in order to compute convergence diagnostics.')
@@ -299,6 +304,7 @@ class MCMCResults(ModelResults):
         trace_df = pm.backends.base.MultiTrace([_slice_helper(trace) \
             for trace in self.trace._straces.values()])
         trace_df = pd.concat([pd.DataFrame(trace_df[x], columns=_get_cols(x))
+                                           columns=get_cols(x))
                               for x in names], axis=1)
 
         return trace_df
