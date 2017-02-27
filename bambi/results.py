@@ -139,7 +139,7 @@ class PyMC3Results(ModelResults):
 
         # compute means for all variables and factors
         if annotate:
-            kwargs['lines'] = {param: self.trace[param][burn_in:].mean() \
+            kwargs['lines'] = {param: self.trace[param, burn_in:].mean() \
                 for param in names}
             # factors (fixed terms with shape > 1) must be handled separately
             factors = {}
@@ -150,7 +150,7 @@ class PyMC3Results(ModelResults):
                     # add factor and its column means to dictionary of factors
                     factors.update({'b_'+fix.name:
                         {':'.join(re.findall('\[([^]]+)\]', x)):
-                         self.trace['b_'+fix.name][burn_in:].mean(0)[i]
+                         self.trace['b_'+fix.name, burn_in:].mean(0)[i]
                          for i,x in enumerate(fix.levels)}})
 
         # make the traceplot
@@ -298,7 +298,7 @@ class PyMC3Results(ModelResults):
                             for x in self.model.terms[var[2:]].levels]
 
         # construct the trace DataFrame
-        trace_df = pd.concat([pd.DataFrame(self.trace[burn_in:][x],
+        trace_df = pd.concat([pd.DataFrame(self.trace[x, burn_in:],
                                            columns=get_cols(x))
                               for x in names], axis=1)
 
