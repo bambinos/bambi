@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from scipy.special import hyp2f1
-from pandas import Series
 from os.path import dirname, join
 from copy import deepcopy
 import json
@@ -32,7 +31,7 @@ class Family(object):
             'gaussian': sm.families.Gaussian,
             'binomial': sm.families.Binomial,
             'poisson': sm.families.Poisson,
-            't': None # not implemented in statsmodels
+            't': None  # not implemented in statsmodels
         }
         self.smfamily = fams[name] if name in fams.keys() else None
 
@@ -187,18 +186,18 @@ class PriorScaler(object):
         self.stats = model.dm_statistics if hasattr(model, 'dm_statistics') \
             else None
         self.dm = pd.DataFrame({'{}[{}]'.format(t.name, lev): t.data[:, lev]
-                   for t in model.fixed_terms.values()
-                   for lev in range(len(t.levels))})
+                                for t in model.fixed_terms.values()
+                                for lev in range(len(t.levels))})
         self.priors = {}
         self.mle = sm.GLM(endog=self.model.y.data, exog=self.dm,
-            family=self.model.family.smfamily(),
-            missing='drop' if self.model.dropna else 'none').fit()
+                          family=self.model.family.smfamily(),
+                          missing='drop' if self.model.dropna else 'none').fit()
         self.taylor = taylor
-        with open(join(dirname(__file__),'config','derivs.txt'), 'r') as file:
+        with open(join(dirname(__file__), 'config', 'derivs.txt'), 'r') as file:
             self.deriv = [next(file).strip('\n') for x in range(taylor+1)]
 
     def _get_slope_stats(self, exog, predictor, sd_corr, full_mod=None,
-        points=4):
+                         points=4):
         # full_mod: statsmodels GLM to replace MLE model. For when 'predictor'
         #     is not in the fixed part of the model.
         # points: number of points to use for LL approximation
@@ -207,8 +206,8 @@ class PriorScaler(object):
             full_mod = self.mle
 
         # figure out which column of exog to drop for the null model
-        keeps = [i for i,x in enumerate(list(exog.columns))
-            if not np.array_equal(predictor, exog[x].values.flatten())]
+        keeps = [i for i, x in enumerate(list(exog.columns))
+                 if not np.array_equal(predictor, exog[x].values.flatten())]
         i = [x for x in range(exog.shape[1]) if x not in keeps][0]
 
         # get log-likelihood values from beta=0 to beta=MLE
@@ -217,7 +216,7 @@ class PriorScaler(object):
         # if there are multiple predictors, use statsmodels to optimize the LL
         if keeps:
             null = [sm.GLM(endog=self.model.y.data, exog=exog,
-                family=self.model.family.smfamily()).fit_constrained(
+                           family=self.model.family.smfamily()).fit_constrained(
                 str(exog.columns[i])+'='+str(val),
                 start_params=full_mod.params.values)
                 for val in values[:-1]]
@@ -236,7 +235,7 @@ class PriorScaler(object):
         c, d = ll[-1], -np.asscalar(full_mod.params[i])
         X = np.matrix([(values+d)**4,
                        (values+d)**2]).T
-        a, b = np.squeeze((np.linalg.inv(X.T * X) * X.T * (ll[:,None] - c)).A)
+        a, b = np.squeeze((np.linalg.inv(X.T * X) * X.T * (ll[:, None] - c)).A)
 
         # m, v: mean and variance of beta distribution of correlations
         # p, q: corresponding shape parameters of beta distribution
@@ -249,12 +248,12 @@ class PriorScaler(object):
         def moment(k): return (2*p/(p+q))**k * hyp2f1(p, -k, p+q, (p+q)/p)
 
         # evaluate the derivatives of beta = f(correlation).
-        # dict 'point' gives points about which to Taylor expand. We want to 
+        # dict 'point' gives points about which to Taylor expand. We want to
         # expand about the mean (generally 0), but some of the derivatives
         # do not exist at 0. Evaluating at a point very close to 0 (e.g., .001)
         # generally gives good results, but the higher order the expansion, the
         # further from 0 we need to evaluate the derivatives, or they blow up.
-        point = dict(zip(range(1,14), 2**np.linspace(-1,5,13)/100))
+        point = dict(zip(range(1, 14), 2**np.linspace(-1, 5, 13)/100))
         vals = dict(a=a, b=b, n=len(self.model.y.data), r=point[self.taylor])
         _deriv = [eval(x, globals(), vals) for x in self.deriv]
 
@@ -263,16 +262,16 @@ class PriorScaler(object):
             return 1/np.math.factorial(i) * 1/np.math.factorial(j) \
                 * _deriv[i] * _deriv[j] \
                 * (moment(i+j) - moment(i)*moment(j))
-        terms = [term(i,j)
-            for i in range(1,self.taylor+1) for j in range(1,self.taylor+1)]
+        terms = [term(i, j)
+                 for i in range(1, self.taylor+1) for j in range(1, self.taylor+1)]
         return np.array(terms).sum()**.5
 
     def _get_intercept_stats(self, add_slopes=True):
         # start with mean and variance of Y on the link scale
         mod = sm.GLM(endog=self.model.y.data,
-            exog=np.repeat(1, len(self.model.y.data)),
-            family=self.model.family.smfamily(),
-            missing='drop' if self.model.dropna else 'none').fit()
+                     exog=np.repeat(1, len(self.model.y.data)),
+                     family=self.model.family.smfamily(),
+                     missing='drop' if self.model.dropna else 'none').fit()
         mu = mod.params
         # multiply SE by sqrt(N) to turn it into (approx.) SD(Y) on link scale
         sd = (mod.cov_params()[0] * len(mod.mu))**.5
@@ -282,11 +281,11 @@ class PriorScaler(object):
             # get order
             index = sum([p['levels'] for p in self.priors.values()], [])
             # get slope prior means and SDs
-            means = np.concatenate([p['mu'] \
-                for p in self.priors.values()]).ravel()
+            means = np.concatenate([p['mu']
+                                    for p in self.priors.values()]).ravel()
             means = pd.Series(means, index=index)
-            sds = np.concatenate([p['sd'] \
-                for p in self.priors.values()]).ravel()
+            sds = np.concatenate([p['sd']
+                                  for p in self.priors.values()]).ravel()
             sds = pd.Series(sds, index=index)
             # add to intercept prior
             mu -= np.dot(means, self.stats['mean_x'][index])
@@ -309,9 +308,9 @@ class PriorScaler(object):
 
         # save and set prior
         self.priors.update({term.name: {
-            'mu':np.array(mu), 'sd':np.array(sd), 'levels':term.levels,
-            }})
-        term.prior.update(mu = np.array(mu), sd=np.array(sd))
+            'mu': np.array(mu), 'sd': np.array(sd), 'levels': term.levels,
+        }})
+        term.prior.update(mu=np.array(mu), sd=np.array(sd))
 
     def _scale_intercept(self, term, sd_corr):
 
@@ -324,8 +323,8 @@ class PriorScaler(object):
 
         # save and set prior
         self.priors.update({term.name: {
-            'mu':np.array(mu), 'sd':np.array(sd), 'levels':term.levels,
-            }})
+            'mu': np.array(mu), 'sd': np.array(sd), 'levels': term.levels,
+        }})
         term.prior.update(mu=mu, sd=sd)
 
     def _scale_random(self, term, sd_corr):
@@ -336,47 +335,48 @@ class PriorScaler(object):
         # recreate the corresponding fixed effect data
         fix_data = term.data.sum(axis=1) \
             if not isinstance(term.data, dict) \
-            else np.vstack([term.data[x].sum(axis=1) \
-            for x in term.data.keys()]).T
+            else np.vstack([term.data[x].sum(axis=1)
+                            for x in term.data.keys()]).T
 
         # classify as random intercept or random slope
-        term_type = 'intercept' if np.atleast_2d(fix_data.T).T.sum(1).var()==0 \
+        term_type = 'intercept' if np.atleast_2d(fix_data.T).T.sum(1).var() == 0 \
             else 'fixed'
 
         # get name of corresponding fixed effect
         fix = re.sub(r'\|.*', r'', term.name).strip() \
-            if term_type=='fixed' else 'Intercept'
+            if term_type == 'fixed' else 'Intercept'
 
         # handle case where there IS a corresponding fixed effect
         if fix in self.model.fixed_terms.keys():
             sd = self.priors[fix]['sd']
 
         # handle case where there IS NOT a corresponding fixed effect
-        else: 
+        else:
             # handle intercepts and slopes separately
-            if term_type=='intercept':
+            if term_type == 'intercept':
                 mu, sd = self._get_intercept_stats()
                 sd *= sd_corr
-            if term_type=='fixed':
+            if term_type == 'fixed':
                 mu = []
                 sd = []
                 fix_dataframe = pd.DataFrame(fix_data)
                 # things break if column names are integers (the default)
                 fix_dataframe.rename(
-                    columns={c:'_'+str(c) for c in fix_dataframe.columns},
+                    columns={c: '_'+str(c) for c in fix_dataframe.columns},
                     inplace=True)
                 exog = self.dm.join(fix_dataframe)
                 # this will replace self.mle (which is missing predictors)
                 full_mod = sm.GLM(endog=self.model.y.data, exog=exog,
-                    family=self.model.family.smfamily(),
-                    missing='drop' if self.model.dropna else 'none').fit()
+                                  family=self.model.family.smfamily(),
+                                  missing='drop' if self.model.dropna else 'none').fit()
                 # loop over the columns of fix_data
                 ncols = exog.shape[1] - self.dm.shape[1]
                 for pred in range(ncols):
                     mu += [0]
                     sd += [self._get_slope_stats(exog=exog,
-                        predictor=np.atleast_2d(fix_data.T).T[:,pred],
-                        full_mod=full_mod, sd_corr=sd_corr)]
+                                                 predictor=np.atleast_2d(
+                                                     fix_data.T).T[:, pred],
+                                                 full_mod=full_mod, sd_corr=sd_corr)]
 
         # set the prior SD.
         # if there are multiple SDs for multiple categories, use mean for all
@@ -385,9 +385,9 @@ class PriorScaler(object):
     def scale(self):
         # classify all terms
         fixed_intercepts = [t for t in self.model.terms.values()
-            if not t.random and t.data.sum(1).var()==0]
+                            if not t.random and t.data.sum(1).var() == 0]
         fixed_slopes = [t for t in self.model.terms.values()
-            if not t.random and not t.data.sum(1).var()==0]
+                        if not t.random and not t.data.sum(1).var() == 0]
         random_terms = [t for t in self.model.terms.values() if t.random]
 
         # arrange them in the order in which they should be initialized
@@ -399,23 +399,19 @@ class PriorScaler(object):
         # initialize them in order
         for t, term_type in zip(term_list, term_types):
 
-            # only set default priors if no prior defined yet
-            if not isinstance(t.prior, Prior):
+            # decide scale
+            sd_corr = t.prior
+            if sd_corr is None:
+                if not self.model.auto_scale:
+                    return
+                sd_corr = 'wide'
 
-                # decide scale
-                sd_corr = t.prior
-                if sd_corr is None:
-                    if not self.model.auto_scale:
-                        return
-                    sd_corr = 'wide'
+            # set scale
+            if isinstance(sd_corr, string_types):
+                sd_corr = PriorScaler.names[sd_corr]
 
-                # set scale
-                if isinstance(sd_corr, string_types):
-                    sd_corr = PriorScaler.names[sd_corr]
+            # impute default
+            t.prior = self.model.default_priors.get(term=term_type)
 
-                # impute default
-                t.prior = self.model.default_priors.get(term=term_type)
-
-                # scale it!
-                getattr(self, '_scale_%s' % term_type)(t, sd_corr)
-
+            # scale it!
+            getattr(self, '_scale_%s' % term_type)(t, sd_corr)
