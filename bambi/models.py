@@ -7,7 +7,7 @@ from copy import deepcopy
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 from bambi.external.six import string_types
-from bambi.external.patsy import Ignore_NA
+from bambi.external.patsy import Ignore_NA, rename_columns
 from bambi.priors import PriorFactory, PriorScaler, Prior
 from bambi.utils import listify
 import pymc3 as pm
@@ -186,13 +186,14 @@ class Model(object):
 
         # only set priors if there is at least one term in the model
         if len(self.terms) > 0:
-            # Get and scale default priors if none are defined yet
-            if self.taylor is not None:
-                taylor = self.taylor
-            else:
-                taylor = 5 if self.family.name=='gaussian' else 1
-            scaler = PriorScaler(self, taylor=taylor)
-            scaler.scale()
+            if self.auto_scale:
+                # Get and scale default priors if none are defined yet
+                if self.taylor is not None:
+                    taylor = self.taylor
+                else:
+                    taylor = 5 if self.family.name=='gaussian' else 1
+                scaler = PriorScaler(self, taylor=taylor)
+                scaler.scale()
 
         # For binomial models with n_trials = 1 (most common use case),
         # tell user which event is being modeled
@@ -337,7 +338,7 @@ class Model(object):
             for _name, _slice in X.design_info.term_name_slices.items():
                 cols = X.design_info.column_names[_slice]
                 term_data = pd.DataFrame(X[:, _slice], columns=cols)
-                prior = priors.pop(_name, priors.pop('fixed', None))
+                prior = priors.pop(_name, priors.get('fixed', None))
                 self.add_term(_name, data=term_data, prior=prior)
 
         # Random effects
@@ -507,25 +508,26 @@ class Model(object):
 
         if random and over is not None:
             id_var = pd.get_dummies(data[over], drop_first=False)
-            data = {over: id_var.values, variable: X.values}
+            data = {over: id_var, variable: X}
             f = '0 + %s:%s' % (over, variable)
             data = dmatrix(f, data=data, NA_action=Ignore_NA())
-            cols = data.design_info.column_names
+            name_lists = (list(id_var.columns), list(X.columns))
+            cols = rename_columns(data.design_info.column_names, name_lists)
             data = pd.DataFrame(data, columns=cols)
 
-            # For categorical effects, one variance term per predictor level
+            # For categorical effects, recurse and treat each predictor level
+            # as its own Term.
             if categorical:
-                split_data = {}
                 groups = list(set([c.split(':')[1] for c in cols]))
                 for g in groups:
                     patt = re.escape(r':%s' % g) + '$'
-                    level_data = data.filter(regex=patt)
-                    level_data.columns = [
-                        c.split(':')[0] for c in level_data.columns]
-                    level_data = level_data.loc[
-                        :, (level_data != 0).any(axis=0)]
-                    split_data[g] = level_data
-                data = split_data
+                    lev_data = data.filter(regex=patt)
+                    lev_data.columns = [c.split(':')[0] for c in lev_data.columns]
+                    lev_data = lev_data.loc[:, (lev_data != 0).any(axis=0)]
+                    label = g + '|' + over
+                    self.add_term(variable, lev_data, label=label,
+                                  categorical=False, random=True, prior=prior)
+                return
             else:
                 data.columns = [c.split(':')[0] for c in cols]
         else:
@@ -535,6 +537,11 @@ class Model(object):
             label = variable
             if over is not None:
                 label += '|%s' % over
+
+        if prior is None:
+            _type = 'intercept' if label == 'Intercept' else \
+                 'random' if random else 'fixed'
+            prior = self.default_priors.get(term=_type)
 
         term = Term(name=label, data=data, categorical=categorical,
                     random=random, prior=prior)
@@ -668,13 +675,8 @@ class Term(object):
             self.levels = list(data.columns)
             data = data.values
         # Random effects pass through here
-        elif isinstance(data, dict):
-            self.levels = list(data[list(data.keys())[0]].columns)
-            for k, v in data.items():
-                data[k] = v.values
         else:
             data = np.atleast_2d(data)
             self.levels = list(range(data.shape[1]))
 
         self.data = data
-        
