@@ -5,6 +5,7 @@ from bambi.external.six import string_types
 import numpy as np
 import theano
 import pymc3 as pm
+import re
 from pymc3.model import TransformedRV
 try:
     import pystan as ps
@@ -52,6 +53,7 @@ class PyMC3BackEnd(BackEnd):
         '''
         self.model = pm.Model()
         self.mu = None
+        self.par_groups = {}
 
     def _build_dist(self, label, dist, **kwargs):
         ''' Build and return a PyMC3 Distribution. '''
@@ -94,20 +96,11 @@ class PyMC3BackEnd(BackEnd):
                 dist_name = t.prior.name
                 dist_args = t.prior.args
 
-                # Effects w/ hyperparameters (i.e., random effects)
-                if isinstance(data, dict):
-                    for level, level_data in data.items():
-                        n_cols = level_data.shape[1]
-                        mu_label = 'u_%s_%s' % (label, level)
-                        u = self._build_dist(mu_label, dist_name,
-                                             shape=n_cols, **dist_args)
-                        self.mu += pm.math.dot(level_data, u)[:, None]
-                else:
-                    prefix = 'u_' if t.random else 'b_'
-                    n_cols = data.shape[1]
-                    coef = self._build_dist(prefix + label, dist_name,
-                                            shape=n_cols, **dist_args)
-                    self.mu += pm.math.dot(data, coef)[:, None]
+                prefix = 'u_' if t.random else 'b_'
+                n_cols = data.shape[1]
+                coef = self._build_dist(prefix + label, dist_name,
+                                        shape=n_cols, **dist_args)
+                self.mu += pm.math.dot(data, coef)[:, None]
 
             y = spec.y.data
             y_prior = spec.family.prior
@@ -130,7 +123,7 @@ class PyMC3BackEnd(BackEnd):
         # counterpart, in that 'untransformed' varname is the 'transformed'
         # varname plus some suffix (such as '_log' or '_interval')
         rvs = self.model.unobserved_RVs
-        trans = set(var.name for var in rvs if isinstance(var, pm.model.TransformedRV))
+        trans = set(var.name for var in rvs if isinstance(var, TransformedRV))
         untrans = set(var.name for var in rvs) - trans
         untrans = set(x for x in untrans if not any([t in x for t in trans]))
         return [x for x in self.trace.varnames if x not in (trans | untrans)]
@@ -207,6 +200,9 @@ class StanBackEnd(BackEnd):
         self.model = []
         self.mu = []
         self._suppress_vars = []  # variables to suppress in output
+        # Stan uses limited set for variable names, so track variable names
+        # we may need to simplify for the model code and then sub back later.
+        self._original_names = {}
 
     def build(self, spec, reset=True):
         '''
@@ -221,6 +217,13 @@ class StanBackEnd(BackEnd):
             self.reset()
 
         n_cases = len(spec.y.data)
+
+        def _sanitize_name(name):
+            ''' Stan only allows alphanumeric chars and underscore, so replace
+            all invalid chars with '_' and track for later re-substitution. '''
+            clean = re.sub('[^a-zA-Z0-9\_]+', '_', name)
+            self._original_names[clean] = name
+            return clean
 
         def _map_dist(dist, **kwargs):
             ''' Maps PyMC3 distribution names and attrs in the Prior object
@@ -259,9 +262,11 @@ class StanBackEnd(BackEnd):
                 stan_data = 'vector[%d]' % (n_cases)
             else:
                 stan_data = 'matrix[%d, %d]' % (n_cases, n_cols)
-            self.data.append('%s %s_data;' % (stan_data, name))
-            self.X[name + '_data'] = data.squeeze().astype(float)
-            self.mu.append('%s_data * %s' % (name, name))
+            data_name = _sanitize_name('%s_data' % name)
+            var_name = _sanitize_name(name)
+            self.data.append('%s %s;' % (stan_data, data_name))
+            self.X[data_name] = data.squeeze().astype(float)
+            self.mu.append('%s * %s' % (data_name, var_name))
 
         def _add_parameters(name, dist_name, n_cols, **dist_args):
             ''' Add all model components related to latent parameters. We
@@ -270,7 +275,7 @@ class StanBackEnd(BackEnd):
 
             def _expand_args(k, v, name):
                 if isinstance(v, Prior):
-                    name = '%s_%s' % (name, k)
+                    name = _sanitize_name('%s_%s' % (name, k))
                     return _add_parameters(name, v.name, 1, **v.args)
                 return v
 
@@ -282,8 +287,9 @@ class StanBackEnd(BackEnd):
             else:
                 stan_par = 'vector[%d]' % n_cols
 
-            self.parameters.append('%s%s %s;' % (stan_par, _bounds, name))
-            self.model.append('%s ~ %s;' % (name, _dist))
+            var_name = _sanitize_name(name)
+            self.parameters.append('%s%s %s;' % (stan_par, _bounds, var_name))
+            self.model.append('%s ~ %s;' % (var_name, _dist))
             return name
 
         for t in spec.terms.values():
@@ -293,22 +299,13 @@ class StanBackEnd(BackEnd):
             dist_name = t.prior.name
             dist_args = t.prior.args
 
-            # Effects with hyperpriors (i.e., random effects)
-            if isinstance(data, dict):
-                for level, level_data in data.items():
-                    n_cols = level_data.shape[1]
-                    name = 'u_%s_%s' % (label, level)
-                    _add_data(name, level_data)
-                    _add_parameters(name, dist_name, n_cols, **dist_args)
+            prefix = 'u_' if t.random else 'b_'
+            n_cols = data.shape[1]
+            name = prefix + label
 
-            else:
-                prefix = 'u_' if t.random else 'b_'
-                n_cols = data.shape[1]
-                name = prefix + label
-
-                # Add to Stan model
-                _add_data(name, data)
-                _add_parameters(name, dist_name, n_cols, **dist_args)
+            # Add to Stan model
+            _add_data(name, data)
+            _add_parameters(name, dist_name, n_cols, **dist_args)
 
         # yhat
         yhat = 'yhat = ' + ' + '.join(self.mu) + ';'
@@ -350,8 +347,15 @@ class StanBackEnd(BackEnd):
 
     def _convert_to_multitrace(self):
         ''' Convert a PyStan stanfit4model object to a PyMC3 MultiTrace. '''
+        _res = self.fit.extract(permuted=True, inc_warmup=True)
 
-        result = self.fit.extract(permuted=True, inc_warmup=True)
+        # Substitute original var names where we had to strip chars for Stan
+        result = {}
+        for k, v in _res.items():
+            if k in self._original_names:
+                k = self._original_names[k]
+            result[k] = v
+
         varnames = list(result.keys())
         straces = []
         n_chains = self.fit.sim['chains']

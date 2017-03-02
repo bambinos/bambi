@@ -1,7 +1,8 @@
+from abc import abstractmethod, ABCMeta
+import re
+import warnings
 import pandas as pd
 import numpy as np
-from abc import abstractmethod, ABCMeta
-import re, warnings
 import pymc3 as pm
 from pymc3 import diagnostics as pmd
 
@@ -41,7 +42,7 @@ class MCMCResults(ModelResults):
     Holds PyMC3 sampler results and provides plotting and summarization tools.
     Args:
         model (Model): a bambi Model instance specifying the model.
-        trace (MultiTrace): a PyMC3 MultiTrace object returned by the sampler. 
+        trace (MultiTrace): a PyMC3 MultiTrace object returned by the sampler.
         transformed (list): Optional list of variable names to treat as
             transformed--and hence, to exclude from the output by default.
     '''
