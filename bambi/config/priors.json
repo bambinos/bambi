@@ -7,6 +7,14 @@
       {
         "sd": "#halfnormal"
       }
+    ],
+    "intercept_flat": "#flat",
+    "fixed_flat": "#flat",
+    "random_flat": [
+      "#normal",
+      {
+        "sd": "#halfflat"
+      }
     ]
   },
   "families": {
@@ -76,6 +84,18 @@
       "HalfNormal",
       {
         "sd": 1
+      }
+    ],
+    "flat": [
+      "Flat",
+      {
+      }
+    ],
+    "halfflat": [
+      "Uniform",
+      {
+        "lower": 0,
+        "upper": 10e16
       }
     ],
     "beta": [

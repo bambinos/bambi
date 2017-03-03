@@ -48,6 +48,7 @@ class Prior(object):
 
     def __init__(self, name, scale=None, **kwargs):
         self.name = name
+        self._auto_scale = True
         self.scale = scale
         self.args = {}
         self.update(**kwargs)
@@ -404,9 +405,8 @@ class PriorScaler(object):
 
         # initialize them in order
         for t, term_type in zip(term_list, term_types):
-
             if t.prior.scale is None:
-                if not self.model.auto_scale:
+                if not t.prior._auto_scale or not self.model.auto_scale:
                     continue
                 t.prior.scale = 'wide'
 

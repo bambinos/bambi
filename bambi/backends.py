@@ -253,7 +253,7 @@ class StanBackEnd(BackEnd):
             # Sometimes we get numpy arrays at this stage, so convert to float
             dp = [float(p[0]) if isinstance(p, np.ndarray) else p for p in dp]
 
-            dist_term = '%s(%s);' % (
+            dist_term = '%s(%s)' % (
                 dist_name, ', '.join([str(p) for p in dp]))
 
             return dist_term, dist_bounds
