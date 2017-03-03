@@ -98,6 +98,7 @@ class PyMC3BackEnd(BackEnd):
 
                 prefix = 'u_' if t.random else 'b_'
                 n_cols = data.shape[1]
+
                 coef = self._build_dist(prefix + label, dist_name,
                                         shape=n_cols, **dist_args)
                 self.mu += pm.math.dot(data, coef)[:, None]
@@ -169,6 +170,7 @@ class PyMC3BackEnd(BackEnd):
 
 
 class StanBackEnd(BackEnd):
+
     '''
     Stan/PyStan model-fitting back-end.
     '''
@@ -177,7 +179,7 @@ class StanBackEnd(BackEnd):
         'Normal': {'name': 'normal', 'args': ['#mu', '#sd']},
         'Cauchy': {'name': 'cauchy', 'args': ['#alpha', '#beta']},
         'HalfNormal': {'name': 'normal', 'args': ['0', '#sd'],
-                       'bounds':'<lower=0>'},
+                       'bounds': '<lower=0>'},
         'HalfCauchy': {'name': 'cauchy', 'args': ['0', '#beta'],
                        'bounds': '<lower=0>'}
     }
@@ -241,7 +243,7 @@ class StanBackEnd(BackEnd):
             missing = set(lookup_args) - set(list(kwargs.keys()))
             if missing:
                 raise ValueError("The following mandatory parameters of "
-                                 "the %s distribution are missing: %s." 
+                                 "the %s distribution are missing: %s."
                                  % (dist, missing))
 
             # Named arguments to take from the Prior object are denoted with
@@ -251,7 +253,8 @@ class StanBackEnd(BackEnd):
             # Sometimes we get numpy arrays at this stage, so convert to float
             dp = [float(p[0]) if isinstance(p, np.ndarray) else p for p in dp]
 
-            dist_term = '%s(%s);' % (dist_name, ', '.join([str(p) for p in dp]))
+            dist_term = '%s(%s);' % (
+                dist_name, ', '.join([str(p) for p in dp]))
 
             return dist_term, dist_bounds
 
@@ -279,7 +282,8 @@ class StanBackEnd(BackEnd):
                     return _add_parameters(name, v.name, 1, **v.args)
                 return v
 
-            kwargs = {k: _expand_args(k, v, name) for (k, v) in dist_args.items()}
+            kwargs = {k: _expand_args(k, v, name)
+                      for (k, v) in dist_args.items()}
             _dist, _bounds = _map_dist(dist_name, **kwargs)
 
             if n_cols == 1:
