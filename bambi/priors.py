@@ -46,8 +46,9 @@ class Prior(object):
             named distribution.
     '''
 
-    def __init__(self, name, **kwargs):
+    def __init__(self, name, scale=None, **kwargs):
         self.name = name
+        self.scale = scale
         self.args = {}
         self.update(**kwargs)
 
@@ -122,7 +123,7 @@ class PriorFactory(object):
         self.terms = defaults['terms']
         self.families = defaults['families']
 
-    def _get_prior(self, spec):
+    def _get_prior(self, spec, **kwargs):
 
         if isinstance(spec, string_types):
             spec = re.sub('^\#', '', spec)
@@ -133,14 +134,14 @@ class PriorFactory(object):
                 name = re.sub('^\#', '', name)
                 prior = self._get_prior(self.dists[name])
             else:
-                prior = Prior(name)
+                prior = Prior(name, **kwargs)
             args = {k: self._get_prior(v) for (k, v) in args.items()}
             prior.update(**args)
             return prior
         else:
             return spec
 
-    def get(self, dist=None, term=None, family=None, **kwargs):
+    def get(self, dist=None, term=None, family=None):
         '''
         Retrieve default prior for a named distribution, term type, or family.
         Args:
@@ -293,7 +294,7 @@ class PriorScaler(object):
 
         return mu, sd
 
-    def _scale_fixed(self, term, sd_corr):
+    def _scale_fixed(self, term):
 
         # these defaults are only defined for Normal priors
         if term.prior.name != 'Normal':
@@ -301,10 +302,11 @@ class PriorScaler(object):
 
         mu = []
         sd = []
+        sd_corr = term.prior.scale
         for pred in term.data.T:
             mu += [0]
-            sd += [self._get_slope_stats(
-                exog=self.dm, predictor=pred, sd_corr=sd_corr)]
+            sd += [self._get_slope_stats(exog=self.dm, predictor=pred,
+                                         sd_corr=sd_corr)]
 
         # save and set prior
         self.priors.update({term.name: {
@@ -312,7 +314,7 @@ class PriorScaler(object):
         }})
         term.prior.update(mu=np.array(mu), sd=np.array(sd))
 
-    def _scale_intercept(self, term, sd_corr):
+    def _scale_intercept(self, term):
 
         # default priors are only defined for Normal priors
         if term.prior.name != 'Normal':
@@ -327,10 +329,13 @@ class PriorScaler(object):
         }})
         term.prior.update(mu=mu, sd=sd)
 
-    def _scale_random(self, term, sd_corr):
+    def _scale_random(self, term):
+
         # these default priors are only defined for HalfNormal priors
         if term.prior.args['sd'].name != 'HalfNormal':
             return
+
+        sd_corr = term.prior.scale
 
         # recreate the corresponding fixed effect data
         fix_data = term.data.sum(axis=1) \
@@ -376,7 +381,8 @@ class PriorScaler(object):
                     sd += [self._get_slope_stats(exog=exog,
                                                  predictor=np.atleast_2d(
                                                      fix_data.T).T[:, pred],
-                                                 full_mod=full_mod, sd_corr=sd_corr)]
+                                                 full_mod=full_mod,
+                                                 sd_corr=sd_corr)]
 
         # set the prior SD.
         # if there are multiple SDs for multiple categories, use mean for all
@@ -399,19 +405,14 @@ class PriorScaler(object):
         # initialize them in order
         for t, term_type in zip(term_list, term_types):
 
-            # decide scale
-            sd_corr = t.prior
-            if sd_corr is None:
+            if t.prior.scale is None:
                 if not self.model.auto_scale:
-                    return
-                sd_corr = 'wide'
+                    continue
+                t.prior.scale = 'wide'
 
-            # set scale
-            if isinstance(sd_corr, string_types):
-                sd_corr = PriorScaler.names[sd_corr]
-
-            # impute default
-            t.prior = self.model.default_priors.get(term=term_type)
+            # Convert scale names to float
+            if isinstance(t.prior.scale, string_types):
+                t.prior.scale = PriorScaler.names[t.prior.scale]
 
             # scale it!
-            getattr(self, '_scale_%s' % term_type)(t, sd_corr)
+            getattr(self, '_scale_%s' % term_type)(t)

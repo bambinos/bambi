@@ -1,9 +1,9 @@
 import pandas as pd
 import numpy as np
-from collections import OrderedDict, defaultdict
+from collections import OrderedDict
 from patsy import dmatrices, dmatrix
-import re, warnings
-from copy import deepcopy
+import re
+import warnings
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 from bambi.external.six import string_types
@@ -41,7 +41,7 @@ class Model(object):
             when constructing the default priors. Should be between 1 and 13.
             Lower values are less accurate, tending to undershoot the correct
             prior width, but are faster to compute and more stable. Odd-
-            numbered values tend to work better. Defaults to 5 for Normal 
+            numbered values tend to work better. Defaults to 5 for Normal
             models and 1 for non-Normal models. Values higher than the defaults
             are generally not recommended as they can be unstable.
     '''
@@ -70,7 +70,7 @@ class Model(object):
 
         backend = backend.lower()
 
-        if backend == 'pymc3':
+        if backend.startswith('pymc'):
             from bambi.backends import PyMC3BackEnd
             self.backend = PyMC3BackEnd()
         elif backend == 'stan':
@@ -152,9 +152,9 @@ class Model(object):
             self.dm_statistics = {
                 'r2_x': pd.Series({
                     x: sm.OLS(endog=X[x],
-                        exog=sm.add_constant(X.drop(x, axis=1)) \
-                            if 'Intercept' in self.term_names \
-                            else X.drop(x, axis=1)).fit().rsquared
+                              exog=sm.add_constant(X.drop(x, axis=1))
+                              if 'Intercept' in self.term_names
+                              else X.drop(x, axis=1)).fit().rsquared
                     for x in list(X.columns)}),
                 'sd_x': X.std(),
                 'mean_x': X.mean(axis=0)
@@ -175,30 +175,32 @@ class Model(object):
             # throw informative error if perfect collinearity among fixed fx
             if any(self.dm_statistics['r2_x'] > .999):
                 raise ValueError(
-                    "There is perfect collinearity among the fixed effects!\n"+\
-                    "Printing some design matrix statistics:\n" + \
-                    str(self.dm_statistics) + '\n' + \
+                    "There is perfect collinearity among the fixed effects!\n" +
+                    "Printing some design matrix statistics:\n" +
+                    str(self.dm_statistics) + '\n' +
                     str(self._diagnostics))
 
-        # throw informative error message if any categorical predictors have 1 category
-        if any(np.array([x.data.size for x in self.fixed_terms.values()])==0):
-            raise ValueError("At least one categorical predictor contains only 1 category!")
+        # throw informative error message if any categorical predictors have 1
+        # category
+        if any(np.array([x.data.size for x in self.fixed_terms.values()]) == 0):
+            raise ValueError(
+                "At least one categorical predictor contains only 1 category!")
 
         # only set priors if there is at least one term in the model
         if len(self.terms) > 0:
-            if self.auto_scale:
-                # Get and scale default priors if none are defined yet
-                if self.taylor is not None:
-                    taylor = self.taylor
-                else:
-                    taylor = 5 if self.family.name=='gaussian' else 1
-                scaler = PriorScaler(self, taylor=taylor)
-                scaler.scale()
+            # Get and scale default priors if none are defined yet
+            if self.taylor is not None:
+                taylor = self.taylor
+            else:
+                taylor = 5 if self.family.name == 'gaussian' else 1
+            scaler = PriorScaler(self, taylor=taylor)
+            scaler.scale()
 
         # For binomial models with n_trials = 1 (most common use case),
         # tell user which event is being modeled
-        if self.family.name=='binomial' and np.max(self.y.data) < 1.01:
-            event = next(i for i,x in enumerate(self.y.data.flatten()) if x>.99)
+        if self.family.name == 'binomial' and np.max(self.y.data) < 1.01:
+            event = next(
+                i for i, x in enumerate(self.y.data.flatten()) if x > .99)
             warnings.warn('Modeling the probability that {}==\'{}\''.format(
                 self.y.name, str(self.data[self.y.name].iloc[event])))
 
@@ -319,12 +321,12 @@ class Model(object):
                 # If this syntax is not being used, event = None
                 event = re.match(r'^((\S+)\[(\S+)\])\s*~(.*)$', fixed)
                 if event is not None:
-                    fixed = '{}~{}'.format(event.group(2),event.group(4))
+                    fixed = '{}~{}'.format(event.group(2), event.group(4))
                 y, X = dmatrices(fixed, data=data, NA_action=Ignore_NA())
                 y_label = y.design_info.term_names[0]
                 if event is not None:
                     # pass in new Y data that has 1 if y=event and 0 otherwise
-                    y_data = y[:, 
+                    y_data = y[:,
                                y.design_info.column_names.index(event.group(1))]
                     y_data = pd.DataFrame({event.group(3): y_data})
                     self.add_y(y_label, family=family, link=link, data=y_data)
@@ -429,7 +431,7 @@ class Model(object):
         # implement default Uniform [0, sd(Y)] prior for residual SD
         if self.family.name == 'gaussian':
             prior.update(sd=Prior('Uniform', lower=0,
-                upper=self.data[variable].std()))
+                                  upper=self.data[variable].std()))
 
         self.add_term(variable, prior=prior, *args, **kwargs)
         # use last-added term name b/c it could have been changed by add_term
@@ -522,7 +524,8 @@ class Model(object):
                 for g in groups:
                     patt = re.escape(r':%s' % g) + '$'
                     lev_data = data.filter(regex=patt)
-                    lev_data.columns = [c.split(':')[0] for c in lev_data.columns]
+                    lev_data.columns = [c.split(':')[0]
+                                        for c in lev_data.columns]
                     lev_data = lev_data.loc[:, (lev_data != 0).any(axis=0)]
                     label = g + '|' + over
                     self.add_term(variable, lev_data, label=label,
@@ -538,10 +541,12 @@ class Model(object):
             if over is not None:
                 label += '|%s' % over
 
-        if prior is None:
+        if not isinstance(prior, Prior):
+            _scale = prior
             _type = 'intercept' if label == 'Intercept' else \
-                 'random' if random else 'fixed'
+                'random' if random else 'fixed'
             prior = self.default_priors.get(term=_type)
+            prior.scale = _scale
 
         term = Term(name=label, data=data, categorical=categorical,
                     random=random, prior=prior)
@@ -592,13 +597,14 @@ class Model(object):
             raise ValueError("Cannot plot priors until model is built!")
 
         with pm.Model():
-            # get priors for fixed fx, separately for each level of each predictor
+            # get priors for fixed fx, separately for each level of each
+            # predictor
             dists = []
             for t in self.fixed_terms.values():
-                for i,l in enumerate(t.levels):
-                    params = {k: v[i % len(v)] \
-                        if isinstance(v, np.ndarray) else v
-                        for k,v in t.prior.args.items()}
+                for i, l in enumerate(t.levels):
+                    params = {k: v[i % len(v)]
+                              if isinstance(v, np.ndarray) else v
+                              for k, v in t.prior.args.items()}
                     dists += [getattr(pm, t.prior.name)(l, **params)]
 
             # get priors for random effect SDs
@@ -608,27 +614,28 @@ class Model(object):
                 dists += [getattr(pm, prior)(t.name+'_sd', **params)]
 
             # add priors on Y params if applicable
-            y_prior = [(k,v) for k,v in self.y.prior.args.items()
-                if isinstance(v, Prior)]
+            y_prior = [(k, v) for k, v in self.y.prior.args.items()
+                       if isinstance(v, Prior)]
             if len(y_prior):
                 for p in y_prior:
                     dists += [getattr(pm, p[1].name)('_'.join([self.y.name,
-                        p[0]]), **p[1].args)]
+                                                               p[0]]), **p[1].args)]
 
             # make the plot!
             p = float(len(dists))
             fig, axes = plt.subplots(int(np.ceil(p/2)), 2,
-                figsize=(12,np.ceil(p/2)*2))
+                                     figsize=(12, np.ceil(p/2)*2))
             # in case there is only 1 row
-            if int(np.ceil(p/2))<2: axes = axes[None,:]
-            for i,d in enumerate(dists):
+            if int(np.ceil(p/2)) < 2:
+                axes = axes[None, :]
+            for i, d in enumerate(dists):
                 dist = d.distribution if isinstance(d, pm.model.FreeRV) else d
                 samp = pd.Series(dist.random(size=1000).flatten())
-                samp.plot(kind='hist', ax=axes[divmod(i,2)[0], divmod(i,2)[1]],
-                    normed=True)
-                samp.plot(kind='kde', ax=axes[divmod(i,2)[0], divmod(i,2)[1]],
-                    color='b')
-                axes[divmod(i,2)[0], divmod(i,2)[1]].set_title(d.name)
+                samp.plot(kind='hist', ax=axes[divmod(i, 2)[0], divmod(i, 2)[1]],
+                          normed=True)
+                samp.plot(kind='kde', ax=axes[divmod(i, 2)[0], divmod(i, 2)[1]],
+                          color='b')
+                axes[divmod(i, 2)[0], divmod(i, 2)[1]].set_title(d.name)
             fig.tight_layout()
 
         return axes
@@ -662,6 +669,7 @@ class Term(object):
         prior (Prior): A specification of the prior(s) to use. An instance
             of class priors.Prior.
     '''
+
     def __init__(self, name, data, categorical=False, random=False, prior=None):
 
         self.name = name
