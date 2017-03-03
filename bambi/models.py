@@ -6,6 +6,7 @@ import re
 import warnings
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
+from copy import deepcopy
 from bambi.external.six import string_types
 from bambi.external.patsy import Ignore_NA, rename_columns
 from bambi.priors import PriorFactory, PriorScaler, Prior
@@ -300,8 +301,13 @@ class Model(object):
         '''
         data = self.data
 
+        # Primitive values (floats, strs) can be overwritten with Prior objects
+        # so we need to make sure to copy first to avoid bad things happening
+        # if user is re-using same prior dict in multiple models.
         if priors is None:
             priors = {}
+        else:
+            priors = deepcopy(priors)
 
         if not append:
             self.reset()
@@ -541,10 +547,17 @@ class Model(object):
             if over is not None:
                 label += '|%s' % over
 
-        if not isinstance(prior, Prior):
-            _scale = prior
-            _type = 'intercept' if label == 'Intercept' else \
+        # Get default prior if needed, and potentially apply auto-scaling
+        _type = 'intercept' if label == 'Intercept' else \
                 'random' if random else 'fixed'
+
+        if prior is None and not self.auto_scale:
+            prior = self.default_priors.get(term=_type + '_flat')
+
+        if isinstance(prior, Prior):
+            prior._auto_scale = False
+        else:
+            _scale = prior
             prior = self.default_priors.get(term=_type)
             prior.scale = _scale
 
@@ -584,8 +597,15 @@ class Model(object):
                                          "the name '%s'." % name)
                     targets[name] = prior
 
+        for p in targets.values():
+            if isinstance(p, Prior):
+                prior._auto_scale = False
+
         for name, prior in targets.items():
             self.terms[name].prior = prior
+
+        if fixed is not None or random is not None or priors is not None:
+            self.built = False
 
     def plot(self, kind='priors'):
         if kind == 'priors':
