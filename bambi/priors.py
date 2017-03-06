@@ -187,9 +187,9 @@ class PriorScaler(object):
         self.model = model
         self.stats = model.dm_statistics if hasattr(model, 'dm_statistics') \
             else None
-        self.dm = pd.DataFrame({'{}[{}]'.format(t.name, lev): t.data[:, lev]
+        self.dm = pd.DataFrame({lev: t.data[:, i]
                                 for t in model.fixed_terms.values()
-                                for lev in range(len(t.levels))})
+                                for i, lev in enumerate(t.levels)})
         self.priors = {}
         self.mle = sm.GLM(endog=self.model.y.data, exog=self.dm,
                           family=self.model.family.smfamily(),
@@ -280,16 +280,21 @@ class PriorScaler(object):
 
         # modify mu and sd based on means and SDs of slope priors.
         if len(self.model.fixed_terms) > 1 and add_slopes:
-            # get order
-            index = sum([p['levels'] for p in self.priors.values()], [])
-            # get slope prior means and SDs
-            means = np.concatenate([p['mu']
-                                    for p in self.priors.values()]).ravel()
-            means = pd.Series(means, index=index)
-            sds = np.concatenate([p['sd']
-                                  for p in self.priors.values()]).ravel()
-            sds = pd.Series(sds, index=index)
+            means = np.array([x['mu'] for x in self.priors.values()])
+            sds = np.array([x['sd'] for x in self.priors.values()])
+
+            # # get order
+            # index = sum([p['levels'] for p in self.priors.values()], [])
+            # # get slope prior means and SDs
+            # means = np.concatenate([p['mu']
+            #                         for p in self.priors.values()]).ravel()
+            # means = pd.Series(means, index=index)
+            # sds = np.concatenate([p['sd']
+            #                       for p in self.priors.values()]).ravel()
+            # sds = pd.Series(sds, index=index)
+
             # add to intercept prior
+            index = list(self.priors.keys())
             mu -= np.dot(means, self.stats['mean_x'][index])
             sd = (sd**2 + np.dot(sds**2, self.stats['mean_x'][index]**2))**.5
 
@@ -310,9 +315,8 @@ class PriorScaler(object):
                                          sd_corr=sd_corr)]
 
         # save and set prior
-        self.priors.update({term.name: {
-            'mu': np.array(mu), 'sd': np.array(sd), 'levels': term.levels,
-        }})
+        for i, lev in enumerate(term.levels):
+            self.priors.update({lev: {'mu':mu[i], 'sd':sd[i]}})
         term.prior.update(mu=np.array(mu), sd=np.array(sd))
 
     def _scale_intercept(self, term):
@@ -325,9 +329,11 @@ class PriorScaler(object):
         mu, sd = self._get_intercept_stats()
 
         # save and set prior
-        self.priors.update({term.name: {
-            'mu': np.array(mu), 'sd': np.array(sd), 'levels': term.levels,
-        }})
+        # self.priors.update({term.name: {
+        #     'mu': np.array(mu), 'sd': np.array(sd), 'levels': term.levels,
+        # }})
+        # for i, lev in enumerate(term.levels):
+        #     self.priors.update({lev: {'mu':mu[i], 'sd':sd[i]}})
         term.prior.update(mu=mu, sd=sd)
 
     def _scale_random(self, term):
@@ -344,25 +350,26 @@ class PriorScaler(object):
             else np.vstack([term.data[x].sum(axis=1)
                             for x in term.data.keys()]).T
 
-        # classify as random intercept or random slope
-        term_type = 'intercept' if np.atleast_2d(fix_data.T).T.sum(1).var() == 0 \
-            else 'fixed'
+        # # get name of corresponding fixed effect
+        # fix = re.sub(r'\|.*', r'', term.name).strip() \
+        #     if not term.constant else 'Intercept'
 
-        # get name of corresponding fixed effect
-        fix = re.sub(r'\|.*', r'', term.name).strip() \
-            if term_type == 'fixed' else 'Intercept'
+        # if fix in self.model.fixed_terms.keys():
+        #     sd = self.priors[fix]['sd']
 
-        # handle case where there IS a corresponding fixed effect
-        if fix in self.model.fixed_terms.keys():
-            sd = self.priors[fix]['sd']
-
-        # handle case where there IS NOT a corresponding fixed effect
+        # handle intercepts and cell means
+        if term.constant:
+            mu, sd = self._get_intercept_stats()
+            sd *= sd_corr
+        # handle slopes
         else:
-            # handle intercepts and slopes separately
-            if term_type == 'intercept':
-                mu, sd = self._get_intercept_stats()
-                sd *= sd_corr
-            if term_type == 'fixed':
+            # handle case where there IS a corresponding fixed effect
+            exists = [x for x in self.dm.columns \
+                if np.array_equal(fix_data, self.dm[x].values)]
+            if exists:
+                sd = self.priors[exists[0]]['sd']
+            # handle case where there IS NOT a corresponding fixed effect
+            else:
                 mu = []
                 sd = []
                 fix_dataframe = pd.DataFrame(fix_data)
@@ -374,7 +381,8 @@ class PriorScaler(object):
                 # this will replace self.mle (which is missing predictors)
                 full_mod = sm.GLM(endog=self.model.y.data, exog=exog,
                                   family=self.model.family.smfamily(),
-                                  missing='drop' if self.model.dropna else 'none').fit()
+                                  missing='drop' if self.model.dropna \
+                                  else 'none').fit()
                 # loop over the columns of fix_data
                 ncols = exog.shape[1] - self.dm.shape[1]
                 for pred in range(ncols):
@@ -386,8 +394,7 @@ class PriorScaler(object):
                                                  sd_corr=sd_corr)]
 
         # set the prior SD.
-        # if there are multiple SDs for multiple categories, use mean for all
-        term.prior.args['sd'].update(sd=np.array(sd).mean())
+        term.prior.args['sd'].update(sd=np.squeeze(sd))
 
     def scale(self):
         # classify all terms

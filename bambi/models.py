@@ -446,7 +446,8 @@ class Model(object):
         self.built = False
 
     def add_term(self, variable, data=None, label=None, categorical=False,
-                 random=False, over=None, prior=None, drop_first=True):
+                 random=False, over=None, prior=None, drop_first=True,
+                 _constant=None):
         '''
         Add a term to the model.
         Args:
@@ -484,6 +485,9 @@ class Model(object):
                 If False, the predictor will be represented using N-1 binary
                 indicators, where each indicator codes the contrast between
                 the N_j and N_0 columns, for j = {1..N-1}.
+            _constant (bool): indicates whether the term levels collectively
+                act as a constant. This is mainly for internal use; recursive 
+                calls to add_term() use this to identify full-rank dummy codes.
 
         Notes: One can think of bambi's split_by operation as a sequence of two
             steps. First, the target variable is multiplied by the splitting
@@ -514,6 +518,11 @@ class Model(object):
         else:
             X = data
 
+        # identify and flag intercept and cell-means terms (i.e., full-rank
+        # dummy codes), which receive special priors
+        if _constant is None:
+            _constant = np.atleast_2d(X.T).T.sum(1).var()==0
+
         if random and over is not None:
             id_var = pd.get_dummies(data[over], drop_first=False)
             data = {over: id_var, variable: X}
@@ -535,7 +544,8 @@ class Model(object):
                     lev_data = lev_data.loc[:, (lev_data != 0).any(axis=0)]
                     label = g + '|' + over
                     self.add_term(variable, lev_data, label=label,
-                                  categorical=False, random=True, prior=prior)
+                                  categorical=False, random=True, prior=prior,
+                                  _constant=_constant)
                 return
             else:
                 data.columns = [c.split(':')[0] for c in cols]
@@ -562,7 +572,7 @@ class Model(object):
             prior.scale = _scale
 
         term = Term(name=label, data=data, categorical=categorical,
-                    random=random, prior=prior)
+                    random=random, prior=prior, constant=_constant)
         self.terms[term.name] = term
         self.built = False
 
@@ -688,14 +698,18 @@ class Term(object):
             as continuous.
         prior (Prior): A specification of the prior(s) to use. An instance
             of class priors.Prior.
+        constant (bool): identifies whether this should be treated as a
+            constant term for default prior purposes.
     '''
 
-    def __init__(self, name, data, categorical=False, random=False, prior=None):
+    def __init__(self, name, data, categorical=False, random=False, prior=None,
+                 constant=False):
 
         self.name = name
         self.categorical = categorical
         self.random = random
         self.prior = prior
+        self.constant = constant
 
         if isinstance(data, pd.Series):
             data = data.to_frame()
