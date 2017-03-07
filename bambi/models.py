@@ -81,12 +81,12 @@ class Model(object):
             raise ValueError(
                 "At the moment, only the PyMC3 and Stan backends are supported.")
 
-        if intercept:
-            self.add_intercept()
-
         self.auto_scale = auto_scale
         self.dropna = dropna
         self.taylor = taylor
+
+        if intercept:
+            self.add_intercept()
 
     def reset(self):
         '''
@@ -607,8 +607,8 @@ class Model(object):
                                          "the name '%s'." % name)
                     targets[name] = prior
 
-        for p in targets.values():
-            if isinstance(p, Prior):
+        for prior in targets.values():
+            if isinstance(prior, Prior):
                 prior._auto_scale = False
 
         for name, prior in targets.items():
