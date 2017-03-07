@@ -200,9 +200,11 @@ class PriorScaler(object):
 
     def _get_slope_stats(self, exog, predictor, sd_corr, full_mod=None,
                          points=4):
-        # full_mod: statsmodels GLM to replace MLE model. For when 'predictor'
-        #     is not in the fixed part of the model.
-        # points: number of points to use for LL approximation
+        '''
+        full_mod: statsmodels GLM to replace MLE model. For when 'predictor'
+            is not in the fixed part of the model.
+        points: number of points to use for LL approximation
+        '''
 
         if full_mod is None:
             full_mod = self.mle
@@ -282,17 +284,6 @@ class PriorScaler(object):
         if len(self.model.fixed_terms) > 1 and add_slopes:
             means = np.array([x['mu'] for x in self.priors.values()])
             sds = np.array([x['sd'] for x in self.priors.values()])
-
-            # # get order
-            # index = sum([p['levels'] for p in self.priors.values()], [])
-            # # get slope prior means and SDs
-            # means = np.concatenate([p['mu']
-            #                         for p in self.priors.values()]).ravel()
-            # means = pd.Series(means, index=index)
-            # sds = np.concatenate([p['sd']
-            #                       for p in self.priors.values()]).ravel()
-            # sds = pd.Series(sds, index=index)
-
             # add to intercept prior
             index = list(self.priors.keys())
             mu -= np.dot(means, self.stats['mean_x'][index])
@@ -329,11 +320,6 @@ class PriorScaler(object):
         mu, sd = self._get_intercept_stats()
 
         # save and set prior
-        # self.priors.update({term.name: {
-        #     'mu': np.array(mu), 'sd': np.array(sd), 'levels': term.levels,
-        # }})
-        # for i, lev in enumerate(term.levels):
-        #     self.priors.update({lev: {'mu':mu[i], 'sd':sd[i]}})
         term.prior.update(mu=mu, sd=sd)
 
     def _scale_random(self, term):
@@ -350,13 +336,6 @@ class PriorScaler(object):
             else np.vstack([term.data[x].sum(axis=1)
                             for x in term.data.keys()]).T
 
-        # # get name of corresponding fixed effect
-        # fix = re.sub(r'\|.*', r'', term.name).strip() \
-        #     if not term.constant else 'Intercept'
-
-        # if fix in self.model.fixed_terms.keys():
-        #     sd = self.priors[fix]['sd']
-
         # handle intercepts and cell means
         if term.constant:
             mu, sd = self._get_intercept_stats()
@@ -366,7 +345,7 @@ class PriorScaler(object):
             # handle case where there IS a corresponding fixed effect
             exists = [x for x in self.dm.columns \
                 if np.array_equal(fix_data, self.dm[x].values)]
-            if exists:
+            if exists and exists[0] in self.priors.keys():
                 sd = self.priors[exists[0]]['sd']
             # handle case where there IS NOT a corresponding fixed effect
             else:
