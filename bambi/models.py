@@ -488,12 +488,6 @@ class Model(object):
             _constant (bool): indicates whether the term levels collectively
                 act as a constant. This is mainly for internal use; recursive 
                 calls to add_term() use this to identify full-rank dummy codes.
-
-        Notes: One can think of bambi's split_by operation as a sequence of two
-            steps. First, the target variable is multiplied by the splitting
-            variable. This is equivalent to a formula call like 'A:B'. Second,
-            the columns of the resulting matrix are "grouped" by the levels
-            of the split_by variable.
         '''
 
         if data is None:

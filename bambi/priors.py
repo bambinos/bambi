@@ -342,35 +342,41 @@ class PriorScaler(object):
             sd *= sd_corr
         # handle slopes
         else:
-            # handle case where there IS a corresponding fixed effect
             exists = [x for x in self.dm.columns \
                 if np.array_equal(fix_data, self.dm[x].values)]
+            # handle case where there IS a corresponding fixed effect
             if exists and exists[0] in self.priors.keys():
                 sd = self.priors[exists[0]]['sd']
             # handle case where there IS NOT a corresponding fixed effect
             else:
-                mu = []
-                sd = []
-                fix_dataframe = pd.DataFrame(fix_data)
-                # things break if column names are integers (the default)
-                fix_dataframe.rename(
-                    columns={c: '_'+str(c) for c in fix_dataframe.columns},
-                    inplace=True)
-                exog = self.dm.join(fix_dataframe)
+                # the usual case: add the random effect data as a fixed effect
+                # in the design matrix
+                if not exists:
+                    fix_dataframe = pd.DataFrame(fix_data)
+                    # things break if column names are integers (the default)
+                    fix_dataframe.rename(
+                        columns={c: '_'+str(c) for c in fix_dataframe.columns},
+                        inplace=True)
+                    exog = self.dm.join(fix_dataframe)
+                # this handles the corner case where there technically is the
+                # corresponding fixed effect, but the parameterization differs
+                # between the fixed- and random-effect specification. usually
+                # this means the fixed effects use cell-means coding but the
+                # random effects use k-1 coding
+                else:
+                    group = term.name.split('|')[1]
+                    exog = self.model.random_terms.values()
+                    exog = [v.data.sum(1) for v in exog \
+                        if v.name.split('|')[-1]==group]
+                    exog = pd.DataFrame(exog,
+                        index=['_'+str(i) for i in range(len(exog))]).T
                 # this will replace self.mle (which is missing predictors)
                 full_mod = sm.GLM(endog=self.model.y.data, exog=exog,
                                   family=self.model.family.smfamily(),
                                   missing='drop' if self.model.dropna \
                                   else 'none').fit()
-                # loop over the columns of fix_data
-                ncols = exog.shape[1] - self.dm.shape[1]
-                for pred in range(ncols):
-                    mu += [0]
-                    sd += [self._get_slope_stats(exog=exog,
-                                                 predictor=np.atleast_2d(
-                                                     fix_data.T).T[:, pred],
-                                                 full_mod=full_mod,
-                                                 sd_corr=sd_corr)]
+                sd = self._get_slope_stats(exog=exog, predictor=fix_data,
+                                           full_mod=full_mod, sd_corr=sd_corr)
 
         # set the prior SD.
         term.prior.args['sd'].update(sd=np.squeeze(sd))
