@@ -339,10 +339,7 @@ class PriorScaler(object):
         sd_corr = term.prior.scale
 
         # recreate the corresponding fixed effect data
-        fix_data = term.data.sum(axis=1) \
-            if not isinstance(term.data, dict) \
-            else np.vstack([term.data[x].sum(axis=1)
-                            for x in term.data.keys()]).T
+        fix_data = term.data.sum(axis=1)
 
         # classify as random intercept or random slope
         term_type = 'intercept' if np.atleast_2d(fix_data.T).T.sum(1).var() == 0 \

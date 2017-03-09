@@ -108,10 +108,7 @@ class Model(object):
         # Check for NaNs and halt if dropna is False--otherwise issue warning.
         arrs = []
         for t in self.terms.values():
-            if isinstance(t.data, dict):
-                arrs.extend(list(t.data.values()))
-            else:
-                arrs.append(t.data)
+            arrs.append(t.data)
         X = np.concatenate(arrs + [self.y.data], axis=1)
         na_index = np.isnan(X).any(1)
         if na_index.sum():
@@ -131,13 +128,8 @@ class Model(object):
             warnings.warn(msg)
             keeps = np.invert(na_index)
             for t in self.terms.values():
-                # remove missing values from random effects
-                if isinstance(t.data, dict):
-                    t.data[list(t.data.keys())[0]] = \
-                        t.data[list(t.data.keys())[0]][keeps]
-                # remove missing values from fixed effects
-                else:
-                    t.data = t.data[keeps]
+                # remove missing values
+                t.data = t.data[keeps]
             self.y.data = self.y.data[keeps]
 
         # X = fixed effects design matrix (excluding intercept/constant term)
@@ -599,7 +591,7 @@ class Model(object):
 
         for p in targets.values():
             if isinstance(p, Prior):
-                prior._auto_scale = False
+                p._auto_scale = False
 
         for name, prior in targets.items():
             self.terms[name].prior = prior
@@ -706,5 +698,15 @@ class Term(object):
         else:
             data = np.atleast_2d(data)
             self.levels = list(range(data.shape[1]))
+
+        # For the sake of computational efficiency (i.e., to avoid lots of
+        # large matrix multiplications in the backends), invert the dummy-
+        # coding process and represent binary categoricals as a vector of
+        # indices into the coefficients.
+        if self.categorical and ((data == 0) | (data == 1)).all():
+            vec = np.zeros((len(data), 1), dtype=int)
+            for i in range(1, data.shape[1]):
+                vec[data[:, i] == 1] = i
+            data = vec
 
         self.data = data
