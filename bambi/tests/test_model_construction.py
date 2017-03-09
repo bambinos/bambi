@@ -44,9 +44,7 @@ def test_distribute_random_effect_over(diabetes_data):
     model.reset()
     model.add_term('age_grp', over='BMI', categorical=True, random=True,
                    drop_first=False)
-    t = model.terms['age_grp|BMI'].data
-    assert isinstance(t, dict)
-    assert t['age_grp[0]'].shape == (442, 83)
+    assert model.terms['age_grp[0]|BMI'].data.shape == (442, 83)
 
 
 def test_model_init_from_filename():
@@ -88,7 +86,7 @@ def test_add_term_to_model(base_model):
     # Test that arguments are passed appropriately onto Term initializer
     base_model.add_term(
         'age_grp', random=True, over='BP', categorical=True)
-    assert isinstance(base_model.terms['age_grp|BP'], Term)
+    assert isinstance(base_model.terms['age_grp[1]|BP'], Term)
 
 
 def test_one_shot_formula_fit(base_model):
