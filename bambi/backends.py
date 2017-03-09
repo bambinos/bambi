@@ -97,11 +97,19 @@ class PyMC3BackEnd(BackEnd):
                 dist_args = t.prior.args
 
                 prefix = 'u_' if t.random else 'b_'
-                n_cols = data.shape[1]
+
+                if t.categorical and data.shape[1] == 1:
+                    n_cols = data.max() + 1
+                else:
+                    n_cols = data.shape[1]
 
                 coef = self._build_dist(prefix + label, dist_name,
                                         shape=n_cols, **dist_args)
-                self.mu += pm.math.dot(data, coef)[:, None]
+
+                if t.categorical and data.shape[1] == 1:
+                    self.mu += coef[data][:, None]
+                else:
+                    self.mu += pm.math.dot(data, coef)[:, None]
 
             y = spec.y.data
             y_prior = spec.family.prior

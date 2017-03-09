@@ -32,7 +32,6 @@ class Ignore_NA(object):
         return values
 
 
-def rename_columns(columns, name_lists):
     ''' Renames numerical indices in column names returned by patsy dmatrix /
     dmatrices calls based on the corresponding string levels.
     Args:
