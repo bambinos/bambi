@@ -189,7 +189,8 @@ class StanBackEnd(BackEnd):
         'HalfNormal': {'name': 'normal', 'args': ['0', '#sd'],
                        'bounds': '<lower=0>'},
         'HalfCauchy': {'name': 'cauchy', 'args': ['0', '#beta'],
-                       'bounds': '<lower=0>'}
+                       'bounds': '<lower=0>'},
+        'Uniform': {'name': 'uniform', 'args': ['#lower', '#upper']}
     }
 
     def __init__(self):
@@ -208,7 +209,8 @@ class StanBackEnd(BackEnd):
         self.transformed_data = []
         self.X = {}
         self.model = []
-        self.mu = []
+        self.mu_cont = []
+        self.mu_cat = []
         self._suppress_vars = []  # variables to suppress in output
         # Stan uses limited set for variable names, so track variable names
         # we may need to simplify for the model code and then sub back later.
@@ -227,6 +229,8 @@ class StanBackEnd(BackEnd):
             self.reset()
 
         n_cases = len(spec.y.data)
+        self.data.append('int<lower=1> N;')
+        self.X['N'] = n_cases
 
         def _sanitize_name(name):
             ''' Stan only allows alphanumeric chars and underscore, so replace
@@ -269,15 +273,23 @@ class StanBackEnd(BackEnd):
         def _add_data(name, data):
             ''' Add all model components that directly touch or relate to data.
             '''
-            if n_cols == 1:
-                stan_data = 'vector[%d]' % (n_cases)
+            if data.shape[1] == 1:
+                if n_cols > 1:
+                    stan_data = 'int %s[N];'
+                else:
+                    stan_data = 'vector[N] %s;'
             else:
-                stan_data = 'matrix[%d, %d]' % (n_cases, n_cols)
+                stan_data = ('matrix[N, %d]' % (n_cols)) + ' %s;'
             data_name = _sanitize_name('%s_data' % name)
             var_name = _sanitize_name(name)
-            self.data.append('%s %s;' % (stan_data, data_name))
-            self.X[data_name] = data.squeeze().astype(float)
-            self.mu.append('%s * %s' % (data_name, var_name))
+            self.data.append(stan_data % data_name)
+            self.X[data_name] = data.squeeze()
+
+            if data.shape[1] == 1 and n_cols > 1:
+                code = '%s[%s[n]]' % (var_name, data_name)
+                self.mu_cat.append(code)
+            else:
+                self.mu_cont.append('%s * %s' % (data_name, var_name))
 
         def _add_parameters(name, dist_name, n_cols, **dist_args):
             ''' Add all model components related to latent parameters. We
@@ -312,21 +324,36 @@ class StanBackEnd(BackEnd):
             dist_args = t.prior.args
 
             prefix = 'u_' if t.random else 'b_'
-            n_cols = data.shape[1]
             name = prefix + label
+
+            if t.categorical and data.shape[1] == 1:
+                if data.max() > 1:
+                    data += 1  # Stan indexes from 1, not 0
+                n_cols = data.max()
+            else:
+                n_cols = data.shape[1]
 
             # Add to Stan model
             _add_data(name, data)
             _add_parameters(name, dist_name, n_cols, **dist_args)
 
         # yhat
-        yhat = 'yhat = ' + ' + '.join(self.mu) + ';'
-        self.transformed_parameters.append('vector[%d] yhat;' % n_cases)
-        self.transformed_parameters.append(yhat)
+        self.transformed_parameters.append('vector[N] yhat;')
+        # self.transformed_parameters.append('for (n in 1:N)\n\tyhat[n] = 0;')
+        if self.mu_cont:
+            yhat_cont = 'yhat = %s;' % ' + '.join(self.mu_cont)
+            self.transformed_parameters.append(yhat_cont)
+        else:
+            self.mu_cat.insert(0, '0')
+
+        if self.mu_cat:
+            loops = ('for (n in 1:N)\n'
+                    '\t\tyhat[n] = %s' % ' + '.join(self.mu_cat) + ';\n\t')
+            self.transformed_parameters.append(loops)
         self._suppress_vars.append('yhat')
 
         # y
-        self.data.append('vector[%d] y;' % n_cases)
+        self.data.append('vector[N] y;')
         self.parameters.append('real<lower=0> sigma;')
         self.model.append('y ~ normal(yhat, sigma);')
         self.X['y'] = spec.y.data.squeeze()
