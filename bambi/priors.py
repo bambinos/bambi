@@ -187,9 +187,9 @@ class PriorScaler(object):
         self.model = model
         self.stats = model.dm_statistics if hasattr(model, 'dm_statistics') \
             else None
-        self.dm = pd.DataFrame({'{}[{}]'.format(t.name, lev): t.data[:, lev]
+        self.dm = pd.DataFrame({lev: t.data[:, i]
                                 for t in model.fixed_terms.values()
-                                for lev in range(len(t.levels))})
+                                for i, lev in enumerate(t.levels)})
         self.priors = {}
         self.mle = sm.GLM(endog=self.model.y.data, exog=self.dm,
                           family=self.model.family.smfamily(),
@@ -200,9 +200,11 @@ class PriorScaler(object):
 
     def _get_slope_stats(self, exog, predictor, sd_corr, full_mod=None,
                          points=4):
-        # full_mod: statsmodels GLM to replace MLE model. For when 'predictor'
-        #     is not in the fixed part of the model.
-        # points: number of points to use for LL approximation
+        '''
+        full_mod: statsmodels GLM to replace MLE model. For when 'predictor'
+            is not in the fixed part of the model.
+        points: number of points to use for LL approximation
+        '''
 
         if full_mod is None:
             full_mod = self.mle
@@ -280,16 +282,10 @@ class PriorScaler(object):
 
         # modify mu and sd based on means and SDs of slope priors.
         if len(self.model.fixed_terms) > 1 and add_slopes:
-            # get order
-            index = sum([p['levels'] for p in self.priors.values()], [])
-            # get slope prior means and SDs
-            means = np.concatenate([p['mu']
-                                    for p in self.priors.values()]).ravel()
-            means = pd.Series(means, index=index)
-            sds = np.concatenate([p['sd']
-                                  for p in self.priors.values()]).ravel()
-            sds = pd.Series(sds, index=index)
+            means = np.array([x['mu'] for x in self.priors.values()])
+            sds = np.array([x['sd'] for x in self.priors.values()])
             # add to intercept prior
+            index = list(self.priors.keys())
             mu -= np.dot(means, self.stats['mean_x'][index])
             sd = (sd**2 + np.dot(sds**2, self.stats['mean_x'][index]**2))**.5
 
@@ -310,9 +306,8 @@ class PriorScaler(object):
                                          sd_corr=sd_corr)]
 
         # save and set prior
-        self.priors.update({term.name: {
-            'mu': np.array(mu), 'sd': np.array(sd), 'levels': term.levels,
-        }})
+        for i, lev in enumerate(term.levels):
+            self.priors.update({lev: {'mu':mu[i], 'sd':sd[i]}})
         term.prior.update(mu=np.array(mu), sd=np.array(sd))
 
     def _scale_intercept(self, term):
@@ -325,9 +320,6 @@ class PriorScaler(object):
         mu, sd = self._get_intercept_stats()
 
         # save and set prior
-        self.priors.update({term.name: {
-            'mu': np.array(mu), 'sd': np.array(sd), 'levels': term.levels,
-        }})
         term.prior.update(mu=mu, sd=sd)
 
     def _scale_random(self, term):
@@ -341,50 +333,50 @@ class PriorScaler(object):
         # recreate the corresponding fixed effect data
         fix_data = term.data.sum(axis=1)
 
-        # classify as random intercept or random slope
-        term_type = 'intercept' if np.atleast_2d(fix_data.T).T.sum(1).var() == 0 \
-            else 'fixed'
-
-        # get name of corresponding fixed effect
-        fix = re.sub(r'\|.*', r'', term.name).strip() \
-            if term_type == 'fixed' else 'Intercept'
-
-        # handle case where there IS a corresponding fixed effect
-        if fix in self.model.fixed_terms.keys():
-            sd = self.priors[fix]['sd']
-
-        # handle case where there IS NOT a corresponding fixed effect
+        # handle intercepts and cell means
+        if term.constant:
+            mu, sd = self._get_intercept_stats()
+            sd *= sd_corr
+        # handle slopes
         else:
-            # handle intercepts and slopes separately
-            if term_type == 'intercept':
-                mu, sd = self._get_intercept_stats()
-                sd *= sd_corr
-            if term_type == 'fixed':
-                mu = []
-                sd = []
-                fix_dataframe = pd.DataFrame(fix_data)
-                # things break if column names are integers (the default)
-                fix_dataframe.rename(
-                    columns={c: '_'+str(c) for c in fix_dataframe.columns},
-                    inplace=True)
-                exog = self.dm.join(fix_dataframe)
+            exists = [x for x in self.dm.columns \
+                if np.array_equal(fix_data, self.dm[x].values)]
+            # handle case where there IS a corresponding fixed effect
+            if exists and exists[0] in self.priors.keys():
+                sd = self.priors[exists[0]]['sd']
+            # handle case where there IS NOT a corresponding fixed effect
+            else:
+                # the usual case: add the random effect data as a fixed effect
+                # in the design matrix
+                if not exists:
+                    fix_dataframe = pd.DataFrame(fix_data)
+                    # things break if column names are integers (the default)
+                    fix_dataframe.rename(
+                        columns={c: '_'+str(c) for c in fix_dataframe.columns},
+                        inplace=True)
+                    exog = self.dm.join(fix_dataframe)
+                # this handles the corner case where there technically is the
+                # corresponding fixed effect, but the parameterization differs
+                # between the fixed- and random-effect specification. usually
+                # this means the fixed effects use cell-means coding but the
+                # random effects use k-1 coding
+                else:
+                    group = term.name.split('|')[1]
+                    exog = self.model.random_terms.values()
+                    exog = [v.data.sum(1) for v in exog \
+                        if v.name.split('|')[-1]==group]
+                    exog = pd.DataFrame(exog,
+                        index=['_'+str(i) for i in range(len(exog))]).T
                 # this will replace self.mle (which is missing predictors)
                 full_mod = sm.GLM(endog=self.model.y.data, exog=exog,
                                   family=self.model.family.smfamily(),
-                                  missing='drop' if self.model.dropna else 'none').fit()
-                # loop over the columns of fix_data
-                ncols = exog.shape[1] - self.dm.shape[1]
-                for pred in range(ncols):
-                    mu += [0]
-                    sd += [self._get_slope_stats(exog=exog,
-                                                 predictor=np.atleast_2d(
-                                                     fix_data.T).T[:, pred],
-                                                 full_mod=full_mod,
-                                                 sd_corr=sd_corr)]
+                                  missing='drop' if self.model.dropna \
+                                  else 'none').fit()
+                sd = self._get_slope_stats(exog=exog, predictor=fix_data,
+                                           full_mod=full_mod, sd_corr=sd_corr)
 
         # set the prior SD.
-        # if there are multiple SDs for multiple categories, use mean for all
-        term.prior.args['sd'].update(sd=np.array(sd).mean())
+        term.prior.args['sd'].update(sd=np.squeeze(sd))
 
     def scale(self):
         # classify all terms
