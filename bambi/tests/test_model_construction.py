@@ -5,7 +5,6 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 from bambi.models import Term, Model
-from bambi.priors import Prior
 
 
 @pytest.fixture(scope="module")
@@ -79,14 +78,35 @@ def test_model_term_names_property(diabetes_data):
 
 
 def test_add_term_to_model(base_model):
-
     base_model.add_term('BMI')
     assert isinstance(base_model.terms['BMI'], Term)
     base_model.add_term('age_grp', random=False, categorical=True)
+    assert set(base_model.terms.keys()) == {'BMI', 'age_grp'}
     # Test that arguments are passed appropriately onto Term initializer
-    base_model.add_term(
-        'age_grp', random=True, over='BP', categorical=True)
+    base_model.add_term('age_grp', random=True, over='BP', categorical=True)
     assert isinstance(base_model.terms['age_grp[1]|BP'], Term)
+    assert 'BP[108.0]' in base_model.terms['age_grp[1]|BP'].levels
+
+
+def test_reduced_data_representation_for_categoricals(base_model):
+    # Test that terms made up entirely of dummy columns are properly re-encoded
+    # as 1D arrays of level indices.
+    base_model.add_term('BMI', categorical=True, drop_first=True)
+    term = base_model.terms['BMI']
+    levels = np.round(term.levels, 2)
+    assert levels.max() == 42.2
+    assert len(levels) == 162
+    assert term.data.shape[1] == 162
+    assert term._reduced_data.shape[1] == 1
+    assert term._reduced_data.max() == 161
+    base_model.add_term('BMI', categorical=True, drop_first=False)
+    term = base_model.terms['BMI']
+    levels = np.round(term.levels, 2)
+    assert levels.max() == 42.2
+    assert len(levels) == 163
+    assert term.data.shape[1] == 163
+    assert term._reduced_data.shape[1] == 1
+    assert term._reduced_data.max() == 162
 
 
 def test_one_shot_formula_fit(base_model):
