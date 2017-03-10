@@ -354,9 +354,17 @@ class Model(object):
                 patt = r'^([01]+)*[\s\+]*([^\|]+)*\|(.*)'
 
                 intcpt, pred, grpr = re.search(patt, f).groups()
-                # label = '{}|{}'.format(pred, grpr) if grpr else pred
                 label = '{}|{}'.format(pred, grpr) if pred else grpr
                 prior = priors.pop(label, priors.get('random', None))
+
+                # Treat all grouping variables as categoricals, regardless of
+                # their dtype and what the user may have specified in the
+                # 'categorical' argument.
+                var_names = re.findall('(\w+)', grpr)
+                for v in var_names:
+                    if v in data.columns:
+                        data[v] = data.loc[:, v].astype('category')
+                        self.data[v] = data[v]
 
                 # Default to including random intercepts
                 intcpt = 1 if intcpt is None else int(intcpt)
@@ -364,7 +372,7 @@ class Model(object):
                 grpr_df = dmatrix('0+%s' % grpr, data, return_type='dataframe')
 
                 # If there's no predictor, we must be adding random intercepts
-                if not pred:
+                if not pred and grpr not in self.terms:
                     self.add_term(label=grpr, data=grpr_df, categorical=True,
                                   drop_first=False, prior=prior, random=True)
                 else:
@@ -379,7 +387,17 @@ class Model(object):
                         lev_data = lev_data.loc[:, (lev_data != 0).any(axis=0)]
                         if lev_data.shape[1] == 0:
                             continue
-                        label = col + '|' + grpr
+
+                        # Also rename intercepts and skip if already added.
+                        # This can happen if user specifies something like
+                        # random=['1|school', 'student|school'].
+                        if col == 'Intercept':
+                            if grpr in self.terms:
+                                continue
+                            label = '1|%s' % grpr
+                        else:
+                            label = col + '|' + grpr
+
                         prior = priors.pop(label, priors.get('random', None))
                         # Categorical or continuous is determined from data
                         ld = lev_data.values
@@ -389,7 +407,8 @@ class Model(object):
                         else:
                             cat = False
                         self.add_term(label=label, data=lev_data, prior=prior,
-                                      random=True, categorical=cat)
+                                      random=True, categorical=cat,
+                                      _constant=True)
 
     def add_y(self, variable, prior=None, family='gaussian', link=None, *args,
               **kwargs):

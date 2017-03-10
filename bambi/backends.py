@@ -263,7 +263,8 @@ class StanBackEnd(BackEnd):
             dp = [kwargs[p[1:]] if p.startswith('#') else p for p in dist_args]
 
             # Sometimes we get numpy arrays at this stage, so convert to float
-            dp = [float(p[0]) if isinstance(p, np.ndarray) else p for p in dp]
+            dp = [float(p.ravel()[0]) if isinstance(p, np.ndarray) else p
+                  for p in dp]
 
             dist_term = '%s(%s)' % (
                 dist_name, ', '.join([str(p) for p in dp]))
