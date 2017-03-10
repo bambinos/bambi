@@ -255,6 +255,7 @@ class Model(object):
         df = pd.DataFrame(np.ones((n, 1)), columns=['Intercept'])
         self.add_term('Intercept', df)
 
+
     def add_formula(self, fixed=None, random=None, priors=None,
                     family='gaussian', link=None, categorical=None,
                     append=True):
@@ -304,14 +305,14 @@ class Model(object):
         if not append:
             self.reset()
 
-        if fixed is not None:
-            # Explicitly convert columns to category if desired--though this
-            # can also be done within the formula using C().
-            if categorical is not None:
-                data = data.copy()
-                cats = listify(categorical)
-                data[cats] = data[cats].apply(lambda x: x.astype('category'))
+        # Explicitly convert columns to category if desired--though this
+        # can also be done within the formula using C().
+        if categorical is not None:
+            data = data.copy()
+            cats = listify(categorical)
+            data[cats] = data[cats].apply(lambda x: x.astype('category'))
 
+        if fixed is not None:
             if '~' in fixed:
                 # check to see if formula is using the 'y[event] ~ x' syntax
                 # (for binomial models). If so, chop it into groups:
@@ -324,8 +325,7 @@ class Model(object):
                 y_label = y.design_info.term_names[0]
                 if event is not None:
                     # pass in new Y data that has 1 if y=event and 0 otherwise
-                    y_data = y[:,
-                               y.design_info.column_names.index(event.group(1))]
+                    y_data = y[:, y.design_info.column_names.index(event.group(1))]
                     y_data = pd.DataFrame({event.group(3): y_data})
                     self.add_y(y_label, family=family, link=link, data=y_data)
                 else:
@@ -343,48 +343,53 @@ class Model(object):
 
         # Random effects
         if random is not None:
-            random = listify(random)
-            for f in random:
-                f = f.strip()
-                kwargs = {'random': True}
-                if re.search('[\*\(\)]+', f):
-                    raise ValueError("Random term '%s' contains an invalid "
-                                     "character. Note that only the | and + "
-                                     "operators are currently supported in "
-                                     "random effects specifications.")
 
-                # replace explicit intercept terms like '1|subj' with 'subj'
-                f = re.sub(r'^1\s*\|(.*)', r'\1', f).strip()
+            random = listify(random)
+
+            for f in random:
+
+                f = f.strip()
 
                 # Split specification into intercept, predictor, and grouper
-                patt = r'^([01]+)*[\s\+]*([^\|]+)\|*(.*)'
+                patt = r'^([01]+)*[\s\+]*([^\|]+)*\|(.*)'
+
                 intcpt, pred, grpr = re.search(patt, f).groups()
-                label = '{}|{}'.format(pred, grpr) if grpr else pred
+                # label = '{}|{}'.format(pred, grpr) if grpr else pred
+                label = '{}|{}'.format(pred, grpr) if pred else grpr
+                prior = priors.pop(label, priors.get('random', None))
 
                 # Default to including random intercepts
-                if intcpt is None:
-                    intcpt = 1
-                intcpt = int(intcpt)
+                intcpt = 1 if intcpt is None else int(intcpt)
 
-                # If there's no grouper, we must be adding random intercepts
-                if not grpr:
-                    kwargs.update(dict(categorical=True, drop_first=False))
-                    variable = pred
+                grpr_df = dmatrix('0+%s' % grpr, data, return_type='dataframe')
 
+                # If there's no predictor, we must be adding random intercepts
+                if not pred:
+                    self.add_term(label=grpr, data=grpr_df, categorical=True,
+                                  drop_first=False, prior=prior, random=True)
                 else:
-                    # If we're adding slopes, add random intercepts as well,
-                    # unless they were explicitly excluded
-                    if intcpt and grpr not in self.terms:
-                        self.add_term(variable=grpr, categorical=True,
-                                      random=True, drop_first=False)
-                    if self.data[pred].dtype.name in ['object', 'category']:
-                        kwargs['categorical'] = True
-                        if not intcpt:
-                            kwargs['drop_first'] = False
-                    variable, kwargs['over'] = pred, grpr
+                    pred_df = dmatrix('%s+%s' % (intcpt, pred), data,
+                                      return_type='dataframe')
 
-                kwargs['prior'] = priors.pop(label, priors.get('random', None))
-                self.add_term(variable=variable, label=label, **kwargs)
+                    for col, ind in pred_df.design_info.column_name_indexes.items():
+                        lev_data = grpr_df.multiply(pred_df.iloc[:, ind],
+                                                    axis=0)
+                        # Drop columns with all zeroes, and skip terms with
+                        # no columns left
+                        lev_data = lev_data.loc[:, (lev_data != 0).any(axis=0)]
+                        if lev_data.shape[1] == 0:
+                            continue
+                        label = col + '|' + grpr
+                        prior = priors.pop(label, priors.get('random', None))
+                        # Categorical or continuous is determined from data
+                        ld = lev_data.values
+                        if ((ld == 0) | (ld == 1)).all():
+                            lev_data = lev_data.astype(int)
+                            cat = True
+                        else:
+                            cat = False
+                        self.add_term(label=label, data=lev_data, prior=prior,
+                                      random=True, categorical=cat)
 
     def add_y(self, variable, prior=None, family='gaussian', link=None, *args,
               **kwargs):
@@ -437,7 +442,7 @@ class Model(object):
         self.y = self.terms.pop(name)
         self.built = False
 
-    def add_term(self, variable, data=None, label=None, categorical=False,
+    def add_term(self, variable=None, data=None, label=None, categorical=False,
                  random=False, over=None, prior=None, drop_first=True,
                  _constant=None):
         '''
@@ -445,7 +450,8 @@ class Model(object):
         Args:
             variable (str): The name of the dataset column to use; also used
                 as the Term instance label if not otherwise specified using
-                the label argument.
+                the label argument. If None, both the data and label args
+                must be explicitly passed.
             data (DataFrame): Optional pandas DataFrame containing the term
                 values to use. If None (default), the correct column will be
                 extracted from the dataset currently loaded into the model
@@ -482,37 +488,47 @@ class Model(object):
                 calls to add_term() use this to identify full-rank dummy codes.
         '''
 
+        if variable is None and data is None and label is None:
+                raise ValueError("If no variable name is passed, both the "
+                                 "'data' and 'label' arguments must be "
+                                 "explicitly passed.")
+
         if data is None:
             data = self.data.copy()
 
         # Make sure user didn't forget to set categorical=True
-        if variable in data.columns and \
-                data.loc[:, variable].dtype.name in ['object', 'category']:
-            categorical = True
+        if variable is not None:
+            if variable in data.columns and \
+                    data.loc[:, variable].dtype.name in ['object', 'category']:
+                categorical = True
 
-        else:
-            # If all columns have identical names except for levels in [],
-            # assume they've already been contrast-coded, and pass data as-is
-            cols = [re.sub('\[.*?\]', '', c) for c in data.columns]
-            if len(set(cols)) > 1:
+            else:
+                # If all columns have identical names except for levels in [],
+                # assume they've already been contrast-coded, and pass data
+                # as-is.
+                cols = [re.sub('\[.*?\]', '', c) for c in data.columns]
+                if len(set(cols)) > 1:
+                    X = data[[variable]]
+
+            if categorical:
+                X = pd.get_dummies(data[variable], drop_first=drop_first)
+            elif variable in data.columns:
                 X = data[[variable]]
+            else:
+                X = data
 
-        if categorical:
-            X = pd.get_dummies(data[variable], drop_first=drop_first)
-        elif variable in data.columns:
-            X = data[[variable]]
         else:
             X = data
 
         # identify and flag intercept and cell-means terms (i.e., full-rank
         # dummy codes), which receive special priors
         if _constant is None:
-            _constant = np.atleast_2d(X.T).T.sum(1).var()==0
+            _constant = np.atleast_2d(X.T).T.sum(1).var() == 0
 
         if random and over is not None:
             id_var = pd.get_dummies(data[over], drop_first=False)
             data = {over: id_var, variable: X}
-            f = '0 + %s:%s' % (over, variable)
+            f = '%s:%s' % (over, variable)
             data = dmatrix(f, data=data, NA_action=Ignore_NA())
             name_lists = (list(id_var.columns), list(X.columns))
             cols = rename_columns(data.design_info.column_names, name_lists)
@@ -711,10 +727,11 @@ class Term(object):
         # large matrix multiplications in the backends), invert the dummy-
         # coding process and represent binary categoricals as a vector of
         # indices into the coefficients.
-        if self.categorical and ((data == 0) | (data == 1)).all():
+        if data.shape[1] > 1 and ((data == 0) | (data == 1)).all():
             vec = np.zeros((len(data), 1), dtype=int)
             for i in range(1, data.shape[1]):
                 vec[data[:, i] == 1] = i
             data = vec
+            self.categorical = True
 
         self.data = data

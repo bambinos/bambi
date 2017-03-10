@@ -339,7 +339,6 @@ class StanBackEnd(BackEnd):
 
         # yhat
         self.transformed_parameters.append('vector[N] yhat;')
-        # self.transformed_parameters.append('for (n in 1:N)\n\tyhat[n] = 0;')
         if self.mu_cont:
             yhat_cont = 'yhat = %s;' % ' + '.join(self.mu_cont)
             self.transformed_parameters.append(yhat_cont)
