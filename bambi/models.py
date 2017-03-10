@@ -528,7 +528,7 @@ class Model(object):
         if random and over is not None:
             id_var = pd.get_dummies(data[over], drop_first=False)
             data = {over: id_var, variable: X}
-            f = '%s:%s' % (over, variable)
+            f = '0+%s:%s' % (over, variable)
             data = dmatrix(f, data=data, NA_action=Ignore_NA())
             name_lists = (list(id_var.columns), list(X.columns))
             cols = rename_columns(data.design_info.column_names, name_lists)
@@ -541,8 +541,7 @@ class Model(object):
                 for g in groups:
                     patt = re.escape(r':%s' % g) + '$'
                     lev_data = data.filter(regex=patt)
-                    lev_data.columns = [c.split(':')[0]
-                                        for c in lev_data.columns]
+                    lev_data.columns = [c.split(':')[0] for c in lev_data.columns]
                     lev_data = lev_data.loc[:, (lev_data != 0).any(axis=0)]
                     label = g + '|' + over
                     self.add_term(variable, lev_data, label=label,
@@ -712,6 +711,7 @@ class Term(object):
         self.random = random
         self.prior = prior
         self.constant = constant
+        self._reduced_data = None
 
         if isinstance(data, pd.Series):
             data = data.to_frame()
@@ -731,7 +731,7 @@ class Term(object):
             vec = np.zeros((len(data), 1), dtype=int)
             for i in range(1, data.shape[1]):
                 vec[data[:, i] == 1] = i
-            data = vec
+            self._reduced_data = vec
             self.categorical = True
 
         self.data = data
