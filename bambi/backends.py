@@ -98,16 +98,16 @@ class PyMC3BackEnd(BackEnd):
 
                 prefix = 'u_' if t.random else 'b_'
 
-                if t.categorical and data.shape[1] == 1:
-                    n_cols = data.max() + 1
+                if t._reduced_data is not None:
+                    n_cols = t._reduced_data.max() + 1
                 else:
                     n_cols = data.shape[1]
 
                 coef = self._build_dist(prefix + label, dist_name,
                                         shape=n_cols, **dist_args)
 
-                if t.categorical and data.shape[1] == 1:
-                    self.mu += coef[data][:, None]
+                if t._reduced_data is not None:
+                    self.mu += coef[t._reduced_data][:, None]
                 else:
                     self.mu += pm.math.dot(data, coef)[:, None]
 
@@ -326,7 +326,8 @@ class StanBackEnd(BackEnd):
             prefix = 'u_' if t.random else 'b_'
             name = prefix + label
 
-            if t.categorical and data.shape[1] == 1:
+            if t._reduced_data is not None:
+                data = t._reduced_data
                 if data.max() > 1:
                     data += 1  # Stan indexes from 1, not 0
                 n_cols = data.max()
