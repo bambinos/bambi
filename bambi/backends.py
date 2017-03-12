@@ -63,7 +63,7 @@ class PyMC3BackEnd(BackEnd):
                                  "found in PyMC3." % dist)
             dist = getattr(pm, dist)
         # Inspect all args in case we have hyperparameters
-
+        
         def _expand_args(k, v, label):
             if isinstance(v, Prior):
                 label = '%s_%s' % (label, k)

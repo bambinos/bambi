@@ -373,11 +373,16 @@ class Model(object):
 
                 # If there's no predictor, we must be adding random intercepts
                 if not pred and grpr not in self.terms:
-                    self.add_term(label=grpr, data=grpr_df, categorical=True,
-                                  drop_first=False, prior=prior, random=True)
+                    self.add_term(label='1|'+grpr, data=grpr_df,
+                        categorical=True,drop_first=False, prior=prior,
+                        random=True)
                 else:
                     pred_df = dmatrix('%s+%s' % (intcpt, pred), data,
                                       return_type='dataframe')
+
+                    # identify and flag intercept and cell-means terms (i.e.,
+                    # full-rank dummy codes), which receive special priors
+                    constant = np.atleast_2d(pred_df.T).T.sum(1).var() == 0
 
                     for col, ind in pred_df.design_info.column_name_indexes.items():
                         lev_data = grpr_df.multiply(pred_df.iloc[:, ind],
@@ -408,7 +413,7 @@ class Model(object):
                             cat = False
                         self.add_term(label=label, data=lev_data, prior=prior,
                                       random=True, categorical=cat,
-                                      _constant=True)
+                                      constant=constant if constant else None)
 
     def add_y(self, variable, prior=None, family='gaussian', link=None, *args,
               **kwargs):
@@ -463,7 +468,7 @@ class Model(object):
 
     def add_term(self, variable=None, data=None, label=None, categorical=False,
                  random=False, over=None, prior=None, drop_first=True,
-                 _constant=None):
+                 constant=None):
         '''
         Add a term to the model.
         Args:
@@ -502,9 +507,9 @@ class Model(object):
                 If False, the predictor will be represented using N-1 binary
                 indicators, where each indicator codes the contrast between
                 the N_j and N_0 columns, for j = {1..N-1}.
-            _constant (bool): indicates whether the term levels collectively
-                act as a constant. This is mainly for internal use; recursive 
-                calls to add_term() use this to identify full-rank dummy codes.
+            constant (bool): indicates whether the term levels collectively
+                act as a constant, in which case the term is treated as an
+                intercept for prior distribution purposes. 
         '''
 
         if variable is None and data is None and label is None:
@@ -541,8 +546,8 @@ class Model(object):
 
         # identify and flag intercept and cell-means terms (i.e., full-rank
         # dummy codes), which receive special priors
-        if _constant is None:
-            _constant = np.atleast_2d(X.T).T.sum(1).var() == 0
+        if constant is None:
+            constant = np.atleast_2d(X.T).T.sum(1).var() == 0
 
         if random and over is not None:
             id_var = pd.get_dummies(data[over], drop_first=False)
@@ -565,7 +570,7 @@ class Model(object):
                     label = g + '|' + over
                     self.add_term(variable, lev_data, label=label,
                                   categorical=False, random=True, prior=prior,
-                                  _constant=_constant)
+                                  constant=constant)
                 return
             else:
                 data.columns = [c.split(':')[0] for c in cols]
@@ -576,6 +581,8 @@ class Model(object):
             label = variable
             if over is not None:
                 label += '|%s' % over
+            elif random:
+                label = '1|' + label
 
         # Get default prior if needed, and potentially apply auto-scaling
         _type = 'intercept' if label == 'Intercept' else \
@@ -592,7 +599,7 @@ class Model(object):
             prior.scale = _scale
 
         term = Term(name=label, data=data, categorical=categorical,
-                    random=random, prior=prior, constant=_constant)
+                    random=random, prior=prior, constant=constant)
         self.terms[term.name] = term
         self.built = False
 
