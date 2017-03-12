@@ -376,7 +376,7 @@ class PriorScaler(object):
                                            full_mod=full_mod, sd_corr=sd_corr)
 
         # set the prior SD.
-        term.prior.args['sd'].update(sd=np.squeeze(sd))
+        term.prior.args['sd'].update(sd=np.squeeze(np.atleast_1d(sd)))
 
     def scale(self):
         # classify all terms
