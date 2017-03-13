@@ -235,9 +235,8 @@ class Model(object):
                 names via this argument is recommended.
         '''
         if fixed is not None or random is not None:
-            self.add(fixed=fixed, random=random, priors=priors,
-                             family=family, link=link, categorical=categorical,
-                             append=False)
+            self.add(fixed=fixed, random=random, priors=priors, family=family,
+                     link=link, categorical=categorical, append=False)
         ''' Run the BackEnd to fit the model. '''
         if run:
             if not self.built:

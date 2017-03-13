@@ -33,6 +33,7 @@ class Ignore_NA(object):
         return values
 
 
+def rename_columns(columns, name_lists):
     ''' Renames numerical indices in column names returned by patsy dmatrix /
     dmatrices calls based on the corresponding string levels.
     Args:
@@ -44,7 +45,6 @@ class Ignore_NA(object):
         rename_columns(ts, (['a', 'b', 'c'], ['d1', 'd2', 'd3', 'd4', 'd5']))
         # Returns ['threecats[b]:subjects[d5]', 'threecats[a]:subjects[d4]']
     '''
-def rename_columns(columns, name_lists):
     def _replace(c, args):
         grps = re.findall('([^\]]*)(\[(\d+)\])', c)
         for i, (prefix, box, ind) in enumerate(grps):

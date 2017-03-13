@@ -275,29 +275,47 @@ def test_many_fixed_many_random(crossed_data):
     assert X0 == X2
     assert X1 == X2
 
-    # check that fit and add models have same priors for fixed
-    # effects
+    # check that fit and add models have same priors for fixed effects
     priors0 = {
         x.name: x.prior.args for x in model0.terms.values() if not x.random}
     priors1 = {
         x.name: x.prior.args for x in model1.terms.values() if not x.random}
     priors2 = {
         x.name: x.prior.args for x in model2.terms.values() if not x.random}
+    # check dictionary keys
     assert set(priors0) == set(priors1)
     assert set(priors0) == set(priors2)
     assert set(priors1) == set(priors2)
+    # check dictionary values
+    def dicts_close(a, b):
+        if set(a) != set(b):
+            return False
+        else:
+            return [np.allclose(a[x], b[x], atol=0, rtol=.01) for x in a.keys()]
+    assert all([dicts_close(priors0[x], priors1[x]) for x in priors0.keys()])
+    assert all([dicts_close(priors0[x], priors2[x]) for x in priors0.keys()])
+    assert all([dicts_close(priors1[x], priors2[x]) for x in priors0.keys()])
 
-    # check that fit and add models have same priors for random
-    # effects
+    # check that fit and add models have same priors for random effects
     priors0 = {x.name: x.prior.args[
         'sd'].args for x in model0.terms.values() if x.random}
     priors1 = {x.name: x.prior.args[
         'sd'].args for x in model1.terms.values() if x.random}
     priors2 = {x.name: x.prior.args[
         'sd'].args for x in model2.terms.values() if x.random}
+    # check dictionary keys
     assert set(priors0) == set(priors1)
     assert set(priors0) == set(priors2)
     assert set(priors1) == set(priors2)
+    # check dictionary values
+    def dicts_close(a, b):
+        if set(a) != set(b):
+            return False
+        else:
+            return [np.allclose(a[x], b[x], atol=0, rtol=.01) for x in a.keys()]
+    assert all([dicts_close(priors0[x], priors1[x]) for x in priors0.keys()])
+    assert all([dicts_close(priors0[x], priors2[x]) for x in priors0.keys()])
+    assert all([dicts_close(priors1[x], priors2[x]) for x in priors0.keys()])
 
     # test consistency between summary and get_trace for pymc3
     assert len(set(fitted.get_trace().columns)) == 15
