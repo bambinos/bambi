@@ -1,5 +1,6 @@
 import numpy as np
 import re
+from patsy.util import safe_scalar_isnan
 
 
 class Ignore_NA(object):
