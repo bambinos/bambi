@@ -1,10 +1,13 @@
+from abc import abstractmethod, ABCMeta
+import re
+import warnings
 import pandas as pd
 import numpy as np
 import pymc3 as pm
-from pymc3.model import TransformedRV
-import pymc3.diagnostics as pmd
-from abc import abstractmethod, ABCMeta
-import re, warnings
+from pymc3 import diagnostics as pmd
+
+
+__all__ = ['MCMCResults', 'PyMC3ADVIResults']
 
 
 class ModelResults(object):
@@ -34,36 +37,28 @@ class ModelResults(object):
         pass
 
 
-class PyMC3Results(ModelResults):
-
+class MCMCResults(ModelResults):
     '''
     Holds PyMC3 sampler results and provides plotting and summarization tools.
     Args:
         model (Model): a bambi Model instance specifying the model.
-        trace (MultiTrace): a PyMC3 MultiTrace object returned by the sampler. 
+        trace (MultiTrace): a PyMC3 MultiTrace object returned by the sampler.
+        transformed (list): Optional list of variable names to treat as
+            transformed--and hence, to exclude from the output by default.
     '''
 
-    def __init__(self, model, trace):
+    def __init__(self, model, trace, transformed_vars=None):
 
         self.trace = trace
         self.n_samples = len(trace)
 
-        # here we determine which variables have been internally transformed 
-        # (e.g., sd_log). transformed vars are actually 'untransformed' from 
-        # the PyMC3 model's perspective, and it's the backtransformed (e.g., sd)
-        # variable that is 'transformed'. So the logic of this is to find and
-        # remove 'untranformed' variables that have a 'transformed' counterpart,
-        # in that 'untransformed' varname is the 'transfornmed' varname plus
-        # some suffix (such as '_log' or '_interval')
-        rvs = model.backend.model.unobserved_RVs
-        trans = set(var.name for var in rvs if isinstance(var, TransformedRV))
-        untrans = set(var.name for var in rvs) - trans
-        untrans = set(x for x in untrans if not any([t in x for t in trans]))
-        self.untransformed_vars = [x for x in trace.varnames \
-            if x in trans | untrans]
+        if transformed_vars is not None:
+            utv = list(set(trace.varnames) - set(transformed_vars))
+        else:
+            utv = trace.varnames
+        self.untransformed_vars = utv
 
-        super(PyMC3Results, self).__init__(model)
-
+        super(MCMCResults, self).__init__(model)
 
     def _filter_names(self, names, exclude_ranefs=True, hide_transformed=True):
         names = self.untransformed_vars \
@@ -288,7 +283,7 @@ class PyMC3Results(ModelResults):
             names = self._filter_names(names, exclude_ranefs, hide_transformed)
 
         # helper function to label the trace DataFrame columns appropriately
-        def get_cols(var):
+        def _get_cols(var):
             # handle terms with a single level
             if len(self.trace[var].shape)==1 or self.trace[var].shape[1]==1:
                 return [self._prettify_name(var)]
@@ -303,8 +298,13 @@ class PyMC3Results(ModelResults):
                             for x in self.model.terms[var[2:]].levels]
 
         # construct the trace DataFrame
-        trace_df = pd.concat([pd.DataFrame(self.trace[x, burn_in:],
-                                           columns=get_cols(x))
+        def _slice_helper(trace):
+            sliced = trace[burn_in:]
+            sliced.varnames = trace.varnames
+            return sliced
+        trace_df = pm.backends.base.MultiTrace([_slice_helper(trace) \
+            for trace in self.trace._straces.values()])
+        trace_df = pd.concat([pd.DataFrame(trace_df[x], columns=_get_cols(x))
                               for x in names], axis=1)
 
         return trace_df
