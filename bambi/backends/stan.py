@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from .base import BackEnd
 from bambi.priors import Prior
-from bambi.results import MCMCResults
+from bambi.results import MCMCResults, SampleArray
 import numpy as np
 import pymc3 as pm
 import re
@@ -248,3 +248,25 @@ class StanBackEnd(BackEnd):
 
         self.trace = pm.backends.base.MultiTrace(straces)
         return MCMCResults(self.spec, self.trace, self._suppress_vars)
+
+    def _convert_to_samplearray(self):
+        # grab samples as big, unlabelled array
+        # dimensions 0, 1, 2 = samples, chains, variables
+        data = self.fit.extract(permuted=False, inc_warmup=True)     
+
+        # grab info necessary for making samplearray pretty
+        names = [self._original_names[x] \
+                 if x in self._original_names.keys() else x \
+                 for x in self.fit.sim['pars_oi']]
+        dims = [tuple(x) for x in self.fit.sim['dims_oi']]
+        def replace_name(name):
+            if re.search(r'\[.+\]$', name) is not None \
+            and re.sub(r'\[.+\]$', '', name) in self._original_names.keys():
+                return self._original_names[re.sub(r'\[.+\]$', '', name)] \
+                + re.search(r'\[.+\]$', name).group()
+            else:
+                return name
+        levs = [re.sub(r'^[ub]_', '', replace_name(x)) \
+            for x in self.fit.sim['fnames_oi']]
+
+        return SampleArray(data=data, names=names, dims=dims, levels=levels)
