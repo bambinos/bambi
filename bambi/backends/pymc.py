@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from .base import BackEnd
 from bambi.priors import Prior
-from bambi.results import MCMCResults, PyMC3ADVIResults
+from bambi.results import MCMCResults, PyMC3ADVIResults, SampleArray
 from bambi.external.six import string_types
 import theano
 import pymc3 as pm
@@ -154,3 +154,30 @@ class PyMC3BackEnd(BackEnd):
                 self.advi_params = pm.variational.advi(start, **kwargs)
             return PyMC3ADVIResults(self.spec, self.advi_params,
                                     transformed_vars=self._get_transformed_vars())
+
+    def _convert_to_samplearray(self):
+        # grab samples as big, unlabelled array
+        # dimensions 0, 1, 2 = samples, chains, variables
+        data = np.array([np.array([np.atleast_2d(x.T).T[:,i] \
+                          for x in self.trace._straces[j].samples.values() \
+                          for i in range(np.atleast_2d(x.T).T.shape[1])])
+                for j in range(len(self.trace._straces))])
+        data = np.swapaxes(np.swapaxes(data, 0, 1), 0, 2)
+
+        # grab info necessary for making samplearray pretty
+        names = list(self.trace._straces[0].var_shapes.keys())
+        dims = list(self.trace._straces[0].var_shapes.values())
+        def get_levels(key, value):
+            if len(value):
+                if key[:2]=='b_':
+                    return self.model.terms[key[2:]].levels
+                else:
+                    return [key[2:].split('|')[0]+'|'+x \
+                        for x in self.model.terms[key[2:]].levels]
+            else:
+                return [key]
+        levels = sum([get_levels(k, v) \
+            for k, v in self.trace._straces[0].var_shapes.items()], [])
+        levels = [re.sub(r'^[ub]_', '', x) for x in levels]
+
+        return SampleArray(data=data, names=names, dims=dims, levels=levels)

@@ -323,3 +323,79 @@ class PyMC3ADVIResults(ModelResults):
         self.sds = params['stds']
         self.elbo_vals = params['elbo_vals']
         super(PyMC3ADVIResults, self).__init__(model)
+
+
+class SampleArray(object):
+    '''
+    Stores MCMC samples in a nice structure for easy slicing and etc.
+    Args:
+        data (numpy array): Raw storage of MCMC samples in array with
+            dimensions 0, 1, 2 = samples, chains, variables
+        names (list): Names of all Terms.
+        dims (list): Numbers of levels for all Terms.
+        levels (list): Names of all levels for all Terms.
+    '''
+
+    def __init__(self, data, names, dims, levels):
+        self.data = data
+        self.names = names
+        self.dims = dims
+        self.levels = levels
+        self.index = np.cumsum([0] + [x[0] if len(x) else 1 for x in dims][:-1])
+        self.n_samples = data.shape[0]
+        self.n_chains = data.shape[1]
+        self.n_params = data.shape[2]
+        self.n_terms = len(names)
+
+        # build sa: dictionary of 3D arrays (same dimensions as data)
+        # build level_dict: dictionary of lists containing levels of each Term
+        sa = {}
+        level_dict = {}
+        for i, name, dim in zip(self.index, names, dims):
+            dim = dim[0] if len(dim) else 1
+            sa[name] = data[:, :, i:(i+dim)]
+            level_dict[name] = levels[i:(i+dim)]
+        self.sa = sa
+        self.level_dict = level_dict
+
+    def __getitem__(self, idx):
+        '''
+        If a variable name, return SampleArray with only that variable
+            e.g., sa['subject']
+        If a list of variable names, return SampleArray with those variables
+            e.g., sa[['subject','item]]
+        If a slice, return SampleArray with sliced samples
+            e.g., sa[500:]
+        If a tuple, return SampleArray with those variables sliced
+            e.g., sa[['subject','item'], 500:]
+        '''
+
+        if isinstance(idx, slice):
+            return SampleArray(data=self.data[idx, :, :],
+                names=self.names, dims=self.dims, levels=self.levels)
+        elif isinstance(idx, tuple):
+            var, vslice = idx
+            if not isinstance(var, (list, tuple)): var = [var] 
+        elif isinstance(idx, string_types):
+            var = [idx]
+            vslice = slice(0, self.n_samples)
+        else:
+            raise ValueError("Unrecognized index type.")
+
+        loc = [self.names.index(v) for v in var]
+        return SampleArray(data=self.data[vslice, :, loc],
+            names=[self.names[x] for x in loc],
+            dims=[self.dims[x] for x in loc],
+            levels=sum([self.levels[i:(i+d)] for i, d in \
+                zip([self.index[x] for x in loc], [self.dims[x] \
+                if len(self.dims[x]) else 1 for x in loc])], []))
+
+    def get_chains(self, indices):
+        # Return copy of self but only for chains with the passed indices
+        if not isinstance(indices, (list, tuple)): indices = [indices]
+        return SampleArray(data=self.data[:, indices, :],
+                names=self.names, dims=self.dims, levels=self.levels)
+
+    def to_df(self):
+        pass
+

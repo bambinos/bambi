@@ -15,3 +15,7 @@ class BackEnd(object):
     @abstractmethod
     def run(self):
         pass
+
+    @abstractmethod
+    def _convert_to_samplearray(self):
+        pass
