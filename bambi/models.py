@@ -86,7 +86,7 @@ class Model(object):
         self.taylor = taylor
 
         if intercept:
-            self.add_intercept()
+            self._add_intercept()
 
     def reset(self):
         '''
@@ -101,9 +101,9 @@ class Model(object):
         then calls the BackEnd's build() method.
         '''
         if self.y is None:
-            raise ValueError("No outcome (y) variable is set! Please call "
-                             "add_y() or specify an outcome variable using the"
-                             " formula interface before build() or fit().")
+            raise ValueError("No outcome (y) variable is set! Please specify "
+                             "an outcome variable using the formula interface "
+                             "before build() or fit().")
 
         # Check for NaNs and halt if dropna is False--otherwise issue warning.
         arrs = []
@@ -235,7 +235,7 @@ class Model(object):
                 names via this argument is recommended.
         '''
         if fixed is not None or random is not None:
-            self.add_formula(fixed=fixed, random=random, priors=priors,
+            self.add(fixed=fixed, random=random, priors=priors,
                              family=family, link=link, categorical=categorical,
                              append=False)
         ''' Run the BackEnd to fit the model. '''
@@ -246,19 +246,18 @@ class Model(object):
                 self.build()
             return self.backend.run(**kwargs)
 
-    def add_intercept(self):
+    def _add_intercept(self):
         '''
         Adds a constant term to the model. Generally unnecessary when using the
-        formula interface, but useful when specifying the model via add_term().
+        formula interface, but useful when specifying the model via _add_term().
         '''
         n = len(self.data)
         df = pd.DataFrame(np.ones((n, 1)), columns=['Intercept'])
-        self.add_term('Intercept', df)
+        self._add_term('Intercept', df)
 
 
-    def add_formula(self, fixed=None, random=None, priors=None,
-                    family='gaussian', link=None, categorical=None,
-                    append=True):
+    def add(self, fixed=None, random=None, priors=None, family='gaussian',
+        link=None, categorical=None, append=True):
         '''
         Adds one or more terms to the model via an R-like formula syntax.
         Args:
@@ -327,10 +326,10 @@ class Model(object):
                     # pass in new Y data that has 1 if y=event and 0 otherwise
                     y_data = y[:, y.design_info.column_names.index(event.group(1))]
                     y_data = pd.DataFrame({event.group(3): y_data})
-                    self.add_y(y_label, family=family, link=link, data=y_data)
+                    self._add_y(y_label, family=family, link=link, data=y_data)
                 else:
                     # use Y as-is
-                    self.add_y(y_label, family=family, link=link)
+                    self._add_y(y_label, family=family, link=link)
             else:
                 X = dmatrix(fixed, data=data, NA_action=Ignore_NA())
 
@@ -339,7 +338,7 @@ class Model(object):
                 cols = X.design_info.column_names[_slice]
                 term_data = pd.DataFrame(X[:, _slice], columns=cols)
                 prior = priors.pop(_name, priors.get('fixed', None))
-                self.add_term(_name, data=term_data, prior=prior)
+                self._add_term(_name, data=term_data, prior=prior)
 
         # Random effects
         if random is not None:
@@ -373,7 +372,7 @@ class Model(object):
 
                 # If there's no predictor, we must be adding random intercepts
                 if not pred and grpr not in self.terms:
-                    self.add_term(label='1|'+grpr, data=grpr_df,
+                    self._add_term(label='1|'+grpr, data=grpr_df,
                         categorical=True,drop_first=False, prior=prior,
                         random=True)
                 else:
@@ -411,11 +410,11 @@ class Model(object):
                             cat = True
                         else:
                             cat = False
-                        self.add_term(label=label, data=lev_data, prior=prior,
+                        self._add_term(label=label, data=lev_data, prior=prior,
                                       random=True, categorical=cat,
                                       constant=constant if constant else None)
 
-    def add_y(self, variable, prior=None, family='gaussian', link=None, *args,
+    def _add_y(self, variable, prior=None, family='gaussian', link=None, *args,
               **kwargs):
         '''
         Add a dependent (or outcome) variable to the model.
@@ -442,7 +441,7 @@ class Model(object):
                 or theano tensor as the sole argument and returns one with
                 the same shape.
             args, kwargs: Optional positional and keyword arguments to pass
-                onto add_term().
+                onto _add_term().
         '''
         if isinstance(family, string_types):
             family = self.default_priors.get(family=family)
@@ -460,13 +459,13 @@ class Model(object):
             prior.update(sd=Prior('Uniform', lower=0,
                                   upper=self.data[variable].std()))
 
-        self.add_term(variable, prior=prior, *args, **kwargs)
-        # use last-added term name b/c it could have been changed by add_term
+        self._add_term(variable, prior=prior, *args, **kwargs)
+        # use last-added term name b/c it could have been changed by _add_term
         name = list(self.terms.values())[-1].name
         self.y = self.terms.pop(name)
         self.built = False
 
-    def add_term(self, variable=None, data=None, label=None, categorical=False,
+    def _add_term(self, variable=None, data=None, label=None, categorical=False,
                  random=False, over=None, prior=None, drop_first=True,
                  constant=None):
         '''
@@ -568,7 +567,7 @@ class Model(object):
                     lev_data.columns = [c.split(':')[0] for c in lev_data.columns]
                     lev_data = lev_data.loc[:, (lev_data != 0).any(axis=0)]
                     label = g + '|' + over
-                    self.add_term(variable, lev_data, label=label,
+                    self._add_term(variable, lev_data, label=label,
                                   categorical=False, random=True, prior=prior,
                                   constant=constant)
                 return
@@ -649,7 +648,6 @@ class Model(object):
             self.plot_priors()
 
     def plot_priors(self):
-        # Currently this only supports plotting priors for fixed effects
         if not self.built:
             raise ValueError("Cannot plot priors until model is built!")
 

@@ -34,20 +34,17 @@ def crossed_data():
 
 
 def test_empty_model(crossed_data):
-    # using formula
     model0 = Model(crossed_data)
-    model0.add_y('Y')
+    model0.add('Y ~ 0')
     model0.build()
     model0.fit(samples=1)
 
-    # using add_term
     model1 = Model(crossed_data)
     model1.fit('Y ~ 0', run=False)
     model1.build()
     model1.fit(samples=1)
 
-    # check that add_formula and add_term models have same priors for fixed
-    # effects
+    # check that both models have same priors for fixed effects
     priors0 = {
         x.name: x.prior.args for x in model0.terms.values() if not x.random}
     priors1 = {
@@ -75,20 +72,20 @@ def test_nan_handling(crossed_data):
 
 
 def test_intercept_only_model(crossed_data):
-    # using formula
+    # using fit
     model0 = Model(crossed_data)
     model0.fit('Y ~ 1', run=False)
     model0.build()
     model0.fit(samples=1)
 
-    # using add_term
+    # using add
     model1 = Model(crossed_data)
-    model1.add_y('Y')
-    model1.add_intercept()
+    model1.add('Y ~ 0')
+    model1.add('1')
     model1.build()
     model1.fit(samples=1)
 
-    # check that add_formula and add_term models have same priors for fixed
+    # check that fit and add models have same priors for fixed
     # effects
     priors0 = {
         x.name: x.prior.args for x in model0.terms.values() if not x.random}
@@ -98,23 +95,23 @@ def test_intercept_only_model(crossed_data):
 
 
 def test_slope_only_model(crossed_data):
-    # using formula
+    # using fit
     model0 = Model(crossed_data)
     model0.fit('Y ~ 0 + continuous', run=False)
     model0.build()
     model0.fit(samples=1)
 
-    # using add_term
+    # using add
     model1 = Model(crossed_data)
-    model1.add_y('Y')
-    model1.add_term('continuous')
+    model1.add('Y ~ 0')
+    model1.add('0 + continuous')
     model1.build()
     model1.fit(samples=1)
 
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)
 
-    # check that add_formula and add_term models have same priors for fixed
+    # check that fit and add models have same priors for fixed
     # effects
     priors0 = {
         x.name: x.prior.args for x in model0.terms.values() if not x.random}
@@ -124,16 +121,16 @@ def test_slope_only_model(crossed_data):
 
 
 def test_cell_means_parameterization(crossed_data):
-    # build model using formula
+    # build model using fit
     model0 = Model(crossed_data)
     model0.fit('Y ~ 0 + threecats', run=False)
     model0.build()
     model0.fit(samples=1)
 
-    # build model using add_term
+    # build model using add
     model1 = Model(crossed_data)
-    model1.add_y('Y')
-    model1.add_term('threecats', drop_first=False)
+    model1.add('Y ~ 0')
+    model1.add('0 + threecats')
     model1.build()
     model1.fit(samples=1)
 
@@ -145,7 +142,7 @@ def test_cell_means_parameterization(crossed_data):
               for lev in range(len(t.levels))])
     assert X0 == X1
 
-    # check that add_formula and add_term models have same priors for fixed
+    # check that fit and add models have same priors for fixed
     # effects
     priors0 = {
         x.name: x.prior.args for x in model0.terms.values() if not x.random}
@@ -159,7 +156,7 @@ def test_3x4_fixed_anova(crossed_data):
     crossed_data['fourcats'] = sum(
         [[x]*10 for x in ['a', 'b', 'c', 'd']], list())*3
 
-    # using formula, with intercept
+    # using fit, with intercept
     model0 = Model(crossed_data)
     model0.fit('Y ~ threecats*fourcats', run=False)
     model0.build()
@@ -167,7 +164,7 @@ def test_3x4_fixed_anova(crossed_data):
     # make sure X has 11 columns (not including the intercept)
     assert len(fitted0.diagnostics['VIF']) == 11
 
-    # using formula, without intercept (i.e., 2-factor cell means model)
+    # using fit, without intercept (i.e., 2-factor cell means model)
     model1 = Model(crossed_data)
     model1.fit('Y ~ 0 + threecats*fourcats', run=False)
     model1.build()
@@ -177,17 +174,17 @@ def test_3x4_fixed_anova(crossed_data):
 
 
 def test_cell_means_with_covariate(crossed_data):
-    # build model using formula
+    # build model using fit
     model0 = Model(crossed_data)
     model0.fit('Y ~ 0 + threecats + continuous', run=False)
     model0.build()
     # model0.fit(samples=1)
 
-    # build model using add_term
+    # build model using add
     model1 = Model(crossed_data)
-    model1.add_y('Y')
-    model1.add_term('threecats', drop_first=False)
-    model1.add_term('continuous')
+    model1.add('Y ~ 0')
+    model1.add('0 + threecats')
+    model1.add('0 + continuous')
     model1.build()
     # model1.fit(samples=1)
 
@@ -202,7 +199,7 @@ def test_cell_means_with_covariate(crossed_data):
     # check that threecats priors have finite variance
     assert not any(np.isinf(model0.terms['threecats'].prior.args['sd']))
 
-    # check that add_formula and add_term models have same priors for fixed
+    # check that fit and add models have same priors for fixed
     # effects
     priors0 = {
         x.name: x.prior.args for x in model0.terms.values() if not x.random}
@@ -212,7 +209,7 @@ def test_cell_means_with_covariate(crossed_data):
 
 
 def test_many_fixed_many_random(crossed_data):
-    # build model using formula
+    # build model using fit
     model0 = Model(crossed_data)
     fitted = model0.fit('Y ~ continuous + dummy + threecats',
                random=['0+threecats|subj', '1|item', '0+continuous|item',
@@ -220,22 +217,17 @@ def test_many_fixed_many_random(crossed_data):
     # model0.build()
     # model0.fit(samples=1)
 
-    # build model using add_term
+    # build model using add(append=True)
     model1 = Model(crossed_data)
-    model1.add_y('Y')
-    # fixed effects
-    model1.add_intercept()
-    model1.add_term('continuous')
-    model1.add_term('dummy')
-    model1.add_term('threecats')
-    # random effects
-    model1.add_term('threecats', over='subj', drop_first=False, random=True,
-                    categorical=True)
-    model1.add_term('item', random=True, categorical=True, drop_first=False)
-    model1.add_term('continuous', over='item', random=True)
-    model1.add_term('dummy', over='item', random=True)
-    model1.add_term('site', random=True, categorical=True, drop_first=False)
-    model1.add_term('threecats', over='site', random=True, categorical=True)
+    model1.add('Y ~ 1')
+    model1.add('continuous')
+    model1.add('dummy')
+    model1.add('threecats')
+    model1.add(random='0+threecats|subj')
+    model1.add(random='1|item')
+    model1.add(random='0+continuous|item')
+    model1.add(random='dummy|item')
+    model1.add(random='threecats|site')
     model1.build()
     # model1.fit(samples=1)
 
@@ -283,7 +275,7 @@ def test_many_fixed_many_random(crossed_data):
     assert X0 == X2
     assert X1 == X2
 
-    # check that add_formula and add_term models have same priors for fixed
+    # check that fit and add models have same priors for fixed
     # effects
     priors0 = {
         x.name: x.prior.args for x in model0.terms.values() if not x.random}
@@ -295,7 +287,7 @@ def test_many_fixed_many_random(crossed_data):
     assert set(priors0) == set(priors2)
     assert set(priors1) == set(priors2)
 
-    # check that add_formula and add_term models have same priors for random
+    # check that fit and add models have same priors for random
     # effects
     priors0 = {x.name: x.prior.args[
         'sd'].args for x in model0.terms.values() if x.random}
@@ -419,7 +411,7 @@ def test_many_fixed_many_random(crossed_data):
 
 
 def test_cell_means_with_many_random_effects(crossed_data):
-    # build model using formula
+    # build model using fit
     model0 = Model(crossed_data)
     model0.fit('Y ~ 0 + threecats',
                random=['0+threecats|subj', 'continuous|item', 'dummy|item',
@@ -427,19 +419,15 @@ def test_cell_means_with_many_random_effects(crossed_data):
     model0.build()
     # model0.fit(samples=1)
 
-    # build model using add_term
+    # build model using add(append=True)
     model1 = Model(crossed_data)
-    model1.add_y('Y')
-    # fixed effects
-    model1.add_term('threecats', drop_first=False)
-    # random effects
-    model1.add_term('threecats', over='subj', drop_first=False, random=True,
-                    categorical=True)
-    model1.add_term('item', random=True, categorical=True, drop_first=False)
-    model1.add_term('continuous', over='item', random=True)
-    model1.add_term('dummy', over='item', random=True)
-    model1.add_term('site', random=True, categorical=True, drop_first=False)
-    model1.add_term('threecats', over='site', random=True, categorical=True)
+    model1.add('Y ~ 0')
+    model1.add('0 + threecats')
+    model1.add(random='0+threecats|subj')
+    model1.add(random='1|item')
+    model1.add(random='0+continuous|item')
+    model1.add(random='dummy|item')
+    model1.add(random='threecats|site')
     model1.build()
     # model1.fit(samples=1)
 
@@ -468,7 +456,7 @@ def test_cell_means_with_many_random_effects(crossed_data):
               for lev in range(len(t.levels))])
     assert X0 == X1
 
-    # check that add_formula and add_term models have same priors for fixed
+    # check that fit and add models have same priors for fixed
     # effects
     priors0 = {
         x.name: x.prior.args for x in model0.terms.values() if not x.random}
@@ -476,7 +464,7 @@ def test_cell_means_with_many_random_effects(crossed_data):
         x.name: x.prior.args for x in model1.terms.values() if not x.random}
     assert set(priors0) == set(priors1)
 
-    # check that add_formula and add_term models have same priors for random
+    # check that fit and add models have same priors for random
     # effects
     priors0 = {x.name: x.prior.args[
         'sd'].args for x in model0.terms.values() if x.random}
@@ -486,21 +474,18 @@ def test_cell_means_with_many_random_effects(crossed_data):
 
 
 def test_logistic_regression(crossed_data):
-    # build model using formula
+    # build model using fit
     model0 = Model(crossed_data)
     model0.fit('threecats[b] ~ continuous + dummy',
                family='binomial', link='logit', run=False)
     model0.build()
     fitted = model0.fit(samples=100)
 
-    # build model using add_term
+    # build model using add
     model1 = Model(crossed_data)
-    model1.add_y('threecats',
-                 data=pd.DataFrame(1*(crossed_data['threecats'] == 'b')),
-                 family='binomial', link='logit')
-    model1.add_intercept()
-    model1.add_term('continuous')
-    model1.add_term('dummy')
+    model1.add('threecats[b] ~ 1', family='binomial', link='logit')
+    model1.add('continuous')
+    model1.add('dummy')
     model1.build()
     model1.fit(samples=1)
 
@@ -515,7 +500,7 @@ def test_logistic_regression(crossed_data):
               for lev in range(len(t.levels))])
     assert X0 == X1
 
-    # check that add_formula and add_term models have same priors for fixed
+    # check that fit and add models have same priors for fixed
     # effects
     priors0 = {
         x.name: x.prior.args for x in model0.terms.values() if not x.random}
@@ -530,7 +515,7 @@ def test_logistic_regression(crossed_data):
     fitted.plot()
 
 def test_poisson_regression(crossed_data):
-    # build model using formula
+    # build model using fit
     crossed_data['count'] = (crossed_data['Y'] - crossed_data['Y'].min()).round()
     model0 = Model(crossed_data)
     model0.fit('count ~ threecats + continuous + dummy',
@@ -538,13 +523,12 @@ def test_poisson_regression(crossed_data):
     model0.build()
     model0.fit(samples=1)
 
-    # build model using add_term
+    # build model using add
     model1 = Model(crossed_data)
-    model1.add_y('count', family='poisson')
-    model1.add_intercept()
-    model1.add_term('threecats')
-    model1.add_term('continuous')
-    model1.add_term('dummy')
+    model1.add('count ~ 1', family='poisson')
+    model1.add('threecats')
+    model1.add('continuous')
+    model1.add('dummy')
     model1.build()
     model1.fit(samples=1)
 
@@ -559,7 +543,7 @@ def test_poisson_regression(crossed_data):
               for lev in range(len(t.levels))])
     assert X0 == X1
 
-    # check that add_formula and add_term models have same priors for fixed
+    # check that fit and add models have same priors for fixed
     # effects
     priors0 = {
         x.name: x.prior.args for x in model0.terms.values() if not x.random}

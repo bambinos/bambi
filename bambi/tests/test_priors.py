@@ -93,9 +93,9 @@ def test_prior_retrieval():
 
 def test_update_term_priors_after_init(diabetes_data):
     model = Model(diabetes_data)
-    model.add_term('BMI')
-    model.add_term('S1')
-    model.add_term('age_grp', random=True, over='BP')
+    model.add('BMI')
+    model.add('S1')
+    model.add(random='age_grp|BP')
 
     p1 = Prior('Normal', mu=-10, sd=10)
     p2 = Prior('Beta', alpha=2, beta=2)
