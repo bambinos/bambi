@@ -38,7 +38,7 @@ class PyMC3BackEnd(BackEnd):
         self.mu = None
         self.par_groups = {}
 
-    def _build_dist(self, label, dist, **kwargs):
+    def _build_dist(self, spec, label, dist, **kwargs):
         ''' Build and return a PyMC3 Distribution. '''
         if isinstance(dist, string_types):
             if hasattr(pm, dist):
@@ -53,10 +53,18 @@ class PyMC3BackEnd(BackEnd):
         def _expand_args(k, v, label):
             if isinstance(v, Prior):
                 label = '%s_%s' % (label, k)
-                return self._build_dist(label, v.name, **v.args)
+                return self._build_dist(spec, label, v.name, **v.args)
             return v
 
         kwargs = {k: _expand_args(k, v, label) for (k, v) in kwargs.items()}
+
+        # Non-centered parameterization for hyperpriors
+        if spec.noncentered and 'sd' in kwargs and 'observed' not in kwargs \
+                and isinstance(kwargs['sd'], pm.model.TransformedRV):
+            old_sd = kwargs['sd']
+            _offset = pm.Normal(label + '_offset', mu=0, sd=1, shape=kwargs['shape'])
+            return pm.Deterministic(label, _offset * old_sd)
+
         return dist(label, **kwargs)
 
     def build(self, spec, reset=True):
@@ -89,7 +97,7 @@ class PyMC3BackEnd(BackEnd):
                 else:
                     n_cols = data.shape[1]
 
-                coef = self._build_dist(prefix + label, dist_name,
+                coef = self._build_dist(spec, prefix + label, dist_name,
                                         shape=n_cols, **dist_args)
 
                 if t._reduced_data is not None:
@@ -104,8 +112,8 @@ class PyMC3BackEnd(BackEnd):
                 link_f = self.links[link_f]
             y_prior.args[spec.family.parent] = link_f(self.mu)
             y_prior.args['observed'] = y
-            y_like = self._build_dist(
-                spec.y.name, y_prior.name, **y_prior.args)
+            y_like = self._build_dist(spec, spec.y.name, y_prior.name,
+                                      **y_prior.args)
 
             self.spec = spec
 
