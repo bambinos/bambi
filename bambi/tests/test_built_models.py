@@ -232,10 +232,11 @@ def test_many_fixed_many_random(crossed_data):
     # model1.fit(samples=1)
 
     # build model using stan backend
-    model2 = Model(crossed_data, backend='stan')
+    model2 = Model(crossed_data)
     fitted2 = model2.fit('Y ~ continuous + dummy + threecats',
                random=['0+threecats|subj', '1|item', '0+continuous|item',
-                       'dummy|item', 'threecats|site'], samples=10)
+                       'dummy|item', 'threecats|site'], samples=10,
+                        backend='stan')
 
     # check that the random effects design matrices have the same shape
     X0 = pd.concat([pd.DataFrame(t.data) if not isinstance(t.data, dict) else

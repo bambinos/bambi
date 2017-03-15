@@ -24,8 +24,6 @@ class Model(object):
         intercept (bool): If True, an intercept term is added to the model
             at initialization. Defaults to False, as both fixed and random
             effect specifications will add an intercept by default.
-        backend (str): The name of the BackEnd to use. Currently only
-            'pymc3' is supported.
         default_priors (dict, str): An optional specification of the
             default priors to use for all model terms. Either a dict
             containing named distributions, families, and terms (see the
@@ -47,9 +45,8 @@ class Model(object):
             are generally not recommended as they can be unstable.
     '''
 
-    def __init__(self, data=None, intercept=False, backend='pymc3',
-                 default_priors=None, auto_scale=True, dropna=False,
-                 taylor=None):
+    def __init__(self, data=None, intercept=False, default_priors=None,
+                 auto_scale=True, dropna=False, taylor=None):
 
         if isinstance(data, string_types):
             data = pd.read_table(data, sep=None)
@@ -69,18 +66,6 @@ class Model(object):
                           "rename your columns to avoid square brackets.")
         self.reset()
 
-        backend = backend.lower()
-
-        if backend.startswith('pymc'):
-            from bambi.backends import PyMC3BackEnd
-            self.backend = PyMC3BackEnd()
-        elif backend == 'stan':
-            from bambi.backends import StanBackEnd
-            self.backend = StanBackEnd()
-        else:
-            raise ValueError(
-                "At the moment, only the PyMC3 and Stan backends are supported.")
-
         self.auto_scale = auto_scale
         self.dropna = dropna
         self.taylor = taylor
@@ -94,12 +79,34 @@ class Model(object):
         '''
         self.terms = OrderedDict()
         self.y = None
+        self.backend = None
 
-    def build(self):
+    def _set_backend(self, backend):
+
+        backend = backend.lower()
+
+        if backend.startswith('pymc'):
+            from bambi.backends import PyMC3BackEnd
+            self.backend = PyMC3BackEnd()
+        elif backend == 'stan':
+            from bambi.backends import StanBackEnd
+            self.backend = StanBackEnd()
+        else:
+            raise ValueError(
+                "At the moment, only the PyMC3 and Stan backends are "
+                "supported.")
+
+        self._backend_name = backend
+
+    def build(self, backend):
         ''' Set up the model for sampling/fitting. Performs any steps that
         require access to all model terms (e.g., scaling priors on each term),
         then calls the BackEnd's build() method.
+        Args:
+            backend (str): The name of the backend to use for model fitting.
+                Currently, 'pymc' and 'stan' are supported.
         '''
+
         if self.y is None:
             raise ValueError("No outcome (y) variable is set! Please specify "
                              "an outcome variable using the formula interface "
@@ -197,11 +204,12 @@ class Model(object):
             warnings.warn('Modeling the probability that {}==\'{}\''.format(
                 self.y.name, str(self.data[self.y.name].iloc[event])))
 
+        self._set_backend(backend)
         self.backend.build(self)
         self.built = True
 
     def fit(self, fixed=None, random=None, priors=None, family='gaussian',
-            link=None, run=True, categorical=None, **kwargs):
+            link=None, run=True, categorical=None, backend='pymc', **kwargs):
         '''
         Fit the model using the current BackEnd.
         Args:
@@ -233,16 +241,18 @@ class Model(object):
                 numeric columns are to be treated as categoricals (e.g., random
                 factors coded as numerical IDs), explicitly passing variable
                 names via this argument is recommended.
+            backend (str): The name of the BackEnd to use. Currently only
+                'pymc' and 'stan' backends are supported. Defaults to PyMC3.
         '''
         if fixed is not None or random is not None:
             self.add(fixed=fixed, random=random, priors=priors, family=family,
                      link=link, categorical=categorical, append=False)
         ''' Run the BackEnd to fit the model. '''
         if run:
-            if not self.built:
+            if not self.built or backend != self._backend_name:
                 warnings.warn("Current Bayesian model has not been built yet; "
                               "building it first before sampling begins.")
-                self.build()
+                self.build(backend)
             return self.backend.run(**kwargs)
 
     def _add_intercept(self):
@@ -254,9 +264,8 @@ class Model(object):
         df = pd.DataFrame(np.ones((n, 1)), columns=['Intercept'])
         self._add_term('Intercept', df)
 
-
     def add(self, fixed=None, random=None, priors=None, family='gaussian',
-        link=None, categorical=None, append=True):
+            link=None, categorical=None, append=True):
         '''
         Adds one or more terms to the model via an R-like formula syntax.
         Args:
