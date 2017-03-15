@@ -21,9 +21,6 @@ class Model(object):
         data (DataFrame, str): the dataset to use. Either a pandas
             DataFrame, or the name of the file containing the data, which
             will be passed to pd.read_table().
-        intercept (bool): If True, an intercept term is added to the model
-            at initialization. Defaults to False, as both fixed and random
-            effect specifications will add an intercept by default.
         default_priors (dict, str): An optional specification of the
             default priors to use for all model terms. Either a dict
             containing named distributions, families, and terms (see the
@@ -45,8 +42,8 @@ class Model(object):
             are generally not recommended as they can be unstable.
     '''
 
-    def __init__(self, data=None, intercept=False, default_priors=None,
-                 auto_scale=True, dropna=False, taylor=None):
+    def __init__(self, data=None, default_priors=None, auto_scale=True,
+                 dropna=False, taylor=None):
 
         if isinstance(data, string_types):
             data = pd.read_table(data, sep=None)
@@ -69,9 +66,6 @@ class Model(object):
         self.auto_scale = auto_scale
         self.dropna = dropna
         self.taylor = taylor
-
-        if intercept:
-            self._add_intercept()
 
     def reset(self):
         '''
@@ -254,15 +248,6 @@ class Model(object):
                               "building it first before sampling begins.")
                 self.build(backend)
             return self.backend.run(**kwargs)
-
-    def _add_intercept(self):
-        '''
-        Adds a constant term to the model. Generally unnecessary when using the
-        formula interface, but useful when specifying the model via _add_term().
-        '''
-        n = len(self.data)
-        df = pd.DataFrame(np.ones((n, 1)), columns=['Intercept'])
-        self._add_term('Intercept', df)
 
     def add(self, fixed=None, random=None, priors=None, family='gaussian',
             link=None, categorical=None, append=True):
