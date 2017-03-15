@@ -24,7 +24,9 @@ class StanBackEnd(BackEnd):
                        'bounds': '<lower=0>'},
         'HalfCauchy': {'name': 'cauchy', 'args': ['0', '#beta'],
                        'bounds': '<lower=0>'},
-        'Uniform': {'name': 'uniform', 'args': ['#lower', '#upper']}
+        'Uniform': {'name': 'uniform', 'args': ['#lower', '#upper']},
+        'Flat': {'name': None, 'args': []},
+        'HalfFlat':  {'name': None, 'args': [], 'bounds': '<lower=0>'}
     }
 
     def __init__(self):
@@ -84,6 +86,10 @@ class StanBackEnd(BackEnd):
             dist_name = stan_dist['name']
             dist_args = stan_dist['args']
             dist_bounds = stan_dist.get('bounds', '')
+
+            # Flat/HalfFlat/undefined priors are handled separately
+            if dist_name is None:
+                return None, dist_bounds
 
             lookup_args = [a[1:] for a in dist_args if a.startswith('#')]
             missing = set(lookup_args) - set(list(kwargs.keys()))
@@ -148,7 +154,8 @@ class StanBackEnd(BackEnd):
 
             var_name = _sanitize_name(name)
             self.parameters.append('%s%s %s;' % (stan_par, _bounds, var_name))
-            self.model.append('%s ~ %s;' % (var_name, _dist))
+            if _dist is not None:
+                self.model.append('%s ~ %s;' % (var_name, _dist))
             return name
 
         for t in spec.terms.values():

@@ -22,6 +22,10 @@ class PyMC3BackEnd(BackEnd):
         'log': theano.tensor.log
     }
 
+    dists = {
+        'HalfFlat': pm.Bound(pm.Flat, lower=0)
+    }
+
     def __init__(self):
 
         self.reset()
@@ -37,12 +41,15 @@ class PyMC3BackEnd(BackEnd):
     def _build_dist(self, label, dist, **kwargs):
         ''' Build and return a PyMC3 Distribution. '''
         if isinstance(dist, string_types):
-            if not hasattr(pm, dist):
+            if hasattr(pm, dist):
+                dist = getattr(pm, dist)
+            elif dist in self.dists:
+                dist = self.dists[dist]
+            else:
                 raise ValueError("The Distribution class '%s' was not "
-                                 "found in PyMC3." % dist)
-            dist = getattr(pm, dist)
+                                 "found in PyMC3 or the PyMC3BackEnd." % dist)
+
         # Inspect all args in case we have hyperparameters
-        
         def _expand_args(k, v, label):
             if isinstance(v, Prior):
                 label = '%s_%s' % (label, k)
