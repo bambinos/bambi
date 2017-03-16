@@ -82,14 +82,12 @@ class PyMC3BackEnd(BackEnd):
                 dist_name = t.prior.name
                 dist_args = t.prior.args
 
-                prefix = 'u_' if t.random else 'b_'
-
                 if t._reduced_data is not None:
                     n_cols = t._reduced_data.max() + 1
                 else:
                     n_cols = data.shape[1]
 
-                coef = self._build_dist(prefix + label, dist_name,
+                coef = self._build_dist(label, dist_name,
                                         shape=n_cols, **dist_args)
 
                 if t._reduced_data is not None:
@@ -176,15 +174,14 @@ class PyMC3BackEnd(BackEnd):
         dims = list(self.trace._straces[0].var_shapes.values())
         def get_levels(key, value):
             if len(value):
-                if key[:2]=='b_':
-                    return self.model.terms[key[2:]].levels
+                if not self.model.terms[key].random:
+                    return self.model.terms[key].levels
                 else:
-                    return [key[2:].split('|')[0]+'|'+x \
-                        for x in self.model.terms[key[2:]].levels]
+                    return [key.split('|')[0]+'|'+x \
+                        for x in self.model.terms[key].levels]
             else:
                 return [key]
         levels = sum([get_levels(k, v) \
             for k, v in self.trace._straces[0].var_shapes.items()], [])
-        levels = [re.sub(r'^[ub]_', '', x) for x in levels]
 
         return SampleArray(data=data, names=names, dims=dims, levels=levels)
