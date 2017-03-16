@@ -69,9 +69,13 @@ class StanBackEnd(BackEnd):
         self.X['N'] = n_cases
 
         def _sanitize_name(name):
-            ''' Stan only allows alphanumeric chars and underscore, so replace
-            all invalid chars with '_' and track for later re-substitution. '''
-            clean = re.sub('[^a-zA-Z0-9\_]+', '_', name)
+            ''' Stan only allows alphanumeric chars and underscore, and
+            variable names must begin with a letter. So replace all invalid
+            chars with '_', prepend with 'b_', and track for later
+            re-substitution. '''
+            if name in self._original_names:
+                return name
+            clean = 'b_' + re.sub('[^a-zA-Z0-9\_]+', '_', name)
             self._original_names[clean] = name
             return clean
 
@@ -165,9 +169,6 @@ class StanBackEnd(BackEnd):
             dist_name = t.prior.name
             dist_args = t.prior.args
 
-            prefix = 'u_' if t.random else 'b_'
-            name = prefix + label
-
             if t._reduced_data is not None:
                 data = t._reduced_data
                 if data.max() > 1:
@@ -177,8 +178,8 @@ class StanBackEnd(BackEnd):
                 n_cols = data.shape[1]
 
             # Add to Stan model
-            _add_data(name, data)
-            _add_parameters(name, dist_name, n_cols, **dist_args)
+            _add_data(label, data)
+            _add_parameters(label, dist_name, n_cols, **dist_args)
 
         # yhat
         self.transformed_parameters.append('vector[N] yhat;')
@@ -196,8 +197,8 @@ class StanBackEnd(BackEnd):
 
         # y
         self.data.append('vector[N] y;')
-        self.parameters.append('real<lower=0> sigma;')
-        self.model.append('y ~ normal(yhat, sigma);')
+        self.parameters.append('real<lower=0> {}_sd;'.format(spec.y.name))
+        self.model.append('y ~ normal(yhat, {}_sd);'.format(spec.y.name))
         self.X['y'] = spec.y.data.squeeze()
 
         # Construct the stan script
@@ -263,17 +264,21 @@ class StanBackEnd(BackEnd):
 
         # grab info necessary for making samplearray pretty
         names = [self._original_names[x] \
-                 if x in self._original_names.keys() else x \
+                 if x in self._original_names else x \
                  for x in self.fit.sim['pars_oi']]
         dims = [tuple(x) for x in self.fit.sim['dims_oi']]
         def replace_name(name):
-            if re.search(r'\[.+\]$', name) is not None \
-            and re.sub(r'\[.+\]$', '', name) in self._original_names.keys():
-                return self._original_names[re.sub(r'\[.+\]$', '', name)] \
-                + re.search(r'\[.+\]$', name).group()
+            tname = re.sub(r'\[.+\]$', '', name)
+            if tname in self._original_names:
+                lev = re.search(r'\[(.+)\]$', name)
+                if lev is not None:
+                    tname = self._original_names[tname]
+                    lev = self.model.terms[tname].levels[int(lev.group(1))]
+                    return '{}|{}'.format(tname.split('|')[0], lev)
+                else:
+                    return self._original_names[name]
             else:
                 return name
-        levs = [re.sub(r'^[ub]_', '', replace_name(x)) \
-            for x in self.fit.sim['fnames_oi']]
+        levels = [replace_name(x) for x in self.fit.sim['fnames_oi']]
 
         return SampleArray(data=data, names=names, dims=dims, levels=levels)
