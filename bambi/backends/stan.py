@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from .base import BackEnd
 from bambi.priors import Prior
-from bambi.results import MCMCResults, SampleArray
+from bambi.results import MCMCResults
 import numpy as np
 import pymc3 as pm
 import re
@@ -47,10 +47,11 @@ class StanBackEnd(BackEnd):
         self.model = []
         self.mu_cont = []
         self.mu_cat = []
-        self._suppress_vars = []  # variables to suppress in output
-        # Stan uses limited set for variable names, so track variable names
-        # we may need to simplify for the model code and then sub back later.
         self._original_names = {}
+        # variables to suppress in output. Stan uses limited set for variable
+        # names, so track variable names we may need to simplify for the model
+        # code and then sub back later.
+        self._suppress_vars = ['yhat', 'lp__']  
 
     def build(self, spec, reset=True):
         '''
@@ -193,7 +194,6 @@ class StanBackEnd(BackEnd):
             loops = ('for (n in 1:N)\n'
                     '\t\tyhat[n] = %s' % ' + '.join(self.mu_cat) + ';\n\t')
             self.transformed_parameters.append(loops)
-        self._suppress_vars.append('yhat')
 
         # y
         self.data.append('vector[N] y;')
@@ -225,39 +225,9 @@ class StanBackEnd(BackEnd):
         '''
         self.fit = self.stan_model.sampling(data=self.X, iter=samples,
                                             chains=chains, **kwargs)
-        return self._convert_to_multitrace()
+        return self._convert_to_results()
 
-    def _convert_to_multitrace(self):
-        ''' Convert a PyStan stanfit4model object to a PyMC3 MultiTrace. '''
-        _res = self.fit.extract(permuted=True, inc_warmup=True)
-
-        # Substitute original var names where we had to strip chars for Stan
-        result = {}
-        for k, v in _res.items():
-            if k in self._original_names:
-                k = self._original_names[k]
-            result[k] = v
-
-        varnames = list(result.keys())
-        straces = []
-        n_chains = self.fit.sim['chains']
-        n_samples = self.fit.sim['iter'] - self.fit.sim['warmup']
-        dummy = pm.Model()  # Need to fool the NDArray
-
-        for i in range(n_chains):
-            _strace = pm.backends.NDArray(model=dummy)
-            _strace.setup(n_samples, i)
-            _strace.draw_idx = _strace.draws
-            _strace.varnames = varnames
-            for k, par in result.items():
-                start = i * n_samples
-                _strace.samples[k] = par[start:(start+n_samples)]
-            straces.append(_strace)
-
-        self.trace = pm.backends.base.MultiTrace(straces)
-        return MCMCResults(self.spec, self.trace, self._suppress_vars)
-
-    def _convert_to_samplearray(self):
+    def _convert_to_results(self):
         # grab samples as big, unlabelled array
         # dimensions 0, 1, 2 = samples, chains, variables
         data = self.fit.extract(permuted=False, inc_warmup=True)     
@@ -273,7 +243,7 @@ class StanBackEnd(BackEnd):
                 lev = re.search(r'\[(.+)\]$', name)
                 if lev is not None:
                     tname = self._original_names[tname]
-                    lev = self.model.terms[tname].levels[int(lev.group(1))]
+                    lev = self.spec.terms[tname].levels[int(lev.group(1))]
                     return '{}|{}'.format(tname.split('|')[0], lev)
                 else:
                     return self._original_names[name]
@@ -281,4 +251,6 @@ class StanBackEnd(BackEnd):
                 return name
         levels = [replace_name(x) for x in self.fit.sim['fnames_oi']]
 
-        return SampleArray(data=data, names=names, dims=dims, levels=levels)
+        # instantiate
+        return MCMCResults(model=self.spec, data=data, names=names, dims=dims,
+            levels=levels, transformed_vars=self._suppress_vars)

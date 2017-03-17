@@ -36,12 +36,12 @@ def crossed_data():
 def test_empty_model(crossed_data):
     model0 = Model(crossed_data)
     model0.add('Y ~ 0')
-    model0.build()
+    model0.build(backend='pymc3')
     model0.fit(samples=1)
 
     model1 = Model(crossed_data)
     model1.fit('Y ~ 0', run=False)
-    model1.build()
+    model1.build(backend='pymc3')
     model1.fit(samples=1)
 
     # check that both models have same priors for fixed effects
@@ -60,14 +60,14 @@ def test_nan_handling(crossed_data):
     model_fail_na.fit('Y ~ continuous', run=False)
     model_fail_na.terms['continuous'].data[[4, 6, 8], :] = np.nan
     with pytest.raises(ValueError):
-        model_fail_na.build()
+        model_fail_na.build(backend='pymc3')
 
     # Should drop 3 rows with warning
     model_drop_na = Model(crossed_data, dropna=True)
     model_drop_na.fit('Y ~ continuous', run=False)
     model_drop_na.terms['continuous'].data[[4, 6, 8], :] = np.nan
     with pytest.warns(UserWarning) as w:
-        model_drop_na.build()
+        model_drop_na.build(backend='pymc3')
     assert '3 rows' in w[0].message.args[0]
 
 
@@ -75,14 +75,14 @@ def test_intercept_only_model(crossed_data):
     # using fit
     model0 = Model(crossed_data)
     model0.fit('Y ~ 1', run=False)
-    model0.build()
+    model0.build(backend='pymc3')
     model0.fit(samples=1)
 
     # using add
     model1 = Model(crossed_data)
     model1.add('Y ~ 0')
     model1.add('1')
-    model1.build()
+    model1.build(backend='pymc3')
     model1.fit(samples=1)
 
     # check that fit and add models have same priors for fixed
@@ -98,14 +98,14 @@ def test_slope_only_model(crossed_data):
     # using fit
     model0 = Model(crossed_data)
     model0.fit('Y ~ 0 + continuous', run=False)
-    model0.build()
+    model0.build(backend='pymc3')
     model0.fit(samples=1)
 
     # using add
     model1 = Model(crossed_data)
     model1.add('Y ~ 0')
     model1.add('0 + continuous')
-    model1.build()
+    model1.build(backend='pymc3')
     model1.fit(samples=1)
 
     # check that term names agree
@@ -124,14 +124,14 @@ def test_cell_means_parameterization(crossed_data):
     # build model using fit
     model0 = Model(crossed_data)
     model0.fit('Y ~ 0 + threecats', run=False)
-    model0.build()
+    model0.build(backend='pymc3')
     model0.fit(samples=1)
 
     # build model using add
     model1 = Model(crossed_data)
     model1.add('Y ~ 0')
     model1.add('0 + threecats')
-    model1.build()
+    model1.build(backend='pymc3')
     model1.fit(samples=1)
 
     # check that design matries are the same,
@@ -159,7 +159,7 @@ def test_3x4_fixed_anova(crossed_data):
     # using fit, with intercept
     model0 = Model(crossed_data)
     model0.fit('Y ~ threecats*fourcats', run=False)
-    model0.build()
+    model0.build(backend='pymc3')
     fitted0 = model0.fit(samples=1)
     # make sure X has 11 columns (not including the intercept)
     assert len(fitted0.diagnostics['VIF']) == 11
@@ -167,7 +167,7 @@ def test_3x4_fixed_anova(crossed_data):
     # using fit, without intercept (i.e., 2-factor cell means model)
     model1 = Model(crossed_data)
     model1.fit('Y ~ 0 + threecats*fourcats', run=False)
-    model1.build()
+    model1.build(backend='pymc3')
     fitted1 = model1.fit(samples=1)
     # make sure X has 12 columns
     assert len(fitted1.diagnostics['VIF']) == 12
@@ -177,7 +177,7 @@ def test_cell_means_with_covariate(crossed_data):
     # build model using fit
     model0 = Model(crossed_data)
     model0.fit('Y ~ 0 + threecats + continuous', run=False)
-    model0.build()
+    model0.build(backend='pymc3')
     # model0.fit(samples=1)
 
     # build model using add
@@ -185,7 +185,7 @@ def test_cell_means_with_covariate(crossed_data):
     model1.add('Y ~ 0')
     model1.add('0 + threecats')
     model1.add('0 + continuous')
-    model1.build()
+    model1.build(backend='pymc3')
     # model1.fit(samples=1)
 
     # check that design matries are the same,
@@ -212,9 +212,10 @@ def test_many_fixed_many_random(crossed_data):
     # build model using fit
     model0 = Model(crossed_data)
     fitted = model0.fit('Y ~ continuous + dummy + threecats',
-               random=['0+threecats|subj', '1|item', '0+continuous|item',
-                       'dummy|item', 'threecats|site'], samples=10)
-    # model0.build()
+        random=['0+threecats|subj', '1|item', '0+continuous|item', 
+            'dummy|item', 'threecats|site'],
+        backend='pymc3', samples=10)
+    # model0.build(backend='pymc3')
     # model0.fit(samples=1)
 
     # build model using add(append=True)
@@ -228,15 +229,15 @@ def test_many_fixed_many_random(crossed_data):
     model1.add(random='0+continuous|item')
     model1.add(random='dummy|item')
     model1.add(random='threecats|site')
-    model1.build()
+    model1.build(backend='pymc3')
     # model1.fit(samples=1)
 
     # build model using stan backend
     model2 = Model(crossed_data)
     fitted2 = model2.fit('Y ~ continuous + dummy + threecats',
-               random=['0+threecats|subj', '1|item', '0+continuous|item',
-                       'dummy|item', 'threecats|site'], samples=10,
-                        backend='stan')
+        random=['0+threecats|subj', '1|item', '0+continuous|item',
+            'dummy|item', 'threecats|site'],
+        backend='stan', samples=10)
 
     # check that the random effects design matrices have the same shape
     X0 = pd.concat([pd.DataFrame(t.data) if not isinstance(t.data, dict) else
@@ -318,16 +319,16 @@ def test_many_fixed_many_random(crossed_data):
     assert all([dicts_close(priors0[x], priors2[x]) for x in priors0.keys()])
     assert all([dicts_close(priors1[x], priors2[x]) for x in priors0.keys()])
 
-    # test consistency between summary and get_trace for pymc3
-    assert len(set(fitted.get_trace().columns)) == 15
-    assert set(fitted.get_trace().columns)==set(fitted.summary().index)
+    # test consistency between summary and to_df for pymc3
+    assert len(set(fitted.to_df().columns)) == 15
+    assert set(fitted.to_df().columns)==set(fitted.summary().index)
 
-    # test consistency between summary and get_trace for stan
-    assert len(set(fitted2.get_trace().columns)) == 15
-    assert set(fitted2.get_trace().columns)==set(fitted2.summary().index)
+    # test consistency between summary and to_df for stan
+    assert len(set(fitted2.to_df().columns)) == 15
+    assert set(fitted2.to_df().columns)==set(fitted2.summary().index)
 
     # test consistenct between pymc3 and stan
-    assert set(fitted.get_trace().columns)==set(fitted2.get_trace().columns)
+    assert set(fitted.to_df().columns)==set(fitted2.to_df().columns)
     assert set(fitted.summary().index)==set(fitted2.summary().index)
 
     # check hide_transformed for pymc3
@@ -339,15 +340,15 @@ def test_many_fixed_many_random(crossed_data):
     test_set = fitted.summary(exclude_ranefs=False).index
     test_set = set([re.sub(r'_$', r'', x) for x in test_set])
     answer = {'Y_sd_interval',
-     'u_continuous|item_sd_log',
-     'u_dummy|item_sd_log',
-     'u_item_sd_log',
-     'u_site_sd_log',
-     'u_threecats|site_threecats[0]_sd_log',
-     'u_threecats|site_threecats[1]_sd_log',
-     'u_threecats|subj_threecats[0]_sd_log',
-     'u_threecats|subj_threecats[1]_sd_log',
-     'u_threecats|subj_threecats[2]_sd_log'}
+     'continuous|item_sd_log',
+     'dummy|item_sd_log',
+     'item_sd_log',
+     'site_sd_log',
+     'threecats|site_threecats[0]_sd_log',
+     'threecats|site_threecats[1]_sd_log',
+     'threecats|subj_threecats[0]_sd_log',
+     'threecats|subj_threecats[1]_sd_log',
+     'threecats|subj_threecats[2]_sd_log'}
     assert full.difference(test_set) == answer
 
     # check hide_transformed for stan
@@ -435,7 +436,7 @@ def test_cell_means_with_many_random_effects(crossed_data):
     model0.fit('Y ~ 0 + threecats',
                random=['0+threecats|subj', 'continuous|item', 'dummy|item',
                        'threecats|site'], run=False)
-    model0.build()
+    model0.build(backend='pymc3')
     # model0.fit(samples=1)
 
     # build model using add(append=True)
@@ -447,7 +448,7 @@ def test_cell_means_with_many_random_effects(crossed_data):
     model1.add(random='0+continuous|item')
     model1.add(random='dummy|item')
     model1.add(random='threecats|site')
-    model1.build()
+    model1.build(backend='pymc3')
     # model1.fit(samples=1)
 
     # check that the random effects design matrices have the same shape
@@ -497,7 +498,7 @@ def test_logistic_regression(crossed_data):
     model0 = Model(crossed_data)
     model0.fit('threecats[b] ~ continuous + dummy',
                family='binomial', link='logit', run=False)
-    model0.build()
+    model0.build(backend='pymc3')
     fitted = model0.fit(samples=100)
 
     # build model using add
@@ -505,7 +506,7 @@ def test_logistic_regression(crossed_data):
     model1.add('threecats[b] ~ 1', family='binomial', link='logit')
     model1.add('continuous')
     model1.add('dummy')
-    model1.build()
+    model1.build(backend='pymc3')
     model1.fit(samples=1)
 
     # check that term names agree
@@ -539,7 +540,7 @@ def test_poisson_regression(crossed_data):
     model0 = Model(crossed_data)
     model0.fit('count ~ threecats + continuous + dummy',
         family='poisson', run=False)
-    model0.build()
+    model0.build(backend='pymc3')
     model0.fit(samples=1)
 
     # build model using add
@@ -548,7 +549,7 @@ def test_poisson_regression(crossed_data):
     model1.add('threecats')
     model1.add('continuous')
     model1.add('dummy')
-    model1.build()
+    model1.build(backend='pymc3')
     model1.fit(samples=1)
 
     # check that term names agree

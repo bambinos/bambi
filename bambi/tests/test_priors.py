@@ -123,7 +123,7 @@ def test_auto_scale(diabetes_data):
         'BP': Prior('Cauchy', alpha=1, beta=17.5)
     }
     model.fit('BMI ~ S1 + S2 + BP', run=False, priors=priors)
-    model.build()
+    model.build(backend='pymc3')
     p1 = model.terms['S1'].prior
     p2 = model.terms['S2'].prior
     p3 = model.terms['BP'].prior
@@ -137,7 +137,7 @@ def test_auto_scale(diabetes_data):
     # in priors
     model = Model(diabetes_data, auto_scale=False)
     model.fit('BMI ~ S1 + S2 + BP', run=False, priors=priors)
-    model.build()
+    model.build(backend='pymc3')
     p1_off = model.terms['S1'].prior
     p2_off = model.terms['S2'].prior
     p3_off = model.terms['BP'].prior
