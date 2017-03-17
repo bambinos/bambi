@@ -40,10 +40,13 @@ class Model(object):
             numbered values tend to work better. Defaults to 5 for Normal
             models and 1 for non-Normal models. Values higher than the defaults
             are generally not recommended as they can be unstable.
+        noncentered (True): If True (default), uses a non-centered
+            parameterization for normal hyperpriors on grouped parameters.
+            If False, naive (centered) parameterization is used.
     '''
 
     def __init__(self, data=None, default_priors=None, auto_scale=True,
-                 dropna=False, taylor=None):
+                 dropna=False, taylor=None, noncentered=True):
 
         if isinstance(data, string_types):
             data = pd.read_table(data, sep=None)
@@ -66,6 +69,7 @@ class Model(object):
         self.auto_scale = auto_scale
         self.dropna = dropna
         self.taylor = taylor
+        self.noncentered = noncentered
 
     def reset(self):
         '''
