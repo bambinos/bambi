@@ -55,19 +55,6 @@ def test_model_init_from_filename():
     assert 'BMI' in model.data.columns
 
 
-def test_model_init_and_intercept(diabetes_data):
-
-    model = Model(diabetes_data, intercept=True)
-    assert hasattr(model, 'data')
-    assert 'Intercept' in model.terms
-    assert len(model.terms) == 1
-    assert model.y is None
-    assert hasattr(model, 'backend')
-    model = Model(diabetes_data)
-    assert 'Intercept' not in model.terms
-    assert not model.terms
-
-
 def test_model_term_names_property(diabetes_data):
     model = Model(diabetes_data)
     model.add('BMI')
@@ -108,9 +95,9 @@ def test_reduced_data_representation_for_categoricals(diabetes_data):
 def test_one_shot_formula_fit(diabetes_data):
     model = Model(diabetes_data)
     model.fit('S3 ~ S1 + S2', samples=50, run=False)
-    model.build()
+    model.build(backend='pymc3')
     nv = model.backend.model.named_vars
-    targets = ['S3', 'b_S1', 'b_Intercept']
+    targets = ['S3', 'S1', 'Intercept']
     assert len(set(nv.keys()) & set(targets)) == 3
 
 

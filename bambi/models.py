@@ -205,7 +205,7 @@ class Model(object):
     def fit(self, fixed=None, random=None, priors=None, family='gaussian',
             link=None, run=True, categorical=None, backend='pymc', **kwargs):
         '''
-        Fit the model using the current BackEnd.
+        Fit the model using the specified BackEnd.
         Args:
             fixed (str): Optional formula specification of fixed effects.
             random (list): Optional list-based specification of random effects.

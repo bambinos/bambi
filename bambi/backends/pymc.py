@@ -1,10 +1,11 @@
 from __future__ import absolute_import
 from .base import BackEnd
 from bambi.priors import Prior
-from bambi.results import MCMCResults, PyMC3ADVIResults, SampleArray
+from bambi.results import MCMCResults, PyMC3ADVIResults
 from bambi.external.six import string_types
 import theano
 import pymc3 as pm
+import numpy as np
 from pymc3.model import TransformedRV
 
 
@@ -146,13 +147,13 @@ class PyMC3BackEnd(BackEnd):
 
         if method == 'mcmc':
             samples = kwargs.pop('samples', 1000)
+            njobs = kwargs.pop('chains', 1)
             with self.model:
                 if start is None and find_map:
                     start = pm.find_MAP()
                 self.trace = pm.sample(samples, start=start, init=init,
-                                       n_init=n_init, **kwargs)
-            return MCMCResults(self.spec, self.trace,
-                               transformed_vars=self._get_transformed_vars())
+                                       n_init=n_init, njobs=njobs, **kwargs)
+            return self._convert_to_results()
 
         elif method == 'advi':
             with self.model:
@@ -160,7 +161,7 @@ class PyMC3BackEnd(BackEnd):
             return PyMC3ADVIResults(self.spec, self.advi_params,
                                     transformed_vars=self._get_transformed_vars())
 
-    def _convert_to_samplearray(self):
+    def _convert_to_results(self):
         # grab samples as big, unlabelled array
         # dimensions 0, 1, 2 = samples, chains, variables
         data = np.array([np.array([np.atleast_2d(x.T).T[:,i] \
@@ -174,14 +175,16 @@ class PyMC3BackEnd(BackEnd):
         dims = list(self.trace._straces[0].var_shapes.values())
         def get_levels(key, value):
             if len(value):
-                if not self.model.terms[key].random:
-                    return self.model.terms[key].levels
+                if not self.spec.terms[key].random:
+                    return self.spec.terms[key].levels
                 else:
                     return [key.split('|')[0]+'|'+x \
-                        for x in self.model.terms[key].levels]
+                        for x in self.spec.terms[key].levels]
             else:
                 return [key]
         levels = sum([get_levels(k, v) \
             for k, v in self.trace._straces[0].var_shapes.items()], [])
 
-        return SampleArray(data=data, names=names, dims=dims, levels=levels)
+        # instantiate
+        return MCMCResults(model=self.spec, data=data, names=names, dims=dims,
+            levels=levels, transformed_vars=self._get_transformed_vars())

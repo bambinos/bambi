@@ -1,4 +1,5 @@
 from abc import abstractmethod, ABCMeta
+from bambi.external.six import string_types
 import re
 import warnings
 import pandas as pd
@@ -26,7 +27,6 @@ class ModelResults(object):
         self.terms = list(model.terms.values())
         self.diagnostics = model._diagnostics \
             if hasattr(model, '_diagnostics') else None
-        self.n_terms = len(model.terms)
 
     @abstractmethod
     def plot(self):
@@ -39,75 +39,114 @@ class ModelResults(object):
 
 class MCMCResults(ModelResults):
     '''
-    Holds PyMC3 sampler results and provides plotting and summarization tools.
+    Holds sampler results; provides slicing, plotting, and summarization tools.
     Args:
         model (Model): a bambi Model instance specifying the model.
-        trace (MultiTrace): a PyMC3 MultiTrace object returned by the sampler.
+        data (numpy array): Raw storage of MCMC samples in array with
+            dimensions 0, 1, 2 = samples, chains, variables
+        names (list): Names of all Terms.
+        dims (list): Numbers of levels for all Terms.
+        levels (list): Names of all levels for all Terms.
         transformed (list): Optional list of variable names to treat as
             transformed--and hence, to exclude from the output by default.
     '''
 
-    def __init__(self, model, trace, transformed_vars=None):
+    def __init__(self, model, data, names, dims, levels, transformed_vars=None):
+        # store the arguments
+        self.data = data
+        self.names = names
+        self.dims = dims
+        self.levels = levels
+        self.transformed_vars = transformed_vars
 
-        self.trace = trace
-        self.n_samples = len(trace)
-
+        # compute basic stuff to use later
+        self.n_samples = data.shape[0]
+        self.n_chains = data.shape[1]
+        self.n_params = data.shape[2]
+        self.n_terms = len(names)
         if transformed_vars is not None:
-            utv = list(set(trace.varnames) - set(transformed_vars))
+            utv = list(set(names) - set(transformed_vars))
         else:
-            utv = trace.varnames
+            utv = names
         self.untransformed_vars = utv
+        # this keeps track of which columns in 'data' go with which terms
+        self.index = np.cumsum([0] + [x[0] if len(x) else 1 for x in dims][:-1])
+
+        # build level_dict: dictionary of lists containing levels of each Term
+        level_dict = {}
+        for i, name, dim in zip(self.index, names, dims):
+            dim = dim[0] if len(dim) else 1
+            level_dict[name] = levels[i:(i+dim)]
+        self.level_dict = level_dict
 
         super(MCMCResults, self).__init__(model)
 
-    def _filter_names(self, names, exclude_ranefs=True, hide_transformed=True):
-        names = self.untransformed_vars \
-            if hide_transformed else self.trace.varnames
-        # helper function to put parameter names in same format as random_terms
-        def _format(name):
-            regex = re.match(r'^u_([^\|]+)\|([^_\1]+)_\1(.*_sd$)?', name)
-            return name if regex is None or regex.group(3) is not None \
-                else 'u_{}|{}'.format(regex.group(1), regex.group(2))
-        if exclude_ranefs:
-            names = [x for x in names
-                if _format(x)[2:] not in list(self.model.random_terms.keys())]
-        return names
+    def __getitem__(self, idx):
+        '''
+        If a variable name, return MCMCResults with only that variable
+            e.g., fit['subject']
+        If a list of variable names, return MCMCResults with those variables
+            e.g., fit[['subject','item]]
+        If a slice, return MCMCResults with sliced samples
+            e.g., fit[500:]
+        If a tuple, return MCMCResults with those variables sliced
+            e.g., fit[['subject','item'], 500:] OR fit[500:, ['subject','item']]
+        '''
 
-    def _prettify_name(self, old_name):
-        # re1 chops 'u_subj__7' into {1:'u_', 2:'subj', 3:'7'}
-        re1 = re.match(r'^([bu]_)(.+[^__\d+]+)(__\d+)?$', old_name)
-        # params like the residual SD will have no matches, so just return
-        if re1 is None:
-            return old_name
-        # handle random slopes first because their format is weird.
-        # re2 chops 'x|subj_x[a]' into {1:'x', 2:'subj', 3:'x', 4:'[a]'}
-        re2 = re.match(r'^([^\|]+)\|([^_\1]+)(_\1)?(\[.+\])?$', re1.group(2))
-        if re2 is not None:
-            term = self.model.terms['{}|{}'.format(re2.group(1), re2.group(2))]
-            # random slopes of factors
-            if re2.group(4) is not None:
-                return '{}{}|{}'.format(re2.group(3)[1:],
-                    re2.group(4), term.levels[int(re1.group(3)[2:])])
-            # random slopes of continuous predictors
-            else:
-                return '{}|{}'.format(
-                    re2.group(1), term.levels[int(re1.group(3)[2:])])
-        # handle SD terms
-        # re3 chops 'u_x|subj_x[a]_sd' into {'x', '|subj', '_x', '[a]'}
-        re3 = re.match(r'^([^\|]+)(\|[^_\1]+)?(_\1)?(\[\d+\])?_sd$',
-            re1.group(2))
-        if re1.group(3) is None and re3 is not None:
-            if re3.group(2) is None: return '1|{}_sd'.format(re3.group(1))
-            if re3.group(4) is not None: return '{}{}{}_sd'.format(
-                re3.group(3)[1:], re3.group(4), re3.group(2))
-            return '{}{}_sd'.format(re3.group(1), re3.group(2))
-        # handle fixed effects and random intercepts
-        term = self.model.terms[re1.group(2)]
-        if re1.group(1)=='b_': return re1.group(2) if re1.group(3) is None \
-            else term.levels[int(re1.group(3)[2:])]
-        if re1.group(1)=='u_':
-            return '1|{}[{}]'.format(
-                re1.group(2), term.levels[int(re1.group(3)[2:])])
+        if isinstance(idx, slice):
+            var = self.names
+            vslice = idx
+        elif isinstance(idx, string_types):
+            var = [idx]
+            vslice = slice(0, self.n_samples)
+        elif isinstance(idx, list):
+            if not all([isinstance(x, string_types) for x in idx]):
+                raise ValueError("If passing a list, all elements must be "
+                                 "parameter names.")
+            var = idx
+            vslice = slice(0, self.n_samples)
+        elif isinstance(idx, tuple):
+            if len(idx) > 2:
+                raise ValueError("Only two arguments can be passed. If you want"
+                                 " to select multiple parameters and a subset "
+                                 "of samples, pass a slice and a list of "
+                                 "parameter names.")
+            vslice = [i for i, x in enumerate(idx) if isinstance(x, slice)]
+            if not len(vslice):
+                raise ValueError("At least one argument must be a slice. If "
+                                 "you want to select multiple parameters by "
+                                 "name, pass a list (not a tuple) of names.")
+            if len(vslice) > 1:
+                raise ValueError("Slices can only be applied "
+                                 "over the samples dimension.")
+            var = idx[1 - vslice[0]]
+            vslice = idx[vslice[0]]
+            if not isinstance(var, (list, tuple)): var = [var] 
+        else:
+            raise ValueError("Unrecognized index type.")
+
+        # do slicing/selection and return subsetted copy of MCMCResults
+        levels = sum([self.level_dict[v] for v in var], [])
+        level_iloc = [self.levels.index(x) for x in levels]
+        var_iloc = [self.names.index(v) for v in var]
+        return MCMCResults(model=self.model,
+            data=self.data[vslice, :, level_iloc], names=var,
+            dims=[self.dims[x] for x in var_iloc], levels=levels,
+            transformed_vars=self.transformed_vars)
+
+    def get_chains(self, indices):
+        # Return copy of self but only for chains with the passed indices
+        if not isinstance(indices, (list, tuple)): indices = [indices]
+        return MCMCResults(model=self.model, data=self.data[:, indices, :],
+                names=self.names, dims=self.dims, levels=self.levels,
+                transformed_vars=self.transformed_vars)
+
+    def _filter_names(self, exclude_ranefs=True, hide_transformed=True):
+        names = self.untransformed_vars if hide_transformed else self.names
+        if exclude_ranefs:
+            names = [x for x in names \
+                if re.sub(r'\[.+\]$', '', x) not in self.model.random_terms]
+        return names
 
     def plot(self, burn_in=0, names=None, annotate=True, exclude_ranefs=False, 
         hide_transformed=True, kind='trace', **kwargs):
@@ -198,8 +237,7 @@ class MCMCResults(ModelResults):
     def summary(self, burn_in=0, exclude_ranefs=True, names=None,
                 hide_transformed=True, mc_error=False, **kwargs):
         '''
-        Summarizes all parameter estimates. Basically a wrapper for
-        pm.df_summary() plus some niceties.
+        Returns a DataFrame of summary/diagnostic statistics for the parameters.
         Args:
             burn_in (int): Number of initial samples to exclude before
                 summary statistics are computed.
@@ -265,49 +303,28 @@ class MCMCResults(ModelResults):
 
         return df
 
-    def get_trace(self, burn_in=0, names=None, exclude_ranefs=True,
-        hide_transformed=True):
+    def to_df(self, exclude_ranefs=True, hide_transformed=True):
         '''
-        Returns the MCMC samples in a nice, neat DataFrame.
+        Returns the MCMC samples in a nice, neat pandas DataFrame with all
+        MCMC chains concatenated.
         Args:
-            burn_in (int): Number of initial samples to exclude from
-                each chain before returning the trace DataFrame.
-            names (list): Optional list of variable names to get samples for.
             exclude_ranefs (bool): If True (default), do not return samples
                 for individual random effects.
             hide_transformed (bool): If True (default), do not return
-            samples for internally transformed variables.
+                samples for internally transformed variables.
         '''
-        # if no 'names' specified, filter out unwanted variables
-        if names is None:
-            names = self._filter_names(names, exclude_ranefs, hide_transformed)
+        # filter out unwanted variables
+        names = self._filter_names(exclude_ranefs, hide_transformed)
 
-        # helper function to label the trace DataFrame columns appropriately
-        def _get_cols(var):
-            # handle terms with a single level
-            if len(self.trace[var].shape)==1 or self.trace[var].shape[1]==1:
-                return [self._prettify_name(var)]
-            else:
-                # handle fixed terms with multiple levels
-                # (slice off the 'b_' or 'u_')
-                if var[2:] in self.model.fixed_terms.keys():
-                    return self.model.terms[var[2:]].levels
-                # handle random terms with multiple levels
-                else:
-                    return ['{}[{}]'.format(var[2:], x)
-                            for x in self.model.terms[var[2:]].levels]
+        # concatenate the (pre-sliced) chains
+        data = [self.data[:, i, :] for i in range(self.n_chains)]
+        data = np.concatenate(data, axis=0)
 
         # construct the trace DataFrame
-        def _slice_helper(trace):
-            sliced = trace[burn_in:]
-            sliced.varnames = trace.varnames
-            return sliced
-        trace_df = pm.backends.base.MultiTrace([_slice_helper(trace) \
-            for trace in self.trace._straces.values()])
-        trace_df = pd.concat([pd.DataFrame(trace_df[x], columns=_get_cols(x))
-                              for x in names], axis=1)
+        df = sum([self.level_dict[x] for x in names], [])
+        df = pd.DataFrame({x:data[:, self.levels.index(x)] for x in df})
 
-        return trace_df
+        return df
 
 
 class PyMC3ADVIResults(ModelResults):
@@ -323,79 +340,4 @@ class PyMC3ADVIResults(ModelResults):
         self.sds = params['stds']
         self.elbo_vals = params['elbo_vals']
         super(PyMC3ADVIResults, self).__init__(model)
-
-
-class SampleArray(object):
-    '''
-    Stores MCMC samples in a nice structure for easy slicing and etc.
-    Args:
-        data (numpy array): Raw storage of MCMC samples in array with
-            dimensions 0, 1, 2 = samples, chains, variables
-        names (list): Names of all Terms.
-        dims (list): Numbers of levels for all Terms.
-        levels (list): Names of all levels for all Terms.
-    '''
-
-    def __init__(self, data, names, dims, levels):
-        self.data = data
-        self.names = names
-        self.dims = dims
-        self.levels = levels
-        self.index = np.cumsum([0] + [x[0] if len(x) else 1 for x in dims][:-1])
-        self.n_samples = data.shape[0]
-        self.n_chains = data.shape[1]
-        self.n_params = data.shape[2]
-        self.n_terms = len(names)
-
-        # build sa: dictionary of 3D arrays (same dimensions as data)
-        # build level_dict: dictionary of lists containing levels of each Term
-        sa = {}
-        level_dict = {}
-        for i, name, dim in zip(self.index, names, dims):
-            dim = dim[0] if len(dim) else 1
-            sa[name] = data[:, :, i:(i+dim)]
-            level_dict[name] = levels[i:(i+dim)]
-        self.sa = sa
-        self.level_dict = level_dict
-
-    def __getitem__(self, idx):
-        '''
-        If a variable name, return SampleArray with only that variable
-            e.g., sa['subject']
-        If a list of variable names, return SampleArray with those variables
-            e.g., sa[['subject','item]]
-        If a slice, return SampleArray with sliced samples
-            e.g., sa[500:]
-        If a tuple, return SampleArray with those variables sliced
-            e.g., sa[['subject','item'], 500:]
-        '''
-
-        if isinstance(idx, slice):
-            return SampleArray(data=self.data[idx, :, :],
-                names=self.names, dims=self.dims, levels=self.levels)
-        elif isinstance(idx, tuple):
-            var, vslice = idx
-            if not isinstance(var, (list, tuple)): var = [var] 
-        elif isinstance(idx, string_types):
-            var = [idx]
-            vslice = slice(0, self.n_samples)
-        else:
-            raise ValueError("Unrecognized index type.")
-
-        loc = [self.names.index(v) for v in var]
-        return SampleArray(data=self.data[vslice, :, loc],
-            names=[self.names[x] for x in loc],
-            dims=[self.dims[x] for x in loc],
-            levels=sum([self.levels[i:(i+d)] for i, d in \
-                zip([self.index[x] for x in loc], [self.dims[x] \
-                if len(self.dims[x]) else 1 for x in loc])], []))
-
-    def get_chains(self, indices):
-        # Return copy of self but only for chains with the passed indices
-        if not isinstance(indices, (list, tuple)): indices = [indices]
-        return SampleArray(data=self.data[:, indices, :],
-                names=self.names, dims=self.dims, levels=self.levels)
-
-    def to_df(self):
-        pass
 
