@@ -746,9 +746,9 @@ class Term(object):
 
         # For the sake of computational efficiency (i.e., to avoid lots of
         # large matrix multiplications in the backends), invert the dummy-
-        # coding process and represent binary categoricals as a vector of
+        # coding process and represent full-rank dummies as a vector of
         # indices into the coefficients.
-        if data.shape[1] > 1 and ((data == 0) | (data == 1)).all():
+        if constant and data.shape[1] > 1 and ((data == 0) | (data == 1)).all():
             vec = np.zeros((len(data), 1), dtype=int)
             for i in range(1, data.shape[1]):
                 vec[data[:, i] == 1] = i
