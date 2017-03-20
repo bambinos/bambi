@@ -244,7 +244,13 @@ class StanBackEnd(BackEnd):
                 if lev is not None:
                     tname = self._original_names[tname]
                     lev = self.spec.terms[tname].levels[int(lev.group(1))]
-                    return '{}|{}'.format(tname.split('|')[0], lev)
+                    split = tname.split('|')
+                    # random effects
+                    if len(split) == 2:
+                        return '{}|{}'.format(split[0], lev)
+                    # fixed effects
+                    elif len(split) == 1:
+                        return lev
                 else:
                     return self._original_names[name]
             else:
