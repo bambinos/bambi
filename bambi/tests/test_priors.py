@@ -113,6 +113,17 @@ def test_update_term_priors_after_init(diabetes_data):
     assert model.terms['BMI'].prior == 0.4
     assert model.terms['age_grp|BP'].prior.args['sd'].args['sd'] == 7
 
+    # Invalid names should raise error
+    with pytest.raises(ValueError):
+        model.set_priors({'nonexistent_term': 0.3})
+
+    # Test for partial names, e.g., 'threecats' should match 'threecats[0]'.
+    model = Model(diabetes_data)
+    model.add(random='age_grp|BP', categorical='age_grp')
+    model.set_priors({'age_grp|BP': 0.5})
+    assert model.terms['age_grp[T.1]|BP'].prior == 0.5
+    assert model.terms['1|BP'].prior == 0.5
+
 
 def test_auto_scale(diabetes_data):
 
