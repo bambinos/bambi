@@ -489,8 +489,8 @@ class Model(object):
             else None
 
     def _add_term(self, variable=None, data=None, label=None,
-                  categorical=False, random=False, over=None, prior=None,
-                  drop_first=True, constant=None):
+                  categorical=False, random=False, prior=None, drop_first=True,
+                  constant=None):
         '''
         Add a term to the model.
         Args:
@@ -510,12 +510,6 @@ class Model(object):
             random (bool): If True, the predictor variable is modeled as a
                 random effect; if False, the predictor is modeled as a fixed
                 effect.
-            over (str): When adding random slopes, the name of the variable the
-                slopes are randomly distributed over. For example, if
-                variable='condition', categorical=True, random=True, and
-                over='subject', a separate set of random subject slopes will be
-                added for each level of the condition variable. This is
-                analogous to the lme4 specification of 'condition|subject'.
             prior (Prior, int, float, str): Optional specification of prior.
                 Can be an instance of class Prior, a numeric value, or a string
                 describing the width. In the numeric case, the distribution
@@ -554,56 +548,21 @@ class Model(object):
                 # as-is.
                 cols = [re.sub('\[.*?\]', '', c) for c in data.columns]
                 if len(set(cols)) > 1:
-                    X = data[[variable]]
+                    data = data[[variable]]
 
             if categorical:
-                X = pd.get_dummies(data[variable], drop_first=drop_first)
+                data = pd.get_dummies(data[variable], drop_first=drop_first)
             elif variable in data.columns:
-                X = data[[variable]]
-            else:
-                X = data
-
-        else:
-            X = data
+                data = data[[variable]]
 
         # identify and flag intercept and cell-means terms (i.e., full-rank
         # dummy codes), which receive special priors
         if constant is None:
-            constant = np.atleast_2d(X.T).T.sum(1).var() == 0
-
-        if random and over is not None:
-            id_var = pd.get_dummies(data[over], drop_first=False)
-            data = {over: id_var, variable: X}
-            f = '0+%s:%s' % (over, variable)
-            data = dmatrix(f, data=data, NA_action=Ignore_NA())
-            name_lists = (list(id_var.columns), list(X.columns))
-            cols = rename_columns(data.design_info.column_names, name_lists)
-            data = pd.DataFrame(data, columns=cols)
-
-            # For categorical effects, recurse and treat each predictor level
-            # as its own Term.
-            if categorical:
-                groups = list(set([c.split(':')[1] for c in cols]))
-                for g in groups:
-                    patt = re.escape(r':%s' % g) + '$'
-                    lev_data = data.filter(regex=patt)
-                    lev_data.columns = [c.split(':')[0] for c in lev_data.columns]
-                    lev_data = lev_data.loc[:, (lev_data != 0).any(axis=0)]
-                    label = g + '|' + over
-                    self._add_term(variable, lev_data, label=label,
-                                  categorical=False, random=True, prior=prior,
-                                  constant=constant)
-                return
-            else:
-                data.columns = [c.split(':')[0] for c in cols]
-        else:
-            data = X
+            constant = np.atleast_2d(data.T).T.sum(1).var() == 0
 
         if label is None:
             label = variable
-            if over is not None:
-                label += '|%s' % over
-            elif random:
+            if random:
                 label = '1|' + label
 
         # Get default prior if needed, and potentially apply auto-scaling
