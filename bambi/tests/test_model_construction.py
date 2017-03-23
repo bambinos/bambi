@@ -80,11 +80,6 @@ def test_reduced_data_representation_for_categoricals(diabetes_data):
     # as 1D arrays of level indices.
     model = Model(diabetes_data)
 
-    model.add('C(BMI)')
-    term = model.terms['C(BMI)']
-    assert term.data.shape[1] == 162
-    assert term._reduced_data.shape[1] == 1
-    assert term._reduced_data.max() == 161
     model.add('0 + C(BMI)')
     term = model.terms['C(BMI)']
     assert term.data.shape[1] == 163

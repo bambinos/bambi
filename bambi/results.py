@@ -145,7 +145,7 @@ class MCMCResults(ModelResults):
         names = self.untransformed_vars if hide_transformed else self.names
         if exclude_ranefs:
             names = [x for x in names \
-                if re.sub(r'\[.+\]$', '', x) not in self.model.random_terms]
+                if re.sub(r'_offset$', '', x) not in self.model.random_terms]
         return names
 
     def plot(self, burn_in=0, names=None, annotate=True, exclude_ranefs=False, 

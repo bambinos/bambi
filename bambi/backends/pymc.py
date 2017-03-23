@@ -118,18 +118,17 @@ class PyMC3BackEnd(BackEnd):
             self.spec = spec
 
     def _get_transformed_vars(self):
-        # here we determine which variables have been internally transformed
-        # (e.g., sd_log). transformed vars are actually 'untransformed' from
-        # the PyMC3 model's perspective, and it's the backtransformed (e.g.,
-        # sd) variable that is 'transformed'. So the logic of this is to find
-        # and remove 'untransformed' variables that have a 'transformed'
-        # counterpart, in that 'untransformed' varname is the 'transformed'
-        # varname plus some suffix (such as '_log' or '_interval')
         rvs = self.model.unobserved_RVs
-        trans = set(var.name for var in rvs if isinstance(var, TransformedRV))
-        untrans = set(var.name for var in rvs) - trans
-        untrans = set(x for x in untrans if not any([t in x for t in trans]))
-        return [x for x in self.trace.varnames if x not in (trans | untrans)]
+        # identify the variables that pymc3 back-transformed to original scale
+        trans = [var.name for var in rvs if isinstance(var, TransformedRV)]
+        # find the corresponding transformed variables
+        trans = set(x.name for x in rvs if any([t in x.name for t in trans])) \
+            - set(trans)
+        # add any "centered" random effects to the list
+        for varname in [var.name for var in rvs]:
+            if re.search(r'_offset$', varname) is not None: trans.add(varname)
+
+        return trans
 
     def run(self, start=None, method='mcmc', init=None, n_init=10000,
             find_map=False, **kwargs):
@@ -184,11 +183,21 @@ class PyMC3BackEnd(BackEnd):
         dims = list(self.trace._straces[0].var_shapes.values())
         def get_levels(key, value):
             if len(value):
+                # fixed effects
                 if not self.spec.terms[re.sub(r'_offset$', '', key)].random:
                     return self.spec.terms[key].levels
+                # random effects
                 else:
-                    return [key.split('|')[0]+'|'+x \
-                        for x in self.spec.terms[re.sub(r'_offset$', '', key)].levels]
+                    re1 = re.match(r'(.+)(?=_offset)(_offset)', key)
+                    # handle "centered" terms
+                    if re1 is None:
+                        return [key.split('|')[0]+'|'+x \
+                            for x in self.spec.terms[key].levels]
+                    # handle "non-centered" terms
+                    else:
+                        return ['{}|{}_offset{}'.format(key.split('|')[0],
+                            *re.match(r'^(.+)(\[.+\])$', x).groups()) \
+                            for x in self.spec.terms[re1.group(1)].levels]
             else:
                 return [key]
         levels = sum([get_levels(k, v) \
