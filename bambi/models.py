@@ -462,9 +462,35 @@ class Model(object):
         self.y = self.terms.pop(name)
         self.built = False
 
-    def _add_term(self, variable=None, data=None, label=None, categorical=False,
-                 random=False, over=None, prior=None, drop_first=True,
-                 constant=None):
+    def _match_derived_terms(self, name):
+        ''' Returns all (random) terms whose named are derived from the
+        specified string. For example, 'condition|subject' should match the
+        terms with names '1|subject', 'condition[T.1]|subject', and so on.
+        Only works for strings with grouping operator ('|').
+        '''
+        if '|' not in name:
+            return None
+
+        patt = r'^([01]+)*[\s\+]*([^\|]+)*\|(.*)'
+        intcpt, pred, grpr = re.search(patt, name).groups()
+
+        intcpt = '1|%s' % grpr
+        if not pred:
+            return [self.terms[intcpt]] if intcpt in self.terms else None
+
+        source = '%s|%s' % (pred, grpr)
+        found = [t for (n, t) in self.terms.items() if n == intcpt or
+                 re.sub('(\[.*?\])', '', n) == source]
+        # If only the intercept matches, return None, because we want to err
+        # on the side of caution and not consider '1|subject' to be a match for
+        # 'condition|subject' if no slopes are found (e.g., the intercept could
+        # have been set by some other specification like 'gender|subject').
+        return found if found and (len(found) > 1 or found[0].name != intcpt) \
+            else None
+
+    def _add_term(self, variable=None, data=None, label=None,
+                  categorical=False, random=False, over=None, prior=None,
+                  drop_first=True, constant=None):
         '''
         Add a term to the model.
         Args:
@@ -505,7 +531,7 @@ class Model(object):
                 the N_j and N_0 columns, for j = {1..N-1}.
             constant (bool): indicates whether the term levels collectively
                 act as a constant, in which case the term is treated as an
-                intercept for prior distribution purposes. 
+                intercept for prior distribution purposes.
         '''
 
         if variable is None and data is None and label is None:
@@ -599,7 +625,8 @@ class Model(object):
         self.terms[term.name] = term
         self.built = False
 
-    def set_priors(self, priors=None, fixed=None, random=None):
+    def set_priors(self, priors=None, fixed=None, random=None,
+                   match_derived_names=True):
         '''
         Set priors for one or more existing terms.
         Args:
@@ -612,6 +639,14 @@ class Model(object):
                 all fixed terms currently included in the model.
             random (Prior, int, float, str): a prior specification to apply to
                 all random terms currently included in the model.
+            match_derived_names (bool): if True, the specified prior(s) will be
+                applied not only to terms that match the keyword exactly,
+                but to the levels of random effects that were derived from
+                the original specification with the passed name. For example,
+                `priors={'condition|subject':0.5}` would apply the prior
+                to the terms with names '1|subject', 'condition[T.1]|subject',
+                and so on. If False, an exact match is required for the
+                prior to be applied.
         '''
 
         targets = {}
@@ -625,10 +660,16 @@ class Model(object):
         if priors is not None:
             for k, prior in priors.items():
                 for name in listify(k):
-                    if name not in self.terms:
-                        raise ValueError("The model contains no term with "
-                                         "the name '%s'." % name)
-                    targets[name] = prior
+                    term_names = list(self.terms.keys())
+                    msg = "No terms in model match '%s'." % name
+                    if name not in term_names:
+                        terms = self._match_derived_terms(name)
+                        if not match_derived_names or terms is None:
+                            raise ValueError(msg)
+                        for t in terms:
+                            targets[t.name] = prior
+                    else:
+                        targets[name] = prior
 
         for prior in targets.values():
             if isinstance(prior, Prior):
