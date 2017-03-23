@@ -3,6 +3,7 @@ from .base import BackEnd
 from bambi.priors import Prior
 from bambi.results import MCMCResults, PyMC3ADVIResults
 from bambi.external.six import string_types
+from collections import OrderedDict
 import theano
 import pymc3 as pm
 import numpy as np
@@ -178,9 +179,14 @@ class PyMC3BackEnd(BackEnd):
                 for j in range(len(self.trace._straces))])
         data = np.swapaxes(np.swapaxes(data, 0, 1), 0, 2)
 
+        # arrange var_shapes dictionary in same order as samples dictionary
+        shapes = OrderedDict()
+        for key in self.trace._straces[0].samples:
+            shapes[key] = self.trace._straces[0].var_shapes[key]
+
         # grab info necessary for making samplearray pretty
-        names = list(self.trace._straces[0].var_shapes.keys())
-        dims = list(self.trace._straces[0].var_shapes.values())
+        names = list(shapes.keys())
+        dims = list(shapes.values())
         def get_levels(key, value):
             if len(value):
                 # fixed effects
@@ -200,8 +206,7 @@ class PyMC3BackEnd(BackEnd):
                             for x in self.spec.terms[re1.group(1)].levels]
             else:
                 return [key]
-        levels = sum([get_levels(k, v) \
-            for k, v in self.trace._straces[0].var_shapes.items()], [])
+        levels = sum([get_levels(k, v) for k, v in shapes.items()], [])
 
         # instantiate
         return MCMCResults(model=self.spec, data=data, names=names, dims=dims,
