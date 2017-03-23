@@ -117,3 +117,20 @@ def test_add_formula_append(diabetes_data):
     assert model.y is None
     assert 'S2' in model.terms
     assert 'S1' not in model.terms
+
+
+def test_derived_term_search(diabetes_data):
+    model = Model(diabetes_data)
+    model.add(random='age_grp|BP', categorical=['age_grp'])
+    terms = model._match_derived_terms('age_grp|BP')
+    names = set([t.name for t in terms])
+    assert names == {'1|BP', 'age_grp[T.1]|BP', 'age_grp[T.2]|BP'}
+
+    term = model._match_derived_terms('1|BP')[0]
+    assert term.name == '1|BP'
+
+    # All of these should find nothing
+    assert model._match_derived_terms('1|ZZZ') is None
+    assert model._match_derived_terms('ZZZ|BP') is None
+    assert model._match_derived_terms('BP') is None
+    assert model._match_derived_terms('BP') is None
