@@ -17,5 +17,5 @@ class BackEnd(object):
         pass
 
     @abstractmethod
-    def _convert_to_samplearray(self):
+    def _convert_to_results(self):
         pass
