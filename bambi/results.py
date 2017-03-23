@@ -234,62 +234,89 @@ class MCMCResults(ModelResults):
 
         return ax
 
-    def summary(self, burn_in=0, exclude_ranefs=True, names=None,
-                hide_transformed=True, mc_error=False, **kwargs):
+    def _hpd_interval(self, x, width):
+        """
+        Code adapted from pymc3.stats.calc_min_interval:
+        https://github.com/pymc-devs/pymc3/blob/master/pymc3/stats.py
+        """
+        x = np.sort(x)
+        n = len(x)
+
+        interval_idx_inc = int(np.floor(width * n))
+        n_intervals = n - interval_idx_inc
+        interval_width = x[interval_idx_inc:] - x[:n_intervals]
+
+        if len(interval_width) == 0:
+            raise ValueError('Too few elements for interval calculation')
+
+        min_idx = np.argmin(interval_width)
+        hdi_min = x[min_idx]
+        hdi_max = x[min_idx + interval_idx_inc]
+
+        index = ['hpd{}_{}'.format(width, x) for x in ['lower','upper']]
+        return pd.Series([hdi_min, hdi_max], index=index)
+
+    def summary(self, exclude_ranefs=True, hide_transformed=True,
+                quantiles=None, hpd=.95):
         '''
         Returns a DataFrame of summary/diagnostic statistics for the parameters.
         Args:
-            burn_in (int): Number of initial samples to exclude before
-                summary statistics are computed.
             exclude_ranefs (bool): If True (default), do not print
                 summary statistics for individual random effects.
-            names (list): Optional list of variable names to summarize.
             hide_transformed (bool): If True (default), do not print
                 summary statistics for internally transformed variables.
-            mc_error (bool): If True (defaults to False), include the monte
-                carlo error for each parameter estimate.
+            quantiles (float [or list of floats] between 0 and 1): Show
+                specified quantiles of the marginal posterior distributions for
+                all parameters. If None (default), no quantiles are shown.
+            hpd (float, between 0 and 1): Show Highest Posterior Density (HPD)
+                intervals with specified width/proportion for all parameters.
+                If None, HPD intervals are suppressed.
         '''
+        samples = self.to_df(exclude_ranefs, hide_transformed)
 
-        # if no 'names' specified, filter out unwanted variables
-        if names is None:
-            names = self._filter_names(names, exclude_ranefs, hide_transformed)
+        # build the basic DataFrame
+        df = pd.DataFrame({'mean':samples.mean(0),'sd':samples.std(0)})
 
-        # get the basic DataFrame
-        df = pm.df_summary(self.trace[burn_in:], varnames=names, **kwargs)
-        df.set_index([[self._prettify_name(x) for x in df.index]], inplace=True)
+        # add user-specified quantiles
+        if quantiles is not None:
+            if not isinstance(quantiles, (list, tuple)): quantiles = [quantiles]
+            qnames = ['q' + str(q) for q in quantiles]
+            df = df.merge(samples.quantile(quantiles).set_index([qnames]).T,
+                left_index=True, right_index=True)
 
-        # append diagnostic info if there are multiple chains.
-        if self.trace.nchains > 1:
-            # first remove unwanted variables so we don't waste time on those
-            diag_trace = self.trace[burn_in:]
-            for var in set(diag_trace.varnames) - set(names):
-                diag_trace.varnames.remove(var)
-            # append each diagnostic statistic
-            for diag_fn,diag_name in zip([pmd.effective_n, pmd.gelman_rubin],
-                                         ['effective_n',   'gelman_rubin']):
-                # compute the diagnostic statistic
-                stat = diag_fn(diag_trace)
-                # rename stat indices to match df indices
-                for k, v in list(stat.items()):
-                    stat.pop(k)
-                    # handle categorical predictors w/ >3 levels
-                    if isinstance(v, np.ndarray) and len(v) > 1:
-                        for i,x in enumerate(v):
-                            ugly_name = '{}__{}'.format(k, i)
-                            stat[self._prettify_name(ugly_name)] = x
-                    # handle all other variables
-                    else:
-                        stat[self._prettify_name(k)] = v
-                # append to df
-                stat = pd.DataFrame(stat, index=[diag_name]).T
-                df = df.merge(stat, how='left', left_index=True, right_index=True)
-        else:
-            warnings.warn('Multiple MCMC chains (i.e., njobs > 1) are required'
-                          ' in order to compute convergence diagnostics.')
+        # add HPD intervals
+        if hpd is not None:
+            df = df.merge(samples.apply(self._hpd_interval, axis=0, width=hpd).T,
+                left_index=True, right_index=True)
 
-        # drop the mc_error column if requested
-        if not mc_error:
-            df = df.drop('mc_error', axis=1)
+        # # append diagnostic info if there are multiple chains.
+        # if self.n_chains > 1:
+        #     # first remove unwanted variables so we don't waste time on those
+        #     diag_trace = self.trace[burn_in:]
+        #     for var in set(diag_trace.varnames) - set(names):
+        #         diag_trace.varnames.remove(var)
+        #     # append each diagnostic statistic
+        #     for diag_fn,diag_name in zip([pmd.effective_n, pmd.gelman_rubin],
+        #                                  ['effective_n',   'gelman_rubin']):
+        #         # compute the diagnostic statistic
+        #         stat = diag_fn(diag_trace)
+        #         # rename stat indices to match df indices
+        #         for k, v in list(stat.items()):
+        #             stat.pop(k)
+        #             # handle categorical predictors w/ >3 levels
+        #             if isinstance(v, np.ndarray) and len(v) > 1:
+        #                 for i,x in enumerate(v):
+        #                     ugly_name = '{}__{}'.format(k, i)
+        #                     stat[self._prettify_name(ugly_name)] = x
+        #             # handle all other variables
+        #             else:
+        #                 stat[self._prettify_name(k)] = v
+        #         # append to df
+        #         stat = pd.DataFrame(stat, index=[diag_name]).T
+        #         df = df.merge(stat, how='left', left_index=True, right_index=True)
+        # else:
+        #     warnings.warn('Multiple MCMC chains (i.e., njobs > 1) are required'
+        #                   ' in order to compute convergence diagnostics.')
 
         # For binomial models with n_trials = 1 (most common use case),
         # tell user which event is being modeled
