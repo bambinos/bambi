@@ -38,11 +38,12 @@ def test_distribute_random_effect_over(diabetes_data):
     # Random slopes
     model = Model(diabetes_data)
     model.add(random='C(age_grp)|BMI')
-    assert model.terms['C(age_grp)[T.1]|BMI'].data.shape == (442, 120)
+    assert model.terms['C(age_grp)[T.1]|BMI'].data.shape == (442, 163)
     # Nested or crossed random intercepts
     model.reset()
     model.add(random='0+C(age_grp)|BMI')
-    assert model.terms['C(age_grp)[0]|BMI'].data.shape == (442, 83)
+    assert model.terms['C(age_grp)[0]|BMI'].data.shape == (442, 163)
+    # 163 unique levels of BMI in diabetes_data
 
 
 def test_model_init_from_filename():
@@ -80,8 +81,8 @@ def test_reduced_data_representation_for_categoricals(diabetes_data):
     # as 1D arrays of level indices.
     model = Model(diabetes_data)
 
-    model.add('0 + C(BMI)')
-    term = model.terms['C(BMI)']
+    model.add(random='1|BMI')
+    term = model.terms['1|BMI']
     assert term.data.shape[1] == 163
     assert term._reduced_data.shape[1] == 1
     assert term._reduced_data.max() == 162

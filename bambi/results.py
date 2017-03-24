@@ -5,6 +5,7 @@ import re
 import warnings
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import pymc3 as pm
 from pymc3 import diagnostics as pmd
 
@@ -149,20 +150,12 @@ class MCMCResults(ModelResults):
                 if re.sub(r'_offset$', '', x) not in self.model.random_terms]
         return names
 
-    def plot(self, burn_in=0, names=None, annotate=True, exclude_ranefs=False, 
-        hide_transformed=True, kind='trace', **kwargs):
+    def plot(self, exclude_ranefs=False, hide_transformed=True, kind='trace'):
         '''
         Plots posterior distributions and sample traces. Basically a wrapper
         for pm.traceplot() plus some niceties, based partly on code from:
         https://pymc-devs.github.io/pymc3/notebooks/GLM-model-selection.html
         Args:
-            burn_in (int): Number of initial samples to exclude before
-                summary statistics are computed.
-            names (list): Optional list of variable names to summarize.
-            annotate (bool): If True (default), add lines marking the
-                posterior means, write the posterior means next to the
-                lines, and add factor level names for fixed factors with
-                more than one distribution on the traceplot.
             exclude_ranefs (bool): If True, do not show trace plots for
                 individual random effects. Defaults to False.
             hide_transformed (bool): If True (default), do not show trace
@@ -173,55 +166,53 @@ class MCMCResults(ModelResults):
         if kind == 'priors':
             return self.model.plot()
 
-        # if no 'names' specified, filter out unwanted variables
-        if names is None:
-            names = self._filter_names(names, exclude_ranefs, hide_transformed)
+        # save the display arguments
+        display_args = {'exclude_ranefs':exclude_ranefs,
+                        'hide_transformed':hide_transformed}
 
-        # compute means for all variables and factors
-        if annotate:
-            kwargs['lines'] = {param: self.trace[param, burn_in:].mean() \
-                for param in names}
-            # factors (fixed terms with shape > 1) must be handled separately
-            factors = {}
-            for fix in self.model.fixed_terms.values():
-                if 'b_'+fix.name in names and len(fix.levels)>1:
-                    # remove factor from dictionary of lines to plot
-                    kwargs['lines'].pop('b_'+fix.name)
-                    # add factor and its column means to dictionary of factors
-                    factors.update({'b_'+fix.name:
-                        {':'.join(re.findall('\[([^]]+)\]', x)):
-                         self.trace['b_'+fix.name, burn_in:].mean(0)[i]
-                         for i,x in enumerate(fix.levels)}})
+        # count the total number of rows in the plot
+        names = self._filter_names(**display_args)
+        random = [re.sub(r'_offset$', '', x) in self.model.random_terms \
+                  for x in names]
+        rows = sum([len(self.level_dict[p]) if not r else 1 \
+                      for p,r in zip(names, random)])
 
-        # make the traceplot
-        ax = pm.traceplot(self.trace[burn_in:], varnames=names,
-            figsize=(12,len(names)*1.5), **kwargs)
-
-        if annotate:
-            # add lines and annotation for the factors
-            for f in factors.keys():
-                for lev in factors[f]:
-                    # draw line
-                    ax[names.index(f),0].axvline(x=factors[f][lev],
-                        color="r", lw=1.5)
-                    # write the mean
-                    ax[names.index(f),0].annotate(
-                        '{:.2f}'.format(factors[f][lev]),
-                        xy=(factors[f][lev],0), xycoords='data', xytext=(5,10),
-                        textcoords='offset points', rotation=90, va='bottom',
-                        fontsize='large', color='#AA0022')
-                    # write the factor level name
-                    ax[names.index(f),0].annotate(lev,
-                        xy=(factors[f][lev],0), xycoords='data', xytext=(-11,5),
-                        textcoords='offset points', rotation=90, va='bottom',
-                        fontsize='large', color='#AA0022')
-            # add lines and annotation for the rest of the variables
-            for v in kwargs['lines'].keys():
-                ax[names.index(v),0].annotate(
-                    '{:.2f}'.format(kwargs['lines'][v]),
-                    xy=(kwargs['lines'][v],0), xycoords='data', xytext=(5,10),
-                    textcoords='offset points', rotation=90, va='bottom',
-                    fontsize='large', color='#AA0022')
+        # make the plot!
+        fig, axes = plt.subplots(rows, 2, figsize=(12, 2*rows))
+        row_iter = iter(range(rows))
+        for p in names:
+            # fixed effects
+            if re.sub(r'_offset$', '', p) not in self.model.random_terms:
+                for lev in self.level_dict[p]:
+                    row = next(row_iter)
+                    # density plot
+                    index = (row, 0) if rows > 1 else 0
+                    axes[index].set_title(lev)
+                    df = self[p].to_df(**display_args)[lev]
+                    df.plot(
+                        kind='hist', ax=axes[index], legend=False, normed=True)
+                    df.plot(kind='kde', ax=axes[index], legend=False, color='b')
+                    # trace plot
+                    index = (row, 1) if rows > 1 else 1
+                    axes[index].set_title(lev)
+                    for i in range(self.n_chains):
+                        self[p].get_chains(i).to_df(**display_args)[lev].plot(
+                            kind='line', ax=axes[index], legend=False)
+            # random effects
+            else:
+                row = next(row_iter)
+                # density plot
+                index = (row, 0) if rows > 1 else 0
+                axes[index].set_title(p)
+                self[p].to_df(**display_args).plot(
+                    kind='kde', ax=axes[row,0], legend=False)
+                # trace plot
+                index = (row, 1) if rows > 1 else 1
+                axes[index].set_title(p)
+                for i in range(self.n_chains):
+                    self[p].get_chains(i).to_df(**display_args).plot(
+                        kind='line', ax=axes[index], legend=False)
+        fig.tight_layout()
 
         # For binomial models with n_trials = 1 (most common use case),
         # tell user which event is being modeled
@@ -233,7 +224,7 @@ class MCMCResults(ModelResults):
                 self.model.y.name,
                 str(self.model.data[self.model.y.name][event])))
 
-        return ax
+        return axes
 
     def _hpd_interval(self, x, width):
         """
