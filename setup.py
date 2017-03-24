@@ -1,6 +1,6 @@
 import sys
 from setuptools import setup, find_packages
-from os.path import join, dirname
+
 
 __version__ = '0.0.5'
 
