@@ -277,7 +277,9 @@ class StanBackEnd(BackEnd):
                 else:
                     return self._original_names[name]
             else:
-                return None if '_offset' in name else name
+                if '_offset' in name:
+                    self._suppress_vars.append(name)
+                return name
         levels = [replace_name(x) for x in self.fit.sim['fnames_oi']]
 
         # instantiate
