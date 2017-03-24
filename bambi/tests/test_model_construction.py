@@ -23,9 +23,8 @@ def base_model(diabetes_data):
 
 
 def test_term_init(diabetes_data):
-    # model = Model(diabetes_data)
-    # term = Term(model, 'BMI', diabetes_data['BMI'])
-    term = Term('BMI', diabetes_data['BMI'])
+    model = Model(diabetes_data)
+    term = Term(model, 'BMI', diabetes_data['BMI'])
     # Test that all defaults are properly initialized
     assert term.name == 'BMI'
     assert term.categorical == False
@@ -74,18 +73,6 @@ def test_add_to_model(diabetes_data):
     model.add(random='C(age_grp)|BP')
     assert isinstance(model.terms['C(age_grp)[T.1]|BP'], Term)
     assert 'BP[108.0]' in model.terms['C(age_grp)[T.1]|BP'].levels
-
-
-def test_reduced_data_representation_for_categoricals(diabetes_data):
-    # Test that terms made up entirely of dummy columns are properly re-encoded
-    # as 1D arrays of level indices.
-    model = Model(diabetes_data)
-
-    model.add(random='1|BMI')
-    term = model.terms['1|BMI']
-    assert term.data.shape[1] == 163
-    assert term._reduced_data.shape[1] == 1
-    assert term._reduced_data.max() == 162
 
 
 def test_one_shot_formula_fit(diabetes_data):

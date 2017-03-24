@@ -146,7 +146,7 @@ class MCMCResults(ModelResults):
                            names=self.names, dims=self.dims, levels=self.levels,
                            transformed_vars=self.transformed_vars)
 
-    def _filter_names(self, varnames=None, ranefs=True, transformed=False):
+    def _filter_names(self, varnames=None, ranefs=False, transformed=False):
         names = self.untransformed_vars if not transformed else self.names
         if varnames is not None:
             names = [n for n in names if n in listify(varnames)]
@@ -338,7 +338,7 @@ class MCMCResults(ModelResults):
 
         return df
 
-    def to_df(self, varnames=None, ranefs=True, transformed=False,
+    def to_df(self, varnames=None, ranefs=False, transformed=False,
               chains=None):
         '''
         Returns the MCMC samples in a nice, neat pandas DataFrame with all
