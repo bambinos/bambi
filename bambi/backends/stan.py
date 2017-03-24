@@ -53,7 +53,7 @@ class StanBackEnd(BackEnd):
         # variables to suppress in output. Stan uses limited set for variable
         # names, so track variable names we may need to simplify for the model
         # code and then sub back later.
-        self._suppress_vars = ['yhat', 'lp__']  
+        self._suppress_vars = ['yhat', 'lp__']
 
     def build(self, spec, reset=True):
         '''
@@ -117,23 +117,26 @@ class StanBackEnd(BackEnd):
 
             return dist_term, dist_bounds
 
-        def _add_data(name, data):
+        def _add_data(name, data, term):
             ''' Add all model components that directly touch or relate to data.
             '''
             if data.shape[1] == 1:
+                # For random effects, index into grouping variable
                 if n_cols > 1:
-                    stan_data = 'int %s[N];'
-                else:
-                    stan_data = 'vector[N] %s;'
+                    index_name = _sanitize_name('%s_grp_ind' % name)
+                    self.data.append('int %s[N];' % index_name)
+                    self.X[index_name] = t.group_index + 1  # 1-based indexing
+                predictor = 'vector[N] %s;'
             else:
-                stan_data = ('matrix[N, %d]' % (n_cols)) + ' %s;'
+                predictor = ('matrix[N, %d]' % (n_cols)) + ' %s;'
+
             data_name = _sanitize_name('%s_data' % name)
             var_name = _sanitize_name(name)
-            self.data.append(stan_data % data_name)
+            self.data.append(predictor % data_name)
             self.X[data_name] = data.squeeze()
 
             if data.shape[1] == 1 and n_cols > 1:
-                code = '%s[%s[n]]' % (var_name, data_name)
+                code = '%s[%s[n]] * %s[n]' % (var_name, index_name, data_name)
                 self.mu_cat.append(code)
             else:
                 self.mu_cont.append('%s * %s' % (data_name, var_name))
@@ -166,9 +169,9 @@ class StanBackEnd(BackEnd):
             # non-centered parameterization
             if spec.noncentered and 'sd' in kwargs and \
                     isinstance(kwargs['sd'], string_types):
-                offset_name = var_name + '_offset'
+                offset_name = var_name + '_offset_'
                 offset = 'vector[%d] %s;' % (n_cols, offset_name)
-                self.transformed_parameters.append(offset)
+                self.parameters.append(offset)
                 self.model.append('%s ~ normal(0, 1);' % offset_name)
                 self.transformed_parameters.append('%s%s %s;' % (stan_par, _bounds, var_name))
                 trans = '%s = multiply(%s, %s);' % (var_name, offset_name, kwargs['sd'])
@@ -188,16 +191,13 @@ class StanBackEnd(BackEnd):
             dist_name = t.prior.name
             dist_args = t.prior.args
 
-            if t._reduced_data is not None:
-                data = t._reduced_data
-                if data.max() > 1:
-                    data += 1  # Stan indexes from 1, not 0
-                n_cols = data.max()
-            else:
-                n_cols = data.shape[1]
+            n_cols = data.shape[1]
+
+            if t.random:
+                data = t.predictor
 
             # Add to Stan model
-            _add_data(label, data)
+            _add_data(label, data, t)
             _add_parameters(label, dist_name, n_cols, **dist_args)
 
         # yhat
@@ -213,7 +213,7 @@ class StanBackEnd(BackEnd):
                      % ' + '.join(self.mu_cat) + ';\n\t')
             self.expressions.append(loops)
 
-        # Add expressions that go in transformed parameter block (they have 
+        # Add expressions that go in transformed parameter block (they have
         # to come after variable definitions)
         self.transformed_parameters += self.expressions
 
@@ -259,6 +259,7 @@ class StanBackEnd(BackEnd):
                  if x in self._original_names else x \
                  for x in self.fit.sim['pars_oi']]
         dims = [tuple(x) for x in self.fit.sim['dims_oi']]
+
         def replace_name(name):
             tname = re.sub(r'\[.+\]$', '', name)
             if tname in self._original_names:
@@ -276,7 +277,7 @@ class StanBackEnd(BackEnd):
                 else:
                     return self._original_names[name]
             else:
-                return name
+                return None if '_offset' in name else name
         levels = [replace_name(x) for x in self.fit.sim['fnames_oi']]
 
         # instantiate

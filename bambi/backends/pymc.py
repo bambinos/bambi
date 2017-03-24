@@ -98,8 +98,8 @@ class PyMC3BackEnd(BackEnd):
                 coef = self._build_dist(spec, label, dist_name,
                                         shape=n_cols, **dist_args)
 
-                if t._reduced_data is not None:
-                    self.mu += coef[t._reduced_data][:, None]
+                if t.random:
+                    self.mu += coef[t.group_index] * t.predictor
                 else:
                     self.mu += pm.math.dot(data, coef)[:, None]
 
