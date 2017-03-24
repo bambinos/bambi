@@ -4,6 +4,7 @@ import pandas as pd
 # code adapted from pymc3.diagnostics:
 # https://github.com/pymc-devs/pymc3/blob/master/pymc3/diagnostics.py
 
+
 def _vhat_w(mcmc):
     # Calculate between-chain variance
     B = mcmc.n_samples * mcmc.data.mean(axis=0).var(axis=0, ddof=1)
@@ -15,6 +16,7 @@ def _vhat_w(mcmc):
     Vhat = W * (mcmc.n_samples - 1) / mcmc.n_samples + B / mcmc.n_samples
 
     return Vhat, W
+
 
 def gelman_rubin(mcmc):
     """
@@ -31,7 +33,8 @@ def gelman_rubin(mcmc):
 
     # compute and return Gelman-Rubin statistic
     Rhat = np.sqrt(Vhat / W)
-    return pd.DataFrame({'gelman_rubin':Rhat}, index=mcmc.levels)
+    return pd.DataFrame({'gelman_rubin': Rhat}, index=mcmc.levels)
+
 
 def effective_n(mcmc):
     """
@@ -63,9 +66,9 @@ def effective_n(mcmc):
             t -= 1
 
         return min(n_chains * n_samples,
-            int(n_chains * n_samples / (1. + 2 * rho[1:t-1].sum())))
+                   int(n_chains * n_samples / (1. + 2 * rho[1:t-1].sum())))
 
     Vhat, W = _vhat_w(mcmc)
     n_eff = [get_neff(mcmc.data[:, :, i], x) for i, x in enumerate(Vhat)]
 
-    return pd.DataFrame({'effective_n':n_eff}, index=mcmc.levels)
+    return pd.DataFrame({'effective_n': n_eff}, index=mcmc.levels)

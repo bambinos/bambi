@@ -648,11 +648,10 @@ class Model(object):
         if fixed is not None or random is not None or priors is not None:
             self.built = False
 
-    def plot(self, kind='priors'):
-        if kind == 'priors':
-            self.plot_priors()
+    def plot(self, varnames=None):
+        self.plot_priors(varnames)
 
-    def plot_priors(self):
+    def plot_priors(self, varnames=None):
         if not self.built:
             raise ValueError("Cannot plot priors until model is built!")
 
@@ -661,6 +660,8 @@ class Model(object):
             # predictor
             dists = []
             for t in self.fixed_terms.values():
+                if varnames is not None and t.name not in varnames:
+                    continue
                 for i, l in enumerate(t.levels):
                     params = {k: v[i % len(v)]
                               if isinstance(v, np.ndarray) else v
@@ -669,6 +670,8 @@ class Model(object):
 
             # get priors for random effect SDs
             for t in self.random_terms.values():
+                if varnames is not None and t.name not in varnames:
+                    continue
                 prior = t.prior.args['sd'].name
                 params = t.prior.args['sd'].args
                 dists += [getattr(pm, prior)(t.name+'_sd', **params)]
