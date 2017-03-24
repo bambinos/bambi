@@ -1,5 +1,6 @@
 from abc import abstractmethod, ABCMeta
 from bambi.external.six import string_types
+from bambi.diagnostics import gelman_rubin, effective_n
 import re
 import warnings
 import pandas as pd
@@ -256,8 +257,8 @@ class MCMCResults(ModelResults):
         index = ['hpd{}_{}'.format(width, x) for x in ['lower','upper']]
         return pd.Series([hdi_min, hdi_max], index=index)
 
-    def summary(self, exclude_ranefs=True, hide_transformed=True,
-                quantiles=None, hpd=.95):
+    def summary(self, exclude_ranefs=True, hide_transformed=True, hpd=.95,
+                quantiles=None, diagnostics=[gelman_rubin, effective_n]):
         '''
         Returns a DataFrame of summary/diagnostic statistics for the parameters.
         Args:
@@ -265,12 +266,16 @@ class MCMCResults(ModelResults):
                 summary statistics for individual random effects.
             hide_transformed (bool): If True (default), do not print
                 summary statistics for internally transformed variables.
-            quantiles (float [or list of floats] between 0 and 1): Show
-                specified quantiles of the marginal posterior distributions for
-                all parameters. If None (default), no quantiles are shown.
             hpd (float, between 0 and 1): Show Highest Posterior Density (HPD)
                 intervals with specified width/proportion for all parameters.
                 If None, HPD intervals are suppressed.
+            quantiles (float [or list of floats] between 0 and 1): Show
+                specified quantiles of the marginal posterior distributions for
+                all parameters. If None (default), no quantiles are shown.
+            diagnostics (list): List of functions to use to compute convergence
+                diagnostics for all parameters. Functions must return a
+                DataFrame with one labeled row per parameter. If None, no
+                convergence diagnostics are computed.
         '''
         samples = self.to_df(exclude_ranefs, hide_transformed)
 
@@ -289,34 +294,14 @@ class MCMCResults(ModelResults):
             df = df.merge(samples.apply(self._hpd_interval, axis=0, width=hpd).T,
                 left_index=True, right_index=True)
 
-        # # append diagnostic info if there are multiple chains.
-        # if self.n_chains > 1:
-        #     # first remove unwanted variables so we don't waste time on those
-        #     diag_trace = self.trace[burn_in:]
-        #     for var in set(diag_trace.varnames) - set(names):
-        #         diag_trace.varnames.remove(var)
-        #     # append each diagnostic statistic
-        #     for diag_fn,diag_name in zip([pmd.effective_n, pmd.gelman_rubin],
-        #                                  ['effective_n',   'gelman_rubin']):
-        #         # compute the diagnostic statistic
-        #         stat = diag_fn(diag_trace)
-        #         # rename stat indices to match df indices
-        #         for k, v in list(stat.items()):
-        #             stat.pop(k)
-        #             # handle categorical predictors w/ >3 levels
-        #             if isinstance(v, np.ndarray) and len(v) > 1:
-        #                 for i,x in enumerate(v):
-        #                     ugly_name = '{}__{}'.format(k, i)
-        #                     stat[self._prettify_name(ugly_name)] = x
-        #             # handle all other variables
-        #             else:
-        #                 stat[self._prettify_name(k)] = v
-        #         # append to df
-        #         stat = pd.DataFrame(stat, index=[diag_name]).T
-        #         df = df.merge(stat, how='left', left_index=True, right_index=True)
-        # else:
-        #     warnings.warn('Multiple MCMC chains (i.e., njobs > 1) are required'
-        #                   ' in order to compute convergence diagnostics.')
+        # add convergence diagnostics
+        if diagnostics is not None:
+            if self.n_chains > 1:
+                for diag in diagnostics:
+                    df = df.merge(diag(self), left_index=True, right_index=True)
+            else:
+                warnings.warn('Multiple MCMC chains are required in order '
+                              'to compute convergence diagnostics.')
 
         # For binomial models with n_trials = 1 (most common use case),
         # tell user which event is being modeled
