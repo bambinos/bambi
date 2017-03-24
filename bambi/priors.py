@@ -339,8 +339,8 @@ class PriorScaler(object):
             sd *= sd_corr
         # handle slopes
         else:
-            exists = [x for x in self.dm.columns \
-                if np.array_equal(fix_data, self.dm[x].values)]
+            exists = [x for x in self.dm.columns
+                      if np.array_equal(fix_data, self.dm[x].values)]
             # handle case where there IS a corresponding fixed effect
             if exists and exists[0] in self.priors.keys():
                 sd = self.priors[exists[0]]['sd']
@@ -363,15 +363,15 @@ class PriorScaler(object):
                 else:
                     group = term.name.split('|')[1]
                     exog = self.model.random_terms.values()
-                    exog = [v.data.sum(1) for v in exog \
-                        if v.name.split('|')[-1]==group]
+                    exog = [v.data.sum(1) for v in exog
+                            if v.name.split('|')[-1] == group]
                     exog = pd.DataFrame(exog,
                         index=['_'+str(i) for i in range(len(exog))]).T
                 # this will replace self.mle (which is missing predictors)
+                missing = 'drop' if self.model.dropna else 'none'
                 full_mod = sm.GLM(endog=self.model.y.data, exog=exog,
                                   family=self.model.family.smfamily(),
-                                  missing='drop' if self.model.dropna \
-                                  else 'none').fit()
+                                  missing=missing).fit()
                 sd = self._get_slope_stats(exog=exog, predictor=fix_data,
                                            full_mod=full_mod, sd_corr=sd_corr)
 
