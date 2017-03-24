@@ -216,7 +216,7 @@ class Model(object):
         self.built = True
 
     def fit(self, fixed=None, random=None, priors=None, family='gaussian',
-            link=None, run=True, categorical=None, backend='pymc', **kwargs):
+            link=None, run=True, categorical=None, backend=None, **kwargs):
         '''
         Fit the model using the specified BackEnd.
         Args:
@@ -256,10 +256,14 @@ class Model(object):
                      link=link, categorical=categorical, append=False)
 
         ''' Run the BackEnd to fit the model. '''
+        if backend is None:
+            backend = 'pymc' if self._backend_name is None else self._backend_name
+
         if run:
             if not self.built or backend != self._backend_name:
-                warnings.warn("Current Bayesian model has not been built yet; "
-                              "building it first before sampling begins.")
+                warnings.warn("Current Bayesian model has not been built yet "
+                              "with the %s back-end; building it first before "
+                              "sampling begins." % self._backend_name)
                 self.build(backend)
             return self.backend.run(**kwargs)
 
