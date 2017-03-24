@@ -93,10 +93,7 @@ class PyMC3BackEnd(BackEnd):
                 dist_name = t.prior.name
                 dist_args = t.prior.args
 
-                if t._reduced_data is not None:
-                    n_cols = t._reduced_data.max() + 1
-                else:
-                    n_cols = data.shape[1]
+                n_cols = t.data.shape[1]
 
                 coef = self._build_dist(spec, label, dist_name,
                                         shape=n_cols, **dist_args)

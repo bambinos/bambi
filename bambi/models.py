@@ -70,6 +70,7 @@ class Model(object):
         self.dropna = dropna
         self.taylor = taylor
         self.noncentered = noncentered
+        self._backend_name = None
 
     def reset(self):
         '''
@@ -96,14 +97,22 @@ class Model(object):
 
         self._backend_name = backend
 
-    def build(self, backend):
+    def build(self, backend=None):
         ''' Set up the model for sampling/fitting. Performs any steps that
         require access to all model terms (e.g., scaling priors on each term),
         then calls the BackEnd's build() method.
         Args:
             backend (str): The name of the backend to use for model fitting.
-                Currently, 'pymc' and 'stan' are supported.
+                Currently, 'pymc' and 'stan' are supported. If None, assume
+                that fit() has already been called (possibly without building),
+                and look in self._backend_name.
         '''
+
+        if backend is None:
+            if self._backend_name is None:
+                raise ValueError("Error: no backend was passed or set in the "
+                                 "Model; did you forget to call fit()?")
+            backend = self._backend_name
 
         if self.y is None:
             raise ValueError("No outcome (y) variable is set! Please specify "
@@ -245,6 +254,7 @@ class Model(object):
         if fixed is not None or random is not None:
             self.add(fixed=fixed, random=random, priors=priors, family=family,
                      link=link, categorical=categorical, append=False)
+        self._backend_name = backend
         ''' Run the BackEnd to fit the model. '''
         if run:
             if not self.built or backend != self._backend_name:
@@ -370,8 +380,8 @@ class Model(object):
                 # If there's no predictor, we must be adding random intercepts
                 if not pred and grpr not in self.terms:
                     self._add_term(label='1|'+grpr, data=grpr_df,
-                        categorical=True,drop_first=False, prior=prior,
-                        random=True)
+                                   categorical=True, drop_first=False,
+                                   prior=prior, random=True)
                 else:
                     pred_df = dmatrix('%s+%s' % (intcpt, pred), data,
                                       return_type='dataframe')
@@ -383,9 +393,7 @@ class Model(object):
                     for col, ind in pred_df.design_info.column_name_indexes.items():
                         lev_data = grpr_df.multiply(pred_df.iloc[:, ind],
                                                     axis=0)
-                        # Drop columns with all zeroes, and skip terms with
-                        # no columns left
-                        lev_data = lev_data.loc[:, (lev_data != 0).any(axis=0)]
+                        # Skip terms with no columns left
                         if lev_data.shape[1] == 0:
                             continue
 
@@ -748,7 +756,7 @@ class Term(object):
         # large matrix multiplications in the backends), invert the dummy-
         # coding process and represent full-rank dummies as a vector of
         # indices into the coefficients.
-        if constant and data.shape[1] > 1 and ((data == 0) | (data == 1)).all():
+        if random and data.shape[1] > 1 and ((data == 0) | (data == 1)).all():
             vec = np.zeros((len(data), 1), dtype=int)
             for i in range(1, data.shape[1]):
                 vec[data[:, i] == 1] = i
