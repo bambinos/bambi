@@ -254,7 +254,7 @@ class Model(object):
         if fixed is not None or random is not None:
             self.add(fixed=fixed, random=random, priors=priors, family=family,
                      link=link, categorical=categorical, append=False)
-        self._backend_name = backend
+
         ''' Run the BackEnd to fit the model. '''
         if run:
             if not self.built or backend != self._backend_name:
@@ -262,6 +262,8 @@ class Model(object):
                               "building it first before sampling begins.")
                 self.build(backend)
             return self.backend.run(**kwargs)
+
+        self._backend_name = backend
 
     def add(self, fixed=None, random=None, priors=None, family='gaussian',
             link=None, categorical=None, append=True):
@@ -345,7 +347,7 @@ class Model(object):
                 cols = X.design_info.column_names[_slice]
                 term_data = pd.DataFrame(X[:, _slice], columns=cols)
                 prior = priors.pop(_name, priors.get('fixed', None))
-                self._add_term(_name, data=term_data, prior=prior)
+                self.terms[_name] = Term(self, _name, term_data, prior=prior)
 
         # Random effects
         if random is not None:
@@ -379,23 +381,18 @@ class Model(object):
 
                 # If there's no predictor, we must be adding random intercepts
                 if not pred and grpr not in self.terms:
-                    self._add_term(label='1|'+grpr, data=grpr_df,
-                                   categorical=True, drop_first=False,
-                                   prior=prior, random=True)
+                    name = '1|' + grpr
+                    pred = np.ones((len(grpr_df), 1))
+                    term = RandomTerm(self, name, grpr_df, pred, grpr_df.values,
+                                      categorical=True, prior=prior)
+                    self.terms[name] = term
                 else:
                     pred_df = dmatrix('%s+%s' % (intcpt, pred), data,
                                       return_type='dataframe')
 
-                    # identify and flag intercept and cell-means terms (i.e.,
-                    # full-rank dummy codes), which receive special priors
-                    constant = np.atleast_2d(pred_df.T).T.sum(1).var() == 0
-
-                    for col, ind in pred_df.design_info.column_name_indexes.items():
-                        lev_data = grpr_df.multiply(pred_df.iloc[:, ind],
-                                                    axis=0)
-                        # Skip terms with no columns left
-                        if lev_data.shape[1] == 0:
-                            continue
+                    for col, i in pred_df.design_info.column_name_indexes.items():
+                        pred_data = pred_df.iloc[:, i]
+                        lev_data = grpr_df.multiply(pred_data, axis=0)
 
                         # Also rename intercepts and skip if already added.
                         # This can happen if user specifies something like
@@ -408,6 +405,7 @@ class Model(object):
                             label = col + '|' + grpr
 
                         prior = priors.pop(label, priors.get('random', None))
+
                         # Categorical or continuous is determined from data
                         ld = lev_data.values
                         if ((ld == 0) | (ld == 1)).all():
@@ -415,12 +413,16 @@ class Model(object):
                             cat = True
                         else:
                             cat = False
-                        self._add_term(label=label, data=lev_data, prior=prior,
-                                      random=True, categorical=cat,
-                                      constant=constant if constant else None)
+
+                        pred_data = pred_data[:, None]  # Must be 2D later
+                        term = RandomTerm(self, label, lev_data, pred_data,
+                                          grpr_df.values, categorical=cat)
+                        self.terms[label] = term
+
+        self.built = False
 
     def _add_y(self, variable, prior=None, family='gaussian', link=None, *args,
-              **kwargs):
+               **kwargs):
         '''
         Add a dependent (or outcome) variable to the model.
         Args:
@@ -446,7 +448,7 @@ class Model(object):
                 or theano tensor as the sole argument and returns one with
                 the same shape.
             args, kwargs: Optional positional and keyword arguments to pass
-                onto _add_term().
+                onto Term initializer.
         '''
         if isinstance(family, string_types):
             family = self.default_priors.get(family=family)
@@ -464,10 +466,9 @@ class Model(object):
             prior.update(sd=Prior('Uniform', lower=0,
                                   upper=self.data[variable].std()))
 
-        self._add_term(variable, prior=prior, *args, **kwargs)
-        # use last-added term name b/c it could have been changed by _add_term
-        name = list(self.terms.values())[-1].name
-        self.y = self.terms.pop(name)
+        data = self.data[variable]
+        term = Term(self, variable, data, prior=prior, *args, **kwargs)
+        self.y = term
         self.built = False
 
     def _match_derived_terms(self, name):
@@ -495,102 +496,6 @@ class Model(object):
         # have been set by some other specification like 'gender|subject').
         return found if found and (len(found) > 1 or found[0].name != intcpt) \
             else None
-
-    def _add_term(self, variable=None, data=None, label=None,
-                  categorical=False, random=False, prior=None, drop_first=True,
-                  constant=None):
-        '''
-        Add a term to the model.
-        Args:
-            variable (str): The name of the dataset column to use; also used
-                as the Term instance label if not otherwise specified using
-                the label argument. If None, both the data and label args
-                must be explicitly passed.
-            data (DataFrame): Optional pandas DataFrame containing the term
-                values to use. If None (default), the correct column will be
-                extracted from the dataset currently loaded into the model
-                (based on the name passed in the variable argument).
-            label (str): Optional label/name to use for the term. If None, the
-                label will be automatically generated based on the variable
-                name and additional arguments.
-            categorical (bool): Whether or not the input variable should be
-                treated as categorical (defaults to False).
-            random (bool): If True, the predictor variable is modeled as a
-                random effect; if False, the predictor is modeled as a fixed
-                effect.
-            prior (Prior, int, float, str): Optional specification of prior.
-                Can be an instance of class Prior, a numeric value, or a string
-                describing the width. In the numeric case, the distribution
-                specified in the defaults will be used, and the passed value
-                will be used to scale the appropriate variance parameter. For
-                strings (e.g., 'wide', 'narrow', 'medium', or 'superwide'),
-                predefined values will be used.
-            drop_first (bool): indicates whether to use full rank or N-1 coding
-                when the predictor is categorical. If True, the N levels of the
-                categorical variable will be represented using N dummy columns.
-                If False, the predictor will be represented using N-1 binary
-                indicators, where each indicator codes the contrast between
-                the N_j and N_0 columns, for j = {1..N-1}.
-            constant (bool): indicates whether the term levels collectively
-                act as a constant, in which case the term is treated as an
-                intercept for prior distribution purposes.
-        '''
-
-        if variable is None and data is None and label is None:
-                raise ValueError("If no variable name is passed, both the "
-                                 "'data' and 'label' arguments must be "
-                                 "explicitly passed.")
-
-        if data is None:
-            data = self.data.copy()
-
-        # Make sure user didn't forget to set categorical=True
-        if variable is not None:
-            if variable in data.columns and \
-                    data.loc[:, variable].dtype.name in ['object', 'category']:
-                categorical = True
-
-            else:
-                # If all columns have identical names except for levels in [],
-                # assume they've already been contrast-coded, and pass data
-                # as-is.
-                cols = [re.sub('\[.*?\]', '', c) for c in data.columns]
-                if len(set(cols)) > 1:
-                    data = data[[variable]]
-
-            if categorical:
-                data = pd.get_dummies(data[variable], drop_first=drop_first)
-            elif variable in data.columns:
-                data = data[[variable]]
-
-        # identify and flag intercept and cell-means terms (i.e., full-rank
-        # dummy codes), which receive special priors
-        if constant is None:
-            constant = np.atleast_2d(data.T).T.sum(1).var() == 0
-
-        if label is None:
-            label = variable
-            if random:
-                label = '1|' + label
-
-        # Get default prior if needed, and potentially apply auto-scaling
-        _type = 'intercept' if label == 'Intercept' else \
-                'random' if random else 'fixed'
-
-        if prior is None and not self.auto_scale:
-            prior = self.default_priors.get(term=_type + '_flat')
-
-        if isinstance(prior, Prior):
-            prior._auto_scale = False
-        else:
-            _scale = prior
-            prior = self.default_priors.get(term=_type)
-            prior.scale = _scale
-
-        term = Term(name=label, data=data, categorical=categorical,
-                    random=random, prior=prior, constant=constant)
-        self.terms[term.name] = term
-        self.built = False
 
     def set_priors(self, priors=None, fixed=None, random=None,
                    match_derived_names=True):
@@ -722,7 +627,7 @@ class Model(object):
 class Term(object):
 
     '''
-    Representation of a single model term.
+    Representation of a single (fixed) model term.
     Args:
         name (str): Name of the term.
         data (DataFrame, Series, ndarray): The term values.
@@ -731,18 +636,14 @@ class Term(object):
             as continuous.
         prior (Prior): A specification of the prior(s) to use. An instance
             of class priors.Prior.
-        constant (bool): identifies whether this should be treated as a
-            constant term for default prior purposes.
     '''
+    random = False
 
-    def __init__(self, name, data, categorical=False, random=False, prior=None,
-                 constant=False):
+    def __init__(self, model, name, data, categorical=False, prior=None):
 
+        self.model = model
         self.name = name
         self.categorical = categorical
-        self.random = random
-        self.prior = prior
-        self.constant = constant
         self._reduced_data = None
 
         if isinstance(data, pd.Series):
@@ -750,20 +651,55 @@ class Term(object):
         if isinstance(data, pd.DataFrame):
             self.levels = list(data.columns)
             data = data.values
+
         # Random effects pass through here
         else:
             data = np.atleast_2d(data)
             self.levels = list(range(data.shape[1]))
 
-        # For the sake of computational efficiency (i.e., to avoid lots of
-        # large matrix multiplications in the backends), invert the dummy-
-        # coding process and represent full-rank dummies as a vector of
-        # indices into the coefficients.
-        if random and data.shape[1] > 1 and ((data == 0) | (data == 1)).all():
-            vec = np.zeros((len(data), 1), dtype=int)
-            for i in range(1, data.shape[1]):
-                vec[data[:, i] == 1] = i
-            self._reduced_data = vec
-            self.categorical = True
-
         self.data = data
+
+        # identify and flag intercept and cell-means terms (i.e., full-rank
+        # dummy codes), which receive special priors
+        self.constant = np.atleast_2d(data.T).T.sum(1).var() == 0
+
+        self.set_prior(prior)
+
+    def set_prior(self, prior):
+        _type = 'intercept' if self.name == 'Intercept' else \
+                'random' if self.random else 'fixed'
+
+        if prior is None and not self.model.auto_scale:
+            prior = self.model.default_priors.get(term=_type + '_flat')
+
+        if isinstance(prior, Prior):
+            prior._auto_scale = False
+        else:
+            _scale = prior
+            prior = self.model.default_priors.get(term=_type)
+            prior.scale = _scale
+
+        self.prior = prior
+
+
+class RandomTerm(Term):
+
+    random = True
+
+    def __init__(self, model, name, data, predictor, grouper, categorical=False,
+                 prior=None):
+
+        super(RandomTerm, self).__init__(model, name, data, categorical, prior)
+        self.grouper = grouper
+        self.predictor = predictor
+        self.group_index = self._invert_dummies(grouper)
+
+    def _invert_dummies(self, dummies):
+        ''' For the sake of computational efficiency (i.e., to avoid lots of
+        large matrix multiplications in the backends), invert the dummy-coding
+        process and represent full-rank dummies as a vector of indices into the
+        coefficients. '''
+        vec = np.zeros(len(dummies), dtype=int)
+        for i in range(1, dummies.shape[1]):
+            vec[dummies[:, i] == 1] = i
+        return vec
