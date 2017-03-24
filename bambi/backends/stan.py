@@ -9,6 +9,7 @@ try:
     import pystan as ps
 except:
     ps = None
+from six import string_types
 
 
 class StanBackEnd(BackEnd):
@@ -41,6 +42,7 @@ class StanBackEnd(BackEnd):
         '''
         self.parameters = []
         self.transformed_parameters = []
+        self.expressions = []
         self.data = []
         self.transformed_data = []
         self.X = {}
@@ -111,8 +113,7 @@ class StanBackEnd(BackEnd):
             dp = [float(p.ravel()[0]) if isinstance(p, np.ndarray) else p
                   for p in dp]
 
-            dist_term = '%s(%s)' % (
-                dist_name, ', '.join([str(p) for p in dp]))
+            dist_term = '%s(%s)' % (dist_name, ', '.join([str(p) for p in dp]))
 
             return dist_term, dist_bounds
 
@@ -150,6 +151,7 @@ class StanBackEnd(BackEnd):
 
             kwargs = {k: _expand_args(k, v, name)
                       for (k, v) in dist_args.items()}
+
             _dist, _bounds = _map_dist(dist_name, **kwargs)
 
             if n_cols == 1:
@@ -158,9 +160,25 @@ class StanBackEnd(BackEnd):
                 stan_par = 'vector[%d]' % n_cols
 
             var_name = _sanitize_name(name)
-            self.parameters.append('%s%s %s;' % (stan_par, _bounds, var_name))
-            if _dist is not None:
-                self.model.append('%s ~ %s;' % (var_name, _dist))
+
+            # self.parameters.append('%s%s %s;' % (stan_par, _bounds, var_name))
+
+            # non-centered parameterization
+            if spec.noncentered and 'sd' in kwargs and \
+                    isinstance(kwargs['sd'], string_types):
+                offset_name = var_name + '_offset'
+                offset = 'vector[%d] %s;' % (n_cols, offset_name)
+                self.transformed_parameters.append(offset)
+                self.model.append('%s ~ normal(0, 1);' % offset_name)
+                self.transformed_parameters.append('%s%s %s;' % (stan_par, _bounds, var_name))
+                trans = '%s = multiply(%s, %s);' % (var_name, offset_name, kwargs['sd'])
+                self.expressions.append(trans)
+
+            else:
+                self.parameters.append('%s%s %s;' % (stan_par, _bounds, var_name))
+                if _dist is not None:
+                    self.model.append('%s ~ %s;' % (var_name, _dist))
+
             return name
 
         for t in spec.terms.values():
@@ -186,14 +204,18 @@ class StanBackEnd(BackEnd):
         self.transformed_parameters.append('vector[N] yhat;')
         if self.mu_cont:
             yhat_cont = 'yhat = %s;' % ' + '.join(self.mu_cont)
-            self.transformed_parameters.append(yhat_cont)
+            self.expressions.append(yhat_cont)
         else:
             self.mu_cat.insert(0, '0')
 
         if self.mu_cat:
-            loops = ('for (n in 1:N)\n'
-                    '\t\tyhat[n] = %s' % ' + '.join(self.mu_cat) + ';\n\t')
-            self.transformed_parameters.append(loops)
+            loops = ('for (n in 1:N)\n\t\tyhat[n] = %s'
+                     % ' + '.join(self.mu_cat) + ';\n\t')
+            self.expressions.append(loops)
+
+        # Add expressions that go in transformed parameter block (they have 
+        # to come after variable definitions)
+        self.transformed_parameters += self.expressions
 
         # y
         self.data.append('vector[N] y;')
