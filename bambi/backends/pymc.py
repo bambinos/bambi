@@ -128,7 +128,7 @@ class PyMC3BackEnd(BackEnd):
 
         return trans
 
-    def run(self, start=None, method='mcmc', init=None, n_init=10000,
+    def run(self, start=None, method='mcmc', init='advi', n_init=50000,
             find_map=False, **kwargs):
         '''
         Run the PyMC3 MCMC sampler.
