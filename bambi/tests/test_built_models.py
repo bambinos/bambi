@@ -237,7 +237,7 @@ def test_many_fixed_many_random(crossed_data):
     fitted2 = model2.fit('Y ~ continuous + dummy + threecats',
         random=['0+threecats|subj', '1|item', '0+continuous|item',
             'dummy|item', 'threecats|site'],
-        backend='stan', samples=10)
+        backend='stan', samples=100)
 
     # check that the random effects design matrices have the same shape
     X0 = pd.concat([pd.DataFrame(t.data) if not isinstance(t.data, dict) else
