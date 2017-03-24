@@ -393,6 +393,8 @@ class Model(object):
                 else:
                     pred_df = dmatrix('%s+%s' % (intcpt, pred), data,
                                       return_type='dataframe')
+                    # determine value of the 'constant' attribute
+                    const = np.atleast_2d(pred_df.T).T.sum(1).var() == 0
 
                     for col, i in pred_df.design_info.column_name_indexes.items():
                         pred_data = pred_df.iloc[:, i]
@@ -420,7 +422,8 @@ class Model(object):
 
                         pred_data = pred_data[:, None]  # Must be 2D later
                         term = RandomTerm(self, label, lev_data, pred_data,
-                                          grpr_df.values, categorical=cat)
+                                          grpr_df.values, categorical=cat,
+                                          constant=const if const else None)
                         self.terms[label] = term
 
         self.built = False
@@ -470,7 +473,7 @@ class Model(object):
             prior.update(sd=Prior('Uniform', lower=0,
                                   upper=self.data[variable].std()))
 
-        data = self.data[variable]
+        data = kwargs.pop('data', self.data[variable])
         term = Term(self, variable, data, prior=prior, *args, **kwargs)
         self.y = term
         self.built = False
@@ -640,10 +643,14 @@ class Term(object):
             as continuous.
         prior (Prior): A specification of the prior(s) to use. An instance
             of class priors.Prior.
+        constant (bool): indicates whether the term levels collectively
+            act as a constant, in which case the term is treated as an
+            intercept for prior distribution purposes.
     '''
     random = False
 
-    def __init__(self, model, name, data, categorical=False, prior=None):
+    def __init__(self, model, name, data, categorical=False, prior=None,
+        constant=None):
 
         self.model = model
         self.name = name
@@ -665,7 +672,10 @@ class Term(object):
 
         # identify and flag intercept and cell-means terms (i.e., full-rank
         # dummy codes), which receive special priors
-        self.constant = np.atleast_2d(data.T).T.sum(1).var() == 0
+        if constant is None:
+            self.constant = np.atleast_2d(data.T).T.sum(1).var() == 0
+        else:
+            self.constant = constant
 
         self.set_prior(prior)
 
@@ -691,9 +701,10 @@ class RandomTerm(Term):
     random = True
 
     def __init__(self, model, name, data, predictor, grouper, categorical=False,
-                 prior=None):
+                 prior=None, constant=None):
 
-        super(RandomTerm, self).__init__(model, name, data, categorical, prior)
+        super(RandomTerm, self).__init__(model, name, data, categorical, prior,
+            constant)
         self.grouper = grouper
         self.predictor = predictor
         self.group_index = self._invert_dummies(grouper)
