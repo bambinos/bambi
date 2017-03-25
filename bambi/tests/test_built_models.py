@@ -645,7 +645,7 @@ def test_poisson_regression(crossed_data):
     model1.add('continuous')
     model1.add('dummy')
     model1.build(backend='pymc3')
-    model1.fit(samples=1)
+    model1.fit(samples=1, init=None)
 
     # build model using fit and stan
     model2 = Model(crossed_data)
