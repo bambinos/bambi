@@ -566,13 +566,13 @@ def test_logistic_regression(crossed_data):
     # build model using fit
     model0 = Model(crossed_data)
     model0.fit('threecats[b] ~ continuous + dummy',
-               family='binomial', link='logit', run=False)
+               family='bernoulli', link='logit', run=False)
     model0.build(backend='pymc3')
     fitted = model0.fit(samples=100)
 
     # build model using add
     model1 = Model(crossed_data)
-    model1.add('threecats[b] ~ 1', family='binomial', link='logit')
+    model1.add('threecats[b] ~ 1', family='bernoulli', link='logit')
     model1.add('continuous')
     model1.add('dummy')
     model1.build(backend='pymc3')
