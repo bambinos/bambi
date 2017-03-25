@@ -634,7 +634,7 @@ def test_poisson_regression(crossed_data):
     crossed_data['count'] = (crossed_data['Y'] - crossed_data['Y'].min()).round()
     model0 = Model(crossed_data)
     fitted = model0.fit('count ~ threecats + continuous + dummy',
-        family='poisson', backend='pymc3', samples=1)
+        family='poisson', backend='pymc3', samples=1, init=None)
     # model0.build()
     # model0.fit()
 

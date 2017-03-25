@@ -263,9 +263,8 @@ class StanBackEnd(BackEnd):
         _response_args = {spec.family.parent: _response_args}
         for k, v in spec.family.prior.args.items():
             if k != spec.family.parent:
-                if isinstance(v, Prior):
-                    _response_args[k] = '{}_{}'.format(spec.y.name, k) \
-                        if isinstance(v, Prior) else str(v)
+                _response_args[k] = '{}_{}'.format(spec.y.name, k) \
+                    if isinstance(v, Prior) else str(v)
         _dist = _map_dist(_response_dist, **_response_args)[0]
         self.model.append('y ~ {};'.format(_dist))
 
