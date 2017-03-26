@@ -209,8 +209,13 @@ def test_cell_means_with_covariate(crossed_data):
 
 
 def test_many_fixed_many_random(crossed_data):
+    # delete a few values to also test dropna=True functionality
+    crossed_data_missing = crossed_data.copy()
+    crossed_data_missing['Y'][10] = np.nan
+    crossed_data_missing['continuous'][20] = np.nan
+
     # build model using fit
-    model0 = Model(crossed_data)
+    model0 = Model(crossed_data_missing, dropna=True)
     fitted = model0.fit('Y ~ continuous + dummy + threecats',
         random=['0+threecats|subj', '1|item', '0+continuous|item', 
             'dummy|item', 'threecats|site'],
@@ -219,7 +224,7 @@ def test_many_fixed_many_random(crossed_data):
     # model0.fit(samples=1)
 
     # build model using add(append=True)
-    model1 = Model(crossed_data)
+    model1 = Model(crossed_data_missing, dropna=True)
     model1.add('Y ~ 1')
     model1.add('continuous')
     model1.add('dummy')
@@ -233,7 +238,7 @@ def test_many_fixed_many_random(crossed_data):
     # model1.fit(samples=1)
 
     # build model using stan backend
-    model2 = Model(crossed_data)
+    model2 = Model(crossed_data_missing, dropna=True)
     fitted2 = model2.fit('Y ~ continuous + dummy + threecats',
         random=['0+threecats|subj', '1|item', '0+continuous|item',
             'dummy|item', 'threecats|site'],
@@ -702,7 +707,7 @@ def test_logistic_regression(crossed_data):
     assert all([dicts_close(priors1[x], priors2[x]) for x in priors0.keys()])
 
     # test that summary reminds user which event is being modeled
-    fitted.summary()
+    fitted.summary(quantiles=.5)
 
     # test that traceplot reminds user which event is being modeled
     fitted.plot()

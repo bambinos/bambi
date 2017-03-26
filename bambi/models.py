@@ -141,9 +141,14 @@ class Model(object):
                 % na_index.sum()
             warnings.warn(msg)
             keeps = np.invert(na_index)
+            # removing missing rows
             for t in self.terms.values():
-                # remove missing values
                 t.data = t.data[keeps]
+                # alter additional attributes in RandomTerms
+                if isinstance(t, RandomTerm):
+                    t.grouper = t.grouper[keeps]
+                    t.predictor = t.predictor[keeps]
+                    t.group_index = t._invert_dummies(t.grouper)
             self.y.data = self.y.data[keeps]
 
         # X = fixed effects design matrix (excluding intercept/constant term)
@@ -381,7 +386,8 @@ class Model(object):
                 # Default to including random intercepts
                 intcpt = 1 if intcpt is None else int(intcpt)
 
-                grpr_df = dmatrix('0+%s' % grpr, data, return_type='dataframe')
+                grpr_df = dmatrix('0+%s' % grpr, data, return_type='dataframe',
+                                  NA_action=Ignore_NA())
 
                 # If there's no predictor, we must be adding random intercepts
                 if not pred and grpr not in self.terms:
@@ -392,7 +398,8 @@ class Model(object):
                     self.terms[name] = term
                 else:
                     pred_df = dmatrix('%s+%s' % (intcpt, pred), data,
-                                      return_type='dataframe')
+                                      return_type='dataframe',
+                                      NA_action=Ignore_NA())
                     # determine value of the 'constant' attribute
                     const = np.atleast_2d(pred_df.T).T.sum(1).var() == 0
 
