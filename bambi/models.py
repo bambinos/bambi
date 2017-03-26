@@ -650,7 +650,7 @@ class Term(object):
     random = False
 
     def __init__(self, model, name, data, categorical=False, prior=None,
-        constant=None):
+                 constant=None):
 
         self.model = model
         self.name = name
@@ -704,7 +704,7 @@ class RandomTerm(Term):
                  prior=None, constant=None):
 
         super(RandomTerm, self).__init__(model, name, data, categorical, prior,
-            constant)
+              constant)
         self.grouper = grouper
         self.predictor = predictor
         self.group_index = self._invert_dummies(grouper)
