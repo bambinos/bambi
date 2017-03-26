@@ -277,10 +277,10 @@ class StanBackEnd(BackEnd):
                 else:
                     return self._original_names[name]
             else:
-                if '_offset' in name:
-                    self._suppress_vars.append(name)
                 return name
         levels = [replace_name(x) for x in self.fit.sim['fnames_oi']]
+        # Suppress non-centered parameterization parameters
+        self._suppress_vars.extend([n for n in names if '_offset' in n])
 
         # instantiate
         return MCMCResults(model=self.spec, data=data, names=names, dims=dims,
