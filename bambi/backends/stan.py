@@ -96,14 +96,14 @@ class StanBackEnd(BackEnd):
 
         def _sanitize_name(name):
             ''' Stan only allows alphanumeric chars and underscore, and
-            variable names must begin with a letter. So replace all invalid
-            chars with '_', prepend with 'b_' if needed, and track for later
-            re-substitution. '''
+            variable names must begin with a letter. Additionally, Stan
+            reserves a few hundred strings that can't be used as variable
+            names. So to play it safe, we replace all invalid chars with '_',
+            and prepend all variables with 'b_'. We substitute the original
+            names back in later. '''
             if name in self._original_names:
                 return name
-            clean = re.sub('[^a-zA-Z0-9\_]+', '_', name)
-            if re.search(r'^\d', clean) is not None:
-                clean = 'b_' + clean
+            clean = 'b_' + re.sub('[^a-zA-Z0-9\_]+', '_', name)
             self._original_names[clean] = name
             return clean
 
@@ -238,7 +238,7 @@ class StanBackEnd(BackEnd):
             self.mu_cat.insert(0, '0')
 
         if self.mu_cat:
-            loops = ('for (n in 1:N)\n\t\tyhat[n] = %s'
+            loops = ('for (n in 1:N)\n\t\tyhat[n] = yhat[n] + %s'
                      % ' + '.join(self.mu_cat) + ';\n\t')
             self.expressions.append(loops)
 
@@ -326,8 +326,10 @@ class StanBackEnd(BackEnd):
                 else:
                     return self._original_names[name]
             else:
-                return None if '_offset' in name else name
+                return name
         levels = [replace_name(x) for x in self.fit.sim['fnames_oi']]
+        # Suppress non-centered parameterization parameters
+        self._suppress_vars.extend([n for n in names if '_offset' in n])
 
         # instantiate
         return MCMCResults(model=self.spec, data=data, names=names, dims=dims,
