@@ -32,14 +32,12 @@ Bambi requires working versions of numpy, pandas, matplotlib, patsy, pymc3, and 
     + [Creating a model](#creating-a-model)
     + [Model specification](#model-specification)
         * [Formula-based specification](#formula-based-specification)
-        * [Term-based specification](#term-based-specification)
-        * [Mixing specification approaches](#mixing-specification-approaches)
+        * [Incremental specification](#incremental-specification)
         * [Notes on fixed and random effects in Bambi](#notes-on-fixed-and-random-effects-in-bambi)
         * [Coding of categorical variables](#coding-of-categorical-variables)
-        * [Model specification notes](#model-specification-notes)
-            - [Term naming caveats](#term-naming-caveats)
     + [Fitting the model](#fitting-the-model)
         * [Building the model](#building-the-model)
+    + [Alternative back-ends](#alternative-back-ends)
     + [Specifying priors](#specifying-priors)
         * [Different ways of specifying priors](#different-ways-of-specifying-priors)
         * [Mapping priors onto terms](#mapping-priors-onto-terms)
@@ -97,131 +95,104 @@ As with most mixed effect modeling packages, Bambi expects data in "long" format
 | 9       | F      | 4.0 | 3     | 2      |
 
 ### Model specification
-Bambi provides two (mutually compatible) ways to specify a mixed-effects model: a high-level, formula-based API, and a lower-level, term-based API.
+Bambi provides a flexible way to specify models that makes it easy not only to specify the terms 
 
 #### Formula-based specification
-The more compact, high-level approach to model specification is to use a formula-based syntax similar to what one might find in R packages like lme4 or nlme. Some examples that illustrate the breadth of models that can be easily specified in Bambi:
+Models are specified in Bambi using a formula-based syntax similar to what one might find in R packages like lme4 or nlme. A couple of examples that illustrate the breadth of models that can be easily specified in Bambi:
 
 ```python
 # Fixed effects only
 model.fit('rt ~ attention + color')
 
-# Fixed and random effects
+# Fixed effects and random intercepts for subject
 model.fit('y ~ 0 + gender + condition*age', random=['1|subject'])
+
+# Multiple, complex random effects with both random slopes and random intercepts
+model.fit('y ~ 0 + gender', random=['condition|subject', 'condition|site'])
 ```
 
-Each of the above examples specifies a full model that will immediately be fitted using the NUTS sampler implemented in PyMC3 (more on that below).
+Each of the above examples specifies a full model that will immediately be fitted using either PyMC3 or Stan (more on that below).
 
-Notice how, in contrast to lme4 (but similar to nlme), fixed and random effects are specified separately in Bambi. We describe the syntax and operators supported by each type of effect below; briefly, however, the fixed effects specification relies on [patsy](http://patsy.readthedocs.io/en/latest/overview.html), and [hence formulas are parsed](http://patsy.readthedocs.io/en/latest/formulas.html) almost exactly the same way [as in R](http://patsy.readthedocs.io/en/latest/R-comparison.html). Random effects terms must be specified one at a time, and currently only support simple nesting or crossing relationships (e.g., '1|subject', 'condition|stimulus', etc.).
+Notice how, in contrast to lme4 (but similar to nlme), fixed and random effects are specified separately in Bambi. We describe the syntax and operators supported by each type of effect below; briefly, however, the fixed effects specification relies on [patsy](http://patsy.readthedocs.io/en/latest/overview.html), and [hence formulas are parsed](http://patsy.readthedocs.io/en/latest/formulas.html) almost exactly the same way [as in R](http://patsy.readthedocs.io/en/latest/R-comparison.html). Random effects terms must be specified one at a time.
 
-#### Term-based specification
-An alternative approach that is more verbose but potentially clearer and more flexible is to enter each term into the model separately. The `add_term()` method provides a simple but powerful interface for specifying a range of fixed and random effects.
+#### Incremental specification
+Although models can be fit in one line, as above, an alternative approach that is more verbose but sometimes clearer is to enter one or more terms into the model incrementally. The `add()` method takes essentially the same arguments as the `fit()` method, but doesn't automatically start compiling and fitting the model.
 
 ```python
 from bambi import Model, Prior
 
 # Initialize model
 model = Model(data)
-# Add intercept
-model.add_intercept()
-# Continuous fixed effect (in this case, a binary indicator)
-model.add_term('condition')
-# Categorical fixed effect, setting a narrow prior
-model.add_term('age_group', categorical=True, prior='narrow')
-# Random subject intercepts. Note that term label can be
-# explicitly set if we don't want to use the dataset column name
-model.add_term('subj', random=True, categorical=True, label='subject')
+
+# Continuous fixed effect (in this case, a binary indicator);
+# will also add intercept automatically unless it is explicitly supppressed.
+model.add('condition')
+
+# Categorical fixed effect, setting a narrow prior. We explicitly
+# name the columns that should be interpreted as categoricals. Note that
+# if age_group is already represented as a categorical variable in the
+# DataFrame, the categorical argument is unnecessary. But it's good
+# practice to be explicit about what the categorical variables are,
+# as users sometimes inadvertently pass numeric columns that are
+# intended to be treated as categorical variables, and Bambi has
+# no way of knowing this.
+model.add('age_group', categorical=['age_group'], priors={'age_group': 'narrow'})
+
+# Random subject intercepts
+model.add(random=['subj'], categorical=['subj'])
+
 # Random condition slopes distributed over subjects
-model.add_term('condition', random=True, over='subj')
-# Add outcome
+model.add_term(random=['0+condition|subj'])
+
+# Add outcome variable
 model.add_y('y')
+
 # Fit the model and save results
 results = model.fit()
 ```
 
-As the above example illustrates, the only mandatory argument to `add_term` is a string giving the name of the dataset column to use for the term. If no other arguments are specified, the corresponding variable will be modeled as a fixed effect with a normally-distributed prior (a detailed explanation of how priors are handled in Bambi can be found below). The type of variable (i.e., categorical or continuous) will be determined based on the `dtype` of the column in the pandas `DataFrame`, so it's a good idea to make sure all variables are assigned the correct `dtype` when you first read in the data. You can also force a continuous variable to be treated as a categorical factor by passing `categorical=True` (e.g., `add_term('subject', categorical=True)`).
+As the above example illustrates, the only mandatory argument to `add` is a string giving the name of the dataset column to use for the term. If no other arguments are specified, the corresponding variable will be modeled as a fixed effect with a normally-distributed prior (a detailed explanation of how priors are handled in Bambi can be found below). The type of variable (i.e., categorical or continuous) will be determined based on the `dtype` of the column in the pandas `DataFrame`, so it's a good idea to make sure all variables are assigned the correct `dtype` when you first read in the data. You can also force continuous variables to be treated as categorical factors by passing them as a list to the `categorical` argument (e.g., `add_term('subject + condition + extraversion', categorical=['subject'])`).
 
-To specify that a term should be modeled as a random effect, simply set `random=True`. Whether the term is interpreted as coding random intercepts or random slopes then depends on the other arguments. When `random=True` and `over` is specified, Bambi will add random slopes for the named variable distributed over the column named in `over`. For example, `add_term('condition', random=True, over='subject')` will add random condition slopes distributed over subjects.
-
-#### Mixing specification approaches
-The two approaches to model specification described above are fully compatible with one another. While the `fit()` interface will typically be used to fit a model in one shot, we can also add only part of a model via the `add_formula()` interface, which allows us to add additional terms later via either additional formulas, or individual term specifications. Consider the following model construction:
-
-```python
-model = Model(data)
-model.add_formula('condition + gender', random='condition|subject')
-model.add_term('age')
-model.add_y('rt')
-```
-
-Here we add two fixed predictors, as well as random intercepts and slopes for subjects, to the model via an initial formula call; then we add another fixed covariate (age) via `add_term()`; finally, we add the outcome variable.
-
-We could, of course, just as easily have specified the equivalent model in a single line:
-
-```python
-model = Model(data)
-model.fit('rt ~ condition + gender + age', random='condition|subject')
-```
-
-In this case, the latter is probably a more sensible approach. However, as we illustrate later, there may be cases where using a mixed approach like the first one is more convenient--e.g., because we want to use a custom prior for only one or two terms.
+To specify that a term should be modeled as a random effect, pass the formula to the `random` argument (e.g., `random='1|subj'`). The specification of random intercepts vs. slopes is handled as in other packages, or in the full specification passed to a single `fit()` call. For example, `add(random=['1|site', '0+condition|subject'])` would add random condition slopes distributed over subjects (without subject intercepts), as well as random intercepts for sites.
 
 #### Notes on fixed and random effects in Bambi
-As noted above, Bambi handles fixed and random effects separately. The fixed effects specification relies on the [patsy](http://patsy.readthedocs.io/en/latest/overview.html) package, which supports nearly all of the standard formula operators handled in base R--including `:`, `*`, `-`, etc. Unfortunately, patsy doesn't support grouping operators, so random effects are handled separately in Bambi. At present, random effects support is limited to simple specification of slopes and intercepts. All terms must be passed in as elements in a list. For example:
+As noted above, Bambi handles fixed and random effects separately. The fixed effects specification relies on the [patsy](http://patsy.readthedocs.io/en/latest/overview.html) package, which supports nearly all of the standard formula operators handled in base R--including `:`, `*`, `-`, etc. Unfortunately, patsy doesn't support grouping operators, so random effects are handled separately in Bambi. All terms must be passed in as elements in a list (though each individual term can be as complex as a normal fixed effect specification). For example:
 
 ```python
 random_terms = [
-    '1|student',    # Random student intercepts
-    'classroom',     # Random classroom intercepts; equivalent to '1|stimulus'
-    'treatment|school' # Random treatment slopes distributed over schools; school intercepts will also be automtically added.
+    # Random student intercepts
+    '1|student',
+    # Random classroom intercepts  
+    '1|classroom',
+    # Random treatment slopes distributed over schools;school intercepts will also be automtically added
+    'treatment|school',
+    # A random set of subject slopes for each level of the combination of factors a and b, with subject intercepts excluded
+    '0+a*b|subject'
 ]
-model.add_formula(random=random_terms)
+model.add(random=random_terms)
 ```
 
 ##### Coding of categorical variables
-When a categorical fixed effect with N levels is added to a model, by default, it is coded by N-1 dummy variables (i.e., reduced rank coding). For example, suppose we write `'y ~ condition + age + gender'`, where condition is a categorical variable with 4 levels, and age and gender are continuous variables. Then our model would contain an intercept term (added to the model by default, as in R), three dummy-coded variables (each contrasting the first level of `condition` with one of the subsequent levels), and continuous predictors for age and gender. Suppose, however, that we would rather use full-rank coding of conditions. If we explicitly remove the intercept--as in `'y ~ 0 + condition + age + gender'`--then we get the desired effect. Now, the intercept is no longer included, and condition will be coded using 4 dummy indicators--each one coding for the presence or absence of the respective condition, without reference to the other conditions.
+When a categorical fixed effect with N levels is added to a model, by default, it is coded by N-1 dummy variables (i.e., reduced-rank coding). For example, suppose we write `'y ~ condition + age + gender'`, where condition is a categorical variable with 4 levels, and age and gender are continuous variables. Then our model would contain an intercept term (added to the model by default, as in R), three dummy-coded variables (each contrasting the first level of `condition` with one of the subsequent levels), and continuous predictors for age and gender. Suppose, however, that we would rather use full-rank coding of conditions. If we explicitly remove the intercept--as in `'y ~ 0 + condition + age + gender'`--then we get the desired effect. Now, the intercept is no longer included, and condition will be coded using 4 dummy indicators--each one coding for the presence or absence of the respective condition, without reference to the other conditions.
 
 Random effects are handled in a comparable way. When adding random intercepts, coding is always full-rank (e.g., when adding random intercepts for 100 schools, one gets 100 dummy-coded indicators coding each school separately, and not 99 indicators contrasting each school with the very first one). For random slopes, coding proceeds the same way as for fixed effects. The random effects specification `['condition|subject']` would add an intercept for each subject, plus N-1 condition slopes (each coded with respect to the first, omitted, level as the referent). If we instead specify `['0+condition|subject']`, we get N condition slopes and no intercepts.
 
-Note that the above only holds for the formula-based specification approach. When using the `add_term()` interface, we can explicitly control how categorical variables are coded using the `drop_first` argument:
-
-```python
-# Add random subject intercept--1 per subject
-model.add_term('subject', random=True, categorical=True, drop_first=False)
-
-# Add N - 1 random condition slopes, each distributed over all subjects
-model.add_term('condition', random=True, categorical=True, over='subject', drop_first=False)
-```
-
-#### Model specification notes
-##### Term naming caveats
-You might notice that the `add_term()` method takes both a `variable` and a `label` argument. The former refers to the name of the dataset column containing the data for the term; the latter is the name to use for the term when storing it in the model. By default, `label=None`, and the name of the column passed in `variable` will be re-used as the term label. However, there is at least one situation where this can potentially bite us in the ass: when adding random slopes or crossed random intercepts to the model--i.e., variables that are distributed over other variables--the term label will include *both* variables, to make sure that the generated term is kept distinct from other terms that might use the same underlying data. For example:
-
-```python
-# This will add a term named 'condition'
-model.add_term('condition')
-
-# This will generate a term named 'condition|subject', and *not* 'condition'!
-model.add_term('condition', random=True, over='subject')
-```
-
-To avoid any potential conflicts, we generally recommend giving the terms in your model sensible names by explicitly setting the `label` value whenever appropriate. (This is not possible when using the formula interface, as term names will be generated dynamically based on the formula specification.)
-
 ### Fitting the model
-Once a model is fully specified, we need to run the PyMC3 sampler to generate parameter estimates. If we're using the one-line `fit()` interface, sampling will begin right away:
+Once a model is fully specified, we need to run the PyMC3 or Stan sampler to generate parameter estimates. If we're using the one-line `fit()` interface, sampling will begin right away (by default, using the PyMC3 back-end):
 
 ```python
 model = Model(data)
 results = model.fit('rt ~ condition + gender + age', random='condition|subject')
 ```
 
-The above code will obtain 1,000 samples (the default value) and return them as a `ModelResults` instance (for more details, see the [Results](#results) section). The `fit()` method accepts optional keyword arguments to pass onto PyMC3's `sample()` method, so any methods accepted by `sample()` can be specified here. We can also explicitly set the number of samples via the `samples` argument. For example, if we call `fit('y ~ X1', samples=2000, njobs=2)`, the PyMC3 sampler will run 2 parallel jobs, drawing 2,000 samples for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see the [PyMC3 documentation](https://pymc-devs.github.io/pymc3/api.html#pymc3.sampling.sample)).
+The above code will obtain 1,000 samples (the default value) and return them as a `ModelResults` instance (for more details, see the [Results](#results) section). In this case, the `fit()` method accepts optional keyword arguments to pass onto PyMC3's `sample()` method, so any methods accepted by `sample()` can be specified here. We can also explicitly set the number of samples via the `samples` argument. For example, if we call `fit('y ~ X1', samples=2000, chains=2)`, the PyMC3 sampler will sample two chains in parallel, drawing 2,000 samples for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see the [PyMC3 documentation](https://pymc-devs.github.io/pymc3/api.html#pymc3.sampling.sample)).
 
-Alternatively, we can specify our model in steps, and only call `fit()` once the model is complete:
+Alternatively, if we're building our model incrementally, we can specify our model in steps, and only call `fit()` once the model is complete:
 
 ```python
-# Initializing with intercept=True adds an intercept right away
-model = Model(data, intercept=True)
-model.add_term('food_type', categorical=True)
-model.add_term('subject', categorical=True, random=True)
+model = Model(data)
+model.add('food_type', categorical=['food_type'])
+model.add(random='1|subject')
 ...
 model.fit(samples=5000)
 ```
@@ -231,11 +202,30 @@ When `fit()` is called, Bambi internally performs two separate steps. First, the
 
 ```python
 model = Model(data)
-model.add.formula('rt ~ condition + gender + age', random='condition|subject')
+model.add('rt ~ condition + gender + age', random='condition|subject')
 model.build()
 ```
 
-The above code compiles the model, but doesn't begin sampling. This can be useful if we want to inspect the internal PyMC3 model before we start the (potentially long) sampling process. Once we're satisfied, and wish to run the sampler, we can then simply call `model.fit()`, and the sampler will start running.
+Alternatively, the same result can be achieved using the `run` argument to `fit()`:
+
+```python
+model = Model(data)
+model.fit('rt ~ condition + gender + age', random='condition|subject', run=False)
+```
+
+In both of the above cases, sampling won't actually start until `fit()` is called (in the latter case, a second time). The only difference between the two above snippets is that the former will compile the model (note the explicit `build()` call) whereas the latter will not.
+
+Building without sampling can be useful if we want to inspect the internal PyMC3 model before we start the (potentially long) sampling process. Once we're satisfied, and wish to run the sampler, we can then simply call `model.fit()`, and the sampler will start running.
+
+#### Alternative back-ends
+Bambi defaults to using the NUTS MCMC sampler implemented in the PyMC3 package for all model-fitting. If you want to use PyMC3, you don't have to do anything special. The main benefit of working with PyMC3 is that since PyMC3 models are written in native Python code, you can in principle always access the full PyMC3 model yourself (given a Bambi model called `model`, the internal PyMC3 is stored in `model.backend.model`). However, Bambi also supports the Stan MCMC sampling package, via the [PyStan](https://github.com/stan-dev/pystan) interface. To switch from PyMC3 to Stan, all you have to do is specify `backend='stan'` in the `fit` call:
+
+```python
+model = Model(data)
+model.fit('rt ~ condition + gender + age', random='condition|subject', backend='stan')
+```
+
+From the user's standpoint, the change from PyMC3 to Stan (or vice versa) will usually be completely invisible. Unless we want to muck around in the internals of the backends, the API is identical no matter which back-end we're using. This frees us up to easily compare different back-ends in terms of speed and/or estimates (assuming the sampler has converged, the two back-ends shoul produce virtually identical estimates for all models, but performance could theoretically differ).
 
 ### Specifying priors
 Bayesian inference requires one to specify prior probability distributions that represent the analyst's belief (in advance of seeing the data) about the likely values of the model parameters. In practice, analysts often lack sufficient information to formulate well-defined priors, and instead opt to use "weakly informative" priors that mainly serve to keep the model from exploring completely pathological parts of the parameter space (e.g., when defining a prior on the distribution of human heights, a value of 3,000 cms should be assigned a probability of exactly 0).
