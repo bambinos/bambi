@@ -99,7 +99,7 @@ class PyMC3BackEnd(BackEnd):
                                         shape=n_cols, **dist_args)
 
                 if t.random:
-                    self.mu += coef[t.group_index] * t.predictor
+                    self.mu += coef[t.group_index][:, None] * t.predictor
                 else:
                     self.mu += pm.math.dot(data, coef)[:, None]
 
