@@ -327,7 +327,7 @@ class StanBackEnd(BackEnd):
                             return '{}|{}'.format(split[0], lev)
                         else:
                             lev = re.search(r'(\[.+\])', lev).group(0)
-                            return '{}|{}_offset{}'.format(*split, lev)
+                            return '{}|{}_offset{}'.format(*(split + [lev]))
                     # fixed effects
                     elif len(split) == 1:
                         return lev
