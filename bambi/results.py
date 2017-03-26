@@ -7,6 +7,14 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from .utils import listify
+try:
+    import pymc3 as pm
+    if hasattr(pm.plots, 'kdeplot_op'):
+        pma = pm.plots
+    else:
+        pma = pm.plots.artists
+except:
+    pma = None
 
 
 __all__ = ['MCMCResults', 'PyMC3ADVIResults']
@@ -183,14 +191,22 @@ class MCMCResults(ModelResults):
         def _plot_row(data, row, title, hist=True):
             # density plot
             axes[row, 0].set_title(title)
-            data.plot(kind='kde', ax=axes[row, 0], legend=False)
+            if pma is not None:
+                arr = data.values[:, None]
+                pma.kdeplot_op(axes[row, 0], arr)
+            else:
+                data.plot(kind='kde', ax=axes[row, 0], legend=False)
+
             # trace plot
             axes[row, 1].set_title(title)
             data.plot(kind='line', ax=axes[row, 1], legend=False)
             # histogram
             if hist:
-                data.plot(kind='hist', ax=axes[row, 0], legend=False,
-                        normed=True, bins=bins)
+                if pma is not None:
+                    pma.histplot_op(axes[row, 0], arr)
+                else:
+                    data.plot(kind='hist', ax=axes[row, 0], legend=False,
+                              normed=True, bins=bins)
 
         if kind == 'priors':
             return self.model.plot(varnames)
