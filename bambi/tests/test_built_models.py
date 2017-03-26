@@ -392,7 +392,7 @@ def test_many_fixed_many_random(crossed_data):
     test_set2 = fitted2.summary(ranefs=True, transformed=False)
     test_set2 = set(test_set2.index)
     answer = set(['lp__'] \
-        + ['yhat[{}]'.format(i) for i in range(len(crossed_data.index))] \
+        + ['yhat[{}]'.format(i) for i in range(len(crossed_data.index)-2)] \
         + ['1|item_offset[0]','1|item_offset[10]','1|item_offset[11]',
         '1|item_offset[1]','1|item_offset[2]','1|item_offset[3]',
         '1|item_offset[4]','1|item_offset[5]','1|item_offset[6]',
