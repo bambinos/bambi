@@ -198,7 +198,7 @@ class StanBackEnd(BackEnd):
             # non-centered parameterization
             if spec.noncentered and 'sd' in kwargs and \
                     isinstance(kwargs['sd'], string_types):
-                offset_name = var_name + '_offset_'
+                offset_name = _sanitize_name(name + '_offset')
                 offset = 'vector[%d] %s;' % (n_cols, offset_name)
                 self.parameters.append(offset)
                 self.model.append('%s ~ normal(0, 1);' % offset_name)
@@ -315,11 +315,19 @@ class StanBackEnd(BackEnd):
                 lev = re.search(r'\[(.+)\]$', name)
                 if lev is not None:
                     tname = self._original_names[tname]
+                    # detect and handle offset terms
+                    rgx = re.search(r'_offset$', tname)
+                    if rgx is not None:
+                        tname = tname[:rgx.start()]
                     lev = self.spec.terms[tname].levels[int(lev.group(1))]
                     split = tname.split('|')
                     # random effects
                     if len(split) == 2:
-                        return '{}|{}'.format(split[0], lev)
+                        if rgx is None:
+                            return '{}|{}'.format(split[0], lev)
+                        else:
+                            lev = re.search(r'(\[.+\])', lev).group(0)
+                            return '{}|{}_offset{}'.format(*split, lev)
                     # fixed effects
                     elif len(split) == 1:
                         return lev
