@@ -315,11 +315,12 @@ class MCMCResults(ModelResults):
 
         # add convergence diagnostics
         if diagnostics is not None:
+            _self = self[list(samples.columns)]
             if self.n_chains > 1:
                 for diag in diagnostics:
                     if isinstance(diag, string_types):
                         diag = getattr(bmd, diag)
-                    df = df.merge(diag(self), left_index=True, right_index=True)
+                    df = df.merge(diag(_self), left_index=True, right_index=True)
             else:
                 warnings.warn('Multiple MCMC chains are required in order '
                               'to compute convergence diagnostics.')
