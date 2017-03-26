@@ -18,16 +18,39 @@ class StanBackEnd(BackEnd):
     Stan/PyStan model-fitting back-end.
     '''
 
+    # distribution names and arg names should match those in priors.json,
     dists = {
         'Normal': {'name': 'normal', 'args': ['#mu', '#sd']},
+        'Bernoulli': {'name': 'bernoulli', 'args': ['#p']},
+        'Poisson': {'name': 'poisson', 'args': ['#mu']},
         'Cauchy': {'name': 'cauchy', 'args': ['#alpha', '#beta']},
         'HalfNormal': {'name': 'normal', 'args': ['0', '#sd'],
                        'bounds': '<lower=0>'},
         'HalfCauchy': {'name': 'cauchy', 'args': ['0', '#beta'],
                        'bounds': '<lower=0>'},
-        'Uniform': {'name': 'uniform', 'args': ['#lower', '#upper']},
+        # for Uniform, the bounds are the parameters. _map_dist fills these in
+        'Uniform': {'name': 'uniform', 'args': ['#lower', '#upper'],
+                    'bounds': '<lower={}, upper={}>'},
         'Flat': {'name': None, 'args': []},
         'HalfFlat':  {'name': None, 'args': [], 'bounds': '<lower=0>'}
+    }
+
+    # maps from spec.family.name to 'dists' dictionary
+    # and gives the Stan variable type for the response
+    families = {
+        'gaussian': {'name': 'Normal', 'type': float,
+            'format': ['vector[N]', '']},
+        'bernoulli': {'name': 'Bernoulli', 'type': int,
+            'format': ['int', '[N]']},
+        'poisson': {'name': 'Poisson', 'type': int,
+            'format': ['int', '[N]']}
+    }
+
+    # maps from spec.family.link to Stan inverse link function name
+    links = {
+        'identity': '',
+        'logit': 'inv_logit',
+        'log': 'exp'
     }
 
     def __init__(self):
@@ -74,11 +97,13 @@ class StanBackEnd(BackEnd):
         def _sanitize_name(name):
             ''' Stan only allows alphanumeric chars and underscore, and
             variable names must begin with a letter. So replace all invalid
-            chars with '_', prepend with 'b_', and track for later
+            chars with '_', prepend with 'b_' if needed, and track for later
             re-substitution. '''
             if name in self._original_names:
                 return name
-            clean = 'b_' + re.sub('[^a-zA-Z0-9\_]+', '_', name)
+            clean = re.sub('[^a-zA-Z0-9\_]+', '_', name)
+            if re.search(r'^\d', clean) is not None:
+                clean = 'b_' + clean
             self._original_names[clean] = name
             return clean
 
@@ -114,6 +139,10 @@ class StanBackEnd(BackEnd):
                   for p in dp]
 
             dist_term = '%s(%s)' % (dist_name, ', '.join([str(p) for p in dp]))
+
+            # handle Uniform variables, for which the bounds are the parameters
+            if dist_name=='uniform':
+                dist_bounds = dist_bounds.format(*dp)
 
             return dist_term, dist_bounds
 
@@ -217,11 +246,31 @@ class StanBackEnd(BackEnd):
         # to come after variable definitions)
         self.transformed_parameters += self.expressions
 
-        # y
-        self.data.append('vector[N] y;')
-        self.parameters.append('real<lower=0> {}_sd;'.format(spec.y.name))
-        self.model.append('y ~ normal(yhat, {}_sd);'.format(spec.y.name))
-        self.X['y'] = spec.y.data.squeeze()
+        # add response variable (y)
+        _response_format = self.families[spec.family.name]['format']
+        self.data.append('{} y{};'.format(*_response_format))
+
+        # add response distribution parameters other than the location parameter
+        for k, v in spec.family.prior.args.items():
+            if k != spec.family.parent and isinstance(v, Prior):
+                _bounds = _map_dist(v.name, **v.args)[1]
+                _param = 'real{} {}_{};'.format(_bounds, spec.y.name, k)
+                self.parameters.append(_param)
+
+        # specify the response distribution
+        _response_dist = self.families[spec.family.name]['name']
+        _response_args = '{}(yhat)'.format(self.links[spec.family.link])
+        _response_args = {spec.family.parent: _response_args}
+        for k, v in spec.family.prior.args.items():
+            if k != spec.family.parent:
+                _response_args[k] = '{}_{}'.format(spec.y.name, k) \
+                    if isinstance(v, Prior) else str(v)
+        _dist = _map_dist(_response_dist, **_response_args)[0]
+        self.model.append('y ~ {};'.format(_dist))
+
+        # add the data
+        _response_type = self.families[spec.family.name]['type']
+        self.X['y'] = spec.y.data.astype(_response_type).squeeze()
 
         # Construct the stan script
         def format_block(name):

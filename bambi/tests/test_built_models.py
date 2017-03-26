@@ -134,7 +134,7 @@ def test_cell_means_parameterization(crossed_data):
     model1.build(backend='pymc3')
     model1.fit(samples=1)
 
-    # check that design matries are the same,
+    # check that design matrices are the same,
     # even if term names / level names / order of columns is different
     X0 = set([tuple(t.data[:, lev]) for t in model0.fixed_terms.values()
               for lev in range(len(t.levels))])
@@ -188,7 +188,7 @@ def test_cell_means_with_covariate(crossed_data):
     model1.build(backend='pymc3')
     # model1.fit(samples=1)
 
-    # check that design matries are the same,
+    # check that design matrices are the same,
     # even if term names / level names / order of columns is different
     X0 = set([tuple(t.data[:, lev]) for t in model0.fixed_terms.values()
               for lev in range(len(t.levels))])
@@ -277,7 +277,7 @@ def test_many_fixed_many_random(crossed_data):
     assert X0 == X2
     assert X1 == X2
 
-    # check that fit and add models have same priors for fixed effects
+    # check that models have same priors for fixed effects
     priors0 = {
         x.name: x.prior.args for x in model0.terms.values() if not x.random}
     priors1 = {
@@ -537,7 +537,7 @@ def test_cell_means_with_many_random_effects(crossed_data):
     X1_set = set(tuple(X1.iloc[:, i]) for i in range(len(X1.columns)))
     assert X0_set == X1_set
 
-    # check that fixed effect design matries are the same,
+    # check that fixed effect design matrices are the same,
     # even if term names / level names / order of columns is different
     X0 = set([tuple(t.data[:, lev]) for t in model0.fixed_terms.values()
               for lev in range(len(t.levels))])
@@ -563,39 +563,65 @@ def test_cell_means_with_many_random_effects(crossed_data):
 
 
 def test_logistic_regression(crossed_data):
-    # build model using fit
+    # build model using fit and pymc3
     model0 = Model(crossed_data)
-    model0.fit('threecats[b] ~ continuous + dummy',
-               family='binomial', link='logit', run=False)
-    model0.build(backend='pymc3')
-    fitted = model0.fit(samples=100)
+    fitted = model0.fit('threecats[b] ~ continuous + dummy',
+               family='bernoulli', link='logit',
+               backend='pymc3', samples=100)
+    # model0.build()
+    # fitted = model0.fit()
 
     # build model using add
     model1 = Model(crossed_data)
-    model1.add('threecats[b] ~ 1', family='binomial', link='logit')
+    model1.add('threecats[b] ~ 1', family='bernoulli', link='logit')
     model1.add('continuous')
     model1.add('dummy')
     model1.build(backend='pymc3')
     model1.fit(samples=1)
 
+    # build model using fit and stan
+    model2 = Model(crossed_data)
+    fitted2 = model2.fit('threecats[b] ~ continuous + dummy',
+               family='bernoulli', link='logit',
+               backend='stan', samples=100)
+
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)
+    assert set(model0.term_names) == set(model2.term_names)
+    assert set(model1.term_names) == set(model2.term_names)
 
-    # check that design matries are the same,
+    # check that fixed effect design matrices are the same,
     # even if term names / level names / order of columns is different
     X0 = set([tuple(t.data[:, lev]) for t in model0.fixed_terms.values()
               for lev in range(len(t.levels))])
     X1 = set([tuple(t.data[:, lev]) for t in model1.fixed_terms.values()
               for lev in range(len(t.levels))])
+    X2 = set([tuple(t.data[:, lev]) for t in model2.fixed_terms.values()
+              for lev in range(len(t.levels))])
     assert X0 == X1
+    assert X0 == X2
+    assert X1 == X2
 
-    # check that fit and add models have same priors for fixed
-    # effects
+    # check that models have same priors for fixed effects
     priors0 = {
         x.name: x.prior.args for x in model0.terms.values() if not x.random}
     priors1 = {
         x.name: x.prior.args for x in model1.terms.values() if not x.random}
+    priors2 = {
+        x.name: x.prior.args for x in model2.terms.values() if not x.random}
+    # check dictionary keys
     assert set(priors0) == set(priors1)
+    assert set(priors0) == set(priors2)
+    assert set(priors1) == set(priors2)
+    # check dictionary values
+    def dicts_close(a, b):
+        if set(a) != set(b):
+            return False
+        else:
+            return [np.allclose(a[x], b[x], atol=0, rtol=.01) for x in a.keys()]
+    assert all([dicts_close(priors0[x], priors1[x]) for x in priors0.keys()])
+    assert all([dicts_close(priors0[x], priors2[x]) for x in priors0.keys()])
+    assert all([dicts_close(priors1[x], priors2[x]) for x in priors0.keys()])
 
     # test that summary reminds user which event is being modeled
     fitted.summary()
@@ -604,13 +630,13 @@ def test_logistic_regression(crossed_data):
     fitted.plot()
 
 def test_poisson_regression(crossed_data):
-    # build model using fit
+    # build model using fit and pymc3
     crossed_data['count'] = (crossed_data['Y'] - crossed_data['Y'].min()).round()
     model0 = Model(crossed_data)
-    model0.fit('count ~ threecats + continuous + dummy',
-        family='poisson', run=False)
-    model0.build(backend='pymc3')
-    model0.fit(samples=1)
+    fitted = model0.fit('count ~ threecats + continuous + dummy',
+        family='poisson', backend='pymc3', samples=1, init=None)
+    # model0.build()
+    # model0.fit()
 
     # build model using add
     model1 = Model(crossed_data)
@@ -619,23 +645,47 @@ def test_poisson_regression(crossed_data):
     model1.add('continuous')
     model1.add('dummy')
     model1.build(backend='pymc3')
-    model1.fit(samples=1)
+    model1.fit(samples=1, init=None)
+
+    # build model using fit and stan
+    model2 = Model(crossed_data)
+    fitted2 = model2.fit('count ~ threecats + continuous + dummy',
+        family='poisson', backend='stan', samples=1)
 
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)
+    assert set(model0.term_names) == set(model2.term_names)
+    assert set(model1.term_names) == set(model2.term_names)
 
-    # check that design matries are the same,
+    # check that fixed effect design matrices are the same,
     # even if term names / level names / order of columns is different
     X0 = set([tuple(t.data[:, lev]) for t in model0.fixed_terms.values()
               for lev in range(len(t.levels))])
     X1 = set([tuple(t.data[:, lev]) for t in model1.fixed_terms.values()
               for lev in range(len(t.levels))])
+    X2 = set([tuple(t.data[:, lev]) for t in model2.fixed_terms.values()
+              for lev in range(len(t.levels))])
     assert X0 == X1
+    assert X0 == X2
+    assert X1 == X2
 
-    # check that fit and add models have same priors for fixed
-    # effects
+    # check that models have same priors for fixed effects
     priors0 = {
         x.name: x.prior.args for x in model0.terms.values() if not x.random}
     priors1 = {
         x.name: x.prior.args for x in model1.terms.values() if not x.random}
+    priors2 = {
+        x.name: x.prior.args for x in model2.terms.values() if not x.random}
+    # check dictionary keys
     assert set(priors0) == set(priors1)
+    assert set(priors0) == set(priors2)
+    assert set(priors1) == set(priors2)
+    # check dictionary values
+    def dicts_close(a, b):
+        if set(a) != set(b):
+            return False
+        else:
+            return [np.allclose(a[x], b[x], atol=0, rtol=.01) for x in a.keys()]
+    assert all([dicts_close(priors0[x], priors1[x]) for x in priors0.keys()])
+    assert all([dicts_close(priors0[x], priors2[x]) for x in priors0.keys()])
+    assert all([dicts_close(priors1[x], priors2[x]) for x in priors0.keys()])
