@@ -382,14 +382,52 @@ def test_many_fixed_many_random(crossed_data):
     assert full.difference(test_set) == answer
 
     # check hide_transformed for stan
-    # the major transformed parameter here should just be "lp__",
-    # which is technically not transformed, but equally uninteresting
     full2 = fitted2.summary(ranefs=True, transformed=True)
     full2 = set(full2.index)
     test_set2 = fitted2.summary(ranefs=True, transformed=False)
     test_set2 = set(test_set2.index)
     answer = set(['lp__'] \
-        + ['yhat[{}]'.format(i) for i in range(len(crossed_data.index))])
+        + ['yhat[{}]'.format(i) for i in range(len(crossed_data.index))] \
+        + ['1|item_offset[0]','1|item_offset[10]','1|item_offset[11]',
+        '1|item_offset[1]','1|item_offset[2]','1|item_offset[3]',
+        '1|item_offset[4]','1|item_offset[5]','1|item_offset[6]',
+        '1|item_offset[7]','1|item_offset[8]','1|item_offset[9]',
+        '1|site_offset[0]','1|site_offset[1]',
+        '1|site_offset[2]','1|site_offset[3]','1|site_offset[4]',
+        'continuous|item_offset[0]',
+        'continuous|item_offset[10]','continuous|item_offset[11]',
+        'continuous|item_offset[1]','continuous|item_offset[2]',
+        'continuous|item_offset[3]','continuous|item_offset[4]',
+        'continuous|item_offset[5]','continuous|item_offset[6]',
+        'continuous|item_offset[7]','continuous|item_offset[8]',
+        'continuous|item_offset[9]',
+        'dummy|item_offset[0]','dummy|item_offset[10]','dummy|item_offset[11]',
+        'dummy|item_offset[1]','dummy|item_offset[2]','dummy|item_offset[3]',
+        'dummy|item_offset[4]','dummy|item_offset[5]','dummy|item_offset[6]',
+        'dummy|item_offset[7]','dummy|item_offset[8]','dummy|item_offset[9]',
+        'threecats[T.b]|site_offset[0]',
+        'threecats[T.b]|site_offset[1]','threecats[T.b]|site_offset[2]',
+        'threecats[T.b]|site_offset[3]','threecats[T.b]|site_offset[4]',
+        'threecats[T.c]|site_offset[0]',
+        'threecats[T.c]|site_offset[1]','threecats[T.c]|site_offset[2]',
+        'threecats[T.c]|site_offset[3]','threecats[T.c]|site_offset[4]',
+        'threecats[a]|subj_offset[0]',
+        'threecats[a]|subj_offset[1]','threecats[a]|subj_offset[2]',
+        'threecats[a]|subj_offset[3]','threecats[a]|subj_offset[4]',
+        'threecats[a]|subj_offset[5]','threecats[a]|subj_offset[6]',
+        'threecats[a]|subj_offset[7]','threecats[a]|subj_offset[8]',
+        'threecats[a]|subj_offset[9]',
+        'threecats[b]|subj_offset[0]','threecats[b]|subj_offset[1]',
+        'threecats[b]|subj_offset[2]','threecats[b]|subj_offset[3]',
+        'threecats[b]|subj_offset[4]','threecats[b]|subj_offset[5]',
+        'threecats[b]|subj_offset[6]','threecats[b]|subj_offset[7]',
+        'threecats[b]|subj_offset[8]','threecats[b]|subj_offset[9]',
+        'threecats[c]|subj_offset[0]',
+        'threecats[c]|subj_offset[1]','threecats[c]|subj_offset[2]',
+        'threecats[c]|subj_offset[3]','threecats[c]|subj_offset[4]',
+        'threecats[c]|subj_offset[5]','threecats[c]|subj_offset[6]',
+        'threecats[c]|subj_offset[7]','threecats[c]|subj_offset[8]',
+        'threecats[c]|subj_offset[9]'])
     assert full2.difference(test_set2) == answer
 
     # check for consistency in parameter names between pymc3 and stan
@@ -463,7 +501,7 @@ def test_many_fixed_many_random(crossed_data):
 
     # check exclude_ranefs for stan
     test_set2 = set(fitted2.summary(ranefs=False, transformed=True).index)
-    answer = {'1|item[0]','1|item[10]','1|item[11]','1|item[1]','1|item[2]',
+    answer = set(['1|item[0]','1|item[10]','1|item[11]','1|item[1]','1|item[2]',
         '1|item[3]','1|item[4]','1|item[5]','1|item[6]','1|item[7]','1|item[8]',
         '1|item[9]','1|site[0]','1|site[1]','1|site[2]','1|site[3]','1|site[4]',
         'continuous|item[0]','continuous|item[10]','continuous|item[11]',
@@ -487,7 +525,47 @@ def test_many_fixed_many_random(crossed_data):
         'threecats[b]|subj[8]','threecats[b]|subj[9]','threecats[c]|subj[0]',
         'threecats[c]|subj[1]','threecats[c]|subj[2]','threecats[c]|subj[3]',
         'threecats[c]|subj[4]','threecats[c]|subj[5]','threecats[c]|subj[6]',
-        'threecats[c]|subj[7]','threecats[c]|subj[8]','threecats[c]|subj[9]'}
+        'threecats[c]|subj[7]','threecats[c]|subj[8]','threecats[c]|subj[9]'] \
+        + ['1|item_offset[0]','1|item_offset[10]','1|item_offset[11]',
+        '1|item_offset[1]','1|item_offset[2]','1|item_offset[3]',
+        '1|item_offset[4]','1|item_offset[5]','1|item_offset[6]',
+        '1|item_offset[7]','1|item_offset[8]','1|item_offset[9]',
+        '1|site_offset[0]','1|site_offset[1]',
+        '1|site_offset[2]','1|site_offset[3]','1|site_offset[4]',
+        'continuous|item_offset[0]',
+        'continuous|item_offset[10]','continuous|item_offset[11]',
+        'continuous|item_offset[1]','continuous|item_offset[2]',
+        'continuous|item_offset[3]','continuous|item_offset[4]',
+        'continuous|item_offset[5]','continuous|item_offset[6]',
+        'continuous|item_offset[7]','continuous|item_offset[8]',
+        'continuous|item_offset[9]',
+        'dummy|item_offset[0]','dummy|item_offset[10]','dummy|item_offset[11]',
+        'dummy|item_offset[1]','dummy|item_offset[2]','dummy|item_offset[3]',
+        'dummy|item_offset[4]','dummy|item_offset[5]','dummy|item_offset[6]',
+        'dummy|item_offset[7]','dummy|item_offset[8]','dummy|item_offset[9]',
+        'threecats[T.b]|site_offset[0]',
+        'threecats[T.b]|site_offset[1]','threecats[T.b]|site_offset[2]',
+        'threecats[T.b]|site_offset[3]','threecats[T.b]|site_offset[4]',
+        'threecats[T.c]|site_offset[0]',
+        'threecats[T.c]|site_offset[1]','threecats[T.c]|site_offset[2]',
+        'threecats[T.c]|site_offset[3]','threecats[T.c]|site_offset[4]',
+        'threecats[a]|subj_offset[0]',
+        'threecats[a]|subj_offset[1]','threecats[a]|subj_offset[2]',
+        'threecats[a]|subj_offset[3]','threecats[a]|subj_offset[4]',
+        'threecats[a]|subj_offset[5]','threecats[a]|subj_offset[6]',
+        'threecats[a]|subj_offset[7]','threecats[a]|subj_offset[8]',
+        'threecats[a]|subj_offset[9]',
+        'threecats[b]|subj_offset[0]','threecats[b]|subj_offset[1]',
+        'threecats[b]|subj_offset[2]','threecats[b]|subj_offset[3]',
+        'threecats[b]|subj_offset[4]','threecats[b]|subj_offset[5]',
+        'threecats[b]|subj_offset[6]','threecats[b]|subj_offset[7]',
+        'threecats[b]|subj_offset[8]','threecats[b]|subj_offset[9]',
+        'threecats[c]|subj_offset[0]',
+        'threecats[c]|subj_offset[1]','threecats[c]|subj_offset[2]',
+        'threecats[c]|subj_offset[3]','threecats[c]|subj_offset[4]',
+        'threecats[c]|subj_offset[5]','threecats[c]|subj_offset[6]',
+        'threecats[c]|subj_offset[7]','threecats[c]|subj_offset[8]',
+        'threecats[c]|subj_offset[9]'])
     assert full2.difference(test_set2) == answer
 
     # test plots for pymc3
