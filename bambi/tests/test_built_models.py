@@ -214,7 +214,7 @@ def test_many_fixed_many_random(crossed_data):
     fitted = model0.fit('Y ~ continuous + dummy + threecats',
         random=['0+threecats|subj', '1|item', '0+continuous|item', 
             'dummy|item', 'threecats|site'],
-        backend='pymc3', samples=10)
+        backend='pymc3', samples=10, chains=2)
     # model0.build(backend='pymc3')
     # model0.fit(samples=1)
 
@@ -237,7 +237,7 @@ def test_many_fixed_many_random(crossed_data):
     fitted2 = model2.fit('Y ~ continuous + dummy + threecats',
         random=['0+threecats|subj', '1|item', '0+continuous|item',
             'dummy|item', 'threecats|site'],
-        backend='stan', samples=100)
+        backend='stan', samples=100, chains=2)
 
     # check that the random effects design matrices have the same shape
     X0 = pd.concat([pd.DataFrame(t.data) if not isinstance(t.data, dict) else
@@ -335,9 +335,9 @@ def test_many_fixed_many_random(crossed_data):
     # it looks like some versions of pymc3 add a trailing '_' to transformed
     # vars and some dont. so here for consistency we strip out any trailing '_'
     # that we find
-    full = fitted.summary(exclude_ranefs=False, hide_transformed=False).index
+    full = fitted.summary(ranefs=True, transformed=True).index
     full = set([re.sub(r'_$', r'', x) for x in full])
-    test_set = fitted.summary(exclude_ranefs=False).index
+    test_set = fitted.summary(ranefs=True, transformed=False).index
     test_set = set([re.sub(r'_$', r'', x) for x in test_set])
     answer = {'1|item_offset[0]','1|item_offset[10]','1|item_offset[11]',
         '1|item_offset[1]','1|item_offset[2]','1|item_offset[3]',
@@ -384,9 +384,9 @@ def test_many_fixed_many_random(crossed_data):
     # check hide_transformed for stan
     # the major transformed parameter here should just be "lp__",
     # which is technically not transformed, but equally uninteresting
-    full2 = fitted2.summary(exclude_ranefs=False, hide_transformed=False)
+    full2 = fitted2.summary(ranefs=True, transformed=True)
     full2 = set(full2.index)
-    test_set2 = fitted2.summary(exclude_ranefs=False)
+    test_set2 = fitted2.summary(ranefs=True, transformed=False)
     test_set2 = set(test_set2.index)
     answer = set(['lp__'] \
         + ['yhat[{}]'.format(i) for i in range(len(crossed_data.index))])
@@ -396,7 +396,7 @@ def test_many_fixed_many_random(crossed_data):
     assert test_set == test_set2
 
     # check exclude_ranefs for pymc3
-    test_set = fitted.summary(hide_transformed=False).index
+    test_set = fitted.summary(ranefs=False, transformed=True).index
     test_set = set([re.sub(r'_$', r'', x) for x in test_set])
     answer = {'1|item[0]','1|item[10]','1|item[11]','1|item[1]','1|item[2]',
         '1|item[3]','1|item[4]','1|item[5]','1|item[6]','1|item[7]','1|item[8]',
@@ -462,7 +462,7 @@ def test_many_fixed_many_random(crossed_data):
     assert full.difference(test_set) == answer
 
     # check exclude_ranefs for stan
-    test_set2 = set(fitted2.summary(hide_transformed=False).index)
+    test_set2 = set(fitted2.summary(ranefs=False, transformed=True).index)
     answer = {'1|item[0]','1|item[10]','1|item[11]','1|item[1]','1|item[2]',
         '1|item[3]','1|item[4]','1|item[5]','1|item[6]','1|item[7]','1|item[8]',
         '1|item[9]','1|site[0]','1|site[1]','1|site[2]','1|site[3]','1|site[4]',
