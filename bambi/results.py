@@ -331,7 +331,8 @@ class MCMCResults(ModelResults):
 
         # add convergence diagnostics
         if diagnostics is not None:
-            _self = self[list(samples.columns)]
+            _names = self._filter_names(ranefs=ranefs, transformed=transformed)
+            _self = self[_names]
             if self.n_chains > 1:
                 for diag in diagnostics:
                     if isinstance(diag, string_types):
