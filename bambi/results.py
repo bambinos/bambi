@@ -237,10 +237,8 @@ class MCMCResults(ModelResults):
 
         fig.tight_layout()
 
-        # For binomial models with n_trials = 1 (most common use case),
-        # tell user which event is being modeled
-        if self.model.family.name == 'binomial' and \
-                np.max(self.model.y.data) < 1.01:
+        # For bernoulli models, tell user which event is being modeled
+        if self.model.family.name == 'bernoulli':
             event = next(i for i, x in enumerate(self.model.y.data.flatten())
                          if x > .99)
             warnings.warn('Modeling the probability that {}==\'{}\''.format(
@@ -326,10 +324,8 @@ class MCMCResults(ModelResults):
                 warnings.warn('Multiple MCMC chains are required in order '
                               'to compute convergence diagnostics.')
 
-        # For binomial models with n_trials = 1 (most common use case),
-        # tell user which event is being modeled
-        if self.model.family.name == 'binomial' and \
-                np.max(self.model.y.data) < 1.01:
+        # For bernoulli models, tell user which event is being modeled
+        if self.model.family.name == 'bernoulli':
             event = next(i for i, x in enumerate(self.model.y.data.flatten())
                          if x > .99)
             warnings.warn('Modeling the probability that {}==\'{}\''.format(

@@ -29,7 +29,7 @@ class Family(object):
         self.parent = parent
         fams = {
             'gaussian': sm.families.Gaussian,
-            'binomial': sm.families.Binomial,
+            'bernoulli': sm.families.Binomial,
             'poisson': sm.families.Poisson,
             't': None  # not implemented in statsmodels
         }
@@ -41,7 +41,7 @@ class Prior(object):
     '''
     Abstract specification of a term prior.
     Args:
-        name (str): Name of prior distribution (e.g., Normal, Binomial, etc.)
+        name (str): Name of prior distribution (e.g., Normal, Bernoulli, etc.)
         kwargs (dict): Optional keywords specifying the parameters of the
             named distribution.
     '''
@@ -153,7 +153,7 @@ class PriorFactory(object):
                 Must be one of 'intercept', 'fixed', or 'random'.
             family (str): The name of the Family to retrieve. Must be a value
                 defined internally. In the default config, this is one of
-                'gaussian', 'binomial', 'poisson', or 't'.
+                'gaussian', 'bernoulli', 'poisson', or 't'.
         '''
         if dist is not None:
             if dist not in self.dists:

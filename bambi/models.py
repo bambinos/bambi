@@ -203,9 +203,9 @@ class Model(object):
             scaler = PriorScaler(self, taylor=taylor)
             scaler.scale()
 
-        # For binomial models with n_trials = 1 (most common use case),
+        # For bernoulli models with n_trials = 1 (most common use case),
         # tell user which event is being modeled
-        if self.family.name == 'binomial' and np.max(self.y.data) < 1.01:
+        if self.family.name == 'bernoulli' and np.max(self.y.data) < 1.01:
             event = next(
                 i for i, x in enumerate(self.y.data.flatten()) if x > .99)
             warnings.warn('Modeling the probability that {}==\'{}\''.format(
@@ -232,7 +232,7 @@ class Model(object):
                 instance of class priors.Family. If a string is passed, a
                 family with the corresponding name must be defined in the
                 defaults loaded at Model initialization. Valid pre-defined
-                families are 'gaussian', 'binomial', 'poisson', and 't'.
+                families are 'gaussian', 'bernoulli', 'poisson', and 't'.
             link (str): The model link function to use. Can be either a string
                 (must be one of the options defined in the current backend;
                 typically this will include at least 'identity', 'logit',
@@ -286,7 +286,7 @@ class Model(object):
                 instance of class priors.Family. If a string is passed, a
                 family with the corresponding name must be defined in the
                 defaults loaded at Model initialization. Valid pre-defined
-                families are 'gaussian', 'binomial', 'poisson', and 't'.
+                families are 'gaussian', 'bernoulli', 'poisson', and 't'.
             link (str): The model link function to use. Can be either a string
                 (must be one of the options defined in the current backend;
                 typically this will include at least 'identity', 'logit',
@@ -327,7 +327,7 @@ class Model(object):
         if fixed is not None:
             if '~' in fixed:
                 # check to see if formula is using the 'y[event] ~ x' syntax
-                # (for binomial models). If so, chop it into groups:
+                # (for bernoulli models). If so, chop it into groups:
                 # 1 = 'y[event]', 2 = 'y', 3 = 'event', 4 = 'x'
                 # If this syntax is not being used, event = None
                 event = re.match(r'^((\S+)\[(\S+)\])\s*~(.*)$', fixed)
@@ -447,7 +447,7 @@ class Model(object):
                 instance of class priors.Family. If a string is passed, a
                 family with the corresponding name must be defined in the
                 defaults loaded at Model initialization. Valid pre-defined
-                families are 'gaussian', 'binomial', 'poisson', and 't'.
+                families are 'gaussian', 'bernoulli', 'poisson', and 't'.
             link (str): The model link function to use. Can be either a string
                 (must be one of the options defined in the current backend;
                 typically this will include at least 'identity', 'logit',
