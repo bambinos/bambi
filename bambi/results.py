@@ -270,7 +270,7 @@ class MCMCResults(ModelResults):
         return pd.Series([hdi_min, hdi_max], index=index)
 
     def summary(self, varnames=None, ranefs=False, transformed=False, hpd=.95,
-                quantiles=None, diagnostics=None):
+                quantiles=None, diagnostics=['effective_n', 'gelman_rubin']):
         '''
         Returns a DataFrame of summary/diagnostic statistics for the
         parameters.
