@@ -40,6 +40,7 @@ Bambi requires working versions of numpy, pandas, matplotlib, patsy, pymc3, and 
     + [Alternative back-ends](#alternative-back-ends)
     + [Specifying priors](#specifying-priors)
         * [Different ways of specifying priors](#different-ways-of-specifying-priors)
+        * [A note on priors in Stan](#a-note-on-priors-in-stan)
         * [Mapping priors onto terms](#mapping-priors-onto-terms)
     + [Generalized linear mixed models](#generalized-linear-mixed-models)
         * [Families](#families)
@@ -218,7 +219,7 @@ In both of the above cases, sampling won't actually start until `fit()` is calle
 Building without sampling can be useful if we want to inspect the internal PyMC3 model before we start the (potentially long) sampling process. Once we're satisfied, and wish to run the sampler, we can then simply call `model.fit()`, and the sampler will start running.
 
 #### Alternative back-ends
-Bambi defaults to using the NUTS MCMC sampler implemented in the PyMC3 package for all model-fitting. If you want to use PyMC3, you don't have to do anything special. The main benefit of working with PyMC3 is that since PyMC3 models are written in native Python code, you can in principle always access the full PyMC3 model yourself (given a Bambi model called `model`, the internal PyMC3 is stored in `model.backend.model`). However, Bambi also supports the Stan MCMC sampling package, via the [PyStan](https://github.com/stan-dev/pystan) interface. To switch from PyMC3 to Stan, all you have to do is specify `backend='stan'` in the `fit` call:
+Bambi defaults to using the NUTS MCMC sampler implemented in the PyMC3 package for all model-fitting. However, Bambi also supports the Stan MCMC sampling package, via the [PyStan](https://github.com/stan-dev/pystan) interface. To switch from PyMC3 to Stan, all you have to do is specify `backend='stan'` in the `fit` call:
 
 ```python
 model = Model(data)
@@ -227,10 +228,33 @@ model.fit('rt ~ condition + gender + age', random='condition|subject', backend='
 
 From the user's standpoint, the change from PyMC3 to Stan (or vice versa) will usually be completely invisible. Unless we want to muck around in the internals of the backends, the API is identical no matter which back-end we're using. This frees us up to easily compare different back-ends in terms of speed and/or estimates (assuming the sampler has converged, the two back-ends shoul produce virtually identical estimates for all models, but performance could theoretically differ).
 
+#### Which back-end should I use?
+PyMC3 and Stan are both under active and intensive development, so the pros and cons of using either back-end may change over time. However, as of this writing (March 2017), our general sense is that Stan is typically faster than PyMC3 (in terms of both compilation and sampling time), but offers less flexibility when called from Bambi. The decreased flexibility is not due to inherent limitations in Stan itself, but reflects the fact that PyMC3 has the major advantage of being written entirely in Python. This means that Bambi is much more tightly integrated with PyMC3, and users can easily take advantage of virtually all of PyMC3's functionality. Indeed, reaching into Bambi for the PyMC `Model` and `MultiTrace` is trivial:
+
+```python
+
+# Initialize and fit Bambi model
+import bambi as bm
+import pymc3 as pm
+model = bm.Model('data.csv')
+model.fit(...)   # we fit some model
+
+# Grab the PyMC3 Model object and the fitted MultiTrace
+pm_model = model.backend.model
+pm_trace = model.backend.trace
+
+# Now we can use any PyMC3 method that operates on MultiTraces
+pm.traceplot(pm_trace)
+```
+
+As [discussed below](#a-note-on-priors-in-stan) for details), a secondary benefit of using PyMC3 rather than Stan is that users have much greater flexibility regarding the choice of priors when using the former back-end.
+
+In general, then, our recommendation is that most users are better off sticking with the PyMC3 back-end unless the model being fit is relatively large and involves no unusual priors, at which point it is worth experimenting with the Stan back-end to see if significant speed gains can be obtained.
+
 ### Specifying priors
 Bayesian inference requires one to specify prior probability distributions that represent the analyst's belief (in advance of seeing the data) about the likely values of the model parameters. In practice, analysts often lack sufficient information to formulate well-defined priors, and instead opt to use "weakly informative" priors that mainly serve to keep the model from exploring completely pathological parts of the parameter space (e.g., when defining a prior on the distribution of human heights, a value of 3,000 cms should be assigned a probability of exactly 0).
 
-By default, Bambi will intelligently generate weakly informative priors for all model terms, by loosely scaling them to the observed data. While the default priors will behave well in most typical settings, there are many cases where an analyst will want to specify their own priors--and in general, when informative priors are available, it's a good idea to use them.
+By default, Bambi will intelligently generate weakly informative priors for all model terms, by loosely scaling them to the observed data (details can be found in [this article](https://arxiv.org/abs/1702.01201). While the default priors will behave well in most typical settings, there are many cases where an analyst will want to specify their own priors--and in general, when informative priors are available, it's a good idea to use them.
 
 #### Different ways of specifying priors
 
@@ -258,61 +282,64 @@ from bambi import Prior
 # A laplace prior with mean of 0 and scale of 10
 my_favorite_prior = Prior('Laplace', mu=0., b=10)
 
-# Set the prior when adding a term to the model
-model.add_term('subject', random=True, prior=my_favorite_prior)
+# Set the prior when adding a term to the model;
+# more details on this below.
+priors = {'subject': my_favorite_prior}
+model.fit('y ~ condition', random='1|subject', priors=priors)
 ```
 
 Priors specified using the `Prior` class can be nested to arbitrary depths--meaning, we can set any of a given prior's argument to point to another `Prior` instance. This is particularly useful when specifying hierarchical priors on random effects, where the individual random slopes or intercepts are constrained to share a common source distribution:
 
 ```python
-subject_sd = Prior('HalfCauchy', mu=0, beta=5)
+subject_sd = Prior('HalfCauchy', beta=5)
 subject_prior = Prior('Normal', mu=0, sd=subject_sd)
-model.add_term('subject', random=True, prior=subject_prior)
+priors = {'subject': my_favorite_prior}
+model.fit('y ~ condition', random='1|subject', priors=priors)
 ```
 
 The above prior specification indicates that the individual subject intercepts are to be treated as if they are randomly sampled from the same underlying normal distribution, where the variance of that normal distribution is parameterized by a separate hyperprior (a half-cauchy with beta = 5).
 
+##### A note on priors in Stan
+
+The above discussion assumes that one is using the PyMC3 backend for model fitting. Although custom priors can be specified using the same syntax when using the Stan backend, the variety of supported prior distributions is much more limited (the technical reason for this is that the Stan back-end requires us to explicitly add each distribution we wish to support, whereas the PyMC3 backend is able to seamlessly and automatically use any distribution supported within PyMC3). If you plan to use uncommon distributions for your priors, we encourage you to use the PyMC3 back-end (which is also the default—so if you didn't explicitly specify the back-end, you're probably already using PyMC3). Note also that regardless of which backend you use, all prior distributions use the names found in PyMC3, and not in Stan or any other package (e.g., in Stan, a half-Cauchy prior is specified as a full Cauchy prior with a lower bound of 0, but in Bambi, you would use the PyMC3 convention and pass a `'HalfCauchy'` prior).
+
 #### Mapping priors onto terms
-Bambi provides several different ways to map custom priors onto their corresponding model terms. The most convenient approach is probably to use the `Model` instance's `set_priors()` method, which allows us to easily apply multiple priors to any/all of the terms that have already been added to the model. There are also `fixed` and `random` arguments that make it easy to apply the same priors to all fixed or random effects in the model. For example:
+Once we've defined custom priors for one or more term, we need to map them onto those terms in our model. Bambi allows us to do this efficiently by passing a dictionary of term -> prior mappings in any `fit()` or `add()` call (and also via a separate `set_priors()` method on the `Model` class). The keys of the dictionary the names of terms, and the values are the desired priors. There are also `fixed` and `random` arguments that make it easy to apply the same priors to all fixed or random effects in the model. Some examples:
 
 ```python
 model = Model(data)
-model.add_formula('y ~ X1 + X2', random=['1|X3', '1|X4'])
 
-# Example 1: set each prior by name
-model.set_priors({
+# Example 1: set each prior by name. Note that we can set the same
+# prior for multiple terms at once, by passing a tuple in the key.
+priors = {
     'X1': 0.3,
     'X2': 'normal',
-    'X3': Prior('ZeroInflatedPoisson', theta=10, psi=0.5)
-})
+    ('X3', 'X4'): Prior('ZeroInflatedPoisson', theta=10, psi=0.5)
+}
+model.fit('y ~ X1 + X2', random=['1|X3', '1|X4'], priors=priors)
 
-# Example 2: specify priors for all fixed effects and all random effects
-model.set_priors(fixed=Prior('Normal', sd=100), random='wide')
+# Example 2: specify priors for all fixed effects and all random effects,
+# except for X1, which still gets its own custom prior.
+priors = {'X1': 0.3, 'fixed': Prior('Normal', sd=100), 'random': 'wide'}
+model.fit('y ~ X1 + X2', random=['1|X3', '1|X4'], priors=priors)
 ```
 
-Notice how this interface allows us to specify terms either by name (including passing tuples as keys in cases where we want multiple terms to share the same prior), or by term type (i.e., to set the same prior on all fixed or random effects). If we pass both named priors and fixed or random effects defaults, the former will take precedence over the latter.
+Notice how this interface allows us to specify terms either by name (including passing tuples as keys in cases where we want multiple terms to share the same prior), or by term type (i.e., to set the same prior on all fixed or random effects). If we pass both named priors and fixed or random effects defaults, the former will take precedence over the latter (in the above example, the prior for `'X1'` will be `0.3`).
 
-If we prefer, we can also pass a full set of priors to the `fit()` call, in the `priors` argument:
+If we prefer, we can also set priors outside of the `fit()` (or `add()`) calls, using the `set_priors` method:
 
 ```python
-priors = {
-    'names': {
-        ('X1', 'X4'): Prior('Normal', sd=70),
-        'X2': Prior('Normal', sd=Prior('Uniform', lower=10, upper=100))
-    },
-    'fixed': 0.5
-}
-model.fit('y ~ X1 + X3 + X4', random='1|X2', priors=priors)
+# Specify model but don't build/sample just yet
+model.fit('y ~ X1 + X3 + X4', random='1|X2', run=False)
+
+# Specify priors—produces same result as in Example 2 above
+model.set_priors({'X1': 0.3}, fixed=Prior('Normal', sd=100), random='wide')
+
+# Now sample
+model.fit(samples=5000)
 ```
 
 Here we stipulate that terms X1 and X4 will use the same normal prior, X2 will use a different normal prior with a uniform hyperprior on its standard deviation, and all other fixed effects will use the default prior with a scale of 0.5.
-
-Finally, and as we've already seen in other examples above, each term's prior can be set when adding it to the model with `add_term()`:
-
-```python
-random_prior = Prior('Normal', sd=Prior('Uniform', lower=10, upper=100))
-model.add_term('subject', random=True, prior=random_prior)
-```
 
 It's important to note that explicitly setting priors by passing in `Prior` objects will disable Bambi's default behavior of scaling priors to the data in order to ensure that they remain weakly informative. This means that if you specify your own prior, you have to be sure not only to specify the distribution you want, but also any relevant scale parameters. For example, the 0.5 in `Prior('Normal', mu=0, sd=0.5)` will be specified on the scale of the data, not the bounded partial correlation scale that Bambi uses for default priors. This means that if your outcome variable has a mean value of 10,000 and a standard deviation of, say, 1,000, you could potentially have some problems getting the model to produce reasonable estimates, since from the perspective of the data, you're specifying an extremely strong prior.
 
@@ -334,7 +361,7 @@ If no `link` argument is explicitly set (see below), a sensible default will be 
 | t           | StudentT              | identity     |
 
 #### Families
-Following the convention used in many R packages, the response distribution to use for a GLMM is specified in a `Family` class that indicates how the response variable is distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility. In the following example, we show how the built-in 'binomial' family could be constructed on-the-fly:
+Following the convention used in many R packages, the response distribution to use for a GLMM is specified in a `Family` class that indicates how the response variable is distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility (note, again, that custom specifications are only guaranteed to work with the PyMC3 back-end; results may be unpredictable [when using Stan](#a-note-on-priors-in-stan)). In the following example, we show how the built-in 'binomial' family could be constructed on-the-fly:
 
 ```python
 from bambi import Family, Prior
@@ -365,16 +392,16 @@ The above example produces results identical to simply setting `family='binomial
 One (minor) complication in specifying a custom `Family` is that the link function must be able to operate over theano tensors rather than numpy arrays, so you'll probably need to rely on tensor operations provided in `theano.tensor` (many of which are also wrapped by PyMC3) when defining a new link.
 
 ### Results
-When a model is fitted, it returns a `ModelResults` object containing methods for plotting and summarizing results. At present, functionality here is admittedly pretty thin, and Bambi simply wraps the most common plotting and summarization functions used in PyMC3.
+When a model is fitted, it returns a `ModelResults` object (usually of subclass `MCMCResults`) containing methods for plotting and summarizing results. At present, functionality here is fairly limited; Bambi only provides basic plotting and summarization tools.
 
 ### Plotting
 To visualize a PyMC3-generated plot of the posterior estimates and sample traces for all parameters, simply call the result object's `.plot()` method:
 
 ```python
 model = Model(data)
-results = model.fit('value ~ condition', random='1|uid')
-# Drop the first 500 burn-in samples from the plot
-results.plot(500)
+results = model.fit('value ~ condition', random='1|uid', samples=5000, chains=2)
+# Drop the first 1000 burn-in samples and plot
+results[1000:].plot()
 ```
 
 This produces a plot like the following:
