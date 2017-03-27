@@ -192,7 +192,7 @@ class MCMCResults(ModelResults):
             # density plot
             axes[row, 0].set_title(title)
             if pma is not None:
-                arr = data.values[:, None]
+                arr = np.atleast_2d(data.values.T).T
                 pma.kdeplot_op(axes[row, 0], arr)
             else:
                 data.plot(kind='kde', ax=axes[row, 0], legend=False)
