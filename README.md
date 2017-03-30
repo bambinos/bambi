@@ -57,9 +57,9 @@ from bambi import Model
 
 # Assume we already have our data loaded
 model = Model(data)
-results = model.fit('rt ~ condition', random=['condition|subject', '1|stimulus'], samples=5000)
-results.plot(burn_in=1000)
-results.summary(1000)
+results = model.fit('rt ~ condition', random=['condition|subject', '1|stimulus'], samples=5000, chains=2)
+results[1000:].plot()
+results[1000:].summary()
 ```
 
 ## User guide
@@ -103,13 +103,13 @@ Models are specified in Bambi using a formula-based syntax similar to what one m
 
 ```python
 # Fixed effects only
-model.fit('rt ~ attention + color')
+results = model.fit('rt ~ attention + color')
 
 # Fixed effects and random intercepts for subject
-model.fit('y ~ 0 + gender + condition*age', random=['1|subject'])
+results = model.fit('y ~ 0 + gender + condition*age', random=['1|subject'])
 
 # Multiple, complex random effects with both random slopes and random intercepts
-model.fit('y ~ 0 + gender', random=['condition|subject', 'condition|site'])
+results = model.fit('y ~ 0 + gender', random=['condition|subject', 'condition|site'])
 ```
 
 Each of the above examples specifies a full model that will immediately be fitted using either PyMC3 or Stan (more on that below).
@@ -143,10 +143,10 @@ model.add('age_group', categorical=['age_group'], priors={'age_group': 'narrow'}
 model.add(random=['subj'], categorical=['subj'])
 
 # Random condition slopes distributed over subjects
-model.add_term(random=['0+condition|subj'])
+model.add(random=['0+condition|subj'])
 
 # Add outcome variable
-model.add_y('y')
+model.add('y ~ 0')
 
 # Fit the model and save results
 results = model.fit()
@@ -195,7 +195,7 @@ model = Model(data)
 model.add('food_type', categorical=['food_type'])
 model.add(random='1|subject')
 ...
-model.fit(samples=5000)
+results = model.fit(samples=5000)
 ```
 
 #### Building the model
@@ -223,7 +223,7 @@ Bambi defaults to using the NUTS MCMC sampler implemented in the PyMC3 package f
 
 ```python
 model = Model(data)
-model.fit('rt ~ condition + gender + age', random='condition|subject', backend='stan')
+results = model.fit('rt ~ condition + gender + age', random='condition|subject', backend='stan')
 ```
 
 From the user's standpoint, the change from PyMC3 to Stan (or vice versa) will usually be completely invisible. Unless we want to muck around in the internals of the backends, the API is identical no matter which back-end we're using. This frees us up to easily compare different back-ends in terms of speed and/or estimates (assuming the sampler has converged, the two back-ends shoul produce virtually identical estimates for all models, but performance could theoretically differ).
@@ -237,7 +237,7 @@ PyMC3 and Stan are both under active and intensive development, so the pros and 
 import bambi as bm
 import pymc3 as pm
 model = bm.Model('data.csv')
-model.fit(...)   # we fit some model
+results = model.fit(...)   # we fit some model
 
 # Grab the PyMC3 Model object and the fitted MultiTrace
 pm_model = model.backend.model
@@ -266,10 +266,10 @@ In cases where we want to keep the default prior distributions, but alter their 
 ```python
 model = Model(data)
 # Add condition to the model as a fixed effect with a very wide prior
-model.add_term('condition', prior='superwide')
+model.add('condition', prior='superwide')
 
-# Add random subject slopes to the model, with a narrow prior on their variance
-model.add_term('subject', random=True, prior=0.1)
+# Add random subject intercepts to the model, with a narrow prior on their standard deviation
+model.add(random='1|subject', prior=0.1)
 ```
 
 Predefined named scales include "superwide" (scale = 0.8), "wide" (0.577; the default), "medium" (0.4), and "narrow" (0.2). The theoretical maximum scale value is 1.0, which specifies a distribution of partial correlations with half of the values at -1 and the other half at +1. Scale values closer to 0 are considered more "informative" and tend to induce more shrinkage in the parameter estimates.
@@ -285,7 +285,7 @@ my_favorite_prior = Prior('Laplace', mu=0., b=10)
 # Set the prior when adding a term to the model;
 # more details on this below.
 priors = {'subject': my_favorite_prior}
-model.fit('y ~ condition', random='1|subject', priors=priors)
+results = model.fit('y ~ condition', random='1|subject', priors=priors)
 ```
 
 Priors specified using the `Prior` class can be nested to arbitrary depths--meaning, we can set any of a given prior's argument to point to another `Prior` instance. This is particularly useful when specifying hierarchical priors on random effects, where the individual random slopes or intercepts are constrained to share a common source distribution:
@@ -294,7 +294,7 @@ Priors specified using the `Prior` class can be nested to arbitrary depths--mean
 subject_sd = Prior('HalfCauchy', beta=5)
 subject_prior = Prior('Normal', mu=0, sd=subject_sd)
 priors = {'subject': my_favorite_prior}
-model.fit('y ~ condition', random='1|subject', priors=priors)
+results = model.fit('y ~ condition', random='1|subject', priors=priors)
 ```
 
 The above prior specification indicates that the individual subject intercepts are to be treated as if they are randomly sampled from the same underlying normal distribution, where the variance of that normal distribution is parameterized by a separate hyperprior (a half-cauchy with beta = 5).
@@ -316,12 +316,12 @@ priors = {
     'X2': 'normal',
     ('X3', 'X4'): Prior('ZeroInflatedPoisson', theta=10, psi=0.5)
 }
-model.fit('y ~ X1 + X2', random=['1|X3', '1|X4'], priors=priors)
+results = model.fit('y ~ X1 + X2', random=['1|X3', '1|X4'], priors=priors)
 
 # Example 2: specify priors for all fixed effects and all random effects,
 # except for X1, which still gets its own custom prior.
 priors = {'X1': 0.3, 'fixed': Prior('Normal', sd=100), 'random': 'wide'}
-model.fit('y ~ X1 + X2', random=['1|X3', '1|X4'], priors=priors)
+results = model.fit('y ~ X1 + X2', random=['1|X3', '1|X4'], priors=priors)
 ```
 
 Notice how this interface allows us to specify terms either by name (including passing tuples as keys in cases where we want multiple terms to share the same prior), or by term type (i.e., to set the same prior on all fixed or random effects). If we pass both named priors and fixed or random effects defaults, the former will take precedence over the latter (in the above example, the prior for `'X1'` will be `0.3`).
@@ -336,7 +336,7 @@ model.fit('y ~ X1 + X3 + X4', random='1|X2', run=False)
 model.set_priors({'X1': 0.3}, fixed=Prior('Normal', sd=100), random='wide')
 
 # Now sample
-model.fit(samples=5000)
+results = model.fit(samples=5000)
 ```
 
 Here we stipulate that terms X1 and X4 will use the same normal prior, X2 will use a different normal prior with a uniform hyperprior on its standard deviation, and all other fixed effects will use the default prior with a scale of 0.5.
@@ -348,20 +348,20 @@ Bambi supports the construction of mixed models with non-normal response distrib
 
 ```python
 model = Model(data)
-model.fit('graduate ~ attendance_record + GPA', random='1|school', family='binomial')
+results = model.fit('graduate ~ attendance_record + GPA', random='1|school', family='bernoulli')
 ```
 
-If no `link` argument is explicitly set (see below), a sensible default will be used. The following table summarizes the currently available families and their associated links (the default is `gaussian`):
+If no `link` argument is explicitly set (see below), the canonical link function (or an otherwise sensible default) will be used. The following table summarizes the currently available families and their associated links (the default is `gaussian`):
 
 | Family name | Response distribution | Default link |
 |-------------|-----------------------|--------------|
 | gaussian    | Normal                | identity     |
-| binomial    | Bernoulli             | logit        |
+| bernoulli   | Bernoulli             | logit        |
 | poisson     | Poisson               | log          |
 | t           | StudentT              | identity     |
 
 #### Families
-Following the convention used in many R packages, the response distribution to use for a GLMM is specified in a `Family` class that indicates how the response variable is distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility (note, again, that custom specifications are only guaranteed to work with the PyMC3 back-end; results may be unpredictable [when using Stan](#a-note-on-priors-in-stan)). In the following example, we show how the built-in 'binomial' family could be constructed on-the-fly:
+Following the convention used in many R packages, the response distribution to use for a GLMM is specified in a `Family` class that indicates how the response variable is distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility (note, again, that custom specifications are only guaranteed to work with the PyMC3 back-end; results may be unpredictable [when using Stan](#a-note-on-priors-in-stan)). In the following example, we show how the built-in 'bernoulli' family could be constructed on-the-fly:
 
 ```python
 from bambi import Family, Prior
@@ -380,14 +380,14 @@ prior = Prior('Bernoulli', p=prior_p)
 link = tt.nnet.sigmoid
 
 # Construct the family
-new_fam = Family('binomial', prior=prior, link=link, parent='p')
+new_fam = Family('bernoulli', prior=prior, link=link, parent='p')
 
 # Now it's business as usual
 model = Model(data)
-model.fit('graduate ~ attendance_record + GPA', random='1|school', family=new_fam)
+results = model.fit('graduate ~ attendance_record + GPA', random='1|school', family=new_fam)
 ```
 
-The above example produces results identical to simply setting `family='binomial'`.
+The above example produces results identical to simply setting `family='bernoulli'`.
 
 One (minor) complication in specifying a custom `Family` is that the link function must be able to operate over theano tensors rather than numpy arrays, so you'll probably need to rely on tensor operations provided in `theano.tensor` (many of which are also wrapped by PyMC3) when defining a new link.
 
@@ -395,87 +395,54 @@ One (minor) complication in specifying a custom `Family` is that the link functi
 When a model is fitted, it returns a `ModelResults` object (usually of subclass `MCMCResults`) containing methods for plotting and summarizing results. At present, functionality here is fairly limited; Bambi only provides basic plotting and summarization tools.
 
 ### Plotting
-To visualize a PyMC3-generated plot of the posterior estimates and sample traces for all parameters, simply call the result object's `.plot()` method:
+To visualize a PyMC3-generated plot of the posterior estimates and sample traces for all parameters, simply call the `MCMCResults` object's `.plot()` method:
 
 ```python
 model = Model(data)
-results = model.fit('value ~ condition', random='1|uid', samples=5000, chains=2)
-# Drop the first 1000 burn-in samples and plot
-results[1000:].plot()
+results = model.fit('value ~ condition', random='1|uid', samples=1250, chains=4)
+# Drop the first 100 burn-in samples from each chain and plot
+results[100:].plot()
 ```
 
 This produces a plot like the following:
-![Sample PyMC3 trace plot](https://github.com/bambinos/bambi/blob/master/bambi/docs/images/sample_traceplot.png)
+![Sample trace plot](https://github.com/bambinos/bambi/blob/master/bambi/docs/images/sample_traceplot.png)
 
 More details on this plot are available in the [PyMC3 documentation](http://pymc-devs.github.io/pymc3/notebooks/getting_started.html#Posterior-analysis).
 
 ### Summarizing
-If you prefer numerical summaries of the posterior estimates, Bambi provides access to PyMC3's `summary()` function:
+If you prefer numerical summaries of the posterior estimates, you can use the `.summary()` method, which provides a pandas DataFrame with some key summary and diagnostic info on the model parameters, such as the 95% highest posterior density intervals:
 
 ```python
-# Omit the random effects intercepts because there's > 1,700 of them
-names = ['b_Intercept', 'b_condition', 'u_uid_sd', 'likelihood_sd']
-results.summary(500, names=names)
+results[100:].summary()
 ```
 
-This produces a table that provides key descriptive statistics (including the 95% highest posterior density interval):
+![Sample summary](https://github.com/bambinos/bambi/blob/master/bambi/docs/images/sample_summary.png)
 
-<pre>
-b_Intercept:
+By default the `.summary()` method hides the random effects (which can easily clutter the output when there are many of them) and transformed variables of parameters that are used internally during the model estimation, but you can view all of these by adjusting the arguments to `ranefs` and `transformed`, respectively:
 
-  Mean             SD               MC Error         95% HPD interval
-  -------------------------------------------------------------------
-  
-  4.137            0.973            0.097            [1.766, 4.754]
+```python
+results[100:].summary(ranefs=True)
+results[100:].plot(transformed=True)
+```
 
-  Posterior quantiles:
-  2.5            25             50             75             97.5
-  |--------------|==============|==============|--------------|
-  
-  0.908          4.475          4.542          4.579          4.703
+If you want to view summaries or plots for only specific parameters, you can pass a list of parameter names inside the brackets in addition to the slice operator:
 
+```python
+# show the names of all parameters stored in the MCMCResults object
+results.names
 
-b_condition:
+# these two calls are equivalent
+results[100:, ['Intercept', 'condition']].plot()
+results[['Intercept', 'condition'], 100:].plot()
+```
 
-  Mean             SD               MC Error         95% HPD interval
-  -------------------------------------------------------------------
-  
-  0.248            0.600            0.060            [-0.193, 1.795]
+And if you want to access the MCMC samples directly, you can use the `.to_df()` method to retrieve the MCMC samples (after concatening any separate MCMC chains) in a nice, neat pandas DataFrame:
 
-  Posterior quantiles:
-  2.5            25             50             75             97.5
-  |--------------|==============|==============|--------------|
-  
-  -0.228         -0.048         -0.007         0.103          1.770
+```python
+results[100:].to_df(ranefs=True)
+```
 
-
-u_uid_sd:
-
-  Mean             SD               MC Error         95% HPD interval
-  -------------------------------------------------------------------
-  
-  0.517            0.536            0.054            [0.044, 1.234]
-
-  Posterior quantiles:
-  2.5            25             50             75             97.5
-  |--------------|==============|==============|--------------|
-  
-  0.048          0.072          0.104          1.177          1.247
-
-
-likelihood_sd:
-
-  Mean             SD               MC Error         95% HPD interval
-  -------------------------------------------------------------------
-  
-  2.345            0.216            0.022            [2.079, 2.719]
-
-  Posterior quantiles:
-  2.5            25             50             75             97.5
-  |--------------|==============|==============|--------------|
-  
-  2.077          2.112          2.393          2.452          2.718
-</pre>
+You can find detailed, worked examples of fitting Bambi models and working with the results in the example notebooks [here](examples).
 
 ### Accessing back-end objects
 Bambi is just a high-level interface to other statistical packages; as such, it uses other packages as computational back-ends. Internally, Bambi stores virtually all objects generated by backends like PyMC3, making it easy for users to retrieve, inspect, and modify those objects. For example, the `Model` class created by PyMC3 (as opposed to the Bambi class of the same name) is accessible from `model.backend.model`. For models fitted with a PyMC3 sampler, the resulting `MultiTrace` object is stored in `model.backend.trace` (though it can also be accessed via Bambi's `ModelResults` instance).
