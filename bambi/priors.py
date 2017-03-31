@@ -191,9 +191,10 @@ class PriorScaler(object):
                                 for t in model.fixed_terms.values()
                                 for i, lev in enumerate(t.levels)})
         self.priors = {}
+        missing = 'drop' if self.model.dropna else 'none'
         self.mle = sm.GLM(endog=self.model.y.data, exog=self.dm,
                           family=self.model.family.smfamily(),
-                          missing='drop' if self.model.dropna else 'none').fit()
+                          missing=missing).fit()
         self.taylor = taylor
         with open(join(dirname(__file__), 'config', 'derivs.txt'), 'r') as file:
             self.deriv = [next(file).strip('\n') for x in range(taylor+1)]
@@ -216,14 +217,13 @@ class PriorScaler(object):
 
         # get log-likelihood values from beta=0 to beta=MLE
         values = np.linspace(0., full_mod.params[i], points)
-        increment = np.diff(values)[0]
         # if there are multiple predictors, use statsmodels to optimize the LL
         if keeps:
             null = [sm.GLM(endog=self.model.y.data, exog=exog,
                            family=self.model.family.smfamily()).fit_constrained(
-                str(exog.columns[i])+'='+str(val),
-                start_params=full_mod.params.values)
-                for val in values[:-1]]
+                                str(exog.columns[i])+'='+str(val),
+                                start_params=full_mod.params.values)
+                    for val in values[:-1]]
             null = np.append(null, full_mod)
             ll = np.array([x.llf for x in null])
         # if just a single predictor, use statsmodels to evaluate the LL
@@ -266,8 +266,8 @@ class PriorScaler(object):
             return 1/np.math.factorial(i) * 1/np.math.factorial(j) \
                 * _deriv[i] * _deriv[j] \
                 * (moment(i+j) - moment(i)*moment(j))
-        terms = [term(i, j)
-                 for i in range(1, self.taylor+1) for j in range(1, self.taylor+1)]
+        terms = [term(i, j) for i in range(1, self.taylor+1)
+                 for j in range(1, self.taylor+1)]
         return np.array(terms).sum()**.5
 
     def _get_intercept_stats(self, add_slopes=True):
@@ -307,7 +307,7 @@ class PriorScaler(object):
 
         # save and set prior
         for i, lev in enumerate(term.levels):
-            self.priors.update({lev: {'mu':mu[i], 'sd':sd[i]}})
+            self.priors.update({lev: {'mu': mu[i], 'sd': sd[i]}})
         term.prior.update(mu=np.array(mu), sd=np.array(sd))
 
     def _scale_intercept(self, term):
@@ -365,8 +365,8 @@ class PriorScaler(object):
                     exog = self.model.random_terms.values()
                     exog = [v.data.sum(1) for v in exog
                             if v.name.split('|')[-1] == group]
-                    exog = pd.DataFrame(exog,
-                        index=['_'+str(i) for i in range(len(exog))]).T
+                    index = ['_'+str(i) for i in range(len(exog))]
+                    exog = pd.DataFrame(exog, index=index).T
                 # this will replace self.mle (which is missing predictors)
                 missing = 'drop' if self.model.dropna else 'none'
                 full_mod = sm.GLM(endog=self.model.y.data, exog=exog,

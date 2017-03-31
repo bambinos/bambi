@@ -130,7 +130,7 @@ class Model(object):
                 % na_index.sum()
             if not self.dropna:
                 msg += "Please make sure the dataset contains no missing " \
-                       "values. Alternatively, if you want rows with missing " \
+                       "values. Alternatively, if you want rows with missing "\
                        "values to be automatically deleted in a list-wise " \
                        "manner (not recommended), please set dropna=True at " \
                        "model initialization."
@@ -172,14 +172,15 @@ class Model(object):
                 'mean_x': X.mean(axis=0)
             }
 
-            # save potentially useful info for diagnostics, send to ModelResults
+            # save potentially useful info for diagnostics, send to
+            # ModelResults.
             # mat = correlation matrix of X, w/ diagonal replaced by X means
             mat = X.corr()
             for x in list(mat.columns):
                 mat.loc[x, x] = self.dm_statistics['mean_x'][x]
             self._diagnostics = {
-                # the Variance Inflation Factors (VIF), which is possibly useful
-                # for diagnostics
+                # the Variance Inflation Factors (VIF), which is possibly
+                # useful for diagnostics
                 'VIF': 1/(1 - self.dm_statistics['r2_x']),
                 'corr_mean_X': mat
             }
@@ -187,14 +188,15 @@ class Model(object):
             # throw informative error if perfect collinearity among fixed fx
             if any(self.dm_statistics['r2_x'] > .999):
                 raise ValueError(
-                    "There is perfect collinearity among the fixed effects!\n" +
+                    "There is perfect collinearity among the fixed effects!\n"
                     "Printing some design matrix statistics:\n" +
                     str(self.dm_statistics) + '\n' +
                     str(self._diagnostics))
 
         # throw informative error message if any categorical predictors have 1
         # category
-        if any(np.array([x.data.size for x in self.fixed_terms.values()]) == 0):
+        num_cats = [x.data.size for x in self.fixed_terms.values()]
+        if any(np.array(num_cats) == 0):
             raise ValueError(
                 "At least one categorical predictor contains only 1 category!")
 
@@ -707,8 +709,8 @@ class RandomTerm(Term):
 
     random = True
 
-    def __init__(self, model, name, data, predictor, grouper, categorical=False,
-                 prior=None, constant=None):
+    def __init__(self, model, name, data, predictor, grouper,
+                 categorical=False, prior=None, constant=None):
 
         super(RandomTerm, self).__init__(model, name, data, categorical, prior,
               constant)

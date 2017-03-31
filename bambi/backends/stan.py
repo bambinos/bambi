@@ -202,12 +202,16 @@ class StanBackEnd(BackEnd):
                 offset = 'vector[%d] %s;' % (n_cols, offset_name)
                 self.parameters.append(offset)
                 self.model.append('%s ~ normal(0, 1);' % offset_name)
-                self.transformed_parameters.append('%s%s %s;' % (stan_par, _bounds, var_name))
-                trans = '%s = multiply(%s, %s);' % (var_name, offset_name, kwargs['sd'])
+                self.transformed_parameters.append('%s%s %s;' % (stan_par,
+                                                                 _bounds,
+                                                                 var_name))
+                trans = '%s = multiply(%s, %s);' % (var_name, offset_name,
+                                                    kwargs['sd'])
                 self.expressions.append(trans)
 
             else:
-                self.parameters.append('%s%s %s;' % (stan_par, _bounds, var_name))
+                self.parameters.append('%s%s %s;' % (stan_par, _bounds,
+                                                     var_name))
                 if _dist is not None:
                     self.model.append('%s ~ %s;' % (var_name, _dist))
 
@@ -250,7 +254,8 @@ class StanBackEnd(BackEnd):
         _response_format = self.families[spec.family.name]['format']
         self.data.append('{} y{};'.format(*_response_format))
 
-        # add response distribution parameters other than the location parameter
+        # add response distribution parameters other than the location
+        # parameter
         for k, v in spec.family.prior.args.items():
             if k != spec.family.parent and isinstance(v, Prior):
                 _bounds = _map_dist(v.name, **v.args)[1]
@@ -341,4 +346,4 @@ class StanBackEnd(BackEnd):
 
         # instantiate
         return MCMCResults(model=self.spec, data=data, names=names, dims=dims,
-            levels=levels, transformed_vars=self._suppress_vars)
+                           levels=levels, transformed_vars=self._suppress_vars)
