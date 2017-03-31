@@ -61,7 +61,8 @@ class MCMCResults(ModelResults):
             transformed--and hence, to exclude from the output by default.
     '''
 
-    def __init__(self, model, data, names, dims, levels, transformed_vars=None):
+    def __init__(self, model, data, names, dims, levels,
+                 transformed_vars=None):
         # store the arguments
         self.data = data
         self.names = names
@@ -118,10 +119,10 @@ class MCMCResults(ModelResults):
             vslice = slice(0, self.n_samples)
         elif isinstance(idx, tuple):
             if len(idx) > 2:
-                raise ValueError("Only two arguments can be passed. If you want"
-                                 " to select multiple parameters and a subset "
-                                 "of samples, pass a slice and a list of "
-                                 "parameter names.")
+                raise ValueError("Only two arguments can be passed. If you "
+                                 "want to select multiple parameters and a "
+                                 "subset of samples, pass a slice and a list "
+                                 "of parameter names.")
             vslice = [i for i, x in enumerate(idx) if isinstance(x, slice)]
             if not len(vslice):
                 raise ValueError("At least one argument must be a slice. If "
@@ -143,7 +144,8 @@ class MCMCResults(ModelResults):
         var_iloc = [self.names.index(v) for v in var]
         return MCMCResults(model=self.model,
                            data=self.data[vslice, :, level_iloc], names=var,
-                           dims=[self.dims[x] for x in var_iloc], levels=levels,
+                           dims=[self.dims[x] for x in var_iloc],
+                           levels=levels,
                            transformed_vars=self.transformed_vars)
 
     def get_chains(self, indices):
@@ -151,7 +153,8 @@ class MCMCResults(ModelResults):
         if not isinstance(indices, (list, tuple)):
             indices = [indices]
         return MCMCResults(model=self.model, data=self.data[:, indices, :],
-                           names=self.names, dims=self.dims, levels=self.levels,
+                           names=self.names, dims=self.dims,
+                           levels=self.levels,
                            transformed_vars=self.transformed_vars)
 
     def _filter_names(self, varnames=None, ranefs=False, transformed=False):
@@ -159,8 +162,8 @@ class MCMCResults(ModelResults):
         if varnames is not None:
             names = [n for n in names if n in listify(varnames)]
         if not ranefs:
-            names = [x for x in names
-                     if re.sub(r'_offset$', '', x) not in self.model.random_terms]
+            names = [x for x in names if re.sub(r'_offset$', '', x)
+                     not in self.model.random_terms]
         return names
 
     def plot(self, varnames=None, ranefs=True, transformed=False,
@@ -326,8 +329,8 @@ class MCMCResults(ModelResults):
 
         # add HPD intervals
         if hpd is not None:
-            df = df.merge(samples.apply(self._hpd_interval, axis=0, width=hpd).T,
-                          left_index=True, right_index=True)
+            df = df.merge(samples.apply(self._hpd_interval, axis=0,
+                          width=hpd).T, left_index=True, right_index=True)
 
         # add convergence diagnostics
         if diagnostics is not None:
@@ -337,7 +340,8 @@ class MCMCResults(ModelResults):
                 for diag in diagnostics:
                     if isinstance(diag, string_types):
                         diag = getattr(bmd, diag)
-                    df = df.merge(diag(_self), left_index=True, right_index=True)
+                    df = df.merge(diag(_self), left_index=True,
+                                  right_index=True)
             else:
                 warnings.warn('Multiple MCMC chains are required in order '
                               'to compute convergence diagnostics.')

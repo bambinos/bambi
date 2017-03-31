@@ -65,7 +65,8 @@ class PyMC3BackEnd(BackEnd):
         if spec.noncentered and 'sd' in kwargs and 'observed' not in kwargs \
                 and isinstance(kwargs['sd'], pm.model.TransformedRV):
             old_sd = kwargs['sd']
-            _offset = pm.Normal(label + '_offset', mu=0, sd=1, shape=kwargs['shape'])
+            _offset = pm.Normal(label + '_offset', mu=0, sd=1,
+                                shape=kwargs['shape'])
             return pm.Deterministic(label, _offset * old_sd)
 
         return dist(label, **kwargs)
@@ -170,10 +171,10 @@ class PyMC3BackEnd(BackEnd):
     def _convert_to_results(self):
         # grab samples as big, unlabelled array
         # dimensions 0, 1, 2 = samples, chains, variables
-        data = np.array([np.array([np.atleast_2d(x.T).T[:,i] \
-                          for x in self.trace._straces[j].samples.values() \
-                          for i in range(np.atleast_2d(x.T).T.shape[1])])
-                for j in range(len(self.trace._straces))])
+        data = np.array([np.array([np.atleast_2d(x.T).T[:, i]
+                         for x in self.trace._straces[j].samples.values()
+                         for i in range(np.atleast_2d(x.T).T.shape[1])])
+                         for j in range(len(self.trace._straces))])
         data = np.swapaxes(np.swapaxes(data, 0, 1), 0, 2)
 
         # arrange var_shapes dictionary in same order as samples dictionary
@@ -194,17 +195,18 @@ class PyMC3BackEnd(BackEnd):
                     re1 = re.match(r'(.+)(?=_offset)(_offset)', key)
                     # handle "centered" terms
                     if re1 is None:
-                        return [key.split('|')[0]+'|'+x \
-                            for x in self.spec.terms[key].levels]
+                        return [key.split('|')[0]+'|'+x
+                                for x in self.spec.terms[key].levels]
                     # handle "non-centered" terms
                     else:
                         return ['{}|{}_offset{}'.format(key.split('|')[0],
-                            *re.match(r'^(.+)(\[.+\])$', x).groups()) \
-                            for x in self.spec.terms[re1.group(1)].levels]
+                                *re.match(r'^(.+)(\[.+\])$', x).groups())
+                                for x in self.spec.terms[re1.group(1)].levels]
             else:
                 return [key]
         levels = sum([get_levels(k, v) for k, v in shapes.items()], [])
 
         # instantiate
         return MCMCResults(model=self.spec, data=data, names=names, dims=dims,
-            levels=levels, transformed_vars=self._get_transformed_vars())
+                           levels=levels,
+                           transformed_vars=self._get_transformed_vars())

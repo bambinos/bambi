@@ -6,8 +6,8 @@ from patsy.util import safe_scalar_isnan
 
 class Ignore_NA(object):
     """
-    Custom patsy.missing.NAAction class to force Patsy to ignore missing values.
-    See Patsy code/API for NAAction documentation.
+    Custom patsy.missing.NAAction class to force Patsy to ignore missing
+    values. See Patsy code/API for NAAction documentation.
     """
     def __init__(self, on_NA="ignore", NA_types=["None", "NaN"]):
         self.on_NA = on_NA
