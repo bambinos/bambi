@@ -1,10 +1,23 @@
+from abc import abstractmethod, ABCMeta
+from bambi.external.six import string_types
+from bambi import diagnostics as bmd
+import re
+import warnings
 import pandas as pd
 import numpy as np
-import pymc3 as pm
-from pymc3.model import TransformedRV
-import pymc3.diagnostics as pmd
-from abc import abstractmethod, ABCMeta
-import re, warnings
+import matplotlib.pyplot as plt
+from .utils import listify
+try:
+    import pymc3 as pm
+    if hasattr(pm.plots, 'kdeplot_op'):
+        pma = pm.plots
+    else:
+        pma = pm.plots.artists
+except:
+    pma = None
+
+
+__all__ = ['MCMCResults', 'PyMC3ADVIResults']
 
 
 class ModelResults(object):
@@ -23,7 +36,6 @@ class ModelResults(object):
         self.terms = list(model.terms.values())
         self.diagnostics = model._diagnostics \
             if hasattr(model, '_diagnostics') else None
-        self.n_terms = len(model.terms)
 
     @abstractmethod
     def plot(self):
@@ -34,289 +46,359 @@ class ModelResults(object):
         pass
 
 
-class PyMC3Results(ModelResults):
+class MCMCResults(ModelResults):
 
     '''
-    Holds PyMC3 sampler results and provides plotting and summarization tools.
+    Holds sampler results; provides slicing, plotting, and summarization tools.
     Args:
         model (Model): a bambi Model instance specifying the model.
-        trace (MultiTrace): a PyMC3 MultiTrace object returned by the sampler. 
+        data (numpy array): Raw storage of MCMC samples in array with
+            dimensions 0, 1, 2 = samples, chains, variables
+        names (list): Names of all Terms.
+        dims (list): Numbers of levels for all Terms.
+        levels (list): Names of all levels for all Terms.
+        transformed (list): Optional list of variable names to treat as
+            transformed--and hence, to exclude from the output by default.
     '''
 
-    def __init__(self, model, trace):
+    def __init__(self, model, data, names, dims, levels,
+                 transformed_vars=None):
+        # store the arguments
+        self.data = data
+        self.names = names
+        self.dims = dims
+        self.levels = levels
+        self.transformed_vars = transformed_vars
 
-        self.trace = trace
-        self.n_samples = len(trace)
+        # compute basic stuff to use later
+        self.n_samples = data.shape[0]
+        self.n_chains = data.shape[1]
+        self.n_params = data.shape[2]
+        self.n_terms = len(names)
+        if transformed_vars is not None:
+            utv = list(set(names) - set(transformed_vars))
+        else:
+            utv = names
+        self.untransformed_vars = utv
+        # this keeps track of which columns in 'data' go with which terms
+        self.index = np.cumsum(
+            [0] + [x[0] if len(x) else 1 for x in dims][:-1])
 
-        # here we determine which variables have been internally transformed 
-        # (e.g., sd_log). transformed vars are actually 'untransformed' from 
-        # the PyMC3 model's perspective, and it's the backtransformed (e.g., sd)
-        # variable that is 'transformed'. So the logic of this is to find and
-        # remove 'untranformed' variables that have a 'transformed' counterpart,
-        # in that 'untransformed' varname is the 'transfornmed' varname plus
-        # some suffix (such as '_log' or '_interval')
-        rvs = model.backend.model.unobserved_RVs
-        trans = set(var.name for var in rvs if isinstance(var, TransformedRV))
-        untrans = set(var.name for var in rvs) - trans
-        untrans = set(x for x in untrans if not any([t in x for t in trans]))
-        self.untransformed_vars = [x for x in trace.varnames \
-            if x in trans | untrans]
+        # build level_dict: dictionary of lists containing levels of each Term
+        level_dict = {}
+        for i, name, dim in zip(self.index, names, dims):
+            dim = dim[0] if len(dim) else 1
+            level_dict[name] = levels[i:(i+dim)]
+        self.level_dict = level_dict
 
-        super(PyMC3Results, self).__init__(model)
+        super(MCMCResults, self).__init__(model)
 
+    def __getitem__(self, idx):
+        '''
+        If a variable name, return MCMCResults with only that variable
+            e.g., fit['subject']
+        If a list of variable names, return MCMCResults with those variables
+            e.g., fit[['subject','item]]
+        If a slice, return MCMCResults with sliced samples
+            e.g., fit[500:]
+        If a tuple, return MCMCResults with those variables sliced
+            e.g., fit[['subject','item'], 500:] OR fit[500:, ['subject','item']]
+        '''
 
-    def _filter_names(self, names, exclude_ranefs=True, hide_transformed=True):
-        names = self.untransformed_vars \
-            if hide_transformed else self.trace.varnames
-        # helper function to put parameter names in same format as random_terms
-        def _format(name):
-            regex = re.match(r'^u_([^\|]+)\|([^_\1]+)_\1(.*_sd$)?', name)
-            return name if regex is None or regex.group(3) is not None \
-                else 'u_{}|{}'.format(regex.group(1), regex.group(2))
-        if exclude_ranefs:
-            names = [x for x in names
-                if _format(x)[2:] not in list(self.model.random_terms.keys())]
+        if isinstance(idx, slice):
+            var = self.names
+            vslice = idx
+        elif isinstance(idx, string_types):
+            var = [idx]
+            vslice = slice(0, self.n_samples)
+        elif isinstance(idx, list):
+            if not all([isinstance(x, string_types) for x in idx]):
+                raise ValueError("If passing a list, all elements must be "
+                                 "parameter names.")
+            var = idx
+            vslice = slice(0, self.n_samples)
+        elif isinstance(idx, tuple):
+            if len(idx) > 2:
+                raise ValueError("Only two arguments can be passed. If you "
+                                 "want to select multiple parameters and a "
+                                 "subset of samples, pass a slice and a list "
+                                 "of parameter names.")
+            vslice = [i for i, x in enumerate(idx) if isinstance(x, slice)]
+            if not len(vslice):
+                raise ValueError("At least one argument must be a slice. If "
+                                 "you want to select multiple parameters by "
+                                 "name, pass a list (not a tuple) of names.")
+            if len(vslice) > 1:
+                raise ValueError("Slices can only be applied "
+                                 "over the samples dimension.")
+            var = idx[1 - vslice[0]]
+            vslice = idx[vslice[0]]
+            if not isinstance(var, (list, tuple)):
+                var = [var]
+        else:
+            raise ValueError("Unrecognized index type.")
+
+        # do slicing/selection and return subsetted copy of MCMCResults
+        levels = sum([self.level_dict[v] for v in var], [])
+        level_iloc = [self.levels.index(x) for x in levels]
+        var_iloc = [self.names.index(v) for v in var]
+        return MCMCResults(model=self.model,
+                           data=self.data[vslice, :, level_iloc], names=var,
+                           dims=[self.dims[x] for x in var_iloc],
+                           levels=levels,
+                           transformed_vars=self.transformed_vars)
+
+    def get_chains(self, indices):
+        # Return copy of self but only for chains with the passed indices
+        if not isinstance(indices, (list, tuple)):
+            indices = [indices]
+        return MCMCResults(model=self.model, data=self.data[:, indices, :],
+                           names=self.names, dims=self.dims,
+                           levels=self.levels,
+                           transformed_vars=self.transformed_vars)
+
+    def _filter_names(self, varnames=None, ranefs=False, transformed=False):
+        names = self.untransformed_vars if not transformed else self.names
+        if varnames is not None:
+            names = [n for n in names if n in listify(varnames)]
+        if not ranefs:
+            names = [x for x in names if re.sub(r'_offset$', '', x)
+                     not in self.model.random_terms]
         return names
 
-    def _prettify_name(self, old_name):
-        # re1 chops 'u_subj__7' into {1:'u_', 2:'subj', 3:'7'}
-        re1 = re.match(r'^([bu]_)(.+[^__\d+]+)(__\d+)?$', old_name)
-        # params like the residual SD will have no matches, so just return
-        if re1 is None:
-            return old_name
-        # handle random slopes first because their format is weird.
-        # re2 chops 'x|subj_x[a]' into {1:'x', 2:'subj', 3:'x', 4:'[a]'}
-        re2 = re.match(r'^([^\|]+)\|([^_\1]+)(_\1)?(\[.+\])?$', re1.group(2))
-        if re2 is not None:
-            term = self.model.terms['{}|{}'.format(re2.group(1), re2.group(2))]
-            # random slopes of factors
-            if re2.group(4) is not None:
-                return '{}{}|{}'.format(re2.group(3)[1:],
-                    re2.group(4), term.levels[int(re1.group(3)[2:])])
-            # random slopes of continuous predictors
-            else:
-                return '{}|{}'.format(
-                    re2.group(1), term.levels[int(re1.group(3)[2:])])
-        # handle SD terms
-        # re3 chops 'u_x|subj_x[a]_sd' into {'x', '|subj', '_x', '[a]'}
-        re3 = re.match(r'^([^\|]+)(\|[^_\1]+)?(_\1)?(\[\d+\])?_sd$',
-            re1.group(2))
-        if re1.group(3) is None and re3 is not None:
-            if re3.group(2) is None: return '1|{}_sd'.format(re3.group(1))
-            if re3.group(4) is not None: return '{}{}{}_sd'.format(
-                re3.group(3)[1:], re3.group(4), re3.group(2))
-            return '{}{}_sd'.format(re3.group(1), re3.group(2))
-        # handle fixed effects and random intercepts
-        term = self.model.terms[re1.group(2)]
-        if re1.group(1)=='b_': return re1.group(2) if re1.group(3) is None \
-            else term.levels[int(re1.group(3)[2:])]
-        if re1.group(1)=='u_':
-            return '1|{}[{}]'.format(
-                re1.group(2), term.levels[int(re1.group(3)[2:])])
-
-    def plot(self, burn_in=0, names=None, annotate=True, exclude_ranefs=False, 
-        hide_transformed=True, kind='trace', **kwargs):
+    def plot(self, varnames=None, ranefs=True, transformed=False,
+             combined=False, hist=False, bins=20, kind='trace'):
         '''
         Plots posterior distributions and sample traces. Basically a wrapper
         for pm.traceplot() plus some niceties, based partly on code from:
         https://pymc-devs.github.io/pymc3/notebooks/GLM-model-selection.html
         Args:
-            burn_in (int): Number of initial samples to exclude before
-                summary statistics are computed.
-            names (list): Optional list of variable names to summarize.
-            annotate (bool): If True (default), add lines marking the
-                posterior means, write the posterior means next to the
-                lines, and add factor level names for fixed factors with
-                more than one distribution on the traceplot.
-            exclude_ranefs (bool): If True, do not show trace plots for
-                individual random effects. Defaults to False.
-            hide_transformed (bool): If True (default), do not show trace
-                plots for internally transformed variables.
+            varnames (list): List of variable names to plot. If None, all
+                eligible variables are plotted.
+            ranefs (bool): If True (default), shows trace plots for
+                individual random effects.
+            transformed (bool): If False (default), excludes internally
+                transformed variables from plotting.
+            combined (bool): If True, concatenates all chains into one before
+                plotting. If False (default), plots separately lines for
+                each chain (on the same axes).
+            hist (bool): If True, plots a histogram for each fixed effect,
+                in addition to the kde plot. To prevent visual clutter,
+                histograms are never plotted for random effects.
+            bins (int): If hist is True, the number of bins in the histogram.
+                Ignored if hist is False.
             kind (str): Either 'trace' (default) or 'priors'. If 'priors',
                 this just internally calls Model.plot()
         '''
+
+        def _plot_row(data, row, title, hist=True):
+            # density plot
+            axes[row, 0].set_title(title)
+            if pma is not None:
+                arr = np.atleast_2d(data.values.T).T
+                pma.kdeplot_op(axes[row, 0], arr)
+            else:
+                data.plot(kind='kde', ax=axes[row, 0], legend=False)
+
+            # trace plot
+            axes[row, 1].set_title(title)
+            data.plot(kind='line', ax=axes[row, 1], legend=False)
+            # histogram
+            if hist:
+                if pma is not None:
+                    pma.histplot_op(axes[row, 0], arr)
+                else:
+                    data.plot(kind='hist', ax=axes[row, 0], legend=False,
+                              normed=True, bins=bins)
+
         if kind == 'priors':
-            return self.model.plot()
+            return self.model.plot(varnames)
 
-        # if no 'names' specified, filter out unwanted variables
-        if names is None:
-            names = self._filter_names(names, exclude_ranefs, hide_transformed)
+        # count the total number of rows in the plot
+        names = self._filter_names(varnames, ranefs, transformed)
+        random = [re.sub(r'_offset$', '', x) in self.model.random_terms
+                  for x in names]
+        rows = sum([len(self.level_dict[p]) if not r else 1
+                    for p, r in zip(names, random)])
 
-        # compute means for all variables and factors
-        if annotate:
-            kwargs['lines'] = {param: self.trace[param, burn_in:].mean() \
-                for param in names}
-            # factors (fixed terms with shape > 1) must be handled separately
-            factors = {}
-            for fix in self.model.fixed_terms.values():
-                if 'b_'+fix.name in names and len(fix.levels)>1:
-                    # remove factor from dictionary of lines to plot
-                    kwargs['lines'].pop('b_'+fix.name)
-                    # add factor and its column means to dictionary of factors
-                    factors.update({'b_'+fix.name:
-                        {':'.join(re.findall('\[([^]]+)\]', x)):
-                         self.trace['b_'+fix.name, burn_in:].mean(0)[i]
-                         for i,x in enumerate(fix.levels)}})
+        # make the plot!
+        fig, axes = plt.subplots(rows, 2, figsize=(12, 2*rows))
+        if rows == 1:
+            axes = np.array([axes])  # For consistent 2D indexing
 
-        # make the traceplot
-        ax = pm.traceplot(self.trace[burn_in:], varnames=names,
-            figsize=(12,len(names)*1.5), **kwargs)
+        _select_args = {'ranefs': ranefs, 'transformed': transformed}
 
-        if annotate:
-            # add lines and annotation for the factors
-            for f in factors.keys():
-                for lev in factors[f]:
-                    # draw line
-                    ax[names.index(f),0].axvline(x=factors[f][lev],
-                        color="r", lw=1.5)
-                    # write the mean
-                    ax[names.index(f),0].annotate(
-                        '{:.2f}'.format(factors[f][lev]),
-                        xy=(factors[f][lev],0), xycoords='data', xytext=(5,10),
-                        textcoords='offset points', rotation=90, va='bottom',
-                        fontsize='large', color='#AA0022')
-                    # write the factor level name
-                    ax[names.index(f),0].annotate(lev,
-                        xy=(factors[f][lev],0), xycoords='data', xytext=(-11,5),
-                        textcoords='offset points', rotation=90, va='bottom',
-                        fontsize='large', color='#AA0022')
-            # add lines and annotation for the rest of the variables
-            for v in kwargs['lines'].keys():
-                ax[names.index(v),0].annotate(
-                    '{:.2f}'.format(kwargs['lines'][v]),
-                    xy=(kwargs['lines'][v],0), xycoords='data', xytext=(5,10),
-                    textcoords='offset points', rotation=90, va='bottom',
-                    fontsize='large', color='#AA0022')
+        # Create list of chains (for combined, just one list w/ all chains)
+        chains = list(range(self.n_chains))
+        if combined:
+            chains = [chains]
 
-        # For binomial models with n_trials = 1 (most common use case),
-        # tell user which event is being modeled
-        if self.model.family.name=='binomial' and \
-            np.max(self.model.y.data) < 1.01:
-            event = next(i for i,x in enumerate(self.model.y.data.flatten()) \
-                if x>.99)
+        for c in chains:
+
+            row = 0
+
+            for p in names:
+
+                df = self[p].to_df(chains=c, **_select_args)
+                # if p == 'floor|county_sd':
+
+                # fixed effects
+                if re.sub(r'_offset$', '', p) not in self.model.random_terms:
+                    for lev in self.level_dict[p]:
+                        lev_df = df[lev]
+                        _plot_row(lev_df, row, lev, hist)
+                        row += 1
+
+                # random effects
+                else:
+                    _plot_row(df, row, p, hist=False)  # too much clutter
+                    row += 1
+
+        fig.tight_layout()
+
+        # For bernoulli models, tell user which event is being modeled
+        if self.model.family.name == 'bernoulli':
+            event = next(i for i, x in enumerate(self.model.y.data.flatten())
+                         if x > .99)
             warnings.warn('Modeling the probability that {}==\'{}\''.format(
                 self.model.y.name,
                 str(self.model.data[self.model.y.name][event])))
 
-        return ax
+        return axes
 
-    def summary(self, burn_in=0, exclude_ranefs=True, names=None,
-                hide_transformed=True, mc_error=False, **kwargs):
+    def _hpd_interval(self, x, width):
+        """
+        Code adapted from pymc3.stats.calc_min_interval:
+        https://github.com/pymc-devs/pymc3/blob/master/pymc3/stats.py
+        """
+        x = np.sort(x)
+        n = len(x)
+
+        interval_idx_inc = int(np.floor(width * n))
+        n_intervals = n - interval_idx_inc
+        interval_width = x[interval_idx_inc:] - x[:n_intervals]
+
+        if len(interval_width) == 0:
+            raise ValueError('Too few elements for interval calculation')
+
+        min_idx = np.argmin(interval_width)
+        hdi_min = x[min_idx]
+        hdi_max = x[min_idx + interval_idx_inc]
+
+        index = ['hpd{}_{}'.format(width, x) for x in ['lower', 'upper']]
+        return pd.Series([hdi_min, hdi_max], index=index)
+
+    def summary(self, varnames=None, ranefs=False, transformed=False, hpd=.95,
+                quantiles=None, diagnostics=['effective_n', 'gelman_rubin']):
         '''
-        Summarizes all parameter estimates. Basically a wrapper for
-        pm.df_summary() plus some niceties.
+        Returns a DataFrame of summary/diagnostic statistics for the
+        parameters.
         Args:
-            burn_in (int): Number of initial samples to exclude before
-                summary statistics are computed.
-            exclude_ranefs (bool): If True (default), do not print
-                summary statistics for individual random effects.
-            names (list): Optional list of variable names to summarize.
-            hide_transformed (bool): If True (default), do not print
-                summary statistics for internally transformed variables.
-            mc_error (bool): If True (defaults to False), include the monte
-                carlo error for each parameter estimate.
+            varnames (list): List of variable names to include; if None
+                (default), all eligible variables are included.
+            ranefs (bool): Whether or not to include random effects in the
+                summary. Default is False.
+            transformed (bool): Whether or not to include internally
+                transformed variables in the summary. Default is False.
+            hpd (float, between 0 and 1): Show Highest Posterior Density (HPD)
+                intervals with specified width/proportion for all parameters.
+                If None, HPD intervals are suppressed.
+            quantiles (float [or list of floats] between 0 and 1): Show
+                specified quantiles of the marginal posterior distributions for
+                all parameters. If None (default), no quantiles are shown.
+            diagnostics (list): List of functions to use to compute convergence
+                diagnostics for all parameters. Each element can be either a
+                callable or a string giving the name of a function in the
+                diagnostics module. Valid strings are 'gelman_rubin' and
+                'effective_n'. Functions must accept a MCMCResults object as
+                the sole input, and return a DataFrame with one labeled row per
+                parameter. If None, no convergence diagnostics are computed.
         '''
+        samples = self.to_df(varnames, ranefs, transformed)
 
-        # if no 'names' specified, filter out unwanted variables
-        if names is None:
-            names = self._filter_names(names, exclude_ranefs, hide_transformed)
+        # build the basic DataFrame
+        df = pd.DataFrame({'mean': samples.mean(0), 'sd': samples.std(0)})
 
-        # get the basic DataFrame
-        df = pm.df_summary(self.trace[burn_in:], varnames=names, **kwargs)
-        df.set_index([[self._prettify_name(x) for x in df.index]], inplace=True)
+        # add user-specified quantiles
+        if quantiles is not None:
+            if not isinstance(quantiles, (list, tuple)):
+                quantiles = [quantiles]
+            qnames = ['q' + str(q) for q in quantiles]
+            df = df.merge(samples.quantile(quantiles).set_index([qnames]).T,
+                          left_index=True, right_index=True)
 
-        # append diagnostic info if there are multiple chains.
-        if self.trace.nchains > 1:
-            # first remove unwanted variables so we don't waste time on those
-            diag_trace = self.trace[burn_in:]
-            for var in set(diag_trace.varnames) - set(names):
-                diag_trace.varnames.remove(var)
-            # append each diagnostic statistic
-            for diag_fn,diag_name in zip([pmd.effective_n, pmd.gelman_rubin],
-                                         ['effective_n',   'gelman_rubin']):
-                # compute the diagnostic statistic
-                stat = diag_fn(diag_trace)
-                # rename stat indices to match df indices
-                for k, v in list(stat.items()):
-                    stat.pop(k)
-                    # handle categorical predictors w/ >3 levels
-                    if isinstance(v, np.ndarray) and len(v) > 1:
-                        for i,x in enumerate(v):
-                            ugly_name = '{}__{}'.format(k, i)
-                            stat[self._prettify_name(ugly_name)] = x
-                    # handle all other variables
-                    else:
-                        stat[self._prettify_name(k)] = v
-                # append to df
-                stat = pd.DataFrame(stat, index=[diag_name]).T
-                df = df.merge(stat, how='left', left_index=True, right_index=True)
-        else:
-            warnings.warn('Multiple MCMC chains (i.e., njobs > 1) are required'
-                          ' in order to compute convergence diagnostics.')
+        # add HPD intervals
+        if hpd is not None:
+            df = df.merge(samples.apply(self._hpd_interval, axis=0,
+                          width=hpd).T, left_index=True, right_index=True)
 
-        # drop the mc_error column if requested
-        if not mc_error:
-            df = df.drop('mc_error', axis=1)
+        # add convergence diagnostics
+        if diagnostics is not None:
+            _names = self._filter_names(ranefs=ranefs, transformed=transformed)
+            _self = self[_names]
+            if self.n_chains > 1:
+                for diag in diagnostics:
+                    if isinstance(diag, string_types):
+                        diag = getattr(bmd, diag)
+                    df = df.merge(diag(_self), left_index=True,
+                                  right_index=True)
+            else:
+                warnings.warn('Multiple MCMC chains are required in order '
+                              'to compute convergence diagnostics.')
 
-        # For binomial models with n_trials = 1 (most common use case),
-        # tell user which event is being modeled
-        if self.model.family.name=='binomial' and \
-            np.max(self.model.y.data) < 1.01:
-            event = next(i for i,x in enumerate(self.model.y.data.flatten()) \
-                if x>.99)
+        # For bernoulli models, tell user which event is being modeled
+        if self.model.family.name == 'bernoulli':
+            event = next(i for i, x in enumerate(self.model.y.data.flatten())
+                         if x > .99)
             warnings.warn('Modeling the probability that {}==\'{}\''.format(
                 self.model.y.name,
                 str(self.model.data[self.model.y.name][event])))
 
         return df
 
-    def get_trace(self, burn_in=0, names=None, exclude_ranefs=True,
-        hide_transformed=True):
+    def to_df(self, varnames=None, ranefs=False, transformed=False,
+              chains=None):
         '''
-        Returns the MCMC samples in a nice, neat DataFrame.
+        Returns the MCMC samples in a nice, neat pandas DataFrame with all
+        MCMC chains concatenated.
         Args:
-            burn_in (int): Number of initial samples to exclude from
-                each chain before returning the trace DataFrame.
-            names (list): Optional list of variable names to get samples for.
-            exclude_ranefs (bool): If True (default), do not return samples
-                for individual random effects.
-            hide_transformed (bool): If True (default), do not return
-            samples for internally transformed variables.
+            varnames (list): List of variable names to include; if None
+                (default), all eligible variables are included.
+            ranefs (bool): Whether or not to include random effects in the
+                returned DataFrame. Default is True.
+            transformed (bool): Whether or not to include internally
+                transformed variables in the result. Default is False.
+            chains (int, list): Index, or list of indexes, of chains to
+                concatenate. E.g., [1, 3] would concatenate the first and
+                third chains, and ignore any others. If None (default),
+                concatenates all available chains.
         '''
-        # if no 'names' specified, filter out unwanted variables
-        if names is None:
-            names = self._filter_names(names, exclude_ranefs, hide_transformed)
+        # filter out unwanted variables
+        names = self._filter_names(varnames, ranefs, transformed)
 
-        # helper function to label the trace DataFrame columns appropriately
-        def get_cols(var):
-            # handle terms with a single level
-            if len(self.trace[var].shape)==1 or self.trace[var].shape[1]==1:
-                return [self._prettify_name(var)]
-            else:
-                # handle fixed terms with multiple levels
-                # (slice off the 'b_' or 'u_')
-                if var[2:] in self.model.fixed_terms.keys():
-                    return self.model.terms[var[2:]].levels
-                # handle random terms with multiple levels
-                else:
-                    return ['{}[{}]'.format(var[2:], x)
-                            for x in self.model.terms[var[2:]].levels]
+        # concatenate the (pre-sliced) chains
+        if chains is None:
+            chains = list(range(self.n_chains))
+        chains = listify(chains)
+        data = [self.data[:, i, :] for i in chains]
+        data = np.concatenate(data, axis=0)
 
         # construct the trace DataFrame
-        trace_df = pd.concat([pd.DataFrame(self.trace[x, burn_in:],
-                                           columns=get_cols(x))
-                              for x in names], axis=1)
+        df = sum([self.level_dict[x] for x in names], [])
+        df = pd.DataFrame({x: data[:, self.levels.index(x)] for x in df})
 
-        return trace_df
+        return df
 
 
 class PyMC3ADVIResults(ModelResults):
+
     '''
     Holds PyMC3 ADVI results and provides plotting and summarization tools.
     Args:
         model (Model): a bambi Model instance specifying the model.
         params (MultiTrace): ADVI parameters returned by PyMC3.
     '''
+
     def __init__(self, model, params):
 
         self.means = params['means']

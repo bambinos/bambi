@@ -7,6 +7,14 @@
       {
         "sd": "#halfnormal"
       }
+    ],
+    "intercept_flat": "#flat",
+    "fixed_flat": "#flat",
+    "random_flat": [
+      "#normal",
+      {
+        "sd": "#halfflat"
+      }
     ]
   },
   "families": {
@@ -20,7 +28,7 @@
       "link": "identity",
       "parent": "mu"
     },
-    "binomial": {
+    "bernoulli": {
       "dist": [
         "#bernoulli",
         {
@@ -76,6 +84,16 @@
       "HalfNormal",
       {
         "sd": 1
+      }
+    ],
+    "flat": [
+      "Flat",
+      {
+      }
+    ],
+    "halfflat": [
+      "HalfFlat",
+      {
       }
     ],
     "beta": [
