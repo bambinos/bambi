@@ -1,8 +1,10 @@
 import sys
 from setuptools import setup, find_packages
+import os
 
-
-__version__ = '0.1.0'
+mod_dir = os.path.dirname(__file__)
+with open(os.path.join(mod_dir, 'bambi', 'version.py')) as f:
+    exec(f.read())
 
 if len(set(('test', 'easy_install')).intersection(sys.argv)) > 0:
     import setuptools
