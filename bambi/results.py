@@ -160,7 +160,7 @@ class MCMCResults(ModelResults):
     def _filter_names(self, varnames=None, ranefs=False, transformed=False):
         names = self.untransformed_vars if not transformed else self.names
         if varnames is not None:
-            names = [n for n in names if n in listify(varnames)]
+            names = [n for n in listify(varnames) if n in names]
         if not ranefs:
             names = [x for x in names if re.sub(r'_offset$', '', x)
                      not in self.model.random_terms]
