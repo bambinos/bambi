@@ -262,7 +262,7 @@ class MCMCResults(ModelResults):
                          if x > .99)
             warnings.warn('Modeling the probability that {}==\'{}\''.format(
                 self.model.y.name,
-                str(self.model.data[self.model.y.name][event])))
+                str(self.model.clean_data[self.model.y.name][event])))
 
         return axes
 
@@ -352,7 +352,7 @@ class MCMCResults(ModelResults):
                          if x > .99)
             warnings.warn('Modeling the probability that {}==\'{}\''.format(
                 self.model.y.name,
-                str(self.model.data[self.model.y.name][event])))
+                str(self.model.clean_data[self.model.y.name][event])))
 
         return df
 
