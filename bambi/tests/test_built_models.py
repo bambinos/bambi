@@ -52,31 +52,12 @@ def test_empty_model(crossed_data):
     assert set(priors0) == set(priors1)
 
 
-def test_nan_handling(crossed_data):
-    data = crossed_data.copy()
-
-    # Should fail because predictor has NaN
-    model_fail_na = Model(crossed_data)
-    model_fail_na.fit('Y ~ continuous', run=False)
-    model_fail_na.terms['continuous'].data[[4, 6, 8], :] = np.nan
-    with pytest.raises(ValueError):
-        model_fail_na.build(backend='pymc3')
-
-    # Should drop 3 rows with warning
-    model_drop_na = Model(crossed_data, dropna=True)
-    model_drop_na.fit('Y ~ continuous', run=False)
-    model_drop_na.terms['continuous'].data[[4, 6, 8], :] = np.nan
-    with pytest.warns(UserWarning) as w:
-        model_drop_na.build(backend='pymc3')
-    assert '3 rows' in w[0].message.args[0]
-
-
 def test_intercept_only_model(crossed_data):
     # using fit
     model0 = Model(crossed_data)
     model0.fit('Y ~ 1', run=False)
     model0.build(backend='pymc3')
-    model0.fit(samples=1)
+    model0.fit(samples=1, init=None)
 
     # using add
     model1 = Model(crossed_data)
@@ -99,7 +80,7 @@ def test_slope_only_model(crossed_data):
     model0 = Model(crossed_data)
     model0.fit('Y ~ 0 + continuous', run=False)
     model0.build(backend='pymc3')
-    model0.fit(samples=1)
+    model0.fit(samples=1, init=None)
 
     # using add
     model1 = Model(crossed_data)
@@ -125,7 +106,7 @@ def test_cell_means_parameterization(crossed_data):
     model0 = Model(crossed_data)
     model0.fit('Y ~ 0 + threecats', run=False)
     model0.build(backend='pymc3')
-    model0.fit(samples=1)
+    model0.fit(samples=1, init=None)
 
     # build model using add
     model1 = Model(crossed_data)
@@ -160,7 +141,7 @@ def test_3x4_fixed_anova(crossed_data):
     model0 = Model(crossed_data)
     model0.fit('Y ~ threecats*fourcats', run=False)
     model0.build(backend='pymc3')
-    fitted0 = model0.fit(samples=1)
+    fitted0 = model0.fit(samples=1, init=None)
     # make sure X has 11 columns (not including the intercept)
     assert len(fitted0.diagnostics['VIF']) == 11
 
@@ -211,8 +192,9 @@ def test_cell_means_with_covariate(crossed_data):
 def test_many_fixed_many_random(crossed_data):
     # delete a few values to also test dropna=True functionality
     crossed_data_missing = crossed_data.copy()
-    crossed_data_missing['Y'][10] = np.nan
-    crossed_data_missing['continuous'][20] = np.nan
+    crossed_data_missing.loc[0, 'Y'] = np.nan
+    crossed_data_missing.loc[1, 'continuous'] = np.nan
+    crossed_data_missing.loc[2, 'threecats'] = np.nan
 
     # build model using fit
     model0 = Model(crossed_data_missing, dropna=True)
@@ -392,7 +374,7 @@ def test_many_fixed_many_random(crossed_data):
     test_set2 = fitted2.summary(ranefs=True, transformed=False)
     test_set2 = set(test_set2.index)
     answer = set(['lp__'] \
-        + ['yhat[{}]'.format(i) for i in range(len(crossed_data.index)-2)] \
+        + ['yhat[{}]'.format(i) for i in range(len(crossed_data.index)-3)] \
         + ['1|item_offset[0]','1|item_offset[10]','1|item_offset[11]',
         '1|item_offset[1]','1|item_offset[2]','1|item_offset[3]',
         '1|item_offset[4]','1|item_offset[5]','1|item_offset[6]',

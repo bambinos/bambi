@@ -8,7 +8,7 @@ import statsmodels.api as sm
 import matplotlib.pyplot as plt
 from copy import deepcopy
 from bambi.external.six import string_types
-from bambi.external.patsy import Ignore_NA, rename_columns
+from bambi.external.patsy import Custom_NA, rename_columns
 from bambi.priors import PriorFactory, PriorScaler, Prior
 from bambi.utils import listify
 import pymc3 as pm
@@ -72,6 +72,13 @@ class Model(object):
         self.noncentered = noncentered
         self._backend_name = None
 
+        # build() will loop over this list of arg dictionaries and _add() them
+        self.added = []
+
+        # if dropna=True, completes gets updated by add() to track complete cases
+        self.completes = []
+        self.clean_data = None
+
     def reset(self):
         '''
         Reset list of terms and y-variable.
@@ -79,6 +86,9 @@ class Model(object):
         self.terms = OrderedDict()
         self.y = None
         self.backend = None
+        self.added = []
+        self.completes = []
+        self.clean_data = None
 
     def _set_backend(self, backend):
 
@@ -108,48 +118,36 @@ class Model(object):
                 and look in self._backend_name.
         '''
 
+        # retain only the complete cases
+        n_total = len(self.data.index)
+        if len(self.completes):
+            completes = [set(x) for x in sum(self.completes, [])]
+            completes = set.intersection(*completes)
+        else:
+            completes = [x for x in range(len(self.data.index))]
+        self.clean_data = self.data.iloc[list(completes), :]
+        # warn the user about any dropped rows
+        if len(completes) < n_total:
+            msg = "Automatically removing {}/{} rows from the dataset."
+            msg = msg.format(n_total - len(completes), n_total)
+            warnings.warn(msg)
+
+        # loop over the added terms and actually _add() them
+        for term_args in self.added:
+            self._add(**term_args)
+
+        # check for backend
         if backend is None:
             if self._backend_name is None:
                 raise ValueError("Error: no backend was passed or set in the "
                                  "Model; did you forget to call fit()?")
             backend = self._backend_name
 
+        # check for outcome
         if self.y is None:
             raise ValueError("No outcome (y) variable is set! Please specify "
                              "an outcome variable using the formula interface "
                              "before build() or fit().")
-
-        # Check for NaNs and halt if dropna is False--otherwise issue warning.
-        arrs = []
-        for t in self.terms.values():
-            arrs.append(t.data)
-        X = np.concatenate(arrs + [self.y.data], axis=1)
-        na_index = np.isnan(X).any(1)
-        if na_index.sum():
-            msg = "%d rows were found contain at least one missing value." \
-                % na_index.sum()
-            if not self.dropna:
-                msg += "Please make sure the dataset contains no missing " \
-                       "values. Alternatively, if you want rows with missing "\
-                       "values to be automatically deleted in a list-wise " \
-                       "manner (not recommended), please set dropna=True at " \
-                       "model initialization."
-                raise ValueError(msg)
-
-            # warn and then remove missing values
-            msg += " Automatically removing %d rows from the dataset." \
-                % na_index.sum()
-            warnings.warn(msg)
-            keeps = np.invert(na_index)
-            # removing missing rows
-            for t in self.terms.values():
-                t.data = t.data[keeps]
-                # alter additional attributes in RandomTerms
-                if isinstance(t, RandomTerm):
-                    t.grouper = t.grouper[keeps]
-                    t.predictor = t.predictor[keeps]
-                    t.group_index = t._invert_dummies(t.grouper)
-            self.y.data = self.y.data[keeps]
 
         # X = fixed effects design matrix (excluding intercept/constant term)
         # r2_x = 1 - 1/VIF, i.e., R2 for predicting each x from all other x's.
@@ -216,7 +214,7 @@ class Model(object):
             event = next(
                 i for i, x in enumerate(self.y.data.flatten()) if x > .99)
             warnings.warn('Modeling the probability that {}==\'{}\''.format(
-                self.y.name, str(self.data[self.y.name].iloc[event])))
+                self.y.name, str(self.clean_data[self.y.name].iloc[event])))
 
         self._set_backend(backend)
         self.backend.build(self)
@@ -268,9 +266,6 @@ class Model(object):
 
         if run:
             if not self.built or backend != self._backend_name:
-                warnings.warn("Current Bayesian model has not been built yet "
-                              "with the %s back-end; building it first before "
-                              "sampling begins." % self._backend_name)
                 self.build(backend)
             return self.backend.run(**kwargs)
 
@@ -331,6 +326,53 @@ class Model(object):
             cats = listify(categorical)
             data[cats] = data[cats].apply(lambda x: x.astype('category'))
 
+        # Custom patsy.missing.NAAction class. Similar to patsy drop/raise
+        # defaults, but changes the raised message and logs any dropped rows
+        NA_handler = Custom_NA(dropna=self.dropna)
+
+        # screen fixed terms
+        if fixed is not None:
+            if '~' in fixed:
+                clean_fix = re.sub(r'\[.+\]', '', fixed)
+                dmatrices(clean_fix, data=data, NA_action=NA_handler)
+            else:
+                dmatrix(fixed, data=data, NA_action=NA_handler)
+
+        # screen random terms
+        if random is not None:
+            for term in listify(random):
+                for side in term.split('|'):
+                    dmatrix(side, data=data, NA_action=NA_handler)
+
+        # update the running list of complete cases
+        if len(NA_handler.completes):
+            self.completes.append(NA_handler.completes)
+
+        # save arguments to pass to _add()
+        args = dict(zip(
+            ['fixed', 'random', 'priors', 'family', 'link', 'categorical'],
+            [fixed, random, priors, family, link, categorical]))
+        self.added.append(args)
+
+        self.built = False
+
+    def _add(self, fixed=None, random=None, priors=None, family='gaussian',
+             link=None, categorical=None, append=True):
+        '''
+        Internal version of add(), with the same arguments.
+        '''
+
+        data = self.clean_data
+        # alter this pandas flag to avoid false positive SettingWithCopyWarnings
+        data.is_copy = False
+
+        # Explicitly convert columns to category if desired--though this
+        # can also be done within the formula using C().
+        if categorical is not None:
+            data = data.copy()
+            cats = listify(categorical)
+            data[cats] = data[cats].apply(lambda x: x.astype('category'))
+
         if fixed is not None:
             if '~' in fixed:
                 # check to see if formula is using the 'y[event] ~ x' syntax
@@ -340,7 +382,7 @@ class Model(object):
                 event = re.match(r'^((\S+)\[(\S+)\])\s*~(.*)$', fixed)
                 if event is not None:
                     fixed = '{}~{}'.format(event.group(2), event.group(4))
-                y, X = dmatrices(fixed, data=data, NA_action=Ignore_NA())
+                y, X = dmatrices(fixed, data=data, NA_action='raise')
                 y_label = y.design_info.term_names[0]
                 if event is not None:
                     # pass in new Y data that has 1 if y=event and 0 otherwise
@@ -351,7 +393,7 @@ class Model(object):
                     # use Y as-is
                     self._add_y(y_label, family=family, link=link)
             else:
-                X = dmatrix(fixed, data=data, NA_action=Ignore_NA())
+                X = dmatrix(fixed, data=data, NA_action='raise')
 
             # Loop over predictor terms
             for _name, _slice in X.design_info.term_name_slices.items():
@@ -382,14 +424,14 @@ class Model(object):
                 var_names = re.findall('(\w+)', grpr)
                 for v in var_names:
                     if v in data.columns:
-                        data[v] = data.loc[:, v].astype('category')
-                        self.data[v] = data[v]
+                        data.loc[:, v] = data.loc[:, v].astype('category')
+                        self.clean_data.loc[:, v] = data.loc[:, v]
 
                 # Default to including random intercepts
                 intcpt = 1 if intcpt is None else int(intcpt)
 
                 grpr_df = dmatrix('0+%s' % grpr, data, return_type='dataframe',
-                                  NA_action=Ignore_NA())
+                                  NA_action='raise')
 
                 # If there's no predictor, we must be adding random intercepts
                 if not pred and grpr not in self.terms:
@@ -401,7 +443,7 @@ class Model(object):
                 else:
                     pred_df = dmatrix('%s+%s' % (intcpt, pred), data,
                                       return_type='dataframe',
-                                      NA_action=Ignore_NA())
+                                      NA_action='raise')
                     # determine value of the 'constant' attribute
                     const = np.atleast_2d(pred_df.T).T.sum(1).var() == 0
 
@@ -434,8 +476,6 @@ class Model(object):
                                           grpr_df.values, categorical=cat,
                                           constant=const if const else None)
                         self.terms[label] = term
-
-        self.built = False
 
     def _add_y(self, variable, prior=None, family='gaussian', link=None, *args,
                **kwargs):
@@ -480,9 +520,9 @@ class Model(object):
         # implement default Uniform [0, sd(Y)] prior for residual SD
         if self.family.name == 'gaussian':
             prior.update(sd=Prior('Uniform', lower=0,
-                                  upper=self.data[variable].std()))
+                                  upper=self.clean_data[variable].std()))
 
-        data = kwargs.pop('data', self.data[variable])
+        data = kwargs.pop('data', self.clean_data[variable])
         term = Term(self, variable, data, prior=prior, *args, **kwargs)
         self.y = term
         self.built = False
