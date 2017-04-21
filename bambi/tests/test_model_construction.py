@@ -36,11 +36,15 @@ def test_term_init(diabetes_data):
 def test_distribute_random_effect_over(diabetes_data):
     # Random slopes
     model = Model(diabetes_data)
+    model.add('BP ~ 1')
     model.add(random='C(age_grp)|BMI')
+    model.build(backend='pymc')
     assert model.terms['C(age_grp)[T.1]|BMI'].data.shape == (442, 163)
     # Nested or crossed random intercepts
     model.reset()
+    model.add('BP ~ 1')
     model.add(random='0+C(age_grp)|BMI')
+    model.build(backend='pymc')
     assert model.terms['C(age_grp)[0]|BMI'].data.shape == (442, 163)
     # 163 unique levels of BMI in diabetes_data
 
@@ -57,20 +61,24 @@ def test_model_init_from_filename():
 
 def test_model_term_names_property(diabetes_data):
     model = Model(diabetes_data)
-    model.add('BMI')
+    model.add('BMI ~ age_grp')
     model.add('BP')
     model.add('S1')
-    assert model.term_names == ['Intercept' ,'BMI', 'BP', 'S1']
+    model.build(backend='pymc')
+    assert model.term_names == ['Intercept', 'age_grp', 'BP', 'S1']
 
 
 def test_add_to_model(diabetes_data):
     model = Model(diabetes_data)
-    model.add('BMI')
+    model.add('BP ~ BMI')
+    model.build(backend='pymc')
     assert isinstance(model.terms['BMI'], Term)
     model.add('age_grp')
+    model.build(backend='pymc')
     assert set(model.terms.keys()) == {'Intercept' ,'BMI', 'age_grp'}
     # Test that arguments are passed appropriately onto Term initializer
     model.add(random='C(age_grp)|BP')
+    model.build(backend='pymc')
     assert isinstance(model.terms['C(age_grp)[T.1]|BP'], Term)
     assert 'BP[108.0]' in model.terms['C(age_grp)[T.1]|BP'].levels
 
@@ -94,17 +102,21 @@ def test_add_formula_append(diabetes_data):
     model = Model(diabetes_data)
     model.add('S3 ~ 0')
     model.add('S1')
+    model.build(backend='pymc')
     assert hasattr(model, 'y') and model.y is not None and model.y.name == 'S3'
     assert 'S1' in model.terms
     model.add('S2', append=False)
     assert model.y is None
+    model.add('S3 ~ 0')
+    model.build(backend='pymc')
     assert 'S2' in model.terms
     assert 'S1' not in model.terms
 
 
 def test_derived_term_search(diabetes_data):
     model = Model(diabetes_data)
-    model.add(random='age_grp|BP', categorical=['age_grp'])
+    model.add('BMI ~ 1', random='age_grp|BP', categorical=['age_grp'])
+    model.build(backend='pymc')
     terms = model._match_derived_terms('age_grp|BP')
     names = set([t.name for t in terms])
     assert names == {'1|BP', 'age_grp[T.1]|BP', 'age_grp[T.2]|BP'}
