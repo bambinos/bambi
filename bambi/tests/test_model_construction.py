@@ -24,7 +24,7 @@ def base_model(diabetes_data):
 
 def test_term_init(diabetes_data):
     model = Model(diabetes_data)
-    term = Term(model, 'BMI', diabetes_data['BMI'])
+    term = Term('BMI', diabetes_data['BMI'])
     # Test that all defaults are properly initialized
     assert term.name == 'BMI'
     assert term.categorical == False

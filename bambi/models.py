@@ -407,7 +407,9 @@ class Model(object):
                 cols = X.design_info.column_names[_slice]
                 term_data = pd.DataFrame(X[:, _slice], columns=cols)
                 prior = priors.pop(_name, priors.get('fixed', None))
-                self.terms[_name] = Term(self, _name, term_data, prior=prior)
+                self.terms[_name] = Term(_name, term_data, prior=prior,
+                    default_priors=self.default_priors,
+                    auto_scale=self.auto_scale)
 
         # Random effects
         if random is not None:
@@ -444,8 +446,10 @@ class Model(object):
                 if not pred and grpr not in self.terms:
                     name = '1|' + grpr
                     pred = np.ones((len(grpr_df), 1))
-                    term = RandomTerm(self, name, grpr_df, pred, grpr_df.values,
-                                      categorical=True, prior=prior)
+                    term = RandomTerm(name, grpr_df, pred, grpr_df.values,
+                                      categorical=True, prior=prior,
+                                      default_priors=self.default_priors,
+                                      auto_scale=self.auto_scale)
                     self.terms[name] = term
                 else:
                     pred_df = dmatrix('%s+%s' % (intcpt, pred), data,
@@ -479,10 +483,12 @@ class Model(object):
                             cat = False
 
                         pred_data = pred_data[:, None]  # Must be 2D later
-                        term = RandomTerm(self, label, lev_data, pred_data,
+                        term = RandomTerm(label, lev_data, pred_data,
                                           grpr_df.values, categorical=cat,
                                           constant=const if const else None,
-                                          prior=prior)
+                                          prior=prior,
+                                          default_priors=self.default_priors,
+                                          auto_scale=self.auto_scale)
                         self.terms[label] = term
 
     def _add_y(self, variable, prior=None, family='gaussian', link=None, *args,
@@ -531,7 +537,9 @@ class Model(object):
                                   upper=self.clean_data[variable].std()))
 
         data = kwargs.pop('data', self.clean_data[variable])
-        term = Term(self, variable, data, prior=prior, *args, **kwargs)
+        term = Term(variable, data, prior=prior,
+            default_priors=self.default_priors, auto_scale=self.auto_scale,
+            *args, **kwargs)
         self.y = term
         self.built = False
 
@@ -717,16 +725,20 @@ class Term(object):
         constant (bool): indicates whether the term levels collectively
             act as a constant, in which case the term is treated as an
             intercept for prior distribution purposes.
+        default_priors: PriorFactory object
+        auto_scale (bool): If True (default), use default prior scaled to data.
+            Otherwise use flat prior.
     '''
     random = False
 
-    def __init__(self, model, name, data, categorical=False, prior=None,
-                 constant=None):
+    def __init__(self, name, data, categorical=False, prior=None, constant=None,
+        default_priors=PriorFactory(None), auto_scale=True):
 
-        self.model = model
         self.name = name
         self.categorical = categorical
         self._reduced_data = None
+        self.default_priors = default_priors
+        self.auto_scale = auto_scale
 
         if isinstance(data, pd.Series):
             data = data.to_frame()
@@ -754,14 +766,14 @@ class Term(object):
         _type = 'intercept' if self.name == 'Intercept' else \
                 'random' if self.random else 'fixed'
 
-        if prior is None and not self.model.auto_scale:
-            prior = self.model.default_priors.get(term=_type + '_flat')
+        if prior is None and not self.auto_scale:
+            prior = self.default_priors.get(term=_type + '_flat')
 
         if isinstance(prior, Prior):
             prior._auto_scale = False
         else:
             _scale = prior
-            prior = self.model.default_priors.get(term=_type)
+            prior = self.default_priors.get(term=_type)
             prior.scale = _scale
             if prior.scale is not None: prior._auto_scale = False
 
@@ -772,11 +784,12 @@ class RandomTerm(Term):
 
     random = True
 
-    def __init__(self, model, name, data, predictor, grouper,
-                 categorical=False, prior=None, constant=None):
+    def __init__(self, name, data, predictor, grouper, categorical=False,
+        prior=None, constant=None, default_priors=PriorFactory(None),
+        auto_scale=True):
 
-        super(RandomTerm, self).__init__(model, name, data, categorical, prior,
-              constant)
+        super(RandomTerm, self).__init__(name, data, categorical, prior,
+              constant, default_priors, auto_scale)
         self.grouper = grouper
         self.predictor = predictor
         self.group_index = self._invert_dummies(grouper)
