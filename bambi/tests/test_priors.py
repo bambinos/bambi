@@ -131,7 +131,7 @@ def test_update_term_priors_after_init(diabetes_data):
     model.build(backend='pymc')
     assert model.terms['age_grp[T.1]|BP'].prior.scale == 0.5
     assert np.isclose(model.terms['age_grp[T.1]|BP'].prior.args['sd'].args['sd'],
-                      111, rtol=.1)[0]
+                      94, rtol=.2)[0]
     assert model.terms['1|BP'].prior.scale == 0.5
 
 
