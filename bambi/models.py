@@ -72,8 +72,9 @@ class Model(object):
         self.noncentered = noncentered
         self._backend_name = None
 
-        # build() will loop over this list of arg dictionaries and _add() them
-        self.added = []
+        # build() will loop over these lists of argument dictionaries
+        self.added_terms = []
+        self.added_priors
 
         # if dropna=True, completes gets updated by add() to track complete cases
         self.completes = []
@@ -86,7 +87,8 @@ class Model(object):
         self.terms = OrderedDict()
         self.y = None
         self.backend = None
-        self.added = []
+        self.added_terms = []
+        self.added_priors = []
         self.completes = []
         self.clean_data = None
 
@@ -133,8 +135,12 @@ class Model(object):
             warnings.warn(msg)
 
         # loop over the added terms and actually _add() them
-        for term_args in self.added:
+        for term_args in self.added_terms:
             self._add(**term_args)
+
+        # loop over the added priors, now that the terms are added
+        for prior_args in self.added_priors:
+            self._set_priors(**prior_args)
 
         # check for backend
         if backend is None:
@@ -352,7 +358,7 @@ class Model(object):
         args = dict(zip(
             ['fixed', 'random', 'priors', 'family', 'link', 'categorical'],
             [fixed, random, priors, family, link, categorical]))
-        self.added.append(args)
+        self.added_terms.append(args)
 
         self.built = False
 
@@ -474,7 +480,8 @@ class Model(object):
                         pred_data = pred_data[:, None]  # Must be 2D later
                         term = RandomTerm(self, label, lev_data, pred_data,
                                           grpr_df.values, categorical=cat,
-                                          constant=const if const else None)
+                                          constant=const if const else None,
+                                          prior=prior)
                         self.terms[label] = term
 
     def _add_y(self, variable, prior=None, family='gaussian', link=None, *args,
@@ -576,6 +583,19 @@ class Model(object):
                 and so on. If False, an exact match is required for the
                 prior to be applied.
         '''
+        # save arguments to pass to _add()
+        args = dict(zip(
+            ['priors', 'fixed', 'random', 'match_derived_names'],
+            [priors, fixed, random, match_derived_names]))
+        self.added_priors.append(args)
+
+        self.built = False
+
+    def _set_priors(self, priors=None, fixed=None, random=None,
+                    match_derived_names=True):
+        '''
+        Internal version of set_priors(). Runs during Model.build().
+        '''
 
         targets = {}
 
@@ -604,7 +624,7 @@ class Model(object):
                 prior._auto_scale = False
 
         for name, prior in targets.items():
-            self.terms[name].prior = prior
+            self.terms[name].set_prior(prior)
 
         if fixed is not None or random is not None or priors is not None:
             self.built = False
@@ -741,6 +761,7 @@ class Term(object):
             _scale = prior
             prior = self.model.default_priors.get(term=_type)
             prior.scale = _scale
+            if prior.scale is not None: prior._auto_scale = False
 
         self.prior = prior
 

@@ -4,6 +4,7 @@ from bambi.priors import Prior, Family, PriorFactory
 from os.path import dirname, join
 import json
 import pandas as pd
+import numpy as np
 
 
 @pytest.fixture(scope="module")
@@ -93,7 +94,7 @@ def test_prior_retrieval():
 
 def test_update_term_priors_after_init(diabetes_data):
     model = Model(diabetes_data)
-    model.add('BMI')
+    model.add('Y ~ BMI')
     model.add('S1')
     model.add(random='age_grp|BP')
 
@@ -101,28 +102,37 @@ def test_update_term_priors_after_init(diabetes_data):
     p2 = Prior('Beta', alpha=2, beta=2)
 
     model.set_priors({'BMI': 0.3, 'S1': p2})
+    model.build(backend='pymc')
     assert model.terms['S1'].prior.args['beta'] == 2
-    assert model.terms['BMI'].prior == 0.3
+    assert model.terms['BMI'].prior.scale == 0.3
+    assert np.isclose(model.terms['BMI'].prior.args['sd'], 4.98965426)[0]
 
     model.set_priors({('S1', 'BMI'): p1})
+    model.build(backend='pymc')
     assert model.terms['S1'].prior.args['sd'] == 10
     assert model.terms['BMI'].prior.args['mu'] == -10
 
     p3 = Prior('Normal', mu=0, sd=Prior('Normal', mu=0, sd=7))
-    model.set_priors(fixed=0.4, random=p3)
-    assert model.terms['BMI'].prior == 0.4
+    model.set_priors(fixed=0.3, random=p3)
+    model.build(backend='pymc')
+    assert model.terms['BMI'].prior.scale == 0.3
+    assert np.isclose(model.terms['BMI'].prior.args['sd'], 4.98965426)[0]
     assert model.terms['age_grp|BP'].prior.args['sd'].args['sd'] == 7
 
     # Invalid names should raise error
     with pytest.raises(ValueError):
         model.set_priors({'nonexistent_term': 0.3})
+        model.build(backend='pymc')
 
     # Test for partial names, e.g., 'threecats' should match 'threecats[0]'.
     model = Model(diabetes_data)
-    model.add(random='age_grp|BP', categorical='age_grp')
+    model.add('Y ~ 1', random='age_grp|BP', categorical='age_grp')
     model.set_priors({'age_grp|BP': 0.5})
-    assert model.terms['age_grp[T.1]|BP'].prior == 0.5
-    assert model.terms['1|BP'].prior == 0.5
+    model.build(backend='pymc')
+    assert model.terms['age_grp[T.1]|BP'].prior.scale == 0.5
+    assert np.isclose(model.terms['age_grp[T.1]|BP'].prior.args['sd'].args['sd'],
+                      111.70435084986467)[0]
+    assert model.terms['1|BP'].prior.scale == 0.5
 
 
 def test_auto_scale(diabetes_data):
