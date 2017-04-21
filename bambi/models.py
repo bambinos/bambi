@@ -368,7 +368,7 @@ class Model(object):
         Internal version of add(), with the same arguments.
         Runs during Model.build()
         '''
-
+        # use cleaned data with NAs removed (if user requested)
         data = self.clean_data
         # alter this pandas flag to avoid false positive SettingWithCopyWarnings
         data.is_copy = False
@@ -407,9 +407,9 @@ class Model(object):
                 cols = X.design_info.column_names[_slice]
                 term_data = pd.DataFrame(X[:, _slice], columns=cols)
                 prior = priors.pop(_name, priors.get('fixed', None))
-                self.terms[_name] = Term(_name, term_data, prior=prior,
-                    default_priors=self.default_priors,
-                    auto_scale=self.auto_scale)
+                _type = 'intercept' if _name == 'Intercept' else 'fixed'
+                prior = self._prepare_prior(prior, _type)
+                self.terms[_name] = Term(_name, term_data, prior=prior)
 
         # Random effects
         if random is not None:
@@ -426,6 +426,7 @@ class Model(object):
                 intcpt, pred, grpr = re.search(patt, f).groups()
                 label = '{}|{}'.format(pred, grpr) if pred else grpr
                 prior = priors.pop(label, priors.get('random', None))
+                prior = self._prepare_prior(prior, 'random')
 
                 # Treat all grouping variables as categoricals, regardless of
                 # their dtype and what the user may have specified in the
@@ -447,9 +448,7 @@ class Model(object):
                     name = '1|' + grpr
                     pred = np.ones((len(grpr_df), 1))
                     term = RandomTerm(name, grpr_df, pred, grpr_df.values,
-                                      categorical=True, prior=prior,
-                                      default_priors=self.default_priors,
-                                      auto_scale=self.auto_scale)
+                                      categorical=True, prior=prior)
                     self.terms[name] = term
                 else:
                     pred_df = dmatrix('%s+%s' % (intcpt, pred), data,
@@ -473,6 +472,7 @@ class Model(object):
                             label = col + '|' + grpr
 
                         prior = priors.pop(label, priors.get('random', None))
+                        prior = self._prepare_prior(prior, 'random')
 
                         # Categorical or continuous is determined from data
                         ld = lev_data.values
@@ -486,9 +486,7 @@ class Model(object):
                         term = RandomTerm(label, lev_data, pred_data,
                                           grpr_df.values, categorical=cat,
                                           constant=const if const else None,
-                                          prior=prior,
-                                          default_priors=self.default_priors,
-                                          auto_scale=self.auto_scale)
+                                          prior=prior)
                         self.terms[label] = term
 
     def _add_y(self, variable, prior=None, family='gaussian', link=None, *args,
@@ -537,9 +535,7 @@ class Model(object):
                                   upper=self.clean_data[variable].std()))
 
         data = kwargs.pop('data', self.clean_data[variable])
-        term = Term(variable, data, prior=prior,
-            default_priors=self.default_priors, auto_scale=self.auto_scale,
-            *args, **kwargs)
+        term = Term(variable, data, prior=prior, *args, **kwargs)
         self.y = term
         self.built = False
 
@@ -629,15 +625,32 @@ class Model(object):
                     else:
                         targets[name] = prior
 
-        for prior in targets.values():
-            if isinstance(prior, Prior):
-                prior._auto_scale = False
-
         for name, prior in targets.items():
-            self.terms[name].set_prior(prior)
+            _type = 'intercept' if name == 'Intercept' else \
+                'random' if self.terms[name].random else 'fixed'
+            self.terms[name].prior = self._prepare_prior(prior, _type)
 
         if fixed is not None or random is not None or priors is not None:
             self.built = False
+
+    # helper function to correctly set default priors, auto_scaling, etc.
+    def _prepare_prior(self, prior, _type):
+        '''
+        prior: Prior object, or float, or None
+        type (string): 'intercept, 'fixed', or 'random'
+        '''
+        if prior is None and not self.auto_scale:
+            prior = self.default_priors.get(term=_type + '_flat')
+
+        if isinstance(prior, Prior):
+            prior._auto_scale = False
+        else:
+            _scale = prior
+            prior = self.default_priors.get(term=_type)
+            prior.scale = _scale
+            if prior.scale is not None: prior._auto_scale = False
+
+        return prior
 
     def plot(self, varnames=None):
         self.plot_priors(varnames)
@@ -725,20 +738,14 @@ class Term(object):
         constant (bool): indicates whether the term levels collectively
             act as a constant, in which case the term is treated as an
             intercept for prior distribution purposes.
-        default_priors: PriorFactory object
-        auto_scale (bool): If True (default), use default prior scaled to data.
-            Otherwise use flat prior.
     '''
     random = False
 
-    def __init__(self, name, data, categorical=False, prior=None, constant=None,
-        default_priors=PriorFactory(None), auto_scale=True):
+    def __init__(self, name, data, categorical=False, prior=None, constant=None):
 
         self.name = name
         self.categorical = categorical
         self._reduced_data = None
-        self.default_priors = default_priors
-        self.auto_scale = auto_scale
 
         if isinstance(data, pd.Series):
             data = data.to_frame()
@@ -760,23 +767,6 @@ class Term(object):
         else:
             self.constant = constant
 
-        self.set_prior(prior)
-
-    def set_prior(self, prior):
-        _type = 'intercept' if self.name == 'Intercept' else \
-                'random' if self.random else 'fixed'
-
-        if prior is None and not self.auto_scale:
-            prior = self.default_priors.get(term=_type + '_flat')
-
-        if isinstance(prior, Prior):
-            prior._auto_scale = False
-        else:
-            _scale = prior
-            prior = self.default_priors.get(term=_type)
-            prior.scale = _scale
-            if prior.scale is not None: prior._auto_scale = False
-
         self.prior = prior
 
 
@@ -785,11 +775,10 @@ class RandomTerm(Term):
     random = True
 
     def __init__(self, name, data, predictor, grouper, categorical=False,
-        prior=None, constant=None, default_priors=PriorFactory(None),
-        auto_scale=True):
+        prior=None, constant=None):
 
         super(RandomTerm, self).__init__(name, data, categorical, prior,
-              constant, default_priors, auto_scale)
+              constant)
         self.grouper = grouper
         self.predictor = predictor
         self.group_index = self._invert_dummies(grouper)
