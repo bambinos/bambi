@@ -72,9 +72,9 @@ class Model(object):
         self.noncentered = noncentered
         self._backend_name = None
 
-        # build() will loop over these lists of argument dictionaries
+        # build() will loop over these, calling _add() and _set_priors()
         self.added_terms = []
-        self.added_priors
+        self.added_priors = []
 
         # if dropna=True, completes gets updated by add() to track complete cases
         self.completes = []
@@ -366,6 +366,7 @@ class Model(object):
              link=None, categorical=None, append=True):
         '''
         Internal version of add(), with the same arguments.
+        Runs during Model.build()
         '''
 
         data = self.clean_data
@@ -583,7 +584,7 @@ class Model(object):
                 and so on. If False, an exact match is required for the
                 prior to be applied.
         '''
-        # save arguments to pass to _add()
+        # save arguments to pass to _set_priors() at build time
         args = dict(zip(
             ['priors', 'fixed', 'random', 'match_derived_names'],
             [priors, fixed, random, match_derived_names]))
@@ -594,7 +595,8 @@ class Model(object):
     def _set_priors(self, priors=None, fixed=None, random=None,
                     match_derived_names=True):
         '''
-        Internal version of set_priors(). Runs during Model.build().
+        Internal version of set_priors(), with same arguments.
+        Runs during Model.build().
         '''
 
         targets = {}
