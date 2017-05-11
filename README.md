@@ -358,7 +358,6 @@ If no `link` argument is explicitly set (see below), the canonical link function
 | gaussian    | Normal                | identity     |
 | bernoulli   | Bernoulli             | logit        |
 | poisson     | Poisson               | log          |
-| t           | StudentT              | identity     |
 
 #### Families
 Following the convention used in many R packages, the response distribution to use for a GLMM is specified in a `Family` class that indicates how the response variable is distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility (note, again, that custom specifications are only guaranteed to work with the PyMC3 back-end; results may be unpredictable [when using Stan](#a-note-on-priors-in-stan)). In the following example, we show how the built-in 'bernoulli' family could be constructed on-the-fly:
