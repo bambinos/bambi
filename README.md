@@ -284,7 +284,7 @@ my_favorite_prior = Prior('Laplace', mu=0., b=10)
 
 # Set the prior when adding a term to the model;
 # more details on this below.
-priors = {'subject': my_favorite_prior}
+priors = {'1|subject': my_favorite_prior}
 results = model.fit('y ~ condition', random='1|subject', priors=priors)
 ```
 
@@ -293,7 +293,7 @@ Priors specified using the `Prior` class can be nested to arbitrary depths--mean
 ```python
 subject_sd = Prior('HalfCauchy', beta=5)
 subject_prior = Prior('Normal', mu=0, sd=subject_sd)
-priors = {'subject': my_favorite_prior}
+priors = {'1|subject': my_favorite_prior}
 results = model.fit('y ~ condition', random='1|subject', priors=priors)
 ```
 
