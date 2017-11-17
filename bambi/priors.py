@@ -61,9 +61,8 @@ class Prior(object):
         '''
         # Backends expect numpy arrays, so make sure all numeric values are
         # represented as such.
-        for k, v in kwargs.items():
-            kwargs = {k: (np.array(v) if isinstance(v, (int, float)) else v)
-                      for k, v in kwargs.items()}
+        kwargs = {k: (np.array(v) if isinstance(v, (int, float)) else v)
+                  for k, v in kwargs.items()}
         self.args.update(kwargs)
 
 
