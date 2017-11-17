@@ -74,7 +74,7 @@ class Model(object):
 
         # build() will loop over these, calling _add() and _set_priors()
         self.added_terms = []
-        self.added_priors = []
+        self._added_priors = {}
 
         # if dropna=True, completes gets updated by add() to track complete cases
         self.completes = []
@@ -88,7 +88,7 @@ class Model(object):
         self.y = None
         self.backend = None
         self.added_terms = []
-        self.added_priors = []
+        self._added_priors = {}
         self.completes = []
         self.clean_data = None
 
@@ -138,9 +138,14 @@ class Model(object):
         for term_args in self.added_terms:
             self._add(**term_args)
 
-        # loop over the added priors, now that the terms are added
-        for prior_args in self.added_priors:
-            self._set_priors(**prior_args)
+        # set custom priors
+        self._set_priors(**self._added_priors)
+
+        # prepare all priors
+        for name, term in self.terms.items():
+            type_ = 'intercept' if name == 'Intercept' else \
+                'random' if self.terms[name].random else 'fixed'
+            term.prior = self._prepare_prior(term.prior, type_)
 
         # check for backend
         if backend is None:
@@ -407,8 +412,6 @@ class Model(object):
                 cols = X.design_info.column_names[_slice]
                 term_data = pd.DataFrame(X[:, _slice], columns=cols)
                 prior = priors.pop(_name, priors.get('fixed', None))
-                _type = 'intercept' if _name == 'Intercept' else 'fixed'
-                prior = self._prepare_prior(prior, _type)
                 self.terms[_name] = Term(_name, term_data, prior=prior)
 
         # Random effects
@@ -426,7 +429,6 @@ class Model(object):
                 intcpt, pred, grpr = re.search(patt, f).groups()
                 label = '{}|{}'.format(pred, grpr) if pred else grpr
                 prior = priors.pop(label, priors.get('random', None))
-                prior = self._prepare_prior(prior, 'random')
 
                 # Treat all grouping variables as categoricals, regardless of
                 # their dtype and what the user may have specified in the
@@ -472,7 +474,6 @@ class Model(object):
                             label = col + '|' + grpr
 
                         prior = priors.pop(label, priors.get('random', None))
-                        prior = self._prepare_prior(prior, 'random')
 
                         # Categorical or continuous is determined from data
                         ld = lev_data.values
@@ -589,10 +590,10 @@ class Model(object):
                 prior to be applied.
         '''
         # save arguments to pass to _set_priors() at build time
-        args = dict(zip(
+        kwargs = dict(zip(
             ['priors', 'fixed', 'random', 'match_derived_names'],
             [priors, fixed, random, match_derived_names]))
-        self.added_priors.append(args)
+        self._added_priors.update(kwargs)
 
         self.built = False
 
@@ -626,12 +627,7 @@ class Model(object):
                         targets[name] = prior
 
         for name, prior in targets.items():
-            _type = 'intercept' if name == 'Intercept' else \
-                'random' if self.terms[name].random else 'fixed'
-            self.terms[name].prior = self._prepare_prior(prior, _type)
-
-        if fixed is not None or random is not None or priors is not None:
-            self.built = False
+            self.terms[name].prior = prior
 
     # helper function to correctly set default priors, auto_scaling, etc.
     def _prepare_prior(self, prior, _type):
@@ -648,8 +644,8 @@ class Model(object):
             _scale = prior
             prior = self.default_priors.get(term=_type)
             prior.scale = _scale
-            if prior.scale is not None: prior._auto_scale = False
-
+            if prior.scale is not None:
+                prior._auto_scale = False
         return prior
 
     def plot(self, varnames=None):
@@ -678,22 +674,23 @@ class Model(object):
                     continue
                 prior = t.prior.args['sd'].name
                 params = t.prior.args['sd'].args
-                dists += [getattr(pm, prior)(t.name+'_sd', **params)]
+                dists += [getattr(pm, prior)(t.name + '_sd', **params)]
 
             # add priors on Y params if applicable
             y_prior = [(k, v) for k, v in self.y.prior.args.items()
                        if isinstance(v, Prior)]
             if len(y_prior):
                 for p in y_prior:
-                    dists += [getattr(pm, p[1].name)('_'.join([self.y.name,
-                                                               p[0]]), **p[1].args)]
+                    pm_attr = getattr(pm, p[1].name)
+                    p = pm_attr('_'.join([self.y.name, p[0]]), **p[1].args)
+                    dists.extend([p])
 
             # make the plot!
             p = float(len(dists))
-            fig, axes = plt.subplots(int(np.ceil(p/2)), 2,
-                                     figsize=(12, np.ceil(p/2)*2))
+            fig, axes = plt.subplots(int(np.ceil(p / 2)), 2,
+                                     figsize=(12, np.ceil(p / 2) * 2))
             # in case there is only 1 row
-            if int(np.ceil(p/2)) < 2:
+            if int(np.ceil(p / 2)) < 2:
                 axes = axes[None, :]
             for i, d in enumerate(dists):
                 dist = d.distribution if isinstance(d, pm.model.FreeRV) else d
