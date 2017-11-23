@@ -22,7 +22,8 @@ class PyMC3BackEnd(BackEnd):
         'identity': lambda x: x,
         'logit': theano.tensor.nnet.sigmoid,
         'inverse': theano.tensor.inv,
-        'log': theano.tensor.log
+        'log': theano.tensor.log,
+        'exp': theano.tensor.exp
     }
 
     dists = {
