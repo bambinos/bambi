@@ -50,7 +50,8 @@ class StanBackEnd(BackEnd):
     links = {
         'identity': '',
         'logit': 'inv_logit',
-        'log': 'exp'
+        'log': 'exp',
+        'inverse_squared': 'inv_sqrt'
     }
 
     def __init__(self):
@@ -193,8 +194,6 @@ class StanBackEnd(BackEnd):
 
             var_name = _sanitize_name(name)
 
-            # self.parameters.append('%s%s %s;' % (stan_par, _bounds, var_name))
-
             # non-centered parameterization
             if spec.noncentered and 'sd' in kwargs and \
                     isinstance(kwargs['sd'], string_types):
@@ -306,7 +305,7 @@ class StanBackEnd(BackEnd):
     def _convert_to_results(self):
         # grab samples as big, unlabelled array
         # dimensions 0, 1, 2 = samples, chains, variables
-        data = self.fit.extract(permuted=False, inc_warmup=True)     
+        data = self.fit.extract(permuted=False, inc_warmup=True)
 
         # grab info necessary for making samplearray pretty
         names = [self._original_names[x] \
