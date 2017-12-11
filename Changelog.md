@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.1 (December 11, 2017)
+Minor release for bugfixes and minor improvements. Changes include:
+* Bug that was causing an incorrect link function to be used in the PyMC3 backend when fitting logistic models.
+* Fixed handling of missing values in categorical variables.
+* Fixed bug in set_priors() when passing numerical values for scale.
+* Improved internal handling of custom priors.
+* Preliminary Sphinx docs (WIP; thanks to @ejolly).
+
 ## 0.1.0 (March 31, 2017)
 This is a major release that introduces several new features, significant API changes, and a large number of bug fixes and minor improvements. Notable changes include:
 * Support for Stan as the sampling back-end (in addition to PyMC3), via the PyStan package.
