@@ -22,7 +22,8 @@ class PyMC3BackEnd(BackEnd):
         'identity': lambda x: x,
         'logit': theano.tensor.nnet.sigmoid,
         'inverse': theano.tensor.inv,
-        'log': theano.tensor.log
+        'inverse_squared': lambda x: theano.tensor.inv(theano.tensor.sqrt(x)),
+        'log': theano.tensor.exp
     }
 
     dists = {
@@ -107,8 +108,7 @@ class PyMC3BackEnd(BackEnd):
             y = spec.y.data
             y_prior = spec.family.prior
             link_f = spec.family.link
-            if not callable(link_f):
-                link_f = self.links[link_f]
+            link_f = self.links[link_f]
             y_prior.args[spec.family.parent] = link_f(self.mu)
             y_prior.args['observed'] = y
             y_like = self._build_dist(spec, spec.y.name, y_prior.name,
@@ -125,7 +125,8 @@ class PyMC3BackEnd(BackEnd):
             - set(trans)
         # add any "centered" random effects to the list
         for varname in [var.name for var in rvs]:
-            if re.search(r'_offset$', varname) is not None: trans.add(varname)
+            if re.search(r'_offset$', varname) is not None:
+                trans.add(varname)
 
         return trans
 
