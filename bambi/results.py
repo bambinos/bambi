@@ -196,7 +196,7 @@ class MCMCResults(ModelResults):
             axes[row, 0].set_title(title)
             if pma is not None:
                 arr = np.atleast_2d(data.values.T).T
-                pma.kdeplot_op(axes[row, 0], arr)
+                pma.kdeplot_op(axes[row, 0], arr, bw = 4.5)
             else:
                 data.plot(kind='kde', ax=axes[row, 0], legend=False)
 
