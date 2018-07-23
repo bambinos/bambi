@@ -164,6 +164,13 @@ class MCMCResults(ModelResults):
         if not ranefs:
             names = [x for x in names if re.sub(r'_offset$', '', x)
                      not in self.model.random_terms]
+        Intercept = [n for n in names if "Intercept" in n]
+        std = [n for n in names if "_" in n]
+        rand_eff = [n for n in names if "|" in n and n not in std]
+        interac = [n for n in names if ":" in n and n not in rand_eff + std]
+        main_eff = [n for n in names if n not in interac + std + rand_eff + Intercept]
+        names = Intercept + sorted(main_eff, key=len) + sorted(interac, key=len) \
+            + sorted(rand_eff, key=len) + sorted(std, key=len)
         return names
 
     def plot(self, varnames=None, ranefs=True, transformed=False,
