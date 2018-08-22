@@ -5,6 +5,8 @@ BAyesian Model-Building Interface in Python
 ## Status
 * [![Build Status](https://travis-ci.org/bambinos/bambi.svg?branch=master)](https://travis-ci.org/bambinos/bambi)
 * [![Coverage Status](https://coveralls.io/repos/github/bambinos/bambi/badge.svg?branch=master)](https://coveralls.io/github/bambinos/bambi?branch=master)
+[![Code Quality: Python](https://img.shields.io/lgtm/grade/python/g/bambinos/bambi.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/bambinos/bambi/context:python)
+[![Total Alerts](https://img.shields.io/lgtm/alerts/g/bambinos/bambi.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/bambinos/bambi/alerts)
 
 ## Overview
 
