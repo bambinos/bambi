@@ -18,7 +18,7 @@ services:
   - xvfb
 
 script:
-  - travis_wait 30 pytest --pyargs bambi --cov-report term-missing --cov=bambi -vx
+  - pytest -vx
 
 after_success:
   - coveralls
