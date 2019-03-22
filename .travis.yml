@@ -1,55 +1,33 @@
-sudo: false
+dist: xenial
 
-env:
-  global:
-    - CONDA_DEPS="pip pytest numpy matplotlib pandas patsy statsmodels"
+language: python
 
-matrix:
-  include:
-    - os: linux
-      env:
-         - PYTHON_VERSION=2.7
-         - MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh"
-    - os: linux
-      env:
-         - PYTHON_VERSION=3.5
-         - MINICONDA_URL="https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh"
-
-
-before_install:
-- export MINICONDA=$HOME/miniconda
-- export PATH="$MINICONDA/bin:$PATH"
-- hash -r
-- echo $MINICONDA_URL
-- wget $MINICONDA_URL -O miniconda.sh;
-- bash miniconda.sh -b -f -p $MINICONDA;
-- conda config --set always_yes yes
-- conda update conda
-- conda info -a
-- conda config --add channels conda-forge
-- conda install python=$PYTHON_VERSION $CONDA_DEPS
+python:
+  - "2.7"
+  - "3.5"
+  - "3.6"
 
 install:
-- pip install -r requirements.txt
-- pip install coveralls pytest-cov
-- pip install -e .
+  - sudo apt-get update
+  - . ./scripts/install_miniconda.sh
+  - conda info -a
+  - . ./scripts/create_testenv.sh
+  - pip install coveralls pytest-cov
 
-before_script:
-- "export DISPLAY=:99.0"
-- "sh -e /etc/init.d/xvfb start"
-- sleep 3 # give xvfb some time to start
+services:
+  - xvfb
 
 script:
-- travis_wait 30 py.test --pyargs bambi --cov-report term-missing --cov=bambi
+  - pytest -vx
 
 after_success:
-- coveralls
+  - coveralls
 
 before_cache:
 # clean unused packages & installed files from conda cache
 # this makes the cache rebuilt less frequently
-- conda clean --tarballs --packages --index-cache
-- rm -rf $HOME/miniconda/pkgs/cache
+  - conda clean --yes --tarballs --packages --index-cache
+  - rm -rf $HOME/miniconda/pkgs/cache
 
 cache:
   directories:
