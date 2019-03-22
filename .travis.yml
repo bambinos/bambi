@@ -1,4 +1,6 @@
 language: python
+dist: xenial
+sudo: required
 
 python:
   - "2.7"
@@ -18,7 +20,7 @@ before_script:
   - sleep 3 # give xvfb some time to start
 
 script:
-  - travis_wait 30 py.test --pyargs bambi --cov-report term-missing --cov=bambi
+  - travis_wait 30 py.test --pyargs bambi --cov-report term-missing --cov=bambi -v
 
 after_success:
   - coveralls

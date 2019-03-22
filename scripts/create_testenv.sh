@@ -28,3 +28,7 @@ pip install --upgrade pip
 #  Install editable using the setup.py
 pip install -e .
 pip install -r requirements.txt
+
+python --version
+conda list
+pip freeze
