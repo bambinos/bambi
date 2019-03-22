@@ -26,7 +26,7 @@ after_success:
 before_cache:
 # clean unused packages & installed files from conda cache
 # this makes the cache rebuilt less frequently
-  - conda clean --tarballs --packages --index-cache
+  - conda clean --yes --tarballs --packages --index-cache
   - rm -rf $HOME/miniconda/pkgs/cache
 
 cache:
