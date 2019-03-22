@@ -1,3 +1,5 @@
+dist: xenial
+
 language: python
 
 python:
@@ -12,10 +14,8 @@ install:
   - . ./scripts/create_testenv.sh
   - pip install coveralls pytest-cov
 
-before_script:
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # give xvfb some time to start
+services:
+  - xvfb
 
 script:
   - travis_wait 30 py.test --pyargs bambi --cov-report term-missing --cov=bambi -v
