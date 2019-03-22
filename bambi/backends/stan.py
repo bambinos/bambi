@@ -323,7 +323,8 @@ class StanBackEnd(BackEnd):
                     rgx = re.search(r'_offset$', tname)
                     if rgx is not None:
                         tname = tname[:rgx.start()]
-                    lev = self.spec.terms[tname].levels[int(lev.group(1))]
+                    # Note that PyStan uses 1-based indexing
+                    lev = self.spec.terms[tname].levels[int(lev.group(1)) - 1]
                     split = tname.split('|')
                     # random effects
                     if len(split) == 2:

@@ -374,7 +374,7 @@ def test_many_fixed_many_random(crossed_data):
     test_set2 = fitted2.summary(ranefs=True, transformed=False)
     test_set2 = set(test_set2.index)
     answer = set(['lp__'] \
-        + ['yhat[{}]'.format(i) for i in range(len(crossed_data.index)-3)] \
+        + ['yhat[{}]'.format(i) for i in range(1, len(crossed_data.index)-2)] \
         + ['1|item_offset[0]','1|item_offset[10]','1|item_offset[11]',
         '1|item_offset[1]','1|item_offset[2]','1|item_offset[3]',
         '1|item_offset[4]','1|item_offset[5]','1|item_offset[6]',
@@ -417,7 +417,8 @@ def test_many_fixed_many_random(crossed_data):
         'threecats[c]|subj_offset[9]'])
     assert full2.difference(test_set2) == answer
 
-    # check for consistency in parameter names between pymc3 and stan
+    # check for consistency in parameter names between pymc3 and stan,
+    # minus the end diffs due to Stan's 1-based indexing
     assert test_set == test_set2
 
     # check exclude_ranefs for pymc3
