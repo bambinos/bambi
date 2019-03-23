@@ -130,8 +130,7 @@ class PyMC3BackEnd(BackEnd):
 
         return trans
 
-    def run(self, start=None, method='mcmc', init='advi', n_init=50000,
-            find_map=False, **kwargs):
+    def run(self, start=None, method='mcmc', init='auto', n_init=50000, **kwargs):
         '''
         Run the PyMC3 MCMC sampler.
         Args:
@@ -142,25 +141,21 @@ class PyMC3BackEnd(BackEnd):
                 Alternatively, 'advi', in which case the model will be fitted
                 using  automatic differentiation variational inference as
                 implemented in PyMC3.
-            init: Initialization method (see PyMC3 sampler documentation).
-                In PyMC3, this defaults to 'advi', but we set it to None.
+            init: Initialization method (see PyMC3 sampler documentation). Currently, this is
+                 `'jitter+adapt_diag'`, but this can change in the future.
             n_init: Number of initialization iterations if init = 'advi' or
                 'nuts'. Default is kind of in PyMC3 for the kinds of models
                 we expect to see run with bambi, so we lower it considerably.
-            find_map (bool): whether or not to use the maximum a posteriori
-                estimate as a starting point; passed directly to PyMC3.
             kwargs (dict): Optional keyword arguments passed onto the sampler.
         Returns: A PyMC3ModelResults instance.
         '''
 
         if method == 'mcmc':
             samples = kwargs.pop('samples', 1000)
-            njobs = kwargs.pop('chains', 1)
+            cores = kwargs.pop('chains', 1)
             with self.model:
-                if start is None and find_map:
-                    start = pm.find_MAP()
                 self.trace = pm.sample(samples, start=start, init=init,
-                                       n_init=n_init, njobs=njobs, **kwargs)
+                                       n_init=n_init, cores=cores, **kwargs)
             return self._convert_to_results()
 
         elif method == 'advi':
