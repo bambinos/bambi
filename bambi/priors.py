@@ -5,10 +5,11 @@ from os.path import dirname, join
 
 import numpy as np
 import pandas as pd
-from bambi.external.six import string_types
 from scipy.special import hyp2f1
 from statsmodels.genmod import families
 from statsmodels.genmod.generalized_linear_model import GLM
+
+from bambi.external.six import string_types
 
 
 class Family(object):
