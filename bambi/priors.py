@@ -241,9 +241,17 @@ class PriorScaler(object):
         # c: intercept, d: shift parameter
         # a: quartic coefficient, b: quadratic coefficient
         c, d = ll[-1], -np.asscalar(full_mod.params[i])
-        X = np.matrix([(values+d)**4,
+        X = np.array([(values+d)**4,
                        (values+d)**2]).T
-        a, b = np.squeeze((np.linalg.inv(X.T * X) * X.T * (ll[:, None] - c)).A)
+        a, b = np.squeeze(
+            np.dot(
+                np.dot(
+                    np.linalg.inv(np.dot(X.T, X)),
+                    X.T
+                ), 
+                (ll[:, None] - c)
+            )
+        )
 
         # m, v: mean and variance of beta distribution of correlations
         # p, q: corresponding shape parameters of beta distribution
