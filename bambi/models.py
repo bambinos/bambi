@@ -376,7 +376,7 @@ class Model(object):
         # use cleaned data with NAs removed (if user requested)
         data = self.clean_data
         # alter this pandas flag to avoid false positive SettingWithCopyWarnings
-        data.is_copy = False
+        data._is_copy = False
 
         # Explicitly convert columns to category if desired--though this
         # can also be done within the formula using C().
@@ -696,7 +696,7 @@ class Model(object):
                 dist = d.distribution if isinstance(d, pm.model.FreeRV) else d
                 samp = pd.Series(dist.random(size=1000).flatten())
                 samp.plot(kind='hist', ax=axes[divmod(i, 2)[0], divmod(i, 2)[1]],
-                          normed=True)
+                          density=True)
                 samp.plot(kind='kde', ax=axes[divmod(i, 2)[0], divmod(i, 2)[1]],
                           color='b')
                 axes[divmod(i, 2)[0], divmod(i, 2)[1]].set_title(d.name)
