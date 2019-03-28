@@ -3,9 +3,7 @@ from bambi.models import Term, Model
 from bambi.priors import Prior
 import pandas as pd
 import numpy as np
-import matplotlib
 import re
-matplotlib.use('Agg')
 
 
 @pytest.fixture(scope="module")
@@ -199,7 +197,7 @@ def test_many_fixed_many_random(crossed_data):
     # build model using fit
     model0 = Model(crossed_data_missing, dropna=True)
     fitted = model0.fit('Y ~ continuous + dummy + threecats',
-        random=['0+threecats|subj', '1|item', '0+continuous|item', 
+        random=['0+threecats|subj', '1|item', '0+continuous|item',
             'dummy|item', 'threecats|site'],
         backend='pymc3', init=None, tune=10, samples=10, chains=2)
     # model0.build(backend='pymc3')

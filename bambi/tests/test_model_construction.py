@@ -2,8 +2,6 @@ import pytest
 from os.path import dirname, join
 import pandas as pd
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')
 from bambi.models import Term, Model
 
 
