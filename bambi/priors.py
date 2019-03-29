@@ -1,16 +1,18 @@
+import json
+import re
+from copy import deepcopy
+from os.path import dirname, join
+
 import numpy as np
 import pandas as pd
 from scipy.special import hyp2f1
-from os.path import dirname, join
-from copy import deepcopy
-import json
-import re
-import statsmodels.api as sm
+from statsmodels.genmod import families
+from statsmodels.genmod.generalized_linear_model import GLM
+
 from bambi.external.six import string_types
 
 
 class Family(object):
-
     '''
     A specification of model family.
     Args:
@@ -28,9 +30,9 @@ class Family(object):
         self.link = link
         self.parent = parent
         fams = {
-            'gaussian': sm.families.Gaussian,
-            'bernoulli': sm.families.Binomial,
-            'poisson': sm.families.Poisson,
+            'gaussian': families.Gaussian,
+            'bernoulli': families.Binomial,
+            'poisson': families.Poisson,
             't': None  # not implemented in statsmodels
         }
         self.smfamily = fams[name] if name in fams.keys() else None
@@ -196,7 +198,7 @@ class PriorScaler(object):
                                 for i, lev in enumerate(t.levels)})
         self.priors = {}
         missing = 'drop' if self.model.dropna else 'none'
-        self.mle = sm.GLM(endog=self.model.y.data, exog=self.dm,
+        self.mle = GLM(endog=self.model.y.data, exog=self.dm,
                           family=self.model.family.smfamily(),
                           missing=missing).fit()
         self.taylor = taylor
@@ -223,7 +225,7 @@ class PriorScaler(object):
         values = np.linspace(0., full_mod.params[i], points)
         # if there are multiple predictors, use statsmodels to optimize the LL
         if keeps:
-            null = [sm.GLM(endog=self.model.y.data, exog=exog,
+            null = [GLM(endog=self.model.y.data, exog=exog,
                            family=self.model.family.smfamily()).fit_constrained(
                                 str(exog.columns[i])+'='+str(val),
                                 start_params=full_mod.params.values)
@@ -276,7 +278,7 @@ class PriorScaler(object):
 
     def _get_intercept_stats(self, add_slopes=True):
         # start with mean and variance of Y on the link scale
-        mod = sm.GLM(endog=self.model.y.data,
+        mod = GLM(endog=self.model.y.data,
                      exog=np.repeat(1, len(self.model.y.data)),
                      family=self.model.family.smfamily(),
                      missing='drop' if self.model.dropna else 'none').fit()
@@ -373,7 +375,7 @@ class PriorScaler(object):
                     exog = pd.DataFrame(exog, index=index).T
                 # this will replace self.mle (which is missing predictors)
                 missing = 'drop' if self.model.dropna else 'none'
-                full_mod = sm.GLM(endog=self.model.y.data, exog=exog,
+                full_mod = GLM(endog=self.model.y.data, exog=exog,
                                   family=self.model.family.smfamily(),
                                   missing=missing).fit()
                 sd = self._get_slope_stats(exog=exog, predictor=fix_data,
