@@ -131,12 +131,12 @@ class PriorFactory(object):
     def _get_prior(self, spec, **kwargs):
 
         if isinstance(spec, string_types):
-            spec = re.sub('^\#', '', spec)
+            spec = re.sub(r'^\#', '', spec)
             return self._get_prior(self.dists[spec])
         elif isinstance(spec, (list, tuple)):
             name, args = spec
             if name.startswith('#'):
-                name = re.sub('^\#', '', name)
+                name = re.sub(r'^\#', '', name)
                 prior = self._get_prior(self.dists[name])
             else:
                 prior = Prior(name, **kwargs)
