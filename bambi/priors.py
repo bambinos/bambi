@@ -133,12 +133,12 @@ class PriorFactory(object):
     def _get_prior(self, spec, **kwargs):
 
         if isinstance(spec, string_types):
-            spec = re.sub('^\#', '', spec)
+            spec = re.sub(r'^\#', '', spec)
             return self._get_prior(self.dists[spec])
         elif isinstance(spec, (list, tuple)):
             name, args = spec
             if name.startswith('#'):
-                name = re.sub('^\#', '', name)
+                name = re.sub(r'^\#', '', name)
                 prior = self._get_prior(self.dists[name])
             else:
                 prior = Prior(name, **kwargs)
@@ -242,10 +242,16 @@ class PriorScaler(object):
         # compute params of quartic approximatino to log-likelihood
         # c: intercept, d: shift parameter
         # a: quartic coefficient, b: quadratic coefficient
-        c, d = ll[-1], -np.asscalar(full_mod.params[i])
-        X = np.matrix([(values+d)**4,
+        c, d = ll[-1], -(full_mod.params[i].item())
+        X = np.array([(values+d)**4,
                        (values+d)**2]).T
-        a, b = np.squeeze((np.linalg.inv(X.T * X) * X.T * (ll[:, None] - c)).A)
+        a, b = np.squeeze(
+            np.linalg.multi_dot([
+                np.linalg.inv(np.dot(X.T, X)),
+                X.T,
+                (ll[:, None] - c)
+            ])
+        )
 
         # m, v: mean and variance of beta distribution of correlations
         # p, q: corresponding shape parameters of beta distribution

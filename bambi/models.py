@@ -20,7 +20,7 @@ class Model(object):
     Args:
         data (DataFrame, str): the dataset to use. Either a pandas
             DataFrame, or the name of the file containing the data, which
-            will be passed to pd.read_table().
+            will be passed to pd.read_csv().
         default_priors (dict, str): An optional specification of the
             default priors to use for all model terms. Either a dict
             containing named distributions, families, and terms (see the
@@ -49,7 +49,7 @@ class Model(object):
                  dropna=False, taylor=None, noncentered=True):
 
         if isinstance(data, string_types):
-            data = pd.read_table(data, sep=None)
+            data = pd.read_csv(data, sep=None, engine="python")
 
         self.default_priors = PriorFactory(default_priors)
 

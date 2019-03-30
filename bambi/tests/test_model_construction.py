@@ -2,8 +2,6 @@ import pytest
 from os.path import dirname, join
 import pandas as pd
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')
 from bambi.models import Term, Model
 
 
@@ -12,8 +10,8 @@ def diabetes_data():
     data_dir = join(dirname(__file__), 'data')
     data = pd.read_csv(join(data_dir, 'diabetes.txt'), sep='\t')
     data['age_grp'] = 0
-    data['age_grp'][data['AGE'] > 40] = 1
-    data['age_grp'][data['AGE'] > 60] = 2
+    data.loc[data['AGE'] > 40, 'age_grp'] = 1
+    data.loc[data['AGE'] > 60, 'age_grp'] = 2
     return data
 
 
