@@ -1,8 +1,6 @@
 Getting Started
 ***************
 
-.. document file here
-
 Bambi requires a working Python interpreter (either 2.7+ or 3+). We recommend installing Python and key numerical libraries using the `Anaconda Distribution <https://www.continuum.io/downloads>`_, which has one-click installers available on all major platforms.
 
 Assuming a standard Python environment is installed on your machine (including pip), Bambi itself can be installed in one line using pip:

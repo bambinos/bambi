@@ -1,8 +1,6 @@
 Examples
 ********
 
-.. document file here
-
 .. toctree::
   :maxdepth: 4
 
