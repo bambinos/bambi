@@ -69,7 +69,7 @@ For a more in-depth introduction to Bambi see our `Quickstart <https://github.co
 
 Contributing
 ============
-We welcome contributions from interested individuals or groups! For information about contributing to Bambi, check out our instructions, policies, and guidelines `here <https://github.com/bambinos/bambi#quickstart>`_.
+We welcome contributions from interested individuals or groups! For information about contributing to Bambi, check out our instructions, policies, and guidelines `here <https://github.com/bambinos/bambi/blob/master/CONTRIBUTING.md>`_.
 
 Contributors
 ============
