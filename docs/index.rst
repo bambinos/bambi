@@ -19,7 +19,7 @@ Bambi is a high-level Bayesian model-building interface written in Python. It wo
 New Features
 ============
 
-Bambi version ``0.1`` will be the final version supporting Python 2, but look forward to the forthcoming Bambi version ``0.2``!
+Bambi version ``0.1.1`` will be the final version supporting Python 2, but look forward to the forthcoming Bambi version ``0.1.2``!
 
 Dependencies
 ============
