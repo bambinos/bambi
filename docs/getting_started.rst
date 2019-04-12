@@ -22,7 +22,11 @@ Suppose we have data for a typical within-subjects psychology experiment with 2 
 
     # Assume we already have our data loaded
     model = Model(data)
-    results = model.fit('rt ~ condition', random=['condition|subject', '1|stimulus'], samples=5000, chains=2)
+    results = model.fit(
+        'rt ~ condition',
+        random=['condition|subject', '1|stimulus'],
+        samples=5000, chains=2
+    )
     results[1000:].plot()
     results[1000:].summary()
 
@@ -85,10 +89,17 @@ Models are specified in Bambi using a formula-based syntax similar to what one m
     results = model.fit('rt ~ attention + color')
 
     # Fixed effects and random intercepts for subject
-    results = model.fit('y ~ 0 + gender + condition*age', random=['1|subject'])
+    results = model.fit(
+        'y ~ 0 + gender + condition*age',
+        random=['1|subject']
+    )
 
-    # Multiple, complex random effects with both random slopes and random intercepts
-    results = model.fit('y ~ 0 + gender', random=['condition|subject', 'condition|site'])
+    # Multiple, complex random effects with both
+    # random slopes and random intercepts
+    results = model.fit(
+        'y ~ 0 + gender',
+        random=['condition|subject', 'condition|site']
+    )
 
 
 Each of the above examples specifies a full model that will immediately be fitted using either PyMC3 or Stan (more on that below).
@@ -108,18 +119,23 @@ Although models can be fit in one line, as above, an alternative approach that i
     model = Model(data)
 
     # Continuous fixed effect (in this case, a binary indicator);
-    # will also add intercept automatically unless it is explicitly supppressed.
+    # will also add intercept automatically unless it is explicitly
+    # supppressed.
     model.add('condition')
 
     # Categorical fixed effect, setting a narrow prior. We explicitly
-    # name the columns that should be interpreted as categoricals. Note that
-    # if age_group is already represented as a categorical variable in the
-    # DataFrame, the categorical argument is unnecessary. But it's good
-    # practice to be explicit about what the categorical variables are,
-    # as users sometimes inadvertently pass numeric columns that are
-    # intended to be treated as categorical variables, and Bambi has
-    # no way of knowing this.
-    model.add('age_group', categorical=['age_group'], priors={'age_group': 'narrow'})
+    # name the columns that should be interpreted as categoricals.
+    # Note that if age_group is already represented as a categorical
+    # variable in the DataFrame, the categorical argument is
+    # unnecessary. But it's good practice to be explicit about what
+    # the categorical variables are, as users sometimes inadvertently
+    # pass numeric columns that are intended to be treated as
+    # categorical variables, and Bambi has no way of knowing this.
+    model.add(
+        'age_group',
+        categorical=['age_group'],
+        priors={'age_group': 'narrow'}
+    )
 
     # Random subject intercepts
     model.add(random=['subj'], categorical=['subj'])
@@ -150,9 +166,12 @@ As noted above, Bambi handles fixed and random effects separately. The fixed eff
         '1|student',
         # Random classroom intercepts
         '1|classroom',
-        # Random treatment slopes distributed over schools;school intercepts will also be automtically added
+        # Random treatment slopes distributed over schools;
+        # school intercepts will also be automtically added
         'treatment|school',
-        # A random set of subject slopes for each level of the combination of factors a and b, with subject intercepts excluded
+        # A random set of subject slopes for each level of
+        # the combination of factors a and b, with subject
+        # intercepts excluded
         '0+a*b|subject'
     ]
     model.add(random=random_terms)
@@ -172,7 +191,10 @@ Once a model is fully specified, we need to run the PyMC3 or Stan sampler to gen
 .. code-block:: python
 
     model = Model(data)
-    results = model.fit('rt ~ condition + gender + age', random='condition|subject')
+    results = model.fit(
+        'rt ~ condition + gender + age',
+        random='condition|subject'
+    )
 
 
 The above code will obtain 1,000 samples (the default value) and return them as a ``ModelResults`` instance (for more details, see the `Results`_ section). In this case, the `fit()` method accepts optional keyword arguments to pass onto PyMC3's ``sample()`` method, so any methods accepted by ``sample()`` can be specified here. We can also explicitly set the number of samples via the ``samples`` argument. For example, if we call ``fit('y ~ X1', samples=2000, chains=2)``, the PyMC3 sampler will sample two chains in parallel, drawing 2,000 samples for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see the `PyMC3 documentation <https://pymc-devs.github.io/pymc3/api.html#pymc3.sampling.sample>`_).
@@ -196,7 +218,10 @@ When ``fit()`` is called, Bambi internally performs two separate steps. First, t
 .. code-block:: python
 
     model = Model(data)
-    model.add('rt ~ condition + gender + age', random='condition|subject')
+    model.add(
+        'rt ~ condition + gender + age',
+        random='condition|subject'
+    )
     model.build()
 
 
@@ -205,7 +230,11 @@ Alternatively, the same result can be achieved using the ``run`` argument to ``f
 .. code-block:: python
 
     model = Model(data)
-    model.fit('rt ~ condition + gender + age', random='condition|subject', run=False)
+    model.fit(
+        'rt ~ condition + gender + age',
+        random='condition|subject',
+        run=False
+    )
 
 
 In both of the above cases, sampling won't actually start until ``fit()`` is called (in the latter case, a second time). The only difference between the two above snippets is that the former will compile the model (note the explicit ``build()`` call) whereas the latter will not.
@@ -220,7 +249,11 @@ Bambi defaults to using the NUTS MCMC sampler implemented in the PyMC3 package f
 .. code-block:: python
 
     model = Model(data)
-    results = model.fit('rt ~ condition + gender + age', random='condition|subject', backend='stan')
+    results = model.fit(
+        'rt ~ condition + gender + age',
+        random='condition|subject',
+        backend='stan'
+    )
 
 From the user's standpoint, the change from PyMC3 to Stan (or vice versa) will usually be completely invisible. Unless we want to muck around in the internals of the backends, the API is identical no matter which back-end we're using. This frees us up to easily compare different back-ends in terms of speed and/or estimates (assuming the sampler has converged, the two back-ends shoul produce virtually identical estimates for all models, but performance could theoretically differ).
 
@@ -266,10 +299,12 @@ In cases where we want to keep the default prior distributions, but alter their 
 .. code-block:: python
 
     model = Model(data)
-    # Add condition to the model as a fixed effect with a very wide prior
+    # Add condition to the model as a fixed effect with a very
+    # wide prior
     model.add('condition', prior='superwide')
 
-    # Add random subject intercepts to the model, with a narrow prior on their standard deviation
+    # Add random subject intercepts to the model, with a narrow
+    # prior on their standard deviation
     model.add(random='1|subject', prior=0.1)
 
 Predefined named scales include "superwide" (scale = 0.8), "wide" (0.577; the default), "medium" (0.4), and "narrow" (0.2). The theoretical maximum scale value is 1.0, which specifies a distribution of partial correlations with half of the values at -1 and the other half at +1. Scale values closer to 0 are considered more "informative" and tend to induce more shrinkage in the parameter estimates.
@@ -286,7 +321,11 @@ The ability to specify prior scales this way is helpful, but also limited: we wi
     # Set the prior when adding a term to the model;
     # more details on this below.
     priors = {'1|subject': my_favorite_prior}
-    results = model.fit('y ~ condition', random='1|subject', priors=priors)
+    results = model.fit(
+        'y ~ condition',
+        random='1|subject',
+        priors=priors
+    )
 
 Priors specified using the ``Prior`` class can be nested to arbitrary depths--meaning, we can set any of a given prior's argument to point to another ``Prior`` instance. This is particularly useful when specifying hierarchical priors on random effects, where the individual random slopes or intercepts are constrained to share a common source distribution:
 
@@ -295,7 +334,11 @@ Priors specified using the ``Prior`` class can be nested to arbitrary depths--me
     subject_sd = Prior('HalfCauchy', beta=5)
     subject_prior = Prior('Normal', mu=0, sd=subject_sd)
     priors = {'1|subject': my_favorite_prior}
-    results = model.fit('y ~ condition', random='1|subject', priors=priors)
+    results = model.fit(
+        'y ~ condition',
+        random='1|subject',
+        priors=priors
+    )
 
 The above prior specification indicates that the individual subject intercepts are to be treated as if they are randomly sampled from the same underlying normal distribution, where the variance of that normal distribution is parameterized by a separate hyperprior (a half-cauchy with beta = 5).
 
@@ -320,12 +363,24 @@ Once we've defined custom priors for one or more term, we need to map them onto 
         'X2': 'normal',
         ('X3', 'X4'): Prior('ZeroInflatedPoisson', theta=10, psi=0.5)
     }
-    results = model.fit('y ~ X1 + X2', random=['1|X3', '1|X4'], priors=priors)
+    results = model.fit(
+        'y ~ X1 + X2',
+        random=['1|X3', '1|X4'],
+        priors=priors
+    )
 
-    # Example 2: specify priors for all fixed effects and all random effects,
-    # except for X1, which still gets its own custom prior.
-    priors = {'X1': 0.3, 'fixed': Prior('Normal', sd=100), 'random': 'wide'}
-    results = model.fit('y ~ X1 + X2', random=['1|X3', '1|X4'], priors=priors)
+    # Example 2: specify priors for all fixed effects and all random
+    # effects, except for X1, which still gets its own custom prior.
+    priors = {
+        'X1': 0.3,
+        'fixed': Prior('Normal', sd=100),
+        'random': 'wide'
+    }
+    results = model.fit(
+        'y ~ X1 + X2',
+        random=['1|X3', '1|X4'],
+        priors=priors
+    )
 
 
 Notice how this interface allows us to specify terms either by name (including passing tuples as keys in cases where we want multiple terms to share the same prior), or by term type (i.e., to set the same prior on all fixed or random effects). If we pass both named priors and fixed or random effects defaults, the former will take precedence over the latter (in the above example, the prior for ``'X1'`` will be ``0.3``).
@@ -338,7 +393,11 @@ If we prefer, we can also set priors outside of the ``fit()`` (or ``add()``) cal
     model.fit('y ~ X1 + X3 + X4', random='1|X2', run=False)
 
     # Specify priors—produces same result as in Example 2 above
-    model.set_priors({'X1': 0.3}, fixed=Prior('Normal', sd=100), random='wide')
+    model.set_priors(
+        {'X1': 0.3},
+        fixed=Prior('Normal', sd=100),
+        random='wide'
+    )
 
     # Now sample
     results = model.fit(samples=5000)
@@ -355,7 +414,11 @@ Bambi supports the construction of mixed models with non-normal response distrib
 .. code-block:: python
 
     model = Model(data)
-    results = model.fit('graduate ~ attendance_record + GPA', random='1|school', family='bernoulli')
+    results = model.fit(
+        'graduate ~ attendance_record + GPA',
+        random='1|school',
+        family='bernoulli'
+    )
 
 If no ``link`` argument is explicitly set (see below), the canonical link function (or an otherwise sensible default) will be used. The following table summarizes the currently available families and their associated links (the default is ``gaussian``):
 
@@ -394,7 +457,11 @@ Following the convention used in many R packages, the response distribution to u
 
     # Now it's business as usual
     model = Model(data)
-    results = model.fit('graduate ~ attendance_record + GPA', random='1|school', family=new_fam)
+    results = model.fit(
+        'graduate ~ attendance_record + GPA',
+        random='1|school',
+        family=new_fam
+    )
 
 The above example produces results identical to simply setting ``family='bernoulli'``.
 
@@ -413,7 +480,12 @@ To visualize a PyMC3-generated plot of the posterior estimates and sample traces
 .. code-block:: python
 
     model = Model(data)
-    results = model.fit('value ~ condition', random='1|uid', samples=1250, chains=4)
+    results = model.fit(
+        'value ~ condition',
+        random='1|uid',
+        samples=1250,
+        chains=4
+    )
     # Drop the first 100 burn-in samples from each chain and plot
     results[100:].plot()
 
