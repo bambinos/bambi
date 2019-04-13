@@ -9,17 +9,15 @@ from scipy.signal import fftconvolve
 def autocorr(x):
     """
     Compute autocorrelation using FFT for every lag for the input array
-    https://en.wikipedia.org/wiki/Autocorrelation#Efficient_computation
+    https://en.wikipedia.org/wiki/Autocorrelation#Efficient_computation.
 
-    Parameters
-    ----------
-    x : Numpy array
-        An array containing MCMC samples
+    Args:
+        x (array-like): An array containing MCMC samples.
 
-    Returns
-    -------
-    acorr: Numpy array same size as the input array
+    Returns:
+        np.ndarray: An array of the same size as the input array.
     """
+
     y = x - x.mean()
     n = len(y)
     result = fftconvolve(y, y[::-1])
@@ -30,17 +28,15 @@ def autocorr(x):
 
 
 def autocov(x):
-    """Compute autocovariance estimates for every lag for the input array
+    """Compute autocovariance estimates for every lag for the input array.
 
-    Parameters
-    ----------
-    x : Numpy array
-        An array containing MCMC samples
+    Args:
+        x (array-like): An array containing MCMC samples.
 
-    Returns
-    -------
-    acov: Numpy array same size as the input array
+    Returns:
+        np.ndarray: An array of the same size as the input array.
     """
+
     acorr = autocorr(x)
     varx = np.var(x, ddof=1) * (len(x) - 1) / len(x)
     acov = acorr * varx
@@ -62,7 +58,8 @@ def _vhat_w(mcmc):
 
 def gelman_rubin(mcmc):
     """
-    mcmc (MCMCResults): Pre-sliced MCMC samples to compute diagnostics for.
+    Args:
+        mcmc (MCMCResults): Pre-sliced MCMC samples to compute diagnostics for.
     """
 
     if mcmc.n_chains < 2:
@@ -80,7 +77,8 @@ def gelman_rubin(mcmc):
 
 def effective_n(mcmc):
     """
-    mcmc (MCMCResults): Pre-sliced MCMC samples to compute diagnostics for.
+    Args:
+        mcmc (MCMCResults): Pre-sliced MCMC samples to compute diagnostics for.
     """
 
     if mcmc.n_chains < 2:
@@ -89,8 +87,7 @@ def effective_n(mcmc):
             'of the same length.')
 
     def get_neff(x):
-        """Compute the effective sample size for a 2D array
-        """
+        """Compute the effective sample size for a 2D array."""
         trace_value = x.T
         nchain, n_samples = trace_value.shape
 

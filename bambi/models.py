@@ -17,7 +17,7 @@ import pymc3 as pm
 class Model(object):
 
     '''
-    Args:
+    Attributes:
         data (DataFrame, str): the dataset to use. Either a pandas
             DataFrame, or the name of the file containing the data, which
             will be passed to pd.read_csv().
@@ -40,7 +40,7 @@ class Model(object):
             numbered values tend to work better. Defaults to 5 for Normal
             models and 1 for non-Normal models. Values higher than the defaults
             are generally not recommended as they can be unstable.
-        noncentered (True): If True (default), uses a non-centered
+        noncentered (bool): If True (default), uses a non-centered
             parameterization for normal hyperpriors on grouped parameters.
             If False, naive (centered) parameterization is used.
     '''
@@ -110,9 +110,11 @@ class Model(object):
         self._backend_name = backend
 
     def build(self, backend=None):
-        ''' Set up the model for sampling/fitting. Performs any steps that
-        require access to all model terms (e.g., scaling priors on each term),
-        then calls the BackEnd's build() method.
+        '''Set up the model for sampling/fitting.
+
+        Performs any steps that require access to all model terms (e.g., scaling priors
+        on each term), then calls the BackEnd's build() method.
+
         Args:
             backend (str): The name of the backend to use for model fitting.
                 Currently, 'pymc' and 'stan' are supported. If None, assume
@@ -233,8 +235,8 @@ class Model(object):
 
     def fit(self, fixed=None, random=None, priors=None, family='gaussian',
             link=None, run=True, categorical=None, backend=None, **kwargs):
-        '''
-        Fit the model using the specified BackEnd.
+        '''Fit the model using the specified BackEnd.
+
         Args:
             fixed (str): Optional formula specification of fixed effects.
             random (list): Optional list-based specification of random effects.
@@ -267,6 +269,7 @@ class Model(object):
             backend (str): The name of the BackEnd to use. Currently only
                 'pymc' and 'stan' backends are supported. Defaults to PyMC3.
         '''
+
         if fixed is not None or random is not None:
             self.add(fixed=fixed, random=random, priors=priors, family=family,
                      link=link, categorical=categorical, append=False)
@@ -284,8 +287,8 @@ class Model(object):
 
     def add(self, fixed=None, random=None, priors=None, family='gaussian',
             link=None, categorical=None, append=True):
-        '''
-        Adds one or more terms to the model via an R-like formula syntax.
+        '''Adds one or more terms to the model via an R-like formula syntax.
+
         Args:
             fixed (str): Optional formula specification of fixed effects.
             random (list): Optional list-based specification of random effects.
@@ -313,10 +316,11 @@ class Model(object):
                 numeric columns are to be treated as categoricals (e.g., random
                 factors coded as numerical IDs), explicitly passing variable
                 names via this argument is recommended.
-            append (bool): if True, terms are appended to the existing model
+            append (bool): If True, terms are appended to the existing model
                 rather than replacing any existing terms. This allows
                 formula-based specification of the model in stages.
         '''
+
         data = self.data
 
         # Primitive values (floats, strs) can be overwritten with Prior objects
@@ -369,10 +373,11 @@ class Model(object):
 
     def _add(self, fixed=None, random=None, priors=None, family='gaussian',
              link=None, categorical=None, append=True):
-        '''
-        Internal version of add(), with the same arguments.
+        '''Internal version of add(), with the same arguments.
+
         Runs during Model.build()
         '''
+
         # use cleaned data with NAs removed (if user requested)
         data = self.clean_data
         # alter this pandas flag to avoid false positive SettingWithCopyWarnings
@@ -492,8 +497,8 @@ class Model(object):
 
     def _add_y(self, variable, prior=None, family='gaussian', link=None, *args,
                **kwargs):
-        '''
-        Add a dependent (or outcome) variable to the model.
+        '''Add a dependent (or outcome) variable to the model.
+
         Args:
             variable (str): the name of the dataset column containing the
                 y values.
@@ -541,11 +546,13 @@ class Model(object):
         self.built = False
 
     def _match_derived_terms(self, name):
-        ''' Returns all (random) terms whose named are derived from the
+        '''
+        Returns all (random) terms whose named are derived from the
         specified string. For example, 'condition|subject' should match the
         terms with names '1|subject', 'condition[T.1]|subject', and so on.
         Only works for strings with grouping operator ('|').
         '''
+
         if '|' not in name:
             return None
 
@@ -568,8 +575,8 @@ class Model(object):
 
     def set_priors(self, priors=None, fixed=None, random=None,
                    match_derived_names=True):
-        '''
-        Set priors for one or more existing terms.
+        '''Set priors for one or more existing terms.
+
         Args:
             priors (dict): Dict of priors to update. Keys are names of terms
                 to update; values are the new priors (either a Prior instance,
@@ -599,8 +606,8 @@ class Model(object):
 
     def _set_priors(self, priors=None, fixed=None, random=None,
                     match_derived_names=True):
-        '''
-        Internal version of set_priors(), with same arguments.
+        '''Internal version of set_priors(), with same arguments.
+
         Runs during Model.build().
         '''
 
@@ -632,9 +639,11 @@ class Model(object):
     # helper function to correctly set default priors, auto_scaling, etc.
     def _prepare_prior(self, prior, _type):
         '''
-        prior: Prior object, or float, or None
-        type (string): 'intercept, 'fixed', or 'random'
+        Args:
+            prior: Prior object, or float, or None.
+            type (string): 'intercept, 'fixed', or 'random'.
         '''
+
         if prior is None and not self.auto_scale:
             prior = self.default_priors.get(term=_type + '_flat')
 
@@ -706,25 +715,25 @@ class Model(object):
 
     @property
     def term_names(self):
-        ''' Return names of all terms in order of addition to model. '''
+        '''Return names of all terms in order of addition to model.'''
         return list(self.terms.keys())
 
     @property
     def fixed_terms(self):
-        ''' Return dict of all and only fixed effects in model. '''
+        '''Return dict of all and only fixed effects in model.'''
         return {k: v for (k, v) in self.terms.items() if not v.random}
 
     @property
     def random_terms(self):
-        ''' Return dict of all and only random effects in model. '''
+        '''Return dict of all and only random effects in model.'''
         return {k: v for (k, v) in self.terms.items() if v.random}
 
 
 class Term(object):
 
-    '''
-    Representation of a single (fixed) model term.
-    Args:
+    '''Representation of a single (fixed) model term.
+
+    Attributes:
         name (str): Name of the term.
         data (DataFrame, Series, ndarray): The term values.
         categorical (bool): If True, the source variable is interpreted as
@@ -736,6 +745,7 @@ class Term(object):
             act as a constant, in which case the term is treated as an
             intercept for prior distribution purposes.
     '''
+
     random = False
 
     def __init__(self, name, data, categorical=False, prior=None, constant=None):
@@ -781,10 +791,12 @@ class RandomTerm(Term):
         self.group_index = self._invert_dummies(grouper)
 
     def _invert_dummies(self, dummies):
-        ''' For the sake of computational efficiency (i.e., to avoid lots of
+        '''
+        For the sake of computational efficiency (i.e., to avoid lots of
         large matrix multiplications in the backends), invert the dummy-coding
         process and represent full-rank dummies as a vector of indices into the
-        coefficients. '''
+        coefficients.
+        '''
         vec = np.zeros(len(dummies), dtype=int)
         for i in range(1, dummies.shape[1]):
             vec[dummies[:, i] == 1] = i

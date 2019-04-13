@@ -108,7 +108,10 @@ class PyMC3BackEnd(BackEnd):
             y = spec.y.data
             y_prior = spec.family.prior
             link_f = spec.family.link
-            link_f = self.links[link_f]
+            if isinstance(link_f, string_types):
+                link_f = self.links[link_f]
+            else:
+                link_f = link_f
             y_prior.args[spec.family.parent] = link_f(self.mu)
             y_prior.args['observed'] = y
             y_like = self._build_dist(spec, spec.y.name, y_prior.name,

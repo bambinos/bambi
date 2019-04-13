@@ -13,13 +13,14 @@ from bambi.external.six import string_types
 
 
 class Family(object):
-    '''
-    A specification of model family.
-    Args:
-        name (str): Family name
-        prior (Prior): A Prior instance specifying the model likelihood prior
+
+    '''A specification of model family.
+
+    Attributes:
+        name (str): Family name.
+        prior (Prior): A Prior instance specifying the model likelihood prior.
         link (str): The name of the link function transforming the linear
-            model prediction to a parameter of the likelihood
+            model prediction to a parameter of the likelihood.
         parent (str): The name of the prior parameter to set to the link-
             transformed predicted outcome (e.g., mu, p, etc.).
     '''
@@ -40,9 +41,9 @@ class Family(object):
 
 class Prior(object):
 
-    '''
-    Abstract specification of a term prior.
-    Args:
+    '''Abstract specification of a term prior.
+
+    Attributes:
         name (str): Name of prior distribution (e.g., Normal, Bernoulli, etc.)
         kwargs (dict): Optional keywords specifying the parameters of the
             named distribution.
@@ -56,11 +57,12 @@ class Prior(object):
         self.update(**kwargs)
 
     def update(self, **kwargs):
-        '''
-        Update the model arguments with additional arguments.
+        '''Update the model arguments with additional arguments.
+
         Args:
             kwargs (dict): Optional keyword arguments to add to prior args.
         '''
+
         # Backends expect numpy arrays, so make sure all numeric values are
         # represented as such.
         kwargs = {k: (np.array(v) if isinstance(v, (int, float)) else v)
@@ -70,9 +72,9 @@ class Prior(object):
 
 class PriorFactory(object):
 
-    '''
-    An object that supports specification and easy retrieval of default priors.
-    Args:
+    '''An object that supports specification and easy retrieval of default priors.
+
+    Attributes:
         defaults (str, dict): Optional base configuration containing default
             priors for distribution, families, and term types. If a string,
             the name of a JSON file containing the config. If a dict, must
@@ -149,8 +151,8 @@ class PriorFactory(object):
             return spec
 
     def get(self, dist=None, term=None, family=None):
-        '''
-        Retrieve default prior for a named distribution, term type, or family.
+        '''Retrieve default prior for a named distribution, term type, or family.
+
         Args:
             dist (str): Name of desired distribution. Note that the name is
                 the key in the defaults dictionary, not the name of the
@@ -161,6 +163,7 @@ class PriorFactory(object):
                 defined internally. In the default config, this is one of
                 'gaussian', 'bernoulli', 'poisson', or 't'.
         '''
+
         if dist is not None:
             if dist not in self.dists:
                 raise ValueError(
@@ -208,9 +211,10 @@ class PriorScaler(object):
     def _get_slope_stats(self, exog, predictor, sd_corr, full_mod=None,
                          points=4):
         '''
-        full_mod: statsmodels GLM to replace MLE model. For when 'predictor'
-            is not in the fixed part of the model.
-        points: number of points to use for LL approximation
+        Args:
+            full_mod: statsmodels GLM to replace MLE model. For when 'predictor'
+                is not in the fixed part of the model.
+            points: number of points to use for LL approximation.
         '''
 
         if full_mod is None:

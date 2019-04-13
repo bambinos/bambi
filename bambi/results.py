@@ -22,9 +22,9 @@ __all__ = ['MCMCResults', 'PyMC3ADVIResults']
 
 class ModelResults(object):
 
-    '''
-    Base class for ModelResults hierarchy.
-    Args:
+    '''Base class for ModelResults hierarchy.
+
+    Attributes:
         model (Model): a bambi Model instance specifying the model.
     '''
 
@@ -48,11 +48,11 @@ class ModelResults(object):
 
 class MCMCResults(ModelResults):
 
-    '''
-    Holds sampler results; provides slicing, plotting, and summarization tools.
-    Args:
+    '''Holds sampler results; provides slicing, plotting, and summarization tools.
+
+    Attributes:
         model (Model): a bambi Model instance specifying the model.
-        data (numpy array): Raw storage of MCMC samples in array with
+        data (array-like): Raw storage of MCMC samples in array with
             dimensions 0, 1, 2 = samples, chains, variables
         names (list): Names of all Terms.
         dims (list): Numbers of levels for all Terms.
@@ -175,10 +175,11 @@ class MCMCResults(ModelResults):
 
     def plot(self, varnames=None, ranefs=True, transformed=False,
              combined=False, hist=False, bins=20, kind='trace'):
-        '''
-        Plots posterior distributions and sample traces. Basically a wrapper
-        for pm.traceplot() plus some niceties, based partly on code from:
-        https://pymc-devs.github.io/pymc3/notebooks/GLM-model-selection.html
+        '''Plots posterior distributions and sample traces.
+
+        Basically a wrapperfor pm.traceplot() plus some niceties, based partly on code
+        from: https://pymc-devs.github.io/pymc3/notebooks/GLM-model-selection.html.
+
         Args:
             varnames (list): List of variable names to plot. If None, all
                 eligible variables are plotted.
@@ -278,6 +279,7 @@ class MCMCResults(ModelResults):
         Code adapted from pymc3.stats.calc_min_interval:
         https://github.com/pymc-devs/pymc3/blob/master/pymc3/stats.py
         """
+
         x = np.sort(x)
         n = len(x)
 
@@ -297,9 +299,8 @@ class MCMCResults(ModelResults):
 
     def summary(self, varnames=None, ranefs=False, transformed=False, hpd=.95,
                 quantiles=None, diagnostics=['effective_n', 'gelman_rubin']):
-        '''
-        Returns a DataFrame of summary/diagnostic statistics for the
-        parameters.
+        '''Returns a DataFrame of summary/diagnostic statistics for the parameters.
+
         Args:
             varnames (list): List of variable names to include; if None
                 (default), all eligible variables are included.
@@ -310,9 +311,10 @@ class MCMCResults(ModelResults):
             hpd (float, between 0 and 1): Show Highest Posterior Density (HPD)
                 intervals with specified width/proportion for all parameters.
                 If None, HPD intervals are suppressed.
-            quantiles (float [or list of floats] between 0 and 1): Show
+            quantiles (float, list): Show
                 specified quantiles of the marginal posterior distributions for
-                all parameters. If None (default), no quantiles are shown.
+                all parameters. If list, must be a list of floats between 0 and 1. If
+                None (default), no quantiles are shown.
             diagnostics (list): List of functions to use to compute convergence
                 diagnostics for all parameters. Each element can be either a
                 callable or a string giving the name of a function in the
@@ -321,6 +323,7 @@ class MCMCResults(ModelResults):
                 the sole input, and return a DataFrame with one labeled row per
                 parameter. If None, no convergence diagnostics are computed.
         '''
+
         samples = self.to_df(varnames, ranefs, transformed)
 
         # build the basic DataFrame
@@ -366,8 +369,9 @@ class MCMCResults(ModelResults):
     def to_df(self, varnames=None, ranefs=False, transformed=False,
               chains=None):
         '''
-        Returns the MCMC samples in a nice, neat pandas DataFrame with all
-        MCMC chains concatenated.
+        Returns the MCMC samples in a nice, neat pandas DataFrame with all MCMC chains
+        concatenated.
+
         Args:
             varnames (list): List of variable names to include; if None
                 (default), all eligible variables are included.
@@ -380,6 +384,7 @@ class MCMCResults(ModelResults):
                 third chains, and ignore any others. If None (default),
                 concatenates all available chains.
         '''
+
         # filter out unwanted variables
         names = self._filter_names(varnames, ranefs, transformed)
 
@@ -399,10 +404,10 @@ class MCMCResults(ModelResults):
 
 class PyMC3ADVIResults(ModelResults):
 
-    '''
-    Holds PyMC3 ADVI results and provides plotting and summarization tools.
-    Args:
-        model (Model): a bambi Model instance specifying the model.
+    '''Holds PyMC3 ADVI results and provides plotting and summarization tools.
+
+    Attributes:
+        model (Model): A bambi Model instance specifying the model.
         params (MultiTrace): ADVI parameters returned by PyMC3.
     '''
 

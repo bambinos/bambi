@@ -1,6 +1,7 @@
 import pytest
 from bambi.models import Term, Model
 from bambi.priors import Prior
+import theano.tensor as tt
 import pandas as pd
 import numpy as np
 import re
@@ -629,11 +630,11 @@ def test_cell_means_with_many_random_effects(crossed_data):
 def test_logistic_regression(crossed_data):
     # build model using fit and pymc3
     model0 = Model(crossed_data)
-    fitted = model0.fit('threecats[b] ~ continuous + dummy',
+    fitted0 = model0.fit('threecats[b] ~ continuous + dummy',
                family='bernoulli', link='logit',
-               backend='pymc3', tune=0, samples=100)
+               backend='pymc3', tune=0, samples=1000)
     # model0.build()
-    # fitted = model0.fit()
+    # fitted0 = model0.fit()
 
     # build model using add
     model1 = Model(crossed_data)
@@ -648,6 +649,15 @@ def test_logistic_regression(crossed_data):
     fitted2 = model2.fit('threecats[b] ~ continuous + dummy',
                family='bernoulli', link='logit',
                backend='stan', samples=100)
+
+    # build model using fit, pymc3 and theano link function
+    model3 = Model(crossed_data)
+    fitted3 = model3.fit('threecats[b] ~ continuous + dummy',
+               family='bernoulli', link=tt.nnet.sigmoid,
+               backend='pymc3', tune=0, samples=1000)
+
+    # check that using a theano link function works
+    assert np.allclose(fitted0.summary()['mean'], fitted3.summary()['mean'], atol=0.2)
 
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)
@@ -688,10 +698,10 @@ def test_logistic_regression(crossed_data):
     assert all([dicts_close(priors1[x], priors2[x]) for x in priors0.keys()])
 
     # test that summary reminds user which event is being modeled
-    fitted.summary(quantiles=.5)
+    fitted0.summary(quantiles=.5)
 
     # test that traceplot reminds user which event is being modeled
-    fitted.plot()
+    fitted0.plot()
 
 def test_poisson_regression(crossed_data):
     # build model using fit and pymc3
