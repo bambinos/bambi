@@ -763,3 +763,9 @@ def test_poisson_regression(crossed_data):
     assert all([dicts_close(priors0[x], priors1[x]) for x in priors0.keys()])
     assert all([dicts_close(priors0[x], priors2[x]) for x in priors0.keys()])
     assert all([dicts_close(priors1[x], priors2[x]) for x in priors0.keys()])
+
+
+def test_advi_pymc3_model(crossed_data):
+    model = Model(crossed_data)
+    model.add('Y ~ 0 + threecats + continuous')
+    model.fit(backend="pymc3", tune=0, samples=1, method="advi")

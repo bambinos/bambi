@@ -411,9 +411,43 @@ class PyMC3ADVIResults(ModelResults):
         params (MultiTrace): ADVI parameters returned by PyMC3.
     '''
 
-    def __init__(self, model, params):
-
-        self.means = params['means']
-        self.sds = params['stds']
-        self.elbo_vals = params['elbo_vals']
+    def __init__(self, model, tracker, elbo, trace):
+        self.tracker = tracker
+        self.elbo = elbo
+        self.trace = trace
         super(PyMC3ADVIResults, self).__init__(model)
+
+    def __getitem__(self, idx):
+        """TODO"""
+        return self
+
+    def plot(self):
+        """
+        Things we want to plot:
+            * ADVI params
+            * ELBO
+            * trace plot
+        """
+        fig = plt.figure(figsize=(16, 9))
+
+        mu_ax = fig.add_subplot(221)
+        mu_ax.plot(self.tracker['mean'])
+        mu_ax.set_title('Mean track')
+
+        std_ax = fig.add_subplot(222)
+        std_ax.plot(self.tracker['std'])
+        std_ax.set_title('Std track')
+
+        hist_ax = fig.add_subplot(212)
+        hist_ax.plot(self.elbo)
+        hist_ax.set_title('Negative ELBO track');
+
+        plt.show();
+
+        pm.traceplot(self.trace);
+
+    def summary(self):
+        print("will do")
+
+    def to_df(self):
+        print("will do")

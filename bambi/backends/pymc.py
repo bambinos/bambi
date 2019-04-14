@@ -153,8 +153,9 @@ class PyMC3BackEnd(BackEnd):
         Returns: A PyMC3ModelResults instance.
         '''
 
+        samples = kwargs.pop('samples', 1000)
+
         if method == 'mcmc':
-            samples = kwargs.pop('samples', 1000)
             cores = kwargs.pop('chains', 1)
             with self.model:
                 self.trace = pm.sample(samples, start=start, init=init,
@@ -163,9 +164,20 @@ class PyMC3BackEnd(BackEnd):
 
         elif method == 'advi':
             with self.model:
-                self.advi_params = pm.variational.advi(start, **kwargs)
-            return PyMC3ADVIResults(self.spec, self.advi_params,
-                                    transformed_vars=self._get_transformed_vars())
+                advi = pm.ADVI(start)
+                tracker = pm.callbacks.Tracker(
+                    mean=advi.approx.mean.eval,
+                    std=advi.approx.std.eval
+                )
+                approx = advi.fit(n=n_init, callbacks=[tracker])
+                trace = approx.sample(samples)
+
+            return PyMC3ADVIResults(
+                model=self.spec,
+                tracker=tracker,
+                elbo=advi.hist,
+                trace=trace
+            )
 
     def _convert_to_results(self):
         # grab samples as big, unlabelled array
