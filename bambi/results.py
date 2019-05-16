@@ -7,9 +7,11 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from .utils import listify
+
 try:
     import pymc3 as pm
-    if hasattr(pm.plots, 'kdeplot_op'):
+
+    if hasattr(pm.plots, "kdeplot_op"):
         pma = pm.plots
     else:
         pma = pm.plots.artists
@@ -17,25 +19,21 @@ except:
     pma = None
 
 
-__all__ = ['MCMCResults', 'PyMC3ADVIResults']
+__all__ = ["MCMCResults", "PyMC3ADVIResults"]
 
 
-class ModelResults(object):
-
-    '''Base class for ModelResults hierarchy.
+class ModelResults(metaclass=ABCMeta):
+    """Base class for ModelResults hierarchy.
 
     Attributes:
         model (Model): a bambi Model instance specifying the model.
-    '''
-
-    __metaclass__ = ABCMeta
+    """
 
     def __init__(self, model):
 
         self.model = model
         self.terms = list(model.terms.values())
-        self.diagnostics = model._diagnostics \
-            if hasattr(model, '_diagnostics') else None
+        self.diagnostics = model._diagnostics if hasattr(model, "_diagnostics") else None
 
     @abstractmethod
     def plot(self):
@@ -47,8 +45,7 @@ class ModelResults(object):
 
 
 class MCMCResults(ModelResults):
-
-    '''Holds sampler results; provides slicing, plotting, and summarization tools.
+    """Holds sampler results; provides slicing, plotting, and summarization tools.
 
     Attributes:
         model (Model): a bambi Model instance specifying the model.
@@ -59,10 +56,9 @@ class MCMCResults(ModelResults):
         levels (list): Names of all levels for all Terms.
         transformed (list): Optional list of variable names to treat as
             transformed--and hence, to exclude from the output by default.
-    '''
+    """
 
-    def __init__(self, model, data, names, dims, levels,
-                 transformed_vars=None):
+    def __init__(self, model, data, names, dims, levels, transformed_vars=None):
         # store the arguments
         self.data = data
         self.names = names
@@ -81,20 +77,19 @@ class MCMCResults(ModelResults):
             utv = names
         self.untransformed_vars = utv
         # this keeps track of which columns in 'data' go with which terms
-        self.index = np.cumsum(
-            [0] + [x[0] if len(x) else 1 for x in dims][:-1])
+        self.index = np.cumsum([0] + [x[0] if len(x) else 1 for x in dims][:-1])
 
         # build level_dict: dictionary of lists containing levels of each Term
         level_dict = {}
         for i, name, dim in zip(self.index, names, dims):
             dim = dim[0] if len(dim) else 1
-            level_dict[name] = levels[i:(i+dim)]
+            level_dict[name] = levels[i : (i + dim)]
         self.level_dict = level_dict
 
         super(MCMCResults, self).__init__(model)
 
     def __getitem__(self, idx):
-        '''
+        """
         If a variable name, return MCMCResults with only that variable
             e.g., fit['subject']
         If a list of variable names, return MCMCResults with those variables
@@ -103,7 +98,7 @@ class MCMCResults(ModelResults):
             e.g., fit[500:]
         If a tuple, return MCMCResults with those variables sliced
             e.g., fit[['subject','item'], 500:] OR fit[500:, ['subject','item']]
-        '''
+        """
 
         if isinstance(idx, slice):
             var = self.names
@@ -113,24 +108,26 @@ class MCMCResults(ModelResults):
             vslice = slice(0, self.n_samples)
         elif isinstance(idx, list):
             if not all([isinstance(x, string_types) for x in idx]):
-                raise ValueError("If passing a list, all elements must be "
-                                 "parameter names.")
+                raise ValueError("If passing a list, all elements must be " "parameter names.")
             var = idx
             vslice = slice(0, self.n_samples)
         elif isinstance(idx, tuple):
             if len(idx) > 2:
-                raise ValueError("Only two arguments can be passed. If you "
-                                 "want to select multiple parameters and a "
-                                 "subset of samples, pass a slice and a list "
-                                 "of parameter names.")
+                raise ValueError(
+                    "Only two arguments can be passed. If you "
+                    "want to select multiple parameters and a "
+                    "subset of samples, pass a slice and a list "
+                    "of parameter names."
+                )
             vslice = [i for i, x in enumerate(idx) if isinstance(x, slice)]
             if not len(vslice):
-                raise ValueError("At least one argument must be a slice. If "
-                                 "you want to select multiple parameters by "
-                                 "name, pass a list (not a tuple) of names.")
+                raise ValueError(
+                    "At least one argument must be a slice. If "
+                    "you want to select multiple parameters by "
+                    "name, pass a list (not a tuple) of names."
+                )
             if len(vslice) > 1:
-                raise ValueError("Slices can only be applied "
-                                 "over the samples dimension.")
+                raise ValueError("Slices can only be applied " "over the samples dimension.")
             var = idx[1 - vslice[0]]
             vslice = idx[vslice[0]]
             if not isinstance(var, (list, tuple)):
@@ -142,40 +139,59 @@ class MCMCResults(ModelResults):
         levels = sum([self.level_dict[v] for v in var], [])
         level_iloc = [self.levels.index(x) for x in levels]
         var_iloc = [self.names.index(v) for v in var]
-        return MCMCResults(model=self.model,
-                           data=self.data[vslice, :, level_iloc], names=var,
-                           dims=[self.dims[x] for x in var_iloc],
-                           levels=levels,
-                           transformed_vars=self.transformed_vars)
+        return MCMCResults(
+            model=self.model,
+            data=self.data[vslice, :, level_iloc],
+            names=var,
+            dims=[self.dims[x] for x in var_iloc],
+            levels=levels,
+            transformed_vars=self.transformed_vars,
+        )
 
     def get_chains(self, indices):
         # Return copy of self but only for chains with the passed indices
         if not isinstance(indices, (list, tuple)):
             indices = [indices]
-        return MCMCResults(model=self.model, data=self.data[:, indices, :],
-                           names=self.names, dims=self.dims,
-                           levels=self.levels,
-                           transformed_vars=self.transformed_vars)
+        return MCMCResults(
+            model=self.model,
+            data=self.data[:, indices, :],
+            names=self.names,
+            dims=self.dims,
+            levels=self.levels,
+            transformed_vars=self.transformed_vars,
+        )
 
     def _filter_names(self, varnames=None, ranefs=False, transformed=False):
         names = self.untransformed_vars if not transformed else self.names
         if varnames is not None:
             names = [n for n in listify(varnames) if n in names]
         if not ranefs:
-            names = [x for x in names if re.sub(r'_offset$', '', x)
-                     not in self.model.random_terms]
+            names = [x for x in names if re.sub(r"_offset$", "", x) not in self.model.random_terms]
         Intercept = [n for n in names if "Intercept" in n]
         std = [n for n in names if "_" in n]
         rand_eff = [n for n in names if "|" in n and n not in std]
         interac = [n for n in names if ":" in n and n not in rand_eff + std]
         main_eff = [n for n in names if n not in interac + std + rand_eff + Intercept]
-        names = Intercept + sorted(main_eff, key=len) + sorted(interac, key=len) \
-            + sorted(rand_eff, key=len) + sorted(std, key=len)
+        names = (
+            Intercept
+            + sorted(main_eff, key=len)
+            + sorted(interac, key=len)
+            + sorted(rand_eff, key=len)
+            + sorted(std, key=len)
+        )
         return names
 
-    def plot(self, varnames=None, ranefs=True, transformed=False,
-             combined=False, hist=False, bins=20, kind='trace'):
-        '''Plots posterior distributions and sample traces.
+    def plot(
+        self,
+        varnames=None,
+        ranefs=True,
+        transformed=False,
+        combined=False,
+        hist=False,
+        bins=20,
+        kind="trace",
+    ):
+        """Plots posterior distributions and sample traces.
 
         Basically a wrapperfor pm.traceplot() plus some niceties, based partly on code
         from: https://pymc-devs.github.io/pymc3/notebooks/GLM-model-selection.html.
@@ -197,44 +213,41 @@ class MCMCResults(ModelResults):
                 Ignored if hist is False.
             kind (str): Either 'trace' (default) or 'priors'. If 'priors',
                 this just internally calls Model.plot()
-        '''
+        """
 
         def _plot_row(data, row, title, hist=True):
             # density plot
             axes[row, 0].set_title(title)
             if pma is not None:
                 arr = np.atleast_2d(data.values.T).T
-                pma.kdeplot_op(axes[row, 0], arr, bw = 4.5)
+                pma.kdeplot_op(axes[row, 0], arr, bw=4.5)
             else:
-                data.plot(kind='kde', ax=axes[row, 0], legend=False)
+                data.plot(kind="kde", ax=axes[row, 0], legend=False)
 
             # trace plot
             axes[row, 1].set_title(title)
-            data.plot(kind='line', ax=axes[row, 1], legend=False)
+            data.plot(kind="line", ax=axes[row, 1], legend=False)
             # histogram
             if hist:
                 if pma is not None:
                     pma.histplot_op(axes[row, 0], arr)
                 else:
-                    data.plot(kind='hist', ax=axes[row, 0], legend=False,
-                              normed=True, bins=bins)
+                    data.plot(kind="hist", ax=axes[row, 0], legend=False, normed=True, bins=bins)
 
-        if kind == 'priors':
+        if kind == "priors":
             return self.model.plot(varnames)
 
         # count the total number of rows in the plot
         names = self._filter_names(varnames, ranefs, transformed)
-        random = [re.sub(r'_offset$', '', x) in self.model.random_terms
-                  for x in names]
-        rows = sum([len(self.level_dict[p]) if not r else 1
-                    for p, r in zip(names, random)])
+        random = [re.sub(r"_offset$", "", x) in self.model.random_terms for x in names]
+        rows = sum([len(self.level_dict[p]) if not r else 1 for p, r in zip(names, random)])
 
         # make the plot!
-        fig, axes = plt.subplots(rows, 2, figsize=(12, 2*rows))
+        fig, axes = plt.subplots(rows, 2, figsize=(12, 2 * rows))
         if rows == 1:
             axes = np.array([axes])  # For consistent 2D indexing
 
-        _select_args = {'ranefs': ranefs, 'transformed': transformed}
+        _select_args = {"ranefs": ranefs, "transformed": transformed}
 
         # Create list of chains (for combined, just one list w/ all chains)
         chains = list(range(self.n_chains))
@@ -251,7 +264,7 @@ class MCMCResults(ModelResults):
                 # if p == 'floor|county_sd':
 
                 # fixed effects
-                if re.sub(r'_offset$', '', p) not in self.model.random_terms:
+                if re.sub(r"_offset$", "", p) not in self.model.random_terms:
                     for lev in self.level_dict[p]:
                         lev_df = df[lev]
                         _plot_row(lev_df, row, lev, hist)
@@ -265,12 +278,13 @@ class MCMCResults(ModelResults):
         fig.tight_layout()
 
         # For bernoulli models, tell user which event is being modeled
-        if self.model.family.name == 'bernoulli':
-            event = next(i for i, x in enumerate(self.model.y.data.flatten())
-                         if x > .99)
-            warnings.warn('Modeling the probability that {}==\'{}\''.format(
-                self.model.y.name,
-                str(self.model.clean_data[self.model.y.name][event])))
+        if self.model.family.name == "bernoulli":
+            event = next(i for i, x in enumerate(self.model.y.data.flatten()) if x > 0.99)
+            warnings.warn(
+                "Modeling the probability that {}=='{}'".format(
+                    self.model.y.name, str(self.model.clean_data[self.model.y.name][event])
+                )
+            )
 
         return axes
 
@@ -288,18 +302,25 @@ class MCMCResults(ModelResults):
         interval_width = x[interval_idx_inc:] - x[:n_intervals]
 
         if len(interval_width) == 0:
-            raise ValueError('Too few elements for interval calculation')
+            raise ValueError("Too few elements for interval calculation")
 
         min_idx = np.argmin(interval_width)
         hdi_min = x[min_idx]
         hdi_max = x[min_idx + interval_idx_inc]
 
-        index = ['hpd{}_{}'.format(width, x) for x in ['lower', 'upper']]
+        index = ["hpd{}_{}".format(width, x) for x in ["lower", "upper"]]
         return pd.Series([hdi_min, hdi_max], index=index)
 
-    def summary(self, varnames=None, ranefs=False, transformed=False, hpd=.95,
-                quantiles=None, diagnostics=['effective_n', 'gelman_rubin']):
-        '''Returns a DataFrame of summary/diagnostic statistics for the parameters.
+    def summary(
+        self,
+        varnames=None,
+        ranefs=False,
+        transformed=False,
+        hpd=0.95,
+        quantiles=None,
+        diagnostics=["effective_n", "gelman_rubin"],
+    ):
+        """Returns a DataFrame of summary/diagnostic statistics for the parameters.
 
         Args:
             varnames (list): List of variable names to include; if None
@@ -322,25 +343,29 @@ class MCMCResults(ModelResults):
                 'effective_n'. Functions must accept a MCMCResults object as
                 the sole input, and return a DataFrame with one labeled row per
                 parameter. If None, no convergence diagnostics are computed.
-        '''
+        """
 
         samples = self.to_df(varnames, ranefs, transformed)
 
         # build the basic DataFrame
-        df = pd.DataFrame({'mean': samples.mean(0), 'sd': samples.std(0)})
+        df = pd.DataFrame({"mean": samples.mean(0), "sd": samples.std(0)})
 
         # add user-specified quantiles
         if quantiles is not None:
             if not isinstance(quantiles, (list, tuple)):
                 quantiles = [quantiles]
-            qnames = ['q' + str(q) for q in quantiles]
-            df = df.merge(samples.quantile(quantiles).set_index([qnames]).T,
-                          left_index=True, right_index=True)
+            qnames = ["q" + str(q) for q in quantiles]
+            df = df.merge(
+                samples.quantile(quantiles).set_index([qnames]).T, left_index=True, right_index=True
+            )
 
         # add HPD intervals
         if hpd is not None:
-            df = df.merge(samples.apply(self._hpd_interval, axis=0,
-                          width=hpd).T, left_index=True, right_index=True)
+            df = df.merge(
+                samples.apply(self._hpd_interval, axis=0, width=hpd).T,
+                left_index=True,
+                right_index=True,
+            )
 
         # add convergence diagnostics
         if diagnostics is not None:
@@ -350,25 +375,26 @@ class MCMCResults(ModelResults):
                 for diag in diagnostics:
                     if isinstance(diag, string_types):
                         diag = getattr(bmd, diag)
-                    df = df.merge(diag(_self), left_index=True,
-                                  right_index=True)
+                    df = df.merge(diag(_self), left_index=True, right_index=True)
             else:
-                warnings.warn('Multiple MCMC chains are required in order '
-                              'to compute convergence diagnostics.')
+                warnings.warn(
+                    "Multiple MCMC chains are required in order "
+                    "to compute convergence diagnostics."
+                )
 
         # For bernoulli models, tell user which event is being modeled
-        if self.model.family.name == 'bernoulli':
-            event = next(i for i, x in enumerate(self.model.y.data.flatten())
-                         if x > .99)
-            warnings.warn('Modeling the probability that {}==\'{}\''.format(
-                self.model.y.name,
-                str(self.model.clean_data[self.model.y.name][event])))
+        if self.model.family.name == "bernoulli":
+            event = next(i for i, x in enumerate(self.model.y.data.flatten()) if x > 0.99)
+            warnings.warn(
+                "Modeling the probability that {}=='{}'".format(
+                    self.model.y.name, str(self.model.clean_data[self.model.y.name][event])
+                )
+            )
 
         return df
 
-    def to_df(self, varnames=None, ranefs=False, transformed=False,
-              chains=None):
-        '''
+    def to_df(self, varnames=None, ranefs=False, transformed=False, chains=None):
+        """
         Returns the MCMC samples in a nice, neat pandas DataFrame with all MCMC chains
         concatenated.
 
@@ -383,7 +409,7 @@ class MCMCResults(ModelResults):
                 concatenate. E.g., [1, 3] would concatenate the first and
                 third chains, and ignore any others. If None (default),
                 concatenates all available chains.
-        '''
+        """
 
         # filter out unwanted variables
         names = self._filter_names(varnames, ranefs, transformed)
@@ -403,17 +429,16 @@ class MCMCResults(ModelResults):
 
 
 class PyMC3ADVIResults(ModelResults):
-
-    '''Holds PyMC3 ADVI results and provides plotting and summarization tools.
+    """Holds PyMC3 ADVI results and provides plotting and summarization tools.
 
     Attributes:
         model (Model): A bambi Model instance specifying the model.
         params (MultiTrace): ADVI parameters returned by PyMC3.
-    '''
+    """
 
     def __init__(self, model, params):
 
-        self.means = params['means']
-        self.sds = params['stds']
-        self.elbo_vals = params['elbo_vals']
+        self.means = params["means"]
+        self.sds = params["stds"]
+        self.elbo_vals = params["elbo_vals"]
         super(PyMC3ADVIResults, self).__init__(model)

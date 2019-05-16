@@ -23,7 +23,7 @@ Bambi version ``0.1.1`` will be the final version supporting Python 2, but look 
 
 Dependencies
 ============
-Bambi is tested on Python 2.7 and 3.6 and depends on NumPy, Pandas, PyMC3, PyStan, and Patsty (see `requirements.txt <https://github.com/bambinos/bambi/blob/master/requirements.txt>`_ for version information).
+Bambi is tested on Python 2.7 and 3.6 and depends on NumPy, Pandas, PyMC3, PyStan, and Patsy (see `requirements.txt <https://github.com/bambinos/bambi/blob/master/requirements.txt>`_ for version information).
 
 Installation
 ============
