@@ -5,11 +5,4 @@ from .backends import StanBackEnd, PyMC3BackEnd
 from .version import __version__
 
 
-__all__ = [
-    'Model',
-    'Prior',
-    'Family',
-    'ModelResults',
-    'StanBackEnd',
-    'PyMC3BackEnd',
-]
+__all__ = ["Model", "Prior", "Family", "ModelResults", "StanBackEnd", "PyMC3BackEnd"]
