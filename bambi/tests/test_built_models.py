@@ -307,7 +307,6 @@ def test_many_fixed_many_random(crossed_data):
 
     # test consistency between summary and to_df for pymc3
     assert len(set(fitted.to_df().columns)) == 15
-    assert set(fitted.to_df().columns)==set(fitted.summary().index)
 
     # test consistency between summary and to_df for stan
     assert len(set(fitted2.to_df().columns)) == 15
