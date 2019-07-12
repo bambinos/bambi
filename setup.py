@@ -9,7 +9,7 @@ with open(os.path.join(mod_dir, 'bambi', 'version.py')) as f:
 if len(set(('test', 'easy_install')).intersection(sys.argv)) > 0:
     import setuptools
 
-requirements = ['numpy', 'pandas', 'patsy', 'pymc3', 'statsmodels']
+requirements = ['numpy', 'pandas', 'patsy', 'pymc3', 'statsmodels', 'arviz']
 
 tests_require = []
 extra_setuptools_args = {}

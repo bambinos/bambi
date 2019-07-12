@@ -9,12 +9,12 @@ from patsy import dmatrices, dmatrix
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 import pymc3 as pm
+from arviz.plots import plot_forest
 
 from bambi.external.six import string_types
 from bambi.external.patsy import Custom_NA
 from bambi.priors import PriorFactory, PriorScaler, Prior
 from bambi.utils import listify
-
 
 
 class Model:
@@ -767,18 +767,12 @@ class Model:
                     dists.extend([y_prior_])
 
             # make the plot!
-            plots = float(len(dists))
-            fig, axes = plt.subplots(int(np.ceil(plots / 2)), 2, figsize=(12, np.ceil(plots / 2) * 2))
-            # in case there is only 1 row
-            if int(np.ceil(plots / 2)) < 2:
-                axes = axes[None, :]
+            priors_to_plot = {}
             for i, dist in enumerate(dists):
                 dist_ = dist.distribution if isinstance(dist, pm.model.FreeRV) else dist
-                samp = pd.Series(dist_.random(size=1000).flatten())
-                samp.plot(kind="hist", ax=axes[divmod(i, 2)[0], divmod(i, 2)[1]], density=True)
-                samp.plot(kind="kde", ax=axes[divmod(i, 2)[0], divmod(i, 2)[1]], color="b")
-                axes[divmod(i, 2)[0], divmod(i, 2)[1]].set_title(dist.name)
-            fig.tight_layout()
+                priors_to_plot[dist.name] = dist_.random(size=1000).flatten()
+            # Probably we should replace this for something else
+            axes = plot_forest(priors_to_plot, kind="ridgeplot")
 
         return axes
 

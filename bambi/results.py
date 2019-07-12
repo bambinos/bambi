@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABCMeta
 from bambi.external.six import string_types
-from bambi import diagnostics as bmd
+import arviz as az
 import re
 import warnings
 import pandas as pd
@@ -183,215 +183,154 @@ class MCMCResults(ModelResults):
 
     def plot(
         self,
-        varnames=None,
-        ranefs=True,
-        transformed=False,
+        var_names=None,
+        coords=None,
+        divergences="bottom",
+        figsize=None,
+        textsize=None,
+        lines=None,
+        compact=False,
         combined=False,
-        hist=False,
-        bins=20,
+        legend=False,
         kind="trace",
+        plot_kwargs=None,
+        fill_kwargs=None,
+        rug_kwargs=None,
+        hist_kwargs=None,
+        trace_kwargs=None,
+        max_plots=40,
     ):
-        """Plots posterior distributions and sample traces.
+        """Plot distribution (histogram or kernel density estimates) and sampled values.
 
-        Basically a wrapperfor pm.traceplot() plus some niceties, based partly on code
-        from: https://pymc-devs.github.io/pymc3/notebooks/GLM-model-selection.html.
+        If `divergences` data is available in `sample_stats`, will plot the location of
+        divergences as dashed vertical lines.
 
-        Args:
-            varnames (list): List of variable names to plot. If None, all
-                eligible variables are plotted.
-            ranefs (bool): If True (default), shows trace plots for
-                individual random effects.
-            transformed (bool): If False (default), excludes internally
-                transformed variables from plotting.
-            combined (bool): If True, concatenates all chains into one before
-                plotting. If False (default), plots separately lines for
-                each chain (on the same axes).
-            hist (bool): If True, plots a histogram for each fixed effect,
-                in addition to the kde plot. To prevent visual clutter,
-                histograms are never plotted for random effects.
-            bins (int): If hist is True, the number of bins in the histogram.
-                Ignored if hist is False.
-            kind (str): Either 'trace' (default) or 'priors'. If 'priors',
-                this just internally calls Model.plot()
+        Parameters
+        ----------
+        var_names : string, or list of strings
+            One or more variables to be plotted.
+        coords : mapping, optional
+            Coordinates of var_names to be plotted. Passed to `Dataset.sel`
+        divergences : {"bottom", "top", None, False}
+            Plot location of divergences on the traceplots. Options are "bottom", "top", or False-y.
+        figsize : figure size tuple
+            If None, size is (12, variables * 2)
+        textsize: float
+            Text size scaling factor for labels, titles and lines. If None it will be autoscaled based
+            on figsize.
+        lines : tuple
+            Tuple of (var_name, {'coord': selection}, [line, positions]) to be overplotted as
+            vertical lines on the density and horizontal lines on the trace.
+        compact : bool
+            Plot multidimensional variables in a single plot.
+        combined : bool
+            Flag for combining multiple chains into a single line. If False (default), chains will be
+            plotted separately.
+        legend : bool
+            Add a legend to the figure with the chain color code.
+        kind : str
+             Either 'trace' (default) or 'priors'.
+        plot_kwargs : dict
+            Extra keyword arguments passed to `arviz.plot_dist`. Only affects continuous variables.
+        fill_kwargs : dict
+            Extra keyword arguments passed to `arviz.plot_dist`. Only affects continuous variables.
+        rug_kwargs : dict
+            Extra keyword arguments passed to `arviz.plot_dist`. Only affects continuous variables.
+        hist_kwargs : dict
+            Extra keyword arguments passed to `arviz.plot_dist`. Only affects discrete variables.
+        trace_kwargs : dict
+            Extra keyword arguments passed to `plt.plot`
+        Returns
+        -------
+        axes : matplotlib axes
         """
 
-        def _plot_row(data, row, title, hist=True):
-            # density plot
-            axes[row, 0].set_title(title)
-            if pma is not None:
-                arr = np.atleast_2d(data.values.T).T
-                pma.kdeplot_op(axes[row, 0], arr, bw=4.5)
-            else:
-                data.plot(kind="kde", ax=axes[row, 0], legend=False)
-
-            # trace plot
-            axes[row, 1].set_title(title)
-            data.plot(kind="line", ax=axes[row, 1], legend=False)
-            # histogram
-            if hist:
-                if pma is not None:
-                    pma.histplot_op(axes[row, 0], arr)
-                else:
-                    data.plot(kind="hist", ax=axes[row, 0], legend=False, normed=True, bins=bins)
-
-        if kind == "priors":
-            return self.model.plot(varnames)
-
-        # count the total number of rows in the plot
-        names = self._filter_names(varnames, ranefs, transformed)
-        random = [re.sub(r"_offset$", "", x) in self.model.random_terms for x in names]
-        rows = sum([len(self.level_dict[p]) if not r else 1 for p, r in zip(names, random)])
-
-        # make the plot!
-        fig, axes = plt.subplots(rows, 2, figsize=(12, 2 * rows))
-        if rows == 1:
-            axes = np.array([axes])  # For consistent 2D indexing
-
-        _select_args = {"ranefs": ranefs, "transformed": transformed}
-
-        # Create list of chains (for combined, just one list w/ all chains)
-        chains = list(range(self.n_chains))
-        if combined:
-            chains = [chains]
-
-        for c in chains:
-
-            row = 0
-
-            for p in names:
-
-                df = self[p].to_df(chains=c, **_select_args)
-                # if p == 'floor|county_sd':
-
-                # fixed effects
-                if re.sub(r"_offset$", "", p) not in self.model.random_terms:
-                    for lev in self.level_dict[p]:
-                        lev_df = df[lev]
-                        _plot_row(lev_df, row, lev, hist)
-                        row += 1
-
-                # random effects
-                else:
-                    _plot_row(df, row, p, hist=False)  # too much clutter
-                    row += 1
-
-        fig.tight_layout()
-
-        # For bernoulli models, tell user which event is being modeled
-        if self.model.family.name == "bernoulli":
-            event = next(i for i, x in enumerate(self.model.y.data.flatten()) if x > 0.99)
-            warnings.warn(
-                "Modeling the probability that {}=='{}'".format(
-                    self.model.y.name, str(self.model.clean_data[self.model.y.name][event])
-                )
+        if kind == "trace":
+            axes = az.plot_trace(
+                self.model.backend.trace,
+                var_names=None,
+                coords=None,
+                divergences="bottom",
+                figsize=None,
+                textsize=None,
+                lines=None,
+                compact=True,
+                combined=False,
+                legend=False,
+                plot_kwargs=None,
+                fill_kwargs=None,
+                rug_kwargs=None,
+                hist_kwargs=None,
+                trace_kwargs=None,
+                max_plots=40,
             )
-
-        return axes
-
-    def _hpd_interval(self, x, width):
-        """
-        Code adapted from pymc3.stats.calc_min_interval:
-        https://github.com/pymc-devs/pymc3/blob/master/pymc3/stats.py
-        """
-
-        x = np.sort(x)
-        n = len(x)
-
-        interval_idx_inc = int(np.floor(width * n))
-        n_intervals = n - interval_idx_inc
-        interval_width = x[interval_idx_inc:] - x[:n_intervals]
-
-        if len(interval_width) == 0:
-            raise ValueError("Too few elements for interval calculation")
-
-        min_idx = np.argmin(interval_width)
-        hdi_min = x[min_idx]
-        hdi_max = x[min_idx + interval_idx_inc]
-
-        index = ["hpd{}_{}".format(width, x) for x in ["lower", "upper"]]
-        return pd.Series([hdi_min, hdi_max], index=index)
+            return axes
+        elif kind == "priors":
+            return self.model.plot(var_names)
 
     def summary(
         self,
-        varnames=None,
-        ranefs=False,
-        transformed=False,
-        hpd=0.95,
-        quantiles=None,
-        diagnostics=["effective_n", "gelman_rubin"],
+        var_names=None,
+        fmt="wide",
+        round_to=None,
+        include_circ=None,
+        stat_funcs=None,
+        extend=True,
+        credible_interval=0.94,
+        order="C",
+        index_origin=0,
     ):
-        """Returns a DataFrame of summary/diagnostic statistics for the parameters.
+        """Create a data frame with summary statistics.
 
-        Args:
-            varnames (list): List of variable names to include; if None
-                (default), all eligible variables are included.
-            ranefs (bool): Whether or not to include random effects in the
-                summary. Default is False.
-            transformed (bool): Whether or not to include internally
-                transformed variables in the summary. Default is False.
-            hpd (float, between 0 and 1): Show Highest Posterior Density (HPD)
-                intervals with specified width/proportion for all parameters.
-                If None, HPD intervals are suppressed.
-            quantiles (float, list): Show
-                specified quantiles of the marginal posterior distributions for
-                all parameters. If list, must be a list of floats between 0 and 1. If
-                None (default), no quantiles are shown.
-            diagnostics (list): List of functions to use to compute convergence
-                diagnostics for all parameters. Each element can be either a
-                callable or a string giving the name of a function in the
-                diagnostics module. Valid strings are 'gelman_rubin' and
-                'effective_n'. Functions must accept a MCMCResults object as
-                the sole input, and return a DataFrame with one labeled row per
-                parameter. If None, no convergence diagnostics are computed.
+        Parameters
+        ----------
+        var_names : list
+            Names of variables to include in summary
+        include_circ : bool
+            Whether to include circular statistics
+        fmt : {'wide', 'long', 'xarray'}
+            Return format is either pandas.DataFrame {'wide', 'long'} or xarray.Dataset {'xarray'}.
+        round_to : int
+            Number of decimals used to round results. Defaults to 2. Use "none" to return raw numbers.
+        stat_funcs : dict
+            A list of functions or a dict of functions with function names as keys used to calculate
+            statistics. By default, the mean, standard deviation, simulation standard error, and
+            highest posterior density intervals are included.
+
+            The functions will be given one argument, the samples for a variable as an nD array,
+            The functions should be in the style of a ufunc and return a single number. For example,
+            `np.mean`, or `scipy.stats.var` would both work.
+        extend : boolean
+            If True, use the statistics returned by `stat_funcs` in addition to, rather than in place
+            of, the default statistics. This is only meaningful when `stat_funcs` is not None.
+        credible_interval : float, optional
+            Credible interval to plot. Defaults to 0.94. This is only meaningful when `stat_funcs` is
+            None.
+        order : {"C", "F"}
+            If fmt is "wide", use either C or F unpacking order. Defaults to C.
+        index_origin : int
+            If fmt is "wide, select n-based indexing for multivariate parameters. Defaults to 0.
+
+        Returns
+        -------
+        pandas.DataFrame
+            With summary statistics for each variable. Defaults statistics are: `mean`, `sd`,
+            `hpd_3%`, `hpd_97%`, `mcse_mean`, `mcse_sd`, `ess_bulk`, `ess_tail` and `r_hat`.
+            `r_hat` is only computed for traces with 2 or more chains.
         """
 
-        samples = self.to_df(varnames, ranefs, transformed)
-
-        # build the basic DataFrame
-        df = pd.DataFrame({"mean": samples.mean(0), "sd": samples.std(0)})
-
-        # add user-specified quantiles
-        if quantiles is not None:
-            if not isinstance(quantiles, (list, tuple)):
-                quantiles = [quantiles]
-            qnames = ["q" + str(q) for q in quantiles]
-            df = df.merge(
-                samples.quantile(quantiles).set_index([qnames]).T, left_index=True, right_index=True
-            )
-
-        # add HPD intervals
-        if hpd is not None:
-            df = df.merge(
-                samples.apply(self._hpd_interval, axis=0, width=hpd).T,
-                left_index=True,
-                right_index=True,
-            )
-
-        # add convergence diagnostics
-        if diagnostics is not None:
-            _names = self._filter_names(ranefs=ranefs, transformed=transformed)
-            _self = self[_names]
-            if self.n_chains > 1:
-                for diag in diagnostics:
-                    if isinstance(diag, string_types):
-                        diag = getattr(bmd, diag)
-                    df = df.merge(diag(_self), left_index=True, right_index=True)
-            else:
-                warnings.warn(
-                    "Multiple MCMC chains are required in order "
-                    "to compute convergence diagnostics."
-                )
-
-        # For bernoulli models, tell user which event is being modeled
-        if self.model.family.name == "bernoulli":
-            event = next(i for i, x in enumerate(self.model.y.data.flatten()) if x > 0.99)
-            warnings.warn(
-                "Modeling the probability that {}=='{}'".format(
-                    self.model.y.name, str(self.model.clean_data[self.model.y.name][event])
-                )
-            )
-
-        return df
+        return az.summary(
+            self.model.backend.trace,
+            var_names=None,
+            fmt="wide",
+            round_to=None,
+            include_circ=None,
+            stat_funcs=None,
+            extend=True,
+            credible_interval=0.94,
+            order="C",
+            index_origin=0,
+        )
 
     def to_df(self, varnames=None, ranefs=False, transformed=False, chains=None):
         """
