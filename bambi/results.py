@@ -363,7 +363,7 @@ class MCMCResults(ModelResults):
 
         Parameters
         ----------
-        varnames: list
+        var_names: list
             List of variable names to include; if None(default), all eligible variables are included.
         ranefs : bool)
             Whether or not to include random effects in the returned DataFrame. Default is True.
@@ -376,7 +376,7 @@ class MCMCResults(ModelResults):
         """
 
         # filter out unwanted variables
-        names = self._filter_names(varnames, ranefs, transformed)
+        names = self._filter_names(var_names, ranefs, transformed)
 
         # concatenate the (pre-sliced) chains
         if chains is None:
@@ -397,7 +397,7 @@ class MCMCResults(ModelResults):
 
         Parameters
         ----------
-        varnames: list
+        var_names: list
             List of variable names to include; if None(default), all eligible variables are included.
         ranefs : bool)
             Whether or not to include random effects in the returned DataFrame. Default is True.
