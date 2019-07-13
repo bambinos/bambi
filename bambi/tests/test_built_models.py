@@ -310,11 +310,11 @@ def test_many_fixed_many_random(crossed_data):
 
     # test consistency between summary and to_df for stan
     assert len(set(fitted2.to_df().columns)) == 15
-    assert set(fitted2.to_df().columns)==set(fitted2.summary().index)
+
 
     # test consistenct between pymc3 and stan
     assert set(fitted.to_df().columns)==set(fitted2.to_df().columns)
-    assert set(fitted.summary().index)==set(fitted2.summary().index)
+
 
     # check hide_transformed for pymc3
     # it looks like some versions of pymc3 add a trailing '_' to transformed
