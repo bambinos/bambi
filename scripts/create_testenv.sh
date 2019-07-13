@@ -21,7 +21,7 @@ if [[ $* != *--global* ]]; then
     fi
 fi
 
-conda install --yes pip pytest numpy matplotlib pandas patsy statsmodels
+conda install --yes pip pytest numpy matplotlib pandas patsy statsmodels arviz
 
 pip install --upgrade pip
 
