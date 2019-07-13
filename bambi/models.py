@@ -729,10 +729,10 @@ class Model:
                 prior._auto_scale = False
         return prior
 
-    def plot(self, varnames=None):
-        self.plot_priors(varnames)
+    def plot(self, var_names=None):
+        self.plot_priors(var_names)
 
-    def plot_priors(self, varnames=None):
+    def plot_priors(self, var_names=None):
         if not self.built:
             raise ValueError("Cannot plot priors until model is built!")
 
@@ -741,7 +741,7 @@ class Model:
             # predictor
             dists = []
             for fixed_term in self.fixed_terms.values():
-                if varnames is not None and fixed_term.name not in varnames:
+                if var_names is not None and fixed_term.name not in var_names:
                     continue
                 for i, level in enumerate(fixed_term.levels):
                     params = {
@@ -752,7 +752,7 @@ class Model:
 
             # get priors for random effect SDs
             for random_term in self.random_terms.values():
-                if varnames is not None and random_term.name not in varnames:
+                if var_names is not None and random_term.name not in var_names:
                     continue
                 prior = random_term.prior.args["sd"].name
                 params = random_term.prior.args["sd"].args

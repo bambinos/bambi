@@ -161,10 +161,10 @@ class MCMCResults(ModelResults):
             transformed_vars=self.transformed_vars,
         )
 
-    def _filter_names(self, varnames=None, ranefs=False, transformed=False):
+    def _filter_names(self, var_names=None, ranefs=False, transformed=False):
         names = self.untransformed_vars if not transformed else self.names
-        if varnames is not None:
-            names = [n for n in listify(varnames) if n in names]
+        if var_names is not None:
+            names = [n for n in listify(var_names) if n in names]
         if not ranefs:
             names = [x for x in names if re.sub(r"_offset$", "", x) not in self.model.random_terms]
         Intercept = [n for n in names if "Intercept" in n]
@@ -185,6 +185,9 @@ class MCMCResults(ModelResults):
         self,
         var_names=None,
         coords=None,
+        ranefs=False,
+        transformed=False,
+        chains=None,
         divergences="bottom",
         figsize=None,
         textsize=None,
@@ -211,6 +214,14 @@ class MCMCResults(ModelResults):
             One or more variables to be plotted.
         coords : mapping, optional
             Coordinates of var_names to be plotted. Passed to `Dataset.sel`
+        ranefs : bool
+            Whether or not to include random effects in the returned DataFrame. Defaults to True.
+        transformed : bool
+            Whether or not to include transformed variables in the result. Defaults to False.
+        chains : int, list
+            Index, or list of indexes, of chains to concatenate. E.g., [1, 3] would concatenate
+            the first and third chains, and ignore any others. If None (default), concatenates all
+            available chains.
         divergences : {"bottom", "top", None, False}
             Plot location of divergences on the traceplots. Options are "bottom", "top", or False-y.
         figsize : figure size tuple
@@ -244,10 +255,7 @@ class MCMCResults(ModelResults):
         -------
         axes : matplotlib axes
         """
-        try:
-            data = self.model.backend.fit
-        except AttributeError:
-            data = self.model.backend.trace
+        data = self.to_dict(var_names=None, ranefs=False, transformed=False, chains=None)
 
         if kind == "trace":
             axes = az.plot_trace(
@@ -275,6 +283,9 @@ class MCMCResults(ModelResults):
     def summary(
         self,
         var_names=None,
+        ranefs=False,
+        transformed=False,
+        chains=None,
         fmt="wide",
         round_to=None,
         include_circ=None,
@@ -290,6 +301,14 @@ class MCMCResults(ModelResults):
         ----------
         var_names : list
             Names of variables to include in summary
+        ranefs : bool
+            Whether or not to include random effects in the returned DataFrame. Defaults to True.
+        transformed : bool
+            Whether or not to include transformed variables in the result. Defaults to False.
+        chains : int, list
+            Index, or list of indexes, of chains to concatenate. E.g., [1, 3] would concatenate
+            the first and third chains, and ignore any others. If None (default), concatenates all
+            available chains.
         include_circ : bool
             Whether to include circular statistics
         fmt : {'wide', 'long', 'xarray'}
@@ -322,10 +341,7 @@ class MCMCResults(ModelResults):
             `hpd_3%`, `hpd_97%`, `mcse_mean`, `mcse_sd`, `ess_bulk`, `ess_tail` and `r_hat`.
             `r_hat` is only computed for traces with 2 or more chains.
         """
-        try:
-            data = self.model.backend.fit
-        except AttributeError:
-            data = self.model.backend.trace
+        data = self.to_dict(var_names=None, ranefs=False, transformed=False, chains=None)
 
         return az.summary(
             data,
@@ -340,22 +356,23 @@ class MCMCResults(ModelResults):
             index_origin=0,
         )
 
-    def to_df(self, varnames=None, ranefs=False, transformed=False, chains=None):
+    def to_df(self, var_names=None, ranefs=False, transformed=False, chains=None):
         """
         Returns the MCMC samples in a nice, neat pandas DataFrame with all MCMC chains
         concatenated.
 
-        Args:
-            varnames (list): List of variable names to include; if None
-                (default), all eligible variables are included.
-            ranefs (bool): Whether or not to include random effects in the
-                returned DataFrame. Default is True.
-            transformed (bool): Whether or not to include internally
-                transformed variables in the result. Default is False.
-            chains (int, list): Index, or list of indexes, of chains to
-                concatenate. E.g., [1, 3] would concatenate the first and
-                third chains, and ignore any others. If None (default),
-                concatenates all available chains.
+        Parameters
+        ----------
+        varnames: list
+            List of variable names to include; if None(default), all eligible variables are included.
+        ranefs : bool)
+            Whether or not to include random effects in the returned DataFrame. Default is True.
+        transformed : bool
+            Whether or not to include internally transformed variables in the result. Default is False.
+        chains: int, list
+            Index, or list of indexes, of chains to concatenate. E.g., [1, 3] would concatenate
+            the first and third chains, and ignore any others. If None (default), concatenates all
+            available chains.
         """
 
         # filter out unwanted variables
@@ -373,6 +390,46 @@ class MCMCResults(ModelResults):
         df = pd.DataFrame({x: data[:, self.levels.index(x)] for x in df})
 
         return df
+
+    def to_dict(self, var_names=None, ranefs=False, transformed=False, chains=None):
+        """
+        Returns the MCMC samples in a dictionary
+
+        Parameters
+        ----------
+        varnames: list
+            List of variable names to include; if None(default), all eligible variables are included.
+        ranefs : bool)
+            Whether or not to include random effects in the returned DataFrame. Default is True.
+        transformed : bool
+            Whether or not to include internally transformed variables in the result. Default is False.
+        chains: int, list
+            Index, or list of indexes, of chains to concatenate. E.g., [1, 3] would concatenate
+            the first and third chains, and ignore any others. If None (default), concatenates all
+            available chains.
+        """
+
+        # filter out unwanted variables
+        names = self._filter_names(var_names, ranefs, transformed)
+
+        # concatenate the (pre-sliced) chains
+        if chains is None:
+            chains = list(range(self.n_chains))
+        chains = listify(chains)
+        data = self.data.T
+
+        {name: data[idx] for idx, name in enumerate(names)}
+
+        return {name: data[idx] for idx, name in enumerate(names)}
+
+        # concatenate the (pre-sliced) chains
+        if chains is None:
+            chains = list(range(self.n_chains))
+        chains = listify(chains)
+        data = self.data.T
+
+        dictio = {name: data[idx] for idx, name in enumerate(names)}
+        dictio
 
 
 class PyMC3ADVIResults(ModelResults):
