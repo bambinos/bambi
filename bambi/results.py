@@ -244,10 +244,14 @@ class MCMCResults(ModelResults):
         -------
         axes : matplotlib axes
         """
+        try:
+            data = self.model.backend.fit
+        except AttributeError:
+            data = self.model.backend.trace
 
         if kind == "trace":
             axes = az.plot_trace(
-                self.model.backend.trace,
+                data,
                 var_names=None,
                 coords=None,
                 divergences="bottom",
@@ -318,9 +322,13 @@ class MCMCResults(ModelResults):
             `hpd_3%`, `hpd_97%`, `mcse_mean`, `mcse_sd`, `ess_bulk`, `ess_tail` and `r_hat`.
             `r_hat` is only computed for traces with 2 or more chains.
         """
+        try:
+            data = self.model.backend.fit
+        except AttributeError:
+            data = self.model.backend.trace
 
         return az.summary(
-            self.model.backend.trace,
+            data,
             var_names=None,
             fmt="wide",
             round_to=None,
