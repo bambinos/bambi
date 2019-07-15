@@ -27,7 +27,7 @@ pip install --upgrade pip
 
 #  Install editable using the setup.py
 pip install -e .
-pip install -r requirements.txt
+pip install -r --upgrade requirements.txt
 
 python --version
 conda list
