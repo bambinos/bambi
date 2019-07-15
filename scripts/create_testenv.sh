@@ -27,6 +27,7 @@ pip install --upgrade pip
 
 #  Install editable using the setup.py
 pip install -e .
+pip install --upgrade git+git://github.com/arviz-devs/arviz.git
 pip install -r requirements.txt
 
 python --version

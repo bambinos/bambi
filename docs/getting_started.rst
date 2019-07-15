@@ -475,7 +475,7 @@ When a model is fitted, it returns a ``ModelResults`` object (usually of subclas
 Plotting
 --------
 
-To visualize a PyMC3-generated plot of the posterior estimates and sample traces for all parameters, simply call the ``MCMCResults`` object's ``.plot()`` method:
+To visualize a plot of the posterior estimates and sample traces for all parameters, simply call the ``MCMCResults`` object's ``.plot()`` method:
 
 .. code-block:: python
 
@@ -493,12 +493,12 @@ This produces a plot like the following:
 
 .. image:: _static/sample_traceplot.png
 
-More details on this plot are available in the `PyMC3 documentation <http://pymc-devs.github.io/pymc3/notebooks/getting_started.html#Posterior-analysis>`__.
+More details on this plot are available in the `ArviZ documentation <https://arviz-devs.github.io/arviz/_modules/arviz/plots/traceplot.html>`__.
 
 Summarizing
 -----------
 
-If you prefer numerical summaries of the posterior estimates, you can use the ``.summary()`` method, which provides a pandas DataFrame with some key summary and diagnostic info on the model parameters, such as the 95% highest posterior density intervals:
+If you prefer numerical summaries of the posterior estimates, you can use the ``.summary()`` method. Internally this calls ArviZ's `ArviZ summary <https://arviz-devs.github.io/arviz/generated/arviz.summary.html#arviz.summary>`__  which provides a pandas DataFrame with some key summary and diagnostics info on the model parameters, such as the 94% highest posterior density intervals:
 
 .. code-block:: python
 

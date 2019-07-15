@@ -9,7 +9,7 @@ from patsy import dmatrices, dmatrix
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 import pymc3 as pm
-from arviz.plots import plot_forest
+from arviz.plots import plot_posterior
 
 from bambi.external.six import string_types
 from bambi.external.patsy import Custom_NA
@@ -772,7 +772,7 @@ class Model:
                 dist_ = dist.distribution if isinstance(dist, pm.model.FreeRV) else dist
                 priors_to_plot[dist.name] = dist_.random(size=1000).flatten()
             # Probably we should replace this for something else
-            axes = plot_forest(priors_to_plot, kind="ridgeplot")
+            axes = plot_posterior(priors_to_plot, credible_interval=None, point_estimate=None)
 
         return axes
 
