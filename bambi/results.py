@@ -201,7 +201,6 @@ class MCMCResults(ModelResults):
         rug_kwargs=None,
         hist_kwargs=None,
         trace_kwargs=None,
-        max_plots=40,
     ):
         """Plot distribution (histogram or kernel density estimates) and sampled values.
 
@@ -274,7 +273,6 @@ class MCMCResults(ModelResults):
                 rug_kwargs=None,
                 hist_kwargs=None,
                 trace_kwargs=None,
-                max_plots=40,
             )
             return axes
         elif kind == "priors":
