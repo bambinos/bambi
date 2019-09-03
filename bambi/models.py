@@ -1,3 +1,4 @@
+# pylint: disable=no-name-in-module,import-error
 import re
 import warnings
 from collections import OrderedDict
@@ -7,7 +8,6 @@ import pandas as pd
 import numpy as np
 from patsy import dmatrices, dmatrix
 import statsmodels.api as sm
-import matplotlib.pyplot as plt
 import pymc3 as pm
 from arviz.plots import plot_posterior
 
@@ -46,7 +46,7 @@ class Model:
             parameterization for normal hyperpriors on grouped parameters.
             If False, naive (centered) parameterization is used.
     """
-
+    # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
         data=None,
@@ -67,7 +67,7 @@ class Model:
         self.data = data
         # Some random effects stuff later requires us to make guesses about
         # column groupings into terms based on patsy's naming scheme.
-        if re.search("[\[\]]+", "".join(data.columns)):
+        if re.search(r"[\[\]]+", "".join(data.columns)):
             warnings.warn(
                 "At least one of the column names in the specified "
                 "dataset contain square brackets ('[' or ']')."
@@ -90,6 +90,14 @@ class Model:
         # if dropna=True, completes gets updated by add() to track complete cases
         self.completes = []
         self.clean_data = None
+
+        # attributes that are set later
+        self.y = None  # _add_y()
+        self.family = None  # _add_y()
+        self.backend = None  # _set_backend()
+        self.dm_statistics = None  # build()
+        self._diagnostics = None  # build()
+        self.built = False  # build()
 
     def reset(self):
         """
@@ -263,6 +271,7 @@ class Model:
         self.backend.build(self)
         self.built = True
 
+
     def fit(
         self,
         fixed=None,
@@ -321,7 +330,7 @@ class Model:
                 append=False,
             )
 
-        """ Run the BackEnd to fit the model. """
+        # Run the BackEnd to fit the model.
         if backend is None:
             backend = "pymc" if self._backend_name is None else self._backend_name
 
@@ -331,6 +340,7 @@ class Model:
             return self.backend.run(**kwargs)
 
         self._backend_name = backend
+        return None
 
     def add(
         self,
@@ -437,7 +447,6 @@ class Model:
         family="gaussian",
         link=None,
         categorical=None,
-        append=True,
     ):
         """Internal version of add(), with the same arguments.
 
@@ -447,7 +456,7 @@ class Model:
         # use cleaned data with NAs removed (if user requested)
         data = self.clean_data
         # alter this pandas flag to avoid false positive SettingWithCopyWarnings
-        data._is_copy = False
+        data._is_copy = False  # pylint: disable=protected-access
 
         # Explicitly convert columns to category if desired--though this
         # can also be done within the formula using C().
@@ -486,7 +495,7 @@ class Model:
                 self.terms[_name] = Term(_name, term_data, prior=prior)
 
         # Random effects
-        if random is not None:
+        if random is not None:  # pylint: disable=too-many-nested-blocks
 
             random = listify(random)
 
@@ -504,7 +513,7 @@ class Model:
                 # Treat all grouping variables as categoricals, regardless of
                 # their dtype and what the user may have specified in the
                 # 'categorical' argument.
-                var_names = re.findall("(\w+)", grpr)
+                var_names = re.findall(r"(\w+)", grpr)
                 for var_name in var_names:
                     if var_name in data.columns:
                         data.loc[:, var_name] = data.loc[:, var_name].astype("category")
@@ -566,6 +575,7 @@ class Model:
                         )
                         self.terms[label] = term
 
+    # pylint: disable=keyword-arg-before-vararg
     def _add_y(self, variable, prior=None, family="gaussian", link=None, *args, **kwargs):
         """Add a dependent (or outcome) variable to the model.
 
@@ -636,7 +646,7 @@ class Model:
         found = [
             t
             for (n, t) in self.terms.items()
-            if n == intcpt or re.sub("(\[.*?\])", "", n) == source
+            if n == intcpt or re.sub(r"(\[.*?\])", "", n) == source
         ]
         # If only the intercept matches, return None, because we want to err
         # on the side of caution and not consider '1|subject' to be a match for
@@ -720,13 +730,13 @@ class Model:
             prior = self.default_priors.get(term=_type + "_flat")
 
         if isinstance(prior, Prior):
-            prior._auto_scale = False
+            prior._auto_scale = False  # pylint: disable=protected-access
         else:
             _scale = prior
             prior = self.default_priors.get(term=_type)
             prior.scale = _scale
             if prior.scale is not None:
-                prior._auto_scale = False
+                prior._auto_scale = False  # pylint: disable=protected-access
         return prior
 
     def plot(self, var_names=None):
