@@ -7,11 +7,17 @@ from setuptools import find_packages, setup
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 README_FILE = os.path.join(PROJECT_ROOT, "README.md")
 VERSION_FILE = os.path.join(PROJECT_ROOT, "bambi", "version.py")
+REQUIREMENTS_FILE = os.path.join(PROJECT_ROOT, "requirements.txt")
 
 
 def get_long_description():
     with codecs.open(README_FILE, "rt") as buff:
         return buff.read()
+
+
+def get_requirements():
+    with codecs.open(REQUIREMENTS_FILE) as buff:
+        return buff.read().splitlines()
 
 
 with open(VERSION_FILE) as buff:
@@ -36,7 +42,7 @@ setup(
     long_description_content_type="text/markdown",
     url="http://github.com/bambinos/bambi",
     download_url="https://github.com/bambinos/bambi/archive/%s.tar.gz" % __version__,
-    install_requires=["numpy", "pandas", "patsy", "pymc3", "statsmodels", "arviz"],
+    install_requires=get_requirements(),
     maintainer="Tal Yarkoni",
     maintainer_email="tyarkoni@gmail.com",
     packages=find_packages(exclude=["tests", "test_*"]),
