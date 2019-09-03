@@ -5,20 +5,20 @@ As a scientific community-driven software project, bambi welcomes contributions 
 There are 4 main ways of contributing to the bambi project (in descending order of difficulty or scope):
 
 * Adding new or improved functionality to the existing codebase
-* Fixing outstanding issues (bugs) with the existing codebase. They range from low-level software bugs to higher-level design problems.
+* Fixing outstanding issues (bugs) with the existing codebase. They range from low-level software bugs to higher-level design problems
 * Contributing or improving the documentation (`docs`) or examples (`bambi/examples`)
 * Submitting issues related to bugs or desired enhancements
 
-# Opening issues
+## Opening issues
 
 We appreciate being notified of problems with the existing bambi code. We prefer that issues be filed the on [Github Issue Tracker](https://github.com/bambinos/bambi/issues), rather than on social media or by direct email to the developers.
 
 Please verify that your issue is not being currently addressed by other issues or pull requests by using the GitHub search tool to look for key words in the project issue tracker.
 
-# Contributing code via pull requests
+## Contributing code via pull requests
 
 While issue reporting is valuable, we strongly encourage users who are inclined to do so to submit patches for new or existing issues via pull
-requests. This is particularly the case for simple fixes, such as typos or tweaks to documentation, which do not require a heavy investment 
+requests. This is particularly the case for simple fixes, such as typos or tweaks to documentation, which do not require a heavy investment
 of time and attention.
 
 Contributors are also encouraged to contribute new code to enhance bambi's functionality, also via pull requests.
@@ -29,19 +29,18 @@ the [GitHub repository](https://github.com/bambinos/bambi/), clone it to your lo
 For more instructions see the
 [Pull request checklist](#pull-request-checklist)
 
-
 ### Code Formatting
+
 For code generally follow the
 [TensorFlow's style guide](https://www.tensorflow.org/versions/master/how_tos/style_guide.html)
 or the [Google style guide](https://github.com/google/styleguide/blob/gh-pages/pyguide.md)
 Both more or less follows PEP 8.
 
-
 ### Docstring formatting
+
 Docstrings should follow the
 [numpy docstring guide](https://numpydoc.readthedocs.io/en/latest/format.html)
 Please reasonably document any additions or changes to the codebase, when in doubt, add a docstring.
-
 
 ## Steps
 
@@ -49,16 +48,16 @@ Please reasonably document any additions or changes to the codebase, when in dou
 
 2. Clone your fork of the bambi repo from your GitHub account to your local disk, and add the base repository as a remote:
 
-   ```bash
-   $ git clone git@github.com:<your GitHub handle>/bambi.git
-   $ cd bambi
-   $ git remote add upstream git@github.com:bambinos/bambi.git
-   ```
+    ```bash
+    git clone git@github.com:<your GitHub handle>/bambi.git
+    cd bambi
+    git remote add upstream git@github.com:bambinos/bambi.git
+    ```
 
 3. Create a ``feature`` branch to hold your development changes:
 
    ```bash
-   $ git checkout -b my-feature
+   git checkout -b my-feature
    ```
 
    Always use a ``feature`` branch. It's good practice to never routinely work on the ``master`` branch of any repository.
@@ -66,29 +65,29 @@ Please reasonably document any additions or changes to the codebase, when in dou
 4. Project requirements are in ``requirements.txt``, and libraries used for development are in ``requirements-dev.txt``.  To set up a development environment, you may run:
 
    ```bash
-   $ pip install -r requirements.txt
-   $ pip install -r requirements-dev.txt
+   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
    ```
-
 
 5. Develop the feature on your feature branch. Add changed files using ``git add`` and then ``git commit`` files:
 
    ```bash
-   $ git add modified_files
-   $ git commit
+   git add modified_files
+   git commit
    ```
 
    to record your changes locally.
    After committing, it is a good idea to sync with the base repository in case there have been any changes:
+
    ```bash
-   $ git fetch upstream
-   $ git rebase upstream/master
+   git fetch upstream
+   git rebase upstream/master
    ```
 
    Then push the changes to your GitHub account with:
 
    ```bash
-   $ git push -u origin my-feature
+   git push -u origin my-feature
    ```
 
 6. Go to the GitHub web page of your fork of the bambi repo. Click the 'Pull request' button to send your changes to the project's maintainers for review. This will send an email to the committers.
@@ -115,20 +114,18 @@ We recommend that your contribution complies with the following guidelines befor
 
 * Run any of the pre-existing examples in ``examples`` that contain analyses that would be affected by your changes to ensure that nothing breaks. This is a useful opportunity to not only check your work for bugs that might not be revealed by unit test, but also to show how your contribution improves bambi for end users.
 
-
 * Code coverage **cannot** decrease. Coverage can be checked with **pytest-cov** package:
 
   ```bash
-  $ pip install pytest pytest-cov coverage
-  $ pytest --cov=bambi --cov-report=html bambi/tests/
+  pip install pytest pytest-cov coverage
+  pytest --cov=bambi --cov-report=html bambi/tests/
   ```
-
 
 * Your code passes pylint
 
   ```bash
-  $ pip install pylint
-  $ pylint bambi/
+  pip install pylint
+  pylint bambi/
   ```
 
-#### This guide was derived from the [arviz guide to contributing](https://github.com/arviz-devs/arviz/blob/master/CONTRIBUTING.md)
+**This guide was derived from the [arviz guide to contributing](https://github.com/arviz-devs/arviz/blob/master/CONTRIBUTING.md)**
