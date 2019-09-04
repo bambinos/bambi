@@ -15,13 +15,18 @@ from bambi.external.six import string_types
 class Family:
     """A specification of model family.
 
-    Attributes:
-        name (str): Family name.
-        prior (Prior): A Prior instance specifying the model likelihood prior.
-        link (str): The name of the link function transforming the linear
-            model prediction to a parameter of the likelihood.
-        parent (str): The name of the prior parameter to set to the link-
-            transformed predicted outcome (e.g., mu, p, etc.).
+    Parameters
+    ----------
+    name : str
+        Family name.
+    prior : Prior
+        A Prior instance specifying the model likelihood prior.
+    link : str
+        The name of the link function transforming the linear model prediction to a parameter of
+        the likelihood.
+    parent : str
+        The name of the prior parameter to set to the link-transformed predicted outcome
+        (e.g., mu, p, etc.).
     """
 
     def __init__(self, name, prior, link, parent):
@@ -41,10 +46,12 @@ class Family:
 class Prior:
     """Abstract specification of a term prior.
 
-    Attributes:
-        name (str): Name of prior distribution (e.g., Normal, Bernoulli, etc.)
-        kwargs (dict): Optional keywords specifying the parameters of the
-            named distribution.
+    Parameters
+    ----------
+    name : str
+        Name of prior distribution (e.g., Normal, Bernoulli, etc.)
+    kwargs : dict
+        Optional keywords specifying the parameters of the named distribution.
     """
 
     def __init__(self, name, scale=None, **kwargs):
@@ -57,8 +64,10 @@ class Prior:
     def update(self, **kwargs):
         """Update the model arguments with additional arguments.
 
-        Args:
-            kwargs (dict): Optional keyword arguments to add to prior args.
+        Parameters
+        ----------
+            kwargs : dict
+                Optional keyword arguments to add to prior args.
         """
 
         # Backends expect numpy arrays, so make sure all numeric values are
@@ -70,32 +79,30 @@ class Prior:
 class PriorFactory:
     """An object that supports specification and easy retrieval of default priors.
 
-    Attributes:
-        defaults (str, dict): Optional base configuration containing default
-            priors for distribution, families, and term types. If a string,
-            the name of a JSON file containing the config. If a dict, must
-            contain keys for 'dists', 'terms', and 'families'; see the built-in
-            JSON configuration for an example. If None, a built-in set of
-            priors will be used as defaults.
-        dists (dict): Optional specification of named distributions to use
-            as priors. Each key gives the name of a newly defined distribution;
-            values are two-element lists, where the first element is the name
-            of the built-in distribution to use ('Normal', 'Cauchy', etc.),
-            and the second element is a dictionary of parameters on that
-            distribution (e.g., {'mu': 0, 'sd': 10}). Priors can be nested
-            to arbitrary depths by replacing any parameter with another prior
-            specification.
-        terms (dict): Optional specification of default priors for different
-            model term types. Valid keys are 'intercept', 'fixed', or 'random'.
-            Values are either strings preprended by a #, in which case they
-            are interpreted as pointers to distributions named in the dists
-            dictionary, or key -> value specifications in the same format as
-            elements in the dists dictionary.
-        families (dict): Optional specification of default priors for named
-            family objects. Keys are family names, and values are dicts
-            containing mandatory keys for 'dist', 'link', and 'parent'.
+    Parameters
+    ----------
+    defaults : str or dict
+        Optional base configuration containing default priors for distribution, families, and term
+        types. If a string, the name of a JSON file containing the config. If a dict, must contain
+        keys for 'dists', 'terms', and 'families'; see the built-in JSON configuration for an
+        example. If None, a built-in set of priors will be used as defaults.
+    dists : dict
+        Optional specification of named distributions to use as priors. Each key gives the name of
+        a newly defined distribution; values are two-element lists, where the first element is the
+        name of the built-in distribution to use ('Normal', 'Cauchy', etc.), and the second element
+        is a dictionary of parameters on that distribution (e.g., {'mu': 0, 'sd': 10}). Priors can
+        be nested to arbitrary depths by replacing any parameter with another prior specification.
+    terms : dict
+        Optional specification of default priors for different model term types. Valid keys are
+        'intercept', 'fixed', or 'random'. Values are either strings preprended by a #, in which
+        case they are interpreted as pointers to distributions named in the dists dictionary,
+        or key -> value specifications in the same format as elements in the dists dictionary.
+    families : dict
+        Optional specification of default priors for named family objects. Keys are family names,
+        and values are dicts containing mandatory keys for 'dist', 'link', and 'parent'.
 
-    Examples:
+    Examples
+    --------
         >>> dists = { 'my_dist': ['Normal', {'mu': 10, 'sd': 1000}]}
         >>> pf = PriorFactory(dists=dists)
 
@@ -149,15 +156,17 @@ class PriorFactory:
     def get(self, dist=None, term=None, family=None):
         """Retrieve default prior for a named distribution, term type, or family.
 
-        Args:
-            dist (str): Name of desired distribution. Note that the name is
-                the key in the defaults dictionary, not the name of the
-                Distribution object used to construct the prior.
-            term (str): The type of term family to retrieve defaults for.
-                Must be one of 'intercept', 'fixed', or 'random'.
-            family (str): The name of the Family to retrieve. Must be a value
-                defined internally. In the default config, this is one of
-                'gaussian', 'bernoulli', 'poisson', or 't'.
+        Parameters
+        ----------
+        dist : str
+            Name of desired distribution. Note that the name is the key in the defaults dictionary,
+            not the name of the Distribution object used to construct the prior.
+        term : str
+            The type of term family to retrieve defaults for. Must be one of 'intercept', 'fixed',
+            or 'random'.
+        family : str
+            The name of the Family to retrieve. Must be a value defined internally. In the default
+            config, this is one of 'gaussian', 'bernoulli', 'poisson', or 't'.
         """
 
         if dist is not None:
