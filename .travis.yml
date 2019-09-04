@@ -17,7 +17,7 @@ services:
   - xvfb
 
 script:
-  - pytest -vx
+  - pytest -vx --cov=bambi
 
 after_success:
   - coveralls
