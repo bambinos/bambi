@@ -1,22 +1,22 @@
-from abc import abstractmethod, ABCMeta
-from bambi.external.six import string_types
-import arviz as az
 import re
-import warnings
-import pandas as pd
+from abc import ABCMeta, abstractmethod
+
+import arviz as az
 import numpy as np
-import matplotlib.pyplot as plt
+import pandas as pd
+from bambi.external.six import string_types
+
 from .utils import listify
 
 try:
     import pymc3 as pm
 
     if hasattr(pm.plots, "kdeplot_op"):
-        pma = pm.plots
+        pma = pm.plots  # pylint: disable=invalid-name
     else:
-        pma = pm.plots.artists
-except:
-    pma = None
+        pma = pm.plots.artists  # pylint: disable=invalid-name, no-member
+except ImportError:
+    pma = None  # pylint: disable=invalid-name
 
 
 __all__ = ["MCMCResults", "PyMC3ADVIResults"]
@@ -33,6 +33,7 @@ class ModelResults(metaclass=ABCMeta):
 
         self.model = model
         self.terms = list(model.terms.values())
+        # pylint: disable=protected-access
         self.diagnostics = model._diagnostics if hasattr(model, "_diagnostics") else None
 
     @abstractmethod
@@ -58,6 +59,7 @@ class MCMCResults(ModelResults):
             transformed--and hence, to exclude from the output by default.
     """
 
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, model, data, names, dims, levels, transformed_vars=None):
         # store the arguments
         self.data = data
@@ -167,13 +169,13 @@ class MCMCResults(ModelResults):
             names = [n for n in listify(var_names) if n in names]
         if not ranefs:
             names = [x for x in names if re.sub(r"_offset$", "", x) not in self.model.random_terms]
-        Intercept = [n for n in names if "Intercept" in n]
+        intercept = [n for n in names if "intercept" in n]
         std = [n for n in names if "_" in n]
         rand_eff = [n for n in names if "|" in n and n not in std]
         interac = [n for n in names if ":" in n and n not in rand_eff + std]
-        main_eff = [n for n in names if n not in interac + std + rand_eff + Intercept]
+        main_eff = [n for n in names if n not in interac + std + rand_eff + intercept]
         names = (
-            Intercept
+            intercept
             + sorted(main_eff, key=len)
             + sorted(interac, key=len)
             + sorted(rand_eff, key=len)
@@ -181,7 +183,7 @@ class MCMCResults(ModelResults):
         )
         return names
 
-    def plot(
+    def plot(  # pylint: disable=arguments-differ, inconsistent-return-statements
         self,
         var_names=None,
         coords=None,
@@ -227,7 +229,8 @@ class MCMCResults(ModelResults):
         figsize : figure size tuple
             If None, size is (12, variables * 2)
         textsize: float
-            Text size scaling factor for labels, titles and lines. If None it will be autoscaled based
+            Text size scaling factor for labels, titles and lines. If None it will be autoscaled
+            based
             on figsize.
         lines : tuple
             Tuple of (var_name, {'coord': selection}, [line, positions]) to be overplotted as
@@ -235,8 +238,8 @@ class MCMCResults(ModelResults):
         compact : bool
             Plot multidimensional variables in a single plot.
         combined : bool
-            Flag for combining multiple chains into a single line. If False (default), chains will be
-            plotted separately.
+            Flag for combining multiple chains into a single line. If False (default), chains will
+            be plotted separately.
         legend : bool
             Add a legend to the figure with the chain color code.
         kind : str
@@ -255,32 +258,37 @@ class MCMCResults(ModelResults):
         -------
         axes : matplotlib axes
         """
-        data = self.to_dict(var_names=None, ranefs=False, transformed=False, chains=None)
+        data = self.to_dict(
+            var_names=var_names,
+            ranefs=ranefs,
+            transformed=transformed,
+            chains=chains
+        )
 
         if kind == "trace":
             axes = az.plot_trace(
                 data,
-                var_names=None,
-                coords=None,
-                divergences="bottom",
-                figsize=None,
-                textsize=None,
-                lines=None,
-                compact=True,
-                combined=False,
-                legend=False,
-                plot_kwargs=None,
-                fill_kwargs=None,
-                rug_kwargs=None,
-                hist_kwargs=None,
-                trace_kwargs=None,
-                max_plots=40,
+                var_names=var_names,
+                coords=coords,
+                divergences=divergences,
+                figsize=figsize,
+                textsize=textsize,
+                lines=lines,
+                compact=compact,
+                combined=combined,
+                legend=legend,
+                plot_kwargs=plot_kwargs,
+                fill_kwargs=fill_kwargs,
+                rug_kwargs=rug_kwargs,
+                hist_kwargs=hist_kwargs,
+                trace_kwargs=trace_kwargs,
+                max_plots=max_plots,
             )
             return axes
         elif kind == "priors":
             return self.model.plot(var_names)
 
-    def summary(
+    def summary(  # pylint: disable=arguments-differ
         self,
         var_names=None,
         ranefs=False,
@@ -314,7 +322,8 @@ class MCMCResults(ModelResults):
         fmt : {'wide', 'long', 'xarray'}
             Return format is either pandas.DataFrame {'wide', 'long'} or xarray.Dataset {'xarray'}.
         round_to : int
-            Number of decimals used to round results. Defaults to 2. Use "none" to return raw numbers.
+            Number of decimals used to round results. Defaults to 2. Use "none" to return raw
+            numbers.
         stat_funcs : dict
             A list of functions or a dict of functions with function names as keys used to calculate
             statistics. By default, the mean, standard deviation, simulation standard error, and
@@ -324,11 +333,11 @@ class MCMCResults(ModelResults):
             The functions should be in the style of a ufunc and return a single number. For example,
             `np.mean`, or `scipy.stats.var` would both work.
         extend : boolean
-            If True, use the statistics returned by `stat_funcs` in addition to, rather than in place
-            of, the default statistics. This is only meaningful when `stat_funcs` is not None.
+            If True, use the statistics returned by `stat_funcs` in addition to, rather than in
+            place of, the default statistics. This is only meaningful when `stat_funcs` is not None.
         credible_interval : float, optional
-            Credible interval to plot. Defaults to 0.94. This is only meaningful when `stat_funcs` is
-            None.
+            Credible interval to plot. Defaults to 0.94. This is only meaningful when `stat_funcs`
+            is None.
         order : {"C", "F"}
             If fmt is "wide", use either C or F unpacking order. Defaults to C.
         index_origin : int
@@ -341,19 +350,24 @@ class MCMCResults(ModelResults):
             `hpd_3%`, `hpd_97%`, `mcse_mean`, `mcse_sd`, `ess_bulk`, `ess_tail` and `r_hat`.
             `r_hat` is only computed for traces with 2 or more chains.
         """
-        data = self.to_dict(var_names=None, ranefs=False, transformed=False, chains=None)
+        data = self.to_dict(
+            var_names=var_names,
+            ranefs=ranefs,
+            transformed=transformed,
+            chains=chains
+        )
 
         return az.summary(
             data,
-            var_names=None,
-            fmt="wide",
-            round_to=None,
-            include_circ=None,
-            stat_funcs=None,
-            extend=True,
-            credible_interval=0.94,
-            order="C",
-            index_origin=0,
+            var_names=var_names,
+            fmt=fmt,
+            round_to=round_to,
+            include_circ=include_circ,
+            stat_funcs=stat_funcs,
+            extend=extend,
+            credible_interval=credible_interval,
+            order=order,
+            index_origin=index_origin,
         )
 
     def to_df(self, var_names=None, ranefs=False, transformed=False, chains=None):
@@ -364,11 +378,13 @@ class MCMCResults(ModelResults):
         Parameters
         ----------
         var_names: list
-            List of variable names to include; if None(default), all eligible variables are included.
+            List of variable names to include; if None(default), all eligible variables are
+            included.
         ranefs : bool)
             Whether or not to include random effects in the returned DataFrame. Default is True.
         transformed : bool
-            Whether or not to include internally transformed variables in the result. Default is False.
+            Whether or not to include internally transformed variables in the result. Default is
+            False.
         chains: int, list
             Index, or list of indexes, of chains to concatenate. E.g., [1, 3] would concatenate
             the first and third chains, and ignore any others. If None (default), concatenates all
@@ -398,11 +414,13 @@ class MCMCResults(ModelResults):
         Parameters
         ----------
         var_names: list
-            List of variable names to include; if None(default), all eligible variables are included.
+            List of variable names to include; if None(default), all eligible variables are
+            included.
         ranefs : bool)
             Whether or not to include random effects in the returned DataFrame. Default is True.
         transformed : bool
-            Whether or not to include internally transformed variables in the result. Default is False.
+            Whether or not to include internally transformed variables in the result. Default is
+            False.
         chains: int, list
             Index, or list of indexes, of chains to concatenate. E.g., [1, 3] would concatenate
             the first and third chains, and ignore any others. If None (default), concatenates all
@@ -417,19 +435,7 @@ class MCMCResults(ModelResults):
             chains = list(range(self.n_chains))
         chains = listify(chains)
         data = self.data.T
-
-        {name: data[idx] for idx, name in enumerate(names)}
-
         return {name: data[idx] for idx, name in enumerate(names)}
-
-        # concatenate the (pre-sliced) chains
-        if chains is None:
-            chains = list(range(self.n_chains))
-        chains = listify(chains)
-        data = self.data.T
-
-        dictio = {name: data[idx] for idx, name in enumerate(names)}
-        dictio
 
 
 class PyMC3ADVIResults(ModelResults):
@@ -446,3 +452,9 @@ class PyMC3ADVIResults(ModelResults):
         self.sds = params["stds"]
         self.elbo_vals = params["elbo_vals"]
         super(PyMC3ADVIResults, self).__init__(model)
+
+    def plot(self):
+        raise NotImplementedError
+
+    def summary(self):
+        raise NotImplementedError
