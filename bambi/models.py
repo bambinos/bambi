@@ -48,6 +48,7 @@ class Model:
         If True (default), uses a non-centered parameterization for normal hyperpriors on grouped
         parameters. If False, naive (centered) parameterization is used.
     """
+    
     # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
