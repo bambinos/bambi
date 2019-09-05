@@ -274,7 +274,6 @@ class Model:
         self.backend.build(self)
         self.built = True
 
-
     def fit(
         self,
         fixed=None,
