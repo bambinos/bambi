@@ -1,14 +1,17 @@
 from __future__ import absolute_import
-from .base import BackEnd
+
+import re
+from collections import OrderedDict
+
+import numpy as np
+import pymc3 as pm
+from pymc3.model import TransformedRV
+import theano
+from bambi.external.six import string_types
 from bambi.priors import Prior
 from bambi.results import MCMCResults, PyMC3ADVIResults
-from bambi.external.six import string_types
-from collections import OrderedDict
-import theano
-import pymc3 as pm
-import numpy as np
-import re
-from pymc3.model import TransformedRV
+
+from .base import BackEnd
 
 
 class PyMC3BackEnd(BackEnd):
@@ -34,6 +37,12 @@ class PyMC3BackEnd(BackEnd):
 
         self.reset()
 
+        # Attributes defined elsewhere
+        self.mu = None  # build()
+        self.spec = None  # build()
+        self.trace = None  # build()
+        self.advi_params = None  # build()
+
     def reset(self):
         '''
         Reset PyMC3 model and all tracked distributions and parameters.
@@ -54,11 +63,11 @@ class PyMC3BackEnd(BackEnd):
                                  "found in PyMC3 or the PyMC3BackEnd." % dist)
 
         # Inspect all args in case we have hyperparameters
-        def _expand_args(k, v, label):
-            if isinstance(v, Prior):
-                label = '%s_%s' % (label, k)
-                return self._build_dist(spec, label, v.name, **v.args)
-            return v
+        def _expand_args(key, value, label):
+            if isinstance(value, Prior):
+                label = '%s_%s' % (label, key)
+                return self._build_dist(spec, label, value.name, **value.args)
+            return value
 
         kwargs = {k: _expand_args(k, v, label) for (k, v) in kwargs.items()}
 
@@ -72,7 +81,7 @@ class PyMC3BackEnd(BackEnd):
 
         return dist(label, **kwargs)
 
-    def build(self, spec, reset=True):
+    def build(self, spec, reset=True):  # pylint: disable=arguments-differ
         '''
         Compile the PyMC3 model from an abstract model specification.
         Args:
@@ -114,9 +123,7 @@ class PyMC3BackEnd(BackEnd):
                 link_f = link_f
             y_prior.args[spec.family.parent] = link_f(self.mu)
             y_prior.args['observed'] = y
-            y_like = self._build_dist(spec, spec.y.name, y_prior.name,
-                                      **y_prior.args)
-
+            self._build_dist(spec, spec.y.name, y_prior.name, **y_prior.args)
             self.spec = spec
 
     def _get_transformed_vars(self):
@@ -133,6 +140,7 @@ class PyMC3BackEnd(BackEnd):
 
         return trans
 
+    # pylint: disable=arguments-differ, inconsistent-return-statements
     def run(self, start=None, method='mcmc', init='auto', n_init=50000, **kwargs):
         '''
         Run the PyMC3 MCMC sampler.
@@ -163,23 +171,29 @@ class PyMC3BackEnd(BackEnd):
 
         elif method == 'advi':
             with self.model:
-                self.advi_params = pm.variational.advi(start, **kwargs)
-            return PyMC3ADVIResults(self.spec, self.advi_params,
-                                    transformed_vars=self._get_transformed_vars())
+                self.advi_params = pm.variational.ADVI(start, **kwargs)
+            return PyMC3ADVIResults(  # pylint: disable=abstract-class-instantiated
+                self.spec,
+                self.advi_params
+            )
 
     def _convert_to_results(self):
         # grab samples as big, unlabelled array
         # dimensions 0, 1, 2 = samples, chains, variables
-        data = np.array([np.array([np.atleast_2d(x.T).T[:, i]
-                         for x in self.trace._straces[j].samples.values()
-                         for i in range(np.atleast_2d(x.T).T.shape[1])])
-                         for j in range(len(self.trace._straces))])
+        data = np.array(
+            [
+                np.array([np.atleast_2d(x.T).T[:, i]
+                for x in self.trace._straces[j].samples.values()  # pylint: disable=protected-access
+                for i in range(np.atleast_2d(x.T).T.shape[1])])
+                for j in range(len(self.trace._straces))  # pylint: disable=protected-access
+            ]
+        )
         data = np.swapaxes(np.swapaxes(data, 0, 1), 0, 2)
 
         # arrange var_shapes dictionary in same order as samples dictionary
         shapes = OrderedDict()
-        for key in self.trace._straces[0].samples:
-            shapes[key] = self.trace._straces[0].var_shapes[key]
+        for key in self.trace._straces[0].samples:  # pylint: disable=protected-access
+            shapes[key] = self.trace._straces[0].var_shapes[key]  # pylint: disable=protected-access
 
         # grab info necessary for making samplearray pretty
         names = list(shapes.keys())

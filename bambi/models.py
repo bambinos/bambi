@@ -48,7 +48,7 @@ class Model:
         If True (default), uses a non-centered parameterization for normal hyperpriors on grouped
         parameters. If False, naive (centered) parameterization is used.
     """
-
+    
     # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
@@ -275,6 +275,7 @@ class Model:
         self.backend.build(self)
         self.built = True
 
+
     def fit(
         self,
         fixed=None,
@@ -445,7 +446,13 @@ class Model:
         self.built = False
 
     def _add(
-        self, fixed=None, random=None, priors=None, family="gaussian", link=None, categorical=None
+        self,
+        fixed=None,
+        random=None,
+        priors=None,
+        family="gaussian",
+        link=None,
+        categorical=None,
     ):
         """Internal version of add(), with the same arguments.
 
