@@ -278,7 +278,6 @@ class MCMCResults(ModelResults):
                 rug_kwargs=rug_kwargs,
                 hist_kwargs=hist_kwargs,
                 trace_kwargs=trace_kwargs,
-                max_plots=max_plots,
             )
             return axes
         elif kind == "priors":
