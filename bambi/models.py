@@ -19,32 +19,34 @@ from bambi.utils import listify
 
 class Model:
     """
-    Attributes:
-        data (DataFrame, str): the dataset to use. Either a pandas
-            DataFrame, or the name of the file containing the data, which
-            will be passed to pd.read_csv().
-        default_priors (dict, str): An optional specification of the
-            default priors to use for all model terms. Either a dict
-            containing named distributions, families, and terms (see the
-            documentation in priors.PriorFactory for details), or the name
-            of a JSON file containing the same information.
-        auto_scale (bool): If True (default), priors are automatically rescaled
-            to the data (to be weakly informative) any time default priors are
-            used. Note that any priors explicitly set by the user will always
-            take precedence over default priors.
-        dropna (bool): When True, rows with any missing values in either the
-            predictors or outcome are automatically dropped from the dataset in
-            a listwise manner.
-        taylor (int): Order of Taylor expansion to use in approximate variance
-            when constructing the default priors. Should be between 1 and 13.
-            Lower values are less accurate, tending to undershoot the correct
-            prior width, but are faster to compute and more stable. Odd-
-            numbered values tend to work better. Defaults to 5 for Normal
-            models and 1 for non-Normal models. Values higher than the defaults
-            are generally not recommended as they can be unstable.
-        noncentered (bool): If True (default), uses a non-centered
-            parameterization for normal hyperpriors on grouped parameters.
-            If False, naive (centered) parameterization is used.
+    Specification of model class
+
+    Parameters
+    ----------
+    data : DataFrame or str
+        The dataset to use. Either a pandas DataFrame, or the name of the file containing the data,
+        which will be passed to `pd.read_csv()`.
+    default_priors : dict or str
+        An optional specification of the default priors to use for all model terms. Either a
+        dictionary containing named distributions, families, and terms (see the documentation in
+        priors.PriorFactory for details), or the name of a JSON file containing the same
+        information.
+    auto_scale : bool
+        If True (default), priors are automatically rescaled to the data (to be weakly informative)
+        any time default priors are used. Note that any priors explicitly set by the user will
+        always take precedence over default priors.
+    dropna : bool)
+        When True, rows with any missing values in either the predictors or outcome are
+        automatically dropped from the dataset in a listwise manner.
+    taylor : int
+        Order of Taylor expansion to use in approximate variance when constructing the default
+        priors. Should be between 1 and 13. Lower values are less accurate, tending to undershoot
+        the correct prior width, but are faster to compute and more stable. Odd-numbered values
+        tend to work better. Defaults to 5 for Normal models and 1 for non-Normal models. Values
+        higher than the defaults are generally not recommended as they can be unstable.
+    noncentered : bool
+        If True (default), uses a non-centered parameterization for normal hyperpriors on grouped
+        parameters. If False, naive (centered) parameterization is used.
     """
     # pylint: disable=too-many-instance-attributes
     def __init__(
@@ -134,11 +136,12 @@ class Model:
         Performs any steps that require access to all model terms (e.g., scaling priors
         on each term), then calls the BackEnd's build() method.
 
-        Args:
-            backend (str): The name of the backend to use for model fitting.
-                Currently, 'pymc' and 'stan' are supported. If None, assume
-                that fit() has already been called (possibly without building),
-                and look in self._backend_name.
+        Parameters
+        ----------
+        backend : str
+            The name of the backend to use for model fitting. Currently, 'pymc' and 'stan' are
+            supported. If None, assume that `fit()` has already been called (possibly without
+            building) and look in self._backend_name.
         """
 
         # retain only the complete cases
@@ -286,37 +289,38 @@ class Model:
     ):
         """Fit the model using the specified BackEnd.
 
-        Args:
-            fixed (str): Optional formula specification of fixed effects.
-            random (list): Optional list-based specification of random effects.
-            priors (dict): Optional specification of priors for one or more
-                terms. A dict where the keys are the names of terms in the
-                model, and the values are either instances of class Prior or
-                ints, floats, or strings that specify the width of the priors
-                on a standardized scale.
-            family (str, Family): A specification of the model family
-                (analogous to the family object in R). Either a string, or an
-                instance of class priors.Family. If a string is passed, a
-                family with the corresponding name must be defined in the
-                defaults loaded at Model initialization. Valid pre-defined
-                families are 'gaussian', 'bernoulli', 'poisson', and 't'.
-            link (str): The model link function to use. Can be either a string
-                (must be one of the options defined in the current backend;
-                typically this will include at least 'identity', 'logit',
-                'inverse', and 'log'), or a callable that takes a 1D ndarray
-                or theano tensor as the sole argument and returns one with
-                the same shape.
-            run (bool): Whether or not to immediately begin fitting the model
-                once any set up of passed arguments is complete.
-            categorical (str, list): The names of any variables to treat as
-                categorical. Can be either a single variable name, or a list
-                of names. If categorical is None, the data type of the columns
-                in the DataFrame will be used to infer handling. In cases where
-                numeric columns are to be treated as categoricals (e.g., random
-                factors coded as numerical IDs), explicitly passing variable
-                names via this argument is recommended.
-            backend (str): The name of the BackEnd to use. Currently only
-                'pymc' and 'stan' backends are supported. Defaults to PyMC3.
+        Parameters
+        ----------
+        fixed : str
+            Optional formula specification of fixed effects.
+        random : list
+            Optional list-based specification of random effects.
+        priors : dict
+            Optional specification of priors for one or more terms. A dict where the keys are the
+            names of terms in the model, and the values are either instances of class Prior or
+            ints, floats, or strings that specify the width of the priors on a standardized scale.
+        family : str or Family
+            A specification of the model family (analogous to the family object in R). Either a
+            string, or an instance of class priors.Family. If a string is passed, a family with
+            the corresponding name must be defined in the defaults loaded at Model initialization.
+            Valid pre-defined families are 'gaussian', 'bernoulli', 'poisson', and 't'.
+        link : str
+            The model link function to use. Can be either a string (must be one of the options
+            defined in the current backend; typically this will include at least 'identity',
+            'logit', 'inverse', and 'log'), or a callable that takes a 1D ndarray or theano tensor
+            as the sole argument and returns one with the same shape.
+        run : bool
+            Whether or not to immediately begin fitting the model once any set up of passed
+            arguments is complete.
+        categorical : str or list
+            The names of any variables to treat as categorical. Can be either a single variable
+            name, or a list of names. If categorical is None, the data type of the columns in the
+            DataFrame will be used to infer handling. In cases where numeric columns are to be
+            treated as categoricals (e.g., random factors coded as numerical IDs), explicitly
+            passing variable names via this argument is recommended.
+        backend : str
+            The name of the BackEnd to use. Currently only 'pymc' and 'stan' backends are
+            supported. Defaults to PyMC3.
         """
 
         if fixed is not None or random is not None:
@@ -352,38 +356,39 @@ class Model:
         categorical=None,
         append=True,
     ):
-        """Adds one or more terms to the model via an R-like formula syntax.
+        """
+        Adds one or more terms to the model via an R-like formula syntax.
 
-        Args:
-            fixed (str): Optional formula specification of fixed effects.
-            random (list): Optional list-based specification of random effects.
-            priors (dict): Optional specification of priors for one or more
-                terms. A dict where the keys are the names of terms in the
-                model, and the values are either instances of class Prior or
-                ints, floats, or strings that specify the width of the priors
-                on a standardized scale.
-            family (str, Family): A specification of the model family
-                (analogous to the family object in R). Either a string, or an
-                instance of class priors.Family. If a string is passed, a
-                family with the corresponding name must be defined in the
-                defaults loaded at Model initialization. Valid pre-defined
-                families are 'gaussian', 'bernoulli', 'poisson', and 't'.
-            link (str): The model link function to use. Can be either a string
-                (must be one of the options defined in the current backend;
-                typically this will include at least 'identity', 'logit',
-                'inverse', and 'log'), or a callable that takes a 1D ndarray
-                or theano tensor as the sole argument and returns one with
-                the same shape.
-            categorical (str, list): The names of any variables to treat as
-                categorical. Can be either a single variable name, or a list
-                of names. If categorical is None, the data type of the columns
-                in the DataFrame will be used to infer handling. In cases where
-                numeric columns are to be treated as categoricals (e.g., random
-                factors coded as numerical IDs), explicitly passing variable
-                names via this argument is recommended.
-            append (bool): If True, terms are appended to the existing model
-                rather than replacing any existing terms. This allows
-                formula-based specification of the model in stages.
+        Parameters
+        ----------
+        fixed : str
+            Optional formula specification of fixed effects.
+        random : list
+            Optional list-based specification of random effects.
+        priors : dict
+            Optional specification of priors for one or more terms. A dict where the keys are the
+            names of terms in the model, and the values are either instances of class Prior or
+            ints, floats, or strings that specify the width of the priors on a standardized scale.
+        family : str, Family
+            A specification of the model family (analogous to the family object in R).
+            Either a string, or an instance of class priors.Family. If a string is passed, a family
+            with the corresponding name must be defined in the defaults loaded at Model
+            initialization. Valid pre-defined families are 'gaussian', 'bernoulli', 'poisson',
+            and 't'.
+        link : str
+            The model link function to use. Can be either a string (must be one of the options
+            defined in the current backend; typically this will include at least 'identity',
+            'logit', 'inverse', and 'log'), or a callable that takes a 1D ndarray or theano tensor
+            as the sole argument and returns one with the same shape.
+        categorical : str or list
+            The names of any variables to treat as categorical. Can be either a single variable
+            name, or a list of names. If categorical is None, the data type of the columns in the
+            DataFrame will be used to infer handling. In cases where numeric columns are to be
+            treated as categoricals (e.g., random factors coded as numerical IDs), explicitly
+            passing variable names via this argument is recommended.
+        append : bool
+            If True, terms are appended to the existing model rather than replacing any
+            existing terms. This allows formula-based specification of the model in stages.
         """
 
         data = self.data
@@ -440,13 +445,7 @@ class Model:
         self.built = False
 
     def _add(
-        self,
-        fixed=None,
-        random=None,
-        priors=None,
-        family="gaussian",
-        link=None,
-        categorical=None,
+        self, fixed=None, random=None, priors=None, family="gaussian", link=None, categorical=None
     ):
         """Internal version of add(), with the same arguments.
 
@@ -579,30 +578,26 @@ class Model:
     def _add_y(self, variable, prior=None, family="gaussian", link=None, *args, **kwargs):
         """Add a dependent (or outcome) variable to the model.
 
-        Args:
-            variable (str): the name of the dataset column containing the
-                y values.
-            prior (Prior, int, float, str): Optional specification of prior.
-                Can be an instance of class Prior, a numeric value, or a string
-                describing the width. In the numeric case, the distribution
-                specified in the defaults will be used, and the passed value
-                will be used to scale the appropriate variance parameter. For
-                strings (e.g., 'wide', 'narrow', 'medium', or 'superwide'),
-                predefined values will be used.
-            family (str, Family): A specification of the model family
-                (analogous to the family object in R). Either a string, or an
-                instance of class priors.Family. If a string is passed, a
-                family with the corresponding name must be defined in the
-                defaults loaded at Model initialization. Valid pre-defined
-                families are 'gaussian', 'bernoulli', 'poisson', and 't'.
-            link (str): The model link function to use. Can be either a string
-                (must be one of the options defined in the current backend;
-                typically this will include at least 'identity', 'logit',
-                'inverse', and 'log'), or a callable that takes a 1D ndarray
-                or theano tensor as the sole argument and returns one with
-                the same shape.
-            args, kwargs: Optional positional and keyword arguments to pass
-                onto Term initializer.
+        Parameters
+        ----------
+        variable : str
+            The name of the dataset column containing the y values.
+        prior : Prior, int, float, str
+            Optional specification of prior. Can be an instance of class Prior, a numeric value,
+            or a string describing the width. In the numeric case, the distribution specified in
+            the defaults will be used, and the passed value will be used to scale the appropriate
+            variance parameter. For strings (e.g., 'wide', 'narrow', 'medium', or 'superwide'),
+            predefined values will be used.
+        family : str or Family
+            A specification of the model family (analogous to the family object in R). Either a
+            string, or an instance of class priors.Family. If a string is passed, a family with the
+            corresponding name must be defined in the defaults loaded at Model initialization.
+            Valid pre-defined families are 'gaussian', 'bernoulli', 'poisson', and 't'.
+        link : str
+            The model link function to use. Can be either a string (must be one of the options
+            defined in the current backend; typically this will include at least 'identity',
+            'logit', 'inverse', and 'log'), or a callable that takes a 1D ndarray or theano tensor
+            as the sole argument and returns one with the same shape.
         """
         if isinstance(family, string_types):
             family = self.default_priors.get(family=family)
@@ -657,24 +652,24 @@ class Model:
     def set_priors(self, priors=None, fixed=None, random=None, match_derived_names=True):
         """Set priors for one or more existing terms.
 
-        Args:
-            priors (dict): Dict of priors to update. Keys are names of terms
-                to update; values are the new priors (either a Prior instance,
-                or an int or float that scales the default priors). Note that
-                a tuple can be passed as the key, in which case the same prior
-                will be applied to all terms named in the tuple.
-            fixed (Prior, int, float, str): a prior specification to apply to
-                all fixed terms currently included in the model.
-            random (Prior, int, float, str): a prior specification to apply to
-                all random terms currently included in the model.
-            match_derived_names (bool): if True, the specified prior(s) will be
-                applied not only to terms that match the keyword exactly,
-                but to the levels of random effects that were derived from
-                the original specification with the passed name. For example,
-                `priors={'condition|subject':0.5}` would apply the prior
-                to the terms with names '1|subject', 'condition[T.1]|subject',
-                and so on. If False, an exact match is required for the
-                prior to be applied.
+        Parameters
+        ----------
+        priors : dict
+            Dict of priors to update. Keys are names of terms to update; values are the new priors
+            (either a Prior instance, or an int or float that scales the default priors). Note that
+            a tuple can be passed as the key, in which case the same prior will be applied to all
+            terms named in the tuple.
+        fixed : Prior, int, float or str
+            A prior specification to apply to all fixed terms currently included in the model.
+        random : Prior, int, float or str
+            A prior specification to apply to all random terms currently included in the model.
+        match_derived_names : bool
+            If True, the specified prior(s) will be applied not only to terms that match the
+            keyword exactly, but to the levels of random effects that were derived from the
+            original specification with the passed name. For example,
+            `priors={'condition|subject':0.5}` would apply the prior to the terms with names
+            '1|subject', 'condition[T.1]|subject', and so on. If False, an exact match is required
+            for the prior to be applied.
         """
         # save arguments to pass to _set_priors() at build time
         kwargs = dict(
@@ -721,9 +716,11 @@ class Model:
     # helper function to correctly set default priors, auto_scaling, etc.
     def _prepare_prior(self, prior, _type):
         """
-        Args:
-            prior: Prior object, or float, or None.
-            type (string): 'intercept, 'fixed', or 'random'.
+        Parameters
+        ----------
+        prior : Prior object, or float, or None.
+        _type : string
+            accepted values are: 'intercept, 'fixed', or 'random'.
         """
 
         if prior is None and not self.auto_scale:
@@ -805,17 +802,18 @@ class Model:
 class Term:
     """Representation of a single (fixed) model term.
 
-    Attributes:
-        name (str): Name of the term.
-        data (DataFrame, Series, ndarray): The term values.
-        categorical (bool): If True, the source variable is interpreted as
-            nominal/categorical. If False, the source variable is treated
-            as continuous.
-        prior (Prior): A specification of the prior(s) to use. An instance
-            of class priors.Prior.
-        constant (bool): indicates whether the term levels collectively
-            act as a constant, in which case the term is treated as an
-            intercept for prior distribution purposes.
+    Parameters
+    ----------
+    name : str
+        Name of the term. data (DataFrame, Series, ndarray): The term values.
+    categorical : bool
+        If True, the source variable is interpreted as nominal/categorical. If False, the source
+        variable is treated as continuous.
+    prior : Prior
+        A specification of the prior(s) to use. An instance of class priors.Prior.
+    constant : bool
+        indicates whether the term levels collectively act as a constant, in which case the term is
+        treated as an intercept for prior distribution purposes.
     """
 
     random = False

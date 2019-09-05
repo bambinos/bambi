@@ -23,10 +23,13 @@ __all__ = ["MCMCResults", "PyMC3ADVIResults"]
 
 
 class ModelResults(metaclass=ABCMeta):
-    """Base class for ModelResults hierarchy.
+    """
+    Base class for ModelResults hierarchy.
 
-    Attributes:
-        model (Model): a bambi Model instance specifying the model.
+    Parameters
+    ----------
+    model : Model
+        A bambi Model instance specifying the model.
     """
 
     def __init__(self, model):
@@ -46,17 +49,24 @@ class ModelResults(metaclass=ABCMeta):
 
 
 class MCMCResults(ModelResults):
-    """Holds sampler results; provides slicing, plotting, and summarization tools.
+    """
+    Holds sampler results; provides slicing, plotting, and summarization tools.
 
-    Attributes:
-        model (Model): a bambi Model instance specifying the model.
-        data (array-like): Raw storage of MCMC samples in array with
-            dimensions 0, 1, 2 = samples, chains, variables
-        names (list): Names of all Terms.
-        dims (list): Numbers of levels for all Terms.
-        levels (list): Names of all levels for all Terms.
-        transformed (list): Optional list of variable names to treat as
-            transformed--and hence, to exclude from the output by default.
+    Parameters
+    ----------
+    model : Model
+        A bambi Model instance specifying the model.
+    data : array-like
+        Raw storage of MCMC samples in array with dimensions 0, 1, 2 = samples, chains, variables
+    names : list
+        Names of all terms.
+    dims : list
+        Numbers of levels for all terms.
+    levels : list
+        Names of all levels for all terms.
+    transformed : list
+        Optional list of variable names to treat as transformed--and hence, to exclude from the
+        output by default.
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -150,19 +160,6 @@ class MCMCResults(ModelResults):
             transformed_vars=self.transformed_vars,
         )
 
-    def get_chains(self, indices):
-        # Return copy of self but only for chains with the passed indices
-        if not isinstance(indices, (list, tuple)):
-            indices = [indices]
-        return MCMCResults(
-            model=self.model,
-            data=self.data[:, indices, :],
-            names=self.names,
-            dims=self.dims,
-            levels=self.levels,
-            transformed_vars=self.transformed_vars,
-        )
-
     def _filter_names(self, var_names=None, ranefs=False, transformed=False):
         names = self.untransformed_vars if not transformed else self.names
         if var_names is not None:
@@ -203,7 +200,6 @@ class MCMCResults(ModelResults):
         rug_kwargs=None,
         hist_kwargs=None,
         trace_kwargs=None,
-        max_plots=40,
     ):
         """Plot distribution (histogram or kernel density estimates) and sampled values.
 
@@ -439,11 +435,15 @@ class MCMCResults(ModelResults):
 
 
 class PyMC3ADVIResults(ModelResults):
-    """Holds PyMC3 ADVI results and provides plotting and summarization tools.
+    """
+    Holds PyMC3 ADVI results and provides plotting and summarization tools.
 
-    Attributes:
-        model (Model): A bambi Model instance specifying the model.
-        params (MultiTrace): ADVI parameters returned by PyMC3.
+    Parameters
+    ----------
+    model : Model
+        A bambi Model instance specifying the model.
+    params : MultiTrace
+        ADVI parameters returned by PyMC3.
     """
 
     def __init__(self, model, params):
