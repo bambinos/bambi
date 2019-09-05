@@ -259,8 +259,8 @@ class PriorScaler:
         # c: intercept, d: shift parameter
         # a: quadratic coefficient, b: quadratic coefficient
 
-        intercept, intercept = approximation[-1], -(full_mod.params[i].item())
-        X = np.array([(values + intercept) ** 4, (values + intercept) ** 2]).T
+        intercept, shift_parameter = approximation[-1], -(full_mod.params[i].item())
+        X = np.array([(values + shift_parameter) ** 4, (values + shift_parameter) ** 2]).T
         coef_a, coef_b = np.squeeze(
             np.linalg.multi_dot(
                 [np.linalg.inv(np.dot(X.T, X)), X.T, (approximation[:, None] - intercept)]
