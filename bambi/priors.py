@@ -257,7 +257,7 @@ class PriorScaler:
 
         # compute params of quartic approximatino to log-likelihood
         # c: intercept, d: shift parameter
-        # a: quadrtic coefficient, b: quadratic coefficient
+        # a: quadratic coefficient, b: quadratic coefficient
 
         intercept, intercept = approximation[-1], -(full_mod.params[i].item())
         X = np.array([(values + intercept) ** 4, (values + intercept) ** 2]).T
