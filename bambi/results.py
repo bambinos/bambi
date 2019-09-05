@@ -15,7 +15,7 @@ try:
         pma = pm.plots  # pylint: disable=invalid-name
     else:
         pma = pm.plots.artists  # pylint: disable=invalid-name, no-member
-except ImportError:
+except AttributeError:
     pma = None  # pylint: disable=invalid-name
 
 
