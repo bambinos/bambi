@@ -1,18 +1,22 @@
 from __future__ import absolute_import
-from .base import BackEnd
-from bambi.priors import Prior
-from bambi.results import MCMCResults
-import numpy as np
-import pymc3 as pm
+
 import re
-try:
-    import pystan as ps
-except:
-    ps = None
+
 from six import string_types
 
+import numpy as np
+from bambi.priors import Prior
+from bambi.results import MCMCResults
 
-class StanBackEnd(BackEnd):
+from .base import BackEnd
+
+try:
+    import pystan as ps
+except ImportError:
+    ps = None
+
+
+class StanBackEnd(BackEnd):  # pylint: disable=too-many-instance-attributes
 
     '''
     Stan/PyStan model-fitting back-end.
@@ -60,6 +64,12 @@ class StanBackEnd(BackEnd):
                               "installed.")
         self.reset()
 
+        # Attributes defined elsewhere
+        self.model_code = None  # build()
+        self.spec = None  # build()
+        self.stan_model = None  # build()
+        self.fit = None  # run()
+
     def reset(self):
         '''
         Reset Stan model and all tracked distributions and parameters.
@@ -79,7 +89,7 @@ class StanBackEnd(BackEnd):
         # code and then sub back later.
         self._suppress_vars = ['yhat', 'lp__']
 
-    def build(self, spec, reset=True):
+    def build(self, spec, reset=True):  # pylint: disable=arguments-differ
         '''
         Compile the Stan model from an abstract model specification.
         Args:
@@ -104,7 +114,7 @@ class StanBackEnd(BackEnd):
             names back in later. '''
             if name in self._original_names:
                 return name
-            clean = 'b_' + re.sub('[^a-zA-Z0-9\_]+', '_', name)
+            clean = 'b_' + re.sub(r'[^a-zA-Z0-9\_]+', '_', name)
             self._original_names[clean] = name
             return clean
 
@@ -133,17 +143,17 @@ class StanBackEnd(BackEnd):
 
             # Named arguments to take from the Prior object are denoted with
             # a '#'; otherwise we take the value in the self.dists dict as-is.
-            dp = [kwargs[p[1:]] if p.startswith('#') else p for p in dist_args]
+            dist_args_reformatted = [kwargs[p[1:]] if p.startswith('#') else p for p in dist_args]
 
             # Sometimes we get numpy arrays at this stage, so convert to float
-            dp = [float(p.ravel()[0]) if isinstance(p, np.ndarray) else p
-                  for p in dp]
+            dist_args_reformatted = [float(p.ravel()[0]) if isinstance(p, np.ndarray) else p
+                  for p in dist_args_reformatted]
 
-            dist_term = '%s(%s)' % (dist_name, ', '.join([str(p) for p in dp]))
+            dist_term = '%s(%s)' % (dist_name, ', '.join([str(p) for p in dist_args_reformatted]))
 
             # handle Uniform variables, for which the bounds are the parameters
-            if dist_name=='uniform':
-                dist_bounds = dist_bounds.format(*dp)
+            if dist_name == 'uniform':
+                dist_bounds = dist_bounds.format(*dist_args_reformatted)
 
             return dist_term, dist_bounds
 
@@ -155,7 +165,7 @@ class StanBackEnd(BackEnd):
                 if n_cols > 1:
                     index_name = _sanitize_name('%s_grp_ind' % name)
                     self.data.append('int %s[N];' % index_name)
-                    self.X[index_name] = t.group_index + 1  # 1-based indexing
+                    self.X[index_name] = term.group_index + 1  # 1-based indexing
                 predictor = 'vector[N] %s;'
             else:
                 predictor = ('matrix[N, %d]' % (n_cols)) + ' %s;'
@@ -176,11 +186,11 @@ class StanBackEnd(BackEnd):
             handle these separately from the data components, as the parameters
             can have nested specifications (in the case of random effects). '''
 
-            def _expand_args(k, v, name):
-                if isinstance(v, Prior):
-                    name = _sanitize_name('%s_%s' % (name, k))
-                    return _add_parameters(name, v.name, 1, **v.args)
-                return v
+            def _expand_args(key, value, name):
+                if isinstance(value, Prior):
+                    name = _sanitize_name('%s_%s' % (name, key))
+                    return _add_parameters(name, value.name, 1, **value.args)
+                return value
 
             kwargs = {k: _expand_args(k, v, name)
                       for (k, v) in dist_args.items()}
@@ -255,20 +265,20 @@ class StanBackEnd(BackEnd):
 
         # add response distribution parameters other than the location
         # parameter
-        for k, v in spec.family.prior.args.items():
-            if k != spec.family.parent and isinstance(v, Prior):
-                _bounds = _map_dist(v.name, **v.args)[1]
-                _param = 'real{} {}_{};'.format(_bounds, spec.y.name, k)
+        for key, value in spec.family.prior.args.items():
+            if key != spec.family.parent and isinstance(value, Prior):
+                _bounds = _map_dist(value.name, **value.args)[1]
+                _param = 'real{} {}_{};'.format(_bounds, spec.y.name, key)
                 self.parameters.append(_param)
 
         # specify the response distribution
         _response_dist = self.families[spec.family.name]['name']
         _response_args = '{}(yhat)'.format(self.links[spec.family.link])
         _response_args = {spec.family.parent: _response_args}
-        for k, v in spec.family.prior.args.items():
-            if k != spec.family.parent:
-                _response_args[k] = '{}_{}'.format(spec.y.name, k) \
-                    if isinstance(v, Prior) else str(v)
+        for key, value in spec.family.prior.args.items():
+            if key != spec.family.parent:
+                _response_args[key] = '{}_{}'.format(spec.y.name, key) \
+                    if isinstance(value, Prior) else str(value)
         _dist = _map_dist(_response_dist, **_response_args)[0]
         self.model.append('y ~ {};'.format(_dist))
 
@@ -288,7 +298,7 @@ class StanBackEnd(BackEnd):
         self.spec = spec
         self.stan_model = ps.StanModel(model_code=self.model_code)
 
-    def run(self, samples=1000, chains=1, **kwargs):
+    def run(self, samples=1000, chains=1, **kwargs):  # pylint: disable=arguments-differ
         '''
         Run the Stan sampler.
         Args:
@@ -313,7 +323,7 @@ class StanBackEnd(BackEnd):
                  for x in self.fit.sim['pars_oi']]
         dims = [tuple(x) for x in self.fit.sim['dims_oi']]
 
-        def replace_name(name):
+        def replace_name(name):  # pylint: disable=inconsistent-return-statements
             tname = re.sub(r'\[.+\]$', '', name)
             if tname in self._original_names:
                 lev = re.search(r'\[(.+)\]$', name)

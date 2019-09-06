@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class BackEnd(object):
+class BackEnd:
 
     '''
     Base class for BackEnd hierarchy.
