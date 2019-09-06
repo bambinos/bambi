@@ -49,6 +49,7 @@ class Model:
         parameters. If False, naive (centered) parameterization is used.
     """
     
+
     # pylint: disable=too-many-instance-attributes
     def __init__(
         self,

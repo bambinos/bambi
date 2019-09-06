@@ -1,3 +1,4 @@
+# pylint: disable=no-name-in-module
 import json
 import re
 from copy import deepcopy
@@ -6,7 +7,7 @@ from os.path import dirname, join
 import numpy as np
 import pandas as pd
 from scipy.special import hyp2f1
-from statsmodels.genmod import families
+from statsmodels.genmod import families as genmod_families
 from statsmodels.genmod.generalized_linear_model import GLM
 
 from bambi.external.six import string_types
@@ -35,9 +36,9 @@ class Family:
         self.link = link
         self.parent = parent
         fams = {
-            "gaussian": families.Gaussian,
-            "bernoulli": families.Binomial,
-            "poisson": families.Poisson,
+            "gaussian": genmod_families.Gaussian,
+            "bernoulli": genmod_families.Binomial,
+            "poisson": genmod_families.Poisson,
             "t": None,  # not implemented in statsmodels
         }
         self.smfamily = fams[name] if name in fams.keys() else None
@@ -153,6 +154,7 @@ class PriorFactory:
         else:
             return spec
 
+    # pylint: disable=inconsistent-return-statements
     def get(self, dist=None, term=None, family=None):
         """Retrieve default prior for a named distribution, term type, or family.
 
@@ -244,31 +246,33 @@ class PriorScaler:
                 for val in values[:-1]
             ]
             null = np.append(null, full_mod)
-            ll = np.array([x.llf for x in null])
+            log_likelihood = np.array([x.llf for x in null])
         # if just a single predictor, use statsmodels to evaluate the LL
         else:
             null = [
                 self.model.family.smfamily().loglike(np.squeeze(self.model.y.data), val * predictor)
                 for val in values[:-1]
             ]
-            ll = np.append(null, full_mod.llf)
+            log_likelihood = np.append(null, full_mod.llf)
 
         # compute params of quartic approximatino to log-likelihood
         # c: intercept, d: shift parameter
         # a: quartic coefficient, b: quadratic coefficient
 
-        c, d = ll[-1], -(full_mod.params[i].item())
-        X = np.array([(values + d) ** 4, (values + d) ** 2]).T
-        a, b = np.squeeze(
-            np.linalg.multi_dot([np.linalg.inv(np.dot(X.T, X)), X.T, (ll[:, None] - c)])
+        intercept, shift_parameter = log_likelihood[-1], -(full_mod.params[i].item())
+        X = np.array([(values + shift_parameter) ** 4, (values + shift_parameter) ** 2]).T
+        coef_a, coef_b = np.squeeze(
+            np.linalg.multi_dot(
+                [np.linalg.inv(np.dot(X.T, X)), X.T, (log_likelihood[:, None] - intercept)]
+            )
         )
 
         # m, v: mean and variance of beta distribution of correlations
         # p, q: corresponding shape parameters of beta distribution
-        m = 0.5
-        v = sd_corr ** 2 / 4
-        p = m * (m * (1 - m) / v - 1)
-        q = (1 - m) * (m * (1 - m) / v - 1)
+        mean = 0.5
+        variance = sd_corr ** 2 / 4
+        p = mean * (mean * (1 - mean) / variance - 1)
+        q = (1 - mean) * (mean * (1 - mean) / variance - 1)
 
         # function to return central moments of rescaled beta distribution
         def moment(k):
@@ -281,8 +285,8 @@ class PriorScaler:
         # generally gives good results, but the higher order the expansion, the
         # further from 0 we need to evaluate the derivatives, or they blow up.
         point = dict(zip(range(1, 14), 2 ** np.linspace(-1, 5, 13) / 100))
-        vals = dict(a=a, b=b, n=len(self.model.y.data), r=point[self.taylor])
-        _deriv = [eval(x, globals(), vals) for x in self.deriv]
+        vals = dict(a=coef_a, b=coef_b, n=len(self.model.y.data), r=point[self.taylor])
+        _deriv = [eval(x, globals(), vals) for x in self.deriv]  # pylint: disable=eval-used
 
         # compute and return the approximate SD
         def term(i, j):
@@ -365,11 +369,14 @@ class PriorScaler:
 
         # handle intercepts and cell means
         if term.constant:
-            mu, sd = self._get_intercept_stats()
+            _, sd = self._get_intercept_stats()
             sd *= sd_corr
         # handle slopes
         else:
-            exists = [x for x in self.dm.columns if np.array_equal(fix_data, self.dm[x].values)]
+            exists = [
+                x for x in self.dm.columns  # pylint: disable=not-an-iterable
+                if np.array_equal(fix_data, self.dm[x].values)
+            ]
             # handle case where there IS a corresponding fixed effect
             if exists and exists[0] in self.priors.keys():
                 sd = self.priors[exists[0]]["sd"]
@@ -381,7 +388,10 @@ class PriorScaler:
                     fix_dataframe = pd.DataFrame(fix_data)
                     # things break if column names are integers (the default)
                     fix_dataframe.rename(
-                        columns={c: "_" + str(c) for c in fix_dataframe.columns}, inplace=True
+                        columns={
+                            c: "_" + str(c)
+                            for c in fix_dataframe.columns  # pylint: disable=not-an-iterable
+                        }, inplace=True
                     )
                     exog = self.dm.join(fix_dataframe)
                 # this handles the corner case where there technically is the
@@ -431,6 +441,7 @@ class PriorScaler:
         # initialize them in order
         for t, term_type in zip(term_list, term_types):
             if t.prior.scale is None:
+                # pylint: disable=protected-access
                 if not t.prior._auto_scale or not self.model.auto_scale:
                     continue
                 t.prior.scale = "wide"
