@@ -246,24 +246,24 @@ class PriorScaler:
                 for val in values[:-1]
             ]
             null = np.append(null, full_mod)
-            approximation = np.array([x.llf for x in null])
+            log_likelihood = np.array([x.llf for x in null])
         # if just a single predictor, use statsmodels to evaluate the LL
         else:
             null = [
                 self.model.family.smfamily().loglike(np.squeeze(self.model.y.data), val * predictor)
                 for val in values[:-1]
             ]
-            approximation = np.append(null, full_mod.llf)
+            log_likelihood = np.append(null, full_mod.llf)
 
         # compute params of quartic approximatino to log-likelihood
         # c: intercept, d: shift parameter
-        # a: quadratic coefficient, b: quadratic coefficient
+        # a: quartic coefficient, b: quadratic coefficient
 
-        intercept, shift_parameter = approximation[-1], -(full_mod.params[i].item())
+        intercept, shift_parameter = log_likelihood[-1], -(full_mod.params[i].item())
         X = np.array([(values + shift_parameter) ** 4, (values + shift_parameter) ** 2]).T
         coef_a, coef_b = np.squeeze(
             np.linalg.multi_dot(
-                [np.linalg.inv(np.dot(X.T, X)), X.T, (approximation[:, None] - intercept)]
+                [np.linalg.inv(np.dot(X.T, X)), X.T, (log_likelihood[:, None] - intercept)]
             )
         )
 
