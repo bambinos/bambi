@@ -8,16 +8,6 @@ from bambi.external.six import string_types
 
 from .utils import listify
 
-try:
-    import pymc3 as pm
-
-    if hasattr(pm.plots, "kdeplot_op"):
-        pma = pm.plots  # pylint: disable=invalid-name
-    else:
-        pma = pm.plots.artists  # pylint: disable=invalid-name, no-member
-except AttributeError:
-    pma = None  # pylint: disable=invalid-name
-
 
 __all__ = ["MCMCResults", "PyMC3ADVIResults"]
 
