@@ -4,7 +4,6 @@ from abc import ABCMeta, abstractmethod
 import arviz as az
 import numpy as np
 import pandas as pd
-from bambi.external.six import string_types
 
 from .utils import listify
 
@@ -105,11 +104,11 @@ class MCMCResults(ModelResults):
         if isinstance(idx, slice):
             var = self.names
             vslice = idx
-        elif isinstance(idx, string_types):
+        elif isinstance(idx, str):
             var = [idx]
             vslice = slice(0, self.n_samples)
         elif isinstance(idx, list):
-            if not all([isinstance(x, string_types) for x in idx]):
+            if not all([isinstance(x, str) for x in idx]):
                 raise ValueError("If passing a list, all elements must be " "parameter names.")
             var = idx
             vslice = slice(0, self.n_samples)

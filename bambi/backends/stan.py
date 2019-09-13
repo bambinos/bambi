@@ -2,8 +2,6 @@ from __future__ import absolute_import
 
 import re
 
-from six import string_types
-
 import numpy as np
 from bambi.priors import Prior
 from bambi.results import MCMCResults
@@ -206,7 +204,7 @@ class StanBackEnd(BackEnd):  # pylint: disable=too-many-instance-attributes
 
             # non-centered parameterization
             if spec.noncentered and 'sd' in kwargs and \
-                    isinstance(kwargs['sd'], string_types):
+                    isinstance(kwargs['sd'], str):
                 offset_name = _sanitize_name(name + '_offset')
                 offset = 'vector[%d] %s;' % (n_cols, offset_name)
                 self.parameters.append(offset)
