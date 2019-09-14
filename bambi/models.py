@@ -11,7 +11,6 @@ import statsmodels.api as sm
 import pymc3 as pm
 from arviz.plots import plot_posterior
 
-from bambi.external.six import string_types
 from bambi.external.patsy import Custom_NA
 from bambi.priors import PriorFactory, PriorScaler, Prior
 from bambi.utils import listify
@@ -60,7 +59,7 @@ class Model:
         noncentered=True,
     ):
 
-        if isinstance(data, string_types):
+        if isinstance(data, str):
             data = pd.read_csv(data, sep=None, engine="python")
 
         self.default_priors = PriorFactory(default_priors)
@@ -606,7 +605,7 @@ class Model:
             'logit', 'inverse', and 'log'), or a callable that takes a 1D ndarray or theano tensor
             as the sole argument and returns one with the same shape.
         """
-        if isinstance(family, string_types):
+        if isinstance(family, str):
             family = self.default_priors.get(family=family)
         self.family = family
 

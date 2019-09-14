@@ -10,8 +10,6 @@ from scipy.special import hyp2f1
 from statsmodels.genmod import families as genmod_families
 from statsmodels.genmod.generalized_linear_model import GLM
 
-from bambi.external.six import string_types
-
 
 class Family:
     """A specification of model family.
@@ -117,7 +115,7 @@ class PriorFactory:
         if defaults is None:
             defaults = join(dirname(__file__), "config", "priors.json")
 
-        if isinstance(defaults, string_types):
+        if isinstance(defaults, str):
             defaults = json.load(open(defaults, "r"))
 
         # Just in case the user plans to use the same defaults elsewhere
@@ -138,7 +136,7 @@ class PriorFactory:
 
     def _get_prior(self, spec, **kwargs):
 
-        if isinstance(spec, string_types):
+        if isinstance(spec, str):
             spec = re.sub(r"^\#", "", spec)
             return self._get_prior(self.dists[spec])
         elif isinstance(spec, (list, tuple)):
@@ -447,7 +445,7 @@ class PriorScaler:
                 t.prior.scale = "wide"
 
             # Convert scale names to float
-            if isinstance(t.prior.scale, string_types):
+            if isinstance(t.prior.scale, str):
                 t.prior.scale = PriorScaler.names[t.prior.scale]
 
             # scale it!

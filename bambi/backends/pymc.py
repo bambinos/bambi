@@ -5,7 +5,6 @@ import numpy as np
 import pymc3 as pm
 from pymc3.model import TransformedRV
 import theano
-from bambi.external.six import string_types
 from bambi.priors import Prior
 from bambi.results import MCMCResults, PyMC3ADVIResults
 
@@ -51,7 +50,7 @@ class PyMC3BackEnd(BackEnd):
 
     def _build_dist(self, spec, label, dist, **kwargs):
         ''' Build and return a PyMC3 Distribution. '''
-        if isinstance(dist, string_types):
+        if isinstance(dist, str):
             if hasattr(pm, dist):
                 dist = getattr(pm, dist)
             elif dist in self.dists:
@@ -115,7 +114,7 @@ class PyMC3BackEnd(BackEnd):
             y = spec.y.data
             y_prior = spec.family.prior
             link_f = spec.family.link
-            if isinstance(link_f, string_types):
+            if isinstance(link_f, str):
                 link_f = self.links[link_f]
             else:
                 link_f = link_f
