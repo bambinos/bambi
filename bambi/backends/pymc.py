@@ -1,11 +1,8 @@
 import re
-from collections import OrderedDict
-
-import numpy as np
-import pymc3 as pm
 from arviz import from_pymc3
-from pymc3.model import TransformedRV
 import theano
+import pymc3 as pm
+from pymc3.model import TransformedRV
 from bambi.priors import Prior
 
 from .base import BackEnd
@@ -84,7 +81,7 @@ class PyMC3BackEnd(BackEnd):
     def build(self, spec, reset=True):  # pylint: disable=arguments-differ
         """
         Compile the PyMC3 model from an abstract model specification.
-        
+
         Parameters
         ----------
         spec : Bambi model
@@ -119,8 +116,7 @@ class PyMC3BackEnd(BackEnd):
 
             if isinstance(link_f, str):
                 link_f = self.links[link_f]
-            else:
-                link_f = link_f
+
             y_prior.args[spec.family.parent] = link_f(self.mu)
             y_prior.args["observed"] = y
             self._build_dist(spec, spec.y.name, y_prior.name, **y_prior.args)
@@ -150,12 +146,12 @@ class PyMC3BackEnd(BackEnd):
             Starting parameter values to pass to sampler; see ``'pm.sample()'`` for details.
         method: str
             The method to use for fitting the model. By default, 'mcmc', in which case the
-            PyMC3 sampler will be used. Alternatively, 'advi', in which case the model will be fitted
-            using  automatic differentiation variational inference as implemented in PyMC3.
+            PyMC3 sampler will be used. Alternatively, 'advi', in which case the model will be
+            fitted using  automatic differentiation variational inference as implemented in PyMC3.
         init: str
             Initialization method (see PyMC3 sampler documentation). Currently, this is
             ``'jitter+adapt_diag'``, but this can change in the future.
-        n_init: int 
+        n_init: int
             Number of initialization iterations if init = 'advi' or 'nuts'. Default is kind of in
             PyMC3 for the kinds of models we expect to see run with bambi, so we lower it
             considerably.

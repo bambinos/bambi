@@ -1050,7 +1050,7 @@ def test_poisson_regression(crossed_data):
     # build model using fit and stan
     model2 = Model(crossed_data)
     fitted2 = model2.fit(
-        "count ~ threecats + continuous + dummy", family="poisson", backend="stan", samples=1
+        "count ~ threecats + continuous + dummy", family="poisson", backend="stan", samples=10
     )
 
     # check that term names agree

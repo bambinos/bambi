@@ -8,12 +8,15 @@ import pandas as pd
 import numpy as np
 from patsy import dmatrices, dmatrix
 import statsmodels.api as sm
-import pymc3 as pm
 from arviz.plots import plot_posterior
+import pymc3 as pm
 
-from bambi.external.patsy import Custom_NA
-from bambi.priors import PriorFactory, PriorScaler, Prior
-from bambi.utils import listify
+
+from .external.patsy import Custom_NA
+from .priors import PriorFactory, PriorScaler, Prior
+from .utils import listify
+from .backends import PyMC3BackEnd
+from .backends import StanBackEnd
 
 
 class Model:
@@ -118,11 +121,10 @@ class Model:
         backend = backend.lower()
 
         if backend.startswith("pymc"):
-            from bambi.backends import PyMC3BackEnd
 
             self.backend = PyMC3BackEnd()
         elif backend == "stan":
-            from bambi.backends import StanBackEnd
+
 
             self.backend = StanBackEnd()
         else:
@@ -150,7 +152,7 @@ class Model:
             completes = [set(x) for x in sum(self.completes, [])]
             completes = set.intersection(*completes)
         else:
-            completes = [x for x in range(len(self.data.index))]
+            completes = range(len(self.data.index))
         self.clean_data = self.data.iloc[list(completes), :]
         # warn the user about any dropped rows
         if len(completes) < n_total:

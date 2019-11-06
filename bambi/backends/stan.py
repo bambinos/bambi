@@ -289,7 +289,7 @@ class StanBackEnd(BackEnd):  # pylint: disable=too-many-instance-attributes
         ----------
         samples : int
             Number of samples to obtain (in each chain).
-        chains : int 
+        chains : int
             Number of chains to use.
         kwargs : dict
             Optional keyword arguments passed onto the PyStan StanModel.sampling() call.

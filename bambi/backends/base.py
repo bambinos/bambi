@@ -15,7 +15,3 @@ class BackEnd:
     @abstractmethod
     def run(self):
         pass
-
-    @abstractmethod
-    def _convert_to_results(self):
-        pass
