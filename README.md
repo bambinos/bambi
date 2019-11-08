@@ -3,8 +3,9 @@ Bambi
 BAyesian Model-Building Interface in Python
 
 ## Status
-* [![Build Status](https://travis-ci.org/bambinos/bambi.svg?branch=master)](https://travis-ci.org/bambinos/bambi)
-* [![Coverage Status](https://coveralls.io/repos/github/bambinos/bambi/badge.svg?branch=master)](https://coveralls.io/github/bambinos/bambi?branch=master)
+[![Build Status](https://travis-ci.org/bambinos/bambi.svg?branch=master)](https://travis-ci.org/bambinos/bambi)
+[![Coverage Status](https://coveralls.io/repos/github/bambinos/bambi/badge.svg?branch=master)](https://coveralls.io/github/bambinos/bambi?branch=master)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
 ## Overview
 
@@ -30,3 +31,17 @@ Bambi requires working versions of numpy, pandas, matplotlib, patsy, pymc3, and 
 ## Documentation
 
 The Bambi documentation can be found in the [official docs](https://bambinos.github.io/bambi/index.html)
+
+## Contributions
+
+Bambi is a community project and welcomes contributions. Additional information can be found in the [Contributing](https://github.com/bambinos/bambi/blob/master/CONTRIBUTING.md) Readme.
+
+For a list of contributors see the [GitHub contributor](https://github.com/bambinos/bambi/graphs/contributors) page
+
+## Code of Conduct
+
+Bambi wishes to maintain a positive community. Additional details can be found in the [Code of Conduct](https://github.com/bambinos/bambi/blob/master/CODE_OF_CONDUCT.md)
+
+## License
+
+[MIT License](https://github.com/bambinos/bambi/blob/master/LICENSE)
