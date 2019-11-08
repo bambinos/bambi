@@ -5,6 +5,7 @@ import theano.tensor as tt
 import pandas as pd
 import numpy as np
 import re
+import arviz as az
 
 
 @pytest.fixture(scope="module")
@@ -135,16 +136,14 @@ def test_3x4_fixed_anova(crossed_data):
     model0.fit("Y ~ threecats*fourcats", run=False)
     model0.build(backend="pymc3")
     fitted0 = model0.fit(tune=0, samples=1, init=None)
-    # make sure X has 11 columns (not including the intercept)
-    assert len(fitted0.diagnostics["VIF"]) == 11
+    assert len(fitted0.posterior.data_vars) == 5
 
     # using fit, without intercept (i.e., 2-factor cell means model)
     model1 = Model(crossed_data)
     model1.fit("Y ~ 0 + threecats*fourcats", run=False)
     model1.build(backend="pymc3")
     fitted1 = model1.fit(tune=0, samples=1)
-    # make sure X has 12 columns
-    assert len(fitted1.diagnostics["VIF"]) == 12
+    assert len(fitted1.posterior.data_vars) == 4
 
 
 def test_cell_means_with_covariate(crossed_data):
@@ -321,14 +320,6 @@ def test_many_fixed_many_random(crossed_data):
     assert all([dicts_close(priors0[x], priors2[x]) for x in priors0.keys()])
     assert all([dicts_close(priors1[x], priors2[x]) for x in priors0.keys()])
 
-    # test consistency between summary and to_df for pymc3
-    assert len(set(fitted.to_df().columns)) == 15
-
-    # test consistency between summary and to_df for stan
-    assert len(set(fitted2.to_df().columns)) == 15
-
-    # test consistenct between pymc3 and stan
-    assert set(fitted.to_df().columns) == set(fitted2.to_df().columns)
 
 #    # check hide_transformed for pymc3
 #    # it looks like some versions of pymc3 add a trailing '_' to transformed
@@ -872,14 +863,6 @@ def test_many_fixed_many_random(crossed_data):
 #    )
 #    assert full2.difference(test_set2) == answer
 
-    # test plots for pymc3
-    fitted.plot(kind="priors")
-    fitted.plot()
-
-    # test plots for stan
-    fitted2.plot(kind="priors")
-    fitted2.plot()
-
 
 def test_cell_means_with_many_random_effects(crossed_data):
     # build model using fit
@@ -998,7 +981,7 @@ def test_logistic_regression(crossed_data):
     )
 
     # check that using a theano link function works
-    assert np.allclose(fitted0.summary()["mean"], fitted3.summary()["mean"], atol=0.2)
+    assert np.allclose(az.summary(fitted0)["mean"], az.summary(fitted3)["mean"], atol=0.2)
 
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)
@@ -1039,12 +1022,6 @@ def test_logistic_regression(crossed_data):
     assert all([dicts_close(priors0[x], priors2[x]) for x in priors0.keys()])
     assert all([dicts_close(priors1[x], priors2[x]) for x in priors0.keys()])
 
-    # test that summary reminds user which event is being modeled
-    # fitted0.summary(quantiles=.5)
-
-    # test that traceplot reminds user which event is being modeled
-    fitted0.plot()
-
 
 def test_poisson_regression(crossed_data):
     # build model using fit and pymc3
@@ -1073,7 +1050,7 @@ def test_poisson_regression(crossed_data):
     # build model using fit and stan
     model2 = Model(crossed_data)
     fitted2 = model2.fit(
-        "count ~ threecats + continuous + dummy", family="poisson", backend="stan", samples=1
+        "count ~ threecats + continuous + dummy", family="poisson", backend="stan", samples=10
     )
 
     # check that term names agree
