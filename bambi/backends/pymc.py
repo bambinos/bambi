@@ -1,8 +1,6 @@
-import re
 from arviz import from_pymc3
 import theano
 import pymc3 as pm
-from pymc3.model import TransformedRV
 from bambi.priors import Prior
 
 from .base import BackEnd
