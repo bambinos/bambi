@@ -10,6 +10,7 @@ class Custom_NA(object):
     but changes the raised message and logs which rows (if any) are dropped.
     See Patsy code/API for NAAction documentation.
     """
+
     def __init__(self, dropna=False, NA_types=["None", "NaN"]):
         self.dropna = dropna
         if isinstance(NA_types, str):
@@ -43,15 +44,18 @@ class Custom_NA(object):
     def _handle_raise(self, values, is_NAs, origins):
         for is_NA, origin in zip(is_NAs, origins):
             if np.any(is_NA):
-                msg = "Missing values detected. If you want rows with missing "\
-                      "values to be automatically deleted in a list-wise " \
-                      "manner (not recommended), please set dropna=True in " \
-                      "the bambi Model initialization."
+                msg = (
+                    "Missing values detected. If you want rows with missing "
+                    "values to be automatically deleted in a list-wise "
+                    "manner (not recommended), please set dropna=True in "
+                    "the bambi Model initialization."
+                )
                 raise PatsyError(msg, origin)
         return values
 
     def _handle_drop(self, values, is_NAs, origins):
-        if not len(is_NAs): return values
+        if not len(is_NAs):
+            return values
         total_mask = np.zeros(is_NAs[0].shape[0], dtype=bool)
         for is_NA in is_NAs:
             total_mask |= is_NA
@@ -59,23 +63,3 @@ class Custom_NA(object):
         self.completes.append(np.where(good_mask)[0])
         # "..." to handle 1- versus 2-dim indexing
         return [v[good_mask, ...] for v in values]
-
-
-def rename_columns(columns, name_lists):
-    ''' Renames numerical indices in column names returned by patsy dmatrix /
-    dmatrices calls based on the corresponding string levels.
-    Args:
-        columns (list): List of cols from dmatrix's .design_info.column_names
-        name_lists (list): List of lists, where the i'th list gives the set of
-            level names for the i'th index that needs to be replaced.
-    Example:
-        ts = ['threecats[1]:subjects[4]', 'threecats[0]:subjects[3]']
-        rename_columns(ts, (['a', 'b', 'c'], ['d1', 'd2', 'd3', 'd4', 'd5']))
-        # Returns ['threecats[b]:subjects[d5]', 'threecats[a]:subjects[d4]']
-    '''
-    def _replace(c, args):
-        grps = re.findall('([^\]]*)(\[(\d+)\])', c)
-        for i, (prefix, box, ind) in enumerate(grps):
-            c = c.replace(prefix + box, prefix + '[%s]' % args[i][int(ind)])
-        return c
-    return [_replace(c, name_lists) for c in columns]
