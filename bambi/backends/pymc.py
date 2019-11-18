@@ -1,8 +1,6 @@
-import re
 from arviz import from_pymc3
 import theano
 import pymc3 as pm
-from pymc3.model import TransformedRV
 from bambi.priors import Prior
 
 from .base import BackEnd
@@ -122,19 +120,6 @@ class PyMC3BackEnd(BackEnd):
             self._build_dist(spec, spec.y.name, y_prior.name, **y_prior.args)
             self.spec = spec
 
-    def _get_transformed_vars(self):
-        rvs = self.model.unobserved_RVs
-        # identify the variables that pymc3 back-transformed to original scale
-        trans = [var.name for var in rvs if isinstance(var, TransformedRV)]
-        # find the corresponding transformed variables
-        trans = set(x.name for x in rvs if any([t in x.name for t in trans])) - set(trans)
-        # add any "centered" random effects to the list
-        for varname in [var.name for var in rvs]:
-            if re.search(r"_offset$", varname) is not None:
-                trans.add(varname)
-
-        return trans
-
     # pylint: disable=arguments-differ, inconsistent-return-statements
     def run(self, start=None, method="mcmc", init="auto", n_init=50000, **kwargs):
         """
@@ -168,6 +153,7 @@ class PyMC3BackEnd(BackEnd):
                 self.trace = pm.sample(
                     samples, start=start, init=init, n_init=n_init, cores=cores, **kwargs
                 )
+
             return from_pymc3(self.trace)
 
         elif method == "advi":

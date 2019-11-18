@@ -125,7 +125,6 @@ class Model:
             self.backend = PyMC3BackEnd()
         elif backend == "stan":
 
-
             self.backend = StanBackEnd()
         else:
             raise ValueError("At the moment, only the PyMC3 and Stan backends are " "supported.")
@@ -275,7 +274,6 @@ class Model:
         self._set_backend(backend)
         self.backend.build(self)
         self.built = True
-
 
     def fit(
         self,
@@ -447,13 +445,7 @@ class Model:
         self.built = False
 
     def _add(
-        self,
-        fixed=None,
-        random=None,
-        priors=None,
-        family="gaussian",
-        link=None,
-        categorical=None,
+        self, fixed=None, random=None, priors=None, family="gaussian", link=None, categorical=None,
     ):
         """Internal version of add(), with the same arguments.
 
@@ -505,7 +497,6 @@ class Model:
         if random is not None:  # pylint: disable=too-many-nested-blocks
 
             random = listify(random)
-
             for random_effect in random:
 
                 random_effect = random_effect.strip()
@@ -640,7 +631,6 @@ class Model:
 
         patt = r"^([01]+)*[\s\+]*([^\|]+)*\|(.*)"
         intcpt, pred, grpr = re.search(patt, name).groups()
-
         intcpt = "1|%s" % grpr
         if not pred:
             return [self.terms[intcpt]] if intcpt in self.terms else None
