@@ -735,7 +735,7 @@ class Model:
         return prior
 
     def plot(self, var_names=None):
-        self.plot_priors(var_names)
+        return self.plot_priors(var_names)
 
     def plot_priors(self, var_names=None):
         if not self.built:
