@@ -338,6 +338,15 @@ class Model:
         if backend is None:
             backend = "pymc" if self._backend_name is None else self._backend_name
 
+        if backend == "stan":
+            warnings.warn(
+                """Stan backend is deprecated and it will be rememoved in the next relase.
+             If you are interested on keeping this backend and helping to maintain it, please
+             contact us""",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
         if run:
             if not self.built or backend != self._backend_name:
                 self.build(backend)
