@@ -1,6 +1,7 @@
 from arviz import from_pymc3
 import theano
 import pymc3 as pm
+import numpy as np
 from bambi.priors import Prior
 
 from .base import BackEnd
@@ -133,6 +134,8 @@ class PyMC3BackEnd(BackEnd):
             The method to use for fitting the model. By default, 'mcmc', in which case the
             PyMC3 sampler will be used. Alternatively, 'advi', in which case the model will be
             fitted using  automatic differentiation variational inference as implemented in PyMC3.
+            Finally, 'laplace', in wich case a laplace approximation is used, 'laplace' is not
+            recommended other than for pedagogical use.
         init: str
             Initialization method (see PyMC3 sampler documentation). Currently, this is
             ``'jitter+adapt_diag'``, but this can change in the future.
@@ -145,20 +148,58 @@ class PyMC3BackEnd(BackEnd):
         -------
         An ArviZ InferenceData instance.
         """
+        model = self.model
 
-        if method == "mcmc":
+        if method.lower() == "mcmc":
             samples = kwargs.pop("samples", 1000)
             cores = kwargs.pop("chains", 1)
-            with self.model:
+            with model:
                 self.trace = pm.sample(
                     samples, start=start, init=init, n_init=n_init, cores=cores, **kwargs
                 )
 
             return from_pymc3(self.trace)
 
-        elif method == "advi":
-            with self.model:
+        elif method.lower() == "advi":
+            with model:
                 self.advi_params = pm.variational.ADVI(start, **kwargs)
             return (
                 self.advi_params
             )  # this should return an InferenceData object (once arviz adds support for VI)
+
+        elif method.lower() == "laplace":
+            return _laplace(model)
+
+
+def _laplace(model):
+    """
+    Fit a model using a laplace approximation. Mainly for pedagogical use. ``mcmc`` and ``advi``
+    are better approximations
+
+    Parameters
+    ----------
+    model: PyMC3 model
+
+    Returns
+    -------
+    Dictionary, the keys are the names of the variables and the values tuples of modes and standard
+    deviations.
+    """
+    with model:
+        varis = [v for v in model.unobserved_RVs if not pm.util.is_transformed_name(v.name)]
+        maps = pm.find_MAP(start=model.test_point, vars=varis)
+        hessian = pm.find_hessian(maps, vars=varis)
+        if np.linalg.det(hessian) == 0:
+            raise np.linalg.LinAlgError("Singular matrix. Use mcmc or advi method")
+        stds = np.diag(np.linalg.inv(hessian) ** 0.5)
+        maps = [v for (k, v) in maps.items() if not pm.util.is_transformed_name(k)]
+        modes = [v.item() if v.size == 1 else v for v in maps]
+        names = [v.name for v in varis]
+        shapes = [np.atleast_1d(mode).shape for mode in modes]
+        stds_reshaped = []
+        idx0 = 0
+        for shape in shapes:
+            idx1 = idx0 + sum(shape)
+            stds_reshaped.append(np.reshape(stds[idx0:idx1], shape))
+            idx0 = idx1
+    return dict(zip(names, zip(modes, stds_reshaped)))
