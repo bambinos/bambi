@@ -1091,3 +1091,17 @@ def test_poisson_regression(crossed_data):
     assert all([dicts_close(priors0[x], priors1[x]) for x in priors0.keys()])
     assert all([dicts_close(priors0[x], priors2[x]) for x in priors0.keys()])
     assert all([dicts_close(priors1[x], priors2[x]) for x in priors0.keys()])
+
+
+def test_laplace():
+    data = pd.DataFrame(np.repeat((0, 1), (30, 60)), columns=["w"])
+    model = Model(data=data)
+    priors = {"Intercept": Prior("Uniform", lower=0, upper=1)}
+    results = model.fit(
+        "w ~ 1", family="bernoulli", link="identity", priors=priors, method="laplace"
+    )
+    mode_n = np.round(results["Intercept"][0], 2)
+    std_n = np.round(results["Intercept"][1][0], 2)
+    mode_a = data.mean()
+    std_a = data.std() / len(data) ** 0.5
+    np.testing.assert_array_almost_equal((mode_n, std_n), (mode_a.item(), std_a.item()), decimal=2)
