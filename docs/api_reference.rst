@@ -9,13 +9,6 @@ methods in the current release of Bambi.
   :maxdepth: 4
 
 
-:mod:`bambi.diagnostics`
-===========================
-
-.. automodule:: bambi.diagnostics
-    :members:
-
-
 :mod:`bambi.models`
 ===========================
 
@@ -27,11 +20,4 @@ methods in the current release of Bambi.
 ===========================
 
 .. automodule:: bambi.priors
-    :members:
-
-
-:mod:`bambi.results`
-===========================
-
-.. automodule:: bambi.results
     :members:

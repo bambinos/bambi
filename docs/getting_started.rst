@@ -1,7 +1,7 @@
 Getting Started
 ***************
 
-Bambi requires a working Python interpreter (either 2.7+ or 3+). We recommend installing Python and key numerical libraries using the `Anaconda Distribution <https://www.continuum.io/downloads>`_, which has one-click installers available on all major platforms.
+Bambi requires a working Python interpreter (3.5+). We recommend installing Python and key numerical libraries using the `Anaconda Distribution <https://www.continuum.io/downloads>`_, which has one-click installers available on all major platforms.
 
 Assuming a standard Python environment is installed on your machine (including pip), Bambi itself can be installed in one line using pip:
 
@@ -14,7 +14,7 @@ Alternatively, if you want the bleeding edge version of the package, you can ins
 Quickstart
 ==========
 
-Suppose we have data for a typical within-subjects psychology experiment with 2 experimental conditions. Stimuli are nested within condition, and subjects are crossed with condition. We want to fit a model predicting reaction time (RT) from the fixed effect of condition, random intercepts for subjects, random condition slopes for students, and random intercepts for stimuli. We can fit this model and summarize its results as follows in bambi:
+Suppose we have data for a typical within-subjects psychology experiment with 2 experimental conditions. Stimuli are nested within condition, and subjects are crossed with condition. We want to fit a model predicting reaction time (RT) from the fixed effect of condition, random intercepts for subjects, random condition slopes for students, and random intercepts for stimuli. We can fit this model and summarize its results as follows in Bambi:
 
 .. code-block:: python
 
@@ -27,8 +27,8 @@ Suppose we have data for a typical within-subjects psychology experiment with 2 
         random=['condition|subject', '1|stimulus'],
         samples=5000, chains=2
     )
-    results[1000:].plot()
-    results[1000:].summary()
+    az.plot_trace(results)
+    az.summary(results)
 
 
 User Guide
@@ -53,12 +53,12 @@ Creating a new model in Bambi is simple:
     model = Model(data)
 
 
-Typically, we'll initialize a bambi ``Model`` by passing it a pandas ``DataFrame`` as the only argument. We get back a model that we can immediately start adding terms to.
+Typically, we will initialize a Bambi ``Model`` by passing it a pandas ``DataFrame`` as the only argument. We get back a model that we can immediately start adding terms to.
 
 Data format
 ~~~~~~~~~~~
 
-As with most mixed effect modeling packages, Bambi expects data in "long" format--meaning that each row should reflect a single observation at the most fine-grained level of analysis. For example, given a model where students are nested into classrooms and classrooms are nested into schools, we would want data with the following kind of structure:
+As with most mixed effect modeling packages, Bambi expects data in "long" format--meaning that each row should reflects a single observation at the most fine-grained level of analysis. For example, given a model where students are nested into classrooms and classrooms are nested into schools, we would want data with the following kind of structure:
 
 =======  ======  ======    =====  ======
 student  gender  gpa       class  school
@@ -76,12 +76,12 @@ student  gender  gpa       class  school
 
 Model specification
 -------------------
-Bambi provides a flexible way to specify models that makes it easy not only to specify the terms.
+Bambi provides a flexible way to specify models that makes it easy to specify the terms.
 
 Formula-based specification
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Models are specified in Bambi using a formula-based syntax similar to what one might find in R packages like lme4 or nlme. A couple of examples that illustrate the breadth of models that can be easily specified in Bambi:
+Models are specified in Bambi using a formula-based syntax similar to what one might find in R packages like lme4 or nlme. A couple of examples illustrate the breadth of models that can be easily specified in Bambi:
 
 .. code-block:: python
 
@@ -118,19 +118,16 @@ Although models can be fit in one line, as above, an alternative approach that i
     # Initialize model
     model = Model(data)
 
-    # Continuous fixed effect (in this case, a binary indicator);
-    # will also add intercept automatically unless it is explicitly
-    # supppressed.
+    # Continuous fixed effect (in this case, a binary indicator); will also add intercept 
+    automatically unless it is explicitly suppressed.
     model.add('condition')
 
-    # Categorical fixed effect, setting a narrow prior. We explicitly
-    # name the columns that should be interpreted as categoricals.
-    # Note that if age_group is already represented as a categorical
-    # variable in the DataFrame, the categorical argument is
-    # unnecessary. But it's good practice to be explicit about what
-    # the categorical variables are, as users sometimes inadvertently
-    # pass numeric columns that are intended to be treated as
-    # categorical variables, and Bambi has no way of knowing this.
+    # Categorical fixed effect, setting a narrow prior. We explicitly name the columns that should
+    # be interpreted as categorical.
+    # Note that if age_group is already represented as a categorical variable in the DataFrame, the
+    # categorical argument is unnecessary. But it's good practice to be explicit about what the
+    # categorical variables are, as users sometimes inadvertently pass numeric columns that are
+    # intended to be treated as categorical variables, and Bambi has no way of knowing this.
     model.add(
         'age_group',
         categorical=['age_group'],
@@ -166,12 +163,10 @@ As noted above, Bambi handles fixed and random effects separately. The fixed eff
         '1|student',
         # Random classroom intercepts
         '1|classroom',
-        # Random treatment slopes distributed over schools;
-        # school intercepts will also be automtically added
+        # Random treatment slopes over schools; school intercepts will automatically added
         'treatment|school',
-        # A random set of subject slopes for each level of
-        # the combination of factors a and b, with subject
-        # intercepts excluded
+        # A random set of subject slopes for each level of the combination of factors a and b,
+        # with subject intercepts excluded
         '0+a*b|subject'
     ]
     model.add(random=random_terms)
@@ -179,7 +174,7 @@ As noted above, Bambi handles fixed and random effects separately. The fixed eff
 Coding of categorical variables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a categorical fixed effect with N levels is added to a model, by default, it is coded by N-1 dummy variables (i.e., reduced-rank coding). For example, suppose we write ``'y ~ condition + age + gender'``, where condition is a categorical variable with 4 levels, and age and gender are continuous variables. Then our model would contain an intercept term (added to the model by default, as in R), three dummy-coded variables (each contrasting the first level of ``condition`` with one of the subsequent levels), and continuous predictors for age and gender. Suppose, however, that we would rather use full-rank coding of conditions. If we explicitly remove the intercept--as in ``'y ~ 0 + condition + age + gender'``--then we get the desired effect. Now, the intercept is no longer included, and condition will be coded using 4 dummy indicators--each one coding for the presence or absence of the respective condition, without reference to the other conditions.
+When a categorical fixed effect with N levels is added to a model, by default, it is coded by N-1 dummy variables (i.e., reduced-rank coding). For example, suppose we write ``'y ~ condition + age + gender'``, where condition is a categorical variable with 4 levels, and age and gender are continuous variables. Then our model would contain an intercept term (added to the model by default, as in R), three dummy-coded variables (each contrasting the first level of ``condition`` with one of the subsequent levels), and continuous predictors for age and gender. Suppose, however, that we would rather use full-rank coding of conditions. If we explicitly remove the intercept --as in ``'y ~ 0 + condition + age + gender'``-- then we get the desired effect. Now, the intercept is no longer included, and condition will be coded using 4 dummy indicators, each one coding for the presence or absence of the respective condition without reference to the other conditions.
 
 Random effects are handled in a comparable way. When adding random intercepts, coding is always full-rank (e.g., when adding random intercepts for 100 schools, one gets 100 dummy-coded indicators coding each school separately, and not 99 indicators contrasting each school with the very first one). For random slopes, coding proceeds the same way as for fixed effects. The random effects specification ``['condition|subject']`` would add an intercept for each subject, plus N-1 condition slopes (each coded with respect to the first, omitted, level as the referent). If we instead specify ``['0+condition|subject']``, we get N condition slopes and no intercepts.
 
@@ -191,13 +186,10 @@ Once a model is fully specified, we need to run the PyMC3 or Stan sampler to gen
 .. code-block:: python
 
     model = Model(data)
-    results = model.fit(
-        'rt ~ condition + gender + age',
-        random='condition|subject'
-    )
+    results = model.fit('rt ~ condition + gender + age', random='condition|subject')
 
 
-The above code will obtain 1,000 samples (the default value) and return them as a ``ModelResults`` instance (for more details, see the `Results`_ section). In this case, the `fit()` method accepts optional keyword arguments to pass onto PyMC3's ``sample()`` method, so any methods accepted by ``sample()`` can be specified here. We can also explicitly set the number of samples via the ``samples`` argument. For example, if we call ``fit('y ~ X1', samples=2000, chains=2)``, the PyMC3 sampler will sample two chains in parallel, drawing 2,000 samples for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see the `PyMC3 documentation <https://pymc-devs.github.io/pymc3/api.html#pymc3.sampling.sample>`_).
+The above code will obtain 1,000 samples (the default value) and return them as an ``InferenceData`` instance (for more details, see the `ArviZ documentation <https://arviz-devs.github.io/arviz/schema/schema.html>`_). In this case, the `fit()` method accepts optional keyword arguments to pass onto PyMC3's ``sample()`` method, so any methods accepted by ``sample()`` can be specified here. We can also explicitly set the number of samples via the ``samples`` argument. For example, if we call ``fit('y ~ X1', samples=2000, chains=2)``, the PyMC3 sampler will sample two chains in parallel, drawing 2,000 samples for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see the `PyMC3 documentation <https://docs.pymc.io/api/inference.html#module-pymc3.sampling>`_).
 
 Alternatively, if we're building our model incrementally, we can specify our model in steps, and only call ``fit()`` once the model is complete:
 
@@ -244,7 +236,7 @@ Building without sampling can be useful if we want to inspect the internal PyMC3
 Alternative back-ends
 ---------------------
 
-Bambi defaults to using the NUTS MCMC sampler implemented in the PyMC3 package for all model-fitting. However, Bambi also supports the Stan MCMC sampling package, via the `PyStan <https://github.com/stan-dev/pystan>`_ interface. To switch from PyMC3 to Stan, all you have to do is specify ``backend='stan'`` in the ``fit()`` call:
+Bambi defaults to using the NUTS MCMC sampler implemented in the PyMC3 package for all model-fitting. However, Bambi also supports the NUTS sampler from Stan MCMC sampling package, via the `PyStan <https://github.com/stan-dev/pystan>`_ interface. To switch from PyMC3 to Stan, all you have to do is specify ``backend='stan'`` in the ``fit()`` call:
 
 .. code-block:: python
 
@@ -255,31 +247,8 @@ Bambi defaults to using the NUTS MCMC sampler implemented in the PyMC3 package f
         backend='stan'
     )
 
-From the user's standpoint, the change from PyMC3 to Stan (or vice versa) will usually be completely invisible. Unless we want to muck around in the internals of the backends, the API is identical no matter which back-end we're using. This frees us up to easily compare different back-ends in terms of speed and/or estimates (assuming the sampler has converged, the two back-ends shoul produce virtually identical estimates for all models, but performance could theoretically differ).
+From the user's standpoint, the change from PyMC3 to Stan (or vice versa) will usually be completely invisible. Unless we want to muck around in the internals of the backends, the API is identical no matter which back-end we're using. This frees us up to easily compare different back-ends in terms of speed and/or estimates (assuming the sampler has converged, the two back-ends should produce virtually identical estimates for all models, but performance could theoretically differ).
 
-Which back-end should I use?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-PyMC3 and Stan are both under active and intensive development, so the pros and cons of using either back-end may change over time. However, as of this writing (March 2017), our general sense is that Stan is typically faster than PyMC3 (in terms of both compilation and sampling time), but offers less flexibility when called from Bambi. The decreased flexibility is not due to inherent limitations in Stan itself, but reflects the fact that PyMC3 has the major advantage of being written entirely in Python. This means that Bambi is much more tightly integrated with PyMC3, and users can easily take advantage of virtually all of PyMC3's functionality. Indeed, reaching into Bambi for the PyMC ``Model`` and ``MultiTrace`` is trivial:
-
-.. code-block:: python
-
-    # Initialize and fit Bambi model
-    import bambi as bm
-    import pymc3 as pm
-    model = bm.Model('data.csv')
-    results = model.fit(...)   # we fit some model
-
-    # Grab the PyMC3 Model object and the fitted MultiTrace
-    pm_model = model.backend.model
-    pm_trace = model.backend.trace
-
-    # Now we can use any PyMC3 method that operates on MultiTraces
-    pm.traceplot(pm_trace)
-
-As discussed below in `A note on priors in stan`_, a secondary benefit of using PyMC3 rather than Stan is that users have much greater flexibility regarding the choice of priors when using the former back-end.
-
-In general, then, our recommendation is that most users are better off sticking with the PyMC3 back-end unless the model being fit is relatively large and involves no unusual priors, at which point it is worth experimenting with the Stan back-end to see if significant speed gains can be obtained.
 
 Specifying priors
 -----------------
@@ -318,8 +287,7 @@ The ability to specify prior scales this way is helpful, but also limited: we wi
     # A laplace prior with mean of 0 and scale of 10
     my_favorite_prior = Prior('Laplace', mu=0., b=10)
 
-    # Set the prior when adding a term to the model;
-    # more details on this below.
+    # Set the prior when adding a term to the model; more details on this below.
     priors = {'1|subject': my_favorite_prior}
     results = model.fit(
         'y ~ condition',
@@ -345,12 +313,12 @@ The above prior specification indicates that the individual subject intercepts a
 A note on priors in Stan
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The above discussion assumes that one is using the PyMC3 backend for model fitting. Although custom priors can be specified using the same syntax when using the Stan backend, the variety of supported prior distributions is much more limited (the technical reason for this is that the Stan back-end requires us to explicitly add each distribution we wish to support, whereas the PyMC3 backend is able to seamlessly and automatically use any distribution supported within PyMC3). If you plan to use uncommon distributions for your priors, we encourage you to use the PyMC3 back-end (which is also the default—so if you didn't explicitly specify the back-end, you're probably already using PyMC3). Note also that regardless of which backend you use, all prior distributions use the names found in PyMC3, and not in Stan or any other package (e.g., in Stan, a half-Cauchy prior is specified as a full Cauchy prior with a lower bound of 0, but in Bambi, you would use the PyMC3 convention and pass a ``'HalfCauchy'`` prior).
+The above discussion assumes that one is using the PyMC3 back-end for model fitting. Although custom priors can be specified using the same syntax when using the Stan back-end, the variety of supported prior distributions is much more limited (the technical reason for this is that the Stan back-end requires us to explicitly add each distribution we wish to support, whereas the PyMC3 back-end is able to seamlessly and automatically use any distribution supported within PyMC3). If you plan to use uncommon distributions for your priors, we encourage you to use the PyMC3 back-end (which is also the default—so if you didn't explicitly specify the back-end, you're probably already using PyMC3). Note also that regardless of which back-end you use, all prior distributions use the names found in PyMC3, and not in Stan or any other package (e.g., in Stan, a half-Cauchy prior is specified as a full Cauchy prior with a lower bound of 0, but in Bambi, you would use the PyMC3 convention and pass a ``'HalfCauchy'`` prior).
 
 Mapping priors onto terms
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once we've defined custom priors for one or more term, we need to map them onto those terms in our model. Bambi allows us to do this efficiently by passing a dictionary of term -> prior mappings in any ``fit()`` or ``add()`` call (and also via a separate ``set_priors()`` method on the ``Model`` class). The keys of the dictionary the names of terms, and the values are the desired priors. There are also ``fixed`` and ``random`` arguments that make it easy to apply the same priors to all fixed or random effects in the model. Some examples:
+Once we've defined custom priors for one or more terms, we need to map them onto those terms in our model. Bambi allows us to do this efficiently by passing a dictionary of term -> prior mappings in any ``fit()`` or ``add()`` call (and also via a separate ``set_priors()`` method on the ``Model`` class). The keys of the dictionary the names of terms, and the values are the desired priors. There are also ``fixed`` and ``random`` arguments that make it easy to apply the same priors to all fixed or random effects in the model. Some examples:
 
 .. code-block:: python
 
@@ -470,12 +438,12 @@ One (minor) complication in specifying a custom ``Family`` is that the link func
 Results
 -------
 
-When a model is fitted, it returns a ``ModelResults`` object (usually of subclass ``MCMCResults``) containing methods for plotting and summarizing results. At present, functionality here is fairly limited; Bambi only provides basic plotting and summarization tools.
+When a model is fitted, it returns a ``InferenceData`` object containing data related to the model. This object can be passed to many functions in ArviZ to obtain numerical and visuals diagnostics and plot in general.
 
 Plotting
 --------
 
-To visualize a plot of the posterior estimates and sample traces for all parameters, simply call the ``MCMCResults`` object's ``.plot()`` method:
+To visualize a plot of the posterior estimates and sample traces for all parameters, simply pass the ``InferenceData`` object to  the arviz function ``az._plot_trace``:
 
 .. code-block:: python
 
@@ -484,10 +452,9 @@ To visualize a plot of the posterior estimates and sample traces for all paramet
         'value ~ condition',
         random='1|uid',
         samples=1250,
-        chains=4
+        chains=2
     )
-    # Drop the first 100 burn-in samples from each chain and plot
-    results[100:].plot()
+    az.plot_trace(results)
 
 This produces a plot like the following:
 
@@ -498,37 +465,24 @@ More details on this plot are available in the `ArviZ documentation <https://arv
 Summarizing
 -----------
 
-If you prefer numerical summaries of the posterior estimates, you can use the ``.summary()`` method. Internally this calls ArviZ's `ArviZ summary <https://arviz-devs.github.io/arviz/generated/arviz.summary.html#arviz.summary>`__  which provides a pandas DataFrame with some key summary and diagnostics info on the model parameters, such as the 94% highest posterior density intervals:
+If you prefer numerical summaries of the posterior estimates, you can use the ``az.summary()`` function from `ArviZ <https://arviz-devs.github.io/arviz/generated/arviz.summary.html#arviz.summary>`__  which provides a pandas DataFrame with some key summary and diagnostics info on the model parameters, such as the 94% highest posterior density intervals:
 
 .. code-block:: python
 
-    results[100:].summary()
+    az.summary(results)
 
 .. image:: _static/sample_summary.png
 
-By default the ``.summary()`` method hides the random effects (which can easily clutter the output when there are many of them) and transformed variables of parameters that are used internally during the model estimation, but you can view all of these by adjusting the arguments to ``ranefs`` and ``transformed``, respectively:
+If you want to view summaries or plots for specific parameters, you can pass a list of its names:
 
 .. code-block:: python
 
-    results[100:].summary(ranefs=True)
-    results[100:].plot(transformed=True)
-
-If you want to view summaries or plots for only specific parameters, you can pass a list of parameter names inside the brackets in addition to the slice operator:
-
-.. code-block:: python
-
-    # show the names of all parameters stored in the MCMCResults object
-    results.names
+    # show the names of all variables stored in the InferenceData object
+    list(results.posterior.data_vars)
 
     # these two calls are equivalent
-    results[100:, ['Intercept', 'condition']].plot()
-    results[['Intercept', 'condition'], 100:].plot()
+    az.plot_trace(results, var_names=['Intercept', 'condition'])
 
-And if you want to access the MCMC samples directly, you can use the ``.to_df()`` method to retrieve the MCMC samples (after concatening any separate MCMC chains) in a nice, neat pandas DataFrame:
-
-.. code-block:: python
-
-    results[100:].to_df(ranefs=True)
 
 You can find detailed, worked examples of fitting Bambi models and working with the results in the example notebooks `here <examples>`_.
 
