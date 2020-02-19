@@ -498,7 +498,7 @@ class Model:
             # Loop over predictor terms
             for _name, _slice in x_matrix.design_info.term_name_slices.items():
                 cols = x_matrix.design_info.column_names[_slice]
-                term_data = pd.DataFrame(x_matrix[:, _slice], columns=cols)
+                term_data = pd.DataFrame(np.asfortranarray(x_matrix[:, _slice]), columns=cols)
                 prior = priors.pop(_name, priors.get("fixed", None))
                 self.terms[_name] = Term(_name, term_data, prior=prior)
 
@@ -759,7 +759,7 @@ class Model:
                     continue
                 for i, level in enumerate(fixed_term.levels):
                     params = {
-                        k: v[i % len(v)] if isinstance(v, np.ndarray) else v
+                        k: np.atleast_1d(v)[i % v.size] if isinstance(v, np.ndarray) else v
                         for k, v in fixed_term.prior.args.items()
                     }
                     dists += [getattr(pm, fixed_term.prior.name)(level, **params)]

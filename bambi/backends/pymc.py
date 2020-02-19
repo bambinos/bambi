@@ -152,11 +152,8 @@ class PyMC3BackEnd(BackEnd):
 
         if method.lower() == "mcmc":
             samples = kwargs.pop("samples", 1000)
-            cores = kwargs.pop("chains", 1)
             with model:
-                self.trace = pm.sample(
-                    samples, start=start, init=init, n_init=n_init, cores=cores, **kwargs
-                )
+                self.trace = pm.sample(samples, start=start, init=init, n_init=n_init, **kwargs)
 
             return from_pymc3(self.trace)
 
