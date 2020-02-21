@@ -285,7 +285,7 @@ class Model:
         run=True,
         categorical=None,
         backend=None,
-        **kwargs
+        **kwargs,
     ):
         """Fit the model using the specified BackEnd.
 
@@ -529,7 +529,7 @@ class Model:
                 # Default to including random intercepts
                 intcpt = 1 if intcpt is None else int(intcpt)
 
-                grpr_df = dmatrix("0+%s" % grpr, data, return_type="dataframe", NA_action="raise")
+                grpr_df = dmatrix(f"0+{grpr}", data, return_type="dataframe", NA_action="raise")
 
                 # If there's no predictor, we must be adding random intercepts
                 if not pred and grpr not in self.terms:
@@ -541,7 +541,7 @@ class Model:
                     self.terms[name] = term
                 else:
                     pred_df = dmatrix(
-                        "%s+%s" % (intcpt, pred), data, return_type="dataframe", NA_action="raise"
+                        f"{intcpt}+{pred}", data, return_type="dataframe", NA_action="raise"
                     )
                     # determine value of the 'constant' attribute
                     const = np.atleast_2d(pred_df.T).T.sum(1).var() == 0
@@ -556,7 +556,7 @@ class Model:
                         if col == "Intercept":
                             if grpr in self.terms:
                                 continue
-                            label = "1|%s" % grpr
+                            label = f"1|{grpr}"
                         else:
                             label = col + "|" + grpr
 
@@ -640,11 +640,11 @@ class Model:
 
         patt = r"^([01]+)*[\s\+]*([^\|]+)*\|(.*)"
         intcpt, pred, grpr = re.search(patt, name).groups()
-        intcpt = "1|%s" % grpr
+        intcpt = f"1|{grpr}"
         if not pred:
             return [self.terms[intcpt]] if intcpt in self.terms else None
 
-        source = "%s|%s" % (pred, grpr)
+        source = f"{pred}|{grpr}"
         found = [
             t
             for (n, t) in self.terms.items()
@@ -707,7 +707,7 @@ class Model:
             for k, prior in priors.items():
                 for name in listify(k):
                     term_names = list(self.terms.keys())
-                    msg = "No terms in model match '%s'." % name
+                    msg = f"No terms in model match {name}."
                     if name not in term_names:
                         terms = self._match_derived_terms(name)
                         if not match_derived_names or terms is None:
@@ -868,10 +868,9 @@ class RandomTerm(Term):
 
     def invert_dummies(self, dummies):
         """
-        For the sake of computational efficiency (i.e., to avoid lots of
-        large matrix multiplications in the backends), invert the dummy-coding
-        process and represent full-rank dummies as a vector of indices into the
-        coefficients.
+        For the sake of computational efficiency (i.e., to avoid lots of large matrix
+        multiplications in the backends), invert the dummy-coding process and represent full-rank
+        dummies as a vector of indices into the coefficients.
         """
         vec = np.zeros(len(dummies), dtype=int)
         for i in range(1, dummies.shape[1]):

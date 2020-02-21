@@ -69,8 +69,7 @@ class Prior:
                 Optional keyword arguments to add to prior args.
         """
 
-        # Backends expect numpy arrays, so make sure all numeric values are
-        # represented as such.
+        # Backends expect numpy arrays, so make sure all numeric values are represented as such.
         kwargs = {k: (np.array(v) if isinstance(v, (int, float)) else v) for k, v in kwargs.items()}
         self.args.update(kwargs)
 
@@ -102,11 +101,11 @@ class PriorFactory:
 
     Examples
     --------
-        >>> dists = { 'my_dist': ['Normal', {'mu': 10, 'sd': 1000}]}
+        >>> dists = {'my_dist': ['Normal', {'mu': 10, 'sd': 1000}]}
         >>> pf = PriorFactory(dists=dists)
 
-        >>> families = { 'normalish': { 'dist': ['normal', {sd: '#my_dist'}],
-        >>>                             link:'identity', parent: 'mu'}}
+        >>> families = {'normalish': {'dist': ['normal', {sd: '#my_dist'}],
+        >>>             link:'identity', parent: 'mu'}}
         >>> pf = PriorFactory(dists=dists, families=families)
     """
 
@@ -171,15 +170,15 @@ class PriorFactory:
 
         if dist is not None:
             if dist not in self.dists:
-                raise ValueError("'%s' is not a valid distribution name." % dist)
+                raise ValueError(f"{dist} is not a valid distribution name.")
             return self._get_prior(self.dists[dist])
         elif term is not None:
             if term not in self.terms:
-                raise ValueError("'%s' is not a valid term type." % term)
+                raise ValueError(f"{term} is not a valid term type.")
             return self._get_prior(self.terms[term])
         elif family is not None:
             if family not in self.families:
-                raise ValueError("'%s' is not a valid family name." % family)
+                raise ValueError(f"{family} is not a valid family name.")
             _f = self.families[family]
             prior = self._get_prior(_f["dist"])
             return Family(family, prior, _f["link"], _f["parent"])
@@ -372,7 +371,8 @@ class PriorScaler:
         # handle slopes
         else:
             exists = [
-                x for x in self.dm.columns  # pylint: disable=not-an-iterable
+                x
+                for x in self.dm.columns  # pylint: disable=not-an-iterable
                 if np.array_equal(fix_data, self.dm[x].values)
             ]
             # handle case where there IS a corresponding fixed effect
@@ -389,7 +389,8 @@ class PriorScaler:
                         columns={
                             c: "_" + str(c)
                             for c in fix_dataframe.columns  # pylint: disable=not-an-iterable
-                        }, inplace=True
+                        },
+                        inplace=True,
                     )
                     exog = self.dm.join(fix_dataframe)
                 # this handles the corner case where there technically is the
@@ -449,4 +450,4 @@ class PriorScaler:
                 t.prior.scale = PriorScaler.names[t.prior.scale]
 
             # scale it!
-            getattr(self, "_scale_%s" % term_type)(t)
+            getattr(self, f"_scale_{term_type}")(t)
