@@ -51,14 +51,13 @@ class PyMC3BackEnd(BackEnd):
                 dist = self.dists[dist]
             else:
                 raise ValueError(
-                    "The Distribution class '%s' was not "
-                    "found in PyMC3 or the PyMC3BackEnd." % dist
+                    f"The Distribution {dist} was not found in PyMC3 or the PyMC3BackEnd."
                 )
 
         # Inspect all args in case we have hyperparameters
         def _expand_args(key, value, label):
             if isinstance(value, Prior):
-                label = "%s_%s" % (label, key)
+                label = f"{label}_{key}"
                 return self._build_dist(spec, label, value.name, **value.args)
             return value
 
