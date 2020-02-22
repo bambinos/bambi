@@ -618,7 +618,10 @@ class Model:
             prior = self.family.prior
 
         if self.family.name == "gaussian":
-            prior.update(sd=Prior("HalfStudentT", nu=4, sd=self.clean_data[variable].std()))
+            if self._backend_name == "pymc3":
+                prior.update(sd=Prior("HalfStudentT", nu=4, sd=self.clean_data[variable].std()))
+            else:
+                prior.update(sd=Prior("Uniform", lower=0, upper=self.clean_data[variable].std()))
 
         data = kwargs.pop("data", self.clean_data[variable])
         term = Term(variable, data, prior=prior, *args, **kwargs)
