@@ -4,7 +4,7 @@ from patsy.util import safe_scalar_isnan
 from patsy import PatsyError
 
 
-class Custom_NA(object):
+class Custom_NA:
     """
     Custom patsy.missing.NAAction class. Similar to patsy drop/raise defaults,
     but changes the raised message and logs which rows (if any) are dropped.

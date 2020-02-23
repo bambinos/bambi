@@ -222,8 +222,7 @@ class Model:
                 "mean_x": x_matrix.mean(axis=0),
             }
 
-            # save potentially useful info for diagnostics, send to
-            # ModelResults.
+            # save potentially useful info for diagnostics
             # mat = correlation matrix of X, w/ diagonal replaced by X means
             mat = x_matrix.corr()
             for x_col in list(mat.columns):
@@ -618,9 +617,11 @@ class Model:
         if prior is None:
             prior = self.family.prior
 
-        # implement default Uniform [0, sd(Y)] prior for residual SD
         if self.family.name == "gaussian":
-            prior.update(sd=Prior("Uniform", lower=0, upper=self.clean_data[variable].std()))
+            if self._backend_name == "pymc3":
+                prior.update(sd=Prior("HalfStudentT", nu=4, sd=self.clean_data[variable].std()))
+            else:
+                prior.update(sd=Prior("Uniform", lower=0, upper=self.clean_data[variable].std()))
 
         data = kwargs.pop("data", self.clean_data[variable])
         term = Term(variable, data, prior=prior, *args, **kwargs)
