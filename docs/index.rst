@@ -12,10 +12,6 @@ BAyesian Model-Building Interface (Bambi) in Python
 
 Bambi is a high-level Bayesian model-building interface written in Python. It works with two probabilistic programming frameworks, `PyMC3 <https://docs.pymc.io/>`__ or `PyStan <https://pystan.readthedocs.io/en/latest/>`__, and is designed to make it extremely easy to fit Bayesian mixed-effects models common in biology, social sciences and other disciplines.
 
-New Features
-============
-
-Bambi version ``0.1.1`` will be the final version supporting Python 2, but look forward to the forthcoming Bambi version ``0.1.2``!
 
 Dependencies
 ============
