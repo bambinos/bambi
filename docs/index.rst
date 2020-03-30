@@ -1,4 +1,4 @@
-BAyesian Model-Building Interface (Bambi) in Python
+Bayesian Model-Building Interface (Bambi) in Python
 ===================================================
 |Build|
 |Coverage|
