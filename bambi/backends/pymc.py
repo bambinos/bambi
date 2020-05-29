@@ -66,13 +66,13 @@ class PyMC3BackEnd(BackEnd):
         # Non-centered parameterization for hyperpriors
         if (
             spec.noncentered
-            and "sd" in kwargs
+            and "sigma" in kwargs
             and "observed" not in kwargs
-            and isinstance(kwargs["sd"], pm.model.TransformedRV)
+            and isinstance(kwargs["sigma"], pm.model.TransformedRV)
         ):
-            old_sd = kwargs["sd"]
-            _offset = pm.Normal(label + "_offset", mu=0, sd=1, shape=kwargs["shape"])
-            return pm.Deterministic(label, _offset * old_sd)
+            old_sigma = kwargs["sigma"]
+            _offset = pm.Normal(label + "_offset", mu=0, sigma=1, shape=kwargs["shape"])
+            return pm.Deterministic(label, _offset * old_sigma)
 
         return dist(label, **kwargs)
 
