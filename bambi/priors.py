@@ -88,8 +88,9 @@ class PriorFactory:
         Optional specification of named distributions to use as priors. Each key gives the name of
         a newly defined distribution; values are two-element lists, where the first element is the
         name of the built-in distribution to use ('Normal', 'Cauchy', etc.), and the second element
-        is a dictionary of parameters on that distribution (e.g., {'mu': 0, 'sigma': 10}). Priors can
-        be nested to arbitrary depths by replacing any parameter with another prior specification.
+        is a dictionary of parameters on that distribution (e.g., {'mu': 0, 'sigma': 10}). Priors
+        can be nested to arbitrary depths by replacing any parameter with another prior
+        specification.
     terms : dict
         Optional specification of default priors for different model term types. Valid keys are
         'intercept', 'fixed', or 'random'. Values are either strings preprended by a #, in which
