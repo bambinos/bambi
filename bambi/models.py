@@ -16,7 +16,6 @@ from .external.patsy import Custom_NA
 from .priors import PriorFactory, PriorScaler, Prior
 from .utils import listify
 from .backends import PyMC3BackEnd
-from .backends import StanBackEnd
 
 
 class Model:
@@ -123,11 +122,8 @@ class Model:
         if backend.startswith("pymc"):
 
             self.backend = PyMC3BackEnd()
-        elif backend == "stan":
-
-            self.backend = StanBackEnd()
         else:
-            raise ValueError("At the moment, only the PyMC3 and Stan backends are " "supported.")
+            raise ValueError("At the moment, only the PyMC3 backend is supported.")
 
         self._backend_name = backend
 
@@ -218,7 +214,7 @@ class Model:
                         for x in list(x_matrix.columns)
                     }
                 ),
-                "sd_x": x_matrix.std(),
+                "sigma_x": x_matrix.std(),
                 "mean_x": x_matrix.mean(axis=0),
             }
 
@@ -318,8 +314,7 @@ class Model:
             treated as categoricals (e.g., random factors coded as numerical IDs), explicitly
             passing variable names via this argument is recommended.
         backend : str
-            The name of the BackEnd to use. Currently only 'pymc' and 'stan' backends are
-            supported. Defaults to PyMC3.
+            The name of the BackEnd to use. Currently only 'pymc' backen is supported.
         """
 
         if fixed is not None or random is not None:
@@ -337,14 +332,6 @@ class Model:
         if backend is None:
             backend = "pymc" if self._backend_name is None else self._backend_name
 
-        if backend == "stan":
-            warnings.warn(
-                """Stan backend is deprecated and it will be rememoved in the next relase.
-             If you are interested on keeping this backend and helping to maintain it, please
-             contact us""",
-                DeprecationWarning,
-                stacklevel=2,
-            )
 
         if run:
             if not self.built or backend != self._backend_name:
@@ -618,10 +605,7 @@ class Model:
             prior = self.family.prior
 
         if self.family.name == "gaussian":
-            if self._backend_name == "pymc3":
-                prior.update(sd=Prior("HalfStudentT", nu=4, sd=self.clean_data[variable].std()))
-            else:
-                prior.update(sd=Prior("Uniform", lower=0, upper=self.clean_data[variable].std()))
+            prior.update(sigma=Prior("HalfStudentT", nu=4, sigma=self.clean_data[variable].std()))
 
         data = kwargs.pop("data", self.clean_data[variable])
         term = Term(variable, data, prior=prior, *args, **kwargs)
@@ -765,13 +749,13 @@ class Model:
                     }
                     dists += [getattr(pm, fixed_term.prior.name)(level, **params)]
 
-            # get priors for random effect SDs
+            # get priors for random effect sigmas
             for random_term in self.random_terms.values():
                 if var_names is not None and random_term.name not in var_names:
                     continue
-                prior = random_term.prior.args["sd"].name
-                params = random_term.prior.args["sd"].args
-                dists += [getattr(pm, prior)(random_term.name + "_sd", **params)]
+                prior = random_term.prior.args["sigma"].name
+                params = random_term.prior.args["sigma"].args
+                dists += [getattr(pm, prior)(random_term.name + "_sigma", **params)]
 
             # add priors on Y params if applicable
             y_priors = [(k, v) for k, v in self.y.prior.args.items() if isinstance(v, Prior)]

@@ -88,8 +88,9 @@ class PriorFactory:
         Optional specification of named distributions to use as priors. Each key gives the name of
         a newly defined distribution; values are two-element lists, where the first element is the
         name of the built-in distribution to use ('Normal', 'Cauchy', etc.), and the second element
-        is a dictionary of parameters on that distribution (e.g., {'mu': 0, 'sd': 10}). Priors can
-        be nested to arbitrary depths by replacing any parameter with another prior specification.
+        is a dictionary of parameters on that distribution (e.g., {'mu': 0, 'sigma': 10}). Priors
+        can be nested to arbitrary depths by replacing any parameter with another prior
+        specification.
     terms : dict
         Optional specification of default priors for different model term types. Valid keys are
         'intercept', 'fixed', or 'random'. Values are either strings preprended by a #, in which
@@ -101,10 +102,10 @@ class PriorFactory:
 
     Examples
     --------
-        >>> dists = {'my_dist': ['Normal', {'mu': 10, 'sd': 1000}]}
+        >>> dists = {'my_dist': ['Normal', {'mu': 10, 'sigma': 1000}]}
         >>> pf = PriorFactory(dists=dists)
 
-        >>> families = {'normalish': {'dist': ['normal', {sd: '#my_dist'}],
+        >>> families = {'normalish': {'dist': ['normal', {sigma: '#my_dist'}],
         >>>             link:'identity', parent: 'mu'}}
         >>> pf = PriorFactory(dists=dists, families=families)
     """
@@ -185,8 +186,8 @@ class PriorFactory:
 
 
 class PriorScaler:
-    # Default is 'wide'. The wide prior SD is sqrt(1/3) = .577 on the partial
-    # corr scale, which is the SD of a flat prior over [-1,1].
+    # Default is 'wide'. The wide prior sigma is sqrt(1/3) = .577 on the partial
+    # corr scale, which is the sigma of a flat prior over [-1,1].
     names = {"narrow": 0.2, "medium": 0.4, "wide": 3 ** -0.5, "superwide": 0.8}
 
     def __init__(self, model, taylor):
@@ -211,7 +212,7 @@ class PriorScaler:
         with open(join(dirname(__file__), "config", "derivs.txt"), "r") as file:
             self.deriv = [next(file).strip("\n") for x in range(taylor + 1)]
 
-    def _get_slope_stats(self, exog, predictor, sd_corr, full_mod=None, points=4):
+    def _get_slope_stats(self, exog, predictor, sigma_corr, full_mod=None, points=4):
         """
         Args:
             full_mod: statsmodels GLM to replace MLE model. For when 'predictor'
@@ -267,7 +268,7 @@ class PriorScaler:
         # m, v: mean and variance of beta distribution of correlations
         # p, q: corresponding shape parameters of beta distribution
         mean = 0.5
-        variance = sd_corr ** 2 / 4
+        variance = sigma_corr ** 2 / 4
         p = mean * (mean * (1 - mean) / variance - 1)
         q = (1 - mean) * (mean * (1 - mean) / variance - 1)
 
@@ -285,7 +286,7 @@ class PriorScaler:
         vals = dict(a=coef_a, b=coef_b, n=len(self.model.y.data), r=point[self.taylor])
         _deriv = [eval(x, globals(), vals) for x in self.deriv]  # pylint: disable=eval-used
 
-        # compute and return the approximate SD
+        # compute and return the approximate sigma
         def term(i, j):
             return (
                 1
@@ -309,19 +310,19 @@ class PriorScaler:
             missing="drop" if self.model.dropna else "none",
         ).fit()
         mu = mod.params
-        # multiply SE by sqrt(N) to turn it into (approx.) SD(Y) on link scale
-        sd = (mod.cov_params()[0] * len(mod.mu)) ** 0.5
+        # multiply SE by sqrt(N) to turn it into (approx.) sigma(Y) on link scale
+        sigma = (mod.cov_params()[0] * len(mod.mu)) ** 0.5
 
-        # modify mu and sd based on means and SDs of slope priors.
+        # modify mu and sigma based on means and sigmas of slope priors.
         if len(self.model.fixed_terms) > 1 and add_slopes:
             means = np.array([x["mu"] for x in self.priors.values()])
-            sds = np.array([x["sd"] for x in self.priors.values()])
+            sigmas = np.array([x["sigma"] for x in self.priors.values()])
             # add to intercept prior
             index = list(self.priors.keys())
             mu -= np.dot(means, self.stats["mean_x"][index])
-            sd = (sd ** 2 + np.dot(sds ** 2, self.stats["mean_x"][index] ** 2)) ** 0.5
+            sigma = (sigma ** 2 + np.dot(sigmas ** 2, self.stats["mean_x"][index] ** 2)) ** 0.5
 
-        return mu, sd
+        return mu, sigma
 
     def _scale_fixed(self, term):
 
@@ -330,16 +331,16 @@ class PriorScaler:
             return
 
         mu = []
-        sd = []
-        sd_corr = term.prior.scale
+        sigma = []
+        sigma_corr = term.prior.scale
         for pred in term.data.T:
             mu += [0]
-            sd += [self._get_slope_stats(exog=self.dm, predictor=pred, sd_corr=sd_corr)]
+            sigma += [self._get_slope_stats(exog=self.dm, predictor=pred, sigma_corr=sigma_corr)]
 
         # save and set prior
         for i, lev in enumerate(term.levels):
-            self.priors.update({lev: {"mu": mu[i], "sd": sd[i]}})
-        term.prior.update(mu=np.array(mu), sd=np.array(sd))
+            self.priors.update({lev: {"mu": mu[i], "sigma": sigma[i]}})
+        term.prior.update(mu=np.array(mu), sigma=np.array(sigma))
 
     def _scale_intercept(self, term):
 
@@ -347,27 +348,27 @@ class PriorScaler:
         if term.prior.name != "Normal":
             return
 
-        # get prior mean and SD for fixed intercept
-        mu, sd = self._get_intercept_stats()
+        # get prior mean and sigma for fixed intercept
+        mu, sigma = self._get_intercept_stats()
 
         # save and set prior
-        term.prior.update(mu=mu, sd=sd)
+        term.prior.update(mu=mu, sigma=sigma)
 
     def _scale_random(self, term):
 
         # these default priors are only defined for HalfNormal priors
-        if term.prior.args["sd"].name != "HalfNormal":
+        if term.prior.args["sigma"].name != "HalfNormal":
             return
 
-        sd_corr = term.prior.scale
+        sigma_corr = term.prior.scale
 
         # recreate the corresponding fixed effect data
         fix_data = term.data.sum(axis=1)
 
         # handle intercepts and cell means
         if term.constant:
-            _, sd = self._get_intercept_stats()
-            sd *= sd_corr
+            _, sigma = self._get_intercept_stats()
+            sigma *= sigma_corr
         # handle slopes
         else:
             exists = [
@@ -377,7 +378,7 @@ class PriorScaler:
             ]
             # handle case where there IS a corresponding fixed effect
             if exists and exists[0] in self.priors.keys():
-                sd = self.priors[exists[0]]["sd"]
+                sigma = self.priors[exists[0]]["sigma"]
             # handle case where there IS NOT a corresponding fixed effect
             else:
                 # the usual case: add the random effect data as a fixed effect
@@ -412,12 +413,12 @@ class PriorScaler:
                     family=self.model.family.smfamily(),
                     missing=missing,
                 ).fit()
-                sd = self._get_slope_stats(
-                    exog=exog, predictor=fix_data, full_mod=full_mod, sd_corr=sd_corr
+                sigma = self._get_slope_stats(
+                    exog=exog, predictor=fix_data, full_mod=full_mod, sigma_corr=sigma_corr
                 )
 
-        # set the prior SD.
-        term.prior.args["sd"].update(sd=np.squeeze(np.atleast_1d(sd)))
+        # set the prior sigma.
+        term.prior.args["sigma"].update(sigma=np.squeeze(np.atleast_1d(sigma)))
 
     def scale(self):
         # classify all terms

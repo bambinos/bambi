@@ -98,26 +98,26 @@ def test_update_term_priors_after_init(diabetes_data):
     model.add("S1")
     model.add(random="age_grp|BP")
 
-    p1 = Prior("Normal", mu=-10, sd=10)
+    p1 = Prior("Normal", mu=-10, sigma=10)
     p2 = Prior("Beta", alpha=2, beta=2)
 
     model.set_priors({"BMI": 0.3, "S1": p2})
     model.build(backend="pymc")
     assert model.terms["S1"].prior.args["beta"] == 2
     assert model.terms["BMI"].prior.scale == 0.3
-    assert np.isclose(model.terms["BMI"].prior.args["sd"], 4.7, rtol=0.1)[0]
+    assert np.isclose(model.terms["BMI"].prior.args["sigma"], 4.7, rtol=0.1)[0]
 
     model.set_priors({("S1", "BMI"): p1})
     model.build(backend="pymc")
-    assert model.terms["S1"].prior.args["sd"] == 10
+    assert model.terms["S1"].prior.args["sigma"] == 10
     assert model.terms["BMI"].prior.args["mu"] == -10
 
-    p3 = Prior("Normal", mu=0, sd=Prior("Normal", mu=0, sd=7))
+    p3 = Prior("Normal", mu=0, sigma=Prior("Normal", mu=0, sigma=7))
     model.set_priors(fixed=0.3, random=p3)
     model.build(backend="pymc")
     assert model.terms["BMI"].prior.scale == 0.3
-    assert np.isclose(model.terms["BMI"].prior.args["sd"], 4.7, rtol=0.1)[0]
-    assert model.terms["age_grp|BP"].prior.args["sd"].args["sd"] == 7
+    assert np.isclose(model.terms["BMI"].prior.args["sigma"], 4.7, rtol=0.1)[0]
+    assert model.terms["age_grp|BP"].prior.args["sigma"].args["sigma"] == 7
 
     # Invalid names should raise error
     with pytest.raises(ValueError):
@@ -130,7 +130,7 @@ def test_update_term_priors_after_init(diabetes_data):
     model.set_priors({"age_grp|BP": 0.5})
     model.build(backend="pymc")
     assert model.terms["age_grp[T.1]|BP"].prior.scale == 0.5
-    assert np.isclose(model.terms["age_grp[T.1]|BP"].prior.args["sd"].args["sd"], 94, rtol=0.2)
+    assert np.isclose(model.terms["age_grp[T.1]|BP"].prior.args["sigma"].args["sigma"], 94, rtol=0.2)
     assert model.terms["1|BP"].prior.scale == 0.5
 
 
@@ -145,8 +145,8 @@ def test_auto_scale(diabetes_data):
     p2 = model.terms["S2"].prior
     p3 = model.terms["BP"].prior
     assert p1.name == p2.name == "Normal"
-    assert 0 < p1.args["sd"] < 1
-    assert p2.args["sd"] > p1.args["sd"]
+    assert 0 < p1.args["sigma"] < 1
+    assert p2.args["sigma"] > p1.args["sigma"]
     assert p3.name == "Cauchy"
     assert p3.args["beta"] == 17.5
 
@@ -160,7 +160,7 @@ def test_auto_scale(diabetes_data):
     p3_off = model.terms["BP"].prior
     assert p1_off.name == "Normal"
     assert p2_off.name == "Flat"
-    assert 0 < p1_off.args["sd"] < 1
-    assert "sd" not in p2_off.args
+    assert 0 < p1_off.args["sigma"] < 1
+    assert "sigma" not in p2_off.args
     assert p3_off.name == "Cauchy"
     assert p3_off.args["beta"] == 17.5
