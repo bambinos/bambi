@@ -34,8 +34,11 @@ class Family:
         self.link = link
         self.parent = parent
         fams = {
-            "gaussian": genmod_families.Gaussian,
             "bernoulli": genmod_families.Binomial,
+            "gamma": genmod_families.Gamma,
+            "gaussian": genmod_families.Gaussian,
+            "wald": genmod_families.InverseGaussian,
+            "negativebinomial": genmod_families.NegativeBinomial,
             "poisson": genmod_families.Poisson,
             "t": None,  # not implemented in statsmodels
         }
