@@ -52,7 +52,6 @@
 <span class="kn">from</span> <span class="nn">.priors</span> <span class="kn">import</span> <span class="n">PriorFactory</span><span class="p">,</span> <span class="n">PriorScaler</span><span class="p">,</span> <span class="n">Prior</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">listify</span>
 <span class="kn">from</span> <span class="nn">.backends</span> <span class="kn">import</span> <span class="n">PyMC3BackEnd</span>
-<span class="kn">from</span> <span class="nn">.backends</span> <span class="kn">import</span> <span class="n">StanBackEnd</span>
 
 
 <div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">:</span>
@@ -159,11 +158,8 @@
         <span class="k">if</span> <span class="n">backend</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;pymc&quot;</span><span class="p">):</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">PyMC3BackEnd</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;stan&quot;</span><span class="p">:</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">StanBackEnd</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;At the moment, only the PyMC3 and Stan backends are &quot;</span> <span class="s2">&quot;supported.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;At the moment, only the PyMC3 backend is supported.&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_backend_name</span> <span class="o">=</span> <span class="n">backend</span>
 
@@ -254,7 +250,7 @@
                         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">x_matrix</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
                     <span class="p">}</span>
                 <span class="p">),</span>
-                <span class="s2">&quot;sd_x&quot;</span><span class="p">:</span> <span class="n">x_matrix</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span>
+                <span class="s2">&quot;sigma_x&quot;</span><span class="p">:</span> <span class="n">x_matrix</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span>
                 <span class="s2">&quot;mean_x&quot;</span><span class="p">:</span> <span class="n">x_matrix</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
             <span class="p">}</span>
 
@@ -354,8 +350,7 @@
 <span class="sd">            treated as categoricals (e.g., random factors coded as numerical IDs), explicitly</span>
 <span class="sd">            passing variable names via this argument is recommended.</span>
 <span class="sd">        backend : str</span>
-<span class="sd">            The name of the BackEnd to use. Currently only &#39;pymc&#39; and &#39;stan&#39; backends are</span>
-<span class="sd">            supported. Defaults to PyMC3.</span>
+<span class="sd">            The name of the BackEnd to use. Currently only &#39;pymc&#39; backen is supported.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">fixed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">random</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -373,14 +368,6 @@
         <span class="k">if</span> <span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">backend</span> <span class="o">=</span> <span class="s2">&quot;pymc&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_name</span>
 
-        <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;stan&quot;</span><span class="p">:</span>
-            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                <span class="sd">&quot;&quot;&quot;Stan backend is deprecated and it will be rememoved in the next relase.</span>
-<span class="sd">             If you are interested on keeping this backend and helping to maintain it, please</span>
-<span class="sd">             contact us&quot;&quot;&quot;</span><span class="p">,</span>
-                <span class="ne">DeprecationWarning</span><span class="p">,</span>
-                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-            <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">run</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="ow">or</span> <span class="n">backend</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_name</span><span class="p">:</span>
@@ -654,10 +641,7 @@
             <span class="n">prior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">prior</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;gaussian&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_name</span> <span class="o">==</span> <span class="s2">&quot;pymc3&quot;</span><span class="p">:</span>
-                <span class="n">prior</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sd</span><span class="o">=</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;HalfStudentT&quot;</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clean_data</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">prior</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sd</span><span class="o">=</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Uniform&quot;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clean_data</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()))</span>
+            <span class="n">prior</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">sigma</span><span class="o">=</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;HalfStudentT&quot;</span><span class="p">,</span> <span class="n">nu</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">clean_data</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()))</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_data</span><span class="p">[</span><span class="n">variable</span><span class="p">])</span>
         <span class="n">term</span> <span class="o">=</span> <span class="n">Term</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -801,13 +785,13 @@
                     <span class="p">}</span>
                     <span class="n">dists</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">pm</span><span class="p">,</span> <span class="n">fixed_term</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">name</span><span class="p">)(</span><span class="n">level</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)]</span>
 
-            <span class="c1"># get priors for random effect SDs</span>
+            <span class="c1"># get priors for random effect sigmas</span>
             <span class="k">for</span> <span class="n">random_term</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_terms</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">var_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">random_term</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
                     <span class="k">continue</span>
-                <span class="n">prior</span> <span class="o">=</span> <span class="n">random_term</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;sd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
-                <span class="n">params</span> <span class="o">=</span> <span class="n">random_term</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;sd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">args</span>
-                <span class="n">dists</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">pm</span><span class="p">,</span> <span class="n">prior</span><span class="p">)(</span><span class="n">random_term</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_sd&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)]</span>
+                <span class="n">prior</span> <span class="o">=</span> <span class="n">random_term</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;sigma&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+                <span class="n">params</span> <span class="o">=</span> <span class="n">random_term</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;sigma&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">args</span>
+                <span class="n">dists</span> <span class="o">+=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">pm</span><span class="p">,</span> <span class="n">prior</span><span class="p">)(</span><span class="n">random_term</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_sigma&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)]</span>
 
             <span class="c1"># add priors on Y params if applicable</span>
             <span class="n">y_priors</span> <span class="o">=</span> <span class="p">[(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Prior</span><span class="p">)]</span>

@@ -1,7 +1,7 @@
 Getting Started
 ***************
 
-Bambi requires a working Python interpreter (3.5+). We recommend installing Python and key numerical libraries using the `Anaconda Distribution <https://www.continuum.io/downloads>`_, which has one-click installers available on all major platforms.
+Bambi requires a working Python interpreter (3.6+). We recommend installing Python and key numerical libraries using the `Anaconda Distribution <https://www.continuum.io/downloads>`_, which has one-click installers available on all major platforms.
 
 Assuming a standard Python environment is installed on your machine (including pip), Bambi itself can be installed in one line using pip:
 
@@ -14,7 +14,7 @@ Alternatively, if you want the bleeding edge version of the package, you can ins
 Quickstart
 ==========
 
-Suppose we have data for a typical within-subjects psychology experiment with 2 experimental conditions. Stimuli are nested within condition, and subjects are crossed with condition. We want to fit a model predicting reaction time (RT) from the fixed effect of condition, random intercepts for subjects, random condition slopes for students, and random intercepts for stimuli. We can fit this model and summarize its results as follows in Bambi:
+Suppose we have data for a typical within-subjects psychology experiment with 2 experimental conditions. Stimuli are nested within condition, and subjects are crossed with condition. We want to fit a model predicting reaction time (RT) from the fixed effect of condition, random intercepts for subjects, random condition slopes for students, and random intercepts for stimuli. Using Bambi we can fit this model and summarize its results as follows:
 
 .. code-block:: python
 
@@ -102,7 +102,7 @@ Models are specified in Bambi using a formula-based syntax similar to what one m
     )
 
 
-Each of the above examples specifies a full model that will immediately be fitted using either PyMC3 or Stan (more on that below).
+Each of the above examples specifies a full model that will immediately be fitted using PyMC3.
 
 Notice how, in contrast to lme4 (but similar to nlme), fixed and random effects are specified separately in Bambi. We describe the syntax and operators supported by each type of effect below; briefly, however, the fixed effects specification relies on `patsy <(http://patsy.readthedocs.io/en/latest/overview.html>`__, and `hence formulas are parsed <http://patsy.readthedocs.io/en/latest/formulas.html>`__ almost exactly the same way `as in R <http://patsy.readthedocs.io/en/latest/R-comparison.html>`__. Random effects terms must be specified one at a time.
 
@@ -181,7 +181,7 @@ Random effects are handled in a comparable way. When adding random intercepts, c
 Fitting the model
 -----------------
 
-Once a model is fully specified, we need to run the PyMC3 or Stan sampler to generate parameter estimates. If we're using the one-line ``fit()`` interface, sampling will begin right away (by default, using the PyMC3 back-end):
+Once a model is fully specified, we need to run the PyMC3 sampler to generate parameter estimates. If we're using the one-line ``fit()`` interface, sampling will begin right away:
 
 .. code-block:: python
 
@@ -232,22 +232,6 @@ Alternatively, the same result can be achieved using the ``run`` argument to ``f
 In both of the above cases, sampling won't actually start until ``fit()`` is called (in the latter case, a second time). The only difference between the two above snippets is that the former will compile the model (note the explicit ``build()`` call) whereas the latter will not.
 
 Building without sampling can be useful if we want to inspect the internal PyMC3 model before we start the (potentially long) sampling process. Once we're satisfied, and wish to run the sampler, we can then simply call ``model.fit()``, and the sampler will start running.
-
-Alternative back-ends
----------------------
-
-Bambi defaults to using the NUTS MCMC sampler implemented in the PyMC3 package for all model-fitting. However, Bambi also supports the NUTS sampler from Stan MCMC sampling package, via the `PyStan <https://github.com/stan-dev/pystan>`_ interface. To switch from PyMC3 to Stan, all you have to do is specify ``backend='stan'`` in the ``fit()`` call:
-
-.. code-block:: python
-
-    model = Model(data)
-    results = model.fit(
-        'rt ~ condition + gender + age',
-        random='condition|subject',
-        backend='stan'
-    )
-
-From the user's standpoint, the change from PyMC3 to Stan (or vice versa) will usually be completely invisible. Unless we want to muck around in the internals of the backends, the API is identical no matter which back-end we're using. This frees us up to easily compare different back-ends in terms of speed and/or estimates (assuming the sampler has converged, the two back-ends should produce virtually identical estimates for all models, but performance could theoretically differ).
 
 
 Specifying priors
@@ -310,10 +294,6 @@ Priors specified using the ``Prior`` class can be nested to arbitrary depths--me
 
 The above prior specification indicates that the individual subject intercepts are to be treated as if they are randomly sampled from the same underlying normal distribution, where the variance of that normal distribution is parameterized by a separate hyperprior (a half-cauchy with beta = 5).
 
-A note on priors in Stan
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-The above discussion assumes that one is using the PyMC3 back-end for model fitting. Although custom priors can be specified using the same syntax when using the Stan back-end, the variety of supported prior distributions is much more limited (the technical reason for this is that the Stan back-end requires us to explicitly add each distribution we wish to support, whereas the PyMC3 back-end is able to seamlessly and automatically use any distribution supported within PyMC3). If you plan to use uncommon distributions for your priors, we encourage you to use the PyMC3 back-end (which is also the default—so if you didn't explicitly specify the back-end, you're probably already using PyMC3). Note also that regardless of which back-end you use, all prior distributions use the names found in PyMC3, and not in Stan or any other package (e.g., in Stan, a half-Cauchy prior is specified as a full Cauchy prior with a lower bound of 0, but in Bambi, you would use the PyMC3 convention and pass a ``'HalfCauchy'`` prior).
 
 Mapping priors onto terms
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -388,20 +368,24 @@ Bambi supports the construction of mixed models with non-normal response distrib
         family='bernoulli'
     )
 
-If no ``link`` argument is explicitly set (see below), the canonical link function (or an otherwise sensible default) will be used. The following table summarizes the currently available families and their associated links (the default is ``gaussian``):
+If no ``link`` argument is explicitly set (see below), the canonical link function (or an otherwise sensible default) will be used. The following table summarizes the currently available families and their associated links:
 
-===========  =====================  ============
-Family name  Response distribution  Default link
-===========  =====================  ============
-gaussian     Normal                 identity
-bernoulli    Bernoulli              logit
-poisson      Poisson                log
-===========  =====================  ============
+==================  =====================  ===============
+Family name         Response distribution  Default link
+==================  =====================  ===============
+bernoulli           Bernoulli              logit
+gamma               Gamma                  inverse
+gaussian            Normal                 identity
+negativebinomial    NegativeBinomial       log
+poisson             Poisson                log
+wald                InverseGaussian        inverse squared
+==================  =====================  ===============
+
 
 Families
 ~~~~~~~~
 
-Following the convention used in many R packages, the response distribution to use for a GLMM is specified in a ``Family`` class that indicates how the response variable is distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility (note, again, that custom specifications are only guaranteed to work with the PyMC3 back-end; results may be unpredictable when using Stan, as noted in `A note on priors in Stan`_). In the following example, we show how the built-in 'bernoulli' family could be constructed on-the-fly:
+Following the convention used in many R packages, the response distribution to use for a GLMM is specified in a ``Family`` class that indicates how the response variable is distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility. In the following example, we show how the built-in 'bernoulli' family could be constructed on-the-fly:
 
 .. code-block:: python
 
@@ -489,4 +473,4 @@ You can find detailed, worked examples of fitting Bambi models and working with 
 Accessing back-end objects
 --------------------------
 
-Bambi is just a high-level interface to other statistical packages; as such, it uses other packages as computational back-ends. Internally, Bambi stores virtually all objects generated by backends like PyMC3, making it easy for users to retrieve, inspect, and modify those objects. For example, the ``Model`` class created by PyMC3 (as opposed to the Bambi class of the same name) is accessible from `model.backend.model`. For models fitted with a PyMC3 sampler, the resulting ``MultiTrace`` object is stored in ``model.backend.trace`` (though it can also be accessed via Bambi's ``ModelResults`` instance).
+Bambi is just a high-level interface to PyMC3; as such. Internally, Bambi stores virtually all objects generated by PyMC3, making it easy for users to retrieve, inspect, and modify those objects. For example, the ``Model`` class created by PyMC3 (as opposed to the Bambi class of the same name) is accessible from `model.backend.model`. The ``MultiTrace`` object from PyMC3 is stored in ``model.backend.trace``.

@@ -10,12 +10,12 @@ BAyesian Model-Building Interface (Bambi) in Python
 .. |Coverage| image:: https://coveralls.io/repos/github/bambinos/bambi/badge.svg
     :target: https://coveralls.io/github/bambinos/bambi
 
-Bambi is a high-level Bayesian model-building interface written in Python. It works with two probabilistic programming frameworks, `PyMC3 <https://docs.pymc.io/>`__ or `PyStan <https://pystan.readthedocs.io/en/latest/>`__, and is designed to make it extremely easy to fit Bayesian mixed-effects models common in biology, social sciences and other disciplines.
+Bambi is a high-level Bayesian model-building interface written in Python. It works with the probabilistic programming frameworks `PyMC3 <https://docs.pymc.io/>`__ and is designed to make it extremely easy to fit Bayesian mixed-effects models common in biology, social sciences and other disciplines.
 
 
 Dependencies
 ============
-Bambi is tested on Python 3.6 and depends on NumPy, Pandas, PyMC3, PyStan, Patsy and ArviZ (see `requirements.txt <https://github.com/bambinos/bambi/blob/master/requirements.txt>`_ for version information).
+Bambi is tested on Python 3.6+ and depends on NumPy, Pandas, PyMC3, PyStan, Patsy and ArviZ (see `requirements.txt <https://github.com/bambinos/bambi/blob/master/requirements.txt>`_ for version information).
 
 Installation
 ============

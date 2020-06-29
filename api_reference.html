@@ -145,8 +145,7 @@ name, or a list of names. If categorical is None, the data type of the columns i
 DataFrame will be used to infer handling. In cases where numeric columns are to be
 treated as categoricals (e.g., random factors coded as numerical IDs), explicitly
 passing variable names via this argument is recommended.</p></li>
-<li><p><strong>backend</strong> (<em>str</em>) – The name of the BackEnd to use. Currently only ‘pymc’ and ‘stan’ backends are
-supported. Defaults to PyMC3.</p></li>
+<li><p><strong>backend</strong> (<em>str</em>) – The name of the BackEnd to use. Currently only ‘pymc’ backen is supported.</p></li>
 </ul>
 </dd>
 </dl>
@@ -293,8 +292,9 @@ example. If None, a built-in set of priors will be used as defaults.</p></li>
 <li><p><strong>dists</strong> (<em>dict</em>) – Optional specification of named distributions to use as priors. Each key gives the name of
 a newly defined distribution; values are two-element lists, where the first element is the
 name of the built-in distribution to use (‘Normal’, ‘Cauchy’, etc.), and the second element
-is a dictionary of parameters on that distribution (e.g., {‘mu’: 0, ‘sd’: 10}). Priors can
-be nested to arbitrary depths by replacing any parameter with another prior specification.</p></li>
+is a dictionary of parameters on that distribution (e.g., {‘mu’: 0, ‘sigma’: 10}). Priors
+can be nested to arbitrary depths by replacing any parameter with another prior
+specification.</p></li>
 <li><p><strong>terms</strong> (<em>dict</em>) – Optional specification of default priors for different model term types. Valid keys are
 ‘intercept’, ‘fixed’, or ‘random’. Values are either strings preprended by a #, in which
 case they are interpreted as pointers to distributions named in the dists dictionary,
@@ -305,11 +305,11 @@ and values are dicts containing mandatory keys for ‘dist’, ‘link’, and �
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dists</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;my_dist&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;mu&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;sd&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">}]}</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dists</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;my_dist&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;mu&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;sigma&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">}]}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pf</span> <span class="o">=</span> <span class="n">PriorFactory</span><span class="p">(</span><span class="n">dists</span><span class="o">=</span><span class="n">dists</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">families</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;normalish&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;dist&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="p">{</span><span class="n">sd</span><span class="p">:</span> <span class="s1">&#39;#my_dist&#39;</span><span class="p">}],</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">families</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;normalish&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;dist&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="p">{</span><span class="n">sigma</span><span class="p">:</span> <span class="s1">&#39;#my_dist&#39;</span><span class="p">}],</span>
 <span class="gp">&gt;&gt;&gt; </span>            <span class="n">link</span><span class="p">:</span><span class="s1">&#39;identity&#39;</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="s1">&#39;mu&#39;</span><span class="p">}}</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pf</span> <span class="o">=</span> <span class="n">PriorFactory</span><span class="p">(</span><span class="n">dists</span><span class="o">=</span><span class="n">dists</span><span class="p">,</span> <span class="n">families</span><span class="o">=</span><span class="n">families</span><span class="p">)</span>
 </pre></div>
