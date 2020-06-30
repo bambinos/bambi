@@ -154,7 +154,7 @@ class PyMC3BackEnd(BackEnd):
             with model:
                 self.trace = pm.sample(samples, start=start, init=init, n_init=n_init, **kwargs)
 
-            return from_pymc3(self.trace)
+            return from_pymc3(self.trace, model=model)
 
         elif method.lower() == "advi":
             with model:
