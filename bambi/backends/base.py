@@ -2,10 +2,8 @@ from abc import ABCMeta, abstractmethod
 
 
 class BackEnd:
+    """Base class for BackEnd hierarchy."""
 
-    '''
-    Base class for BackEnd hierarchy.
-    '''
     __metaclass__ = ABCMeta
 
     @abstractmethod
