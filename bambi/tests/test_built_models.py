@@ -1,11 +1,13 @@
-import pytest
-from bambi.models import Term, Model
-from bambi.priors import Prior
-import theano.tensor as tt
-import pandas as pd
-import numpy as np
 import re
+
 import arviz as az
+import numpy as np
+import pandas as pd
+import pytest
+import theano.tensor as tt
+
+from bambi.models import Model, Term
+from bambi.priors import Prior
 
 
 @pytest.fixture(scope="module")
@@ -377,7 +379,6 @@ def test_logistic_regression(crossed_data):
     model1.build(backend="pymc3")
     model1.fit(tune=0, samples=1)
 
-
     # build model using fit, pymc3 and theano link function
     model3 = Model(crossed_data)
     fitted3 = model3.fit(
@@ -445,7 +446,6 @@ def test_poisson_regression(crossed_data):
     model1.build(backend="pymc3")
     model1.fit(tune=0, samples=1, init=None)
 
-
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)
 
@@ -473,6 +473,7 @@ def test_poisson_regression(crossed_data):
             return [np.allclose(a[x], b[x], atol=0, rtol=0.01) for x in a.keys()]
 
     assert all([dicts_close(priors0[x], priors1[x]) for x in priors0.keys()])
+
 
 def test_laplace():
     data = pd.DataFrame(np.repeat((0, 1), (30, 60)), columns=["w"])
