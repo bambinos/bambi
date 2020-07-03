@@ -1,14 +1,16 @@
-import numpy as np
 import re
-from patsy.util import safe_scalar_isnan
+
+import numpy as np
+
 from patsy import PatsyError
+from patsy.util import safe_scalar_isnan
 
 
 class Custom_NA:
-    """
-    Custom patsy.missing.NAAction class. Similar to patsy drop/raise defaults,
-    but changes the raised message and logs which rows (if any) are dropped.
-    See Patsy code/API for NAAction documentation.
+    """Custom patsy.missing.NAAction class.
+
+    Similar to patsy drop/raise defaults, but changes the raised message and logs which rows (if
+    any) are dropped. See Patsy code/API for NAAction documentation.
     """
 
     def __init__(self, dropna=False, NA_types=["None", "NaN"]):

@@ -71,7 +71,6 @@ class Prior:
             kwargs : dict
                 Optional keyword arguments to add to prior args.
         """
-
         # Backends expect numpy arrays, so make sure all numeric values are represented as such.
         kwargs = {k: (np.array(v) if isinstance(v, (int, float)) else v) for k, v in kwargs.items()}
         self.args.update(kwargs)
@@ -114,7 +113,6 @@ class PriorFactory:
     """
 
     def __init__(self, defaults=None, dists=None, terms=None, families=None):
-
         if defaults is None:
             defaults = join(dirname(__file__), "config", "priors.json")
 
@@ -138,7 +136,6 @@ class PriorFactory:
         self.families = defaults["families"]
 
     def _get_prior(self, spec, **kwargs):
-
         if isinstance(spec, str):
             spec = re.sub(r"^\#", "", spec)
             return self._get_prior(self.dists[spec])
@@ -217,10 +214,13 @@ class PriorScaler:
 
     def _get_slope_stats(self, exog, predictor, sigma_corr, full_mod=None, points=4):
         """
-        Args:
-            full_mod: statsmodels GLM to replace MLE model. For when 'predictor'
-                is not in the fixed part of the model.
-            points: number of points to use for LL approximation.
+        Parameters
+        ----------
+            full_mod : statsmodels.genmod.generalized_linear_model.GLM
+                Statsmodels GLM to replace MLE model. For when 'predictor' is not in the fixed part
+                of the model.
+            points : int
+                Number of points to use for LL approximation.
         """
 
         if full_mod is None:

@@ -4,23 +4,21 @@ import warnings
 from collections import OrderedDict
 from copy import deepcopy
 
-import pandas as pd
 import numpy as np
-from patsy import dmatrices, dmatrix
+import pandas as pd
+import pymc3 as pm
 import statsmodels.api as sm
 from arviz.plots import plot_posterior
-import pymc3 as pm
+from patsy import dmatrices, dmatrix
 
-
-from .external.patsy import Custom_NA
-from .priors import PriorFactory, PriorScaler, Prior
-from .utils import listify
 from .backends import PyMC3BackEnd
+from .external.patsy import Custom_NA
+from .priors import Prior, PriorFactory, PriorScaler
+from .utils import listify
 
 
 class Model:
-    """
-    Specification of model class
+    """Specification of model class.
 
     Parameters
     ----------
@@ -104,9 +102,7 @@ class Model:
         self.built = False  # build()
 
     def reset(self):
-        """
-        Reset list of terms and y-variable.
-        """
+        """Reset list of terms and y-variable."""
         self.terms = OrderedDict()
         self.y = None
         self.backend = None
@@ -116,7 +112,6 @@ class Model:
         self.clean_data = None
 
     def _set_backend(self, backend):
-
         backend = backend.lower()
 
         if backend.startswith("pymc"):
@@ -140,7 +135,6 @@ class Model:
             supported. If None, assume that `fit()` has already been called (possibly without
             building) and look in self._backend_name.
         """
-
         # retain only the complete cases
         n_total = len(self.data.index)
         if self.completes:
@@ -316,7 +310,6 @@ class Model:
         backend : str
             The name of the BackEnd to use. Currently only 'pymc' backen is supported.
         """
-
         if fixed is not None or random is not None:
             self.add(
                 fixed=fixed,
@@ -331,7 +324,6 @@ class Model:
         # Run the BackEnd to fit the model.
         if backend is None:
             backend = "pymc" if self._backend_name is None else self._backend_name
-
 
         if run:
             if not self.built or backend != self._backend_name:
@@ -351,8 +343,7 @@ class Model:
         categorical=None,
         append=True,
     ):
-        """
-        Adds one or more terms to the model via an R-like formula syntax.
+        """Add one or more terms to the model via an R-like formula syntax.
 
         Parameters
         ----------
@@ -385,7 +376,6 @@ class Model:
             If True, terms are appended to the existing model rather than replacing any
             existing terms. This allows formula-based specification of the model in stages.
         """
-
         data = self.data
 
         # Primitive values (floats, strs) can be overwritten with Prior objects
@@ -446,7 +436,6 @@ class Model:
 
         Runs during Model.build()
         """
-
         # use cleaned data with NAs removed (if user requested)
         data = self.clean_data
         # alter this pandas flag to avoid false positive SettingWithCopyWarnings
@@ -613,13 +602,11 @@ class Model:
         self.built = False
 
     def _match_derived_terms(self, name):
-        """
-        Returns all (random) terms whose named are derived from the
-        specified string. For example, 'condition|subject' should match the
-        terms with names '1|subject', 'condition[T.1]|subject', and so on.
-        Only works for strings with grouping operator ('|').
-        """
+        """Return all (random) terms whose named are derived from the specified string.
 
+        For example, 'condition|subject' should match the terms with names '1|subject',
+        'condition[T.1]|subject', and so on. Only works for strings with grouping operator ('|').
+        """
         if "|" not in name:
             return None
 
@@ -679,7 +666,6 @@ class Model:
 
         Runs during Model.build().
         """
-
         targets = {}
 
         if fixed is not None:
@@ -705,16 +691,15 @@ class Model:
         for name, prior in targets.items():
             self.terms[name].prior = prior
 
-    # helper function to correctly set default priors, auto_scaling, etc.
     def _prepare_prior(self, prior, _type):
-        """
+        """Helper function to correctly set default priors, auto_scaling, etc.
+
         Parameters
         ----------
         prior : Prior object, or float, or None.
         _type : string
             accepted values are: 'intercept, 'fixed', or 'random'.
         """
-
         if prior is None and not self.auto_scale:
             prior = self.default_priors.get(term=_type + "_flat")
 
@@ -736,8 +721,7 @@ class Model:
             raise ValueError("Cannot plot priors until model is built!")
 
         with pm.Model():
-            # get priors for fixed fx, separately for each level of each
-            # predictor
+            # get priors for fixed fx, separately for each level of each predictor
             dists = []
             for fixed_term in self.fixed_terms.values():
                 if var_names is not None and fixed_term.name not in var_names:
@@ -811,7 +795,6 @@ class Term:
     random = False
 
     def __init__(self, name, data, categorical=False, prior=None, constant=None):
-
         self.name = name
         self.categorical = categorical
         self._reduced_data = None
