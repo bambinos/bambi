@@ -1,17 +1,15 @@
 import numpy as np
+import pymc3 as pm
 import theano
 from arviz import from_pymc3
-import pymc3 as pm
+
 from bambi.priors import Prior
 
 from .base import BackEnd
 
 
 class PyMC3BackEnd(BackEnd):
-
-    """
-    PyMC3 model-fitting back-end.
-    """
+    """PyMC3 model-fitting back-end."""
 
     # Available link functions
     links = {
@@ -25,7 +23,6 @@ class PyMC3BackEnd(BackEnd):
     dists = {"HalfFlat": pm.Bound(pm.Flat, lower=0)}
 
     def __init__(self):
-
         self.reset()
 
         # Attributes defined elsewhere
@@ -35,15 +32,13 @@ class PyMC3BackEnd(BackEnd):
         self.advi_params = None  # build()
 
     def reset(self):
-        """
-        Reset PyMC3 model and all tracked distributions and parameters.
-        """
+        """Reset PyMC3 model and all tracked distributions and parameters."""
         self.model = pm.Model()
         self.mu = None
         self.par_groups = {}
 
     def _build_dist(self, spec, label, dist, **kwargs):
-        """ Build and return a PyMC3 Distribution. """
+        """Build and return a PyMC3 Distribution."""
         if isinstance(dist, str):
             if hasattr(pm, dist):
                 dist = getattr(pm, dist)
@@ -77,8 +72,7 @@ class PyMC3BackEnd(BackEnd):
         return dist(label, **kwargs)
 
     def build(self, spec, reset=True):  # pylint: disable=arguments-differ
-        """
-        Compile the PyMC3 model from an abstract model specification.
+        """Compile the PyMC3 model from an abstract model specification.
 
         Parameters
         ----------
@@ -122,8 +116,7 @@ class PyMC3BackEnd(BackEnd):
 
     # pylint: disable=arguments-differ, inconsistent-return-statements
     def run(self, start=None, method="mcmc", init="auto", n_init=50000, **kwargs):
-        """
-        Run the PyMC3 MCMC sampler.
+        """Run the PyMC3 MCMC sampler.
 
         Parameters
         ----------
@@ -168,9 +161,9 @@ class PyMC3BackEnd(BackEnd):
 
 
 def _laplace(model):
-    """
-    Fit a model using a laplace approximation. Mainly for pedagogical use. ``mcmc`` and ``advi``
-    are better approximations
+    """Fit a model using a laplace approximation.
+
+    Mainly for pedagogical use. ``mcmc`` and ``advi`` are better approximations.
 
     Parameters
     ----------

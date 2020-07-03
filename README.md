@@ -1,5 +1,5 @@
-Bambi
-------
+# Bambi
+
 BAyesian Model-Building Interface in Python
 
 [![Build Status](https://travis-ci.org/bambinos/bambi.svg?branch=master)](https://travis-ci.org/bambinos/bambi)
@@ -25,7 +25,6 @@ Alternatively, if you want the bleeding edge version of the package you can inst
 ### Dependencies
 
 Bambi requires working versions of numpy, pandas, matplotlib, patsy, pymc3, and theano. Dependencies are listed in `requirements.txt`, and should all be installed by the Bambi installer; no further action should be required.
-
 
 ## Documentation
 
