@@ -1,10 +1,12 @@
-import pytest
-from bambi.models import Model
-from bambi.priors import Prior, Family, PriorFactory
-from os.path import dirname, join
 import json
-import pandas as pd
+from os.path import dirname, join
+
 import numpy as np
+import pandas as pd
+import pytest
+
+from bambi.models import Model
+from bambi.priors import Family, Prior, PriorFactory
 
 
 @pytest.fixture(scope="module")
@@ -130,7 +132,9 @@ def test_update_term_priors_after_init(diabetes_data):
     model.set_priors({"age_grp|BP": 0.5})
     model.build(backend="pymc")
     assert model.terms["age_grp[T.1]|BP"].prior.scale == 0.5
-    assert np.isclose(model.terms["age_grp[T.1]|BP"].prior.args["sigma"].args["sigma"], 94, rtol=0.2)
+    assert np.isclose(
+        model.terms["age_grp[T.1]|BP"].prior.args["sigma"].args["sigma"], 94, rtol=0.2
+    )
     assert model.terms["1|BP"].prior.scale == 0.5
 
 
