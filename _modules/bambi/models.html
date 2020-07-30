@@ -1,9 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>bambi.models &#8212; bambi 0.2.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -13,7 +14,7 @@
     <script src="../../_static/doctools.js"></script>
     <script src="../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -40,23 +41,21 @@
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">OrderedDict</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">patsy</span> <span class="kn">import</span> <span class="n">dmatrices</span><span class="p">,</span> <span class="n">dmatrix</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pymc3</span> <span class="k">as</span> <span class="nn">pm</span>
 <span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span>
 <span class="kn">from</span> <span class="nn">arviz.plots</span> <span class="kn">import</span> <span class="n">plot_posterior</span>
-<span class="kn">import</span> <span class="nn">pymc3</span> <span class="k">as</span> <span class="nn">pm</span>
+<span class="kn">from</span> <span class="nn">patsy</span> <span class="kn">import</span> <span class="n">dmatrices</span><span class="p">,</span> <span class="n">dmatrix</span>
 
-
-<span class="kn">from</span> <span class="nn">.external.patsy</span> <span class="kn">import</span> <span class="n">Custom_NA</span>
-<span class="kn">from</span> <span class="nn">.priors</span> <span class="kn">import</span> <span class="n">PriorFactory</span><span class="p">,</span> <span class="n">PriorScaler</span><span class="p">,</span> <span class="n">Prior</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">listify</span>
 <span class="kn">from</span> <span class="nn">.backends</span> <span class="kn">import</span> <span class="n">PyMC3BackEnd</span>
+<span class="kn">from</span> <span class="nn">.external.patsy</span> <span class="kn">import</span> <span class="n">Custom_NA</span>
+<span class="kn">from</span> <span class="nn">.priors</span> <span class="kn">import</span> <span class="n">Prior</span><span class="p">,</span> <span class="n">PriorFactory</span><span class="p">,</span> <span class="n">PriorScaler</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">listify</span>
 
 
 <div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Specification of model class</span>
+    <span class="sd">&quot;&quot;&quot;Specification of model class.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -140,9 +139,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># build()</span>
 
 <div class="viewcode-block" id="Model.reset"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Reset list of terms and y-variable.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Reset list of terms and y-variable.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">terms</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="kc">None</span>
@@ -152,7 +149,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">clean_data</span> <span class="o">=</span> <span class="kc">None</span></div>
 
     <span class="k">def</span> <span class="nf">_set_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend</span><span class="p">):</span>
-
         <span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">backend</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;pymc&quot;</span><span class="p">):</span>
@@ -176,7 +172,6 @@
 <span class="sd">            supported. If None, assume that `fit()` has already been called (possibly without</span>
 <span class="sd">            building) and look in self._backend_name.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="c1"># retain only the complete cases</span>
         <span class="n">n_total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">completes</span><span class="p">:</span>
@@ -352,7 +347,6 @@
 <span class="sd">        backend : str</span>
 <span class="sd">            The name of the BackEnd to use. Currently only &#39;pymc&#39; backen is supported.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">if</span> <span class="n">fixed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">random</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
                 <span class="n">fixed</span><span class="o">=</span><span class="n">fixed</span><span class="p">,</span>
@@ -367,7 +361,6 @@
         <span class="c1"># Run the BackEnd to fit the model.</span>
         <span class="k">if</span> <span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">backend</span> <span class="o">=</span> <span class="s2">&quot;pymc&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_name</span>
-
 
         <span class="k">if</span> <span class="n">run</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="ow">or</span> <span class="n">backend</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend_name</span><span class="p">:</span>
@@ -387,8 +380,7 @@
         <span class="n">categorical</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">append</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Adds one or more terms to the model via an R-like formula syntax.</span>
+        <span class="sd">&quot;&quot;&quot;Add one or more terms to the model via an R-like formula syntax.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -421,7 +413,6 @@
 <span class="sd">            If True, terms are appended to the existing model rather than replacing any</span>
 <span class="sd">            existing terms. This allows formula-based specification of the model in stages.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
 
         <span class="c1"># Primitive values (floats, strs) can be overwritten with Prior objects</span>
@@ -482,7 +473,6 @@
 
 <span class="sd">        Runs during Model.build()</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="c1"># use cleaned data with NAs removed (if user requested)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">clean_data</span>
         <span class="c1"># alter this pandas flag to avoid false positive SettingWithCopyWarnings</span>
@@ -551,7 +541,7 @@
                 <span class="c1"># Default to including random intercepts</span>
                 <span class="n">intcpt</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">intcpt</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">intcpt</span><span class="p">)</span>
 
-                <span class="n">grpr_df</span> <span class="o">=</span> <span class="n">dmatrix</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;0+</span><span class="si">{grpr}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s2">&quot;dataframe&quot;</span><span class="p">,</span> <span class="n">NA_action</span><span class="o">=</span><span class="s2">&quot;raise&quot;</span><span class="p">)</span>
+                <span class="n">grpr_df</span> <span class="o">=</span> <span class="n">dmatrix</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;0+</span><span class="si">{</span><span class="n">grpr</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s2">&quot;dataframe&quot;</span><span class="p">,</span> <span class="n">NA_action</span><span class="o">=</span><span class="s2">&quot;raise&quot;</span><span class="p">)</span>
 
                 <span class="c1"># If there&#39;s no predictor, we must be adding random intercepts</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">pred</span> <span class="ow">and</span> <span class="n">grpr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">:</span>
@@ -563,7 +553,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">term</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">pred_df</span> <span class="o">=</span> <span class="n">dmatrix</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{intcpt}</span><span class="s2">+</span><span class="si">{pred}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s2">&quot;dataframe&quot;</span><span class="p">,</span> <span class="n">NA_action</span><span class="o">=</span><span class="s2">&quot;raise&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">intcpt</span><span class="si">}</span><span class="s2">+</span><span class="si">{</span><span class="n">pred</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s2">&quot;dataframe&quot;</span><span class="p">,</span> <span class="n">NA_action</span><span class="o">=</span><span class="s2">&quot;raise&quot;</span>
                     <span class="p">)</span>
                     <span class="c1"># determine value of the &#39;constant&#39; attribute</span>
                     <span class="n">const</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">pred_df</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">var</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span>
@@ -578,7 +568,7 @@
                         <span class="k">if</span> <span class="n">col</span> <span class="o">==</span> <span class="s2">&quot;Intercept&quot;</span><span class="p">:</span>
                             <span class="k">if</span> <span class="n">grpr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">:</span>
                                 <span class="k">continue</span>
-                            <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;1|</span><span class="si">{grpr}</span><span class="s2">&quot;</span>
+                            <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;1|</span><span class="si">{</span><span class="n">grpr</span><span class="si">}</span><span class="s2">&quot;</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">label</span> <span class="o">=</span> <span class="n">col</span> <span class="o">+</span> <span class="s2">&quot;|&quot;</span> <span class="o">+</span> <span class="n">grpr</span>
 
@@ -649,23 +639,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="nf">_match_derived_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns all (random) terms whose named are derived from the</span>
-<span class="sd">        specified string. For example, &#39;condition|subject&#39; should match the</span>
-<span class="sd">        terms with names &#39;1|subject&#39;, &#39;condition[T.1]|subject&#39;, and so on.</span>
-<span class="sd">        Only works for strings with grouping operator (&#39;|&#39;).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Return all (random) terms whose named are derived from the specified string.</span>
 
+<span class="sd">        For example, &#39;condition|subject&#39; should match the terms with names &#39;1|subject&#39;,</span>
+<span class="sd">        &#39;condition[T.1]|subject&#39;, and so on. Only works for strings with grouping operator (&#39;|&#39;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;|&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="n">patt</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^([01]+)*[\s\+]*([^\|]+)*\|(.*)&quot;</span>
         <span class="n">intcpt</span><span class="p">,</span> <span class="n">pred</span><span class="p">,</span> <span class="n">grpr</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">patt</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
-        <span class="n">intcpt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;1|</span><span class="si">{grpr}</span><span class="s2">&quot;</span>
+        <span class="n">intcpt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;1|</span><span class="si">{</span><span class="n">grpr</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">pred</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">[</span><span class="n">intcpt</span><span class="p">]]</span> <span class="k">if</span> <span class="n">intcpt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">terms</span> <span class="k">else</span> <span class="kc">None</span>
 
-        <span class="n">source</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{pred}</span><span class="s2">|</span><span class="si">{grpr}</span><span class="s2">&quot;</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pred</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">grpr</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="n">found</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">t</span>
             <span class="k">for</span> <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
@@ -715,7 +703,6 @@
 
 <span class="sd">        Runs during Model.build().</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="n">targets</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">if</span> <span class="n">fixed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -728,7 +715,7 @@
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">prior</span> <span class="ow">in</span> <span class="n">priors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">listify</span><span class="p">(</span><span class="n">k</span><span class="p">):</span>
                     <span class="n">term_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;No terms in model match </span><span class="si">{name}</span><span class="s2">.&quot;</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;No terms in model match </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span>
                     <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">term_names</span><span class="p">:</span>
                         <span class="n">terms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match_derived_terms</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
                         <span class="k">if</span> <span class="ow">not</span> <span class="n">match_derived_names</span> <span class="ow">or</span> <span class="n">terms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -741,16 +728,15 @@
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">prior</span> <span class="ow">in</span> <span class="n">targets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">prior</span> <span class="o">=</span> <span class="n">prior</span>
 
-    <span class="c1"># helper function to correctly set default priors, auto_scaling, etc.</span>
     <span class="k">def</span> <span class="nf">_prepare_prior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">_type</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Helper function to correctly set default priors, auto_scaling, etc.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        prior : Prior object, or float, or None.</span>
 <span class="sd">        _type : string</span>
 <span class="sd">            accepted values are: &#39;intercept, &#39;fixed&#39;, or &#39;random&#39;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
         <span class="k">if</span> <span class="n">prior</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_scale</span><span class="p">:</span>
             <span class="n">prior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_priors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">term</span><span class="o">=</span><span class="n">_type</span> <span class="o">+</span> <span class="s2">&quot;_flat&quot;</span><span class="p">)</span>
 
@@ -772,8 +758,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot plot priors until model is built!&quot;</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="n">pm</span><span class="o">.</span><span class="n">Model</span><span class="p">():</span>
-            <span class="c1"># get priors for fixed fx, separately for each level of each</span>
-            <span class="c1"># predictor</span>
+            <span class="c1"># get priors for fixed fx, separately for each level of each predictor</span>
             <span class="n">dists</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">fixed_term</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fixed_terms</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">var_names</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">fixed_term</span><span class="o">.</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
@@ -847,7 +832,6 @@
     <span class="n">random</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">categorical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constant</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">categorical</span> <span class="o">=</span> <span class="n">categorical</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reduced_data</span> <span class="o">=</span> <span class="kc">None</span>
@@ -956,7 +940,7 @@
       &copy;2019, The developers of Bambi.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

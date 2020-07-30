@@ -1,9 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bayesian Workflow Example (Strack RRR Analysis Replication) &#8212; bambi 0.2.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -13,7 +14,7 @@
     <script src="../_static/doctools.js"></script>
     <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -290,7 +291,7 @@ Bambi code.</p>
 <p>The data for the RRR of Strack, Martin, &amp; Stepper (henceforth <em>SMS</em>) is available as a set of CSV files from the project’s repository on the Open Science Framework. For the sake of completeness, we’ll show how to go from the raw CSV to the “long” data format that Bambi can use (and that’s required by most other mixed-effects modeling packages).</p>
 <p>One slightly annoying thing about these 17 CSV files–each of which represents a different replication site–is that they don’t all contain exactly the same columns. Some labs added a column or two at the end (mostly for notes). To keep things simple, we’ll just truncate each dataset to only the first 22 columns. Because the variable names are structured in a bit of a confusing way, we’ll also just drop the first two rows in each file, and manually set the column names for all 22 variables. Once
 we’ve done that, we can simply concatenate all of the 17 datasets along the row axis to create one big dataset.</p>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
@@ -317,14 +318,6 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">,</span>  <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-INFO:numexpr.utils:NumExpr defaulting to 4 threads.
-</pre></div></div>
 </div>
 <p>Let’s see what the first few rows look like…</p>
 <div class="nbinput docutils container">
@@ -386,22 +379,22 @@ INFO:numexpr.utils:NumExpr defaulting to 4 threads.
     <tr>
       <th>0</th>
       <td>1.0</td>
-      <td>39814.0</td>
       <td>1.0</td>
+      <td>0.0</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>4.0</td>
-      <td>6.0</td>
-      <td>3.0</td>
+      <td>7.0</td>
+      <td>2.0</td>
       <td>...</td>
-      <td>NaN</td>
+      <td>5.0</td>
       <td>1.0</td>
       <td>0.0</td>
       <td>NaN</td>
-      <td>19.0</td>
-      <td>0.0</td>
+      <td>22.0</td>
+      <td>1.0</td>
       <td>1.0</td>
       <td>NaN</td>
       <td>0.0</td>
@@ -410,22 +403,22 @@ INFO:numexpr.utils:NumExpr defaulting to 4 threads.
     <tr>
       <th>1</th>
       <td>2.0</td>
-      <td>39829.0</td>
+      <td>2.0</td>
       <td>0.0</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>4.0</td>
-      <td>8.0</td>
+      <td>7.0</td>
       <td>6.0</td>
       <td>...</td>
-      <td>NaN</td>
+      <td>5.0</td>
       <td>1.0</td>
       <td>0.0</td>
       <td>NaN</td>
-      <td>19.0</td>
-      <td>1.0</td>
+      <td>20.0</td>
+      <td>0.0</td>
       <td>1.0</td>
       <td>NaN</td>
       <td>0.0</td>
@@ -434,17 +427,17 @@ INFO:numexpr.utils:NumExpr defaulting to 4 threads.
     <tr>
       <th>2</th>
       <td>3.0</td>
-      <td>39817.0</td>
+      <td>3.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>0.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
       <td>3.0</td>
+      <td>4.0</td>
       <td>7.0</td>
-      <td>5.0</td>
       <td>...</td>
-      <td>NaN</td>
+      <td>4.0</td>
       <td>1.0</td>
       <td>0.0</td>
       <td>NaN</td>
@@ -458,17 +451,17 @@ INFO:numexpr.utils:NumExpr defaulting to 4 threads.
     <tr>
       <th>3</th>
       <td>4.0</td>
-      <td>39994.0</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
+      <td>4.0</td>
       <td>1.0</td>
       <td>1.0</td>
-      <td>3.0</td>
-      <td>5.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>4.0</td>
+      <td>6.0</td>
       <td>3.0</td>
       <td>...</td>
-      <td>NaN</td>
+      <td>2.0</td>
       <td>1.0</td>
       <td>0.0</td>
       <td>NaN</td>
@@ -482,22 +475,22 @@ INFO:numexpr.utils:NumExpr defaulting to 4 threads.
     <tr>
       <th>4</th>
       <td>5.0</td>
-      <td>39541.0</td>
-      <td>1.0</td>
+      <td>5.0</td>
+      <td>0.0</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>4.0</td>
       <td>7.0</td>
-      <td>4.0</td>
+      <td>6.0</td>
       <td>...</td>
-      <td>NaN</td>
+      <td>5.0</td>
       <td>1.0</td>
       <td>0.0</td>
       <td>NaN</td>
-      <td>18.0</td>
-      <td>0.0</td>
+      <td>20.0</td>
+      <td>1.0</td>
       <td>1.0</td>
       <td>NaN</td>
       <td>0.0</td>
@@ -548,8 +541,8 @@ INFO:numexpr.utils:NumExpr defaulting to 4 threads.
 <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;value ~ condition&#39;</span><span class="p">,</span> <span class="n">random</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1|uid&#39;</span><span class="p">])</span>
 
 <span class="c1"># Set a custom prior on random factor variances—just for illustration</span>
-<span class="n">random_sd</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;HalfNormal&#39;</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">random_prior</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="n">random_sd</span><span class="p">)</span>
+<span class="n">random_sd</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;HalfNormal&#39;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">random_prior</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">random_sd</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">set_priors</span><span class="p">(</span><span class="n">random</span><span class="o">=</span><span class="n">random_prior</span><span class="p">)</span>
 
 <span class="c1"># Fit the model, drawing 1,000 MCMC samples per chain</span>
@@ -562,19 +555,15 @@ INFO:numexpr.utils:NumExpr defaulting to 4 threads.
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/osvaldo/proyectos/00_BM/Bambi/bambi/bambi/models.py:160: UserWarning: Automatically removing 9/6940 rows from the dataset.
+/Users/camen/Documents/bambi/bambi/models.py:156: UserWarning: Automatically removing 9/6940 rows from the dataset.
   warnings.warn(msg)
 Auto-assigning NUTS sampler...
-INFO:pymc3:Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-INFO:pymc3:Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-INFO:pymc3:Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [value_sd, 1|uid_offset, 1|uid_sd, condition, Intercept]
-INFO:pymc3:NUTS: [value_sd, 1|uid_offset, 1|uid_sd, condition, Intercept]
+NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, condition, Intercept]
 </pre></div></div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
@@ -591,9 +580,17 @@ INFO:pymc3:NUTS: [value_sd, 1|uid_offset, 1|uid_sd, condition, Intercept]
             background: #F44336;
         }
     </style>
-  <progress value='3000' class='' max='3000', style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [3000/3000 00:12<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:27<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 35 seconds.
+</pre></div></div>
 </div>
 <p>Notice that, in Bambi, the fixed and random effects are specified separately (for technical reasons we won’t get into here). The fixed effects can be specified using R-style formulas. The underlying parsing of the formula is done by <a class="reference external" href="https://github.com/pydata/patsy">patsy</a>, and you can find out much more about the operators patsy supports by reading its excellent <a class="reference external" href="http://patsy.readthedocs.io/en/latest/formulas.html">documentation</a>. The random effects are specified as a list, where each
 term is a separate element. In this case, we only have one random factor (unique subject id) to include.</p>
@@ -624,7 +621,7 @@ term is a separate element. In this case, we only have one random factor (unique
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sd&#39;</span><span class="p">,</span> <span class="s1">&#39;1|uid_sd&#39;</span><span class="p">]);</span>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;1|uid_sigma&#39;</span><span class="p">]);</span>
 </pre></div>
 </div>
 </div>
@@ -671,8 +668,8 @@ term is a separate element. In this case, we only have one random factor (unique
       <th></th>
       <th>mean</th>
       <th>sd</th>
-      <th>hpd_3%</th>
-      <th>hpd_97%</th>
+      <th>hdi_3%</th>
+      <th>hdi_97%</th>
       <th>mcse_mean</th>
       <th>mcse_sd</th>
       <th>ess_mean</th>
@@ -686,71 +683,71 @@ term is a separate element. In this case, we only have one random factor (unique
     <tr>
       <th>Intercept[0]</th>
       <td>4.564</td>
-      <td>0.048</td>
-      <td>4.479</td>
-      <td>4.656</td>
-      <td>0.002</td>
+      <td>0.047</td>
+      <td>4.477</td>
+      <td>4.652</td>
       <td>0.001</td>
-      <td>886.0</td>
-      <td>886.0</td>
-      <td>881.0</td>
-      <td>1298.0</td>
+      <td>0.001</td>
+      <td>1201.0</td>
+      <td>1201.0</td>
+      <td>1199.0</td>
+      <td>1445.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>condition[0]</th>
       <td>-0.030</td>
-      <td>0.059</td>
-      <td>-0.137</td>
-      <td>0.084</td>
+      <td>0.061</td>
+      <td>-0.143</td>
+      <td>0.083</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>1106.0</td>
-      <td>1003.0</td>
-      <td>1118.0</td>
-      <td>1317.0</td>
+      <td>1457.0</td>
+      <td>1265.0</td>
+      <td>1473.0</td>
+      <td>1585.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>1|uid_offset[0]</th>
-      <td>-0.489</td>
-      <td>0.743</td>
-      <td>-1.914</td>
-      <td>0.878</td>
-      <td>0.018</td>
-      <td>0.015</td>
-      <td>1717.0</td>
-      <td>1264.0</td>
-      <td>1719.0</td>
-      <td>1302.0</td>
+      <td>-0.484</td>
+      <td>0.732</td>
+      <td>-1.848</td>
+      <td>0.865</td>
+      <td>0.017</td>
+      <td>0.016</td>
+      <td>1781.0</td>
+      <td>1061.0</td>
+      <td>1777.0</td>
+      <td>1311.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>1|uid_offset[1]</th>
-      <td>-0.293</td>
-      <td>0.792</td>
-      <td>-1.897</td>
-      <td>1.150</td>
+      <td>-0.310</td>
+      <td>0.818</td>
+      <td>-1.847</td>
+      <td>1.189</td>
       <td>0.018</td>
-      <td>0.019</td>
-      <td>1844.0</td>
-      <td>883.0</td>
-      <td>1867.0</td>
-      <td>1073.0</td>
+      <td>0.018</td>
+      <td>2172.0</td>
+      <td>1026.0</td>
+      <td>2201.0</td>
+      <td>1366.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>1|uid_offset[2]</th>
-      <td>-0.539</td>
-      <td>0.754</td>
-      <td>-1.926</td>
-      <td>0.870</td>
+      <td>-0.556</td>
+      <td>0.801</td>
+      <td>-1.980</td>
+      <td>1.028</td>
+      <td>0.017</td>
       <td>0.016</td>
-      <td>0.015</td>
-      <td>2201.0</td>
-      <td>1277.0</td>
-      <td>2189.0</td>
-      <td>1504.0</td>
+      <td>2232.0</td>
+      <td>1304.0</td>
+      <td>2217.0</td>
+      <td>1442.0</td>
       <td>1.0</td>
     </tr>
     <tr>
@@ -769,72 +766,72 @@ term is a separate element. In this case, we only have one random factor (unique
     </tr>
     <tr>
       <th>1|uid[185]</th>
-      <td>0.070</td>
+      <td>0.072</td>
       <td>0.284</td>
-      <td>-0.446</td>
-      <td>0.609</td>
-      <td>0.007</td>
+      <td>-0.448</td>
+      <td>0.624</td>
       <td>0.006</td>
-      <td>1868.0</td>
-      <td>997.0</td>
-      <td>1879.0</td>
-      <td>1172.0</td>
+      <td>0.007</td>
+      <td>2022.0</td>
+      <td>930.0</td>
+      <td>2042.0</td>
+      <td>1273.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>1|uid[186]</th>
-      <td>-0.084</td>
-      <td>0.306</td>
-      <td>-0.688</td>
-      <td>0.480</td>
+      <td>-0.082</td>
+      <td>0.303</td>
+      <td>-0.676</td>
+      <td>0.452</td>
       <td>0.007</td>
-      <td>0.008</td>
-      <td>1686.0</td>
-      <td>808.0</td>
-      <td>1696.0</td>
-      <td>1314.0</td>
+      <td>0.007</td>
+      <td>2016.0</td>
+      <td>913.0</td>
+      <td>2033.0</td>
+      <td>1147.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>1|uid[187]</th>
-      <td>-0.127</td>
-      <td>0.299</td>
-      <td>-0.690</td>
-      <td>0.415</td>
-      <td>0.007</td>
-      <td>0.007</td>
-      <td>1690.0</td>
-      <td>1002.0</td>
-      <td>1693.0</td>
-      <td>1213.0</td>
+      <td>-0.121</td>
+      <td>0.293</td>
+      <td>-0.684</td>
+      <td>0.405</td>
+      <td>0.006</td>
+      <td>0.006</td>
+      <td>2043.0</td>
+      <td>1056.0</td>
+      <td>2059.0</td>
+      <td>1485.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>1|uid[188]</th>
-      <td>-0.118</td>
-      <td>0.295</td>
-      <td>-0.706</td>
-      <td>0.423</td>
+      <td>-0.110</td>
+      <td>0.278</td>
+      <td>-0.628</td>
+      <td>0.424</td>
       <td>0.007</td>
-      <td>0.007</td>
-      <td>1708.0</td>
-      <td>950.0</td>
-      <td>1730.0</td>
-      <td>1140.0</td>
+      <td>0.006</td>
+      <td>1711.0</td>
+      <td>1004.0</td>
+      <td>1725.0</td>
+      <td>1109.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>value_sd</th>
+      <th>value_sigma</th>
       <td>2.401</td>
       <td>0.020</td>
       <td>2.363</td>
-      <td>2.438</td>
+      <td>2.440</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1858.0</td>
-      <td>1856.0</td>
-      <td>1840.0</td>
-      <td>1336.0</td>
+      <td>2286.0</td>
+      <td>2285.0</td>
+      <td>2271.0</td>
+      <td>1398.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -863,8 +860,8 @@ by adding random intercepts for the 4 stimuli. We’ll model the stimuli as rand
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;value ~ 1 + condition + age + gender&#39;</span><span class="p">,</span>
           <span class="n">random</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;condition|study&#39;</span><span class="p">,</span> <span class="s1">&#39;1|uid&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|stimulus&#39;</span><span class="p">],</span>
           <span class="n">run</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">random_sd</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;HalfNormal&#39;</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">random_prior</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="n">random_sd</span><span class="p">)</span>
+<span class="n">random_sd</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;HalfNormal&#39;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">random_prior</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">random_sd</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">set_priors</span><span class="p">(</span><span class="n">random</span><span class="o">=</span><span class="n">random_prior</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="s1">&#39;adapt_diag&#39;</span><span class="p">)</span>
 </pre></div>
@@ -875,16 +872,12 @@ by adding random intercepts for the 4 stimuli. We’ll model the stimuli as rand
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/osvaldo/proyectos/00_BM/Bambi/bambi/bambi/models.py:160: UserWarning: Automatically removing 33/6940 rows from the dataset.
+/Users/camen/Documents/bambi/bambi/models.py:156: UserWarning: Automatically removing 33/6940 rows from the dataset.
   warnings.warn(msg)
 Auto-assigning NUTS sampler...
-INFO:pymc3:Auto-assigning NUTS sampler...
 Initializing NUTS using adapt_diag...
-INFO:pymc3:Initializing NUTS using adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-INFO:pymc3:Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [value_sd, condition|stimulus_offset, condition|stimulus_sd, 1|stimulus_offset, 1|stimulus_sd, 1|uid_offset, 1|uid_sd, condition|study_offset, condition|study_sd, 1|study_offset, 1|study_sd, gender, age, condition, Intercept]
-INFO:pymc3:NUTS: [value_sd, condition|stimulus_offset, condition|stimulus_sd, 1|stimulus_offset, 1|stimulus_sd, 1|uid_offset, 1|uid_sd, condition|study_offset, condition|study_sd, 1|study_offset, 1|study_sd, gender, age, condition, Intercept]
+NUTS: [value_sigma, condition|stimulus_offset, condition|stimulus_sigma, 1|stimulus_offset, 1|stimulus_sigma, 1|uid_offset, 1|uid_sigma, condition|study_offset, condition|study_sigma, 1|study_offset, 1|study_sigma, gender, age, condition, Intercept]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -904,8 +897,8 @@ INFO:pymc3:NUTS: [value_sd, condition|stimulus_offset, condition|stimulus_sd, 1|
             background: #F44336;
         }
     </style>
-  <progress value='3000' class='' max='3000', style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [3000/3000 02:04<00:00 Sampling 2 chains, 102 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 04:16<00:00 Sampling 2 chains, 133 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -913,21 +906,19 @@ INFO:pymc3:NUTS: [value_sd, condition|stimulus_offset, condition|stimulus_sd, 1|
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-There were 25 divergences after tuning. Increase `target_accept` or reparameterize.
-ERROR:pymc3:There were 25 divergences after tuning. Increase `target_accept` or reparameterize.
-There were 77 divergences after tuning. Increase `target_accept` or reparameterize.
-ERROR:pymc3:There were 77 divergences after tuning. Increase `target_accept` or reparameterize.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 265 seconds.
+There were 85 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 48 divergences after tuning. Increase `target_accept` or reparameterize.
 The estimated number of effective samples is smaller than 200 for some parameters.
-ERROR:pymc3:The estimated number of effective samples is smaller than 200 for some parameters.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;1|stimulus_sd&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|stimulus_sd&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|study&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;1|stimulus&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sd&#39;</span><span class="p">,</span> <span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|study_sd&#39;</span><span class="p">,</span>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;1|stimulus_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|stimulus_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|study&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;1|stimulus&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|study_sigma&#39;</span><span class="p">,</span>
                        <span class="s1">&#39;1|study&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|stimulus&#39;</span><span class="p">],</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -945,6 +936,15 @@ ERROR:pymc3:The estimated number of effective samples is smaller than 200 for so
 <p>No. There’s still no discernible effect. Modeling the data using a mixed-effects model does highlight a number of other interesting features, however: * The stimulus-level variance <code class="docutils literal notranslate"><span class="pre">u_stimulus_sd</span></code> is quite large compared to the other factors. This is potentially problematic, because it suggests that a more conventional analysis that left individual stimulus effects out of the model could potentially run a high false positive rate. Note that this is a problem that affects both the RRR and the
 original Strack study equally; the moral of the story is <a class="reference external" href="http://jakewestfall.org/publications/crossed_power_JEPG.pdf">to deliberately sample large numbers of stimuli and explicitly model their influence</a>. * Older people seem to rate cartoons as being (a little bit) funnier. * The variation across sites is surprisingly small–in terms of both the random intercepts (<code class="docutils literal notranslate"><span class="pre">u_study_id</span></code>) and the random slopes (<code class="docutils literal notranslate"><span class="pre">u_condition|study_id</span></code>). In other words, the constitution of the sample, the gender of
 the experimenter, or any of the hundreds of others of between-site differences that one might conceivably have expected to matter, don’t really seem to make much of a difference to participants’ ratings of the cartoons.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span>
+</pre></div>
+</div>
+</div>
 </div>
 </div>
 
@@ -968,9 +968,9 @@ the experimenter, or any of the hundreds of others of between-site differences t
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="ANES_logistic_regression.html">Bayesian Logistic Regression Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Bayesian_Frequentist_Tutorial_statsmodels.html">Bayesian/Frequentist Tutorial</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Bayesian_Frequentist_Tutorial_pymer4.html">Bayesian/Frequentist Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesian_logistic_regression.html">Bayesian Logistic Regression Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesian_multi-level_regression.html">Bayesian Multi-level Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesian_t-test.html">Bayesian T-test</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html">Bayesian Multiple Regression Example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="shooter_crossed_random_ANOVA.html">Bayesian Workflow Example (Police Officer’s Dilemma)</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Bayesian Workflow Example (Strack RRR Analysis Replication)</a><ul>
@@ -1024,7 +1024,7 @@ the experimenter, or any of the hundreds of others of between-site differences t
       &copy;2019, The developers of Bambi.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -1,9 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bayesian Logistic Regression Example &#8212; bambi 0.2.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -13,11 +14,11 @@
     <script src="../_static/doctools.js"></script>
     <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Bayesian/Frequentist Tutorial" href="Bayesian_Frequentist_Tutorial_statsmodels.html" />
+    <link rel="next" title="Bayesian Multi-level Regression" href="bayesian_multi-level_regression.html" />
     <link rel="prev" title="Examples" href="../examples.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -423,7 +424,7 @@ Name: party_id, dtype: int64
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_ANES_logistic_regression_10_0.png" src="../_images/notebooks_ANES_logistic_regression_10_0.png" />
+<img alt="../_images/notebooks_bayesian_logistic_regression_10_0.png" src="../_images/notebooks_bayesian_logistic_regression_10_0.png" />
 </div>
 </div>
 <p>We can get a pretty clear idea of how party identification is related to voting intentions by just looking at a contingency table for these two variables:</p>
@@ -644,7 +645,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_ANES_logistic_regression_21_0.png" src="../_images/notebooks_ANES_logistic_regression_21_0.png" />
+<img alt="../_images/notebooks_bayesian_logistic_regression_21_0.png" src="../_images/notebooks_bayesian_logistic_regression_21_0.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
@@ -683,7 +684,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_ANES_logistic_regression_25_0.png" src="../_images/notebooks_ANES_logistic_regression_25_0.png" />
+<img alt="../_images/notebooks_bayesian_logistic_regression_25_0.png" src="../_images/notebooks_bayesian_logistic_regression_25_0.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
@@ -843,7 +844,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">dem</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">rep</span><span class="p">]):</span>
-    <span class="n">ax</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{parties[idx]}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="sa">f</span><span class="s1">&#39;C</span><span class="si">{idx}</span><span class="s1">&#39;</span><span class="p">})</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">parties</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="sa">f</span><span class="s1">&#39;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">})</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -852,7 +853,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_ANES_logistic_regression_30_0.png" src="../_images/notebooks_ANES_logistic_regression_30_0.png" />
+<img alt="../_images/notebooks_bayesian_logistic_regression_30_0.png" src="../_images/notebooks_bayesian_logistic_regression_30_0.png" />
 </div>
 </div>
 <p>What is the probability that the Democrat slope is greater than the Republican slope?</p>
@@ -1020,7 +1021,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">):</span>
-        <span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">yhat</span><span class="p">[</span><span class="n">i</span><span class="p">][:,</span> <span class="n">t</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;C</span><span class="si">{i}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">yhat</span><span class="p">[</span><span class="n">i</span><span class="p">][:,</span> <span class="n">t</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;C</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="n">axes</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;P(vote=</span><span class="se">\&#39;</span><span class="s1">clinton</span><span class="se">\&#39;</span><span class="s1"> | age)&#39;</span><span class="p">)</span>
 <span class="n">axes</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Age&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
 <span class="n">axes</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">90</span><span class="p">);</span>
@@ -1031,7 +1032,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_ANES_logistic_regression_50_0.png" src="../_images/notebooks_ANES_logistic_regression_50_0.png" />
+<img alt="../_images/notebooks_bayesian_logistic_regression_50_0.png" src="../_images/notebooks_bayesian_logistic_regression_50_0.png" />
 </div>
 </div>
 </div>
@@ -1064,8 +1065,8 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 <li class="toctree-l3"><a class="reference internal" href="#Spaghetti-plot-of-model-predictions">Spaghetti plot of model predictions</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Bayesian_Frequentist_Tutorial_statsmodels.html">Bayesian/Frequentist Tutorial</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Bayesian_Frequentist_Tutorial_pymer4.html">Bayesian/Frequentist Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesian_multi-level_regression.html">Bayesian Multi-level Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesian_t-test.html">Bayesian T-test</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html">Bayesian Multiple Regression Example</a></li>
 <li class="toctree-l2"><a class="reference internal" href="shooter_crossed_random_ANOVA.html">Bayesian Workflow Example (Police Officer’s Dilemma)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Strack_RRR_re_analysis.html">Bayesian Workflow Example (Strack RRR Analysis Replication)</a></li>
@@ -1080,7 +1081,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../examples.html">Examples</a><ul>
       <li>Previous: <a href="../examples.html" title="previous chapter">Examples</a></li>
-      <li>Next: <a href="Bayesian_Frequentist_Tutorial_statsmodels.html" title="next chapter">Bayesian/Frequentist Tutorial</a></li>
+      <li>Next: <a href="bayesian_multi-level_regression.html" title="next chapter">Bayesian Multi-level Regression</a></li>
   </ul></li>
   </ul></li>
 </ul>
@@ -1111,11 +1112,11 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
       &copy;2019, The developers of Bambi.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="../_sources/notebooks/ANES_logistic_regression.ipynb.txt"
+      <a href="../_sources/notebooks/bayesian_logistic_regression.ipynb.txt"
           rel="nofollow">Page source</a>
     </div>
 

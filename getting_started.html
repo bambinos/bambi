@@ -1,9 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Getting Started &#8212; bambi 0.2.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -13,7 +14,7 @@
     <script src="_static/doctools.js"></script>
     <script src="_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -37,7 +38,7 @@
             
   <div class="section" id="getting-started">
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
-<p>Bambi requires a working Python interpreter (3.6+). We recommend installing Python and key numerical libraries using the <a class="reference external" href="https://www.continuum.io/downloads">Anaconda Distribution</a>, which has one-click installers available on all major platforms.</p>
+<p>Bambi requires a working Python interpreter (3.7+). We recommend installing Python and key numerical libraries using the <a class="reference external" href="https://www.continuum.io/downloads">Anaconda Distribution</a>, which has one-click installers available on all major platforms.</p>
 <p>Assuming a standard Python environment is installed on your machine (including pip), Bambi itself can be installed in one line using pip:</p>
 <blockquote>
 <div><p>pip install bambi</p>
@@ -218,7 +219,7 @@
 </pre></div>
 </div>
 <p>Each of the above examples specifies a full model that will immediately be fitted using PyMC3.</p>
-<p>Notice how, in contrast to lme4 (but similar to nlme), fixed and random effects are specified separately in Bambi. We describe the syntax and operators supported by each type of effect below; briefly, however, the fixed effects specification relies on <a class="reference external" href="(http://patsy.readthedocs.io/en/latest/overview.html">patsy</a>, and <a class="reference external" href="http://patsy.readthedocs.io/en/latest/formulas.html">hence formulas are parsed</a> almost exactly the same way <a class="reference external" href="http://patsy.readthedocs.io/en/latest/R-comparison.html">as in R</a>. Random effects terms must be specified one at a time.</p>
+<p>Notice how, in contrast to lme4 (but similar to nlme), fixed and random effects are specified separately in Bambi. We describe the syntax and operators supported by each type of effect below; briefly, however, the fixed effects specification relies on <a class="reference external" href="http://patsy.readthedocs.io/en/latest/overview.html">patsy</a>, and <a class="reference external" href="http://patsy.readthedocs.io/en/latest/formulas.html">hence formulas are parsed</a> almost exactly the same way <a class="reference external" href="http://patsy.readthedocs.io/en/latest/R-comparison.html">as in R</a>. Random effects terms must be specified one at a time.</p>
 </div>
 <div class="section" id="incremental-specification">
 <h4><a class="toc-backref" href="#id5">Incremental specification</a><a class="headerlink" href="#incremental-specification" title="Permalink to this headline">¶</a></h4>
@@ -646,7 +647,7 @@ By default, Bambi sets “weakly informative” priors on all fixed and random e
       &copy;2019, The developers of Bambi.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

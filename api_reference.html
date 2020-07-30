@@ -1,9 +1,10 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Reference &#8212; bambi 0.2.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -13,7 +14,7 @@
     <script src="_static/doctools.js"></script>
     <script src="_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -42,10 +43,10 @@ methods in the current release of Bambi.</p>
 </div>
 <div class="section" id="module-bambi.models">
 <span id="bambi-models"></span><h2><a class="reference internal" href="#module-bambi.models" title="bambi.models"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.models</span></code></a><a class="headerlink" href="#module-bambi.models" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="bambi.models.Model">
-<em class="property">class </em><code class="sig-prename descclassname">bambi.models.</code><code class="sig-name descname">Model</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">default_priors=None</em>, <em class="sig-param">auto_scale=True</em>, <em class="sig-param">dropna=False</em>, <em class="sig-param">taylor=None</em>, <em class="sig-param">noncentered=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.Model" title="Permalink to this definition">¶</a></dt>
-<dd><p>Specification of model class</p>
+<em class="property">class </em><code class="sig-prename descclassname">bambi.models.</code><code class="sig-name descname">Model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">default_priors</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">auto_scale</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">dropna</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">taylor</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">noncentered</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specification of model class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -70,10 +71,10 @@ parameters. If False, naive (centered) parameterization is used.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="bambi.models.Model.add">
-<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param">fixed=None</em>, <em class="sig-param">random=None</em>, <em class="sig-param">priors=None</em>, <em class="sig-param">family='gaussian'</em>, <em class="sig-param">link=None</em>, <em class="sig-param">categorical=None</em>, <em class="sig-param">append=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.Model.add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds one or more terms to the model via an R-like formula syntax.</p>
+<code class="sig-name descname">add</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fixed</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">random</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">priors</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">family</span><span class="o">=</span><span class="default_value">'gaussian'</span></em>, <em class="sig-param"><span class="n">link</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">categorical</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">append</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.Model.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add one or more terms to the model via an R-like formula syntax.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -103,9 +104,9 @@ existing terms. This allows formula-based specification of the model in stages.<
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="bambi.models.Model.build">
-<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param">backend=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.Model.build" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">backend</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.Model.build" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set up the model for sampling/fitting.</p>
 <p>Performs any steps that require access to all model terms (e.g., scaling priors
 on each term), then calls the BackEnd’s build() method.</p>
@@ -118,9 +119,9 @@ building) and look in self._backend_name.</p>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="bambi.models.Model.fit">
-<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param">fixed=None</em>, <em class="sig-param">random=None</em>, <em class="sig-param">priors=None</em>, <em class="sig-param">family='gaussian'</em>, <em class="sig-param">link=None</em>, <em class="sig-param">run=True</em>, <em class="sig-param">categorical=None</em>, <em class="sig-param">backend=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.Model.fit" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">fit</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fixed</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">random</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">priors</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">family</span><span class="o">=</span><span class="default_value">'gaussian'</span></em>, <em class="sig-param"><span class="n">link</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">run</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">categorical</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">backend</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.fit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.Model.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the model using the specified BackEnd.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -151,27 +152,27 @@ passing variable names via this argument is recommended.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="bambi.models.Model.fixed_terms">
 <em class="property">property </em><code class="sig-name descname">fixed_terms</code><a class="headerlink" href="#bambi.models.Model.fixed_terms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return dict of all and only fixed effects in model.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="bambi.models.Model.random_terms">
 <em class="property">property </em><code class="sig-name descname">random_terms</code><a class="headerlink" href="#bambi.models.Model.random_terms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return dict of all and only random effects in model.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="bambi.models.Model.reset">
 <code class="sig-name descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.Model.reset" title="Permalink to this definition">¶</a></dt>
 <dd><p>Reset list of terms and y-variable.</p>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="bambi.models.Model.set_priors">
-<code class="sig-name descname">set_priors</code><span class="sig-paren">(</span><em class="sig-param">priors=None</em>, <em class="sig-param">fixed=None</em>, <em class="sig-param">random=None</em>, <em class="sig-param">match_derived_names=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.set_priors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.Model.set_priors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">set_priors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">priors</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fixed</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">random</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">match_derived_names</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.set_priors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.Model.set_priors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set priors for one or more existing terms.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -193,7 +194,7 @@ for the prior to be applied.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="method">
+<dl class="py method">
 <dt id="bambi.models.Model.term_names">
 <em class="property">property </em><code class="sig-name descname">term_names</code><a class="headerlink" href="#bambi.models.Model.term_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return names of all terms in order of addition to model.</p>
@@ -201,12 +202,12 @@ for the prior to be applied.</p></li>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="bambi.models.RandomTerm">
-<em class="property">class </em><code class="sig-prename descclassname">bambi.models.</code><code class="sig-name descname">RandomTerm</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">data</em>, <em class="sig-param">predictor</em>, <em class="sig-param">grouper</em>, <em class="sig-param">categorical=False</em>, <em class="sig-param">prior=None</em>, <em class="sig-param">constant=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#RandomTerm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.RandomTerm" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<em class="property">class </em><code class="sig-prename descclassname">bambi.models.</code><code class="sig-name descname">RandomTerm</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">predictor</span></em>, <em class="sig-param"><span class="n">grouper</span></em>, <em class="sig-param"><span class="n">categorical</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">prior</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">constant</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#RandomTerm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.RandomTerm" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
 <dt id="bambi.models.RandomTerm.invert_dummies">
-<code class="sig-name descname">invert_dummies</code><span class="sig-paren">(</span><em class="sig-param">dummies</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#RandomTerm.invert_dummies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.RandomTerm.invert_dummies" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">invert_dummies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dummies</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#RandomTerm.invert_dummies"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.RandomTerm.invert_dummies" title="Permalink to this definition">¶</a></dt>
 <dd><p>For the sake of computational efficiency (i.e., to avoid lots of large matrix
 multiplications in the backends), invert the dummy-coding process and represent full-rank
 dummies as a vector of indices into the coefficients.</p>
@@ -214,9 +215,9 @@ dummies as a vector of indices into the coefficients.</p>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="bambi.models.Term">
-<em class="property">class </em><code class="sig-prename descclassname">bambi.models.</code><code class="sig-name descname">Term</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">data</em>, <em class="sig-param">categorical=False</em>, <em class="sig-param">prior=None</em>, <em class="sig-param">constant=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Term"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.Term" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">bambi.models.</code><code class="sig-name descname">Term</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">data</span></em>, <em class="sig-param"><span class="n">categorical</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">prior</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">constant</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Term"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.models.Term" title="Permalink to this definition">¶</a></dt>
 <dd><p>Representation of a single (fixed) model term.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -235,9 +236,9 @@ treated as an intercept for prior distribution purposes.</p></li>
 </div>
 <div class="section" id="module-bambi.priors">
 <span id="bambi-priors"></span><h2><a class="reference internal" href="#module-bambi.priors" title="bambi.priors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.priors</span></code></a><a class="headerlink" href="#module-bambi.priors" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
+<dl class="py class">
 <dt id="bambi.priors.Family">
-<em class="property">class </em><code class="sig-prename descclassname">bambi.priors.</code><code class="sig-name descname">Family</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">prior</em>, <em class="sig-param">link</em>, <em class="sig-param">parent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors.html#Family"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.priors.Family" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">bambi.priors.</code><code class="sig-name descname">Family</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">prior</span></em>, <em class="sig-param"><span class="n">link</span></em>, <em class="sig-param"><span class="n">parent</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors.html#Family"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.priors.Family" title="Permalink to this definition">¶</a></dt>
 <dd><p>A specification of model family.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -253,9 +254,9 @@ the likelihood.</p></li>
 </dl>
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="bambi.priors.Prior">
-<em class="property">class </em><code class="sig-prename descclassname">bambi.priors.</code><code class="sig-name descname">Prior</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">scale=None</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors.html#Prior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.priors.Prior" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">bambi.priors.</code><code class="sig-name descname">Prior</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">scale</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors.html#Prior"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.priors.Prior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstract specification of a term prior.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -265,9 +266,9 @@ the likelihood.</p></li>
 </ul>
 </dd>
 </dl>
-<dl class="method">
+<dl class="py method">
 <dt id="bambi.priors.Prior.update">
-<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors.html#Prior.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.priors.Prior.update" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">update</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors.html#Prior.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.priors.Prior.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the model arguments with additional arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -278,9 +279,9 @@ the likelihood.</p></li>
 
 </dd></dl>
 
-<dl class="class">
+<dl class="py class">
 <dt id="bambi.priors.PriorFactory">
-<em class="property">class </em><code class="sig-prename descclassname">bambi.priors.</code><code class="sig-name descname">PriorFactory</code><span class="sig-paren">(</span><em class="sig-param">defaults=None</em>, <em class="sig-param">dists=None</em>, <em class="sig-param">terms=None</em>, <em class="sig-param">families=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors.html#PriorFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.priors.PriorFactory" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">bambi.priors.</code><code class="sig-name descname">PriorFactory</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">defaults</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">dists</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">terms</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">families</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors.html#PriorFactory"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.priors.PriorFactory" title="Permalink to this definition">¶</a></dt>
 <dd><p>An object that supports specification and easy retrieval of default priors.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -314,9 +315,9 @@ and values are dicts containing mandatory keys for ‘dist’, ‘link’, and �
 <span class="gp">&gt;&gt;&gt; </span><span class="n">pf</span> <span class="o">=</span> <span class="n">PriorFactory</span><span class="p">(</span><span class="n">dists</span><span class="o">=</span><span class="n">dists</span><span class="p">,</span> <span class="n">families</span><span class="o">=</span><span class="n">families</span><span class="p">)</span>
 </pre></div>
 </div>
-<dl class="method">
+<dl class="py method">
 <dt id="bambi.priors.PriorFactory.get">
-<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param">dist=None</em>, <em class="sig-param">term=None</em>, <em class="sig-param">family=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors.html#PriorFactory.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.priors.PriorFactory.get" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dist</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">term</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">family</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors.html#PriorFactory.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bambi.priors.PriorFactory.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Retrieve default prior for a named distribution, term type, or family.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -398,7 +399,7 @@ config, this is one of ‘gaussian’, ‘bernoulli’, ‘poisson’, or ‘t�
       &copy;2019, The developers of Bambi.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

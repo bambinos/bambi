@@ -1,7 +1,7 @@
 Getting Started
 ***************
 
-Bambi requires a working Python interpreter (3.6+). We recommend installing Python and key numerical libraries using the `Anaconda Distribution <https://www.continuum.io/downloads>`_, which has one-click installers available on all major platforms.
+Bambi requires a working Python interpreter (3.7+). We recommend installing Python and key numerical libraries using the `Anaconda Distribution <https://www.continuum.io/downloads>`_, which has one-click installers available on all major platforms.
 
 Assuming a standard Python environment is installed on your machine (including pip), Bambi itself can be installed in one line using pip:
 
@@ -104,7 +104,7 @@ Models are specified in Bambi using a formula-based syntax similar to what one m
 
 Each of the above examples specifies a full model that will immediately be fitted using PyMC3.
 
-Notice how, in contrast to lme4 (but similar to nlme), fixed and random effects are specified separately in Bambi. We describe the syntax and operators supported by each type of effect below; briefly, however, the fixed effects specification relies on `patsy <(http://patsy.readthedocs.io/en/latest/overview.html>`__, and `hence formulas are parsed <http://patsy.readthedocs.io/en/latest/formulas.html>`__ almost exactly the same way `as in R <http://patsy.readthedocs.io/en/latest/R-comparison.html>`__. Random effects terms must be specified one at a time.
+Notice how, in contrast to lme4 (but similar to nlme), fixed and random effects are specified separately in Bambi. We describe the syntax and operators supported by each type of effect below; briefly, however, the fixed effects specification relies on `patsy <http://patsy.readthedocs.io/en/latest/overview.html>`__, and `hence formulas are parsed <http://patsy.readthedocs.io/en/latest/formulas.html>`__ almost exactly the same way `as in R <http://patsy.readthedocs.io/en/latest/R-comparison.html>`__. Random effects terms must be specified one at a time.
 
 Incremental specification
 ~~~~~~~~~~~~~~~~~~~~~~~~~
