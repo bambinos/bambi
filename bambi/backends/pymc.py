@@ -1,7 +1,7 @@
 import numpy as np
-import pymc3 as pm
-import theano
 from arviz import from_pymc3
+import theano
+import pymc3 as pm
 
 from bambi.priors import Prior
 

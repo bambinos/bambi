@@ -6,10 +6,11 @@ from copy import deepcopy
 
 import numpy as np
 import pandas as pd
-import pymc3 as pm
 import statsmodels.api as sm
 from arviz.plots import plot_posterior
 from patsy import dmatrices, dmatrix
+import pymc3 as pm
+
 
 from .backends import PyMC3BackEnd
 from .external.patsy import Custom_NA
@@ -829,7 +830,7 @@ class RandomTerm(Term):
         self, name, data, predictor, grouper, categorical=False, prior=None, constant=None
     ):
 
-        super(RandomTerm, self).__init__(name, data, categorical, prior, constant)
+        super().__init__(name, data, categorical, prior, constant)
         self.grouper = grouper
         self.predictor = predictor
         self.group_index = self.invert_dummies(grouper)
