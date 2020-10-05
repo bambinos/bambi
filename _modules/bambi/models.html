@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>bambi.models &#8212; bambi 0.2.0 documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -43,10 +43,11 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">pymc3</span> <span class="k">as</span> <span class="nn">pm</span>
 <span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span>
 <span class="kn">from</span> <span class="nn">arviz.plots</span> <span class="kn">import</span> <span class="n">plot_posterior</span>
 <span class="kn">from</span> <span class="nn">patsy</span> <span class="kn">import</span> <span class="n">dmatrices</span><span class="p">,</span> <span class="n">dmatrix</span>
+<span class="kn">import</span> <span class="nn">pymc3</span> <span class="k">as</span> <span class="nn">pm</span>
+
 
 <span class="kn">from</span> <span class="nn">.backends</span> <span class="kn">import</span> <span class="n">PyMC3BackEnd</span>
 <span class="kn">from</span> <span class="nn">.external.patsy</span> <span class="kn">import</span> <span class="n">Custom_NA</span>
@@ -866,7 +867,7 @@
         <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">predictor</span><span class="p">,</span> <span class="n">grouper</span><span class="p">,</span> <span class="n">categorical</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">constant</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
 
-        <span class="nb">super</span><span class="p">(</span><span class="n">RandomTerm</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">categorical</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">constant</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">categorical</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">constant</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">grouper</span> <span class="o">=</span> <span class="n">grouper</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">predictor</span> <span class="o">=</span> <span class="n">predictor</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">group_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">invert_dummies</span><span class="p">(</span><span class="n">grouper</span><span class="p">)</span>
@@ -940,7 +941,7 @@
       &copy;2019, The developers of Bambi.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

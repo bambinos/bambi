@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bayesian Logistic Regression Example &#8212; bambi 0.2.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -265,9 +265,9 @@ div.rendered_html tbody tr:hover {
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
 <span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 </pre></div>
 </div>
 </div>
@@ -408,7 +408,7 @@ Name: party_id, dtype: int64
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">key</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;party_id&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)))</span>
 <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;party_id&#39;</span><span class="p">):</span>
     <span class="n">ax</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="n">label</span><span class="p">]]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">])</span>
@@ -494,7 +494,7 @@ Name: party_id, dtype: int64
 </table>
 </div></div>
 </div>
-<p>But our main question here will be: How is respondent age related to voting intentions, and is this relationship different for different party affiliations? For this we will need logistic regression.</p>
+<p>But our main question here will be: How is respondent age related to voting intentions, and is this relationship different for different party affiliations? For this we will use a logistic regression.</p>
 </div>
 <div class="section" id="Build-clinton_model">
 <h2>Build <code class="docutils literal notranslate"><span class="pre">clinton_model</span></code><a class="headerlink" href="#Build-clinton_model" title="Permalink to this headline">¶</a></h2>
@@ -572,7 +572,8 @@ Name: party_id, dtype: int64
 </table>
 </div></div>
 </div>
-<p>Specifying and fitting the model is simple. Notice the (optional) syntax that we use on the left-hand-side of the formula: We say <code class="docutils literal notranslate"><span class="pre">vote[clinton]</span></code> to instruct bambi that we wish the model the probability that <code class="docutils literal notranslate"><span class="pre">vote=='clinton'</span></code>, rather than the probability that <code class="docutils literal notranslate"><span class="pre">vote=='trump'</span></code>. If we leave this unspecified, bambi will just pick one of the events to model, but will inform you which one it picked when you build the model (and again when you look at model summaries.)</p>
+<p>Specifying and fitting the model is simple. Notice the (optional) syntax that we use on the left-hand-side of the formula: We say <code class="docutils literal notranslate"><span class="pre">vote[clinton]</span></code> to instruct <code class="docutils literal notranslate"><span class="pre">bambi</span></code> that we wish the model the probability that <code class="docutils literal notranslate"><span class="pre">vote=='clinton'</span></code>, rather than the probability that <code class="docutils literal notranslate"><span class="pre">vote=='trump'</span></code>. If we leave this unspecified, <code class="docutils literal notranslate"><span class="pre">bambi</span></code> will just pick one of the events to model, but will inform you which one it picked when you build the model (and again when you look at model summaries).</p>
+<p>On the right-hand-side of the formula we use <code class="docutils literal notranslate"><span class="pre">pary_id</span> <span class="pre">+</span> <span class="pre">party_id:age</span></code> to instruct <code class="docutils literal notranslate"><span class="pre">bambi</span></code> that we want to use <code class="docutils literal notranslate"><span class="pre">party_id</span></code> and the interaction between <code class="docutils literal notranslate"><span class="pre">party_id</span></code> and <code class="docutils literal notranslate"><span class="pre">age</span></code> as the explanatory variables in the model.</p>
 <p>When fitting models using the <code class="docutils literal notranslate"><span class="pre">pymc3</span></code> backend, the default estimation strategy is to start with an identity mass matrix, but add uniform jitter in [-1, 1] and then adapt a diagonal based on the variance of the tuning samples. This generally works quite well, but occasionally it can fails. That’s what was happening for this particular data set and model, so below we disable the <code class="docutils literal notranslate"><span class="pre">jitter+adapt_diag</span></code> initialization by changing from <code class="docutils literal notranslate"><span class="pre">init='auto'</span></code> (the default) to <code class="docutils literal notranslate"><span class="pre">init=adapt_diag</span></code>, which
 tells the <code class="docutils literal notranslate"><span class="pre">pymc3</span></code> backend to drop the jitter step.</p>
 <div class="nbinput docutils container">
@@ -581,8 +582,9 @@ tells the <code class="docutils literal notranslate"><span class="pre">pymc3</sp
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">clinton_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">clinton_data</span><span class="p">)</span>
-<span class="n">clinton_fitted</span> <span class="o">=</span> <span class="n">clinton_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;vote[clinton] ~ party_id + party_id:age&#39;</span><span class="p">,</span>
-                                   <span class="n">family</span><span class="o">=</span><span class="s1">&#39;bernoulli&#39;</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="s1">&#39;adapt_diag&#39;</span><span class="p">)</span>
+<span class="n">clinton_fitted</span> <span class="o">=</span> <span class="n">clinton_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="s1">&#39;vote[clinton] ~ party_id + party_id:age&#39;</span><span class="p">,</span>
+    <span class="n">family</span><span class="o">=</span><span class="s1">&#39;bernoulli&#39;</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="s1">&#39;adapt_diag&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -591,26 +593,21 @@ tells the <code class="docutils literal notranslate"><span class="pre">pymc3</sp
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/osvaldo/anaconda3/lib/python3.7/site-packages/pandas/core/frame.py:2963: SettingWithCopyWarning:
+/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/pandas/core/frame.py:3065: SettingWithCopyWarning:
 A value is trying to be set on a copy of a slice from a DataFrame.
 Try using .loc[row_indexer,col_indexer] = value instead
 
 See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
   self[k1] = value[k2]
-INFO:numexpr.utils:NumExpr defaulting to 4 threads.
-/home/osvaldo/proyectos/00_BM/Bambi/bambi/bambi/models.py:269: UserWarning: Modeling the probability that vote==&#39;clinton&#39;
-  self.y.name, str(self.clean_data[self.y.name].iloc[event])
+/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/bambi/models.py:256: UserWarning: Modeling the probability that vote==&#39;clinton&#39;
+  warnings.warn(
 Auto-assigning NUTS sampler...
-INFO:pymc3:Auto-assigning NUTS sampler...
 Initializing NUTS using adapt_diag...
-INFO:pymc3:Initializing NUTS using adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-INFO:pymc3:Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [party_id:age, party_id, Intercept]
-INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 </pre></div></div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
@@ -627,11 +624,19 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
             background: #F44336;
         }
     </style>
-  <progress value='3000' class='' max='3000', style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [3000/3000 00:08<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:07<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
-<p>Since we didn’t explicitly set any of the prior distributions, here’s a view of what the default priors look like for all parameters:</p>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 8 seconds.
+</pre></div></div>
+</div>
+<p>Since we didn’t explicitly set any of the prior distributions for the parameters in the model, <code class="docutils literal notranslate"><span class="pre">bambi</span></code> has chosen sensitive defaults for us. To see how all these priors look like, we just call <code class="docutils literal notranslate"><span class="pre">Model.plot()</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
@@ -648,6 +653,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 <img alt="../_images/notebooks_bayesian_logistic_regression_21_0.png" src="../_images/notebooks_bayesian_logistic_regression_21_0.png" />
 </div>
 </div>
+<p>Here we also inspect the parameters Bambi chosen for each Gaussian.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
@@ -663,14 +669,15 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-{&#39;Intercept&#39;: {&#39;mu&#39;: array([0.308043]), &#39;sd&#39;: array([8.39859892])},
- &#39;party_id&#39;: {&#39;mu&#39;: array([0, 0]), &#39;sd&#39;: array([10.51415445, 18.72417819])},
+{&#39;Intercept&#39;: {&#39;mu&#39;: array([0.308043]), &#39;sigma&#39;: array([8.39859892])},
+ &#39;party_id&#39;: {&#39;mu&#39;: array([0, 0]), &#39;sigma&#39;: array([10.51415445, 18.72417819])},
  &#39;party_id:age&#39;: {&#39;mu&#39;: array([0, 0, 0]),
-  &#39;sd&#39;: array([0.16748696, 0.12909332, 0.40771782])}}
+  &#39;sigma&#39;: array([0.16748696, 0.12909332, 0.40771782])}}
 </pre></div></div>
 </div>
+<p>Under the hood, Bambi selected Gaussian priors for all the parameters in the model. We can see that all the priors, except the one for <code class="docutils literal notranslate"><span class="pre">Intercept</span></code>, are centered around 0, which is consistent with the desired weakly informative behavior. However, the standard deviation is specific to each parameter.</p>
 <p>Some more info about these default priors can be found in <a class="reference external" href="https://arxiv.org/abs/1702.01201">this technical paper</a>.</p>
-<p>Now let’s check out the the results!</p>
+<p>Now let’s check out the the results! We get traceplots and density estimates for the posteriors with <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> and a summary of the posteriors with <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
@@ -684,7 +691,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_logistic_regression_25_0.png" src="../_images/notebooks_bayesian_logistic_regression_25_0.png" />
+<img alt="../_images/notebooks_bayesian_logistic_regression_26_0.png" src="../_images/notebooks_bayesian_logistic_regression_26_0.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
@@ -721,8 +728,8 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
       <th></th>
       <th>mean</th>
       <th>sd</th>
-      <th>hpd_3%</th>
-      <th>hpd_97%</th>
+      <th>hdi_3%</th>
+      <th>hdi_97%</th>
       <th>mcse_mean</th>
       <th>mcse_sd</th>
       <th>ess_mean</th>
@@ -735,86 +742,86 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
   <tbody>
     <tr>
       <th>Intercept[0]</th>
-      <td>1.638</td>
-      <td>0.702</td>
-      <td>0.373</td>
-      <td>3.031</td>
-      <td>0.025</td>
-      <td>0.017</td>
-      <td>807.0</td>
-      <td>807.0</td>
-      <td>808.0</td>
-      <td>933.0</td>
+      <td>1.685</td>
+      <td>0.742</td>
+      <td>0.297</td>
+      <td>3.067</td>
+      <td>0.029</td>
+      <td>0.021</td>
+      <td>653.0</td>
+      <td>628.0</td>
+      <td>658.0</td>
+      <td>687.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[0]</th>
-      <td>-0.257</td>
-      <td>0.924</td>
-      <td>-2.055</td>
-      <td>1.376</td>
-      <td>0.033</td>
-      <td>0.023</td>
-      <td>790.0</td>
-      <td>787.0</td>
-      <td>792.0</td>
-      <td>971.0</td>
+      <td>-0.266</td>
+      <td>0.953</td>
+      <td>-1.905</td>
+      <td>1.652</td>
+      <td>0.037</td>
+      <td>0.028</td>
+      <td>660.0</td>
+      <td>584.0</td>
+      <td>668.0</td>
+      <td>737.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[1]</th>
-      <td>-0.790</td>
-      <td>1.774</td>
-      <td>-4.172</td>
+      <td>-0.872</td>
+      <td>1.835</td>
+      <td>-4.316</td>
       <td>2.668</td>
-      <td>0.062</td>
-      <td>0.044</td>
-      <td>816.0</td>
-      <td>816.0</td>
-      <td>824.0</td>
-      <td>908.0</td>
+      <td>0.072</td>
+      <td>0.052</td>
+      <td>648.0</td>
+      <td>624.0</td>
+      <td>657.0</td>
+      <td>751.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[0]</th>
-      <td>0.014</td>
+      <td>0.013</td>
       <td>0.015</td>
       <td>-0.014</td>
-      <td>0.042</td>
+      <td>0.043</td>
       <td>0.001</td>
       <td>0.000</td>
-      <td>840.0</td>
-      <td>840.0</td>
-      <td>839.0</td>
-      <td>977.0</td>
+      <td>686.0</td>
+      <td>686.0</td>
+      <td>686.0</td>
+      <td>794.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[1]</th>
-      <td>-0.033</td>
+      <td>-0.034</td>
       <td>0.012</td>
-      <td>-0.056</td>
-      <td>-0.012</td>
+      <td>-0.058</td>
+      <td>-0.013</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1193.0</td>
-      <td>1190.0</td>
-      <td>1192.0</td>
-      <td>1115.0</td>
+      <td>1107.0</td>
+      <td>985.0</td>
+      <td>1136.0</td>
+      <td>992.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[2]</th>
-      <td>-0.089</td>
-      <td>0.043</td>
-      <td>-0.170</td>
+      <td>-0.088</td>
+      <td>0.045</td>
+      <td>-0.174</td>
       <td>-0.007</td>
+      <td>0.002</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>873.0</td>
-      <td>772.0</td>
-      <td>919.0</td>
-      <td>858.0</td>
+      <td>805.0</td>
+      <td>717.0</td>
+      <td>845.0</td>
+      <td>851.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -830,11 +837,11 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1">#we need to automatically add labels to InferenceData object to recover this by_label selection</span>
+<span></span><span class="c1"># We need to automatically add labels to InferenceData object to recover this by_label selection</span>
 <span class="n">parties</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;democrat&#39;</span><span class="p">,</span> <span class="s1">&#39;independent&#39;</span><span class="p">,</span> <span class="s1">&#39;republican&#39;</span><span class="p">]</span>
-<span class="n">parti_idx</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">party_idx</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
 <span class="n">dem</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">rep</span> <span class="o">=</span> <span class="p">[</span><span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;party_id:age&#39;</span><span class="p">][:,:,</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-                 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">parti_idx</span><span class="p">]</span>
+                 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">party_idx</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -853,7 +860,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_logistic_regression_30_0.png" src="../_images/notebooks_bayesian_logistic_regression_30_0.png" />
+<img alt="../_images/notebooks_bayesian_logistic_regression_31_0.png" src="../_images/notebooks_bayesian_logistic_regression_31_0.png" />
 </div>
 </div>
 <p>What is the probability that the Democrat slope is greater than the Republican slope?</p>
@@ -872,7 +879,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.994
+0.992
 </pre></div></div>
 </div>
 <p>Probability that the Democrat slope is greater than the Independent slope?</p>
@@ -910,7 +917,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.9055
+0.8925
 </pre></div></div>
 </div>
 <p>Probability that the Democrat slope is greater than 0?</p>
@@ -929,7 +936,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.8395
+0.801
 </pre></div></div>
 </div>
 <p>Probability that the Republican slope is less than 0?</p>
@@ -948,7 +955,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.9895
+0.991
 </pre></div></div>
 </div>
 <p>Probability that the Independent slope is less than 0?</p>
@@ -967,7 +974,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.9975
+0.9985
 </pre></div></div>
 </div>
 </div>
@@ -1005,7 +1012,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 <span></span><span class="k">def</span> <span class="nf">invlogit</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
     <span class="k">return</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">))</span>
 
-<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">91</span><span class="p">)))[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">91</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]])</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">91</span><span class="p">)))[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">91</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]])</span>
 
 <span class="n">yhat</span> <span class="o">=</span> <span class="p">[</span><span class="n">invlogit</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">intercepts</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">slopes</span><span class="p">[</span><span class="n">i</span><span class="p">]])))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
 </pre></div>
@@ -1032,9 +1039,13 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_logistic_regression_50_0.png" src="../_images/notebooks_bayesian_logistic_regression_50_0.png" />
+<img alt="../_images/notebooks_bayesian_logistic_regression_51_0.png" src="../_images/notebooks_bayesian_logistic_regression_51_0.png" />
 </div>
 </div>
+<p>The following is a rough interpretation of the information contained in the plot we’ve just created.</p>
+<p>According to our logistic model, the mean probability of voting for Clinton is almost always 0.8 or greater for Democrats no matter the age. Also, the older the person, the closer the mean probability of voting Clinton to 1.</p>
+<p>On the other hand, Republicans have a non-zero probability of voting for Clinton when they are young, but it tends to zero for older persons. We can also note the high variability of P(vote = ‘Clinton’) for young Republicans. This reflects our high uncertainty when estimating this probability and it is due to the small amount of Republicans in that age range plus there are only 5 Republicans out of 97 voting for Clinton in the dataset.</p>
+<p>Finally, the mean probability of voting Clinton for the independents is around 0.7 for the youngests and decreases towards 0.2 as they get older. Since the spread of the lines is similar along all the ages, we can conclude our uncertainty in this estimate is similar for all the age groups.</p>
 </div>
 </div>
 
@@ -1112,7 +1123,7 @@ INFO:pymc3:NUTS: [party_id:age, party_id, Intercept]
       &copy;2019, The developers of Bambi.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bayesian T-test &#8212; bambi 0.2.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -280,32 +280,25 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<p>In this notebook we demo how to perform a Bayesian T-test</p>
+<p>In this notebook we demo how to perform a two-sample Bayesian t-test to compare the mean value of two Gaussian populations.</p>
 <div class="section" id="Generate-data">
 <h2>Generate data<a class="headerlink" href="#Generate-data" title="Permalink to this headline">¶</a></h2>
-<div class="nbinput nblast docutils container">
+<p>We generate 160 values from a Gaussian with <span class="math notranslate nohighlight">\(\mu=6\)</span> and <span class="math notranslate nohighlight">\(\sigma=2.5\)</span> and another 120 values from a Gaussian’ with <span class="math notranslate nohighlight">\(\mu=8\)</span> and <span class="math notranslate nohighlight">\(\sigma=2\)</span></p>
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">2935</span><span class="p">)</span>
-<span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
-<span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mi">160</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">120</span><span class="p">)</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
     <span class="p">{</span>
-        <span class="s1">&#39;Group&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="s1">&#39;Group&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">160</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">120</span><span class="p">,</span>
         <span class="s1">&#39;Val&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])</span>
     <span class="p">}</span>
 <span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_violin</span><span class="p">({</span><span class="s1">&#39;a&#39;</span><span class="p">:</span><span class="n">a</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span><span class="n">b</span><span class="p">});</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_violin</span><span class="p">({</span><span class="s1">&#39;a&#39;</span><span class="p">:</span><span class="n">a</span><span class="p">,</span> <span class="s1">&#39;b&#39;</span><span class="p">:</span><span class="n">b</span><span class="p">});</span>
 </pre></div>
 </div>
 </div>
@@ -313,13 +306,27 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_t-test_6_0.png" src="../_images/notebooks_bayesian_t-test_6_0.png" />
+<img alt="../_images/notebooks_bayesian_t-test_5_0.png" src="../_images/notebooks_bayesian_t-test_5_0.png" />
 </div>
+</div>
+<div class="section" id="Model">
+<h3>Model<a class="headerlink" href="#Model" title="Permalink to this headline">¶</a></h3>
+<p>When we carry out a two sample t-test we’re implicitly using the following model:</p>
+<div class="math notranslate nohighlight">
+\[\mu_i = \beta_0 + \beta_1 (i) + \epsilon_i\]</div>
+<p>where <span class="math notranslate nohighlight">\(i = 0\)</span> represents the population 1, <span class="math notranslate nohighlight">\(i = 1\)</span> the popoulation 2 and <span class="math notranslate nohighlight">\(\epsilon_i\)</span> is a random error with mean 0. If we replace the indicator variables for the two groups we have</p>
+<div class="math notranslate nohighlight">
+\[\mu_0 = \beta_0 + \epsilon_i\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[\mu_1 = \beta_0 + \beta_1 + \epsilon_i\]</div>
+<p>Thus, we can see that testing whether the mean of the two populations are equal is equivalent to testing whether <span class="math notranslate nohighlight">\(\beta_1\)</span> is 0.</p>
 </div>
 <div class="section" id="Analysis">
 <h3>Analysis<a class="headerlink" href="#Analysis" title="Permalink to this headline">¶</a></h3>
+<p>We start by instantiating our model and specifying the model previously described.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -356,7 +363,7 @@ NUTS: [Val_sigma, Group, Intercept]
             background: #F44336;
         }
     </style>
-  <progress value='4000' class='' max='4000', style='width:300px; height:20px; vertical-align: middle;'></progress>
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
   100.00% [4000/4000 00:02<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
@@ -368,35 +375,34 @@ NUTS: [Val_sigma, Group, Intercept]
 Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
 </pre></div></div>
 </div>
+<p>We’ve only specified the formula for the model and Bambi automatically selected priors distributions and values for their parameters. We can inspect both the setup and the priors as following:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Here&#39;s the setup for the model</span>
-<span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span>
+<span></span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="math notranslate nohighlight">
 $$
             \begin{array}{rcl}
-            \text{Intercept} &amp;\sim &amp; \text{Normal}(\mathit{mu}=array,~\mathit{sigma}=array)\\\text{Group} &amp;\sim &amp; \text{Normal}(\mathit{mu}=array,~\mathit{sigma}=array)\\\text{Val_sigma} &amp;\sim &amp; \text{HalfStudentT}(\mathit{nu}=4.0,~\mathit{sigma}=2.7114284155028585)\\\text{Val} &amp;\sim &amp; \text{Normal}(\mathit{mu}=f(f(f(),~f(f(array,~\text{Intercept}))),~f(f(array,~\text{Group}))),~\mathit{sigma}=f(\text{Val_sigma}))
+            \text{Intercept} &amp;\sim &amp; \text{Normal}(\mathit{mu}=array,~\mathit{sigma}=array)\\\text{Group} &amp;\sim &amp; \text{Normal}(\mathit{mu}=array,~\mathit{sigma}=array)\\\text{Val_sigma} &amp;\sim &amp; \text{HalfStudentT}(\mathit{nu}=4.0,~\mathit{sigma}=2.272128158801779)\\\text{Val} &amp;\sim &amp; \text{Normal}(\mathit{mu}=f(f(f(),~f(f(array,~\text{Intercept}))),~f(f(array,~\text{Group}))),~\mathit{sigma}=f(\text{Val_sigma}))
             \end{array}
             $$</div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Model priors</span>
-<span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+<span></span><span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -404,11 +410,12 @@ $$
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_t-test_10_0.png" src="../_images/notebooks_bayesian_t-test_10_0.png" />
+<img alt="../_images/notebooks_bayesian_t-test_11_0.png" src="../_images/notebooks_bayesian_t-test_11_0.png" />
 </div>
 </div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<p>To inspect our posterior and the sampling process we can call <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code>. The option <code class="docutils literal notranslate"><span class="pre">kind='rank_vlines'</span></code> gives us a variant of the rank plot that uses lines and dots and helps us to inspect the stationarity of the chains. Since there is no clear pattern or serious deviations from the horizontal lines, we can conclude the chains are stationary.</p>
+<!-- I think the reasoning is too simplistic but I don't know if we should make it more complicated here --><div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -420,11 +427,11 @@ $$
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_t-test_11_0.png" src="../_images/notebooks_bayesian_t-test_11_0.png" />
+<img alt="../_images/notebooks_bayesian_t-test_13_0.png" src="../_images/notebooks_bayesian_t-test_13_0.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -433,7 +440,7 @@ $$
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -471,52 +478,54 @@ $$
   <tbody>
     <tr>
       <th>Intercept[0]</th>
-      <td>5.013</td>
-      <td>0.071</td>
-      <td>4.880</td>
-      <td>5.143</td>
-      <td>0.002</td>
-      <td>0.002</td>
-      <td>1014.0</td>
-      <td>1012.0</td>
-      <td>1017.0</td>
-      <td>1347.0</td>
+      <td>6.167</td>
+      <td>0.170</td>
+      <td>5.832</td>
+      <td>6.470</td>
+      <td>0.005</td>
+      <td>0.004</td>
+      <td>995.0</td>
+      <td>995.0</td>
+      <td>1000.0</td>
+      <td>1103.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Group[0]</th>
-      <td>3.031</td>
-      <td>0.103</td>
-      <td>2.825</td>
-      <td>3.214</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>1033.0</td>
-      <td>1033.0</td>
-      <td>1035.0</td>
-      <td>1098.0</td>
+      <td>1.681</td>
+      <td>0.268</td>
+      <td>1.193</td>
+      <td>2.200</td>
+      <td>0.009</td>
+      <td>0.006</td>
+      <td>946.0</td>
+      <td>915.0</td>
+      <td>948.0</td>
+      <td>1264.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Val_sigma</th>
-      <td>2.250</td>
-      <td>0.036</td>
-      <td>2.183</td>
-      <td>2.318</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>1334.0</td>
-      <td>1333.0</td>
-      <td>1339.0</td>
-      <td>1258.0</td>
+      <td>2.123</td>
+      <td>0.093</td>
+      <td>1.955</td>
+      <td>2.302</td>
+      <td>0.002</td>
+      <td>0.002</td>
+      <td>1748.0</td>
+      <td>1739.0</td>
+      <td>1762.0</td>
+      <td>1287.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
 </table>
 </div></div>
 </div>
+<p>In the summary table we can see the 94% highest density interval for <span class="math notranslate nohighlight">\(\beta_1\)</span> ranges from 1.193 to 2.2. Thus, according to the data and the model used, we conclude the difference between the two population means is somewhere between 1.2 and 2.2 and hence we support the hypotehsis that <span class="math notranslate nohighlight">\(\beta_1 \ne 0\)</span>.</p>
+<p>Similar conclusions can be made with the density estimate for the posterior distribution of <span class="math notranslate nohighlight">\(\beta_1\)</span>. As seen in the table, most of the probability for the difference in the mean roughly ranges from 1.2 to 2.2.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -531,11 +540,12 @@ $$
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_t-test_13_0.png" src="../_images/notebooks_bayesian_t-test_13_0.png" />
+<img alt="../_images/notebooks_bayesian_t-test_16_0.png" src="../_images/notebooks_bayesian_t-test_16_0.png" />
 </div>
 </div>
+<p>Another way to arrive to a similar conclusion is by calculating the probability that the parameter <span class="math notranslate nohighlight">\(\beta_1 &gt; 0\)</span>. This probability, practically equal to 1, tells us that the mean of the two populations are different.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -545,7 +555,7 @@ $$
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -581,6 +591,7 @@ $$
 <li class="toctree-l2"><a class="reference internal" href="bayesian_multi-level_regression.html">Bayesian Multi-level Regression</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Bayesian T-test</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Generate-data">Generate data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Model">Model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#Analysis">Analysis</a></li>
 </ul>
 </li>
@@ -631,7 +642,7 @@ $$
       &copy;2019, The developers of Bambi.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

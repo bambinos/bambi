@@ -4,7 +4,7 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Bayesian Multiple Regression Example &#8212; bambi 0.2.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -268,6 +268,7 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">pymc3</span> <span class="k">as</span> <span class="nn">pm</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span>
 </pre></div>
 </div>
@@ -278,6 +279,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;arviz-darkgrid&#39;</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -472,7 +474,14 @@ div.rendered_html tbody tr:hover {
 <img alt="../_images/notebooks_ESCS_multiple_regression_6_0.png" src="../_images/notebooks_ESCS_multiple_regression_6_0.png" />
 </div>
 </div>
-<p>The five predictor variables that we’ll use are sum-scores measuring participants’ standings on the Big Five personality dimensions. The dimensions are: - O = Openness to experience - C = Conscientiousness - E = Extraversion - A = Agreeableness - N = Neuroticism</p>
+<p>The five numerical predictors that we’ll use are sum-scores measuring participants’ standings on the Big Five personality dimensions. The dimensions are:</p>
+<ul class="simple">
+<li><p>O = Openness to experience</p></li>
+<li><p>C = Conscientiousness</p></li>
+<li><p>E = Extraversion</p></li>
+<li><p>A = Agreeableness</p></li>
+<li><p>N = Neuroticism</p></li>
+</ul>
 <p>Here’s what our predictors look like:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -490,10 +499,12 @@ div.rendered_html tbody tr:hover {
 <img alt="../_images/notebooks_ESCS_multiple_regression_8_0.png" src="../_images/notebooks_ESCS_multiple_regression_8_0.png" />
 </div>
 </div>
+<p>We can easily see all the predictors are more or less symmetrically distributed without outliers and the pairwise correlations between them are not strong.</p>
 </div>
 <div class="section" id="Specify-model-and-examine-priors">
 <h2>Specify model and examine priors<a class="headerlink" href="#Specify-model-and-examine-priors" title="Permalink to this headline">¶</a></h2>
-<p>We’re going to fit a pretty straightforward multiple regression model predicting drug use from all 5 personality dimension scores. It’s simple to specify the model using a familiar formula interface. Here we tell bambi to run two parallel Markov Chain Monte Carlo (MCMC) chains, each one drawing 2000 samples from the joint posterior distribution of all the parameters.</p>
+<p>We’re going to fit a pretty straightforward additive multiple regression model predicting drug index from all 5 personality dimension scores. It’s simple to specify the model using a familiar formula interface. Here we also tell Bambi to run two parallel Markov Chain Monte Carlo (MCMC) chains, each one with 2000 draws. The first 1000 draws are tuning steps that we discard and the last 1000 draws are considered to be taken from the joint posterior distribution of all the parameters (to be
+confirmed when we analyze the convergence of the chains).</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -533,7 +544,7 @@ NUTS: [drugs_sigma, n, a, e, c, o, Intercept]
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:38<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:17<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -541,11 +552,10 @@ NUTS: [drugs_sigma, n, a, e, c, o, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 53 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 18 seconds.
 </pre></div></div>
 </div>
-<p>Great! But this is a Bayesian model, right? What about the priors?</p>
-<p>If no priors are given explicitly by the user, then bambi chooses smart default priors for all parameters of the model based on the implied partial correlations between the outcome and the predictors. Here’s what the default priors look like in this case – the plots below show 1000 draws from each prior distribution:</p>
+<p>Great! But this is a Bayesian model, right? What about the priors? If no priors are given explicitly by the user, then Bambi chooses smart default priors for all parameters of the model based on the implied partial correlations between the outcome and the predictors. Here’s what the default priors look like in this case – the plots below show 1000 draws from each prior distribution:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
@@ -559,7 +569,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_ESCS_multiple_regression_13_0.png" src="../_images/notebooks_ESCS_multiple_regression_13_0.png" />
+<img alt="../_images/notebooks_ESCS_multiple_regression_14_0.png" src="../_images/notebooks_ESCS_multiple_regression_14_0.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
@@ -591,7 +601,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Uniform prior on the residual standard deviation</span>
+<span></span><span class="c1"># HalfStudentT prior on the residual standard deviation</span>
 <span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="s1">&#39;sigma&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">args</span>
 </pre></div>
 </div>
@@ -625,10 +635,11 @@ partial correlation scale!</p>
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_ESCS_multiple_regression_20_0.png" src="../_images/notebooks_ESCS_multiple_regression_20_0.png" />
+<img alt="../_images/notebooks_ESCS_multiple_regression_21_0.png" src="../_images/notebooks_ESCS_multiple_regression_21_0.png" />
 </div>
 </div>
-<p>The left panels show the marginal posterior distributions for all of the model’s parameters, which summarize the most plausible values of the regression coefficients, given the data we have now observed. These posterior density plots show two overlaid distributions because we ran two MCMC chains. The panels on the right are “trace plots” showing the sampling paths of the two MCMC chains as they wander through the parameter space.</p>
+<p>The left panels show the marginal posterior distributions for all of the model’s parameters, which summarize the most plausible values of the regression coefficients, given the data we have now observed. These posterior density plots show two overlaid distributions because we ran two MCMC chains. The panels on the right are “trace plots” showing the sampling paths of the two MCMC chains as they wander through the parameter space. If any of these paths exhibited a pattern other than white noise
+we would be concerned about the convergence of the chains.</p>
 <p>A much more succinct (non-graphical) summary of the parameter estimates can be found like so:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
@@ -678,17 +689,17 @@ partial correlation scale!</p>
   <tbody>
     <tr>
       <th>Intercept[0]</th>
-      <td>3.310</td>
-      <td>0.359</td>
-      <td>2.618</td>
-      <td>3.961</td>
-      <td>0.011</td>
-      <td>0.008</td>
-      <td>1043.0</td>
-      <td>1026.0</td>
-      <td>1045.0</td>
-      <td>1174.0</td>
-      <td>1.0</td>
+      <td>3.311</td>
+      <td>0.356</td>
+      <td>2.687</td>
+      <td>3.984</td>
+      <td>0.012</td>
+      <td>0.009</td>
+      <td>866.0</td>
+      <td>866.0</td>
+      <td>868.0</td>
+      <td>999.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>o[0]</th>
@@ -698,25 +709,25 @@ partial correlation scale!</p>
       <td>0.008</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1399.0</td>
-      <td>1399.0</td>
-      <td>1391.0</td>
-      <td>1187.0</td>
-      <td>1.0</td>
+      <td>1553.0</td>
+      <td>1553.0</td>
+      <td>1551.0</td>
+      <td>1531.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>c[0]</th>
       <td>-0.004</td>
       <td>0.001</td>
-      <td>-0.006</td>
+      <td>-0.007</td>
       <td>-0.001</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1181.0</td>
-      <td>1181.0</td>
-      <td>1188.0</td>
-      <td>1267.0</td>
-      <td>1.0</td>
+      <td>1257.0</td>
+      <td>1205.0</td>
+      <td>1263.0</td>
+      <td>1376.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>e[0]</th>
@@ -726,11 +737,11 @@ partial correlation scale!</p>
       <td>0.006</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1421.0</td>
-      <td>1370.0</td>
-      <td>1431.0</td>
-      <td>1173.0</td>
-      <td>1.0</td>
+      <td>1412.0</td>
+      <td>1381.0</td>
+      <td>1404.0</td>
+      <td>1256.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>a[0]</th>
@@ -740,11 +751,11 @@ partial correlation scale!</p>
       <td>-0.010</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1324.0</td>
-      <td>1324.0</td>
-      <td>1327.0</td>
-      <td>1285.0</td>
-      <td>1.0</td>
+      <td>1221.0</td>
+      <td>1221.0</td>
+      <td>1232.0</td>
+      <td>1510.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>n[0]</th>
@@ -754,25 +765,25 @@ partial correlation scale!</p>
       <td>0.001</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1289.0</td>
-      <td>1289.0</td>
-      <td>1286.0</td>
-      <td>1232.0</td>
-      <td>1.0</td>
+      <td>1120.0</td>
+      <td>1075.0</td>
+      <td>1129.0</td>
+      <td>1194.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>drugs_sigma</th>
       <td>0.592</td>
       <td>0.017</td>
-      <td>0.559</td>
+      <td>0.560</td>
       <td>0.624</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1325.0</td>
-      <td>1318.0</td>
-      <td>1344.0</td>
-      <td>1019.0</td>
-      <td>1.0</td>
+      <td>1688.0</td>
+      <td>1688.0</td>
+      <td>1682.0</td>
+      <td>1303.0</td>
+      <td>1.00</td>
     </tr>
   </tbody>
 </table>
@@ -791,8 +802,9 @@ partial correlation scale!</p>
 </pre></div>
 </div>
 </div>
-<p>It turns out that we can convert each regresson coefficient into a partial correlation by multiplying it by a constant that depends on (1) the SD of the predictor, (2) the SD of the outcome, and (3) the degree of multicollinearity with the set of other predictors. Two of these statistics are actually already computed and stores in the fitted model object, in a dictionary called <code class="docutils literal notranslate"><span class="pre">dm_statistics</span></code> (for design matrix statistics), because they are used internally. The others we will compute
+<p>It turns out that we can convert each regression coefficient into a partial correlation by multiplying it by a constant that depends on (1) the SD of the predictor, (2) the SD of the outcome, and (3) the degree of multicollinearity with the set of other predictors. Two of these statistics are actually already computed and stored in the fitted model object, in a dictionary called <code class="docutils literal notranslate"><span class="pre">dm_statistics</span></code> (for design matrix statistics), because they are used internally. We will compute the others
 manually.</p>
+<p>Some more information about the relationship between linear regression parameters and partial correlation can be found <a class="reference external" href="https://stats.stackexchange.com/questions/76815/multiple-regression-or-partial-correlation-coefficient-and-relations-between-th">here</a>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
@@ -810,8 +822,7 @@ manually.</p>
 <span class="n">sd_y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;drugs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
 
 <span class="c1"># compute the products to multiply each slope with to produce the partial correlations</span>
-<span class="n">slope_constant</span> <span class="o">=</span> <span class="n">sd_x</span><span class="p">[</span><span class="n">varnames</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">r2_x</span><span class="p">[</span><span class="n">varnames</span><span class="p">])</span><span class="o">**.</span><span class="mi">5</span> \
-    <span class="o">/</span> <span class="n">sd_y</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">r2_y</span><span class="p">)</span><span class="o">**.</span><span class="mi">5</span>
+<span class="n">slope_constant</span> <span class="o">=</span> <span class="p">(</span><span class="n">sd_x</span><span class="p">[</span><span class="n">varnames</span><span class="p">]</span> <span class="o">/</span> <span class="n">sd_y</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">r2_x</span><span class="p">[</span><span class="n">varnames</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">r2_y</span><span class="p">))</span> <span class="o">**</span> <span class="mf">0.5</span>
 <span class="n">slope_constant</span>
 </pre></div>
 </div>
@@ -830,7 +841,7 @@ n    34.130431
 dtype: float64
 </pre></div></div>
 </div>
-<p>Now we just multiply each sampled regression coefficient by its corresponding <code class="docutils literal notranslate"><span class="pre">slope_constant</span></code> to transform it into a sampled partial correlation coefficient.</p>
+<p>Now we just multiply each sampled regression coefficient by its corresponding <code class="docutils literal notranslate"><span class="pre">slope_constant</span></code> to transform it into a sample partial correlation coefficient.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
@@ -846,8 +857,10 @@ dtype: float64
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pcorr_samples</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
-    <span class="n">ax</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="sa">f</span><span class="s1">&#39;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">})</span>
+<span></span><span class="c1"># Pass the same axes to az.plot_kde to have all the densities in the same plot</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pcorr_samples</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+    <span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="sa">f</span><span class="s1">&#39;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">},</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -856,7 +869,7 @@ dtype: float64
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_ESCS_multiple_regression_32_0.png" src="../_images/notebooks_ESCS_multiple_regression_32_0.png" />
+<img alt="../_images/notebooks_ESCS_multiple_regression_33_0.png" src="../_images/notebooks_ESCS_multiple_regression_33_0.png" />
 </div>
 </div>
 <p>The means of these distributions serve as good point estimates of the partial correlations:</p>
@@ -877,13 +890,11 @@ dtype: float64
 <div><svg style="position: absolute; width: 0; height: 0; overflow: hidden">
 <defs>
 <symbol id="icon-database" viewBox="0 0 32 32">
-<title>Show/Hide data repr</title>
 <path d="M16 0c-8.837 0-16 2.239-16 5v4c0 2.761 7.163 5 16 5s16-2.239 16-5v-4c0-2.761-7.163-5-16-5z"></path>
 <path d="M16 17c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
 <path d="M16 26c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
 </symbol>
 <symbol id="icon-file-text2" viewBox="0 0 32 32">
-<title>Show/Hide attributes</title>
 <path d="M28.681 7.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-15.5c-1.378 0-2.5 1.121-2.5 2.5v27c0 1.378 1.122 2.5 2.5 2.5h23c1.378 0 2.5-1.122 2.5-2.5v-19.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 5.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5 0 0 15.499-0 15.5 0v7c0 0.552 0.448 1 1 1h7v19.5z"></path>
 <path d="M23 26h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
 <path d="M23 22h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
@@ -906,9 +917,27 @@ dtype: float64
   --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
 }
 
+html[theme=dark],
+body.vscode-dark {
+  --xr-font-color0: rgba(255, 255, 255, 1);
+  --xr-font-color2: rgba(255, 255, 255, 0.54);
+  --xr-font-color3: rgba(255, 255, 255, 0.38);
+  --xr-border-color: #1F1F1F;
+  --xr-disabled-color: #515151;
+  --xr-background-color: #111111;
+  --xr-background-color-row-even: #111111;
+  --xr-background-color-row-odd: #313131;
+}
+
 .xr-wrap {
+  display: block;
   min-width: 300px;
   max-width: 700px;
+}
+
+.xr-text-repr-fallback {
+  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
+  display: none;
 }
 
 .xr-header {
@@ -1208,104 +1237,28 @@ dl.xr-attrs {
   stroke: currentColor;
   fill: currentColor;
 }
-</style><div class='xr-wrap'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-d4770732-5e2f-421a-b537-ab4142f91071' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-d4770732-5e2f-421a-b537-ab4142f91071' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-90b15c0b-8c54-4d1a-b164-bf0683cb1be9' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-90b15c0b-8c54-4d1a-b164-bf0683cb1be9' class='xr-section-summary'  title='Expand/collapse section'>Coordinates: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'></ul></div></li><li class='xr-section-item'><input id='section-9ba58ec5-38a7-4fb2-9d96-a912043e05a1' class='xr-section-summary-in' type='checkbox'  checked><label for='section-9ba58ec5-38a7-4fb2-9d96-a912043e05a1' class='xr-section-summary' >Data variables: <span>(5)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>o</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.1947</div><input id='attrs-e9b7b3da-58b2-48f3-9f27-3a5abca3fb40' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-e9b7b3da-58b2-48f3-9f27-3a5abca3fb40' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-2610fca6-e428-4f92-90c2-e29490a26c31' class='xr-var-data-in' type='checkbox'><label for='data-2610fca6-e428-4f92-90c2-e29490a26c31' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><pre class='xr-var-data'>array(0.19469833)</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>c</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-0.1072</div><input id='attrs-cb55a379-ad7c-492d-bd86-2c5a15892a83' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-cb55a379-ad7c-492d-bd86-2c5a15892a83' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-2dee9eb2-8f25-43af-a81c-451d3e5ad774' class='xr-var-data-in' type='checkbox'><label for='data-2dee9eb2-8f25-43af-a81c-451d3e5ad774' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><pre class='xr-var-data'>array(-0.10717886)</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>e</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.1035</div><input id='attrs-b1cbcfda-3c68-451a-b0fa-5db19c69af42' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-b1cbcfda-3c68-451a-b0fa-5db19c69af42' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-2e95a181-36df-4824-9f18-5b2f547d9ff9' class='xr-var-data-in' type='checkbox'><label for='data-2e95a181-36df-4824-9f18-5b2f547d9ff9' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><pre class='xr-var-data'>array(0.10348712)</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>a</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-0.3235</div><input id='attrs-191a0caa-0055-4735-bdbe-22a1d635fff9' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-191a0caa-0055-4735-bdbe-22a1d635fff9' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-55d67287-250b-4a86-96f3-7be33c1320a4' class='xr-var-data-in' type='checkbox'><label for='data-55d67287-250b-4a86-96f3-7be33c1320a4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><pre class='xr-var-data'>array(-0.32354373)</pre></li><li class='xr-var-item'><div class='xr-var-name'><span>n</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-0.05222</div><input id='attrs-69f83dbb-51bb-4b86-8b5f-d40a3006315b' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-69f83dbb-51bb-4b86-8b5f-d40a3006315b' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ffcac181-126e-415a-a604-6f372b565e68' class='xr-var-data-in' type='checkbox'><label for='data-ffcac181-126e-415a-a604-6f372b565e68' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><pre class='xr-var-data'>array(-0.05221855)</pre></li></ul></div></li><li class='xr-section-item'><input id='section-b82f31db-131d-4e4e-a1c5-0bc8cdb54f48' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-b82f31db-131d-4e4e-a1c5-0bc8cdb54f48' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
-</div>
-<p>Naturally, these results are consistent with the OLS results. For example, we can see that these estimated partial correlations are roughly proportional to the t-statistics from the corresponding OLS regression:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">endog</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;drugs&#39;</span><span class="p">],</span> <span class="n">exog</span><span class="o">=</span><span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span>
-    <span class="n">data</span><span class="p">[</span><span class="n">varnames</span><span class="p">]))</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<table class="simpletable">
-<caption>OLS Regression Results</caption>
-<tr>
-  <th>Dep. Variable:</th>          <td>drugs</td>      <th>  R-squared:         </th> <td>   0.176</td>
-</tr>
-<tr>
-  <th>Model:</th>                   <td>OLS</td>       <th>  Adj. R-squared:    </th> <td>   0.169</td>
-</tr>
-<tr>
-  <th>Method:</th>             <td>Least Squares</td>  <th>  F-statistic:       </th> <td>   25.54</td>
-</tr>
-<tr>
-  <th>Date:</th>             <td>Tue, 14 Jul 2020</td> <th>  Prob (F-statistic):</th> <td>2.16e-23</td>
-</tr>
-<tr>
-  <th>Time:</th>                 <td>13:52:48</td>     <th>  Log-Likelihood:    </th> <td> -536.75</td>
-</tr>
-<tr>
-  <th>No. Observations:</th>      <td>   604</td>      <th>  AIC:               </th> <td>   1086.</td>
-</tr>
-<tr>
-  <th>Df Residuals:</th>          <td>   598</td>      <th>  BIC:               </th> <td>   1112.</td>
-</tr>
-<tr>
-  <th>Df Model:</th>              <td>     5</td>      <th>                     </th>     <td> </td>
-</tr>
-<tr>
-  <th>Covariance Type:</th>      <td>nonrobust</td>    <th>                     </th>     <td> </td>
-</tr>
-</table>
-<table class="simpletable">
-<tr>
-    <td></td>       <th>coef</th>     <th>std err</th>      <th>t</th>      <th>P>|t|</th>  <th>[0.025</th>    <th>0.975]</th>
-</tr>
-<tr>
-  <th>const</th> <td>    3.3037</td> <td>    0.360</td> <td>    9.188</td> <td> 0.000</td> <td>    2.598</td> <td>    4.010</td>
-</tr>
-<tr>
-  <th>o</th>     <td>    0.0061</td> <td>    0.001</td> <td>    4.891</td> <td> 0.000</td> <td>    0.004</td> <td>    0.008</td>
-</tr>
-<tr>
-  <th>c</th>     <td>   -0.0038</td> <td>    0.001</td> <td>   -2.590</td> <td> 0.010</td> <td>   -0.007</td> <td>   -0.001</td>
-</tr>
-<tr>
-  <th>e</th>     <td>    0.0034</td> <td>    0.001</td> <td>    2.519</td> <td> 0.012</td> <td>    0.001</td> <td>    0.006</td>
-</tr>
-<tr>
-  <th>a</th>     <td>   -0.0124</td> <td>    0.001</td> <td>   -8.391</td> <td> 0.000</td> <td>   -0.015</td> <td>   -0.010</td>
-</tr>
-<tr>
-  <th>n</th>     <td>   -0.0015</td> <td>    0.001</td> <td>   -1.266</td> <td> 0.206</td> <td>   -0.004</td> <td>    0.001</td>
-</tr>
-</table>
-<table class="simpletable">
-<tr>
-  <th>Omnibus:</th>       <td>10.273</td> <th>  Durbin-Watson:     </th> <td>   1.959</td>
-</tr>
-<tr>
-  <th>Prob(Omnibus):</th> <td> 0.006</td> <th>  Jarque-Bera (JB):  </th> <td>   7.926</td>
-</tr>
-<tr>
-  <th>Skew:</th>          <td> 0.181</td> <th>  Prob(JB):          </th> <td>  0.0190</td>
-</tr>
-<tr>
-  <th>Kurtosis:</th>      <td> 2.572</td> <th>  Cond. No.          </th> <td>3.72e+03</td>
-</tr>
-</table><br/><br/>Warnings:<br/>[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.<br/>[2] The condition number is large, 3.72e+03. This might indicate that there are<br/>strong multicollinearity or other numerical problems.</div>
+</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt;
+Dimensions:  ()
+Data variables:
+    o        float64 0.1958
+    c        float64 -0.1049
+    e        float64 0.1015
+    a        float64 -0.325
+    n        float64 -0.05269</pre><div class='xr-wrap' hidden><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-7bd555e0-9db6-4b97-a362-881287cb0f00' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-7bd555e0-9db6-4b97-a362-881287cb0f00' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-76afc6b0-7cd0-47fa-aa47-728073996ca2' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-76afc6b0-7cd0-47fa-aa47-728073996ca2' class='xr-section-summary'  title='Expand/collapse section'>Coordinates: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'></ul></div></li><li class='xr-section-item'><input id='section-87a39200-6d20-4c11-a1fb-344e25a38a8b' class='xr-section-summary-in' type='checkbox'  checked><label for='section-87a39200-6d20-4c11-a1fb-344e25a38a8b' class='xr-section-summary' >Data variables: <span>(5)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>o</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.1958</div><input id='attrs-51a6aa24-9a6e-4e12-91b6-91bf9ebc8dd4' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-51a6aa24-9a6e-4e12-91b6-91bf9ebc8dd4' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-13909432-9eab-4834-a90d-bef25865f25b' class='xr-var-data-in' type='checkbox'><label for='data-13909432-9eab-4834-a90d-bef25865f25b' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array(0.19577063)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>c</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-0.1049</div><input id='attrs-dfea682d-3973-4ef5-b56c-bd3ac7e9e9d0' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-dfea682d-3973-4ef5-b56c-bd3ac7e9e9d0' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-deb7000e-b06c-4081-8559-d8e503d1662d' class='xr-var-data-in' type='checkbox'><label for='data-deb7000e-b06c-4081-8559-d8e503d1662d' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array(-0.10487048)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>e</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.1015</div><input id='attrs-f58424dd-afc1-4e99-ba3f-ea68cfb21e5c' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-f58424dd-afc1-4e99-ba3f-ea68cfb21e5c' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d151ed7d-1081-4de9-80c0-73a89e889e31' class='xr-var-data-in' type='checkbox'><label for='data-d151ed7d-1081-4de9-80c0-73a89e889e31' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array(0.10148767)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>a</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-0.325</div><input id='attrs-3ca37f95-309c-4098-81b8-d8cd592cb9e7' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-3ca37f95-309c-4098-81b8-d8cd592cb9e7' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-0843cdcc-fda8-4852-bfb2-63e6105e83eb' class='xr-var-data-in' type='checkbox'><label for='data-0843cdcc-fda8-4852-bfb2-63e6105e83eb' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array(-0.32503968)</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>n</span></div><div class='xr-var-dims'>()</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-0.05269</div><input id='attrs-f256b52a-a9d6-4a09-951a-6b65408ec6e9' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-f256b52a-a9d6-4a09-951a-6b65408ec6e9' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-7da297bf-d5ec-45dc-958a-faea070c85b9' class='xr-var-data-in' type='checkbox'><label for='data-7da297bf-d5ec-45dc-958a-faea070c85b9' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array(-0.05268594)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-7170403e-f399-431f-89b9-565dbeb193e6' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-7170403e-f399-431f-89b9-565dbeb193e6' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
 </div>
 </div>
 <div class="section" id="Relative-importance:-Which-predictors-have-the-strongest-effects-(defined-in-terms-of-partial-\eta^2)?">
 <h2>Relative importance: Which predictors have the strongest effects (defined in terms of partial <span class="math notranslate nohighlight">\(\eta^2\)</span>)?<a class="headerlink" href="#Relative-importance:-Which-predictors-have-the-strongest-effects-(defined-in-terms-of-partial-\eta^2)?" title="Permalink to this headline">¶</a></h2>
 <p>The partial <span class="math notranslate nohighlight">\(\eta^2\)</span> statistics for each predictor are just the squares of the partial correlation coefficients, so it’s easy to get posteriors on that scale too:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pcorr_samples</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
-    <span class="n">ax</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">v</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="sa">f</span><span class="s1">&#39;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">})</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">80</span><span class="p">)</span>
+<span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pcorr_samples</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+    <span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">v</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="sa">f</span><span class="s1">&#39;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">},</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">80</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1313,13 +1266,13 @@ dl.xr-attrs {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_ESCS_multiple_regression_39_0.png" src="../_images/notebooks_ESCS_multiple_regression_39_0.png" />
+<img alt="../_images/notebooks_ESCS_multiple_regression_38_0.png" src="../_images/notebooks_ESCS_multiple_regression_38_0.png" />
 </div>
 </div>
-<p>With these posteriors we can ask: What is the probability that the partial <span class="math notranslate nohighlight">\(\eta^2\)</span> for Openness (yellow) is greater than the partial <span class="math notranslate nohighlight">\(\eta^2\)</span> for Conscientiousness (green)?</p>
+<p>With these posteriors we can ask: What is the probability that the partial <span class="math notranslate nohighlight">\(\eta^2\)</span> for Openness (blue) is greater than the partial <span class="math notranslate nohighlight">\(\eta^2\)</span> for Conscientiousness (orange)?</p>
 <p>For each predictor, what is the probability that it has the largest <span class="math notranslate nohighlight">\(\eta^2\)</span>?</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1329,41 +1282,39 @@ dl.xr-attrs {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-a    0.991
-o    0.009
+a    0.99
+o    0.01
 dtype: float64
 </pre></div></div>
 </div>
 <p>Agreeableness is clearly the strongest predictor of drug use among the Big Five personality traits, but it’s still not a particularly strong predictor in an absolute sense. Walter Mischel famously claimed that it is rare to see correlations between personality measurse and relevant behavioral outcomes exceed 0.3. In this case, the probability that the agreeableness partial correlation exceeds 0.3 is:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">pcorr_samples</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="o">.</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span></span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">pcorr_samples</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
 <div><svg style="position: absolute; width: 0; height: 0; overflow: hidden">
 <defs>
 <symbol id="icon-database" viewBox="0 0 32 32">
-<title>Show/Hide data repr</title>
 <path d="M16 0c-8.837 0-16 2.239-16 5v4c0 2.761 7.163 5 16 5s16-2.239 16-5v-4c0-2.761-7.163-5-16-5z"></path>
 <path d="M16 17c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
 <path d="M16 26c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
 </symbol>
 <symbol id="icon-file-text2" viewBox="0 0 32 32">
-<title>Show/Hide attributes</title>
 <path d="M28.681 7.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-15.5c-1.378 0-2.5 1.121-2.5 2.5v27c0 1.378 1.122 2.5 2.5 2.5h23c1.378 0 2.5-1.122 2.5-2.5v-19.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 5.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5 0 0 15.499-0 15.5 0v7c0 0.552 0.448 1 1 1h7v19.5z"></path>
 <path d="M23 26h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
 <path d="M23 22h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
@@ -1386,9 +1337,27 @@ dtype: float64
   --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
 }
 
+html[theme=dark],
+body.vscode-dark {
+  --xr-font-color0: rgba(255, 255, 255, 1);
+  --xr-font-color2: rgba(255, 255, 255, 0.54);
+  --xr-font-color3: rgba(255, 255, 255, 0.38);
+  --xr-border-color: #1F1F1F;
+  --xr-disabled-color: #515151;
+  --xr-background-color: #111111;
+  --xr-background-color-row-even: #111111;
+  --xr-background-color-row-odd: #313131;
+}
+
 .xr-wrap {
+  display: block;
   min-width: 300px;
   max-width: 700px;
+}
+
+.xr-text-repr-fallback {
+  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
+  display: none;
 }
 
 .xr-header {
@@ -1688,7 +1657,8 @@ dl.xr-attrs {
   stroke: currentColor;
   fill: currentColor;
 }
-</style><div class='xr-wrap'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'a'</div></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-c9a62416-1051-4044-868e-7ee146cafc5e' class='xr-array-in' type='checkbox' ><label for='section-c9a62416-1051-4044-868e-7ee146cafc5e' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>0.7235</span></div><pre class='xr-array-data'>array(0.7235)</pre></div></li><li class='xr-section-item'><input id='section-811338bd-d8fe-4ab7-bde0-fcb0bc0132fb' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-811338bd-d8fe-4ab7-bde0-fcb0bc0132fb' class='xr-section-summary'  title='Expand/collapse section'>Coordinates: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'></ul></div></li><li class='xr-section-item'><input id='section-056e217f-8fba-4818-a357-991491cbce5d' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-056e217f-8fba-4818-a357-991491cbce5d' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
+</style><pre class='xr-text-repr-fallback'>&lt;xarray.DataArray &#x27;a&#x27; ()&gt;
+array(0.748)</pre><div class='xr-wrap' hidden><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'a'</div></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-222eff79-bb84-4f22-be9f-8e35922d5028' class='xr-array-in' type='checkbox' checked><label for='section-222eff79-bb84-4f22-be9f-8e35922d5028' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>0.748</span></div><div class='xr-array-data'><pre>array(0.748)</pre></div></div></li><li class='xr-section-item'><input id='section-2abe1a23-0057-4da9-9712-6c69d55a5e28' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-2abe1a23-0057-4da9-9712-6c69d55a5e28' class='xr-section-summary'  title='Expand/collapse section'>Coordinates: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'></ul></div></li><li class='xr-section-item'><input id='section-602f2546-053e-4173-b437-06bc7cb9f2d1' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-602f2546-053e-4173-b437-06bc7cb9f2d1' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
 </div>
 </div>
 </div>
@@ -1768,7 +1738,7 @@ dl.xr-attrs {
       &copy;2019, The developers of Bambi.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
