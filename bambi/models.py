@@ -713,9 +713,10 @@ class Model:
         return prior
 
     def plot(self, samples=5000, var_names=None):
+        warnings.warn("plot will be deprecated, please use plot_priors", FutureWarning)
         return self.plot_priors(samples, var_names)
 
-    def plot_priors(self, samples, var_names=None):
+    def plot_priors(self, samples=5000, var_names=None):
         if not self.built:
             raise ValueError("Cannot plot priors until model is built!")
 
