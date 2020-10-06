@@ -34,7 +34,7 @@ class Model:
         If True (default), priors are automatically rescaled to the data (to be weakly informative)
         any time default priors are used. Note that any priors explicitly set by the user will
         always take precedence over default priors.
-    dropna : bool)
+    dropna : bool
         When True, rows with any missing values in either the predictors or outcome are
         automatically dropped from the dataset in a listwise manner.
     taylor : int
@@ -115,7 +115,6 @@ class Model:
         backend = backend.lower()
 
         if backend.startswith("pymc"):
-
             self.backend = PyMC3BackEnd()
         else:
             raise ValueError("At the moment, only the PyMC3 backend is supported.")
@@ -130,11 +129,12 @@ class Model:
 
         Parameters
         ----------
-        backend : str
-            The name of the backend to use for model fitting. Currently, 'pymc' and 'stan' are
-            supported. If None, assume that `fit()` has already been called (possibly without
-            building) and look in self._backend_name.
+        backend : str or None
+            The name of the backend to use for model fitting. Currently only 'pymc' is
+            supported. If None, assumes that `fit()` has already been called (possibly without
+            building) and looks in self._backend_name.
         """
+
         # retain only the complete cases
         n_total = len(self.data.index)
         if self.completes:
@@ -143,13 +143,15 @@ class Model:
         else:
             completes = range(len(self.data.index))
         self.clean_data = self.data.iloc[list(completes), :]
+
         # warn the user about any dropped rows
+        # NOTE: When this message is shown the rows have already been removed.
         if len(completes) < n_total:
             msg = "Automatically removing {}/{} rows from the dataset."
             msg = msg.format(n_total - len(completes), n_total)
             warnings.warn(msg)
 
-        # loop over the added terms and actually _add() them
+        # loop over the added terms and _add() them
         for term_args in self.added_terms:
             self._add(**term_args)
 
@@ -234,8 +236,7 @@ class Model:
                     + str(self._diagnostics)
                 )
 
-        # throw informative error message if any categorical predictors have 1
-        # category
+        # throw informative error message if any categorical predictors have 1 category
         num_cats = [x.data.size for x in self.fixed_terms.values()]
         if any(np.array(num_cats) == 0):
             raise ValueError("At least one categorical predictor contains only 1 category!")
@@ -308,7 +309,7 @@ class Model:
             treated as categoricals (e.g., random factors coded as numerical IDs), explicitly
             passing variable names via this argument is recommended.
         backend : str
-            The name of the BackEnd to use. Currently only 'pymc' backen is supported.
+            The name of the BackEnd to use. Currently only 'pymc' backend is supported.
         """
         if fixed is not None or random is not None:
             self.add(
@@ -401,6 +402,10 @@ class Model:
         NA_handler = Custom_NA(dropna=self.dropna)
 
         # screen fixed terms
+        # it deletes everythin between [] and the brackets too.
+
+        # Q: What does it add? None of the `dmatrices()` or `dmatrix` outputs are assigned to a name
+        # A: It adds nothing. It is called for a side effect to handle NAs.
         if fixed is not None:
             if "~" in fixed:
                 clean_fix = re.sub(r"\[.+\]", "", fixed)
@@ -544,7 +549,8 @@ class Model:
                             cat = True
                         else:
                             cat = False
-
+                            
+                        pred_data = pred_data.to_numpy()    
                         pred_data = pred_data[:, None]  # Must be 2D later
                         term = RandomTerm(
                             label,
@@ -687,7 +693,7 @@ class Model:
                             targets[term.name] = prior
                     else:
                         targets[name] = prior
-
+        # If prior is None? I think it is handled by another method.
         for name, prior in targets.items():
             self.terms[name].prior = prior
 
@@ -713,6 +719,8 @@ class Model:
                 prior._auto_scale = False  # pylint: disable=protected-access
         return prior
 
+    # Must be deleted in favor of `plot_priors()`.
+    # Maybe a DeprecationWarning for some time, and then, delete completely.
     def plot(self, var_names=None):
         return self.plot_priors(var_names)
 
@@ -750,11 +758,15 @@ class Model:
                     dists.extend([y_prior_])
 
             # make the plot!
+            # Why size is fixed at 1000?
             priors_to_plot = {}
             for i, dist in enumerate(dists):
                 dist_ = dist.distribution if isinstance(dist, pm.model.FreeRV) else dist
                 priors_to_plot[dist.name] = dist_.random(size=1000).flatten()
             # Probably we should replace this for something else
+            # We should have something more efficient.
+            # Doesn't this convert `priors_to_plot` to inference data internally?
+            # We should have something better
             axes = plot_posterior(priors_to_plot, credible_interval=None, point_estimate=None)
 
         return axes
@@ -781,7 +793,9 @@ class Term:
     Parameters
     ----------
     name : str
-        Name of the term. data (DataFrame, Series, ndarray): The term values.
+        Name of the term. 
+    data : (DataFrame, Series, ndarray)
+        The term values.
     categorical : bool
         If True, the source variable is interpreted as nominal/categorical. If False, the source
         variable is treated as continuous.
