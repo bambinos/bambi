@@ -720,9 +720,9 @@ class Model:
             raise ValueError("Cannot plot priors until model is built!")
 
         if var_names is None:
-            unobserved_RVs_names = [v.name for v in self.backend.model.unobserved_RVs]
+            unobserved_rvs_names = [v.name for v in self.backend.model.unobserved_RVs]
             var_names = pm.util.get_default_varnames(
-                unobserved_RVs_names, include_transformed=False
+                unobserved_rvs_names, include_transformed=False
             )
 
         priors_to_plot = pm.sample_prior_predictive(
