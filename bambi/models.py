@@ -123,7 +123,7 @@ class Model:
 
         self._backend_name = backend
 
-    def build(self, backend=None):
+    def build(self, backend="pymc"):
         """Set up the model for sampling/fitting.
 
         Performs any steps that require access to all model terms (e.g., scaling priors
@@ -132,9 +132,7 @@ class Model:
         Parameters
         ----------
         backend : str
-            The name of the backend to use for model fitting. Currently, 'pymc' and 'stan' are
-            supported. If None, assume that `fit()` has already been called (possibly without
-            building) and look in self._backend_name.
+            The name of the backend to use for model fitting. Currently only 'pymc' is supported.
         """
         # retain only the complete cases
         n_total = len(self.data.index)
@@ -274,7 +272,7 @@ class Model:
         link=None,
         run=True,
         categorical=None,
-        backend=None,
+        backend="pymc",
         **kwargs,
     ):
         """Fit the model using the specified BackEnd.
@@ -309,7 +307,7 @@ class Model:
             treated as categoricals (e.g., random factors coded as numerical IDs), explicitly
             passing variable names via this argument is recommended.
         backend : str
-            The name of the BackEnd to use. Currently only 'pymc' backen is supported.
+            The name of the BackEnd to use. Currently only 'pymc' backend is supported.
         """
         if fixed is not None or random is not None:
             self.add(
@@ -714,49 +712,25 @@ class Model:
                 prior._auto_scale = False  # pylint: disable=protected-access
         return prior
 
-    def plot(self, var_names=None):
-        return self.plot_priors(var_names)
+    def plot(self, samples=5000, var_names=None):
+        warnings.warn("plot will be deprecated, please use plot_priors", FutureWarning)
+        return self.plot_priors(samples, var_names)
 
-    def plot_priors(self, var_names=None):
+    def plot_priors(self, samples=5000, var_names=None):
         if not self.built:
             raise ValueError("Cannot plot priors until model is built!")
 
-        with pm.Model():
-            # get priors for fixed fx, separately for each level of each predictor
-            dists = []
-            for fixed_term in self.fixed_terms.values():
-                if var_names is not None and fixed_term.name not in var_names:
-                    continue
-                for i, level in enumerate(fixed_term.levels):
-                    params = {
-                        k: np.atleast_1d(v)[i % v.size] if isinstance(v, np.ndarray) else v
-                        for k, v in fixed_term.prior.args.items()
-                    }
-                    dists += [getattr(pm, fixed_term.prior.name)(level, **params)]
+        if var_names is None:
+            unobserved_rvs_names = [v.name for v in self.backend.model.unobserved_RVs]
+            var_names = pm.util.get_default_varnames(
+                unobserved_rvs_names, include_transformed=False
+            )
 
-            # get priors for random effect sigmas
-            for random_term in self.random_terms.values():
-                if var_names is not None and random_term.name not in var_names:
-                    continue
-                prior = random_term.prior.args["sigma"].name
-                params = random_term.prior.args["sigma"].args
-                dists += [getattr(pm, prior)(random_term.name + "_sigma", **params)]
+        priors_to_plot = pm.sample_prior_predictive(
+            samples=samples, model=self.backend.model, var_names=var_names
+        )
 
-            # add priors on Y params if applicable
-            y_priors = [(k, v) for k, v in self.y.prior.args.items() if isinstance(v, Prior)]
-            if y_priors:
-                for y_prior in y_priors:
-                    pm_attr = getattr(pm, y_prior[1].name)
-                    y_prior_ = pm_attr("_".join([self.y.name, y_prior[0]]), **y_prior[1].args)
-                    dists.extend([y_prior_])
-
-            # make the plot!
-            priors_to_plot = {}
-            for i, dist in enumerate(dists):
-                dist_ = dist.distribution if isinstance(dist, pm.model.FreeRV) else dist
-                priors_to_plot[dist.name] = dist_.random(size=1000).flatten()
-            # Probably we should replace this for something else
-            axes = plot_posterior(priors_to_plot, credible_interval=None, point_estimate=None)
+        axes = plot_posterior(priors_to_plot, credible_interval=None, point_estimate=None)
 
         return axes
 
