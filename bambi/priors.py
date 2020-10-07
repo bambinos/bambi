@@ -72,7 +72,13 @@ class Prior:
                 Optional keyword arguments to add to prior args.
         """
         # Backends expect numpy arrays, so make sure all numeric values are represented as such.
-        kwargs = {k: (np.array(v) if isinstance(v, (int, float)) else v) for k, v in kwargs.items()}
+        kwargs = {}
+        for k, v in kwargs.items():
+            if isinstance(v, (int, float)):
+                v = np.array(v)
+            elif isinstance(v, np.ndarray):
+                v = v.squeeze()
+            kwargs["k"] = v
         self.args.update(kwargs)
 
 

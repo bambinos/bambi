@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 from arviz.plots import plot_posterior
+from arviz.data.inference_data import InferenceData
 from patsy import dmatrices, dmatrix
 import pymc3 as pm
 
@@ -736,6 +737,50 @@ class Model:
         axes = plot_posterior(priors_to_plot, credible_interval=None, point_estimate=None)
 
         return axes
+
+    def prior_predictive(self, samples=500, var_names=None, idata=None, random_seed=None):
+        """
+        Generate samples from the prior predictive distribution.
+
+        Parameters
+        ----------
+        samples : int
+            Number of samples from the prior predictive to generate. Defaults to 500.
+        var_names : str or list
+            A list of names of variables for which to compute the posterior predictive
+            samples. Defaults to both observed and unobserved RVs.
+        idata: InferenceData
+            If provided the prior predictive distribution will be added to idata and returned.
+        random_seed : int
+            Seed for the random number generator.
+
+        Returns
+        -------
+        dict or InferenceData
+            Dictionary with variable names as keys or InferenceData object with a prior and prior predictive
+            groups.
+        """
+        if var_names is None:
+            variables = self.backend.model.unobserved_RVs + self.backend.model.observed_RVs
+            variables_names = [v.name for v in variables]
+            var_names = pm.util.get_default_varnames(variables_names, include_transformed=False)
+
+        pps = pm.sample_prior_predictive(
+            samples=samples, var_names=var_names, model=self.backend.model, random_seed=random_seed
+        )
+
+        y_name = self.y.name
+        # pps[y_name] = pps[y_name].squeeze()
+
+        if idata is not None:
+            if not isinstance(idata, InferenceData):
+                raise (TypeError, "idata must be an InferenceData object")
+            idata.add_groups(
+                {"prior_predictive": {y_name: np.moveaxis(pps.pop(y_name), 2, 0)}, "prior": pps}
+            )
+            return idata
+
+        return pps
 
     @property
     def term_names(self):
