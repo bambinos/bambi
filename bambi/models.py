@@ -401,10 +401,7 @@ class Model:
         NA_handler = Custom_NA(dropna=self.dropna)
 
         # screen fixed terms
-        # it deletes everythin between [] and the brackets too.
-
-        # Q: What does it add? None of the `dmatrices()` or `dmatrix` outputs are assigned to a name
-        # A: It adds nothing. It is called for a side effect to handle NAs.
+        # it deletes everythin betweeng [] and the brackets too.
         if fixed is not None:
             if "~" in fixed:
                 clean_fix = re.sub(r"\[.+\]", "", fixed)
@@ -692,7 +689,7 @@ class Model:
                             targets[term.name] = prior
                     else:
                         targets[name] = prior
-        # If prior is None? I think it is handled by another method.
+
         for name, prior in targets.items():
             self.terms[name].prior = prior
 
