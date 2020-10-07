@@ -762,7 +762,7 @@ class Term:
     Parameters
     ----------
     name : str
-        Name of the term. 
+        Name of the term.
     data : (DataFrame, Series, ndarray)
         The term values.
     categorical : bool
