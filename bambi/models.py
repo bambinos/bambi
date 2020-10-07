@@ -35,7 +35,7 @@ class Model:
         If True (default), priors are automatically rescaled to the data (to be weakly informative)
         any time default priors are used. Note that any priors explicitly set by the user will
         always take precedence over default priors.
-    dropna : bool)
+    dropna : bool
         When True, rows with any missing values in either the predictors or outcome are
         automatically dropped from the dataset in a listwise manner.
     taylor : int
@@ -116,7 +116,6 @@ class Model:
         backend = backend.lower()
 
         if backend.startswith("pymc"):
-
             self.backend = PyMC3BackEnd()
         else:
             raise ValueError("At the moment, only the PyMC3 backend is supported.")
@@ -134,6 +133,7 @@ class Model:
         backend : str
             The name of the backend to use for model fitting. Currently only 'pymc' is supported.
         """
+
         # retain only the complete cases
         n_total = len(self.data.index)
         if self.completes:
@@ -142,13 +142,15 @@ class Model:
         else:
             completes = range(len(self.data.index))
         self.clean_data = self.data.iloc[list(completes), :]
+
         # warn the user about any dropped rows
+        # NOTE: When this message is shown the rows have already been removed.
         if len(completes) < n_total:
             msg = "Automatically removing {}/{} rows from the dataset."
             msg = msg.format(n_total - len(completes), n_total)
             warnings.warn(msg)
 
-        # loop over the added terms and actually _add() them
+        # loop over the added terms and _add() them
         for term_args in self.added_terms:
             self._add(**term_args)
 
@@ -233,8 +235,7 @@ class Model:
                     + str(self._diagnostics)
                 )
 
-        # throw informative error message if any categorical predictors have 1
-        # category
+        # throw informative error message if any categorical predictors have 1 category
         num_cats = [x.data.size for x in self.fixed_terms.values()]
         if any(np.array(num_cats) == 0):
             raise ValueError("At least one categorical predictor contains only 1 category!")
@@ -400,6 +401,7 @@ class Model:
         NA_handler = Custom_NA(dropna=self.dropna)
 
         # screen fixed terms
+        # it deletes everything between [] and the brackets too.
         if fixed is not None:
             if "~" in fixed:
                 clean_fix = re.sub(r"\[.+\]", "", fixed)
@@ -544,6 +546,7 @@ class Model:
                         else:
                             cat = False
 
+                        pred_data = pred_data.to_numpy()
                         pred_data = pred_data[:, None]  # Must be 2D later
                         term = RandomTerm(
                             label,
@@ -756,7 +759,9 @@ class Term:
     Parameters
     ----------
     name : str
-        Name of the term. data (DataFrame, Series, ndarray): The term values.
+        Name of the term.
+    data : (DataFrame, Series, ndarray)
+        The term values.
     categorical : bool
         If True, the source variable is interpreted as nominal/categorical. If False, the source
         variable is treated as continuous.
