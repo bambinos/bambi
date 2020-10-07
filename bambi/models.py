@@ -548,8 +548,8 @@ class Model:
                             cat = True
                         else:
                             cat = False
-                            
-                        pred_data = pred_data.to_numpy()    
+
+                        pred_data = pred_data.to_numpy()
                         pred_data = pred_data[:, None]  # Must be 2D later
                         term = RandomTerm(
                             label,
