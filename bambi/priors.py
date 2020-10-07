@@ -72,14 +72,14 @@ class Prior:
                 Optional keyword arguments to add to prior args.
         """
         # Backends expect numpy arrays, so make sure all numeric values are represented as such.
-        kwargs = {}
+        kwargs_ = {}
         for key, val in kwargs.items():
             if isinstance(val, (int, float)):
                 val = np.array(val)
             elif isinstance(val, np.ndarray):
                 val = val.squeeze()
-            kwargs[key] = val
-        self.args.update(kwargs)
+            kwargs_[key] = val
+        self.args.update(kwargs_)
 
 
 class PriorFactory:
