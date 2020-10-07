@@ -103,7 +103,6 @@ class PyMC3BackEnd(BackEnd):
             y = spec.y.data
             y_prior = spec.family.prior
             link_f = spec.family.link
-
             if isinstance(link_f, str):
                 link_f = self.links[link_f]
             y_prior.args[spec.family.parent] = link_f(self.mu)

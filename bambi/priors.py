@@ -73,12 +73,12 @@ class Prior:
         """
         # Backends expect numpy arrays, so make sure all numeric values are represented as such.
         kwargs = {}
-        for k, v in kwargs.items():
-            if isinstance(v, (int, float)):
-                v = np.array(v)
-            elif isinstance(v, np.ndarray):
-                v = v.squeeze()
-            kwargs["k"] = v
+        for key, val in kwargs.items():
+            if isinstance(val, (int, float)):
+                val = np.array(val)
+            elif isinstance(val, np.ndarray):
+                val = val.squeeze()
+            kwargs[key] = val
         self.args.update(kwargs)
 
 

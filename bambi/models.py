@@ -757,8 +757,8 @@ class Model:
         Returns
         -------
         dict or InferenceData
-            Dictionary with variable names as keys or InferenceData object with a prior and prior predictive
-            groups.
+            Dictionary with variable names as keys or InferenceData object with a
+            prior and prior predictive groups.
         """
         if var_names is None:
             variables = self.backend.model.unobserved_RVs + self.backend.model.observed_RVs
@@ -774,7 +774,7 @@ class Model:
 
         if idata is not None:
             if not isinstance(idata, InferenceData):
-                raise (TypeError, "idata must be an InferenceData object")
+                raise TypeError("idata must be an InferenceData object")
             idata.add_groups(
                 {"prior_predictive": {y_name: np.moveaxis(pps.pop(y_name), 2, 0)}, "prior": pps}
             )
