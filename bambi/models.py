@@ -401,7 +401,7 @@ class Model:
         NA_handler = Custom_NA(dropna=self.dropna)
 
         # screen fixed terms
-        # it deletes everythin betweeng [] and the brackets too.
+        # it deletes everything between [] and the brackets too.
         if fixed is not None:
             if "~" in fixed:
                 clean_fix = re.sub(r"\[.+\]", "", fixed)
