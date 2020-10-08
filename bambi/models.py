@@ -8,11 +8,11 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 from arviz.plots import plot_posterior
-from arviz.data.inference_data import InferenceData
+from arviz.data import from_dict
 from patsy import dmatrices, dmatrix
 import pymc3 as pm
 
-
+import bambi.version as version
 from .backends import PyMC3BackEnd
 from .external.patsy import Custom_NA
 from .priors import Prior, PriorFactory, PriorScaler
@@ -730,15 +730,13 @@ class Model:
                 unobserved_rvs_names, include_transformed=False
             )
 
-        priors_to_plot = pm.sample_prior_predictive(
-            samples=samples, model=self.backend.model, var_names=var_names
-        )
+        pps = self.prior_predictive(samples=samples, var_names=var_names)
 
-        axes = plot_posterior(priors_to_plot, credible_interval=None, point_estimate=None)
+        axes = plot_posterior(pps, group="prior", credible_interval=None, point_estimate=None)
 
         return axes
 
-    def prior_predictive(self, samples=500, var_names=None, idata=None, random_seed=None):
+    def prior_predictive(self, samples=500, var_names=None, random_seed=None):
         """
         Generate samples from the prior predictive distribution.
 
@@ -749,16 +747,13 @@ class Model:
         var_names : str or list
             A list of names of variables for which to compute the posterior predictive
             samples. Defaults to both observed and unobserved RVs.
-        idata: InferenceData
-            If provided the prior predictive distribution will be added to idata and returned.
         random_seed : int
             Seed for the random number generator.
 
         Returns
         -------
-        dict or InferenceData
-            Dictionary with variable names as keys or InferenceData object with a
-            prior and prior predictive groups.
+        InferenceData
+            InferenceData object with the groups prior, prior_predictive and ovserved_data.
         """
         if var_names is None:
             variables = self.backend.model.unobserved_RVs + self.backend.model.observed_RVs
@@ -770,17 +765,24 @@ class Model:
         )
 
         y_name = self.y.name
-        # pps[y_name] = pps[y_name].squeeze()
 
-        if idata is not None:
-            if not isinstance(idata, InferenceData):
-                raise TypeError("idata must be an InferenceData object")
-            idata.add_groups(
-                {"prior_predictive": {y_name: np.moveaxis(pps.pop(y_name), 2, 0)}, "prior": pps}
-            )
-            return idata
+        if y_name in pps:
+            prior_predictive = {y_name: np.moveaxis(pps.pop(y_name), 2, 0)}
+            observed_data = {y_name: self.y.data.squeeze()}
+        else:
+            prior_predictive = {}
+            observed_data = {}
 
-        return pps
+        prior = {k: v[np.newaxis] for k, v in pps.items()}
+
+        idata = from_dict(
+            prior_predictive=prior_predictive,
+            prior=prior,
+            observed_data=observed_data,
+            attrs={"inference_library": "Bambi", "inference_library_version": version.__version__},
+        )
+
+        return idata
 
     @property
     def term_names(self):

@@ -1,12 +1,10 @@
-import re
-
 import arviz as az
 import numpy as np
 import pandas as pd
 import pytest
 import theano.tensor as tt
 
-from bambi.models import Model, Term
+from bambi.models import Model
 from bambi.priors import Prior
 
 
@@ -44,6 +42,7 @@ def test_empty_model(crossed_data):
 
     model1 = Model(crossed_data)
     model1.fit("Y ~ 0", run=False)
+
     model1.build(backend="pymc3")
     model1.fit(tune=0, samples=1)
 
@@ -487,3 +486,27 @@ def test_laplace():
     mode_a = data.mean()
     std_a = data.std() / len(data) ** 0.5
     np.testing.assert_array_almost_equal((mode_n, std_n), (mode_a.item(), std_a.item()), decimal=2)
+
+
+def test_prior_predictive(crossed_data):
+    crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
+    model = Model(crossed_data)
+    fitted = model.fit(
+        "count ~ threecats + continuous + dummy", family="poisson", tune=0, samples=2
+    )
+    pps = model.prior_predictive(samples=500)
+
+    keys = ["Intercept", "threecats", "continuous", "dummy"]
+    shapes = [(1, 500), (1, 500, 2), (1, 500), (1, 500)]
+
+    for key, shape in zip(keys, shapes):
+        assert pps.prior[key].shape == shape
+
+    assert pps.prior_predictive["count"].shape == (1, 500, 120)
+    assert pps.observed_data["count"].shape == (120,)
+
+    pps = model.prior_predictive(samples=500, var_names=["count"])
+    assert pps.groups() == ["prior_predictive", "observed_data"]
+
+    pps = model.prior_predictive(samples=500, var_names=["Intercept"])
+    assert pps.groups() == ["prior"]
