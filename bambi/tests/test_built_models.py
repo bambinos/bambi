@@ -174,7 +174,7 @@ def test_cell_means_with_covariate(crossed_data):
     assert X0 == X1
 
     # check that threecats priors have finite variance
-    assert not any(np.isinf(model0.terms["threecats"].prior.args["sigma"]))
+    assert not np.isinf(model0.terms["threecats"].prior.args["sigma"])
 
     # check that fit and add models have same priors for fixed
     # effects
