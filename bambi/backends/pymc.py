@@ -48,7 +48,6 @@ class PyMC3BackEnd(BackEnd):
                 raise ValueError(
                     f"The Distribution {dist} was not found in PyMC3 or the PyMC3BackEnd."
                 )
-
         # Inspect all args in case we have hyperparameters
         def _expand_args(key, value, label):
             if isinstance(value, Prior):
@@ -86,17 +85,16 @@ class PyMC3BackEnd(BackEnd):
 
         with self.model:
             self.mu = 0.0
-
             for t in spec.terms.values():
                 data = t.data
                 label = t.name
                 dist_name = t.prior.name
                 dist_args = t.prior.args
+                dist_shape = t.data.shape[1]
+                if dist_shape == 1:
+                    dist_shape = ()
 
-                n_cols = t.data.shape[1]
-
-                coef = self._build_dist(spec, label, dist_name, shape=n_cols, **dist_args)
-
+                coef = self._build_dist(spec, label, dist_name, shape=dist_shape, **dist_args)
                 if t.random:
                     self.mu += coef[t.group_index][:, None] * t.predictor
                 else:
@@ -105,10 +103,8 @@ class PyMC3BackEnd(BackEnd):
             y = spec.y.data
             y_prior = spec.family.prior
             link_f = spec.family.link
-
             if isinstance(link_f, str):
                 link_f = self.links[link_f]
-
             y_prior.args[spec.family.parent] = link_f(self.mu)
             y_prior.args["observed"] = y
             self._build_dist(spec, spec.y.name, y_prior.name, **y_prior.args)

@@ -107,7 +107,7 @@ def test_update_term_priors_after_init(diabetes_data):
     model.build(backend="pymc")
     assert model.terms["S1"].prior.args["beta"] == 2
     assert model.terms["BMI"].prior.scale == 0.3
-    assert np.isclose(model.terms["BMI"].prior.args["sigma"], 4.7, rtol=0.1)[0]
+    assert np.isclose(model.terms["BMI"].prior.args["sigma"], 4.7, rtol=0.1)
 
     model.set_priors({("S1", "BMI"): p1})
     model.build(backend="pymc")
@@ -118,7 +118,7 @@ def test_update_term_priors_after_init(diabetes_data):
     model.set_priors(fixed=0.3, random=p3)
     model.build(backend="pymc")
     assert model.terms["BMI"].prior.scale == 0.3
-    assert np.isclose(model.terms["BMI"].prior.args["sigma"], 4.7, rtol=0.1)[0]
+    assert np.isclose(model.terms["BMI"].prior.args["sigma"], 4.7, rtol=0.1)
     assert model.terms["age_grp|BP"].prior.args["sigma"].args["sigma"] == 7
 
     # Invalid names should raise error
