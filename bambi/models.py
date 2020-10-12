@@ -730,7 +730,7 @@ class Model:
                 unobserved_rvs_names, include_transformed=False
             )
 
-        pps = self.prior_predictive(samples=draws, var_names=var_names)
+        pps = self.prior_predictive(draws=draws, var_names=var_names)
 
         axes = plot_posterior(pps, group="prior", credible_interval=None, point_estimate=None)
 
