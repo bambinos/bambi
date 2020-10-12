@@ -25,6 +25,7 @@
 ### Deprecation
 * Drop support python 3.6 (#218)
 * Remove stan backend and replace sd with sigma (#205)
+* Deprecate samples argument in favor of draws (#247)
 
 ### 0.2.0 The First Python 3 (and ArviZ) Bambino
 
