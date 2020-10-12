@@ -86,7 +86,7 @@ def test_add_to_model(diabetes_data):
 
 def test_one_shot_formula_fit(diabetes_data):
     model = Model(diabetes_data)
-    model.fit("S3 ~ S1 + S2", samples=50, run=False)
+    model.fit("S3 ~ S1 + S2", draws=50, run=False)
     model.build(backend="pymc3")
     nv = model.backend.model.named_vars
     targets = ["S3", "S1", "Intercept"]

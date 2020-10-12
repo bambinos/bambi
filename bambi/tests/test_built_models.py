@@ -38,13 +38,13 @@ def test_empty_model(crossed_data):
     model0 = Model(crossed_data)
     model0.add("Y ~ 0")
     model0.build(backend="pymc3")
-    model0.fit(tune=0, samples=1)
+    model0.fit(tune=0, draws=1)
 
     model1 = Model(crossed_data)
     model1.fit("Y ~ 0", run=False)
 
     model1.build(backend="pymc3")
-    model1.fit(tune=0, samples=1)
+    model1.fit(tune=0, draws=1)
 
     # check that both models have same priors for fixed effects
     priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.random}
@@ -57,14 +57,14 @@ def test_intercept_only_model(crossed_data):
     model0 = Model(crossed_data)
     model0.fit("Y ~ 1", run=False)
     model0.build(backend="pymc3")
-    model0.fit(tune=0, samples=1, init=None)
+    model0.fit(tune=0, draws=1, init=None)
 
     # using add
     model1 = Model(crossed_data)
     model1.add("Y ~ 0")
     model1.add("1")
     model1.build(backend="pymc3")
-    model1.fit(tune=0, samples=1)
+    model1.fit(tune=0, draws=1)
 
     # check that fit and add models have same priors for fixed
     # effects
@@ -78,14 +78,14 @@ def test_slope_only_model(crossed_data):
     model0 = Model(crossed_data)
     model0.fit("Y ~ 0 + continuous", run=False)
     model0.build(backend="pymc3")
-    model0.fit(tune=0, samples=1, init=None)
+    model0.fit(tune=0, draws=1, init=None)
 
     # using add
     model1 = Model(crossed_data)
     model1.add("Y ~ 0")
     model1.add("0 + continuous")
     model1.build(backend="pymc3")
-    model1.fit(tune=0, samples=1)
+    model1.fit(tune=0, draws=1)
 
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)
@@ -102,14 +102,14 @@ def test_cell_means_parameterization(crossed_data):
     model0 = Model(crossed_data)
     model0.fit("Y ~ 0 + threecats", run=False)
     model0.build(backend="pymc3")
-    model0.fit(tune=0, samples=1, init=None)
+    model0.fit(tune=0, draws=1, init=None)
 
     # build model using add
     model1 = Model(crossed_data)
     model1.add("Y ~ 0")
     model1.add("0 + threecats")
     model1.build(backend="pymc3")
-    model1.fit(tune=0, samples=1)
+    model1.fit(tune=0, draws=1)
 
     # check that design matrices are the same,
     # even if term names / level names / order of columns is different
@@ -136,14 +136,14 @@ def test_3x4_fixed_anova(crossed_data):
     model0 = Model(crossed_data)
     model0.fit("Y ~ threecats*fourcats", run=False)
     model0.build(backend="pymc3")
-    fitted0 = model0.fit(tune=0, samples=1, init=None)
+    fitted0 = model0.fit(tune=0, draws=1, init=None)
     assert len(fitted0.posterior.data_vars) == 5
 
     # using fit, without intercept (i.e., 2-factor cell means model)
     model1 = Model(crossed_data)
     model1.fit("Y ~ 0 + threecats*fourcats", run=False)
     model1.build(backend="pymc3")
-    fitted1 = model1.fit(tune=0, samples=1)
+    fitted1 = model1.fit(tune=0, draws=1)
     assert len(fitted1.posterior.data_vars) == 4
 
 
@@ -152,7 +152,7 @@ def test_cell_means_with_covariate(crossed_data):
     model0 = Model(crossed_data)
     model0.fit("Y ~ 0 + threecats + continuous", run=False)
     model0.build(backend="pymc3")
-    # model0.fit(tune=0, samples=1)
+    # model0.fit(tune=0, draws=1)
 
     # build model using add
     model1 = Model(crossed_data)
@@ -160,7 +160,7 @@ def test_cell_means_with_covariate(crossed_data):
     model1.add("0 + threecats")
     model1.add("0 + continuous")
     model1.build(backend="pymc3")
-    # model1.fit(tune=0, samples=1)
+    # model1.fit(tune=0, draws=1)
 
     # check that design matrices are the same,
     # even if term names / level names / order of columns is different
@@ -197,11 +197,11 @@ def test_many_fixed_many_random(crossed_data):
         backend="pymc3",
         init=None,
         tune=10,
-        samples=10,
+        draws=10,
         chains=2,
     )
     # model0.build(backend='pymc3')
-    # model0.fit(tune=0, samples=1)
+    # model0.fit(tune=0, draws=1)
 
     # build model using add(append=True)
     model1 = Model(crossed_data_missing, dropna=True)
@@ -292,7 +292,7 @@ def test_cell_means_with_many_random_effects(crossed_data):
         run=False,
     )
     model0.build(backend="pymc3")
-    # model0.fit(tune=0, samples=1)
+    # model0.fit(tune=0, draws=1)
 
     # build model using add(append=True)
     model1 = Model(crossed_data)
@@ -304,7 +304,7 @@ def test_cell_means_with_many_random_effects(crossed_data):
     model1.add(random="dummy|item")
     model1.add(random="threecats|site")
     model1.build(backend="pymc3")
-    # model1.fit(tune=0, samples=1)
+    # model1.fit(tune=0, draws=1)
 
     # check that the random effects design matrices have the same shape
     X0 = pd.concat(
@@ -365,7 +365,7 @@ def test_logistic_regression(crossed_data):
         link="logit",
         backend="pymc3",
         tune=0,
-        samples=1000,
+        draws=1000,
     )
     # model0.build()
     # fitted0 = model0.fit()
@@ -376,7 +376,7 @@ def test_logistic_regression(crossed_data):
     model1.add("continuous")
     model1.add("dummy")
     model1.build(backend="pymc3")
-    model1.fit(tune=0, samples=1)
+    model1.fit(tune=0, draws=1)
 
     # build model using fit, pymc3 and theano link function
     model3 = Model(crossed_data)
@@ -386,7 +386,7 @@ def test_logistic_regression(crossed_data):
         link=tt.nnet.sigmoid,
         backend="pymc3",
         tune=0,
-        samples=1000,
+        draws=1000,
     )
 
     # check that using a theano link function works
@@ -430,7 +430,7 @@ def test_poisson_regression(crossed_data):
         family="poisson",
         backend="pymc3",
         tune=0,
-        samples=1,
+        draws=1,
         init=None,
     )
     # model0.build()
@@ -443,7 +443,7 @@ def test_poisson_regression(crossed_data):
     model1.add("continuous")
     model1.add("dummy")
     model1.build(backend="pymc3")
-    model1.fit(tune=0, samples=1, init=None)
+    model1.fit(tune=0, draws=1, init=None)
 
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)
@@ -492,9 +492,9 @@ def test_prior_predictive(crossed_data):
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
     model = Model(crossed_data)
     fitted = model.fit(
-        "count ~ threecats + continuous + dummy", family="poisson", tune=0, samples=2
+        "count ~ threecats + continuous + dummy", family="poisson", tune=0, draws=2
     )
-    pps = model.prior_predictive(samples=500)
+    pps = model.prior_predictive(draws=500)
 
     keys = ["Intercept", "threecats", "continuous", "dummy"]
     shapes = [(1, 500), (1, 500, 2), (1, 500), (1, 500)]
@@ -505,8 +505,8 @@ def test_prior_predictive(crossed_data):
     assert pps.prior_predictive["count"].shape == (1, 500, 120)
     assert pps.observed_data["count"].shape == (120,)
 
-    pps = model.prior_predictive(samples=500, var_names=["count"])
+    pps = model.prior_predictive(draws=500, var_names=["count"])
     assert pps.groups() == ["prior_predictive", "observed_data"]
 
-    pps = model.prior_predictive(samples=500, var_names=["Intercept"])
+    pps = model.prior_predictive(draws=500, var_names=["Intercept"])
     assert pps.groups() == ["prior"]
