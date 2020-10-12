@@ -1,14 +1,86 @@
 # Changelog
 
-## 0.1.1 (December 11, 2017)
-Minor release for bugfixes and minor improvements. Changes include:
+### 0.X.X
+
+### New features
+* Add prior predictive sampling (#244)
+* Add gamma, negativebinomial and wald families (#207)
+
+### Maintenance and fixes
+* Use pm.sample_prior_predictive function to sample and plot from prior (#238)
+* Fix FutureWarning: Support for multi-dimensional indexing
+* Use last version of black (#245)
+* fix broken link increase Python version (#227)
+* Add black style check on lint (#220)
+* Some linting while re-reading library (#219)
+* Remove future warning when converting the trace to InferenceData (#213)
+* Include missing files for sdist (#204)
+
+### Documentation
+* Update example notebooks (#232)
+* add missing notebooks (#229)
+* Fix notebooks (#222)
+* Clean docs (#200)
+
+### Deprecation
+* Drop support python 3.6 (#218)
+* Remove stan backend and replace sd with sigma (#205)
+
+### 0.2.0 The First Python 3 (and ArviZ) Bambino
+
+### New features
+* Add laplace approximation (#184) (only for educational use, do not use for real problems)
+* Use arviz (#182, #178, #166, #159)
+
+### Maintenance and fixes
+* Update requirements (#191)
+* Change default sd prior and update docs (#189)
+* Add f-strings and support python 3.6+ (#188)
+* Fix parallel sampling (#186)
+* Lint code (#175, #173, #171, #167)
+* Move coverage configuration to setup.cfg (#168)
+* Add long description to setup.py; light linting on setup.py (#162)
+* Black list external/ and tests/from pylint
+
+### Documentation
+* Add missing example (#194)
+* Update docs and fix typos (#185, #181)
+* Add missing items to readme and code of conduct (#180)
+* Simplify readme (#179)
+* Unify docstring style and remove not used code (#169)
+
+### Deprecation
+* Deprecate Stan backend (#183)
+
+### 0.1.5 (The last legacy Python Bambino)
+
+### New features
+* Use a callable as link function (#147)
+
+### Maintenance and fixes
+* Update to Python 3, black and some pylint (#158)
+* Fix test warnings (#144)
+* Reorder requirements; Add matplotlib to requirements.txt (#143)
+* Reorder imports; Only import necessary submodules from statsmodels (#142)
+* Update travis config (#135)
+
+### Documentation
+* Add contributing guide (#146)
+* Update notebooks (#140)
+
+### Deprecation
+* Last version to support Python 2.7
+
+
+## 0.1.1 (2017 December 11)
+* Minor release for bugfixes and minor improvements. Changes include:
 * Bug that was causing an incorrect link function to be used in the PyMC3 backend when fitting logistic models.
 * Fixed handling of missing values in categorical variables.
 * Fixed bug in set_priors() when passing numerical values for scale.
 * Improved internal handling of custom priors.
 * Preliminary Sphinx docs (WIP; thanks to @ejolly).
 
-## 0.1.0 (March 31, 2017)
+## 0.1.0 (2017 March 31)
 This is a major release that introduces several new features, significant API changes, and a large number of bug fixes and minor improvements. Notable changes include:
 * Support for Stan as the sampling back-end (in addition to PyMC3), via the PyStan package.
 * Dropped support for the `add_term` API; all model specification is now done via formulas.
@@ -24,11 +96,11 @@ This is a major release that introduces several new features, significant API ch
 * Support for flat priors everywhere (by setting `auto_scale=False`).
 * Numerous bug fixes and minor improvements
 
-## 0.0.5 (January 17, 2017)
+## 0.0.5 (2017 January 17)
 * Weakly informative default priors now work the same for all response families & link functions
 * Minor bug fixes/tweaks
 
-## 0.0.4 (October 11, 2016)
+## 0.0.4 (2016 October 11)
 * Fixes referencing of Theano ops after PyMC3 namespace clean-up
 * Added example Jupyter notebooks
 * Improved handling of priors
@@ -38,5 +110,5 @@ This is a major release that introduces several new features, significant API ch
 * Added travis-ci and coveralls support
 * Minor bug fixes/tweaks
 
-## 0.0.3 (September 4, 2016)
+## 0.0.3 (2016 September 4)
 First official release.
