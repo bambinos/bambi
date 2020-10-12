@@ -491,9 +491,7 @@ def test_laplace():
 def test_prior_predictive(crossed_data):
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
     model = Model(crossed_data)
-    fitted = model.fit(
-        "count ~ threecats + continuous + dummy", family="poisson", tune=0, draws=2
-    )
+    fitted = model.fit("count ~ threecats + continuous + dummy", family="poisson", tune=0, draws=2)
     pps = model.prior_predictive(draws=500)
 
     keys = ["Intercept", "threecats", "continuous", "dummy"]
