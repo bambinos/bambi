@@ -508,3 +508,17 @@ def test_prior_predictive(crossed_data):
 
     pps = model.prior_predictive(draws=500, var_names=["Intercept"])
     assert pps.groups() == ["prior"]
+
+
+def test_posterior_predictive(crossed_data):
+    crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
+    model = Model(crossed_data)
+    fitted = model.fit("count ~ threecats + continuous + dummy", family="poisson", tune=0, draws=2)
+    pps = model.posterior_predictive(fitted, draws=500, inplace=False)
+
+    assert pps.posterior_predictive["count"].shape == (1, 500, 120)
+
+    pps = model.posterior_predictive(fitted, draws=500, inplace=True)
+
+    assert pps is None
+    assert fitted.posterior_predictive["count"].shape == (1, 500, 120)
