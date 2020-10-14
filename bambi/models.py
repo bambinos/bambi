@@ -779,7 +779,12 @@ class Model:
             prior_predictive=prior_predictive,
             prior=prior,
             observed_data=observed_data,
-            attrs={"inference_library": "Bambi", "inference_library_version": version.__version__},
+            attrs={
+                "inference_library": self.backend.name,
+                "inference_library_version": self.backend.name,
+                "modeling_interface": "bambi",
+                "modeling_interface_version": version.__version__,
+            },
         )
 
         return idata
@@ -834,7 +839,8 @@ class Model:
         idata.add_groups(
             {"posterior_predictive": {k: v.squeeze()[np.newaxis] for k, v in pps.items()}}
         )
-
+        idata["posterior_predictive"].attrs["modeling_interface"] = "bambi"
+        idata["posterior_predictive"].attrs["modeling_interface_version"] = version.__version__
         if inplace:
             return None
         else:

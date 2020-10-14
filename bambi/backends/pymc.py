@@ -6,6 +6,7 @@ import theano
 import pymc3 as pm
 
 from bambi.priors import Prior
+import bambi.version as version
 
 from .base import BackEnd
 
@@ -26,6 +27,9 @@ class PyMC3BackEnd(BackEnd):
 
     def __init__(self):
         self.reset()
+
+        self.name = pm.__name__
+        self.version = pm.__version__
 
         # Attributes defined elsewhere
         self.mu = None  # build()
@@ -149,7 +153,12 @@ class PyMC3BackEnd(BackEnd):
             with model:
                 self.trace = pm.sample(draws, start=start, init=init, n_init=n_init, **kwargs)
 
-            return from_pymc3(self.trace, model=model)
+            idata = from_pymc3(self.trace, model=model)
+            for group in idata.groups():
+                idata[group].attrs["modeling_interface"] = "bambi"
+                idata[group].attrs["modeling_interface_version"] = version.__version__
+
+            return idata
 
         elif method.lower() == "advi":
             with model:
