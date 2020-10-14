@@ -784,6 +784,62 @@ class Model:
 
         return idata
 
+    def posterior_predictive(
+        self, idata, draws=500, var_names=None, inplace=True, random_seed=None
+    ):
+        """
+        Generate samples from the posterior predictive distribution.
+
+        Parameters
+        ----------
+        idata : InfereceData
+            InfereceData with samples from the posterior distribution.
+        draws : int
+            Number of draws to sample from the prior predictive distribution. Defaults to 500.
+        var_names : str or list
+            A list of names of variables for which to compute the posterior predictive
+            distribution. Defaults to both observed and unobserved RVs.
+        inplace : bool
+            If ``True`` it will add a posterior_predictive group to idata, otherwise it will
+            return a copy of idata with the added group. If true and idata already have a
+            posterior_predictive group it will be overwritted
+        random_seed : int
+            Seed for the random number generator.
+
+        Returns
+        -------
+        None or InferenceData
+            When ``inplace=True`` add posterior_predictive group inplace to idata and return
+            ``None`. Otherwise a copy of idata with a posterior_predictive group.
+
+        """
+        if var_names is None:
+            variables = self.backend.model.observed_RVs
+            variables_names = [v.name for v in variables]
+            var_names = pm.util.get_default_varnames(variables_names, include_transformed=False)
+
+        pps = pm.sample_posterior_predictive(
+            trace=idata,
+            samples=draws,
+            var_names=var_names,
+            model=self.backend.model,
+            random_seed=random_seed,
+        )
+
+        if not inplace:
+            idata = deepcopy(idata)
+        if "posterior_predictive" in idata:
+            del idata.posterior_predictive
+
+        idata.add_groups(
+            {"posterior_predictive": {k: v.squeeze()[np.newaxis] for k, v in pps.items()}}
+        )
+
+        if inplace:
+            return None
+        else:
+            return idata
+
     @property
     def term_names(self):
         """Return names of all terms in order of addition to model."""
