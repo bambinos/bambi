@@ -716,11 +716,11 @@ class Model:
                 prior._auto_scale = False  # pylint: disable=protected-access
         return prior
 
-    def plot(self, samples=5000, var_names=None):
+    def plot(self, draws=5000, var_names=None):
         warnings.warn("plot will be deprecated, please use plot_priors", FutureWarning)
-        return self.plot_priors(samples, var_names)
+        return self.plot_priors(draws, var_names)
 
-    def plot_priors(self, samples=5000, var_names=None):
+    def plot_priors(self, draws=5000, var_names=None):
         if not self.built:
             raise ValueError("Cannot plot priors until model is built!")
 
@@ -730,23 +730,23 @@ class Model:
                 unobserved_rvs_names, include_transformed=False
             )
 
-        pps = self.prior_predictive(samples=samples, var_names=var_names)
+        pps = self.prior_predictive(draws=draws, var_names=var_names)
 
         axes = plot_posterior(pps, group="prior", credible_interval=None, point_estimate=None)
 
         return axes
 
-    def prior_predictive(self, samples=500, var_names=None, random_seed=None):
+    def prior_predictive(self, draws=500, var_names=None, random_seed=None):
         """
         Generate samples from the prior predictive distribution.
 
         Parameters
         ----------
-        samples : int
-            Number of samples from the prior predictive to generate. Defaults to 500.
+        draws : int
+            Number of draws to sample from the prior predictive distribution. Defaults to 500.
         var_names : str or list
             A list of names of variables for which to compute the posterior predictive
-            samples. Defaults to both observed and unobserved RVs.
+            distribution. Defaults to both observed and unobserved RVs.
         random_seed : int
             Seed for the random number generator.
 
@@ -761,7 +761,7 @@ class Model:
             var_names = pm.util.get_default_varnames(variables_names, include_transformed=False)
 
         pps = pm.sample_prior_predictive(
-            samples=samples, var_names=var_names, model=self.backend.model, random_seed=random_seed
+            samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
         )
 
         y_name = self.y.name

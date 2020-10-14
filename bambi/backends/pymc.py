@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 from arviz import from_pymc3
 import theano
@@ -139,9 +141,13 @@ class PyMC3BackEnd(BackEnd):
         model = self.model
 
         if method.lower() == "mcmc":
-            samples = kwargs.pop("samples", 1000)
+            if "samples" in kwargs:
+                warnings.warn("samples will be deprecated, please use draws instead")
+                draws = kwargs.pop("samples", 1000)
+            else:
+                draws = kwargs.pop("draws", 1000)
             with model:
-                self.trace = pm.sample(samples, start=start, init=init, n_init=n_init, **kwargs)
+                self.trace = pm.sample(draws, start=start, init=init, n_init=n_init, **kwargs)
 
             return from_pymc3(self.trace, model=model)
 

@@ -47,7 +47,7 @@ A simple fixed effects model is shown below as example.
     model = Model(data)
 
     # Fixed effects only model
-    results = model.fit('DV ~ IV1 + IV2', samples=1000, chains=4)
+    results = model.fit('DV ~ IV1 + IV2', draws=1000, chains=4)
 
     # Use ArviZ to plot the results
     az.plot_trace(results)
@@ -55,7 +55,7 @@ A simple fixed effects model is shown below as example.
     # Key summary and diagnostic info on the model parameters
     az.summary(results)
 
-    # Drop the first 100 samples (burn-in)
+    # Drop the first 100 draws (burn-in)
     results_bi = results.sel(draw=slice(100, None))
 
 For a more in-depth introduction to Bambi see our `Quickstart <https://github.com/bambinos/bambi#quickstart>`_ or our set of example notebooks.

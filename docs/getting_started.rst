@@ -25,7 +25,7 @@ Suppose we have data for a typical within-subjects psychology experiment with 2 
     results = model.fit(
         'rt ~ condition',
         random=['condition|subject', '1|stimulus'],
-        samples=5000, chains=2
+        draws=5000, chains=2
     )
     az.plot_trace(results)
     az.summary(results)
@@ -189,7 +189,7 @@ Once a model is fully specified, we need to run the PyMC3 sampler to generate pa
     results = model.fit('rt ~ condition + gender + age', random='condition|subject')
 
 
-The above code will obtain 1,000 samples (the default value) and return them as an ``InferenceData`` instance (for more details, see the `ArviZ documentation <https://arviz-devs.github.io/arviz/schema/schema.html>`_). In this case, the `fit()` method accepts optional keyword arguments to pass onto PyMC3's ``sample()`` method, so any methods accepted by ``sample()`` can be specified here. We can also explicitly set the number of samples via the ``samples`` argument. For example, if we call ``fit('y ~ X1', samples=2000, chains=2)``, the PyMC3 sampler will sample two chains in parallel, drawing 2,000 samples for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see the `PyMC3 documentation <https://docs.pymc.io/api/inference.html#module-pymc3.sampling>`_).
+The above code will obtain 1,000 draws (the default value) and return them as an ``InferenceData`` instance (for more details, see the `ArviZ documentation <https://arviz-devs.github.io/arviz/schema/schema.html>`_). In this case, the `fit()` method accepts optional keyword arguments to pass onto PyMC3's ``sample()`` method, so any methods accepted by ``sample()`` can be specified here. We can also explicitly set the number of draws via the ``draws`` argument. For example, if we call ``fit('y ~ X1', draws=2000, chains=2)``, the PyMC3 sampler will sample two chains in parallel, drawing 2,000 draws for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see the `PyMC3 documentation <https://docs.pymc.io/api/inference.html#module-pymc3.sampling>`_).
 
 Alternatively, if we're building our model incrementally, we can specify our model in steps, and only call ``fit()`` once the model is complete:
 
@@ -199,7 +199,7 @@ Alternatively, if we're building our model incrementally, we can specify our mod
     model.add('food_type', categorical=['food_type'])
     model.add(random='1|subject')
     ...
-    results = model.fit(samples=5000)
+    results = model.fit(draws=5000)
 
 
 Building the model
@@ -348,7 +348,7 @@ If we prefer, we can also set priors outside of the ``fit()`` (or ``add()``) cal
     )
 
     # Now sample
-    results = model.fit(samples=5000)
+    results = model.fit(draws=5000)
 
 Here we stipulate that terms X1 and X4 will use the same normal prior, X2 will use a different normal prior with a uniform hyperprior on its standard deviation, and all other fixed effects will use the default prior with a scale of 0.5.
 
@@ -435,7 +435,7 @@ To visualize a plot of the posterior estimates and sample traces for all paramet
     results = model.fit(
         'value ~ condition',
         random='1|uid',
-        samples=1250,
+        draws=1250,
         chains=2
     )
     az.plot_trace(results)
