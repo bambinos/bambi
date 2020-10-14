@@ -3,6 +3,7 @@
 ### 0.X.X
 
 ### New features
+* Add posterior predictive sampling (#250)
 * Add prior predictive sampling (#244)
 * Add gamma, negativebinomial and wald families (#207)
 
