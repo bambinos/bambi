@@ -801,7 +801,7 @@ class Model:
             distribution. Defaults to both observed and unobserved RVs.
         inplace : bool
             If ``True`` it will add a posterior_predictive group to idata, otherwise it will
-            return a copy of idata with the added group. If true and idata already have a 
+            return a copy of idata with the added group. If true and idata already have a
             posterior_predictive group it will be overwritted
         random_seed : int
             Seed for the random number generator.
@@ -836,7 +836,7 @@ class Model:
         )
 
         if inplace:
-            return
+            return None
         else:
             return idata
 
