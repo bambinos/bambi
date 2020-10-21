@@ -9,13 +9,14 @@
 
 ### Maintenance and fixes
 * Use pm.sample_prior_predictive function to sample and plot from prior (#238)
-* Fix FutureWarning: Support for multi-dimensional indexing
+* Fix FutureWarning: Support for multi-dimensional indexing (#242)
 * Use last version of black (#245)
 * fix broken link increase Python version (#227)
 * Add black style check on lint (#220)
 * Some linting while re-reading library (#219)
 * Remove future warning when converting the trace to InferenceData (#213)
 * Include missing files for sdist (#204)
+* Fixed if-else comparison that prevented HalfTStudent prior from being used (#205)
 
 ### Documentation
 * Update example notebooks (#232)
