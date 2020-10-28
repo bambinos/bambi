@@ -806,6 +806,7 @@ class Model:
                 f"Variables {', '.join(flat_rvs)} have flat priors, and hence they are not plotted",
             )
 
+        axes = None
         if var_names:
             pps = self.prior_predictive(draws=draws, var_names=var_names, random_seed=random_seed)
 
@@ -821,7 +822,7 @@ class Model:
                 bins=bins,
                 ax=ax,
             )
-            return axes
+        return axes
 
     def prior_predictive(self, draws=500, var_names=None, random_seed=None):
         """
