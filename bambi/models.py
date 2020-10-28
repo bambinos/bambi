@@ -786,28 +786,42 @@ class Model:
         if not self.built:
             raise ValueError("Cannot plot priors until model is built!")
 
+        unobserved_rvs_names = []
+        flat_rvs = []
+        for unobserved in self.backend.model.unobserved_RVs:
+            if "Flat" in unobserved.__str__():
+                flat_rvs.append(unobserved.name)
+            else:
+                unobserved_rvs_names.append(unobserved.name)
         if var_names is None:
-            unobserved_rvs_names = [v.name for v in self.backend.model.unobserved_RVs]
             var_names = pm.util.get_default_varnames(
                 unobserved_rvs_names, include_transformed=False
             )
+        else:
+            flat_rvs = [fv for fv in flat_rvs if fv in var_names]
+            var_names = [vn for vn in var_names if vn not in flat_rvs]
 
-        pps = self.prior_predictive(draws=draws, var_names=var_names, random_seed=random_seed)
+        if flat_rvs:
+            warnings.warn(
+                f"Variables {', '.join(flat_rvs)} have flat priors, and hence they are not plotted",
+            )
 
-        axes = plot_posterior(
-            pps,
-            group="prior",
-            figsize=figsize,
-            textsize=textsize,
-            hdi_prob=hdi_prob,
-            round_to=round_to,
-            point_estimate=point_estimate,
-            kind=kind,
-            bins=bins,
-            ax=ax,
-        )
+        if var_names:
+            pps = self.prior_predictive(draws=draws, var_names=var_names, random_seed=random_seed)
 
-        return axes
+            axes = plot_posterior(
+                pps,
+                group="prior",
+                figsize=figsize,
+                textsize=textsize,
+                hdi_prob=hdi_prob,
+                round_to=round_to,
+                point_estimate=point_estimate,
+                kind=kind,
+                bins=bins,
+                ax=ax,
+            )
+            return axes
 
     def prior_predictive(self, draws=500, var_names=None, random_seed=None):
         """
