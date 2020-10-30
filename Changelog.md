@@ -17,6 +17,7 @@
 * Remove future warning when converting the trace to InferenceData (#213)
 * Include missing files for sdist (#204)
 * Fixed if-else comparison that prevented HalfTStudent prior from being used (#205)
+* Sidestep plotting flat priors in `plot_priors()` (#258)
 
 ### Documentation
 * Update example notebooks (#232)
