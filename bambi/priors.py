@@ -123,7 +123,8 @@ class PriorFactory:
             defaults = join(dirname(__file__), "config", "priors.json")
 
         if isinstance(defaults, str):
-            defaults = json.load(open(defaults, "r"))
+            with open(defaults, "r") as ofile:
+                defaults = json.load(ofile)
 
         # Just in case the user plans to use the same defaults elsewhere
         defaults = deepcopy(defaults)
