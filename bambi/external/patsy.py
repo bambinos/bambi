@@ -50,7 +50,7 @@ class Custom_NA:
                     "Missing values detected. If you want rows with missing "
                     "values to be automatically deleted in a list-wise "
                     "manner (not recommended), please set dropna=True in "
-                    "the bambi Model initialization."
+                    "the Bambi Model initialization."
                 )
                 raise PatsyError(msg, origin)
         return values

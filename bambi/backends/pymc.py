@@ -82,7 +82,7 @@ class PyMC3BackEnd(BackEnd):
         Parameters
         ----------
         spec : Bambi model
-            A bambi Model instance containing the abstract specification of the model to compile.
+            A Bambi Model instance containing the abstract specification of the model to compile.
         reset : Bool
             If True (default), resets the PyMC3BackEnd instance before compiling.
         """
@@ -135,7 +135,7 @@ class PyMC3BackEnd(BackEnd):
             ``'jitter+adapt_diag'``, but this can change in the future.
         n_init: int
             Number of initialization iterations if init = 'advi' or 'nuts'. Default is kind of in
-            PyMC3 for the kinds of models we expect to see run with bambi, so we lower it
+            PyMC3 for the kinds of models we expect to see run with Bambi, so we lower it
             considerably.
 
         Returns
