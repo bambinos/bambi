@@ -249,7 +249,7 @@ class PriorScaler:
                 GLM(
                     endog=self.model.y.data, exog=exog, family=self.model.family.smfamily()
                 ).fit_constrained(
-                    str(exog.columns[i]) + "=" + str(val), start_params=full_mod.params.values
+                    str(exog.columns[i]) + "=" + str(val), start_params=None
                 )
                 for val in values[:-1]
             ]
