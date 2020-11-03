@@ -248,7 +248,7 @@ class PriorScaler:
             null = [
                 GLM(
                     endog=self.model.y.data, exog=exog, family=self.model.family.smfamily()
-                ).fit_constrained(str(exog.columns[i]) + "=" + str(val), start_params=None)
+                ).fit_constrained(str(exog.columns[i]) + "=" + str(val))
                 for val in values[:-1]
             ]
             null = np.append(null, full_mod)
