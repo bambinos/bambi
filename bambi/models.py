@@ -10,7 +10,7 @@ import pandas as pd
 import statsmodels.api as sm
 from arviz.plots import plot_posterior
 from arviz.data import from_dict
-from patsy import dmatrices, dmatrix
+from patsy import dmatrices, dmatrix, EvalFactor
 import pymc3 as pm
 
 import bambi.version as version
@@ -479,12 +479,19 @@ class Model:
             else:
                 x_matrix = dmatrix(fixed, data=data, NA_action="raise")
 
+            factor_infos = x_matrix.design_info.factor_infos
+
             # Loop over predictor terms
             for _name, _slice in x_matrix.design_info.term_name_slices.items():
                 cols = x_matrix.design_info.column_names[_slice]
                 term_data = pd.DataFrame(np.asfortranarray(x_matrix[:, _slice]), columns=cols)
+
+                if EvalFactor(_name) in factor_infos:
+                    categorical = factor_infos[EvalFactor(_name)].type == 'categorical'
+                else:
+                    categorical = False
                 prior = priors.pop(_name, priors.get("fixed", None))
-                self.terms[_name] = Term(_name, term_data, prior=prior)
+                self.terms[_name] = Term(_name, term_data, categorical=categorical, prior=prior)
 
         # Random effects
         if random is not None:  # pylint: disable=too-many-nested-blocks
@@ -530,6 +537,8 @@ class Model:
                     # determine value of the 'constant' attribute
                     const = np.atleast_2d(pred_df.T).T.sum(1).var() == 0
 
+                    factor_infos = pred_df.design_info.factor_infos
+
                     for col, i in pred_df.design_info.column_name_indexes.items():
                         pred_data = pred_df.iloc[:, i]
                         lev_data = grpr_df.multiply(pred_data, axis=0)
@@ -544,15 +553,14 @@ class Model:
                         else:
                             label = col + "|" + grpr
 
-                        prior = priors.pop(label, priors.get("random", None))
-
-                        # Categorical or continuous is determined from data
-                        ld_vals = lev_data.values
-                        if ((ld_vals == 0) | (ld_vals == 1)).all():
-                            lev_data = lev_data.astype(int)
-                            cat = True
+                        # Delete everything between brackets and the brackets
+                        col = re.sub(r'\[.*?\]\ *', '', col)
+                        if EvalFactor(col) in factor_infos:
+                            categorical = factor_infos[EvalFactor(col)].type == 'categorical'
                         else:
-                            cat = False
+                            categorical = False
+
+                        prior = priors.pop(label, priors.get("random", None))
 
                         pred_data = pred_data.to_numpy()
                         pred_data = pred_data[:, None]  # Must be 2D later
@@ -561,7 +569,7 @@ class Model:
                             lev_data,
                             pred_data,
                             grpr_df.values,
-                            categorical=cat,
+                            categorical=categorical,
                             constant=const if const else None,
                             prior=prior,
                         )
