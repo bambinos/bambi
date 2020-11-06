@@ -433,13 +433,7 @@ class Model:
         self.built = False
 
     def _add(
-        self,
-        fixed=None,
-        random=None,
-        priors=None,
-        family="gaussian",
-        link=None,
-        categorical=None,
+        self, fixed=None, random=None, priors=None, family="gaussian", link=None, categorical=None,
     ):
         """Internal version of add(), with the same arguments.
 
@@ -487,7 +481,7 @@ class Model:
                 term_data = pd.DataFrame(np.asfortranarray(x_matrix[:, _slice]), columns=cols)
 
                 if EvalFactor(_name) in factor_infos:
-                    categorical = factor_infos[EvalFactor(_name)].type == 'categorical'
+                    categorical = factor_infos[EvalFactor(_name)].type == "categorical"
                 else:
                     categorical = False
                 prior = priors.pop(_name, priors.get("fixed", None))
@@ -554,9 +548,9 @@ class Model:
                             label = col + "|" + grpr
 
                         # Delete everything between brackets and the brackets
-                        col = re.sub(r'\[.*?\]\ *', '', col)
+                        col = re.sub(r"\[.*?\]\ *", "", col)
                         if EvalFactor(col) in factor_infos:
-                            categorical = factor_infos[EvalFactor(col)].type == 'categorical'
+                            categorical = factor_infos[EvalFactor(col)].type == "categorical"
                         else:
                             categorical = False
 
