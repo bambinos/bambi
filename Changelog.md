@@ -18,6 +18,7 @@
 * Include missing files for sdist (#204)
 * Fixed if-else comparison that prevented HalfTStudent prior from being used (#205)
 * Sidestep plotting flat priors in `plot_priors()` (#258)
+* Use logging instead of warnings (#270)
 
 ### Documentation
 * Update example notebooks (#232)
