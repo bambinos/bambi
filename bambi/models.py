@@ -150,9 +150,11 @@ class Model:
         # warn the user about any dropped rows
         # NOTE: When this message is shown the rows have already been removed.
         if len(completes) < n_total:
-            msg = "Automatically removing {}/{} rows from the dataset."
-            msg = msg.format(n_total - len(completes), n_total)
-            _log.info(msg)
+            _log.info(
+                "Automatically removing %d/%d rows from the dataset.",
+                n_total - len(completes),
+                n_total,
+            )
 
         # loop over the added terms and _add() them
         for term_args in self.added_terms:
@@ -259,9 +261,9 @@ class Model:
         if self.family.name == "bernoulli" and np.max(self.y.data) < 1.01:
             event = next(i for i, x in enumerate(self.y.data.flatten()) if x > 0.99)
             _log.info(
-                "Modeling the probability that {}=='{}'".format(
-                    self.y.name, str(self.clean_data[self.y.name].iloc[event])
-                )
+                "Modeling the probability that %s==%s",
+                self.y.name,
+                str(self.clean_data[self.y.name].iloc[event]),
             )
 
         self._set_backend(backend)
@@ -805,7 +807,7 @@ class Model:
 
         if flat_rvs:
             _log.info(
-                f"Variables {', '.join(flat_rvs)} have flat priors, and hence they are not plotted"
+                "Variables %s have flat priors, and hence they are not plotted", ", ".join(flat_rvs)
             )
 
         axes = None
