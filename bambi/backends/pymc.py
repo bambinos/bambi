@@ -148,7 +148,6 @@ class PyMC3BackEnd(BackEnd):
         if method.lower() == "mcmc":
             if "samples" in kwargs:
                 _log.warning("samples will be deprecated, please use draws instead")
-                # warnings.warn("samples will be deprecated, please use draws instead")
                 draws = kwargs.pop("samples", 1000)
             else:
                 draws = kwargs.pop("draws", 1000)
