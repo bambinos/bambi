@@ -19,6 +19,7 @@
 * Fixed if-else comparison that prevented HalfTStudent prior from being used (#205)
 * Sidestep plotting flat priors in `plot_priors()` (#258)
 * GLM.fit_constrained in automatic priors now uses start_params = None (#265)
+* Categorical `Term` within `Model` now have `Term.categorical` equal to `True`(#269)
 
 ### Documentation
 * Update example notebooks (#232)
