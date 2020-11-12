@@ -130,3 +130,24 @@ def test_derived_term_search(diabetes_data):
     assert model._match_derived_terms("ZZZ|BP") is None
     assert model._match_derived_terms("BP") is None
     assert model._match_derived_terms("BP") is None
+
+
+def test_categorical_term():
+    np.random.seed(303456)
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=6),
+            "x1": np.random.normal(size=6),
+            "x2": [1, 1, 0, 0, 1, 1],
+            "g1": ["a"] * 3 + ["b"] * 3,
+            "g2": ["x", "x", "z", "z", "y", "y"],
+        }
+    )
+    model = Model(data)
+    model.add("y ~ x1 + x2 + g1", random=["g1|g2", "x2|g2"])
+    model.build()
+    terms = ["x1", "x2", "g1", "1|g2", "g1[T.b]|g2", "x2|g2"]
+    expecteds = [False, False, True, False, True, False]
+
+    for term, expected in zip(terms, expecteds):
+        assert model.terms[term].categorical is expected
