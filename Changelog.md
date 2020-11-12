@@ -19,6 +19,8 @@
 * Fixed if-else comparison that prevented HalfTStudent prior from being used (#205)
 * Sidestep plotting flat priors in `plot_priors()` (#258)
 * GLM.fit_constrained in automatic priors now uses start_params = None (#265)
+* Use logging instead of warnings (#270)
+
 
 ### Documentation
 * Update example notebooks (#232)

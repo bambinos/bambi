@@ -1,7 +1,7 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
 import re
-import warnings
+import logging
 from collections import OrderedDict
 from copy import deepcopy
 
@@ -18,6 +18,8 @@ from .backends import PyMC3BackEnd
 from .external.patsy import Custom_NA
 from .priors import Prior, PriorFactory, PriorScaler
 from .utils import listify
+
+_log = logging.getLogger("bambi")
 
 
 class Model:
@@ -73,7 +75,7 @@ class Model:
         # Some random effects stuff later requires us to make guesses about
         # column groupings into terms based on patsy's naming scheme.
         if re.search(r"[\[\]]+", "".join(data.columns)):
-            warnings.warn(
+            _log.warning(
                 "At least one of the column names in the specified "
                 "dataset contain square brackets ('[' or ']')."
                 "This may cause unexpected behavior if you specify "
@@ -148,9 +150,11 @@ class Model:
         # warn the user about any dropped rows
         # NOTE: When this message is shown the rows have already been removed.
         if len(completes) < n_total:
-            msg = "Automatically removing {}/{} rows from the dataset."
-            msg = msg.format(n_total - len(completes), n_total)
-            warnings.warn(msg)
+            _log.info(
+                "Automatically removing %d/%d rows from the dataset.",
+                n_total - len(completes),
+                n_total,
+            )
 
         # loop over the added terms and _add() them
         for term_args in self.added_terms:
@@ -256,10 +260,10 @@ class Model:
         # tell user which event is being modeled
         if self.family.name == "bernoulli" and np.max(self.y.data) < 1.01:
             event = next(i for i, x in enumerate(self.y.data.flatten()) if x > 0.99)
-            warnings.warn(
-                "Modeling the probability that {}=='{}'".format(
-                    self.y.name, str(self.clean_data[self.y.name].iloc[event])
-                )
+            _log.info(
+                "Modeling the probability that %s==%s",
+                self.y.name,
+                str(self.clean_data[self.y.name].iloc[event]),
             )
 
         self._set_backend(backend)
@@ -724,7 +728,7 @@ class Model:
         return prior
 
     def plot(self, draws=5000, var_names=None):
-        warnings.warn("plot will be deprecated, please use plot_priors", FutureWarning)
+        _log.warning("plot will be deprecated, please use plot_priors")
         return self.plot_priors(draws, var_names)
 
     def plot_priors(
@@ -802,8 +806,8 @@ class Model:
             var_names = [vn for vn in var_names if vn not in flat_rvs]
 
         if flat_rvs:
-            warnings.warn(
-                f"Variables {', '.join(flat_rvs)} have flat priors, and hence they are not plotted",
+            _log.info(
+                "Variables %s have flat priors, and hence they are not plotted", ", ".join(flat_rvs)
             )
 
         axes = None

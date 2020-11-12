@@ -1,4 +1,4 @@
-import warnings
+import logging
 
 import numpy as np
 from arviz import from_pymc3
@@ -7,8 +7,9 @@ import pymc3 as pm
 
 from bambi.priors import Prior
 import bambi.version as version
-
 from .base import BackEnd
+
+_log = logging.getLogger("bambi")
 
 
 class PyMC3BackEnd(BackEnd):
@@ -146,7 +147,7 @@ class PyMC3BackEnd(BackEnd):
 
         if method.lower() == "mcmc":
             if "samples" in kwargs:
-                warnings.warn("samples will be deprecated, please use draws instead")
+                _log.warning("samples will be deprecated, please use draws instead")
                 draws = kwargs.pop("samples", 1000)
             else:
                 draws = kwargs.pop("draws", 1000)
