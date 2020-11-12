@@ -20,12 +20,14 @@
 * Sidestep plotting flat priors in `plot_priors()` (#258)
 * GLM.fit_constrained in automatic priors now uses start_params = None (#265)
 * Categorical `Term` within `Model` now have `Term.categorical` equal to `True`(#269)
+* Use logging instead of warnings (#270)
 
 ### Documentation
 * Update example notebooks (#232)
 * add missing notebooks (#229)
 * Fix notebooks (#222)
 * Clean docs (#200)
+* Added notebook using Bambi and ArviZ for model comparison (#267)
 
 ### Deprecation
 * Drop support python 3.6 (#218)
