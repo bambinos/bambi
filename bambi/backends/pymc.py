@@ -155,6 +155,10 @@ class PyMC3BackEnd(BackEnd):
                 self.trace = pm.sample(draws, start=start, init=init, n_init=n_init, **kwargs)
 
             idata = from_pymc3(self.trace, model=model)
+
+            offset_dims = [vn for vn in idata.posterior.dims if "offset" in vn]
+            idata.posterior = idata.posterior.drop_dims(offset_dims)
+
             for group in idata.groups():
                 idata[group].attrs["modeling_interface"] = "bambi"
                 idata[group].attrs["modeling_interface_version"] = version.__version__
