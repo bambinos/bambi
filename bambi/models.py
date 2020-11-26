@@ -751,6 +751,7 @@ class Model:
         point_estimate="mean",
         kind="kde",
         bins=None,
+        omit_vars=True,
         ax=None,
     ):
         """
@@ -785,6 +786,8 @@ class Model:
             Controls the number of bins, accepts the same keywords `matplotlib.hist()` does.
             Only works if `kind == hist`. If None (default) it will use `auto` for continuous
             variables and `range(xmin, xmax + 1)` for discrete variables.
+        omit_vars: bool
+            Defaults to False. Omits ploting group-level effects and offset variables.
         ax: numpy array-like of matplotlib axes or bokeh figures, optional
             A 2D array of locations into which to plot the densities. If not supplied, ArviZ will
             create its own array of plot areas (and return it).
@@ -818,6 +821,10 @@ class Model:
                 "Variables %s have flat priors, and hence they are not plotted", ", ".join(flat_rvs)
             )
 
+        if omit_vars:
+            omitted_vars = list(self.random_terms) + [f"{rt}_offset" for rt in self.random_terms]
+            var_names = [vn for vn in var_names if vn not in omitted_vars]
+
         axes = None
         if var_names:
             pps = self.prior_predictive(draws=draws, var_names=var_names, random_seed=random_seed)
@@ -836,7 +843,7 @@ class Model:
             )
         return axes
 
-    def prior_predictive(self, draws=500, var_names=None, random_seed=None):
+    def prior_predictive(self, draws=500, var_names=None, omit_offsets=True, random_seed=None):
         """
         Generate samples from the prior predictive distribution.
 
@@ -859,6 +866,10 @@ class Model:
             variables = self.backend.model.unobserved_RVs + self.backend.model.observed_RVs
             variables_names = [v.name for v in variables]
             var_names = pm.util.get_default_varnames(variables_names, include_transformed=False)
+
+        if omit_offsets:
+            offset_vars = [f"{rt}_offset" for rt in self.random_terms]
+            var_names = [vn for vn in var_names if vn not in offset_vars]
 
         pps = pm.sample_prior_predictive(
             samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed

@@ -21,6 +21,7 @@
 * GLM.fit_constrained in automatic priors now uses start_params = None (#265)
 * Categorical `Term` within `Model` now have `Term.categorical` equal to `True`(#269)
 * Use logging instead of warnings (#270)
+* Omits ploting group-level effects and offset variables (#276)
 
 ### Documentation
 * Update example notebooks (#232)
