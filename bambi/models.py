@@ -199,6 +199,7 @@ class Model:
 
             x_matrix = [pd.DataFrame(x.data, columns=x.levels) for x in terms]
             x_matrix = pd.concat(x_matrix, axis=1)
+
             self.dm_statistics = {
                 "r2_x": pd.Series(
                     {
@@ -254,14 +255,12 @@ class Model:
             scaler = PriorScaler(self, taylor=taylor)
             scaler.scale()
 
-        # For bernoulli models with n_trials = 1 (most common use case),
-        # tell user which event is being modeled
-        if self.family.name == "bernoulli" and np.max(self.y.data) < 1.01:
-            event = next(i for i, x in enumerate(self.y.data.flatten()) if x > 0.99)
+        # Tell user which event is being modeled
+        if self.family.name == "bernoulli":
             _log.info(
                 "Modeling the probability that %s==%s",
                 self.y.name,
-                str(self.clean_data[self.y.name].iloc[event]),
+                str(self.y.success_event),
             )
 
         self._set_backend(backend)
@@ -506,16 +505,25 @@ class Model:
         if self.family.name == "gaussian":
             prior.update(sigma=Prior("HalfStudentT", nu=4, sigma=self.clean_data[variable].std()))
 
+        # Success event when family = 'bernoulli'
+        success_event = None
+        categorical = False
+
         if event is not None:
+            if self.family.name != "bernoulli":
+                raise ValueError("Index notation only available for 'bernoulli' family")
             # pass in new Y data that has 1 if y=event and 0 otherwise
-            data = vector[:, vector.design_info.column_names.index(event.group(1))]
+            success_event = event.group(1)
+            categorical = True
+            data = vector[:, vector.design_info.column_names.index(success_event)]
             data = pd.DataFrame({event.group(3): data})
         else:
             data = self.clean_data[variable]
             if self.family.name == "bernoulli":
-                data = get_bernoulli_data(data)
+                categorical = True
+                data, success_event = get_bernoulli_data(data)
 
-        self.y = Term(variable, data, prior=prior)
+        self.y = ResponseTerm(variable, data, categorical, prior, success_event=success_event)
         self.built = False
 
     def _add_fixed(self, fixed, data, family, link, priors):
@@ -1021,6 +1029,18 @@ class Term:
             self.constant = constant
 
         self.prior = prior
+
+
+class ResponseTerm(Term):
+    def __init__(self, name, data, categorical=False, prior=None, success_event=None):
+        super().__init__(name, data, categorical, prior)
+        self.success_event = str(success_event)
+        self.clean_event()
+
+    def clean_event(self):
+        event = re.search(r"\[([\S+]+)\]", self.success_event)
+        if event is not None:
+            self.success_event = event.group(1)
 
 
 class RandomTerm(Term):

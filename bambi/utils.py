@@ -20,9 +20,11 @@ def get_bernoulli_data(data):
     if is_numeric_dtype(data):
         if not all(data.isin([0, 1])):
             raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
-    # If string/object, convert to 0-1 using first value as reference
+        success = 1
+    # If string/object/categorical, convert to 0-1 using first value as reference
     elif is_string_dtype(data) or is_categorical_dtype(data):
-        data = pd.Series(np.where(data.values == data.values[0], 1, 0))
+        success = data.values[0]
+        data = pd.Series(np.where(data.values == success, 1, 0))
     else:
         raise ValueError("Response variable is of the wrong type.")
-    return data
+    return data, success
