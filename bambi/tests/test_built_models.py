@@ -434,7 +434,6 @@ def test_logistic_regression_good_numeric():
     model = Model(data)
     fitted = model.fit("y ~ x", family="bernoulli")
 
-
 def test_logistic_regression_bad_numeric():
     np.random.seed(303456)
     data = pd.DataFrame({"y": np.random.choice([1, 2], 50), "x": np.random.normal(size=50)})
@@ -442,6 +441,12 @@ def test_logistic_regression_bad_numeric():
         model = Model(data)
         fitted = model.fit("y ~ x", family="bernoulli")
 
+def test_logistic_regression_categoric():
+    np.random.seed(303456)
+    y = pd.Series(np.random.choice(["a", "b"], 50), dtype="category")
+    data = pd.DataFrame({"y": y, "x": np.random.normal(size=50)})
+    model = Model(data)
+    fitted = model.fit("y ~ x", family="bernoulli")
 
 def test_poisson_regression(crossed_data):
     # build model using fit and pymc3
