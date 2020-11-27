@@ -460,7 +460,6 @@ class Model:
             data[cats] = data[cats].apply(lambda x: x.astype("category"))
 
         if fixed is not None:
-            print(fixed)
             self._add_fixed(fixed, data, family, link, priors)
 
         if random is not None:
