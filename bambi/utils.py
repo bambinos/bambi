@@ -37,7 +37,7 @@ def extract_label(string, kind="fixed"):
     """
     assert kind in ["fixed", "random"], "kind must be 'fixed' or 'random'"
 
-    out = re.search(r"\[(.+)\]", string)
+    out = re.search(r"\[(.+)\]", str(string))
     if out is None:
         return string
     else:

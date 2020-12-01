@@ -516,6 +516,7 @@ class Model:
             success_event = event.group(1)
             categorical = True
             data = vector[:, vector.design_info.column_names.index(success_event)]
+            # recall group(3) contains 'event' from 'y[event]' notation
             data = pd.DataFrame({event.group(3): data})
         else:
             data = self.clean_data[variable]
