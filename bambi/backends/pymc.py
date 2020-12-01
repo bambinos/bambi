@@ -27,8 +27,6 @@ class PyMC3BackEnd(BackEnd):
     dists = {"HalfFlat": pm.Bound(pm.Flat, lower=0)}
 
     def __init__(self):
-        # self.reset()
-
         self.name = pm.__name__
         self.version = pm.__version__
 
