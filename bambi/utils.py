@@ -1,3 +1,4 @@
+import re
 import numpy as np
 import pandas as pd
 from pandas.api.types import is_numeric_dtype, is_string_dtype, is_categorical_dtype
@@ -28,3 +29,20 @@ def get_bernoulli_data(data):
     else:
         raise ValueError("Response variable is of the wrong type.")
     return data, success
+
+
+def extract_label(string, kind="fixed"):
+    """Receives a level as returned by patsy and returns a cleaned version of it.
+    Fixed and random effects are handled differently because their representations differ.
+    """
+    assert kind in ["fixed", "random"], "kind must be 'fixed' or 'random'"
+
+    out = re.search(r"\[(.+)\]", string)
+    if out is None:
+        return string
+    else:
+        out = out.group(1)
+    if kind == "fixed":
+        out = re.sub(r"^(.*?)\.", "", out)
+
+    return out

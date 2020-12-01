@@ -17,7 +17,7 @@ import bambi.version as version
 from .backends import PyMC3BackEnd
 from .external.patsy import Custom_NA
 from .priors import Prior, PriorFactory, PriorScaler
-from .utils import listify, get_bernoulli_data
+from .utils import listify, get_bernoulli_data, extract_label
 
 _log = logging.getLogger("bambi")
 
@@ -899,6 +899,7 @@ class Model:
             prior_predictive=prior_predictive,
             prior=prior,
             observed_data=observed_data,
+            coords=self.backend.model.coords,  # new line
             attrs={
                 "inference_library": self.backend.name,
                 "inference_library_version": self.backend.name,
@@ -966,6 +967,12 @@ class Model:
         else:
             return idata
 
+    def _get_pymc_coords(self):
+        fixed_terms = {k + "_dim_0": v.levels for k, v in self.fixed_terms.items() if v.categorical}
+        # Include all random terms
+        random_terms = {k + "_dim_0": v.levels for k, v in self.random_terms.items()}
+        return {**fixed_terms, **random_terms}
+
     @property
     def term_names(self):
         """Return names of all terms in order of addition to model."""
@@ -1029,6 +1036,13 @@ class Term:
             self.constant = constant
 
         self.prior = prior
+        self.clean_levels()
+
+    def clean_levels(self):
+        if self.random:
+            self.levels = [extract_label(level, "random") for level in self.levels]
+        else:
+            self.levels = [extract_label(level, "fixed") for level in self.levels]
 
 
 class ResponseTerm(Term):

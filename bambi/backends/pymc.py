@@ -27,22 +27,17 @@ class PyMC3BackEnd(BackEnd):
     dists = {"HalfFlat": pm.Bound(pm.Flat, lower=0)}
 
     def __init__(self):
-        self.reset()
+        # self.reset()
 
         self.name = pm.__name__
         self.version = pm.__version__
 
         # Attributes defined elsewhere
+        self.model = None
         self.mu = None  # build()
         self.spec = None  # build()
         self.trace = None  # build()
         self.advi_params = None  # build()
-
-    def reset(self):
-        """Reset PyMC3 model and all tracked distributions and parameters."""
-        self.model = pm.Model()
-        self.mu = None
-        self.par_groups = {}
 
     def _build_dist(self, spec, label, dist, **kwargs):
         """Build and return a PyMC3 Distribution."""
@@ -77,18 +72,17 @@ class PyMC3BackEnd(BackEnd):
 
         return dist(label, **kwargs)
 
-    def build(self, spec, reset=True):  # pylint: disable=arguments-differ
+    def build(self, spec):  # pylint: disable=arguments-differ
         """Compile the PyMC3 model from an abstract model specification.
 
         Parameters
         ----------
         spec : Bambi model
             A Bambi Model instance containing the abstract specification of the model to compile.
-        reset : Bool
-            If True (default), resets the PyMC3BackEnd instance before compiling.
         """
-        if reset:
-            self.reset()
+
+        coords = spec._get_pymc_coords()  # pylint: disable=protected-access
+        self.model = pm.Model(coords=coords)
 
         with self.model:
             self.mu = 0.0
