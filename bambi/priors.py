@@ -200,7 +200,6 @@ class PriorScaler:
     def __init__(self, model, taylor):
         self.model = model
         self.stats = model.dm_statistics if hasattr(model, "dm_statistics") else None
-        # Here we have the problem!
         self.dm = pd.DataFrame(
             {
                 lev: t.data[:, i]
