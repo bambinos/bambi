@@ -34,9 +34,18 @@ def get_bernoulli_data(data):
 def extract_label(string, kind="fixed"):
     """Receives a level as returned by patsy and returns a cleaned version of it.
     Fixed and random effects are handled differently because their representations differ.
-    """
-    assert kind in ["fixed", "random"], "kind must be 'fixed' or 'random'"
 
+    Parameters
+    ----------
+    string: str
+        A string containing a label, as returned by patsy.
+    kind: str
+        Indicates if this is a fixed or random effect. Must be 'fixed' or 'random'
+
+    Returns
+    -------
+    out: cleaned string with label
+    """
     out = re.search(r"\[(.+)\]", str(string))
     if out is None:
         return string

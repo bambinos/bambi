@@ -198,7 +198,10 @@ class Model:
         if len(self.fixed_terms) > 1:
 
             x_matrix = [pd.DataFrame(x.data, columns=x.levels) for x in terms]
+            print(x_matrix)
             x_matrix = pd.concat(x_matrix, axis=1)
+            print(self.fixed_terms)
+            print(x_matrix)
 
             self.dm_statistics = {
                 "r2_x": pd.Series(
@@ -556,7 +559,7 @@ class Model:
             self.terms[_name] = Term(_name, term_data, categorical=categorical, prior=prior)
 
     def _add_random(self, random, data, priors):
-        for random_effect in random:  # pylint: disable=too-many-nested-blocks
+        for random_effect in random:
 
             random_effect = random_effect.strip()
 
@@ -1047,6 +1050,23 @@ class Term:
 
 
 class ResponseTerm(Term):
+    """Representation of a single response model term.
+
+    Parameters
+    ----------
+    name : str
+        Name of the term.
+    data : (DataFrame, Series, ndarray)
+        The term values.
+    categorical : bool
+        If True, the source variable is interpreted as nominal/categorical. If False, the source
+        variable is treated as continuous.
+    prior : Prior
+        A specification of the prior(s) to use. An instance of class priors.Prior.
+    success_event: str or None
+        Indicates the success level when the term is a categorical variable.
+    """
+
     def __init__(self, name, data, categorical=False, prior=None, success_event=None):
         super().__init__(name, data, categorical, prior)
         self.success_event = str(success_event)
@@ -1059,6 +1079,28 @@ class ResponseTerm(Term):
 
 
 class RandomTerm(Term):
+    """Representation of a single (random) model term.
+
+    Parameters
+    ----------
+    name : str
+        Name of the term.
+    data : (DataFrame, Series, ndarray)
+        The term values.
+    predictor: (DataFrame, Series, ndarray)
+        Data of the predictor variable in the random term.
+    grouper: (DataFrame, Series, ndarray)
+        Data of the grouping variable in the random term.
+    categorical : bool
+        If True, the source variable is interpreted as nominal/categorical. If False, the source
+        variable is treated as continuous.
+    prior : Prior
+        A specification of the prior(s) to use. An instance of class priors.Prior.
+    constant : bool
+        indicates whether the term levels collectively act as a constant, in which case the term is
+        treated as an intercept for prior distribution purposes.
+    """
+
     random = True
 
     def __init__(
