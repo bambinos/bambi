@@ -200,6 +200,7 @@ class PriorScaler:
     def __init__(self, model, taylor):
         self.model = model
         self.stats = model.dm_statistics if hasattr(model, "dm_statistics") else None
+        # Here we have the problem!
         self.dm = pd.DataFrame(
             {
                 lev: t.data[:, i]
@@ -207,6 +208,7 @@ class PriorScaler:
                 for i, lev in enumerate(t.levels)
             }
         )
+
         self.priors = {}
         missing = "drop" if self.model.dropna else "none"
         self.mle = GLM(

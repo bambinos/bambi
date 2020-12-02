@@ -81,7 +81,7 @@ def test_add_to_model(diabetes_data):
     model.add(random="C(age_grp)|BP")
     model.build(backend="pymc")
     assert isinstance(model.terms["C(age_grp)[T.1]|BP"], Term)
-    assert "108.0" in model.terms["C(age_grp)[T.1]|BP"].levels
+    assert "108.0" in model.terms["C(age_grp)[T.1]|BP"].cleaned_levels
 
 
 def test_one_shot_formula_fit(diabetes_data):
