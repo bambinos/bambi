@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from bambi.models import Model, Term
+from bambi.models import Model, Term, RandomTerm, InteractionTerm
 
 
 @pytest.fixture(scope="module")
@@ -14,6 +14,32 @@ def diabetes_data():
     data["age_grp"] = 0
     data.loc[data["AGE"] > 40, "age_grp"] = 1
     data.loc[data["AGE"] > 60, "age_grp"] = 2
+    return data
+
+
+@pytest.fixture(scope="module")
+def crossed_data():
+    """
+    Random effects:
+    10 subjects, 12 items, 5 sites
+    Subjects crossed with items, nested in sites
+    Items crossed with sites
+
+    Fixed effects:
+    A continuous predictor, a numeric dummy, and a three-level category
+    (levels a,b,c)
+
+    Structure:
+    Subjects nested in dummy (e.g., gender), crossed with threecats
+    Items crossed with dummy, nested in threecats
+    Sites partially crossed with dummy (4/5 see a single dummy, 1/5 sees both
+    dummies)
+    Sites crossed with threecats
+    """
+    from os.path import dirname, join
+
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "crossed_random.csv"))
     return data
 
 
@@ -67,6 +93,87 @@ def test_model_term_names_property(diabetes_data):
     model.add("S1")
     model.build(backend="pymc")
     assert model.term_names == ["Intercept", "age_grp", "BP", "S1"]
+
+
+def test_model_term_names_property_interaction(crossed_data):
+    crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
+    model = Model(crossed_data)
+    fitted = model.fit("Y ~ threecats*fourcats")
+    assert model.term_names == ["Intercept", "threecats", "fourcats", "threecats:fourcats"]
+
+
+def test_model_terms_cleaned_levels_interaction(crossed_data):
+    crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
+    model = Model(crossed_data)
+    fitted = model.fit("Y ~ threecats*fourcats")
+    assert model.terms["threecats:fourcats"].cleaned_levels == [
+        "threecats[b]:fourcats[b]",
+        "threecats[c]:fourcats[b]",
+        "threecats[b]:fourcats[c]",
+        "threecats[c]:fourcats[c]",
+        "threecats[b]:fourcats[d]",
+        "threecats[c]:fourcats[d]",
+    ]
+
+
+def test_model_terms_cleaned_levels():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=50),
+            "x": np.random.normal(size=50),
+            "z": ["Group 1"] * 10
+            + ["Group 2"] * 10
+            + ["Group 3"] * 10
+            + ["Group 1"] * 10
+            + ["Group 2"] * 10,
+            "time": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] * 5,
+            "subject": ["Subject 1"] * 10
+            + ["Subject 2"] * 10
+            + ["Subject 3"] * 10
+            + ["Subject 4"] * 10
+            + ["Subject 5"] * 10,
+        }
+    )
+    model = Model(data)
+    fitted = model.fit("y ~ x + z + time", random=["time|subject"])
+    model.terms["z"].cleaned_levels == ["Group 2", "Group 3"]
+    model.terms["1|subject"].cleaned_levels == [
+        "Subject 1",
+        "Subject 2",
+        "Subject 3",
+        "Subject 4",
+        "Subject 5",
+    ]
+    model.terms["time|subject"].cleaned_levels == [
+        "Subject 1",
+        "Subject 2",
+        "Subject 3",
+        "Subject 4",
+        "Subject 5",
+    ]
+
+
+def test_model_term_classes():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=50),
+            "x": np.random.normal(size=50),
+            "s": ["s1"] * 25 + ["s2"] * 25,
+            "g": np.random.choice(["a", "b", "c"], size=50),
+        }
+    )
+
+    model = Model(data)
+    fitted = model.fit("y ~ x*g", random=["x|s"])
+
+    assert isinstance(model.terms["g"], Term)
+    assert isinstance(model.terms["x"], Term)
+    assert isinstance(model.terms["x|s"], RandomTerm)
+    assert isinstance(model.terms["1|s"], RandomTerm)
+    assert isinstance(model.terms["x:g"], InteractionTerm)
+
+    # Also check 'categorical' attribute is right
+    assert model.terms["g"].categorical
 
 
 def test_add_to_model(diabetes_data):
@@ -133,7 +240,6 @@ def test_derived_term_search(diabetes_data):
 
 
 def test_categorical_term():
-    np.random.seed(303456)
     data = pd.DataFrame(
         {
             "y": np.random.normal(size=6),
