@@ -14,7 +14,7 @@ Alternatively, if you want the bleeding edge version of the package, you can ins
 Quickstart
 ==========
 
-Suppose we have data for a typical within-subjects psychology experiment with 2 experimental conditions. Stimuli are nested within condition, and subjects are crossed with condition. We want to fit a model predicting reaction time (RT) from the fixed effect of condition, random intercepts for subjects, random condition slopes for students, and random intercepts for stimuli. Using Bambi we can fit this model and summarize its results as follows:
+Suppose we have data for a typical within-subjects psychology experiment with 2 experimental conditions. Stimuli are nested within condition, and subjects are crossed with condition. We want to fit a model predicting reaction time (RT) from the common effect of condition, group specific intercepts for subjects, group specific condition slopes for students, and group specific intercepts for stimuli. Using Bambi we can fit this model and summarize its results as follows:
 
 .. code-block:: python
 
@@ -24,7 +24,7 @@ Suppose we have data for a typical within-subjects psychology experiment with 2 
     model = Model(data)
     results = model.fit(
         'rt ~ condition',
-        random=['condition|subject', '1|stimulus'],
+        group_specific=['condition|subject', '1|stimulus'],
         draws=5000, chains=2
     )
     az.plot_trace(results)
@@ -85,26 +85,26 @@ Models are specified in Bambi using a formula-based syntax similar to what one m
 
 .. code-block:: python
 
-    # Fixed effects only
+    # Common (or fixed) effects only
     results = model.fit('rt ~ attention + color')
 
-    # Fixed effects and random intercepts for subject
+    # Common effects and group specific (or random) intercepts for subject
     results = model.fit(
         'y ~ 0 + gender + condition*age',
-        random=['1|subject']
+        group_specific=['1|subject']
     )
 
-    # Multiple, complex random effects with both
-    # random slopes and random intercepts
+    # Multiple, complex group specific effects with both
+    # group specific slopes and group specific intercepts
     results = model.fit(
         'y ~ 0 + gender',
-        random=['condition|subject', 'condition|site']
+        group_specific=['condition|subject', 'condition|site']
     )
 
 
 Each of the above examples specifies a full model that will immediately be fitted using PyMC3.
 
-Notice how, in contrast to lme4 (but similar to nlme), fixed and random effects are specified separately in Bambi. We describe the syntax and operators supported by each type of effect below; briefly, however, the fixed effects specification relies on `patsy <http://patsy.readthedocs.io/en/latest/overview.html>`__, and `hence formulas are parsed <http://patsy.readthedocs.io/en/latest/formulas.html>`__ almost exactly the same way `as in R <http://patsy.readthedocs.io/en/latest/R-comparison.html>`__. Random effects terms must be specified one at a time.
+Notice how, in contrast to lme4 (but similar to nlme), common and group specific effects are specified separately in Bambi. We describe the syntax and operators supported by each type of effect below; briefly, however, the common effects specification relies on `patsy <http://patsy.readthedocs.io/en/latest/overview.html>`__, and `hence formulas are parsed <http://patsy.readthedocs.io/en/latest/formulas.html>`__ almost exactly the same way `as in R <http://patsy.readthedocs.io/en/latest/R-comparison.html>`__. Group specific effects terms must be specified one at a time.
 
 Incremental specification
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -118,11 +118,11 @@ Although models can be fit in one line, as above, an alternative approach that i
     # Initialize model
     model = Model(data)
 
-    # Continuous fixed effect (in this case, a binary indicator); will also add intercept 
+    # Continuous common effect (in this case, a binary indicator); will also add intercept 
     automatically unless it is explicitly suppressed.
     model.add('condition')
 
-    # Categorical fixed effect, setting a narrow prior. We explicitly name the columns that should
+    # Categorical common effect, setting a narrow prior. We explicitly name the columns that should
     # be interpreted as categorical.
     # Note that if age_group is already represented as a categorical variable in the DataFrame, the
     # categorical argument is unnecessary. But it's good practice to be explicit about what the
@@ -134,11 +134,11 @@ Although models can be fit in one line, as above, an alternative approach that i
         priors={'age_group': 'narrow'}
     )
 
-    # Random subject intercepts
-    model.add(random=['subj'], categorical=['subj'])
+    # Group specific subject intercepts
+    model.add(group_specific=['subj'], categorical=['subj'])
 
-    # Random condition slopes distributed over subjects
-    model.add(random=['0+condition|subj'])
+    # Group specific condition slopes distributed over subjects
+    model.add(group_specific=['0+condition|subj'])
 
     # Add outcome variable
     model.add('y ~ 0')
@@ -147,36 +147,36 @@ Although models can be fit in one line, as above, an alternative approach that i
     results = model.fit()
 
 
-As the above example illustrates, the only mandatory argument to ``add`` is a string giving the name of the dataset column to use for the term. If no other arguments are specified, the corresponding variable will be modeled as a fixed effect with a normally-distributed prior (a detailed explanation of how priors are handled in Bambi can be found below). The type of variable (i.e., categorical or continuous) will be determined based on the ``dtype`` of the column in the pandas ``DataFrame``, so it's a good idea to make sure all variables are assigned the correct ``dtype`` when you first read in the data. You can also force continuous variables to be treated as categorical factors by passing them as a list to the ``categorical`` argument (e.g., ``add_term('subject + condition + extraversion', categorical=['subject'])``).
+As the above example illustrates, the only mandatory argument to ``add`` is a string giving the name of the dataset column to use for the term. If no other arguments are specified, the corresponding variable will be modeled as a common effect with a normally-distributed prior (a detailed explanation of how priors are handled in Bambi can be found below). The type of variable (i.e., categorical or continuous) will be determined based on the ``dtype`` of the column in the pandas ``DataFrame``, so it's a good idea to make sure all variables are assigned the correct ``dtype`` when you first read in the data. You can also force continuous variables to be treated as categorical factors by passing them as a list to the ``categorical`` argument (e.g., ``add_term('subject + condition + extraversion', categorical=['subject'])``).
 
-To specify that a term should be modeled as a random effect, pass the formula to the ``random`` argument (e.g., ``random='1|subj'``). The specification of random intercepts vs. slopes is handled as in other packages, or in the full specification passed to a single ``fit()`` call. For example, ``add(random=['1|site', '0+condition|subject'])`` would add random condition slopes distributed over subjects (without subject intercepts), as well as random intercepts for sites.
+To specify that a term should be modeled as a group specific effect, pass the formula to the ``group_specific`` argument (e.g., ``group_specific='1|subj'``). The specification of group specific intercepts vs. slopes is handled as in other packages, or in the full specification passed to a single ``fit()`` call. For example, ``add(group_specific=['1|site', '0+condition|subject'])`` would add group specific condition slopes distributed over subjects (without subject intercepts), as well as group specific intercepts for sites.
 
-Notes on fixed and random effects in Bambi
+Notes on common and group specific effects in Bambi
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As noted above, Bambi handles fixed and random effects separately. The fixed effects specification relies on the `patsy <https://patsy.readthedocs.io/en/latest/overview.html>`__ package, which supports nearly all of the standard formula operators handled in base R--including ``:``, ``*``, ``-``, etc. Unfortunately, patsy doesn't support grouping operators, so random effects are handled separately in Bambi. All terms must be passed in as elements in a list (though each individual term can be as complex as a normal fixed effect specification). For example:
+As noted above, Bambi handles common and group specific effects separately. The common effects specification relies on the `patsy <https://patsy.readthedocs.io/en/latest/overview.html>`__ package, which supports nearly all of the standard formula operators handled in base R--including ``:``, ``*``, ``-``, etc. Unfortunately, patsy doesn't support grouping operators, so group specific effects are handled separately in Bambi. All terms must be passed in as elements in a list (though each individual term can be as complex as a normal common effect specification). For example:
 
 .. code-block:: python
 
-    random_terms = [
-        # Random student intercepts
+    group_specific_terms = [
+        # Group specific student intercepts
         '1|student',
-        # Random classroom intercepts
+        # Group specific classroom intercepts
         '1|classroom',
-        # Random treatment slopes over schools; school intercepts will automatically added
+        # Group specific treatment slopes over schools; school intercepts will automatically added
         'treatment|school',
-        # A random set of subject slopes for each level of the combination of factors a and b,
+        # A Group specific set of subject slopes for each level of the combination of factors a and b,
         # with subject intercepts excluded
         '0+a*b|subject'
     ]
-    model.add(random=random_terms)
+    model.add(group_specific=group_specific_terms)
 
 Coding of categorical variables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a categorical fixed effect with N levels is added to a model, by default, it is coded by N-1 dummy variables (i.e., reduced-rank coding). For example, suppose we write ``'y ~ condition + age + gender'``, where condition is a categorical variable with 4 levels, and age and gender are continuous variables. Then our model would contain an intercept term (added to the model by default, as in R), three dummy-coded variables (each contrasting the first level of ``condition`` with one of the subsequent levels), and continuous predictors for age and gender. Suppose, however, that we would rather use full-rank coding of conditions. If we explicitly remove the intercept --as in ``'y ~ 0 + condition + age + gender'``-- then we get the desired effect. Now, the intercept is no longer included, and condition will be coded using 4 dummy indicators, each one coding for the presence or absence of the respective condition without reference to the other conditions.
+When a categorical common effect with N levels is added to a model, by default, it is coded by N-1 dummy variables (i.e., reduced-rank coding). For example, suppose we write ``'y ~ condition + age + gender'``, where condition is a categorical variable with 4 levels, and age and gender are continuous variables. Then our model would contain an intercept term (added to the model by default, as in R), three dummy-coded variables (each contrasting the first level of ``condition`` with one of the subsequent levels), and continuous predictors for age and gender. Suppose, however, that we would rather use full-rank coding of conditions. If we explicitly remove the intercept --as in ``'y ~ 0 + condition + age + gender'``-- then we get the desired effect. Now, the intercept is no longer included, and condition will be coded using 4 dummy indicators, each one coding for the presence or absence of the respective condition without reference to the other conditions.
 
-Random effects are handled in a comparable way. When adding random intercepts, coding is always full-rank (e.g., when adding random intercepts for 100 schools, one gets 100 dummy-coded indicators coding each school separately, and not 99 indicators contrasting each school with the very first one). For random slopes, coding proceeds the same way as for fixed effects. The random effects specification ``['condition|subject']`` would add an intercept for each subject, plus N-1 condition slopes (each coded with respect to the first, omitted, level as the referent). If we instead specify ``['0+condition|subject']``, we get N condition slopes and no intercepts.
+Group specific effects are handled in a comparable way. When adding group specific intercepts, coding is always full-rank (e.g., when adding group specific intercepts for 100 schools, one gets 100 dummy-coded indicators coding each school separately, and not 99 indicators contrasting each school with the very first one). For group specific slopes, coding proceeds the same way as for common effects. The group specific effects specification ``['condition|subject']`` would add an intercept for each subject, plus N-1 condition slopes (each coded with respect to the first, omitted, level as the referent). If we instead specify ``['0+condition|subject']``, we get N condition slopes and no intercepts.
 
 Fitting the model
 -----------------
@@ -186,7 +186,7 @@ Once a model is fully specified, we need to run the PyMC3 sampler to generate pa
 .. code-block:: python
 
     model = Model(data)
-    results = model.fit('rt ~ condition + gender + age', random='condition|subject')
+    results = model.fit('rt ~ condition + gender + age', group_specific='condition|subject')
 
 
 The above code will obtain 1,000 draws (the default value) and return them as an ``InferenceData`` instance (for more details, see the `ArviZ documentation <https://arviz-devs.github.io/arviz/schema/schema.html>`_). In this case, the `fit()` method accepts optional keyword arguments to pass onto PyMC3's ``sample()`` method, so any methods accepted by ``sample()`` can be specified here. We can also explicitly set the number of draws via the ``draws`` argument. For example, if we call ``fit('y ~ X1', draws=2000, chains=2)``, the PyMC3 sampler will sample two chains in parallel, drawing 2,000 draws for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see the `PyMC3 documentation <https://docs.pymc.io/api/inference.html#module-pymc3.sampling>`_).
@@ -197,7 +197,7 @@ Alternatively, if we're building our model incrementally, we can specify our mod
 
     model = Model(data)
     model.add('food_type', categorical=['food_type'])
-    model.add(random='1|subject')
+    model.add(group_specific='1|subject')
     ...
     results = model.fit(draws=5000)
 
@@ -212,7 +212,7 @@ When ``fit()`` is called, Bambi internally performs two separate steps. First, t
     model = Model(data)
     model.add(
         'rt ~ condition + gender + age',
-        random='condition|subject'
+        group_specific='condition|subject'
     )
     model.build()
 
@@ -224,7 +224,7 @@ Alternatively, the same result can be achieved using the ``run`` argument to ``f
     model = Model(data)
     model.fit(
         'rt ~ condition + gender + age',
-        random='condition|subject',
+        group_specific='condition|subject',
         run=False
     )
 
@@ -245,20 +245,20 @@ Different ways of specifying priors
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Bambi provides two ways to specify a custom prior. First, one can manually specify only the scale of the prior, while retaining the default distribution.
-By default, Bambi sets "weakly informative" priors on all fixed and random effects. Priors are specified on a (generalized) partial correlation scale that quantifies the expected standardized contribution of each individual term to the outcome variable when controlling for other terms. The default "wide" setting sets the scale of a fixed effect prior to sqrt(1/3) = 0.577 on the partial correlation scale, which is the standard deviation of a flat prior from -1 to +1. This correlation-level scale value then gets translated to a Normal prior at the slope level, centered on 0 by default, with a correspondingly wide variance. This process results in a weakly informative (rather than non-informative) prior distribution whose width can be tuned in a simple, intuitive way. More detailed information about how the default priors work can be found in `this technical paper <https://arxiv.org/abs/1702.01201>`_.
+By default, Bambi sets "weakly informative" priors on all common and group specific effects. Priors are specified on a (generalized) partial correlation scale that quantifies the expected standardized contribution of each individual term to the outcome variable when controlling for other terms. The default "wide" setting sets the scale of a common effect prior to sqrt(1/3) = 0.577 on the partial correlation scale, which is the standard deviation of a flat prior from -1 to +1. This correlation-level scale value then gets translated to a Normal prior at the slope level, centered on 0 by default, with a correspondingly wide variance. This process results in a weakly informative (rather than non-informative) prior distribution whose width can be tuned in a simple, intuitive way. More detailed information about how the default priors work can be found in `this technical paper <https://arxiv.org/abs/1702.01201>`_.
 
 In cases where we want to keep the default prior distributions, but alter their scale, we can specify either a numeric scale value or pass the name of a predefined constant. For example:
 
 .. code-block:: python
 
     model = Model(data)
-    # Add condition to the model as a fixed effect with a very
+    # Add condition to the model as a common effect with a very
     # wide prior
     model.add('condition', prior='superwide')
 
-    # Add random subject intercepts to the model, with a narrow
+    # Add group specific subject intercepts to the model, with a narrow
     # prior on their standard deviation
-    model.add(random='1|subject', prior=0.1)
+    model.add(group_specific='1|subject', prior=0.1)
 
 Predefined named scales include "superwide" (scale = 0.8), "wide" (0.577; the default), "medium" (0.4), and "narrow" (0.2). The theoretical maximum scale value is 1.0, which specifies a distribution of partial correlations with half of the values at -1 and the other half at +1. Scale values closer to 0 are considered more "informative" and tend to induce more shrinkage in the parameter estimates.
 
@@ -275,11 +275,11 @@ The ability to specify prior scales this way is helpful, but also limited: we wi
     priors = {'1|subject': my_favorite_prior}
     results = model.fit(
         'y ~ condition',
-        random='1|subject',
+        group_specific='1|subject',
         priors=priors
     )
 
-Priors specified using the ``Prior`` class can be nested to arbitrary depths--meaning, we can set any of a given prior's argument to point to another ``Prior`` instance. This is particularly useful when specifying hierarchical priors on random effects, where the individual random slopes or intercepts are constrained to share a common source distribution:
+Priors specified using the ``Prior`` class can be nested to arbitrary depths--meaning, we can set any of a given prior's argument to point to another ``Prior`` instance. This is particularly useful when specifying hierarchical priors on group specific effects, where the individual group specific slopes or intercepts are constrained to share a common source distribution:
 
 .. code-block:: python
 
@@ -288,7 +288,7 @@ Priors specified using the ``Prior`` class can be nested to arbitrary depths--me
     priors = {'1|subject': my_favorite_prior}
     results = model.fit(
         'y ~ condition',
-        random='1|subject',
+        group_specific='1|subject',
         priors=priors
     )
 
@@ -298,7 +298,7 @@ The above prior specification indicates that the individual subject intercepts a
 Mapping priors onto terms
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once we've defined custom priors for one or more terms, we need to map them onto those terms in our model. Bambi allows us to do this efficiently by passing a dictionary of term -> prior mappings in any ``fit()`` or ``add()`` call (and also via a separate ``set_priors()`` method on the ``Model`` class). The keys of the dictionary the names of terms, and the values are the desired priors. There are also ``fixed`` and ``random`` arguments that make it easy to apply the same priors to all fixed or random effects in the model. Some examples:
+Once we've defined custom priors for one or more terms, we need to map them onto those terms in our model. Bambi allows us to do this efficiently by passing a dictionary of term -> prior mappings in any ``fit()`` or ``add()`` call (and also via a separate ``set_priors()`` method on the ``Model`` class). The keys of the dictionary the names of terms, and the values are the desired priors. There are also ``common`` and ``group_specific`` arguments that make it easy to apply the same priors to all common or group specific effects in the model. Some examples:
 
 .. code-block:: python
 
@@ -313,44 +313,44 @@ Once we've defined custom priors for one or more terms, we need to map them onto
     }
     results = model.fit(
         'y ~ X1 + X2',
-        random=['1|X3', '1|X4'],
+        group_specific=['1|X3', '1|X4'],
         priors=priors
     )
 
-    # Example 2: specify priors for all fixed effects and all random
+    # Example 2: specify priors for all common effects and all group specific
     # effects, except for X1, which still gets its own custom prior.
     priors = {
         'X1': 0.3,
-        'fixed': Prior('Normal', sd=100),
-        'random': 'wide'
+        'common': Prior('Normal', sd=100),
+        'group_specific': 'wide'
     }
     results = model.fit(
         'y ~ X1 + X2',
-        random=['1|X3', '1|X4'],
+        group_specific=['1|X3', '1|X4'],
         priors=priors
     )
 
 
-Notice how this interface allows us to specify terms either by name (including passing tuples as keys in cases where we want multiple terms to share the same prior), or by term type (i.e., to set the same prior on all fixed or random effects). If we pass both named priors and fixed or random effects defaults, the former will take precedence over the latter (in the above example, the prior for ``'X1'`` will be ``0.3``).
+Notice how this interface allows us to specify terms either by name (including passing tuples as keys in cases where we want multiple terms to share the same prior), or by term type (i.e., to set the same prior on all common or group specific effects). If we pass both named priors and common or group specific effects defaults, the former will take precedence over the latter (in the above example, the prior for ``'X1'`` will be ``0.3``).
 
 If we prefer, we can also set priors outside of the ``fit()`` (or ``add()``) calls, using the ``set_priors`` method:
 
 .. code-block:: python
 
     # Specify model but don't build/sample just yet
-    model.fit('y ~ X1 + X3 + X4', random='1|X2', run=False)
+    model.fit('y ~ X1 + X3 + X4', group_specific='1|X2', run=False)
 
     # Specify priors—produces same result as in Example 2 above
     model.set_priors(
         {'X1': 0.3},
-        fixed=Prior('Normal', sd=100),
-        random='wide'
+        common=Prior('Normal', sd=100),
+        group_specific='wide'
     )
 
     # Now sample
     results = model.fit(draws=5000)
 
-Here we stipulate that terms X1 and X4 will use the same normal prior, X2 will use a different normal prior with a uniform hyperprior on its standard deviation, and all other fixed effects will use the default prior with a scale of 0.5.
+Here we stipulate that terms X1 and X4 will use the same normal prior, X2 will use a different normal prior with a uniform hyperprior on its standard deviation, and all other common effects will use the default prior with a scale of 0.5.
 
 It's important to note that explicitly setting priors by passing in ``Prior`` objects will disable Bambi's default behavior of scaling priors to the data in order to ensure that they remain weakly informative. This means that if you specify your own prior, you have to be sure not only to specify the distribution you want, but also any relevant scale parameters. For example, the 0.5 in ``Prior('Normal', mu=0, sd=0.5)`` will be specified on the scale of the data, not the bounded partial correlation scale that Bambi uses for default priors. This means that if your outcome variable has a mean value of 10,000 and a standard deviation of, say, 1,000, you could potentially have some problems getting the model to produce reasonable estimates, since from the perspective of the data, you're specifying an extremely strong prior.
 
@@ -364,7 +364,7 @@ Bambi supports the construction of mixed models with non-normal response distrib
     model = Model(data)
     results = model.fit(
         'graduate ~ attendance_record + GPA',
-        random='1|school',
+        group_specific='1|school',
         family='bernoulli'
     )
 
@@ -411,7 +411,7 @@ Following the convention used in many R packages, the response distribution to u
     model = Model(data)
     results = model.fit(
         'graduate ~ attendance_record + GPA',
-        random='1|school',
+        group_specific='1|school',
         family=new_fam
     )
 
@@ -434,7 +434,7 @@ To visualize a plot of the posterior estimates and sample traces for all paramet
     model = Model(data)
     results = model.fit(
         'value ~ condition',
-        random='1|uid',
+        group_specific='1|uid',
         draws=1250,
         chains=2
     )

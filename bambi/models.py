@@ -72,14 +72,14 @@ class Model:
         obj_cols = data.select_dtypes(["object"]).columns
         data[obj_cols] = data[obj_cols].apply(lambda x: x.astype("category"))
         self.data = data
-        # Some random effects stuff later requires us to make guesses about
+        # Some group_specific effects stuff later requires us to make guesses about
         # column groupings into terms based on patsy's naming scheme.
         if re.search(r"[\[\]]+", "".join(data.columns)):
             _log.warning(
                 "At least one of the column names in the specified "
                 "dataset contain square brackets ('[' or ']')."
                 "This may cause unexpected behavior if you specify "
-                "models with random effects. You are encouraged to "
+                "models with group specific effects. You are encouraged to "
                 "rename your columns to avoid square brackets."
             )
         self.reset()
@@ -168,9 +168,9 @@ class Model:
             type_ = (
                 "intercept"
                 if name == "Intercept"
-                else "random"
-                if self.terms[name].random
-                else "fixed"
+                else "group_specific"
+                if self.terms[name].group_specific
+                else "common"
             )
             term.prior = self._prepare_prior(term.prior, type_)
 
@@ -190,12 +190,12 @@ class Model:
                 "before build() or fit()."
             )
 
-        # X = fixed effects design matrix (excluding intercept/constant term)
+        # X = common effects design matrix (excluding intercept/constant term)
         # r2_x = 1 - 1/VIF, i.e., R2 for predicting each x from all other x's.
         # only compute these stats if there are multiple terms in the model
-        terms = [t for t in self.fixed_terms.values() if t.name != "Intercept"]
+        terms = [t for t in self.common_terms.values() if t.name != "Intercept"]
 
-        if len(self.fixed_terms) > 1:
+        if len(self.common_terms) > 1:
 
             x_matrix = [pd.DataFrame(x.data, columns=x.levels) for x in terms]
             x_matrix = pd.concat(x_matrix, axis=1)
@@ -230,10 +230,10 @@ class Model:
                 "corr_mean_X": mat,
             }
 
-            # throw informative error if perfect collinearity among fixed fx
+            # throw informative error if perfect collinearity among common fx
             if any(self.dm_statistics["r2_x"] > 0.999):
                 raise ValueError(
-                    "There is perfect collinearity among the fixed effects!\n"
+                    "There is perfect collinearity among the common effects!\n"
                     "Printing some design matrix statistics:\n"
                     + str(self.dm_statistics)
                     + "\n"
@@ -241,7 +241,7 @@ class Model:
                 )
 
         # throw informative error message if any categorical predictors have 1 category
-        num_cats = [x.data.size for x in self.fixed_terms.values()]
+        num_cats = [x.data.size for x in self.common_terms.values()]
         if any(np.array(num_cats) == 0):
             raise ValueError("At least one categorical predictor contains only 1 category!")
 
@@ -269,8 +269,10 @@ class Model:
 
     def fit(
         self,
-        fixed=None,
-        random=None,
+        # fixed = None,
+        # random=None,
+        common=None,
+        group_specific=None,
         priors=None,
         family="gaussian",
         link=None,
@@ -283,10 +285,10 @@ class Model:
 
         Parameters
         ----------
-        fixed : str
-            Optional formula specification of fixed effects.
-        random : list
-            Optional list-based specification of random effects.
+        common : str
+            Optional formula specification of common effects.
+        group_specific : list
+            Optional list-based specification of group specific effects.
         priors : dict
             Optional specification of priors for one or more terms. A dict where the keys are the
             names of terms in the model, and the values are either instances of class Prior or
@@ -308,15 +310,22 @@ class Model:
             The names of any variables to treat as categorical. Can be either a single variable
             name, or a list of names. If categorical is None, the data type of the columns in the
             DataFrame will be used to infer handling. In cases where numeric columns are to be
-            treated as categoricals (e.g., random factors coded as numerical IDs), explicitly
-            passing variable names via this argument is recommended.
+            treated as categoricals (e.g., group specific factors coded as numerical IDs),
+            explicitly passing variable names via this argument is recommended.
         backend : str
             The name of the BackEnd to use. Currently only 'pymc' backend is supported.
         """
-        if fixed is not None or random is not None:
+        if fixed is not None:
+            warning.warn("The fixed argument has been deprecated, please use common")
+            common = fixed
+        if random is not None:
+            warning.warn("The random argument has been deprecated, please use group_specific")
+            group_specific = random
+
+        if common is not None or group_specific is not None:
             self.add(
-                fixed=fixed,
-                random=random,
+                common=common,
+                group_specific=group_specific,
                 priors=priors,
                 family=family,
                 link=link,
@@ -338,8 +347,8 @@ class Model:
 
     def add(
         self,
-        fixed=None,
-        random=None,
+        common=None,
+        group_specific=None,
         priors=None,
         family="gaussian",
         link=None,
@@ -350,10 +359,10 @@ class Model:
 
         Parameters
         ----------
-        fixed : str
-            Optional formula specification of fixed effects.
-        random : list
-            Optional list-based specification of random effects.
+        common : str
+            Optional formula specification of common effects.
+        group_specific : list
+            Optional list-based specification of group specific effects.
         priors : dict
             Optional specification of priors for one or more terms. A dict where the keys are the
             names of terms in the model, and the values are either instances of class Prior or
@@ -373,8 +382,8 @@ class Model:
             The names of any variables to treat as categorical. Can be either a single variable
             name, or a list of names. If categorical is None, the data type of the columns in the
             DataFrame will be used to infer handling. In cases where numeric columns are to be
-            treated as categoricals (e.g., random factors coded as numerical IDs), explicitly
-            passing variable names via this argument is recommended.
+            treated as categoricals (e.g., group specific factors coded as numerical IDs),
+            explicitly passing variable names via this argument is recommended.
         append : bool
             If True, terms are appended to the existing model rather than replacing any
             existing terms. This allows formula-based specification of the model in stages.
@@ -403,18 +412,18 @@ class Model:
         # defaults, but changes the raised message and logs any dropped rows
         NA_handler = Custom_NA(dropna=self.dropna)
 
-        # screen fixed terms
+        # screen common terms
         # it deletes everything between [] and the brackets too.
-        if fixed is not None:
-            if "~" in fixed:
-                clean_fix = re.sub(r"\[.+\]", "", fixed)
+        if common is not None:
+            if "~" in common:
+                clean_fix = re.sub(r"\[.+\]", "", common)
                 dmatrices(clean_fix, data=data, NA_action=NA_handler)
             else:
-                dmatrix(fixed, data=data, NA_action=NA_handler)
+                dmatrix(common, data=data, NA_action=NA_handler)
 
-        # screen random terms
-        if random is not None:
-            for term in listify(random):
+        # screen group specific terms
+        if group_specific is not None:
+            for term in listify(group_specific):
                 for side in term.split("|"):
                     dmatrix(side, data=data, NA_action=NA_handler)
 
@@ -425,8 +434,8 @@ class Model:
         # save arguments to pass to _add()
         args = dict(
             zip(
-                ["fixed", "random", "priors", "family", "link", "categorical"],
-                [fixed, random, priors, family, link, categorical],
+                ["common", "group_specific", "priors", "family", "link", "categorical"],
+                [common, group_specific, priors, family, link, categorical],
             )
         )
         self.added_terms.append(args)
@@ -435,8 +444,8 @@ class Model:
 
     def _add(
         self,
-        fixed=None,
-        random=None,
+        common=None,
+        group_specific=None,
         priors=None,
         family="gaussian",
         link=None,
@@ -458,11 +467,11 @@ class Model:
             cats = listify(categorical)
             data[cats] = data[cats].apply(lambda x: x.astype("category"))
 
-        if fixed is not None:
-            self._add_fixed(fixed, data, family, link, priors)
+        if common is not None:
+            self._add_common(common, data, family, link, priors)
 
-        if random is not None:
-            self._add_random(listify(random), data, priors)
+        if group_specific is not None:
+            self._add_group_specific(listify(group_specific), data, priors)
 
     # pylint: disable=keyword-arg-before-vararg
     def _add_y(self, vector, prior=None, family="gaussian", link=None, event=None):
@@ -527,35 +536,35 @@ class Model:
         self.y = ResponseTerm(variable, data, categorical, prior, success_event=success_event)
         self.built = False
 
-    def _add_fixed(self, fixed, data, family, link, priors):
+    def _add_common(self, common, data, family, link, priors):
         # Create design matrices and add response
-        if "~" in fixed:
+        if "~" in common:
             # check to see if formula is using the 'y[event] ~ x' syntax.
             # If so, chop it into groups:
             # 1 = 'y[event]', 2 = 'y', 3 = 'event', 4 = 'x'
             # If this syntax is not being used, event = None
-            event = re.match(r"^((\S+)\[(\S+)\])\s*~(.*)$", fixed)
+            event = re.match(r"^((\S+)\[(\S+)\])\s*~(.*)$", common)
             if event is not None:
-                fixed = "{}~{}".format(event.group(2), event.group(4))
-            y_vector, x_matrix = dmatrices(fixed, data=data, NA_action="raise")
+                common = "{}~{}".format(event.group(2), event.group(4))
+            y_vector, x_matrix = dmatrices(common, data=data, NA_action="raise")
             self._add_y(y_vector, family=family, link=link, event=event)
         else:
-            x_matrix = dmatrix(fixed, data=data, NA_action="raise")
+            x_matrix = dmatrix(common, data=data, NA_action="raise")
 
         # Add predictors
-        self._add_fixed_predictors(x_matrix, priors)
+        self._add_common_predictors(x_matrix, priors)
 
-    def _add_random(self, random, data, priors):
-        for random_effect in random:
+    def _add_group_specific(self, group_specific, data, priors):
+        for group_specific_effect in group_specific:
 
-            random_effect = random_effect.strip()
+            group_specific_effect = group_specific_effect.strip()
 
             # Split specification into intercept, predictor, and grouper
             patt = r"^([01]+)*[\s\+]*([^\|]+)*\|(.*)"
 
-            intcpt, pred, grpr = re.search(patt, random_effect).groups()
+            intcpt, pred, grpr = re.search(patt, group_specific_effect).groups()
             label = "{}|{}".format(pred, grpr) if pred else grpr
-            prior = priors.pop(label, priors.get("random", None))
+            prior = priors.pop(label, priors.get("group_specific", None))
 
             # Treat all grouping variables as categoricals, regardless of
             # their dtype and what the user may have specified in the
@@ -566,16 +575,16 @@ class Model:
                     data.loc[:, var_name] = data.loc[:, var_name].astype("category")
                     self.clean_data.loc[:, var_name] = data.loc[:, var_name]
 
-            # Default to including random intercepts
+            # Default to including group specific intercepts
             intcpt = 1 if intcpt is None else int(intcpt)
 
             grpr_df = dmatrix(f"0+{grpr}", data, return_type="dataframe", NA_action="raise")
 
-            # If there's no predictor, we must be adding random intercepts
+            # If there's no predictor, we must be adding group specific intercepts
             if not pred and grpr not in self.terms:
                 name = "1|" + grpr
                 pred = np.ones((len(grpr_df), 1))
-                term = RandomTerm(
+                term = GroupSpecificTerm(
                     name, grpr_df, pred, grpr_df.values, categorical=True, prior=prior
                 )
                 self.terms[name] = term
@@ -593,7 +602,7 @@ class Model:
 
                     # Also rename intercepts and skip if already added.
                     # This can happen if user specifies something like
-                    # random=['1|school', 'student|school'].
+                    # group_specific=['1|school', 'student|school'].
                     if col == "Intercept":
                         if grpr in self.terms:
                             continue
@@ -608,11 +617,11 @@ class Model:
                     else:
                         categorical = False
 
-                    prior = priors.pop(label, priors.get("random", None))
+                    prior = priors.pop(label, priors.get("group_specific", None))
 
                     pred_data = pred_data.to_numpy()
                     pred_data = pred_data[:, None]  # Must be 2D later
-                    term = RandomTerm(
+                    term = GroupSpecificTerm(
                         label,
                         lev_data,
                         pred_data,
@@ -623,7 +632,7 @@ class Model:
                     )
                     self.terms[label] = term
 
-    def _add_fixed_predictors(self, x_matrix, priors):
+    def _add_common_predictors(self, x_matrix, priors):
         design_info = x_matrix.design_info
 
         for term in design_info.terms:
@@ -638,7 +647,7 @@ class Model:
                 design_info.factor_infos[fct].type for fct in term.factors
             ]
 
-            prior = priors.pop(_name, priors.get("fixed", None))
+            prior = priors.pop(_name, priors.get("common", None))
 
             # If there is more than one factor, we have an interaction
             if len(term.factors) > 1:
@@ -649,7 +658,7 @@ class Model:
             self.terms[_name] = term
 
     def _match_derived_terms(self, name):
-        """Return all (random) terms whose named are derived from the specified string.
+        """Return all (group_specific) terms whose named are derived from the specified string.
 
         For example, 'condition|subject' should match the terms with names '1|subject',
         'condition[T.1]|subject', and so on. Only works for strings with grouping operator ('|').
@@ -675,7 +684,7 @@ class Model:
         # have been set by some other specification like 'gender|subject').
         return found if found and (len(found) > 1 or found[0].name != intcpt) else None
 
-    def set_priors(self, priors=None, fixed=None, random=None, match_derived_names=True):
+    def set_priors(self, priors=None, common=None, group_specific=None, match_derived_names=True):
         """Set priors for one or more existing terms.
 
         Parameters
@@ -685,13 +694,13 @@ class Model:
             (either a Prior instance, or an int or float that scales the default priors). Note that
             a tuple can be passed as the key, in which case the same prior will be applied to all
             terms named in the tuple.
-        fixed : Prior, int, float or str
-            A prior specification to apply to all fixed terms currently included in the model.
-        random : Prior, int, float or str
-            A prior specification to apply to all random terms currently included in the model.
+        common : Prior, int, float or str
+            A prior specification to apply to all common terms included in the model.
+        group_specific : Prior, int, float or str
+            A prior specification to apply to all group specific terms included in the model.
         match_derived_names : bool
             If True, the specified prior(s) will be applied not only to terms that match the
-            keyword exactly, but to the levels of random effects that were derived from the
+            keyword exactly, but to the levels of group specific effects that were derived from the
             original specification with the passed name. For example,
             `priors={'condition|subject':0.5}` would apply the prior to the terms with names
             '1|subject', 'condition[T.1]|subject', and so on. If False, an exact match is required
@@ -700,26 +709,26 @@ class Model:
         # save arguments to pass to _set_priors() at build time
         kwargs = dict(
             zip(
-                ["priors", "fixed", "random", "match_derived_names"],
-                [priors, fixed, random, match_derived_names],
+                ["priors", "common", "group_specific", "match_derived_names"],
+                [priors, common, group_specific, match_derived_names],
             )
         )
         self._added_priors.update(kwargs)
 
         self.built = False
 
-    def _set_priors(self, priors=None, fixed=None, random=None, match_derived_names=True):
+    def _set_priors(self, priors=None, common=None, group_specific=None, match_derived_names=True):
         """Internal version of set_priors(), with same arguments.
 
         Runs during Model.build().
         """
         targets = {}
 
-        if fixed is not None:
-            targets.update({name: fixed for name in self.fixed_terms.keys()})
+        if common is not None:
+            targets.update({name: common for name in self.common_terms.keys()})
 
-        if random is not None:
-            targets.update({name: random for name in self.random_terms.keys()})
+        if group_specific is not None:
+            targets.update({name: group_specific for name in self.group_specific_terms.keys()})
 
         if priors is not None:
             for k, prior in priors.items():
@@ -745,7 +754,7 @@ class Model:
         ----------
         prior : Prior object, or float, or None.
         _type : string
-            accepted values are: 'intercept, 'fixed', or 'random'.
+            accepted values are: 'intercept, 'common', or 'group_specific'.
         """
         if prior is None and not self.auto_scale:
             prior = self.default_priors.get(term=_type + "_flat")
@@ -847,7 +856,9 @@ class Model:
             )
 
         if omit_vars:
-            omitted_vars = list(self.random_terms) + [f"{rt}_offset" for rt in self.random_terms]
+            omitted_vars = list(self.group_specific_terms) + [
+                f"{rt}_offset" for rt in self.group_specific_terms
+            ]
             var_names = [vn for vn in var_names if vn not in omitted_vars]
 
         axes = None
@@ -893,7 +904,7 @@ class Model:
             var_names = pm.util.get_default_varnames(variables_names, include_transformed=False)
 
         if omit_offsets:
-            offset_vars = [f"{rt}_offset" for rt in self.random_terms]
+            offset_vars = [f"{rt}_offset" for rt in self.group_specific_terms]
             var_names = [vn for vn in var_names if vn not in offset_vars]
 
         pps = pm.sample_prior_predictive(
@@ -984,12 +995,14 @@ class Model:
             return idata
 
     def _get_pymc_coords(self):
-        fixed_terms = {
-            k + "_dim_0": v.cleaned_levels for k, v in self.fixed_terms.items() if v.categorical
+        common_terms = {
+            k + "_dim_0": v.cleaned_levels for k, v in self.common_terms.items() if v.categorical
         }
-        # Include all random terms
-        random_terms = {k + "_dim_0": v.cleaned_levels for k, v in self.random_terms.items()}
-        return {**fixed_terms, **random_terms}
+        # Include all group specific terms
+        group_specific_terms = {
+            k + "_dim_0": v.cleaned_levels for k, v in self.group_specific_terms.items()
+        }
+        return {**common_terms, **group_specific_terms}
 
     @property
     def term_names(self):
@@ -997,20 +1010,20 @@ class Model:
         return list(self.terms.keys())
 
     @property
-    def fixed_terms(self):
-        """Return dict of all and only fixed effects in model."""
-        return {k: v for (k, v) in self.terms.items() if not v.random}
+    def common_terms(self):
+        """Return dict of all and only common effects in model."""
+        return {k: v for (k, v) in self.terms.items() if not v.group_specific}
 
     @property
-    def random_terms(self):
-        """Return dict of all and only random effects in model."""
-        return {k: v for (k, v) in self.terms.items() if v.random}
+    def group_specific_terms(self):
+        """Return dict of all and only group specific effects in model."""
+        return {k: v for (k, v) in self.terms.items() if v.group_specific}
 
 
 class BaseTerm:
     """Base class for all model terms"""
 
-    random = False
+    group_specific = False
 
     def __init__(self, name, categorical, prior):
         self.name = name
@@ -1057,7 +1070,7 @@ class ResponseTerm(BaseTerm):
 
 
 class Term(BaseTerm):
-    """Representation of a single (fixed) model term.
+    """Representation of a single (common) model term.
 
     Parameters
     ----------
@@ -1084,7 +1097,7 @@ class Term(BaseTerm):
         if isinstance(data, pd.DataFrame):
             self.levels = list(data.columns)
             data = data.values
-        # Random effects pass through here
+        # Group specific effects pass through here
         else:
             data = np.atleast_2d(data)
             self.levels = list(range(data.shape[1]))
@@ -1100,11 +1113,11 @@ class Term(BaseTerm):
         self.clean_levels()
 
     def clean_levels(self):
-        self.cleaned_levels = [extract_label(level, "fixed") for level in self.levels]
+        self.cleaned_levels = [extract_label(level, "common") for level in self.levels]
 
 
 class InteractionTerm(Term):
-    """Representation of a single (fixed) interaction model term.
+    """Representation of a single (common) interaction model term.
 
     Parameters
     ----------
@@ -1127,8 +1140,8 @@ class InteractionTerm(Term):
         self.cleaned_levels = [re.sub("T.(?=[^[]]*\\])", "", level) for level in self.levels]
 
 
-class RandomTerm(Term):
-    """Representation of a single (random) model term.
+class GroupSpecificTerm(Term):
+    """Representation of a single (group specific) model term.
 
     Parameters
     ----------
@@ -1137,9 +1150,9 @@ class RandomTerm(Term):
     data : (DataFrame, Series, ndarray)
         The term values.
     predictor: (DataFrame, Series, ndarray)
-        Data of the predictor variable in the random term.
+        Data of the predictor variable in the group specific term.
     grouper: (DataFrame, Series, ndarray)
-        Data of the grouping variable in the random term.
+        Data of the grouping variable in the group specific term.
     categorical : bool
         If True, the source variable is interpreted as nominal/categorical. If False, the source
         variable is treated as continuous.
@@ -1150,7 +1163,7 @@ class RandomTerm(Term):
         treated as an intercept for prior distribution purposes.
     """
 
-    random = True
+    group_specific = True
 
     def __init__(
         self, name, data, predictor, grouper, categorical=False, prior=None, constant=None
@@ -1161,7 +1174,7 @@ class RandomTerm(Term):
         self.group_index = self.invert_dummies(grouper)
 
     def clean_levels(self):
-        self.cleaned_levels = [extract_label(level, "random") for level in self.levels]
+        self.cleaned_levels = [extract_label(level, "group_specific") for level in self.levels]
 
     def invert_dummies(self, dummies):
         """

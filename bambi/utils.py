@@ -31,16 +31,16 @@ def get_bernoulli_data(data):
     return data, success
 
 
-def extract_label(string, kind="fixed"):
+def extract_label(string, kind="common"):
     """Receives a level as returned by patsy and returns a cleaned version of it.
-    Fixed and random effects are handled differently because their representations differ.
+    common and group specific effects are handled differently because their representations differ.
 
     Parameters
     ----------
     string: str
         A string containing a label, as returned by patsy.
     kind: str
-        Indicates if this is a fixed or random effect. Must be 'fixed' or 'random'
+        Indicates if this is a common or group specific effect. Must be 'common' or 'group_specific'
 
     Returns
     -------
@@ -51,7 +51,7 @@ def extract_label(string, kind="fixed"):
         return string
     else:
         out = out.group(1)
-    if kind == "fixed":
+    if kind == "common":
         out = re.sub(r"^(.*?)\.", "", out)
 
     return out

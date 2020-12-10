@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from bambi.models import Model, Term, RandomTerm, InteractionTerm
+from bambi.models import Model, Term, GroupSpecificTerm, InteractionTerm
 
 
 @pytest.fixture(scope="module")
@@ -20,12 +20,12 @@ def diabetes_data():
 @pytest.fixture(scope="module")
 def crossed_data():
     """
-    Random effects:
+    Group specific effects:
     10 subjects, 12 items, 5 sites
     Subjects crossed with items, nested in sites
     Items crossed with sites
 
-    Fixed effects:
+    Common effects:
     A continuous predictor, a numeric dummy, and a three-level category
     (levels a,b,c)
 
@@ -54,22 +54,22 @@ def test_term_init(diabetes_data):
     # Test that all defaults are properly initialized
     assert term.name == "BMI"
     assert term.categorical == False
-    assert not term.random
+    assert not term.group_specific
     assert term.levels is not None
     assert term.data.shape == (442, 1)
 
 
-def test_distribute_random_effect_over(diabetes_data):
-    # Random slopes
+def test_distribute_group_specific_effect_over(diabetes_data):
+    # Group_specific slopes
     model = Model(diabetes_data)
     model.add("BP ~ 1")
-    model.add(random="C(age_grp)|BMI")
+    model.add(group_specific="C(age_grp)|BMI")
     model.build(backend="pymc")
     assert model.terms["C(age_grp)[T.1]|BMI"].data.shape == (442, 163)
-    # Nested or crossed random intercepts
+    # Nested or crossed group specific intercepts
     model.reset()
     model.add("BP ~ 1")
-    model.add(random="0+C(age_grp)|BMI")
+    model.add(group_specific="0+C(age_grp)|BMI")
     model.build(backend="pymc")
     assert model.terms["C(age_grp)[0]|BMI"].data.shape == (442, 163)
     # 163 unique levels of BMI in diabetes_data
@@ -135,7 +135,7 @@ def test_model_terms_cleaned_levels():
         }
     )
     model = Model(data)
-    fitted = model.fit("y ~ x + z + time", random=["time|subject"])
+    fitted = model.fit("y ~ x + z + time", group_specific=["time|subject"])
     model.terms["z"].cleaned_levels == ["Group 2", "Group 3"]
     model.terms["1|subject"].cleaned_levels == [
         "Subject 1",
@@ -164,12 +164,12 @@ def test_model_term_classes():
     )
 
     model = Model(data)
-    fitted = model.fit("y ~ x*g", random=["x|s"])
+    fitted = model.fit("y ~ x*g", group_specific=["x|s"])
 
     assert isinstance(model.terms["g"], Term)
     assert isinstance(model.terms["x"], Term)
-    assert isinstance(model.terms["x|s"], RandomTerm)
-    assert isinstance(model.terms["1|s"], RandomTerm)
+    assert isinstance(model.terms["x|s"], GroupSpecificTerm)
+    assert isinstance(model.terms["1|s"], GroupSpecificTerm)
     assert isinstance(model.terms["x:g"], InteractionTerm)
 
     # Also check 'categorical' attribute is right
@@ -185,7 +185,7 @@ def test_add_to_model(diabetes_data):
     model.build(backend="pymc")
     assert set(model.terms.keys()) == {"Intercept", "BMI", "age_grp"}
     # Test that arguments are passed appropriately onto Term initializer
-    model.add(random="C(age_grp)|BP")
+    model.add(group_specific="C(age_grp)|BP")
     model.build(backend="pymc")
     assert isinstance(model.terms["C(age_grp)[T.1]|BP"], Term)
     assert "108.0" in model.terms["C(age_grp)[T.1]|BP"].cleaned_levels
@@ -200,10 +200,10 @@ def test_one_shot_formula_fit(diabetes_data):
     assert len(set(nv.keys()) & set(targets)) == 3
 
 
-def test_invalid_chars_in_random_effect(diabetes_data):
+def test_invalid_chars_in_group_specific_effect(diabetes_data):
     model = Model(diabetes_data)
     with pytest.raises(ValueError):
-        model.fit(random=["1+BP|age_grp"])
+        model.fit(group_specific=["1+BP|age_grp"])
 
 
 def test_add_formula_append(diabetes_data):
@@ -223,7 +223,7 @@ def test_add_formula_append(diabetes_data):
 
 def test_derived_term_search(diabetes_data):
     model = Model(diabetes_data)
-    model.add("BMI ~ 1", random="age_grp|BP", categorical=["age_grp"])
+    model.add("BMI ~ 1", group_specific="age_grp|BP", categorical=["age_grp"])
     model.build(backend="pymc")
     terms = model._match_derived_terms("age_grp|BP")
     names = set([t.name for t in terms])
@@ -250,7 +250,7 @@ def test_categorical_term():
         }
     )
     model = Model(data)
-    model.add("y ~ x1 + x2 + g1", random=["g1|g2", "x2|g2"])
+    model.add("y ~ x1 + x2 + g1", group_specific=["g1|g2", "x2|g2"])
     model.build()
     terms = ["x1", "x2", "g1", "1|g2", "g1[T.b]|g2", "x2|g2"]
     expecteds = [False, False, True, False, True, False]

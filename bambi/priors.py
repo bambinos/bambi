@@ -101,7 +101,7 @@ class PriorFactory:
         specification.
     terms : dict
         Optional specification of default priors for different model term types. Valid keys are
-        'intercept', 'fixed', or 'random'. Values are either strings preprended by a #, in which
+        'intercept', 'common', or 'group_specific'. Values are either strings preprended by a #, in which
         case they are interpreted as pointers to distributions named in the dists dictionary,
         or key -> value specifications in the same format as elements in the dists dictionary.
     families : dict
@@ -169,8 +169,8 @@ class PriorFactory:
             Name of desired distribution. Note that the name is the key in the defaults dictionary,
             not the name of the Distribution object used to construct the prior.
         term : str
-            The type of term family to retrieve defaults for. Must be one of 'intercept', 'fixed',
-            or 'random'.
+            The type of term family to retrieve defaults for. Must be one of 'intercept', 'common',
+            or 'group_specific'.
         family : str
             The name of the Family to retrieve. Must be a value defined internally. In the default
             config, this is one of 'gaussian', 'bernoulli', 'poisson', or 't'.
@@ -203,7 +203,7 @@ class PriorScaler:
         self.dm = pd.DataFrame(
             {
                 lev: t.data[:, i]
-                for t in model.fixed_terms.values()
+                for t in model.common_terms.values()
                 for i, lev in enumerate(t.levels)
             }
         )
@@ -225,7 +225,7 @@ class PriorScaler:
         Parameters
         ----------
             full_mod : statsmodels.genmod.generalized_linear_model.GLM
-                Statsmodels GLM to replace MLE model. For when 'predictor' is not in the fixed part
+                Statsmodels GLM to replace MLE model. For when 'predictor' is not in the common part
                 of the model.
             points : int
                 Number of points to use for LL approximation.
@@ -323,7 +323,7 @@ class PriorScaler:
         sigma = (mod.cov_params()[0] * len(mod.mu)) ** 0.5
 
         # modify mu and sigma based on means and sigmas of slope priors.
-        if len(self.model.fixed_terms) > 1 and add_slopes:
+        if len(self.model.common_terms) > 1 and add_slopes:
             means = np.array([x["mu"] for x in self.priors.values()])
             sigmas = np.array([x["sigma"] for x in self.priors.values()])
             # add to intercept prior
@@ -333,7 +333,7 @@ class PriorScaler:
 
         return mu, sigma
 
-    def _scale_fixed(self, term):
+    def _scale_common(self, term):
 
         # these defaults are only defined for Normal priors
         if term.prior.name != "Normal":
@@ -357,13 +357,13 @@ class PriorScaler:
         if term.prior.name != "Normal":
             return
 
-        # get prior mean and sigma for fixed intercept
+        # get prior mean and sigma for common intercept
         mu, sigma = self._get_intercept_stats()
 
         # save and set prior
         term.prior.update(mu=mu, sigma=sigma)
 
-    def _scale_random(self, term):
+    def _scale_group_specific(self, term):
 
         # these default priors are only defined for HalfNormal priors
         if term.prior.args["sigma"].name != "HalfNormal":
@@ -371,7 +371,7 @@ class PriorScaler:
 
         sigma_corr = term.prior.scale
 
-        # recreate the corresponding fixed effect data
+        # recreate the corresponding common effect data
         fix_data = term.data.sum(axis=1)
 
         # handle intercepts and cell means
@@ -385,12 +385,12 @@ class PriorScaler:
                 for x in self.dm.columns  # pylint: disable=not-an-iterable
                 if np.array_equal(fix_data, self.dm[x].values)
             ]
-            # handle case where there IS a corresponding fixed effect
+            # handle case where there IS a corresponding common effect
             if exists and exists[0] in self.priors.keys():
                 sigma = self.priors[exists[0]]["sigma"]
-            # handle case where there IS NOT a corresponding fixed effect
+            # handle case where there IS NOT a corresponding common effect
             else:
-                # the usual case: add the random effect data as a fixed effect
+                # the usual case: add the group specific effect data as a common effect
                 # in the design matrix
                 if not exists:
                     fix_dataframe = pd.DataFrame(fix_data)
@@ -404,13 +404,13 @@ class PriorScaler:
                     )
                     exog = self.dm.join(fix_dataframe)
                 # this handles the corner case where there technically is the
-                # corresponding fixed effect, but the parameterization differs
-                # between the fixed- and random-effect specification. usually
-                # this means the fixed effects use cell-means coding but the
-                # random effects use k-1 coding
+                # corresponding common effect, but the parameterization differs
+                # between the common- and group-specific-effect specification. usually
+                # this means the common effects use cell-means coding but the
+                # group specific effects use k-1 coding
                 else:
                     group = term.name.split("|")[1]
-                    exog = self.model.random_terms.values()
+                    exog = self.model.group_specific_terms.values()
                     exog = [v.data.sum(1) for v in exog if v.name.split("|")[-1] == group]
                     index = ["_" + str(i) for i in range(len(exog))]
                     exog = pd.DataFrame(exog, index=index).T
@@ -431,20 +431,24 @@ class PriorScaler:
 
     def scale(self):
         # classify all terms
-        fixed_intercepts = [
-            t for t in self.model.terms.values() if not t.random and t.data.sum(1).var() == 0
+        common_intercepts = [
+            t
+            for t in self.model.terms.values()
+            if not t.group_specific and t.data.sum(1).var() == 0
         ]
-        fixed_slopes = [
-            t for t in self.model.terms.values() if not t.random and not t.data.sum(1).var() == 0
+        common_slopes = [
+            t
+            for t in self.model.terms.values()
+            if not t.group_specific and not t.data.sum(1).var() == 0
         ]
-        random_terms = [t for t in self.model.terms.values() if t.random]
+        group_specific_terms = [t for t in self.model.terms.values() if t.group_specific]
 
         # arrange them in the order in which they should be initialized
-        term_list = fixed_slopes + fixed_intercepts + random_terms
+        term_list = common_slopes + common_intercepts + group_specific_terms
         term_types = (
-            ["fixed"] * len(fixed_slopes)
-            + ["intercept"] * len(fixed_intercepts)
-            + ["random"] * len(random_terms)
+            ["common"] * len(common_slopes)
+            + ["intercept"] * len(common_intercepts)
+            + ["group_specific"] * len(group_specific_terms)
         )
 
         # initialize them in order

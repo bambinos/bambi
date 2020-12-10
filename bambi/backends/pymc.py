@@ -94,7 +94,7 @@ class PyMC3BackEnd(BackEnd):
                     dist_shape = ()
 
                 coef = self._build_dist(spec, label, dist_name, shape=dist_shape, **dist_args)
-                if t.random:
+                if t.group_specific:
                     self.mu += coef[t.group_index][:, None] * t.predictor
                 else:
                     self.mu += pm.math.dot(data, coef)[:, None]
