@@ -207,6 +207,7 @@ class PriorScaler:
                 for i, lev in enumerate(t.levels)
             }
         )
+
         self.priors = {}
         missing = "drop" if self.model.dropna else "none"
         self.mle = GLM(

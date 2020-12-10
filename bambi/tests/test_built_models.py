@@ -421,6 +421,32 @@ def test_logistic_regression(crossed_data):
     assert all([dicts_close(priors0[x], priors1[x]) for x in priors0.keys()])
 
 
+def test_logistic_regression_empty_index():
+    data = pd.DataFrame({"y": np.random.choice(["a", "b"], 50), "x": np.random.normal(size=50)})
+    model = Model(data)
+    fitted = model.fit("y ~ x", family="bernoulli")
+
+
+def test_logistic_regression_good_numeric():
+    data = pd.DataFrame({"y": np.random.choice([1, 0], 50), "x": np.random.normal(size=50)})
+    model = Model(data)
+    fitted = model.fit("y ~ x", family="bernoulli")
+
+
+def test_logistic_regression_bad_numeric():
+    data = pd.DataFrame({"y": np.random.choice([1, 2], 50), "x": np.random.normal(size=50)})
+    with pytest.raises(ValueError):
+        model = Model(data)
+        fitted = model.fit("y ~ x", family="bernoulli")
+
+
+def test_logistic_regression_categoric():
+    y = pd.Series(np.random.choice(["a", "b"], 50), dtype="category")
+    data = pd.DataFrame({"y": y, "x": np.random.normal(size=50)})
+    model = Model(data)
+    fitted = model.fit("y ~ x", family="bernoulli")
+
+
 def test_poisson_regression(crossed_data):
     # build model using fit and pymc3
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()

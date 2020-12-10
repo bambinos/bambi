@@ -17,7 +17,7 @@ import bambi.version as version
 from .backends import PyMC3BackEnd
 from .external.patsy import Custom_NA
 from .priors import Prior, PriorFactory, PriorScaler
-from .utils import listify
+from .utils import listify, get_bernoulli_data, extract_label
 
 _log = logging.getLogger("bambi")
 
@@ -178,8 +178,7 @@ class Model:
         if backend is None:
             if self._backend_name is None:
                 raise ValueError(
-                    "Error: no backend was passed or set in the "
-                    "Model; did you forget to call fit()?"
+                    "No backend was passed or set in the Model; did you forget to call fit()?"
                 )
             backend = self._backend_name
 
@@ -256,14 +255,12 @@ class Model:
             scaler = PriorScaler(self, taylor=taylor)
             scaler.scale()
 
-        # For bernoulli models with n_trials = 1 (most common use case),
-        # tell user which event is being modeled
-        if self.family.name == "bernoulli" and np.max(self.y.data) < 1.01:
-            event = next(i for i, x in enumerate(self.y.data.flatten()) if x > 0.99)
+        # Tell user which event is being modeled
+        if self.family.name == "bernoulli":
             _log.info(
                 "Modeling the probability that %s==%s",
                 self.y.name,
-                str(self.clean_data[self.y.name].iloc[event]),
+                str(self.y.success_event),
             )
 
         self._set_backend(backend)
@@ -462,125 +459,13 @@ class Model:
             data[cats] = data[cats].apply(lambda x: x.astype("category"))
 
         if fixed is not None:
-            if "~" in fixed:
-                # check to see if formula is using the 'y[event] ~ x' syntax
-                # (for bernoulli models). If so, chop it into groups:
-                # 1 = 'y[event]', 2 = 'y', 3 = 'event', 4 = 'x'
-                # If this syntax is not being used, event = None
-                event = re.match(r"^((\S+)\[(\S+)\])\s*~(.*)$", fixed)
-                if event is not None:
-                    fixed = "{}~{}".format(event.group(2), event.group(4))
-                y_vector, x_matrix = dmatrices(fixed, data=data, NA_action="raise")
-                y_label = y_vector.design_info.term_names[0]
-                if event is not None:
-                    # pass in new Y data that has 1 if y=event and 0 otherwise
-                    y_data = y_vector[:, y_vector.design_info.column_names.index(event.group(1))]
-                    y_data = pd.DataFrame({event.group(3): y_data})
-                    self._add_y(y_label, family=family, link=link, data=y_data)
-                else:
-                    # use Y as-is
-                    self._add_y(y_label, family=family, link=link)
-            else:
-                x_matrix = dmatrix(fixed, data=data, NA_action="raise")
+            self._add_fixed(fixed, data, family, link, priors)
 
-            factor_infos = x_matrix.design_info.factor_infos
-
-            # Loop over predictor terms
-            for _name, _slice in x_matrix.design_info.term_name_slices.items():
-                cols = x_matrix.design_info.column_names[_slice]
-                term_data = pd.DataFrame(np.asfortranarray(x_matrix[:, _slice]), columns=cols)
-
-                if EvalFactor(_name) in factor_infos:
-                    categorical = factor_infos[EvalFactor(_name)].type == "categorical"
-                else:
-                    categorical = False
-                prior = priors.pop(_name, priors.get("fixed", None))
-                self.terms[_name] = Term(_name, term_data, categorical=categorical, prior=prior)
-
-        # Random effects
-        if random is not None:  # pylint: disable=too-many-nested-blocks
-
-            random = listify(random)
-            for random_effect in random:
-
-                random_effect = random_effect.strip()
-
-                # Split specification into intercept, predictor, and grouper
-                patt = r"^([01]+)*[\s\+]*([^\|]+)*\|(.*)"
-
-                intcpt, pred, grpr = re.search(patt, random_effect).groups()
-                label = "{}|{}".format(pred, grpr) if pred else grpr
-                prior = priors.pop(label, priors.get("random", None))
-
-                # Treat all grouping variables as categoricals, regardless of
-                # their dtype and what the user may have specified in the
-                # 'categorical' argument.
-                var_names = re.findall(r"(\w+)", grpr)
-                for var_name in var_names:
-                    if var_name in data.columns:
-                        data.loc[:, var_name] = data.loc[:, var_name].astype("category")
-                        self.clean_data.loc[:, var_name] = data.loc[:, var_name]
-
-                # Default to including random intercepts
-                intcpt = 1 if intcpt is None else int(intcpt)
-
-                grpr_df = dmatrix(f"0+{grpr}", data, return_type="dataframe", NA_action="raise")
-
-                # If there's no predictor, we must be adding random intercepts
-                if not pred and grpr not in self.terms:
-                    name = "1|" + grpr
-                    pred = np.ones((len(grpr_df), 1))
-                    term = RandomTerm(
-                        name, grpr_df, pred, grpr_df.values, categorical=True, prior=prior
-                    )
-                    self.terms[name] = term
-                else:
-                    pred_df = dmatrix(
-                        f"{intcpt}+{pred}", data, return_type="dataframe", NA_action="raise"
-                    )
-                    # determine value of the 'constant' attribute
-                    const = np.atleast_2d(pred_df.T).T.sum(1).var() == 0
-
-                    factor_infos = pred_df.design_info.factor_infos
-
-                    for col, i in pred_df.design_info.column_name_indexes.items():
-                        pred_data = pred_df.iloc[:, i]
-                        lev_data = grpr_df.multiply(pred_data, axis=0)
-
-                        # Also rename intercepts and skip if already added.
-                        # This can happen if user specifies something like
-                        # random=['1|school', 'student|school'].
-                        if col == "Intercept":
-                            if grpr in self.terms:
-                                continue
-                            label = f"1|{grpr}"
-                        else:
-                            label = col + "|" + grpr
-
-                        # Delete everything between brackets and the brackets
-                        col = re.sub(r"\[.*?\]\ *", "", col)
-                        if EvalFactor(col) in factor_infos:
-                            categorical = factor_infos[EvalFactor(col)].type == "categorical"
-                        else:
-                            categorical = False
-
-                        prior = priors.pop(label, priors.get("random", None))
-
-                        pred_data = pred_data.to_numpy()
-                        pred_data = pred_data[:, None]  # Must be 2D later
-                        term = RandomTerm(
-                            label,
-                            lev_data,
-                            pred_data,
-                            grpr_df.values,
-                            categorical=categorical,
-                            constant=const if const else None,
-                            prior=prior,
-                        )
-                        self.terms[label] = term
+        if random is not None:
+            self._add_random(listify(random), data, priors)
 
     # pylint: disable=keyword-arg-before-vararg
-    def _add_y(self, variable, prior=None, family="gaussian", link=None, *args, **kwargs):
+    def _add_y(self, vector, prior=None, family="gaussian", link=None, event=None):
         """Add a dependent (or outcome) variable to the model.
 
         Parameters
@@ -615,13 +500,153 @@ class Model:
         if prior is None:
             prior = self.family.prior
 
+        variable = vector.design_info.term_names[0]
+
         if self.family.name == "gaussian":
             prior.update(sigma=Prior("HalfStudentT", nu=4, sigma=self.clean_data[variable].std()))
 
-        data = kwargs.pop("data", self.clean_data[variable])
-        term = Term(variable, data, prior=prior, *args, **kwargs)
-        self.y = term
+        # Success event when family = 'bernoulli'
+        success_event = None
+        categorical = False
+
+        if event is not None:
+            if self.family.name != "bernoulli":
+                raise ValueError("Index notation only available for 'bernoulli' family")
+            # pass in new Y data that has 1 if y=event and 0 otherwise
+            success_event = event.group(1)
+            categorical = True
+            data = vector[:, vector.design_info.column_names.index(success_event)]
+            # recall group(3) contains 'event' from 'y[event]' notation
+            data = pd.DataFrame({event.group(3): data})
+        else:
+            data = self.clean_data[variable]
+            if self.family.name == "bernoulli":
+                categorical = True
+                data, success_event = get_bernoulli_data(data)
+
+        self.y = ResponseTerm(variable, data, categorical, prior, success_event=success_event)
         self.built = False
+
+    def _add_fixed(self, fixed, data, family, link, priors):
+        # Create design matrices and add response
+        if "~" in fixed:
+            # check to see if formula is using the 'y[event] ~ x' syntax.
+            # If so, chop it into groups:
+            # 1 = 'y[event]', 2 = 'y', 3 = 'event', 4 = 'x'
+            # If this syntax is not being used, event = None
+            event = re.match(r"^((\S+)\[(\S+)\])\s*~(.*)$", fixed)
+            if event is not None:
+                fixed = "{}~{}".format(event.group(2), event.group(4))
+            y_vector, x_matrix = dmatrices(fixed, data=data, NA_action="raise")
+            self._add_y(y_vector, family=family, link=link, event=event)
+        else:
+            x_matrix = dmatrix(fixed, data=data, NA_action="raise")
+
+        # Add predictors
+        self._add_fixed_predictors(x_matrix, priors)
+
+    def _add_random(self, random, data, priors):
+        for random_effect in random:
+
+            random_effect = random_effect.strip()
+
+            # Split specification into intercept, predictor, and grouper
+            patt = r"^([01]+)*[\s\+]*([^\|]+)*\|(.*)"
+
+            intcpt, pred, grpr = re.search(patt, random_effect).groups()
+            label = "{}|{}".format(pred, grpr) if pred else grpr
+            prior = priors.pop(label, priors.get("random", None))
+
+            # Treat all grouping variables as categoricals, regardless of
+            # their dtype and what the user may have specified in the
+            # 'categorical' argument.
+            var_names = re.findall(r"(\w+)", grpr)
+            for var_name in var_names:
+                if var_name in data.columns:
+                    data.loc[:, var_name] = data.loc[:, var_name].astype("category")
+                    self.clean_data.loc[:, var_name] = data.loc[:, var_name]
+
+            # Default to including random intercepts
+            intcpt = 1 if intcpt is None else int(intcpt)
+
+            grpr_df = dmatrix(f"0+{grpr}", data, return_type="dataframe", NA_action="raise")
+
+            # If there's no predictor, we must be adding random intercepts
+            if not pred and grpr not in self.terms:
+                name = "1|" + grpr
+                pred = np.ones((len(grpr_df), 1))
+                term = RandomTerm(
+                    name, grpr_df, pred, grpr_df.values, categorical=True, prior=prior
+                )
+                self.terms[name] = term
+            else:
+                pred_df = dmatrix(
+                    f"{intcpt}+{pred}", data, return_type="dataframe", NA_action="raise"
+                )
+                # determine value of the 'constant' attribute
+                const = np.atleast_2d(pred_df.T).T.sum(1).var() == 0
+                factor_infos = pred_df.design_info.factor_infos
+
+                for col, i in pred_df.design_info.column_name_indexes.items():
+                    pred_data = pred_df.iloc[:, i]
+                    lev_data = grpr_df.multiply(pred_data, axis=0)
+
+                    # Also rename intercepts and skip if already added.
+                    # This can happen if user specifies something like
+                    # random=['1|school', 'student|school'].
+                    if col == "Intercept":
+                        if grpr in self.terms:
+                            continue
+                        label = f"1|{grpr}"
+                    else:
+                        label = col + "|" + grpr
+
+                    # Delete everything between brackets and the brackets
+                    col = re.sub(r"\[.*?\]\ *", "", col)
+                    if EvalFactor(col) in factor_infos:
+                        categorical = factor_infos[EvalFactor(col)].type == "categorical"
+                    else:
+                        categorical = False
+
+                    prior = priors.pop(label, priors.get("random", None))
+
+                    pred_data = pred_data.to_numpy()
+                    pred_data = pred_data[:, None]  # Must be 2D later
+                    term = RandomTerm(
+                        label,
+                        lev_data,
+                        pred_data,
+                        grpr_df.values,
+                        categorical=categorical,
+                        constant=const if const else None,
+                        prior=prior,
+                    )
+                    self.terms[label] = term
+
+    def _add_fixed_predictors(self, x_matrix, priors):
+        design_info = x_matrix.design_info
+
+        for term in design_info.terms:
+            _slice = design_info.term_slices[term]
+            _name = term.name()
+            cols = design_info.column_names[_slice]
+            data = pd.DataFrame(np.asfortranarray(x_matrix[:, _slice]), columns=cols)
+
+            # General for main or interaction effects.
+            # Any interaction with one categorical predictor, is considered categorical.
+            categorical = "categorical" in [
+                design_info.factor_infos[fct].type for fct in term.factors
+            ]
+
+            prior = priors.pop(_name, priors.get("fixed", None))
+
+            # If there is more than one factor, we have an interaction
+            if len(term.factors) > 1:
+                term = InteractionTerm(_name, data, categorical=categorical, prior=prior)
+            else:
+                term = Term(_name, data, categorical=categorical, prior=prior)
+
+            self.terms[_name] = term
 
     def _match_derived_terms(self, name):
         """Return all (random) terms whose named are derived from the specified string.
@@ -890,6 +915,7 @@ class Model:
             prior_predictive=prior_predictive,
             prior=prior,
             observed_data=observed_data,
+            coords=self.backend.model.coords,  # new line
             attrs={
                 "inference_library": self.backend.name,
                 "inference_library_version": self.backend.name,
@@ -957,6 +983,14 @@ class Model:
         else:
             return idata
 
+    def _get_pymc_coords(self):
+        fixed_terms = {
+            k + "_dim_0": v.cleaned_levels for k, v in self.fixed_terms.items() if v.categorical
+        }
+        # Include all random terms
+        random_terms = {k + "_dim_0": v.cleaned_levels for k, v in self.random_terms.items()}
+        return {**fixed_terms, **random_terms}
+
     @property
     def term_names(self):
         """Return names of all terms in order of addition to model."""
@@ -973,7 +1007,56 @@ class Model:
         return {k: v for (k, v) in self.terms.items() if v.random}
 
 
-class Term:
+class BaseTerm:
+    """Base class for all model terms"""
+
+    random = False
+
+    def __init__(self, name, categorical, prior):
+        self.name = name
+        self.categorical = categorical
+        self.prior = prior
+
+
+class ResponseTerm(BaseTerm):
+    """Representation of a single response model term.
+
+    Parameters
+    ----------
+    name : str
+        Name of the term.
+    data : (DataFrame, Series, ndarray)
+        The term values.
+    categorical : bool
+        If True, the source variable is interpreted as nominal/categorical. If False, the source
+        variable is treated as continuous.
+    prior : Prior
+        A specification of the prior(s) to use. An instance of class priors.Prior.
+    success_event: str or None
+        Indicates the success level when the term is a categorical variable.
+    """
+
+    def __init__(self, name, data, categorical=False, prior=None, success_event=None):
+        super().__init__(name, categorical, prior)
+
+        if isinstance(data, pd.Series):
+            data = data.to_frame()
+        if isinstance(data, pd.DataFrame):
+            self.levels = list(data.columns)
+            data = data.values
+
+        self.data = data
+        self.constant = np.atleast_2d(data.T).T.sum(1).var() == 0
+        self.success_event = str(success_event)
+        self.clean_event()
+
+    def clean_event(self):
+        event = re.search(r"\[([\S+]+)\]", self.success_event)
+        if event is not None:
+            self.success_event = event.group(1)
+
+
+class Term(BaseTerm):
     """Representation of a single (fixed) model term.
 
     Parameters
@@ -992,19 +1075,15 @@ class Term:
         treated as an intercept for prior distribution purposes.
     """
 
-    random = False
-
     def __init__(self, name, data, categorical=False, prior=None, constant=None):
-        self.name = name
-        self.categorical = categorical
-        self._reduced_data = None
+        super().__init__(name, categorical, prior)
 
         if isinstance(data, pd.Series):
             data = data.to_frame()
+
         if isinstance(data, pd.DataFrame):
             self.levels = list(data.columns)
             data = data.values
-
         # Random effects pass through here
         else:
             data = np.atleast_2d(data)
@@ -1018,21 +1097,71 @@ class Term:
             self.constant = np.atleast_2d(data.T).T.sum(1).var() == 0
         else:
             self.constant = constant
+        self.clean_levels()
 
-        self.prior = prior
+    def clean_levels(self):
+        self.cleaned_levels = [extract_label(level, "fixed") for level in self.levels]
+
+
+class InteractionTerm(Term):
+    """Representation of a single (fixed) interaction model term.
+
+    Parameters
+    ----------
+    name : str
+        Name of the term.
+    data : (DataFrame, Series, ndarray)
+        The term values.
+    categorical : bool
+        If True, the source variable is interpreted as nominal/categorical. If False, the source
+        variable is treated as continuous.
+    prior : Prior
+        A specification of the prior(s) to use. An instance of class priors.Prior.
+    """
+
+    def __init__(self, name, data, categorical=False, prior=None):
+        super().__init__(name, data, categorical, prior)
+
+    def clean_levels(self):
+        # Delete "T." within square brackets
+        self.cleaned_levels = [re.sub("T.(?=[^[]]*\\])", "", level) for level in self.levels]
 
 
 class RandomTerm(Term):
+    """Representation of a single (random) model term.
+
+    Parameters
+    ----------
+    name : str
+        Name of the term.
+    data : (DataFrame, Series, ndarray)
+        The term values.
+    predictor: (DataFrame, Series, ndarray)
+        Data of the predictor variable in the random term.
+    grouper: (DataFrame, Series, ndarray)
+        Data of the grouping variable in the random term.
+    categorical : bool
+        If True, the source variable is interpreted as nominal/categorical. If False, the source
+        variable is treated as continuous.
+    prior : Prior
+        A specification of the prior(s) to use. An instance of class priors.Prior.
+    constant : bool
+        indicates whether the term levels collectively act as a constant, in which case the term is
+        treated as an intercept for prior distribution purposes.
+    """
+
     random = True
 
     def __init__(
         self, name, data, predictor, grouper, categorical=False, prior=None, constant=None
     ):
-
         super().__init__(name, data, categorical, prior, constant)
         self.grouper = grouper
         self.predictor = predictor
         self.group_index = self.invert_dummies(grouper)
+
+    def clean_levels(self):
+        self.cleaned_levels = [extract_label(level, "random") for level in self.levels]
 
     def invert_dummies(self, dummies):
         """

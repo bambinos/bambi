@@ -22,6 +22,7 @@
 * Categorical `Term` within `Model` now have `Term.categorical` equal to `True`(#269)
 * Use logging instead of warnings (#270)
 * Omits ploting group-level effects and offset variables (#276)
+* Logistic regression works with no explicit index (#277)
 
 ### Documentation
 * Update example notebooks (#232)
