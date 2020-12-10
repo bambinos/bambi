@@ -269,8 +269,8 @@ class Model:
 
     def fit(
         self,
-        # fixed = None,
-        # random=None,
+        fixed=None,
+        random=None,
         common=None,
         group_specific=None,
         priors=None,
@@ -316,10 +316,10 @@ class Model:
             The name of the BackEnd to use. Currently only 'pymc' backend is supported.
         """
         if fixed is not None:
-            warning.warn("The fixed argument has been deprecated, please use common")
+            _log.warning("The fixed argument has been deprecated, please use common")
             common = fixed
         if random is not None:
-            warning.warn("The random argument has been deprecated, please use group_specific")
+            _log.warning("The random argument has been deprecated, please use group_specific")
             group_specific = random
 
         if common is not None or group_specific is not None:
