@@ -269,10 +269,10 @@ class Model:
 
     def fit(
         self,
-        fixed=None,
-        random=None,
         common=None,
         group_specific=None,
+        fixed=None,
+        random=None,
         priors=None,
         family="gaussian",
         link=None,
