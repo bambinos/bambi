@@ -101,9 +101,10 @@ class PriorFactory:
         specification.
     terms : dict
         Optional specification of default priors for different model term types. Valid keys are
-        'intercept', 'common', or 'group_specific'. Values are either strings preprended by a #, in which
-        case they are interpreted as pointers to distributions named in the dists dictionary,
-        or key -> value specifications in the same format as elements in the dists dictionary.
+        'intercept', 'common', or 'group_specific'. Values are either strings preprended
+        by a #, in which case they are interpreted as pointers to distributions named in
+        the dists dictionary, or key -> value specifications in the same format as elements in
+        the dists dictionary.
     families : dict
         Optional specification of default priors for named family objects. Keys are family names,
         and values are dicts containing mandatory keys for 'dist', 'link', and 'parent'.
