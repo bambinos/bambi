@@ -41,7 +41,7 @@ def test_prior_factory_init_from_default_config():
         assert hasattr(pf, d)
         assert isinstance(getattr(pf, d), dict)
     assert "normal" in pf.dists
-    assert "fixed" in pf.terms
+    assert "common" in pf.terms
     assert "gaussian" in pf.families
 
 
@@ -98,7 +98,7 @@ def test_update_term_priors_after_init(diabetes_data):
     model = Model(diabetes_data)
     model.add("Y ~ BMI")
     model.add("S1")
-    model.add(random="age_grp|BP")
+    model.add(group_specific="age_grp|BP")
 
     p1 = Prior("Normal", mu=-10, sigma=10)
     p2 = Prior("Beta", alpha=2, beta=2)
@@ -115,7 +115,7 @@ def test_update_term_priors_after_init(diabetes_data):
     assert model.terms["BMI"].prior.args["mu"] == -10
 
     p3 = Prior("Normal", mu=0, sigma=Prior("Normal", mu=0, sigma=7))
-    model.set_priors(fixed=0.3, random=p3)
+    model.set_priors(common=0.3, group_specific=p3)
     model.build(backend="pymc")
     assert model.terms["BMI"].prior.scale == 0.3
     assert np.isclose(model.terms["BMI"].prior.args["sigma"], 4.7, rtol=0.1)
@@ -128,7 +128,7 @@ def test_update_term_priors_after_init(diabetes_data):
 
     # Test for partial names, e.g., 'threecats' should match 'threecats[0]'.
     model = Model(diabetes_data)
-    model.add("Y ~ 1", random="age_grp|BP", categorical="age_grp")
+    model.add("Y ~ 1", group_specific="age_grp|BP", categorical="age_grp")
     model.set_priors({"age_grp|BP": 0.5})
     model.build(backend="pymc")
     assert model.terms["age_grp[T.1]|BP"].prior.scale == 0.5
