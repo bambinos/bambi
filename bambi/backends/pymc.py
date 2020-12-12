@@ -152,8 +152,8 @@ class PyMC3BackEnd(BackEnd):
             idata.posterior = idata.posterior.drop_dims(offset_dims)
 
             for group in idata.groups():
-                idata[group].attrs["modeling_interface"] = "bambi"
-                idata[group].attrs["modeling_interface_version"] = version.__version__
+                getattr(idata, group).attrs["modeling_interface"] = "bambi"
+                getattr(idata, group).attrs["modeling_interface_version"] = version.__version__
 
             return idata
 
