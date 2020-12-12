@@ -29,6 +29,7 @@ pip install --upgrade pip
 pip install -e .
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
+pip install --upgrade git+git://github.com/arviz-devs/arviz.git
 
 python --version
 conda list
