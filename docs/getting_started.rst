@@ -118,7 +118,7 @@ Although models can be fit in one line, as above, an alternative approach that i
     # Initialize model
     model = Model(data)
 
-    # Continuous common effect (in this case, a binary indicator); will also add intercept 
+    # Continuous common effect (in this case, a binary indicator); will also add intercept
     automatically unless it is explicitly suppressed.
     model.add('condition')
 
@@ -438,12 +438,13 @@ To visualize a plot of the posterior estimates and sample traces for all paramet
         draws=1250,
         chains=2
     )
-    az.plot_trace(results)
+    az.plot_trace(results, var_names=['Intercept', 'condition', '1|uid', 'value_sigma'], compact=True);
 
 This produces a plot like the following:
 
 .. image:: _static/sample_traceplot.png
 
+In this  case, we also passed ``compact=True`` to tell ArviZ to put all the posteriors for the different subjects compacted in a single plot.
 More details on this plot are available in the `ArviZ documentation <https://arviz-devs.github.io/arviz/_modules/arviz/plots/traceplot.html>`__.
 
 Summarizing
