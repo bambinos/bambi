@@ -987,8 +987,11 @@ class Model:
         idata.add_groups(
             {"posterior_predictive": {k: v.squeeze()[np.newaxis] for k, v in pps.items()}}
         )
-        idata["posterior_predictive"].attrs["modeling_interface"] = "bambi"
-        idata["posterior_predictive"].attrs["modeling_interface_version"] = version.__version__
+
+        getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
+        getattr(idata, "posterior_predictive").attrs[
+            "modeling_interface_version"
+        ] = version.__version__
         if inplace:
             return None
         else:
