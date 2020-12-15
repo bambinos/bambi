@@ -278,6 +278,7 @@ class Model:
         link=None,
         run=True,
         categorical=None,
+        keep_offsets=False,
         backend="pymc",
         **kwargs,
     ):
@@ -296,7 +297,8 @@ class Model:
         family : str or Family
             A specification of the model family (analogous to the family object in R). Either a
             string, or an instance of class priors.Family. If a string is passed, a family with
-            the corresponding name must be defined in the defaults loaded at Model initialization.
+            the corresponding name must backend.runbe defined in the defaults loaded at Model
+            initialization.
             Valid pre-defined families are 'gaussian', 'bernoulli', 'poisson', and 't'.
         link : str
             The model link function to use. Can be either a string (must be one of the options
@@ -312,6 +314,9 @@ class Model:
             DataFrame will be used to infer handling. In cases where numeric columns are to be
             treated as categoricals (e.g., group specific factors coded as numerical IDs),
             explicitly passing variable names via this argument is recommended.
+        keep_offsets: bool
+            Whether to keep offset terms when the model includes group specific effects.
+            Defaults to False.
         backend : str
             The name of the BackEnd to use. Currently only 'pymc' backend is supported.
         """
@@ -340,7 +345,7 @@ class Model:
         if run:
             if not self.built or backend != self._backend_name:
                 self.build(backend)
-            return self.backend.run(**kwargs)
+            return self.backend.run(keep_offsets=keep_offsets, **kwargs)
 
         self._backend_name = backend
         return None
@@ -821,7 +826,7 @@ class Model:
             Only works if `kind == hist`. If None (default) it will use `auto` for continuous
             variables and `range(xmin, xmax + 1)` for discrete variables.
         omit_vars: bool
-            Defaults to False. Omits ploting group-level effects and offset variables.
+            Defaults to True. Omits ploting group-level effects and offset variables.
         ax: numpy array-like of matplotlib axes or bokeh figures, optional
             A 2D array of locations into which to plot the densities. If not supplied, ArviZ will
             create its own array of plot areas (and return it).

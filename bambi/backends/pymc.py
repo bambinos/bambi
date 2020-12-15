@@ -110,7 +110,9 @@ class PyMC3BackEnd(BackEnd):
             self.spec = spec
 
     # pylint: disable=arguments-differ, inconsistent-return-statements
-    def run(self, start=None, method="mcmc", init="auto", n_init=50000, **kwargs):
+    def run(
+        self, start=None, method="mcmc", init="auto", n_init=50000, keep_offsets=False, **kwargs
+    ):
         """Run the PyMC3 MCMC sampler.
 
         Parameters
@@ -130,6 +132,9 @@ class PyMC3BackEnd(BackEnd):
             Number of initialization iterations if init = 'advi' or 'nuts'. Default is kind of in
             PyMC3 for the kinds of models we expect to see run with Bambi, so we lower it
             considerably.
+        keep_offsets: bool
+            Whether to keep offset terms when the model includes group specific effects.
+            Defaults to False.
 
         Returns
         -------
@@ -148,8 +153,9 @@ class PyMC3BackEnd(BackEnd):
 
             idata = from_pymc3(self.trace, model=model)
 
-            offset_dims = [vn for vn in idata.posterior.dims if "offset" in vn]
-            idata.posterior = idata.posterior.drop_dims(offset_dims)
+            if not keep_offsets:
+                offset_dims = [vn for vn in idata.posterior.dims if "offset" in vn]
+                idata.posterior = idata.posterior.drop_dims(offset_dims)
 
             for group in idata.groups():
                 getattr(idata, group).attrs["modeling_interface"] = "bambi"
