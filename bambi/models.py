@@ -297,7 +297,7 @@ class Model:
         family : str or Family
             A specification of the model family (analogous to the family object in R). Either a
             string, or an instance of class priors.Family. If a string is passed, a family with
-            the corresponding name must backend.runbe defined in the defaults loaded at Model
+            the corresponding name be defined in the defaults loaded at Model
             initialization.
             Valid pre-defined families are 'gaussian', 'bernoulli', 'poisson', and 't'.
         link : str
