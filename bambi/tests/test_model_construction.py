@@ -284,4 +284,4 @@ def test_keep_offsets_false():
     model = Model(data)
     fitted = model.fit("y ~ x1", group_specific=["x1|g1"], keep_offsets=False)
     offsets = [v for v in fitted.posterior.dims if "offset" in v]
-    assert offsets == []
+    assert not offsets
