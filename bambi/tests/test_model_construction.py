@@ -259,7 +259,7 @@ def test_categorical_term():
         assert model.terms[term].categorical is expected
 
 
-def test_keep_offsets_true():
+def test_omit_offsets_false():
     data = pd.DataFrame(
         {
             "y": np.random.normal(size=100),
@@ -268,12 +268,12 @@ def test_keep_offsets_true():
         }
     )
     model = Model(data)
-    fitted = model.fit("y ~ x1", group_specific=["x1|g1"], keep_offsets=True)
+    fitted = model.fit("y ~ x1", group_specific=["x1|g1"], omit_offsets=False)
     offsets = [v for v in fitted.posterior.dims if "offset" in v]
     assert offsets == ["1|g1_offset_dim_0", "x1|g1_offset_dim_0"]
 
 
-def test_keep_offsets_false():
+def test_omit_offsets_true():
     data = pd.DataFrame(
         {
             "y": np.random.normal(size=100),
@@ -282,6 +282,6 @@ def test_keep_offsets_false():
         }
     )
     model = Model(data)
-    fitted = model.fit("y ~ x1", group_specific=["x1|g1"], keep_offsets=False)
+    fitted = model.fit("y ~ x1", group_specific=["x1|g1"], omit_offsets=True)
     offsets = [v for v in fitted.posterior.dims if "offset" in v]
     assert not offsets

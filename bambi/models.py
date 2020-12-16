@@ -278,7 +278,7 @@ class Model:
         link=None,
         run=True,
         categorical=None,
-        keep_offsets=False,
+        omit_offsets=True,
         backend="pymc",
         **kwargs,
     ):
@@ -314,9 +314,9 @@ class Model:
             DataFrame will be used to infer handling. In cases where numeric columns are to be
             treated as categoricals (e.g., group specific factors coded as numerical IDs),
             explicitly passing variable names via this argument is recommended.
-        keep_offsets: bool
-            Whether to keep offset terms when the model includes group specific effects.
-            Defaults to False.
+        omit_offsets: bool
+            Omits offset terms in the InferenceData object when the model includes
+            group specific effects. Defaults to True.
         backend : str
             The name of the BackEnd to use. Currently only 'pymc' backend is supported.
         """
@@ -345,7 +345,7 @@ class Model:
         if run:
             if not self.built or backend != self._backend_name:
                 self.build(backend)
-            return self.backend.run(keep_offsets=keep_offsets, **kwargs)
+            return self.backend.run(omit_offsets=omit_offsets, **kwargs)
 
         self._backend_name = backend
         return None
@@ -790,7 +790,8 @@ class Model:
         point_estimate="mean",
         kind="kde",
         bins=None,
-        omit_vars=True,
+        omit_offsets=True,
+        omit_group_specific=True,
         ax=None,
     ):
         """
@@ -825,8 +826,10 @@ class Model:
             Controls the number of bins, accepts the same keywords `matplotlib.hist()` does.
             Only works if `kind == hist`. If None (default) it will use `auto` for continuous
             variables and `range(xmin, xmax + 1)` for discrete variables.
-        omit_vars: bool
-            Defaults to True. Omits ploting group-level effects and offset variables.
+        omit_offsets: bool
+            Whether to omit offset terms in the plot. Defaults to True.
+        omit_group_specific: bool
+            Whether to omit group specific effects in the plot. Defaults to True.
         ax: numpy array-like of matplotlib axes or bokeh figures, optional
             A 2D array of locations into which to plot the densities. If not supplied, ArviZ will
             create its own array of plot areas (and return it).
@@ -860,11 +863,13 @@ class Model:
                 "Variables %s have flat priors, and hence they are not plotted", ", ".join(flat_rvs)
             )
 
-        if omit_vars:
-            omitted_vars = list(self.group_specific_terms) + [
-                f"{rt}_offset" for rt in self.group_specific_terms
-            ]
-            var_names = [vn for vn in var_names if vn not in omitted_vars]
+        if omit_offsets:
+            omitted = [f"{rt}_offset" for rt in self.group_specific_terms]
+            var_names = [vn for vn in var_names if vn not in omitted]
+
+        if omit_group_specific:
+            omitted = list(self.group_specific_terms)
+            var_names = [vn for vn in var_names if vn not in omitted]
 
         axes = None
         if var_names:
