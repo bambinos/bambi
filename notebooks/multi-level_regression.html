@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bayesian Multi-level Regression &#8212; bambi 0.2.0 documentation</title>
+    <title>Multi-level Regression &#8212; bambi 0.2.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -18,8 +18,8 @@
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Bayesian T-test" href="bayesian_t-test.html" />
-    <link rel="prev" title="Bayesian Logistic Regression Example" href="bayesian_logistic_regression.html" />
+    <link rel="next" title="T-test" href="t-test.html" />
+    <link rel="prev" title="Logistic Regression" href="logistic_regression.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -256,8 +256,8 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Bayesian-Multi-level-Regression">
-<h1>Bayesian Multi-level Regression<a class="headerlink" href="#Bayesian-Multi-level-Regression" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Multi-level-Regression">
+<h1>Multi-level Regression<a class="headerlink" href="#Multi-level-Regression" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -277,6 +277,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;arviz-darkgrid&#39;</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -415,16 +416,17 @@ div.rendered_html tbody tr:hover {
 <div class="line"><span class="math notranslate nohighlight">\(\beta_{0, i} = \beta_0 + \alpha_{0, i}\)</span></div>
 <div class="line"><span class="math notranslate nohighlight">\(\beta_{1, i} = \beta_1 + \alpha_{1, i}\)</span></div>
 </div>
-<p>where <span class="math notranslate nohighlight">\(\beta_0\)</span> and <span class="math notranslate nohighlight">\(\beta_1\)</span> are usual fixed intercept and slope you find in a linear regression. <span class="math notranslate nohighlight">\(\alpha_{0, i}\)</span> and <span class="math notranslate nohighlight">\(\alpha_{1, i}\)</span> are the random components for the pig <span class="math notranslate nohighlight">\(i\)</span>, influencing the intercept and the slope respectively. Finally <span class="math notranslate nohighlight">\(\epsilon_i\)</span> is the random error we always see in this type of models.</p>
-<p>We use the formula syntax to specify the model. The first argument passed to the <code class="docutils literal notranslate"><span class="pre">.fit()</span></code> call describes the fixed components and the second named argument, <code class="docutils literal notranslate"><span class="pre">random</span></code>, describes the random components. In order to use a model that allows varying intercepts and slopes for the predictor <code class="docutils literal notranslate"><span class="pre">'Time'</span></code> we need to include <code class="docutils literal notranslate"><span class="pre">'Time'</span></code> as a fixed effect and write <code class="docutils literal notranslate"><span class="pre">'Time|Pig'</span></code> in the random argument. The latter means each pig as a different intercept and <code class="docutils literal notranslate"><span class="pre">'Time'</span></code> slope. If we only wanted different
-intercepts, we would have written <code class="docutils literal notranslate"><span class="pre">random='1|Pig'</span></code>.</p>
+<p>where <span class="math notranslate nohighlight">\(\beta_0\)</span> and <span class="math notranslate nohighlight">\(\beta_1\)</span> are usual common intercept and slope you find in a linear regression. <span class="math notranslate nohighlight">\(\alpha_{0, i}\)</span> and <span class="math notranslate nohighlight">\(\alpha_{1, i}\)</span> are the group specific components for the pig <span class="math notranslate nohighlight">\(i\)</span>, influencing the intercept and the slope respectively. Finally <span class="math notranslate nohighlight">\(\epsilon_i\)</span> is the random error we always see in this type of models, assumed to be Gaussian with mean 0. Note that here we use “common” and “group specific” effects to denote what in many fields are known as
+“fixed” and “random” effects, respectively.</p>
+<p>We use the formula syntax to specify the model. The first argument passed to the <code class="docutils literal notranslate"><span class="pre">.fit()</span></code> call describes the fixed components and the second named argument, <code class="docutils literal notranslate"><span class="pre">group_specific</span></code>, describes the group specific components. In order to use a model that allows varying intercepts and slopes for the predictor <code class="docutils literal notranslate"><span class="pre">'Time'</span></code> we need to include <code class="docutils literal notranslate"><span class="pre">'Time'</span></code> as a common effect and write <code class="docutils literal notranslate"><span class="pre">'Time|Pig'</span></code> in the group specific argument. The latter means each pig as a different intercept and <code class="docutils literal notranslate"><span class="pre">'Time'</span></code> slope. If we
+only wanted different intercepts, we would have written <code class="docutils literal notranslate"><span class="pre">group_specific='1|Pig'</span></code>, and if we wanted slopes specific to each pig without including a specific intercept for each pig, we would write <code class="docutils literal notranslate"><span class="pre">group_specific</span> <span class="pre">=</span> <span class="pre">'0</span> <span class="pre">+</span> <span class="pre">Time|Pig'</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;Weight ~ Time&#39;</span><span class="p">,</span> <span class="n">random</span><span class="o">=</span><span class="s1">&#39;Time|Pig&#39;</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;Weight ~ Time&#39;</span><span class="p">,</span> <span class="n">group_specific</span><span class="o">=</span><span class="s1">&#39;Time|Pig&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -457,7 +459,7 @@ NUTS: [Weight_sigma, Time|Pig_offset, Time|Pig_sigma, 1|Pig_offset, 1|Pig_sigma,
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:20<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:19<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -465,17 +467,17 @@ NUTS: [Weight_sigma, Time|Pig_offset, Time|Pig_sigma, 1|Pig_offset, 1|Pig_sigma,
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 21 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 20 seconds.
 The number of effective samples is smaller than 25% for some parameters.
 </pre></div></div>
 </div>
-<p>Since we have not specified prior distributions for the parameters in the model, <code class="docutils literal notranslate"><span class="pre">bambi</span></code> has chosen defaults for us. We can explore these distributions with a call to <code class="docutils literal notranslate"><span class="pre">Model.plot()</span></code>.</p>
+<p>Since we have not specified prior distributions for the parameters in the model, Bambi has chosen sensible defaults for us. We can explore these priors through samples generated from them with a call to <code class="docutils literal notranslate"><span class="pre">Model.plot_priors()</span></code>, which plots a kernel density estimate for each prior.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+<span></span><span class="n">model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -483,10 +485,11 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_multi-level_regression_9_0.png" src="../_images/notebooks_bayesian_multi-level_regression_9_0.png" />
+<img alt="../_images/notebooks_multi-level_regression_9_0.png" src="../_images/notebooks_multi-level_regression_9_0.png" />
 </div>
 </div>
 <p>Now we are ready to check the results. Using <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> we get traceplots that show the values sampled from the posteriors and density estimates that gives us an idea of the shape of the posterior distribution of our parameters.</p>
+<p>In this case it is very convenient to use <code class="docutils literal notranslate"><span class="pre">compact=True</span></code>. We tell ArviZ to plot all the group specific posteriors in the same panel which saves space and makes it easier to compare group specific posteriors. Thus, we’ll have a panel with all the group specific intercepts, and another panel with all the group specific slopes. If we used <code class="docutils literal notranslate"><span class="pre">compact=False</span></code>, which is the default, we would end up with a huge number of panels which would make the plot unreadable.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -495,7 +498,8 @@ The number of effective samples is smaller than 25% for some parameters.
 <span></span><span class="c1"># Plot posteriors</span>
 <span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span>
     <span class="n">results</span><span class="p">,</span>
-    <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;1|Pig_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;Time|Pig_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;Weight_sigma&#39;</span><span class="p">]</span>
+    <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;1|Pig&#39;</span><span class="p">,</span> <span class="s1">&#39;Time|Pig&#39;</span><span class="p">,</span> <span class="s1">&#39;Weight_sigma&#39;</span><span class="p">],</span>
+    <span class="n">compact</span><span class="o">=</span><span class="kc">True</span>
 <span class="p">);</span>
 </pre></div>
 </div>
@@ -504,10 +508,16 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_multi-level_regression_11_0.png" src="../_images/notebooks_bayesian_multi-level_regression_11_0.png" />
+<img alt="../_images/notebooks_multi-level_regression_11_0.png" src="../_images/notebooks_multi-level_regression_11_0.png" />
 </div>
 </div>
-<p>Numerical summaries for the posteriors are obtained with <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>.</p>
+<p>The same plot could have been generated with less typing by calling</p>
+<p><code class="docutils literal notranslate"><span class="pre">az.plot_trace(results,</span> <span class="pre">var_names=[&quot;~1|Pig_sigma&quot;,</span> <span class="pre">&quot;~Time|Pig_sigma&quot;],</span> <span class="pre">compact=True);</span></code></p>
+<div class="line-block">
+<div class="line">which uses an alternative notation to pass <code class="docutils literal notranslate"><span class="pre">var_names</span></code> based on the negation symbol in Python, <code class="docutils literal notranslate"><span class="pre">~</span></code>. There we are telling ArviZ to plot all the variables in the InferenceData object <code class="docutils literal notranslate"><span class="pre">results</span></code>, except from <code class="docutils literal notranslate"><span class="pre">1|Pig_sigma</span></code> and <code class="docutils literal notranslate"><span class="pre">Time|Pig_sigma</span></code>.</div>
+<div class="line">Can’t believe it? Come on, run this notebook on your side and have a try!</div>
+</div>
+<p>The plots generated by <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> are enough to be confident that the sampler did a good job and conclude about plausible values for the distribution of each parameter in the model. But if we want to, and is a good idea to do it, we can get umerical summaries for the posteriors with <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
@@ -555,74 +565,74 @@ The number of effective samples is smaller than 25% for some parameters.
   </thead>
   <tbody>
     <tr>
-      <th>Intercept[0]</th>
-      <td>15.735</td>
-      <td>0.582</td>
-      <td>14.717</td>
-      <td>16.910</td>
-      <td>0.030</td>
-      <td>0.021</td>
-      <td>390.0</td>
-      <td>390.0</td>
-      <td>393.0</td>
-      <td>778.0</td>
-      <td>1.00</td>
+      <th>Intercept</th>
+      <td>15.762</td>
+      <td>0.561</td>
+      <td>14.757</td>
+      <td>16.828</td>
+      <td>0.029</td>
+      <td>0.020</td>
+      <td>380.0</td>
+      <td>380.0</td>
+      <td>380.0</td>
+      <td>820.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
-      <th>Time[0]</th>
-      <td>6.931</td>
-      <td>0.085</td>
-      <td>6.776</td>
-      <td>7.092</td>
+      <th>Time</th>
+      <td>6.926</td>
+      <td>0.082</td>
+      <td>6.762</td>
+      <td>7.064</td>
       <td>0.004</td>
       <td>0.003</td>
-      <td>372.0</td>
-      <td>371.0</td>
-      <td>377.0</td>
-      <td>462.0</td>
-      <td>1.01</td>
+      <td>401.0</td>
+      <td>401.0</td>
+      <td>404.0</td>
+      <td>746.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>1|Pig_sigma</th>
-      <td>4.532</td>
-      <td>0.439</td>
-      <td>3.723</td>
-      <td>5.351</td>
-      <td>0.018</td>
+      <td>4.547</td>
+      <td>0.442</td>
+      <td>3.733</td>
+      <td>5.372</td>
+      <td>0.017</td>
       <td>0.012</td>
-      <td>620.0</td>
-      <td>618.0</td>
-      <td>628.0</td>
-      <td>963.0</td>
-      <td>1.01</td>
+      <td>703.0</td>
+      <td>689.0</td>
+      <td>739.0</td>
+      <td>720.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>Time|Pig_sigma</th>
-      <td>0.661</td>
-      <td>0.062</td>
-      <td>0.544</td>
-      <td>0.773</td>
+      <td>0.665</td>
+      <td>0.063</td>
+      <td>0.549</td>
+      <td>0.776</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>562.0</td>
-      <td>555.0</td>
-      <td>571.0</td>
-      <td>780.0</td>
-      <td>1.01</td>
+      <td>561.0</td>
+      <td>560.0</td>
+      <td>570.0</td>
+      <td>916.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>Weight_sigma</th>
-      <td>2.459</td>
-      <td>0.066</td>
-      <td>2.343</td>
-      <td>2.593</td>
+      <td>2.460</td>
+      <td>0.065</td>
+      <td>2.340</td>
+      <td>2.582</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>2038.0</td>
-      <td>2038.0</td>
-      <td>1990.0</td>
-      <td>1061.0</td>
-      <td>1.00</td>
+      <td>2652.0</td>
+      <td>2652.0</td>
+      <td>2633.0</td>
+      <td>1112.0</td>
+      <td>1.0</td>
     </tr>
   </tbody>
 </table>
@@ -632,10 +642,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="section" id="Estimated-regression-line">
 <h2>Estimated regression line<a class="headerlink" href="#Estimated-regression-line" title="Permalink to this headline">¶</a></h2>
 <p>Here we’ll visualize the regression equations we have sampled for a particular pig and then we’ll compare the mean regression equation for all the 72 pigs in the dataset.</p>
-<div class="line-block">
-<div class="line">In the following plot we can see the 2000 linear regressions we have sampled for the pig ‘4601’.</div>
-<div class="line">The random slopes explain the funnel shape. The mean regression line is plotted in black and the observed weights for this pig are marked by the blue dots.</div>
-</div>
+<p>In the following plot we can see the 2000 linear regressions we have sampled for the pig ‘4601’. The mean regression line is plotted in black and the observed weights for this pig are marked by the blue dots.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
@@ -644,12 +651,15 @@ The number of effective samples is smaller than 25% for some parameters.
 <span></span><span class="c1"># The ID of the first pig is &#39;4601&#39;</span>
 <span class="n">data_0</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Pig&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4601</span><span class="p">][[</span><span class="s1">&#39;Time&#39;</span><span class="p">,</span> <span class="s1">&#39;Weight&#39;</span><span class="p">]]</span>
 <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
-<span class="n">intercept_fixed</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<span class="n">slope_fixed</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<span class="n">intercept_random_0</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;1|Pig_offset&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">slope_random_0</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;Time|Pig&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercept_fixed</span> <span class="o">+</span> <span class="n">intercept_random_0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-<span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">slope_fixed</span> <span class="o">+</span> <span class="n">slope_random_0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+<span class="n">intercept_common</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+<span class="n">slope_common</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;Time&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+
+<span class="n">intercept_specific_0</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;1|Pig&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">slope_specific_0</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;Time|Pig&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercept_common</span> <span class="o">+</span> <span class="n">intercept_specific_0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+<span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">slope_common</span> <span class="o">+</span> <span class="n">slope_specific_0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">time</span><span class="p">[:,</span><span class="kc">None</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -663,20 +673,20 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_multi-level_regression_15_0.png" src="../_images/notebooks_bayesian_multi-level_regression_15_0.png" />
+<img alt="../_images/notebooks_multi-level_regression_16_0.png" src="../_images/notebooks_multi-level_regression_16_0.png" />
 </div>
 </div>
-<p>Next, we calculate the mean regression line for each pig and show them together in one plot.</p>
+<p>Next, we calculate the mean regression line for each pig and show them together in one plot. Here we clearly see each pig has a different pair of intercept and slope.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">intercept_random</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;1|Pig_offset&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
-<span class="n">slope_random</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;Time|Pig&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
-<span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercept_fixed</span> <span class="o">+</span> <span class="n">intercept_random</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">values</span>
-<span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">slope_fixed</span> <span class="o">+</span> <span class="n">slope_random</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">values</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">time</span><span class="p">[:,</span><span class="kc">None</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span></span><span class="n">intercept_group_specific</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;1|Pig&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+<span class="n">slope_group_specific</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;Time|Pig&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+<span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercept_common</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">intercept_group_specific</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">values</span>
+<span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">slope_common</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">slope_group_specific</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">values</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">time</span><span class="p">[:,</span><span class="kc">None</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Weight (kg)&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Time (weeks)&#39;</span><span class="p">);</span>
 </pre></div>
@@ -686,10 +696,10 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_multi-level_regression_17_0.png" src="../_images/notebooks_bayesian_multi-level_regression_17_0.png" />
+<img alt="../_images/notebooks_multi-level_regression_18_0.png" src="../_images/notebooks_multi-level_regression_18_0.png" />
 </div>
 </div>
-<p>We can get credible interval plots with Arviz. Here the line indicates a 94% credible interval calculated as higher posterior density, the thicker line represents the interquartile range and the dot is the median. We can quickly note two things:</p>
+<p>We can get credible interval plots with ArviZ. Here the line indicates a 94% credible interval calculated as higher posterior density, the thicker line represents the interquartile range and the dot is the median. We can quickly note two things:</p>
 <ul class="simple">
 <li><p>The uncertainty about the intercept estimate is much higher than the uncertainty about the ‘Time’ slope.</p></li>
 <li><p>The credible interval for ‘Time’ is far away from 0, so we can be confident there’s a positive relationship the ‘Weight’ of the pigs and ‘Time’.</p></li>
@@ -712,18 +722,16 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_multi-level_regression_19_0.png" src="../_images/notebooks_bayesian_multi-level_regression_19_0.png" />
+<img alt="../_images/notebooks_multi-level_regression_20_0.png" src="../_images/notebooks_multi-level_regression_20_0.png" />
 </div>
 </div>
 <p>We can also plot the posterior overlayed with a region of practical equivalence (ROPE). This region indicates a range of parameter values that are considered to be practically equivalent to some reference value of interest to the particular application, for example 0. In the following plot we can see that all our posterior distributions fall outside of this range.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Show credible interval cutoffs,</span>
-<span class="c1"># and also overlay region of practical equivalence (arbitrary, in this case close enough to 0 do not matter)</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span>
     <span class="n">results</span><span class="p">,</span>
     <span class="n">var_names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">vars</span><span class="p">[:</span><span class="mi">2</span><span class="p">])),</span>
     <span class="n">ref_val</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -736,7 +744,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_multi-level_regression_21_0.png" src="../_images/notebooks_bayesian_multi-level_regression_21_0.png" />
+<img alt="../_images/notebooks_multi-level_regression_22_0.png" src="../_images/notebooks_multi-level_regression_22_0.png" />
 </div>
 </div>
 </div>
@@ -756,23 +764,31 @@ The number of effective samples is smaller than 25% for some parameters.
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=bambinos&repo=bambi&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="bayesian_logistic_regression.html">Bayesian Logistic Regression Example</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Bayesian Multi-level Regression</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="logistic_regression.html">Logistic Regression</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Multi-level Regression</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Load-data">Load data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Model">Model</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Estimated-regression-line">Estimated regression line</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="bayesian_t-test.html">Bayesian T-test</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html">Bayesian Multiple Regression Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="shooter_crossed_random_ANOVA.html">Bayesian Workflow Example (Police Officer’s Dilemma)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Strack_RRR_re_analysis.html">Bayesian Workflow Example (Strack RRR Analysis Replication)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t-test.html">T-test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html">Multiple Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shooter_crossed_random_ANOVA.html">Bayesian Workflow (Police Officer’s Dilemma)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Strack_RRR_re_analysis.html">Bayesian Workflow (Strack RRR Analysis Replication)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_comparison.html">Logistic Regression and Model Comparison with Bambi and Arviz</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference.html">API Reference</a></li>
@@ -783,8 +799,8 @@ The number of effective samples is smaller than 25% for some parameters.
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../examples.html">Examples</a><ul>
-      <li>Previous: <a href="bayesian_logistic_regression.html" title="previous chapter">Bayesian Logistic Regression Example</a></li>
-      <li>Next: <a href="bayesian_t-test.html" title="next chapter">Bayesian T-test</a></li>
+      <li>Previous: <a href="logistic_regression.html" title="previous chapter">Logistic Regression</a></li>
+      <li>Next: <a href="t-test.html" title="next chapter">T-test</a></li>
   </ul></li>
   </ul></li>
 </ul>
@@ -819,10 +835,14 @@ The number of effective samples is smaller than 25% for some parameters.
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="../_sources/notebooks/bayesian_multi-level_regression.ipynb.txt"
+      <a href="../_sources/notebooks/multi-level_regression.ipynb.txt"
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/bambinos/bambi" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bayesian Logistic Regression Example &#8212; bambi 0.2.0 documentation</title>
+    <title>Logistic Regression &#8212; bambi 0.2.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -18,7 +18,7 @@
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Bayesian Multi-level Regression" href="bayesian_multi-level_regression.html" />
+    <link rel="next" title="Multi-level Regression" href="multi-level_regression.html" />
     <link rel="prev" title="Examples" href="../examples.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -256,8 +256,8 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Bayesian-Logistic-Regression-Example">
-<h1>Bayesian Logistic Regression Example<a class="headerlink" href="#Bayesian-Logistic-Regression-Example" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Logistic-Regression">
+<h1>Logistic Regression<a class="headerlink" href="#Logistic-Regression" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -268,6 +268,8 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">expit</span> <span class="k">as</span> <span class="n">invlogit</span>
 </pre></div>
 </div>
 </div>
@@ -277,6 +279,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;arviz-darkgrid&#39;</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -424,7 +427,7 @@ Name: party_id, dtype: int64
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_logistic_regression_10_0.png" src="../_images/notebooks_bayesian_logistic_regression_10_0.png" />
+<img alt="../_images/notebooks_logistic_regression_10_0.png" src="../_images/notebooks_logistic_regression_10_0.png" />
 </div>
 </div>
 <p>We can get a pretty clear idea of how party identification is related to voting intentions by just looking at a contingency table for these two variables:</p>
@@ -572,19 +575,45 @@ Name: party_id, dtype: int64
 </table>
 </div></div>
 </div>
-<p>Specifying and fitting the model is simple. Notice the (optional) syntax that we use on the left-hand-side of the formula: We say <code class="docutils literal notranslate"><span class="pre">vote[clinton]</span></code> to instruct <code class="docutils literal notranslate"><span class="pre">bambi</span></code> that we wish the model the probability that <code class="docutils literal notranslate"><span class="pre">vote=='clinton'</span></code>, rather than the probability that <code class="docutils literal notranslate"><span class="pre">vote=='trump'</span></code>. If we leave this unspecified, <code class="docutils literal notranslate"><span class="pre">bambi</span></code> will just pick one of the events to model, but will inform you which one it picked when you build the model (and again when you look at model summaries).</p>
-<p>On the right-hand-side of the formula we use <code class="docutils literal notranslate"><span class="pre">pary_id</span> <span class="pre">+</span> <span class="pre">party_id:age</span></code> to instruct <code class="docutils literal notranslate"><span class="pre">bambi</span></code> that we want to use <code class="docutils literal notranslate"><span class="pre">party_id</span></code> and the interaction between <code class="docutils literal notranslate"><span class="pre">party_id</span></code> and <code class="docutils literal notranslate"><span class="pre">age</span></code> as the explanatory variables in the model.</p>
-<p>When fitting models using the <code class="docutils literal notranslate"><span class="pre">pymc3</span></code> backend, the default estimation strategy is to start with an identity mass matrix, but add uniform jitter in [-1, 1] and then adapt a diagonal based on the variance of the tuning samples. This generally works quite well, but occasionally it can fails. That’s what was happening for this particular data set and model, so below we disable the <code class="docutils literal notranslate"><span class="pre">jitter+adapt_diag</span></code> initialization by changing from <code class="docutils literal notranslate"><span class="pre">init='auto'</span></code> (the default) to <code class="docutils literal notranslate"><span class="pre">init=adapt_diag</span></code>, which
-tells the <code class="docutils literal notranslate"><span class="pre">pymc3</span></code> backend to drop the jitter step.</p>
-<div class="nbinput docutils container">
+<div class="section" id="Logistic-regression">
+<h3>Logistic regression<a class="headerlink" href="#Logistic-regression" title="Permalink to this headline">¶</a></h3>
+<p>We’ll use a logistic regression model to estimate the probability of voting for Clinton as a function of age and party affiliation. We can think we have a response variable <span class="math notranslate nohighlight">\(Y\)</span> defined as</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}Y =
+\left\{
+    \begin{array}{ll}
+        1 &amp; \textrm{if the person votes for Clinton} \\
+        0 &amp; \textrm{if the person votes for Trump}
+    \end{array}
+\right.\end{split}\]</div>
+<p>and we are interested in modelling <span class="math notranslate nohighlight">\(\pi = P(Y = 1)\)</span> (a.k.a. probability of success) based on two explanatory variables, age and party affiliation.</p>
+<p>A logistic regression is a model that links the <span class="math notranslate nohighlight">\(\text{logit}(\pi)\)</span> to a linear combination of the predictors. In our example, we’re going to include a main effect for party affiliation and the interaction effect between party affiliation and age (i.e. we’ll have a different age slope for each affiliation). The mathematical equation for our model is</p>
+<div class="math notranslate nohighlight">
+\[\log{\left(\frac{\pi}{1 - \pi}\right)} =
+\beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_3 X_4 + \beta_4 X_1 X_4 + \beta_5 X_2 X_4\]</div>
+<p>$ X_1 = :nbsphinx-math:<a href="#id2"><span class="problematic" id="id3">`</span></a>left`{</p>
+<p><span class="math">\right</span>. \ X_2 = :nbsphinx-math:<a href="#id4"><span class="problematic" id="id5">`</span></a>left`{</p>
+<p><span class="math">\right</span>. \ X_3 = :nbsphinx-math:<a href="#id6"><span class="problematic" id="id7">`</span></a>left`{</p>
+<p><span class="math">\right</span>. \ X_4 = <span class="math">\text{Age}</span> $</p>
+<p>Notice we don’t have a main effect for <span class="math notranslate nohighlight">\(X_3\)</span>. This happens because Democrat party affiliation is being taken as baseline and <span class="math notranslate nohighlight">\(\beta_1\)</span> and <span class="math notranslate nohighlight">\(\beta_2\)</span> represent deviations from that baseline. Thus, we see the main effect of Democrat affiliation is being represented by the Intercept, <span class="math notranslate nohighlight">\(\beta_0\)</span>.</p>
+<p>If we represent the right hand side of the model equation with <span class="math notranslate nohighlight">\(\eta\)</span>, the expression can be re-arranged to express our probability of interest, <span class="math notranslate nohighlight">\(\pi\)</span>, as a function of the linear predictor <span class="math notranslate nohighlight">\(\eta\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\pi = \frac{e^\eta}{1 + e^\eta}= \frac{1}{1 + e^{-\eta}}\]</div>
+<p>Since we’re Bayesian folks who draw samples from posteriors, we need to specify a prior for the parameters as well as a likelihood function before accomplishing our task. In this occasion, we’re going to use the default priors in Bambi and just note the likelihood is the product of <span class="math notranslate nohighlight">\(n\)</span> Bernoulli trials, <span class="math notranslate nohighlight">\(\prod_{i=1}^{n}{p_i^y(1-p_i)^{1-y_i}}\)</span> where <span class="math notranslate nohighlight">\(p_i = P(Y=1)\)</span> and <span class="math notranslate nohighlight">\(y_i = 1\)</span> if the vote intention is for Clinton and <span class="math notranslate nohighlight">\(y_i = 0\)</span> if Trump.</p>
+</div>
+<div class="section" id="Specify-and-fit-model-in-Bambi">
+<h3>Specify and fit model in Bambi<a class="headerlink" href="#Specify-and-fit-model-in-Bambi" title="Permalink to this headline">¶</a></h3>
+<p>Specifying and fitting the model is simple. Bambi is good and doesn’t ask us to translate all the math to code. We just need to specify our model using the formula syntax and pass the correct <code class="docutils literal notranslate"><span class="pre">family</span></code> argument. Notice the (optional) syntax that we use on the left-hand-side of the formula: We say <code class="docutils literal notranslate"><span class="pre">vote[clinton]</span></code> to instruct Bambi that we wish the model the probability that <code class="docutils literal notranslate"><span class="pre">vote=='clinton'</span></code>, rather than the probability that <code class="docutils literal notranslate"><span class="pre">vote=='trump'</span></code>. If we leave this unspecified, Bambi will just
+pick one of the events to model, but will inform you which one it picked when you build the model (and again when you look at model summaries).</p>
+<p>On the right-hand-side of the formula we use <code class="docutils literal notranslate"><span class="pre">pary_id</span> <span class="pre">+</span> <span class="pre">party_id:age</span></code> to instruct Bambi that we want to use <code class="docutils literal notranslate"><span class="pre">party_id</span></code> and the interaction between <code class="docutils literal notranslate"><span class="pre">party_id</span></code> and <code class="docutils literal notranslate"><span class="pre">age</span></code> as the explanatory variables in the model.</p>
+<!--When fitting models using the `pymc3` backend, the default estimation strategy is to start with an identity mass matrix, but add uniform jitter in [-1, 1] and then adapt a diagonal based on the variance of the tuning draws. This generally works quite well, but occasionally it can fails. That's what was happening for this particular data set and model, so below we disable the `jitter+adapt_diag` initialization by changing from `init='auto'` (the default) to `init=adapt_diag`, which tells the `pymc3` backend to drop the jitter step.--><div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">clinton_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">clinton_data</span><span class="p">)</span>
-<span class="n">clinton_fitted</span> <span class="o">=</span> <span class="n">clinton_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
-    <span class="s1">&#39;vote[clinton] ~ party_id + party_id:age&#39;</span><span class="p">,</span>
-    <span class="n">family</span><span class="o">=</span><span class="s1">&#39;bernoulli&#39;</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="s1">&#39;adapt_diag&#39;</span><span class="p">)</span>
+<span class="n">clinton_fitted</span> <span class="o">=</span> <span class="n">clinton_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;vote[clinton] ~ party_id + party_id:age&#39;</span><span class="p">,</span>
+                                   <span class="n">family</span><span class="o">=</span><span class="s1">&#39;bernoulli&#39;</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -593,16 +622,15 @@ tells the <code class="docutils literal notranslate"><span class="pre">pymc3</sp
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/pandas/core/frame.py:3065: SettingWithCopyWarning:
+/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/pandas/core/frame.py:3069: SettingWithCopyWarning:
 A value is trying to be set on a copy of a slice from a DataFrame.
 Try using .loc[row_indexer,col_indexer] = value instead
 
 See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
   self[k1] = value[k2]
-/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/bambi/models.py:256: UserWarning: Modeling the probability that vote==&#39;clinton&#39;
-  warnings.warn(
+Modeling the probability that vote==clinton
 Auto-assigning NUTS sampler...
-Initializing NUTS using adapt_diag...
+Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [party_id:age, party_id, Intercept]
 </pre></div></div>
@@ -624,8 +652,8 @@ NUTS: [party_id:age, party_id, Intercept]
             background: #F44336;
         }
     </style>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:07<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [6000/6000 00:14<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -633,16 +661,17 @@ NUTS: [party_id:age, party_id, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 8 seconds.
+Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 15 seconds.
+WARNING (theano.gof.compilelock): Overriding existing lock by dead process &#39;9084&#39; (I am process &#39;8817&#39;)
 </pre></div></div>
 </div>
-<p>Since we didn’t explicitly set any of the prior distributions for the parameters in the model, <code class="docutils literal notranslate"><span class="pre">bambi</span></code> has chosen sensitive defaults for us. To see how all these priors look like, we just call <code class="docutils literal notranslate"><span class="pre">Model.plot()</span></code>.</p>
+<p>To see the sensitive default priors Bambi has chosen for us, we just call <code class="docutils literal notranslate"><span class="pre">Model.plot_priors()</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">clinton_model</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+<span></span><span class="n">clinton_model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -650,10 +679,10 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_logistic_regression_21_0.png" src="../_images/notebooks_bayesian_logistic_regression_21_0.png" />
+<img alt="../_images/notebooks_logistic_regression_21_0.png" src="../_images/notebooks_logistic_regression_21_0.png" />
 </div>
 </div>
-<p>Here we also inspect the parameters Bambi chosen for each Gaussian.</p>
+<p>Here we also inspect the parameters Bambi chosen for each prior.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
@@ -669,13 +698,13 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-{&#39;Intercept&#39;: {&#39;mu&#39;: array([0.308043]), &#39;sigma&#39;: array([8.39859892])},
+{&#39;Intercept&#39;: {&#39;mu&#39;: array(0.308043), &#39;sigma&#39;: array(8.39859892)},
  &#39;party_id&#39;: {&#39;mu&#39;: array([0, 0]), &#39;sigma&#39;: array([10.51415445, 18.72417819])},
  &#39;party_id:age&#39;: {&#39;mu&#39;: array([0, 0, 0]),
   &#39;sigma&#39;: array([0.16748696, 0.12909332, 0.40771782])}}
 </pre></div></div>
 </div>
-<p>Under the hood, Bambi selected Gaussian priors for all the parameters in the model. We can see that all the priors, except the one for <code class="docutils literal notranslate"><span class="pre">Intercept</span></code>, are centered around 0, which is consistent with the desired weakly informative behavior. However, the standard deviation is specific to each parameter.</p>
+<p>Under the hood, Bambi selected Gaussian priors for all the parameters in the model. By construction, all the priors, except the one for <code class="docutils literal notranslate"><span class="pre">Intercept</span></code>, are centered around 0, which is consistent with the desired weakly informative behavior. The standard deviation is specific to each parameter.</p>
 <p>Some more info about these default priors can be found in <a class="reference external" href="https://arxiv.org/abs/1702.01201">this technical paper</a>.</p>
 <p>Now let’s check out the the results! We get traceplots and density estimates for the posteriors with <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> and a summary of the posteriors with <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>.</p>
 <div class="nbinput docutils container">
@@ -691,7 +720,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_logistic_regression_26_0.png" src="../_images/notebooks_bayesian_logistic_regression_26_0.png" />
+<img alt="../_images/notebooks_logistic_regression_26_0.png" src="../_images/notebooks_logistic_regression_26_0.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
@@ -741,59 +770,59 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
   </thead>
   <tbody>
     <tr>
-      <th>Intercept[0]</th>
-      <td>1.685</td>
-      <td>0.742</td>
-      <td>0.297</td>
-      <td>3.067</td>
-      <td>0.029</td>
-      <td>0.021</td>
-      <td>653.0</td>
-      <td>628.0</td>
-      <td>658.0</td>
-      <td>687.0</td>
+      <th>Intercept</th>
+      <td>1.698</td>
+      <td>0.733</td>
+      <td>0.338</td>
+      <td>3.115</td>
+      <td>0.020</td>
+      <td>0.014</td>
+      <td>1349.0</td>
+      <td>1349.0</td>
+      <td>1343.0</td>
+      <td>1596.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[0]</th>
-      <td>-0.266</td>
-      <td>0.953</td>
-      <td>-1.905</td>
-      <td>1.652</td>
-      <td>0.037</td>
-      <td>0.028</td>
-      <td>660.0</td>
-      <td>584.0</td>
-      <td>668.0</td>
-      <td>737.0</td>
+      <td>-0.284</td>
+      <td>0.959</td>
+      <td>-2.127</td>
+      <td>1.460</td>
+      <td>0.026</td>
+      <td>0.018</td>
+      <td>1365.0</td>
+      <td>1365.0</td>
+      <td>1363.0</td>
+      <td>1421.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[1]</th>
-      <td>-0.872</td>
-      <td>1.835</td>
-      <td>-4.316</td>
-      <td>2.668</td>
-      <td>0.072</td>
-      <td>0.052</td>
-      <td>648.0</td>
-      <td>624.0</td>
-      <td>657.0</td>
-      <td>751.0</td>
+      <td>-0.899</td>
+      <td>1.718</td>
+      <td>-4.140</td>
+      <td>2.198</td>
+      <td>0.041</td>
+      <td>0.029</td>
+      <td>1770.0</td>
+      <td>1722.0</td>
+      <td>1793.0</td>
+      <td>1873.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[0]</th>
       <td>0.013</td>
       <td>0.015</td>
-      <td>-0.014</td>
+      <td>-0.015</td>
       <td>0.043</td>
-      <td>0.001</td>
       <td>0.000</td>
-      <td>686.0</td>
-      <td>686.0</td>
-      <td>686.0</td>
-      <td>794.0</td>
+      <td>0.000</td>
+      <td>1410.0</td>
+      <td>1185.0</td>
+      <td>1414.0</td>
+      <td>1725.0</td>
       <td>1.0</td>
     </tr>
     <tr>
@@ -801,32 +830,33 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
       <td>-0.034</td>
       <td>0.012</td>
       <td>-0.058</td>
-      <td>-0.013</td>
+      <td>-0.011</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1107.0</td>
-      <td>985.0</td>
-      <td>1136.0</td>
-      <td>992.0</td>
+      <td>2160.0</td>
+      <td>2000.0</td>
+      <td>2183.0</td>
+      <td>1954.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[2]</th>
-      <td>-0.088</td>
-      <td>0.045</td>
-      <td>-0.174</td>
-      <td>-0.007</td>
-      <td>0.002</td>
+      <td>-0.087</td>
+      <td>0.042</td>
+      <td>-0.165</td>
+      <td>-0.015</td>
       <td>0.001</td>
-      <td>805.0</td>
-      <td>717.0</td>
-      <td>845.0</td>
-      <td>851.0</td>
+      <td>0.001</td>
+      <td>1907.0</td>
+      <td>1612.0</td>
+      <td>2022.0</td>
+      <td>1655.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
 </table>
 </div></div>
+</div>
 </div>
 </div>
 <div class="section" id="Run-Inference">
@@ -840,18 +870,19 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <span></span><span class="c1"># We need to automatically add labels to InferenceData object to recover this by_label selection</span>
 <span class="n">parties</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;democrat&#39;</span><span class="p">,</span> <span class="s1">&#39;independent&#39;</span><span class="p">,</span> <span class="s1">&#39;republican&#39;</span><span class="p">]</span>
 <span class="n">party_idx</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
-<span class="n">dem</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">rep</span> <span class="o">=</span> <span class="p">[</span><span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;party_id:age&#39;</span><span class="p">][:,:,</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-                 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">party_idx</span><span class="p">]</span>
+<span class="n">dem</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">rep</span> <span class="o">=</span> <span class="p">[</span><span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;party_id:age&#39;</span><span class="p">][:,:,</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">party_idx</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
+<p>Plot the marginal posteriors for the <code class="docutils literal notranslate"><span class="pre">age</span></code> slopes for the three political affiliations.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">dem</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">rep</span><span class="p">]):</span>
-    <span class="n">ax</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">parties</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="sa">f</span><span class="s1">&#39;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">})</span>
+<span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">dem</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">rep</span><span class="p">]):</span>
+    <span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">parties</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="sa">f</span><span class="s1">&#39;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">},</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper left&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -860,9 +891,10 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_logistic_regression_31_0.png" src="../_images/notebooks_bayesian_logistic_regression_31_0.png" />
+<img alt="../_images/notebooks_logistic_regression_32_0.png" src="../_images/notebooks_logistic_regression_32_0.png" />
 </div>
 </div>
+<p>Now, using the joint posterior, we can answer our questions in terms of probabilities.</p>
 <p>What is the probability that the Democrat slope is greater than the Republican slope?</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
@@ -879,7 +911,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.992
+0.996
 </pre></div></div>
 </div>
 <p>Probability that the Democrat slope is greater than the Independent slope?</p>
@@ -898,7 +930,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.994
+0.9955
 </pre></div></div>
 </div>
 <p>Probability that the Independent slope is greater than the Republican slope?</p>
@@ -917,7 +949,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.8925
+0.9115
 </pre></div></div>
 </div>
 <p>Probability that the Democrat slope is greater than 0?</p>
@@ -936,7 +968,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.801
+0.79125
 </pre></div></div>
 </div>
 <p>Probability that the Republican slope is less than 0?</p>
@@ -955,7 +987,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.991
+0.99425
 </pre></div></div>
 </div>
 <p>Probability that the Independent slope is less than 0?</p>
@@ -974,19 +1006,22 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.9985
+0.998
 </pre></div></div>
 </div>
+<p>If we look at the plot of the marginal posteriors, we may be suspicious that, for example, the probability that Democrat slope is greater than the Republican slope is 0.996 (almost 1!), given the overlap between the blue and green density functions. However, we can’t answer such a question using the marginal posteriors only, as shown in the plot. Since Democrat and Republican slopes (<span class="math notranslate nohighlight">\(\beta_3\)</span> and <span class="math notranslate nohighlight">\(\beta_5\)</span>, respectively) are random variables, we need to use their joint distribution
+to answer probability questions that involve both of them. The fact that logical comparisons (e.g. <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> in <code class="docutils literal notranslate"><span class="pre">dem</span> <span class="pre">&gt;</span> <span class="pre">ind</span></code>) are performed elementwise ensures we’re using samples from the joint posterior as we should. We also note that when the question involves only one of the random variables, it is fine to use the marginal distribution (e.g. <code class="docutils literal notranslate"><span class="pre">(rep</span> <span class="pre">&lt;</span> <span class="pre">0).mean()</span></code>).</p>
+<p>Finally, all these comments may have not been necessary since we didn’t need to mention anything about marginal or joint distributions when performing the calculations, we’ve just grabbed the samples and applied some basic math. But that’s an advantage of Bambi and the Bayesian approach. Things that are not so simple, became simpler :)</p>
 </div>
 <div class="section" id="Spaghetti-plot-of-model-predictions">
 <h2>Spaghetti plot of model predictions<a class="headerlink" href="#Spaghetti-plot-of-model-predictions" title="Permalink to this headline">¶</a></h2>
-<p>Separate results into two, one containing the intercept for each <code class="docutils literal notranslate"><span class="pre">party_id</span></code>, the other containing the <code class="docutils literal notranslate"><span class="pre">age</span></code> slopes for each <code class="docutils literal notranslate"><span class="pre">party_id</span></code>.</p>
+<p>Here we separate results into two, one containing the intercept for each <code class="docutils literal notranslate"><span class="pre">party_id</span></code>, the other containing the <code class="docutils literal notranslate"><span class="pre">age</span></code> slopes for each <code class="docutils literal notranslate"><span class="pre">party_id</span></code>. Then we compute the linear predictor <span class="math notranslate nohighlight">\(\eta\)</span> for the different party affiliations and a sequence of <code class="docutils literal notranslate"><span class="pre">age</span></code> values, and plot the estimated values for <span class="math notranslate nohighlight">\(\pi\)</span> after passing <span class="math notranslate nohighlight">\(\eta\)</span> to <code class="docutils literal notranslate"><span class="pre">invlogit()</span></code>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">slopes</span> <span class="o">=</span> <span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;party_id:age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span></span><span class="n">slopes</span> <span class="o">=</span> <span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;party_id:age&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
 </pre></div>
 </div>
 </div>
@@ -1009,11 +1044,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="k">def</span> <span class="nf">invlogit</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="k">return</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">))</span>
-
-<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">91</span><span class="p">)))[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">91</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]])</span>
-
+<span></span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">91</span><span class="p">)))[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">91</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]])</span>
 <span class="n">yhat</span> <span class="o">=</span> <span class="p">[</span><span class="n">invlogit</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">intercepts</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">slopes</span><span class="p">[</span><span class="n">i</span><span class="p">]])))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
 </pre></div>
 </div>
@@ -1039,13 +1070,39 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_logistic_regression_51_0.png" src="../_images/notebooks_bayesian_logistic_regression_51_0.png" />
+<img alt="../_images/notebooks_logistic_regression_54_0.png" src="../_images/notebooks_logistic_regression_54_0.png" />
 </div>
 </div>
 <p>The following is a rough interpretation of the information contained in the plot we’ve just created.</p>
 <p>According to our logistic model, the mean probability of voting for Clinton is almost always 0.8 or greater for Democrats no matter the age. Also, the older the person, the closer the mean probability of voting Clinton to 1.</p>
 <p>On the other hand, Republicans have a non-zero probability of voting for Clinton when they are young, but it tends to zero for older persons. We can also note the high variability of P(vote = ‘Clinton’) for young Republicans. This reflects our high uncertainty when estimating this probability and it is due to the small amount of Republicans in that age range plus there are only 5 Republicans out of 97 voting for Clinton in the dataset.</p>
 <p>Finally, the mean probability of voting Clinton for the independents is around 0.7 for the youngests and decreases towards 0.2 as they get older. Since the spread of the lines is similar along all the ages, we can conclude our uncertainty in this estimate is similar for all the age groups.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+pandas 1.1.5
+arviz  0.10.0
+numpy  1.19.4
+bambi  0.2.0
+last updated: Fri Dec 11 2020
+
+CPython 3.8.5
+IPython 7.18.1
+watermark 2.0.2
+</pre></div></div>
+</div>
 </div>
 </div>
 
@@ -1063,24 +1120,36 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=bambinos&repo=bambi&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Bayesian Logistic Regression Example</a><ul>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Logistic Regression</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Load-and-examine-American-National-Election-Studies-(ANES)-data">Load and examine American National Election Studies (ANES) data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Build-clinton_model">Build <code class="docutils literal notranslate"><span class="pre">clinton_model</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Build-clinton_model">Build <code class="docutils literal notranslate"><span class="pre">clinton_model</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Logistic-regression">Logistic regression</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Specify-and-fit-model-in-Bambi">Specify and fit model in Bambi</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#Run-Inference">Run Inference</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Spaghetti-plot-of-model-predictions">Spaghetti plot of model predictions</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="bayesian_multi-level_regression.html">Bayesian Multi-level Regression</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bayesian_t-test.html">Bayesian T-test</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html">Bayesian Multiple Regression Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="shooter_crossed_random_ANOVA.html">Bayesian Workflow Example (Police Officer’s Dilemma)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Strack_RRR_re_analysis.html">Bayesian Workflow Example (Strack RRR Analysis Replication)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi-level_regression.html">Multi-level Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t-test.html">T-test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html">Multiple Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shooter_crossed_random_ANOVA.html">Bayesian Workflow (Police Officer’s Dilemma)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Strack_RRR_re_analysis.html">Bayesian Workflow (Strack RRR Analysis Replication)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_comparison.html">Logistic Regression and Model Comparison with Bambi and Arviz</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference.html">API Reference</a></li>
@@ -1092,7 +1161,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../examples.html">Examples</a><ul>
       <li>Previous: <a href="../examples.html" title="previous chapter">Examples</a></li>
-      <li>Next: <a href="bayesian_multi-level_regression.html" title="next chapter">Bayesian Multi-level Regression</a></li>
+      <li>Next: <a href="multi-level_regression.html" title="next chapter">Multi-level Regression</a></li>
   </ul></li>
   </ul></li>
 </ul>
@@ -1127,10 +1196,14 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="../_sources/notebooks/bayesian_logistic_regression.ipynb.txt"
+      <a href="../_sources/notebooks/logistic_regression.ipynb.txt"
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/bambinos/bambi" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

@@ -49,15 +49,15 @@
 </div></blockquote>
 <div class="section" id="quickstart">
 <h2>Quickstart<a class="headerlink" href="#quickstart" title="Permalink to this headline">¶</a></h2>
-<p>Suppose we have data for a typical within-subjects psychology experiment with 2 experimental conditions. Stimuli are nested within condition, and subjects are crossed with condition. We want to fit a model predicting reaction time (RT) from the fixed effect of condition, random intercepts for subjects, random condition slopes for students, and random intercepts for stimuli. Using Bambi we can fit this model and summarize its results as follows:</p>
+<p>Suppose we have data for a typical within-subjects psychology experiment with 2 experimental conditions. Stimuli are nested within condition, and subjects are crossed with condition. We want to fit a model predicting reaction time (RT) from the common effect of condition, group specific intercepts for subjects, group specific condition slopes for students, and group specific intercepts for stimuli. Using Bambi we can fit this model and summarize its results as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bambi</span> <span class="kn">import</span> <span class="n">Model</span>
 
 <span class="c1"># Assume we already have our data loaded</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="s1">&#39;rt ~ condition&#39;</span><span class="p">,</span>
-    <span class="n">random</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;condition|subject&#39;</span><span class="p">,</span> <span class="s1">&#39;1|stimulus&#39;</span><span class="p">],</span>
-    <span class="n">samples</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">2</span>
+    <span class="n">group_specific</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;condition|subject&#39;</span><span class="p">,</span> <span class="s1">&#39;1|stimulus&#39;</span><span class="p">],</span>
+    <span class="n">draws</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">2</span>
 <span class="p">)</span>
 <span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 <span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
@@ -77,7 +77,7 @@
 <ul>
 <li><p><a class="reference internal" href="#formula-based-specification" id="id4">Formula-based specification</a></p></li>
 <li><p><a class="reference internal" href="#incremental-specification" id="id5">Incremental specification</a></p></li>
-<li><p><a class="reference internal" href="#notes-on-fixed-and-random-effects-in-bambi" id="id6">Notes on fixed and random effects in Bambi</a></p></li>
+<li><p><a class="reference internal" href="#notes-on-common-and-group-specific-effects-in-bambi" id="id6">Notes on common and group specific effects in Bambi</a></p></li>
 <li><p><a class="reference internal" href="#coding-of-categorical-variables" id="id7">Coding of categorical variables</a></p></li>
 </ul>
 </li>
@@ -201,25 +201,25 @@
 <div class="section" id="formula-based-specification">
 <h4><a class="toc-backref" href="#id4">Formula-based specification</a><a class="headerlink" href="#formula-based-specification" title="Permalink to this headline">¶</a></h4>
 <p>Models are specified in Bambi using a formula-based syntax similar to what one might find in R packages like lme4 or nlme. A couple of examples illustrate the breadth of models that can be easily specified in Bambi:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fixed effects only</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Common (or fixed) effects only</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;rt ~ attention + color&#39;</span><span class="p">)</span>
 
-<span class="c1"># Fixed effects and random intercepts for subject</span>
+<span class="c1"># Common effects and group specific (or random) intercepts for subject</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="s1">&#39;y ~ 0 + gender + condition*age&#39;</span><span class="p">,</span>
-    <span class="n">random</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1|subject&#39;</span><span class="p">]</span>
+    <span class="n">group_specific</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1|subject&#39;</span><span class="p">]</span>
 <span class="p">)</span>
 
-<span class="c1"># Multiple, complex random effects with both</span>
-<span class="c1"># random slopes and random intercepts</span>
+<span class="c1"># Multiple, complex group specific effects with both</span>
+<span class="c1"># group specific slopes and group specific intercepts</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="s1">&#39;y ~ 0 + gender&#39;</span><span class="p">,</span>
-    <span class="n">random</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;condition|subject&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|site&#39;</span><span class="p">]</span>
+    <span class="n">group_specific</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;condition|subject&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|site&#39;</span><span class="p">]</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 <p>Each of the above examples specifies a full model that will immediately be fitted using PyMC3.</p>
-<p>Notice how, in contrast to lme4 (but similar to nlme), fixed and random effects are specified separately in Bambi. We describe the syntax and operators supported by each type of effect below; briefly, however, the fixed effects specification relies on <a class="reference external" href="http://patsy.readthedocs.io/en/latest/overview.html">patsy</a>, and <a class="reference external" href="http://patsy.readthedocs.io/en/latest/formulas.html">hence formulas are parsed</a> almost exactly the same way <a class="reference external" href="http://patsy.readthedocs.io/en/latest/R-comparison.html">as in R</a>. Random effects terms must be specified one at a time.</p>
+<p>Notice how, in contrast to lme4 (but similar to nlme), common and group specific effects are specified separately in Bambi. We describe the syntax and operators supported by each type of effect below; briefly, however, the common effects specification relies on <a class="reference external" href="http://patsy.readthedocs.io/en/latest/overview.html">patsy</a>, and <a class="reference external" href="http://patsy.readthedocs.io/en/latest/formulas.html">hence formulas are parsed</a> almost exactly the same way <a class="reference external" href="http://patsy.readthedocs.io/en/latest/R-comparison.html">as in R</a>. Group specific effects terms must be specified one at a time.</p>
 </div>
 <div class="section" id="incremental-specification">
 <h4><a class="toc-backref" href="#id5">Incremental specification</a><a class="headerlink" href="#incremental-specification" title="Permalink to this headline">¶</a></h4>
@@ -229,11 +229,11 @@
 <span class="c1"># Initialize model</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
-<span class="c1"># Continuous fixed effect (in this case, a binary indicator); will also add intercept</span>
+<span class="c1"># Continuous common effect (in this case, a binary indicator); will also add intercept</span>
 <span class="n">automatically</span> <span class="n">unless</span> <span class="n">it</span> <span class="ow">is</span> <span class="n">explicitly</span> <span class="n">suppressed</span><span class="o">.</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;condition&#39;</span><span class="p">)</span>
 
-<span class="c1"># Categorical fixed effect, setting a narrow prior. We explicitly name the columns that should</span>
+<span class="c1"># Categorical common effect, setting a narrow prior. We explicitly name the columns that should</span>
 <span class="c1"># be interpreted as categorical.</span>
 <span class="c1"># Note that if age_group is already represented as a categorical variable in the DataFrame, the</span>
 <span class="c1"># categorical argument is unnecessary. But it&#39;s good practice to be explicit about what the</span>
@@ -245,11 +245,11 @@
     <span class="n">priors</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;age_group&#39;</span><span class="p">:</span> <span class="s1">&#39;narrow&#39;</span><span class="p">}</span>
 <span class="p">)</span>
 
-<span class="c1"># Random subject intercepts</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">random</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;subj&#39;</span><span class="p">],</span> <span class="n">categorical</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;subj&#39;</span><span class="p">])</span>
+<span class="c1"># Group specific subject intercepts</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">group_specific</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;subj&#39;</span><span class="p">],</span> <span class="n">categorical</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;subj&#39;</span><span class="p">])</span>
 
-<span class="c1"># Random condition slopes distributed over subjects</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">random</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;0+condition|subj&#39;</span><span class="p">])</span>
+<span class="c1"># Group specific condition slopes distributed over subjects</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">group_specific</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;0+condition|subj&#39;</span><span class="p">])</span>
 
 <span class="c1"># Add outcome variable</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;y ~ 0&#39;</span><span class="p">)</span>
@@ -258,47 +258,47 @@
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>As the above example illustrates, the only mandatory argument to <code class="docutils literal notranslate"><span class="pre">add</span></code> is a string giving the name of the dataset column to use for the term. If no other arguments are specified, the corresponding variable will be modeled as a fixed effect with a normally-distributed prior (a detailed explanation of how priors are handled in Bambi can be found below). The type of variable (i.e., categorical or continuous) will be determined based on the <code class="docutils literal notranslate"><span class="pre">dtype</span></code> of the column in the pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>, so it’s a good idea to make sure all variables are assigned the correct <code class="docutils literal notranslate"><span class="pre">dtype</span></code> when you first read in the data. You can also force continuous variables to be treated as categorical factors by passing them as a list to the <code class="docutils literal notranslate"><span class="pre">categorical</span></code> argument (e.g., <code class="docutils literal notranslate"><span class="pre">add_term('subject</span> <span class="pre">+</span> <span class="pre">condition</span> <span class="pre">+</span> <span class="pre">extraversion',</span> <span class="pre">categorical=['subject'])</span></code>).</p>
-<p>To specify that a term should be modeled as a random effect, pass the formula to the <code class="docutils literal notranslate"><span class="pre">random</span></code> argument (e.g., <code class="docutils literal notranslate"><span class="pre">random='1|subj'</span></code>). The specification of random intercepts vs. slopes is handled as in other packages, or in the full specification passed to a single <code class="docutils literal notranslate"><span class="pre">fit()</span></code> call. For example, <code class="docutils literal notranslate"><span class="pre">add(random=['1|site',</span> <span class="pre">'0+condition|subject'])</span></code> would add random condition slopes distributed over subjects (without subject intercepts), as well as random intercepts for sites.</p>
+<p>As the above example illustrates, the only mandatory argument to <code class="docutils literal notranslate"><span class="pre">add</span></code> is a string giving the name of the dataset column to use for the term. If no other arguments are specified, the corresponding variable will be modeled as a common effect with a normally-distributed prior (a detailed explanation of how priors are handled in Bambi can be found below). The type of variable (i.e., categorical or continuous) will be determined based on the <code class="docutils literal notranslate"><span class="pre">dtype</span></code> of the column in the pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>, so it’s a good idea to make sure all variables are assigned the correct <code class="docutils literal notranslate"><span class="pre">dtype</span></code> when you first read in the data. You can also force continuous variables to be treated as categorical factors by passing them as a list to the <code class="docutils literal notranslate"><span class="pre">categorical</span></code> argument (e.g., <code class="docutils literal notranslate"><span class="pre">add_term('subject</span> <span class="pre">+</span> <span class="pre">condition</span> <span class="pre">+</span> <span class="pre">extraversion',</span> <span class="pre">categorical=['subject'])</span></code>).</p>
+<p>To specify that a term should be modeled as a group specific effect, pass the formula to the <code class="docutils literal notranslate"><span class="pre">group_specific</span></code> argument (e.g., <code class="docutils literal notranslate"><span class="pre">group_specific='1|subj'</span></code>). The specification of group specific intercepts vs. slopes is handled as in other packages, or in the full specification passed to a single <code class="docutils literal notranslate"><span class="pre">fit()</span></code> call. For example, <code class="docutils literal notranslate"><span class="pre">add(group_specific=['1|site',</span> <span class="pre">'0+condition|subject'])</span></code> would add group specific condition slopes distributed over subjects (without subject intercepts), as well as group specific intercepts for sites.</p>
 </div>
-<div class="section" id="notes-on-fixed-and-random-effects-in-bambi">
-<h4><a class="toc-backref" href="#id6">Notes on fixed and random effects in Bambi</a><a class="headerlink" href="#notes-on-fixed-and-random-effects-in-bambi" title="Permalink to this headline">¶</a></h4>
-<p>As noted above, Bambi handles fixed and random effects separately. The fixed effects specification relies on the <a class="reference external" href="https://patsy.readthedocs.io/en/latest/overview.html">patsy</a> package, which supports nearly all of the standard formula operators handled in base R–including <code class="docutils literal notranslate"><span class="pre">:</span></code>, <code class="docutils literal notranslate"><span class="pre">*</span></code>, <code class="docutils literal notranslate"><span class="pre">-</span></code>, etc. Unfortunately, patsy doesn’t support grouping operators, so random effects are handled separately in Bambi. All terms must be passed in as elements in a list (though each individual term can be as complex as a normal fixed effect specification). For example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">random_terms</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="c1"># Random student intercepts</span>
+<div class="section" id="notes-on-common-and-group-specific-effects-in-bambi">
+<h4><a class="toc-backref" href="#id6">Notes on common and group specific effects in Bambi</a><a class="headerlink" href="#notes-on-common-and-group-specific-effects-in-bambi" title="Permalink to this headline">¶</a></h4>
+<p>As noted above, Bambi handles common and group specific effects separately. The common effects specification relies on the <a class="reference external" href="https://patsy.readthedocs.io/en/latest/overview.html">patsy</a> package, which supports nearly all of the standard formula operators handled in base R–including <code class="docutils literal notranslate"><span class="pre">:</span></code>, <code class="docutils literal notranslate"><span class="pre">*</span></code>, <code class="docutils literal notranslate"><span class="pre">-</span></code>, etc. Unfortunately, patsy doesn’t support grouping operators, so group specific effects are handled separately in Bambi. All terms must be passed in as elements in a list (though each individual term can be as complex as a normal common effect specification). For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">group_specific_terms</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># Group specific student intercepts</span>
     <span class="s1">&#39;1|student&#39;</span><span class="p">,</span>
-    <span class="c1"># Random classroom intercepts</span>
+    <span class="c1"># Group specific classroom intercepts</span>
     <span class="s1">&#39;1|classroom&#39;</span><span class="p">,</span>
-    <span class="c1"># Random treatment slopes over schools; school intercepts will automatically added</span>
+    <span class="c1"># Group specific treatment slopes over schools; school intercepts will automatically added</span>
     <span class="s1">&#39;treatment|school&#39;</span><span class="p">,</span>
-    <span class="c1"># A random set of subject slopes for each level of the combination of factors a and b,</span>
+    <span class="c1"># A Group specific set of subject slopes for each level of the combination of factors a and b,</span>
     <span class="c1"># with subject intercepts excluded</span>
     <span class="s1">&#39;0+a*b|subject&#39;</span>
 <span class="p">]</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">random</span><span class="o">=</span><span class="n">random_terms</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">group_specific</span><span class="o">=</span><span class="n">group_specific_terms</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="coding-of-categorical-variables">
 <h4><a class="toc-backref" href="#id7">Coding of categorical variables</a><a class="headerlink" href="#coding-of-categorical-variables" title="Permalink to this headline">¶</a></h4>
-<p>When a categorical fixed effect with N levels is added to a model, by default, it is coded by N-1 dummy variables (i.e., reduced-rank coding). For example, suppose we write <code class="docutils literal notranslate"><span class="pre">'y</span> <span class="pre">~</span> <span class="pre">condition</span> <span class="pre">+</span> <span class="pre">age</span> <span class="pre">+</span> <span class="pre">gender'</span></code>, where condition is a categorical variable with 4 levels, and age and gender are continuous variables. Then our model would contain an intercept term (added to the model by default, as in R), three dummy-coded variables (each contrasting the first level of <code class="docutils literal notranslate"><span class="pre">condition</span></code> with one of the subsequent levels), and continuous predictors for age and gender. Suppose, however, that we would rather use full-rank coding of conditions. If we explicitly remove the intercept –as in <code class="docutils literal notranslate"><span class="pre">'y</span> <span class="pre">~</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">condition</span> <span class="pre">+</span> <span class="pre">age</span> <span class="pre">+</span> <span class="pre">gender'</span></code>– then we get the desired effect. Now, the intercept is no longer included, and condition will be coded using 4 dummy indicators, each one coding for the presence or absence of the respective condition without reference to the other conditions.</p>
-<p>Random effects are handled in a comparable way. When adding random intercepts, coding is always full-rank (e.g., when adding random intercepts for 100 schools, one gets 100 dummy-coded indicators coding each school separately, and not 99 indicators contrasting each school with the very first one). For random slopes, coding proceeds the same way as for fixed effects. The random effects specification <code class="docutils literal notranslate"><span class="pre">['condition|subject']</span></code> would add an intercept for each subject, plus N-1 condition slopes (each coded with respect to the first, omitted, level as the referent). If we instead specify <code class="docutils literal notranslate"><span class="pre">['0+condition|subject']</span></code>, we get N condition slopes and no intercepts.</p>
+<p>When a categorical common effect with N levels is added to a model, by default, it is coded by N-1 dummy variables (i.e., reduced-rank coding). For example, suppose we write <code class="docutils literal notranslate"><span class="pre">'y</span> <span class="pre">~</span> <span class="pre">condition</span> <span class="pre">+</span> <span class="pre">age</span> <span class="pre">+</span> <span class="pre">gender'</span></code>, where condition is a categorical variable with 4 levels, and age and gender are continuous variables. Then our model would contain an intercept term (added to the model by default, as in R), three dummy-coded variables (each contrasting the first level of <code class="docutils literal notranslate"><span class="pre">condition</span></code> with one of the subsequent levels), and continuous predictors for age and gender. Suppose, however, that we would rather use full-rank coding of conditions. If we explicitly remove the intercept –as in <code class="docutils literal notranslate"><span class="pre">'y</span> <span class="pre">~</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">condition</span> <span class="pre">+</span> <span class="pre">age</span> <span class="pre">+</span> <span class="pre">gender'</span></code>– then we get the desired effect. Now, the intercept is no longer included, and condition will be coded using 4 dummy indicators, each one coding for the presence or absence of the respective condition without reference to the other conditions.</p>
+<p>Group specific effects are handled in a comparable way. When adding group specific intercepts, coding is always full-rank (e.g., when adding group specific intercepts for 100 schools, one gets 100 dummy-coded indicators coding each school separately, and not 99 indicators contrasting each school with the very first one). For group specific slopes, coding proceeds the same way as for common effects. The group specific effects specification <code class="docutils literal notranslate"><span class="pre">['condition|subject']</span></code> would add an intercept for each subject, plus N-1 condition slopes (each coded with respect to the first, omitted, level as the referent). If we instead specify <code class="docutils literal notranslate"><span class="pre">['0+condition|subject']</span></code>, we get N condition slopes and no intercepts.</p>
 </div>
 </div>
 <div class="section" id="fitting-the-model">
 <h3><a class="toc-backref" href="#id8">Fitting the model</a><a class="headerlink" href="#fitting-the-model" title="Permalink to this headline">¶</a></h3>
 <p>Once a model is fully specified, we need to run the PyMC3 sampler to generate parameter estimates. If we’re using the one-line <code class="docutils literal notranslate"><span class="pre">fit()</span></code> interface, sampling will begin right away:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;rt ~ condition + gender + age&#39;</span><span class="p">,</span> <span class="n">random</span><span class="o">=</span><span class="s1">&#39;condition|subject&#39;</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;rt ~ condition + gender + age&#39;</span><span class="p">,</span> <span class="n">group_specific</span><span class="o">=</span><span class="s1">&#39;condition|subject&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>The above code will obtain 1,000 samples (the default value) and return them as an <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance (for more details, see the <a class="reference external" href="https://arviz-devs.github.io/arviz/schema/schema.html">ArviZ documentation</a>). In this case, the <cite>fit()</cite> method accepts optional keyword arguments to pass onto PyMC3’s <code class="docutils literal notranslate"><span class="pre">sample()</span></code> method, so any methods accepted by <code class="docutils literal notranslate"><span class="pre">sample()</span></code> can be specified here. We can also explicitly set the number of samples via the <code class="docutils literal notranslate"><span class="pre">samples</span></code> argument. For example, if we call <code class="docutils literal notranslate"><span class="pre">fit('y</span> <span class="pre">~</span> <span class="pre">X1',</span> <span class="pre">samples=2000,</span> <span class="pre">chains=2)</span></code>, the PyMC3 sampler will sample two chains in parallel, drawing 2,000 samples for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see the <a class="reference external" href="https://docs.pymc.io/api/inference.html#module-pymc3.sampling">PyMC3 documentation</a>).</p>
+<p>The above code will obtain 1,000 draws (the default value) and return them as an <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance (for more details, see the <a class="reference external" href="https://arviz-devs.github.io/arviz/schema/schema.html">ArviZ documentation</a>). In this case, the <cite>fit()</cite> method accepts optional keyword arguments to pass onto PyMC3’s <code class="docutils literal notranslate"><span class="pre">sample()</span></code> method, so any methods accepted by <code class="docutils literal notranslate"><span class="pre">sample()</span></code> can be specified here. We can also explicitly set the number of draws via the <code class="docutils literal notranslate"><span class="pre">draws</span></code> argument. For example, if we call <code class="docutils literal notranslate"><span class="pre">fit('y</span> <span class="pre">~</span> <span class="pre">X1',</span> <span class="pre">draws=2000,</span> <span class="pre">chains=2)</span></code>, the PyMC3 sampler will sample two chains in parallel, drawing 2,000 draws for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see the <a class="reference external" href="https://docs.pymc.io/api/inference.html#module-pymc3.sampling">PyMC3 documentation</a>).</p>
 <p>Alternatively, if we’re building our model incrementally, we can specify our model in steps, and only call <code class="docutils literal notranslate"><span class="pre">fit()</span></code> once the model is complete:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;food_type&#39;</span><span class="p">,</span> <span class="n">categorical</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;food_type&#39;</span><span class="p">])</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">random</span><span class="o">=</span><span class="s1">&#39;1|subject&#39;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">group_specific</span><span class="o">=</span><span class="s1">&#39;1|subject&#39;</span><span class="p">)</span>
 <span class="o">...</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="section" id="building-the-model">
@@ -307,7 +307,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
     <span class="s1">&#39;rt ~ condition + gender + age&#39;</span><span class="p">,</span>
-    <span class="n">random</span><span class="o">=</span><span class="s1">&#39;condition|subject&#39;</span>
+    <span class="n">group_specific</span><span class="o">=</span><span class="s1">&#39;condition|subject&#39;</span>
 <span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 </pre></div>
@@ -316,7 +316,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="s1">&#39;rt ~ condition + gender + age&#39;</span><span class="p">,</span>
-    <span class="n">random</span><span class="o">=</span><span class="s1">&#39;condition|subject&#39;</span><span class="p">,</span>
+    <span class="n">group_specific</span><span class="o">=</span><span class="s1">&#39;condition|subject&#39;</span><span class="p">,</span>
     <span class="n">run</span><span class="o">=</span><span class="kc">False</span>
 <span class="p">)</span>
 </pre></div>
@@ -332,16 +332,16 @@
 <div class="section" id="different-ways-of-specifying-priors">
 <h4><a class="toc-backref" href="#id11">Different ways of specifying priors</a><a class="headerlink" href="#different-ways-of-specifying-priors" title="Permalink to this headline">¶</a></h4>
 <p>Bambi provides two ways to specify a custom prior. First, one can manually specify only the scale of the prior, while retaining the default distribution.
-By default, Bambi sets “weakly informative” priors on all fixed and random effects. Priors are specified on a (generalized) partial correlation scale that quantifies the expected standardized contribution of each individual term to the outcome variable when controlling for other terms. The default “wide” setting sets the scale of a fixed effect prior to sqrt(1/3) = 0.577 on the partial correlation scale, which is the standard deviation of a flat prior from -1 to +1. This correlation-level scale value then gets translated to a Normal prior at the slope level, centered on 0 by default, with a correspondingly wide variance. This process results in a weakly informative (rather than non-informative) prior distribution whose width can be tuned in a simple, intuitive way. More detailed information about how the default priors work can be found in <a class="reference external" href="https://arxiv.org/abs/1702.01201">this technical paper</a>.</p>
+By default, Bambi sets “weakly informative” priors on all common and group specific effects. Priors are specified on a (generalized) partial correlation scale that quantifies the expected standardized contribution of each individual term to the outcome variable when controlling for other terms. The default “wide” setting sets the scale of a common effect prior to sqrt(1/3) = 0.577 on the partial correlation scale, which is the standard deviation of a flat prior from -1 to +1. This correlation-level scale value then gets translated to a Normal prior at the slope level, centered on 0 by default, with a correspondingly wide variance. This process results in a weakly informative (rather than non-informative) prior distribution whose width can be tuned in a simple, intuitive way. More detailed information about how the default priors work can be found in <a class="reference external" href="https://arxiv.org/abs/1702.01201">this technical paper</a>.</p>
 <p>In cases where we want to keep the default prior distributions, but alter their scale, we can specify either a numeric scale value or pass the name of a predefined constant. For example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="c1"># Add condition to the model as a fixed effect with a very</span>
+<span class="c1"># Add condition to the model as a common effect with a very</span>
 <span class="c1"># wide prior</span>
 <span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="s1">&#39;superwide&#39;</span><span class="p">)</span>
 
-<span class="c1"># Add random subject intercepts to the model, with a narrow</span>
+<span class="c1"># Add group specific subject intercepts to the model, with a narrow</span>
 <span class="c1"># prior on their standard deviation</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">random</span><span class="o">=</span><span class="s1">&#39;1|subject&#39;</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">group_specific</span><span class="o">=</span><span class="s1">&#39;1|subject&#39;</span><span class="p">,</span> <span class="n">prior</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Predefined named scales include “superwide” (scale = 0.8), “wide” (0.577; the default), “medium” (0.4), and “narrow” (0.2). The theoretical maximum scale value is 1.0, which specifies a distribution of partial correlations with half of the values at -1 and the other half at +1. Scale values closer to 0 are considered more “informative” and tend to induce more shrinkage in the parameter estimates.</p>
@@ -355,18 +355,18 @@ By default, Bambi sets “weakly informative” priors on all fixed and random e
 <span class="n">priors</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;1|subject&#39;</span><span class="p">:</span> <span class="n">my_favorite_prior</span><span class="p">}</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="s1">&#39;y ~ condition&#39;</span><span class="p">,</span>
-    <span class="n">random</span><span class="o">=</span><span class="s1">&#39;1|subject&#39;</span><span class="p">,</span>
+    <span class="n">group_specific</span><span class="o">=</span><span class="s1">&#39;1|subject&#39;</span><span class="p">,</span>
     <span class="n">priors</span><span class="o">=</span><span class="n">priors</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Priors specified using the <code class="docutils literal notranslate"><span class="pre">Prior</span></code> class can be nested to arbitrary depths–meaning, we can set any of a given prior’s argument to point to another <code class="docutils literal notranslate"><span class="pre">Prior</span></code> instance. This is particularly useful when specifying hierarchical priors on random effects, where the individual random slopes or intercepts are constrained to share a common source distribution:</p>
+<p>Priors specified using the <code class="docutils literal notranslate"><span class="pre">Prior</span></code> class can be nested to arbitrary depths–meaning, we can set any of a given prior’s argument to point to another <code class="docutils literal notranslate"><span class="pre">Prior</span></code> instance. This is particularly useful when specifying hierarchical priors on group specific effects, where the individual group specific slopes or intercepts are constrained to share a common source distribution:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">subject_sd</span> <span class="o">=</span> <span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;HalfCauchy&#39;</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">subject_prior</span> <span class="o">=</span> <span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="n">subject_sd</span><span class="p">)</span>
 <span class="n">priors</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;1|subject&#39;</span><span class="p">:</span> <span class="n">my_favorite_prior</span><span class="p">}</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="s1">&#39;y ~ condition&#39;</span><span class="p">,</span>
-    <span class="n">random</span><span class="o">=</span><span class="s1">&#39;1|subject&#39;</span><span class="p">,</span>
+    <span class="n">group_specific</span><span class="o">=</span><span class="s1">&#39;1|subject&#39;</span><span class="p">,</span>
     <span class="n">priors</span><span class="o">=</span><span class="n">priors</span>
 <span class="p">)</span>
 </pre></div>
@@ -375,7 +375,7 @@ By default, Bambi sets “weakly informative” priors on all fixed and random e
 </div>
 <div class="section" id="mapping-priors-onto-terms">
 <h4><a class="toc-backref" href="#id12">Mapping priors onto terms</a><a class="headerlink" href="#mapping-priors-onto-terms" title="Permalink to this headline">¶</a></h4>
-<p>Once we’ve defined custom priors for one or more terms, we need to map them onto those terms in our model. Bambi allows us to do this efficiently by passing a dictionary of term -&gt; prior mappings in any <code class="docutils literal notranslate"><span class="pre">fit()</span></code> or <code class="docutils literal notranslate"><span class="pre">add()</span></code> call (and also via a separate <code class="docutils literal notranslate"><span class="pre">set_priors()</span></code> method on the <code class="docutils literal notranslate"><span class="pre">Model</span></code> class). The keys of the dictionary the names of terms, and the values are the desired priors. There are also <code class="docutils literal notranslate"><span class="pre">fixed</span></code> and <code class="docutils literal notranslate"><span class="pre">random</span></code> arguments that make it easy to apply the same priors to all fixed or random effects in the model. Some examples:</p>
+<p>Once we’ve defined custom priors for one or more terms, we need to map them onto those terms in our model. Bambi allows us to do this efficiently by passing a dictionary of term -&gt; prior mappings in any <code class="docutils literal notranslate"><span class="pre">fit()</span></code> or <code class="docutils literal notranslate"><span class="pre">add()</span></code> call (and also via a separate <code class="docutils literal notranslate"><span class="pre">set_priors()</span></code> method on the <code class="docutils literal notranslate"><span class="pre">Model</span></code> class). The keys of the dictionary the names of terms, and the values are the desired priors. There are also <code class="docutils literal notranslate"><span class="pre">common</span></code> and <code class="docutils literal notranslate"><span class="pre">group_specific</span></code> arguments that make it easy to apply the same priors to all common or group specific effects in the model. Some examples:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
 <span class="c1"># Example 1: set each prior by name. Note that we can set the same</span>
@@ -387,41 +387,41 @@ By default, Bambi sets “weakly informative” priors on all fixed and random e
 <span class="p">}</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="s1">&#39;y ~ X1 + X2&#39;</span><span class="p">,</span>
-    <span class="n">random</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1|X3&#39;</span><span class="p">,</span> <span class="s1">&#39;1|X4&#39;</span><span class="p">],</span>
+    <span class="n">group_specific</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1|X3&#39;</span><span class="p">,</span> <span class="s1">&#39;1|X4&#39;</span><span class="p">],</span>
     <span class="n">priors</span><span class="o">=</span><span class="n">priors</span>
 <span class="p">)</span>
 
-<span class="c1"># Example 2: specify priors for all fixed effects and all random</span>
+<span class="c1"># Example 2: specify priors for all common effects and all group specific</span>
 <span class="c1"># effects, except for X1, which still gets its own custom prior.</span>
 <span class="n">priors</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;X1&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
-    <span class="s1">&#39;fixed&#39;</span><span class="p">:</span> <span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
-    <span class="s1">&#39;random&#39;</span><span class="p">:</span> <span class="s1">&#39;wide&#39;</span>
+    <span class="s1">&#39;common&#39;</span><span class="p">:</span> <span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
+    <span class="s1">&#39;group_specific&#39;</span><span class="p">:</span> <span class="s1">&#39;wide&#39;</span>
 <span class="p">}</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="s1">&#39;y ~ X1 + X2&#39;</span><span class="p">,</span>
-    <span class="n">random</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1|X3&#39;</span><span class="p">,</span> <span class="s1">&#39;1|X4&#39;</span><span class="p">],</span>
+    <span class="n">group_specific</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;1|X3&#39;</span><span class="p">,</span> <span class="s1">&#39;1|X4&#39;</span><span class="p">],</span>
     <span class="n">priors</span><span class="o">=</span><span class="n">priors</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p>Notice how this interface allows us to specify terms either by name (including passing tuples as keys in cases where we want multiple terms to share the same prior), or by term type (i.e., to set the same prior on all fixed or random effects). If we pass both named priors and fixed or random effects defaults, the former will take precedence over the latter (in the above example, the prior for <code class="docutils literal notranslate"><span class="pre">'X1'</span></code> will be <code class="docutils literal notranslate"><span class="pre">0.3</span></code>).</p>
+<p>Notice how this interface allows us to specify terms either by name (including passing tuples as keys in cases where we want multiple terms to share the same prior), or by term type (i.e., to set the same prior on all common or group specific effects). If we pass both named priors and common or group specific effects defaults, the former will take precedence over the latter (in the above example, the prior for <code class="docutils literal notranslate"><span class="pre">'X1'</span></code> will be <code class="docutils literal notranslate"><span class="pre">0.3</span></code>).</p>
 <p>If we prefer, we can also set priors outside of the <code class="docutils literal notranslate"><span class="pre">fit()</span></code> (or <code class="docutils literal notranslate"><span class="pre">add()</span></code>) calls, using the <code class="docutils literal notranslate"><span class="pre">set_priors</span></code> method:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Specify model but don&#39;t build/sample just yet</span>
-<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;y ~ X1 + X3 + X4&#39;</span><span class="p">,</span> <span class="n">random</span><span class="o">=</span><span class="s1">&#39;1|X2&#39;</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;y ~ X1 + X3 + X4&#39;</span><span class="p">,</span> <span class="n">group_specific</span><span class="o">=</span><span class="s1">&#39;1|X2&#39;</span><span class="p">,</span> <span class="n">run</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="c1"># Specify priors—produces same result as in Example 2 above</span>
 <span class="n">model</span><span class="o">.</span><span class="n">set_priors</span><span class="p">(</span>
     <span class="p">{</span><span class="s1">&#39;X1&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">},</span>
-    <span class="n">fixed</span><span class="o">=</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
-    <span class="n">random</span><span class="o">=</span><span class="s1">&#39;wide&#39;</span>
+    <span class="n">common</span><span class="o">=</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
+    <span class="n">group_specific</span><span class="o">=</span><span class="s1">&#39;wide&#39;</span>
 <span class="p">)</span>
 
 <span class="c1"># Now sample</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Here we stipulate that terms X1 and X4 will use the same normal prior, X2 will use a different normal prior with a uniform hyperprior on its standard deviation, and all other fixed effects will use the default prior with a scale of 0.5.</p>
+<p>Here we stipulate that terms X1 and X4 will use the same normal prior, X2 will use a different normal prior with a uniform hyperprior on its standard deviation, and all other common effects will use the default prior with a scale of 0.5.</p>
 <p>It’s important to note that explicitly setting priors by passing in <code class="docutils literal notranslate"><span class="pre">Prior</span></code> objects will disable Bambi’s default behavior of scaling priors to the data in order to ensure that they remain weakly informative. This means that if you specify your own prior, you have to be sure not only to specify the distribution you want, but also any relevant scale parameters. For example, the 0.5 in <code class="docutils literal notranslate"><span class="pre">Prior('Normal',</span> <span class="pre">mu=0,</span> <span class="pre">sd=0.5)</span></code> will be specified on the scale of the data, not the bounded partial correlation scale that Bambi uses for default priors. This means that if your outcome variable has a mean value of 10,000 and a standard deviation of, say, 1,000, you could potentially have some problems getting the model to produce reasonable estimates, since from the perspective of the data, you’re specifying an extremely strong prior.</p>
 </div>
 </div>
@@ -431,7 +431,7 @@ By default, Bambi sets “weakly informative” priors on all fixed and random e
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="s1">&#39;graduate ~ attendance_record + GPA&#39;</span><span class="p">,</span>
-    <span class="n">random</span><span class="o">=</span><span class="s1">&#39;1|school&#39;</span><span class="p">,</span>
+    <span class="n">group_specific</span><span class="o">=</span><span class="s1">&#39;1|school&#39;</span><span class="p">,</span>
     <span class="n">family</span><span class="o">=</span><span class="s1">&#39;bernoulli&#39;</span>
 <span class="p">)</span>
 </pre></div>
@@ -501,7 +501,7 @@ By default, Bambi sets “weakly informative” priors on all fixed and random e
 <span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="s1">&#39;graduate ~ attendance_record + GPA&#39;</span><span class="p">,</span>
-    <span class="n">random</span><span class="o">=</span><span class="s1">&#39;1|school&#39;</span><span class="p">,</span>
+    <span class="n">group_specific</span><span class="o">=</span><span class="s1">&#39;1|school&#39;</span><span class="p">,</span>
     <span class="n">family</span><span class="o">=</span><span class="n">new_fam</span>
 <span class="p">)</span>
 </pre></div>
@@ -520,16 +520,17 @@ By default, Bambi sets “weakly informative” priors on all fixed and random e
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="s1">&#39;value ~ condition&#39;</span><span class="p">,</span>
-    <span class="n">random</span><span class="o">=</span><span class="s1">&#39;1|uid&#39;</span><span class="p">,</span>
-    <span class="n">samples</span><span class="o">=</span><span class="mi">1250</span><span class="p">,</span>
+    <span class="n">group_specific</span><span class="o">=</span><span class="s1">&#39;1|uid&#39;</span><span class="p">,</span>
+    <span class="n">draws</span><span class="o">=</span><span class="mi">1250</span><span class="p">,</span>
     <span class="n">chains</span><span class="o">=</span><span class="mi">2</span>
 <span class="p">)</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;1|uid&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sigma&#39;</span><span class="p">],</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
 </pre></div>
 </div>
 <p>This produces a plot like the following:</p>
 <img alt="_images/sample_traceplot.png" src="_images/sample_traceplot.png" />
-<p>More details on this plot are available in the <a class="reference external" href="https://arviz-devs.github.io/arviz/_modules/arviz/plots/traceplot.html">ArviZ documentation</a>.</p>
+<p>In this  case, we also passed <code class="docutils literal notranslate"><span class="pre">compact=True</span></code> to tell ArviZ to put all the posteriors for the different subjects compacted in a single plot.
+More details on this plot are available in the <a class="reference external" href="https://arviz-devs.github.io/arviz/_modules/arviz/plots/traceplot.html">ArviZ documentation</a>.</p>
 </div>
 <div class="section" id="summarizing">
 <h3><a class="toc-backref" href="#id17">Summarizing</a><a class="headerlink" href="#summarizing" title="Permalink to this headline">¶</a></h3>
@@ -569,6 +570,13 @@ By default, Bambi sets “weakly informative” priors on all fixed and random e
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=bambinos&repo=bambi&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
@@ -583,7 +591,7 @@ By default, Bambi sets “weakly informative” priors on all fixed and random e
 <li class="toctree-l3"><a class="reference internal" href="#model-specification">Model specification</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#formula-based-specification">Formula-based specification</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#incremental-specification">Incremental specification</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#notes-on-fixed-and-random-effects-in-bambi">Notes on fixed and random effects in Bambi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#notes-on-common-and-group-specific-effects-in-bambi">Notes on common and group specific effects in Bambi</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#coding-of-categorical-variables">Coding of categorical variables</a></li>
 </ul>
 </li>
@@ -655,6 +663,10 @@ By default, Bambi sets “weakly informative” priors on all fixed and random e
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/bambinos/bambi" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

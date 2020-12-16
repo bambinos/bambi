@@ -40,6 +40,7 @@
 <div class="genindex-jumpbox">
  <a href="#A"><strong>A</strong></a>
  | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
@@ -69,8 +70,6 @@
         <li><a href="api_reference.html#module-bambi.models">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     bambi.priors
 
@@ -78,7 +77,19 @@
         <li><a href="api_reference.html#module-bambi.priors">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#bambi.models.BaseTerm">BaseTerm (class in bambi.models)</a>
+</li>
       <li><a href="api_reference.html#bambi.models.Model.build">build() (bambi.models.Model method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#bambi.models.Model.common_terms">common_terms() (bambi.models.Model property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -92,8 +103,6 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api_reference.html#bambi.models.Model.fit">fit() (bambi.models.Model method)</a>
 </li>
-      <li><a href="api_reference.html#bambi.models.Model.fixed_terms">fixed_terms() (bambi.models.Model property)</a>
-</li>
   </ul></td>
 </tr></table>
 
@@ -103,12 +112,22 @@
       <li><a href="api_reference.html#bambi.priors.PriorFactory.get">get() (bambi.priors.PriorFactory method)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#bambi.models.Model.group_specific_terms">group_specific_terms() (bambi.models.Model property)</a>
+</li>
+      <li><a href="api_reference.html#bambi.models.GroupSpecificTerm">GroupSpecificTerm (class in bambi.models)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api_reference.html#bambi.models.RandomTerm.invert_dummies">invert_dummies() (bambi.models.RandomTerm method)</a>
+      <li><a href="api_reference.html#bambi.models.InteractionTerm">InteractionTerm (class in bambi.models)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#bambi.models.GroupSpecificTerm.invert_dummies">invert_dummies() (bambi.models.GroupSpecificTerm method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -133,10 +152,16 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api_reference.html#bambi.priors.Prior">Prior (class in bambi.priors)</a>
+      <li><a href="api_reference.html#bambi.models.Model.plot_priors">plot_priors() (bambi.models.Model method)</a>
+</li>
+      <li><a href="api_reference.html#bambi.models.Model.posterior_predictive">posterior_predictive() (bambi.models.Model method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api_reference.html#bambi.priors.Prior">Prior (class in bambi.priors)</a>
+</li>
+      <li><a href="api_reference.html#bambi.models.Model.prior_predictive">prior_predictive() (bambi.models.Model method)</a>
+</li>
       <li><a href="api_reference.html#bambi.priors.PriorFactory">PriorFactory (class in bambi.priors)</a>
 </li>
   </ul></td>
@@ -145,13 +170,11 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api_reference.html#bambi.models.Model.random_terms">random_terms() (bambi.models.Model property)</a>
+      <li><a href="api_reference.html#bambi.models.Model.reset">reset() (bambi.models.Model method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api_reference.html#bambi.models.RandomTerm">RandomTerm (class in bambi.models)</a>
-</li>
-      <li><a href="api_reference.html#bambi.models.Model.reset">reset() (bambi.models.Model method)</a>
+      <li><a href="api_reference.html#bambi.models.ResponseTerm">ResponseTerm (class in bambi.models)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -196,6 +219,13 @@
 
 
 
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=bambinos&repo=bambi&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
 
 
 
@@ -246,6 +276,10 @@
       
     </div>
 
+    
+    <a href="https://github.com/bambinos/bambi" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bayesian T-test &#8212; bambi 0.2.0 documentation</title>
+    <title>T-test &#8212; bambi 0.2.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -18,8 +18,8 @@
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Bayesian Multiple Regression Example" href="ESCS_multiple_regression.html" />
-    <link rel="prev" title="Bayesian Multi-level Regression" href="bayesian_multi-level_regression.html" />
+    <link rel="next" title="Multiple Regression" href="ESCS_multiple_regression.html" />
+    <link rel="prev" title="Multi-level Regression" href="multi-level_regression.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -256,8 +256,8 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Bayesian-T-test">
-<h1>Bayesian T-test<a class="headerlink" href="#Bayesian-T-test" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="T-test">
+<h1>T-test<a class="headerlink" href="#T-test" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -277,10 +277,11 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;arviz-darkgrid&#39;</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<p>In this notebook we demo how to perform a two-sample Bayesian t-test to compare the mean value of two Gaussian populations.</p>
+<p>In this notebook we demo how to perform a two-sample Bayesian t-test to compare the mean value of two Gaussian populations using Bambi.</p>
 <div class="section" id="Generate-data">
 <h2>Generate data<a class="headerlink" href="#Generate-data" title="Permalink to this headline">¶</a></h2>
 <p>We generate 160 values from a Gaussian with <span class="math notranslate nohighlight">\(\mu=6\)</span> and <span class="math notranslate nohighlight">\(\sigma=2.5\)</span> and another 120 values from a Gaussian’ with <span class="math notranslate nohighlight">\(\mu=8\)</span> and <span class="math notranslate nohighlight">\(\sigma=2\)</span></p>
@@ -306,7 +307,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_t-test_5_0.png" src="../_images/notebooks_bayesian_t-test_5_0.png" />
+<img alt="../_images/notebooks_t-test_5_0.png" src="../_images/notebooks_t-test_5_0.png" />
 </div>
 </div>
 <div class="section" id="Model">
@@ -364,7 +365,7 @@ NUTS: [Val_sigma, Group, Intercept]
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:02<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:01<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -393,7 +394,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="math notranslate nohighlight">
 $$
             \begin{array}{rcl}
-            \text{Intercept} &amp;\sim &amp; \text{Normal}(\mathit{mu}=array,~\mathit{sigma}=array)\\\text{Group} &amp;\sim &amp; \text{Normal}(\mathit{mu}=array,~\mathit{sigma}=array)\\\text{Val_sigma} &amp;\sim &amp; \text{HalfStudentT}(\mathit{nu}=4.0,~\mathit{sigma}=2.272128158801779)\\\text{Val} &amp;\sim &amp; \text{Normal}(\mathit{mu}=f(f(f(),~f(f(array,~\text{Intercept}))),~f(f(array,~\text{Group}))),~\mathit{sigma}=f(\text{Val_sigma}))
+            \text{Intercept} &amp;\sim &amp; \text{Normal}(\mathit{mu}=6.888841520355615,~\mathit{sigma}=2.77556648438955)\\\text{Group} &amp;\sim &amp; \text{Normal}(\mathit{mu}=0.0,~\mathit{sigma}=3.71960189063118)\\\text{Val_sigma} &amp;\sim &amp; \text{HalfStudentT}(\mathit{nu}=4.0,~\mathit{sigma}=2.272128158801779)\\\text{Val} &amp;\sim &amp; \text{Normal}(\mathit{mu}=f(f(f(),~f(f(array,~f(\text{Intercept})))),~f(f(array,~f(\text{Group})))),~\mathit{sigma}=f(\text{Val_sigma}))
             \end{array}
             $$</div></div>
 </div>
@@ -402,7 +403,7 @@ $$
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+<span></span><span class="n">model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -410,7 +411,7 @@ $$
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_t-test_11_0.png" src="../_images/notebooks_bayesian_t-test_11_0.png" />
+<img alt="../_images/notebooks_t-test_11_0.png" src="../_images/notebooks_t-test_11_0.png" />
 </div>
 </div>
 <p>To inspect our posterior and the sampling process we can call <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code>. The option <code class="docutils literal notranslate"><span class="pre">kind='rank_vlines'</span></code> gives us a variant of the rank plot that uses lines and dots and helps us to inspect the stationarity of the chains. Since there is no clear pattern or serious deviations from the horizontal lines, we can conclude the chains are stationary.</p>
@@ -427,7 +428,7 @@ $$
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_t-test_13_0.png" src="../_images/notebooks_bayesian_t-test_13_0.png" />
+<img alt="../_images/notebooks_t-test_13_0.png" src="../_images/notebooks_t-test_13_0.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
@@ -477,52 +478,52 @@ $$
   </thead>
   <tbody>
     <tr>
-      <th>Intercept[0]</th>
-      <td>6.167</td>
-      <td>0.170</td>
-      <td>5.832</td>
-      <td>6.470</td>
+      <th>Intercept</th>
+      <td>6.171</td>
+      <td>0.171</td>
+      <td>5.856</td>
+      <td>6.486</td>
       <td>0.005</td>
       <td>0.004</td>
-      <td>995.0</td>
-      <td>995.0</td>
-      <td>1000.0</td>
-      <td>1103.0</td>
+      <td>1115.0</td>
+      <td>1109.0</td>
+      <td>1120.0</td>
+      <td>1222.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>Group[0]</th>
-      <td>1.681</td>
-      <td>0.268</td>
-      <td>1.193</td>
-      <td>2.200</td>
-      <td>0.009</td>
-      <td>0.006</td>
-      <td>946.0</td>
-      <td>915.0</td>
-      <td>948.0</td>
-      <td>1264.0</td>
+      <th>Group</th>
+      <td>1.678</td>
+      <td>0.259</td>
+      <td>1.201</td>
+      <td>2.173</td>
+      <td>0.008</td>
+      <td>0.005</td>
+      <td>1176.0</td>
+      <td>1158.0</td>
+      <td>1176.0</td>
+      <td>1262.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Val_sigma</th>
-      <td>2.123</td>
-      <td>0.093</td>
-      <td>1.955</td>
-      <td>2.302</td>
+      <td>2.121</td>
+      <td>0.091</td>
+      <td>1.954</td>
+      <td>2.292</td>
       <td>0.002</td>
       <td>0.002</td>
-      <td>1748.0</td>
-      <td>1739.0</td>
-      <td>1762.0</td>
-      <td>1287.0</td>
+      <td>1538.0</td>
+      <td>1538.0</td>
+      <td>1529.0</td>
+      <td>1052.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
 </table>
 </div></div>
 </div>
-<p>In the summary table we can see the 94% highest density interval for <span class="math notranslate nohighlight">\(\beta_1\)</span> ranges from 1.193 to 2.2. Thus, according to the data and the model used, we conclude the difference between the two population means is somewhere between 1.2 and 2.2 and hence we support the hypotehsis that <span class="math notranslate nohighlight">\(\beta_1 \ne 0\)</span>.</p>
+<p>In the summary table we can see the 94% highest density interval for <span class="math notranslate nohighlight">\(\beta_1\)</span> ranges from 1.201 to 2.173. Thus, according to the data and the model used, we conclude the difference between the two population means is somewhere between 1.2 and 2.2 and hence we support the hypotehsis that <span class="math notranslate nohighlight">\(\beta_1 \ne 0\)</span>.</p>
 <p>Similar conclusions can be made with the density estimate for the posterior distribution of <span class="math notranslate nohighlight">\(\beta_1\)</span>. As seen in the table, most of the probability for the difference in the mean roughly ranges from 1.2 to 2.2.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
@@ -540,7 +541,7 @@ $$
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_bayesian_t-test_16_0.png" src="../_images/notebooks_bayesian_t-test_16_0.png" />
+<img alt="../_images/notebooks_t-test_16_0.png" src="../_images/notebooks_t-test_16_0.png" />
 </div>
 </div>
 <p>Another way to arrive to a similar conclusion is by calculating the probability that the parameter <span class="math notranslate nohighlight">\(\beta_1 &gt; 0\)</span>. This probability, practically equal to 1, tells us that the mean of the two populations are different.</p>
@@ -563,6 +564,32 @@ $$
 1.0
 </pre></div></div>
 </div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+numpy  1.19.1
+arviz  0.10.0
+bambi  0.2.0
+pandas 1.1.1
+last updated: Fri Dec 11 2020
+
+CPython 3.8.5
+IPython 7.18.1
+watermark 2.0.2
+</pre></div></div>
+</div>
 </div>
 </div>
 </div>
@@ -581,15 +608,22 @@ $$
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=bambinos&repo=bambi&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="bayesian_logistic_regression.html">Bayesian Logistic Regression Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bayesian_multi-level_regression.html">Bayesian Multi-level Regression</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Bayesian T-test</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="logistic_regression.html">Logistic Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi-level_regression.html">Multi-level Regression</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">T-test</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Generate-data">Generate data</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#Model">Model</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#Analysis">Analysis</a></li>
@@ -597,9 +631,10 @@ $$
 </li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html">Bayesian Multiple Regression Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="shooter_crossed_random_ANOVA.html">Bayesian Workflow Example (Police Officer’s Dilemma)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="Strack_RRR_re_analysis.html">Bayesian Workflow Example (Strack RRR Analysis Replication)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html">Multiple Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shooter_crossed_random_ANOVA.html">Bayesian Workflow (Police Officer’s Dilemma)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Strack_RRR_re_analysis.html">Bayesian Workflow (Strack RRR Analysis Replication)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_comparison.html">Logistic Regression and Model Comparison with Bambi and Arviz</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference.html">API Reference</a></li>
@@ -610,8 +645,8 @@ $$
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../examples.html">Examples</a><ul>
-      <li>Previous: <a href="bayesian_multi-level_regression.html" title="previous chapter">Bayesian Multi-level Regression</a></li>
-      <li>Next: <a href="ESCS_multiple_regression.html" title="next chapter">Bayesian Multiple Regression Example</a></li>
+      <li>Previous: <a href="multi-level_regression.html" title="previous chapter">Multi-level Regression</a></li>
+      <li>Next: <a href="ESCS_multiple_regression.html" title="next chapter">Multiple Regression</a></li>
   </ul></li>
   </ul></li>
 </ul>
@@ -646,10 +681,14 @@ $$
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
-      <a href="../_sources/notebooks/bayesian_t-test.ipynb.txt"
+      <a href="../_sources/notebooks/t-test.ipynb.txt"
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/bambinos/bambi" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

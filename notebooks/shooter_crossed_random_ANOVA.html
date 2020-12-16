@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bayesian Workflow Example (Police Officer’s Dilemma) &#8212; bambi 0.2.0 documentation</title>
+    <title>Bayesian Workflow (Police Officer’s Dilemma) &#8212; bambi 0.2.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -18,8 +18,8 @@
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Bayesian Workflow Example (Strack RRR Analysis Replication)" href="Strack_RRR_re_analysis.html" />
-    <link rel="prev" title="Bayesian Multiple Regression Example" href="ESCS_multiple_regression.html" />
+    <link rel="next" title="Bayesian Workflow (Strack RRR Analysis Replication)" href="Strack_RRR_re_analysis.html" />
+    <link rel="prev" title="Multiple Regression" href="ESCS_multiple_regression.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -256,8 +256,8 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Bayesian-Workflow-Example-(Police-Officer’s-Dilemma)">
-<h1>Bayesian Workflow Example (Police Officer’s Dilemma)<a class="headerlink" href="#Bayesian-Workflow-Example-(Police-Officer’s-Dilemma)" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Bayesian-Workflow-(Police-Officer’s-Dilemma)">
+<h1>Bayesian Workflow (Police Officer’s Dilemma)<a class="headerlink" href="#Bayesian-Workflow-(Police-Officer’s-Dilemma)" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -276,8 +276,8 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
-<span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;arviz-darkgrid&#39;</span><span class="p">)</span>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;arviz-darkgrid&#39;</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
 <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">chained_assignment</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
 </div>
@@ -1433,10 +1433,10 @@ more convenient for us by allowing us to use some fairly standard distributional
 </div>
 <div class="section" id="Fit-response-rate-models">
 <h2>Fit response rate models<a class="headerlink" href="#Fit-response-rate-models" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="Random-subject-effects-only">
-<h3>Random subject effects only<a class="headerlink" href="#Random-subject-effects-only" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="Subject-specific-effects-only">
+<h3>Subject specific effects only<a class="headerlink" href="#Subject-specific-effects-only" title="Permalink to this headline">¶</a></h3>
 <p>Our first model is analogous to how the data from the shooter task are usually analyzed: incorporating all subject-level sources of variability, but ignoring the sampling variability due to the sample of 50 targets. This is a Bayesian generalized linear mixed model (GLMM) with a Normal response and with intercepts and slopes that vary randomly across subjects. Of note here is the <code class="docutils literal notranslate"><span class="pre">C(x,</span> <span class="pre">Sum)</span></code> syntax, which is from the <a class="reference external" href="http://statsmodels.sourceforge.net/stable/contrasts.html">Patsy library</a>
-that we use to parse formulae. This instructs Bambi to use contrast codes of -1 and +1 for the two levels of each of the fixed factors of <code class="docutils literal notranslate"><span class="pre">race</span></code> (black vs. white) and <code class="docutils literal notranslate"><span class="pre">object</span></code> (gun vs. no gun), so that the <code class="docutils literal notranslate"><span class="pre">race</span></code> and <code class="docutils literal notranslate"><span class="pre">object</span></code> coefficients can be interpreted as simple effects on average across the levels of the other factor (directly analogous, but not quite equivalent, to the main effects). This is the standard coding used in ANOVA.</p>
+that we use to parse formulae. This instructs Bambi to use contrast codes of -1 and +1 for the two levels of each of the common factors of <code class="docutils literal notranslate"><span class="pre">race</span></code> (black vs. white) and <code class="docutils literal notranslate"><span class="pre">object</span></code> (gun vs. no gun), so that the <code class="docutils literal notranslate"><span class="pre">race</span></code> and <code class="docutils literal notranslate"><span class="pre">object</span></code> coefficients can be interpreted as simple effects on average across the levels of the other factor (directly analogous, but not quite equivalent, to the main effects). This is the standard coding used in ANOVA.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
@@ -1444,8 +1444,8 @@ that we use to parse formulae. This instructs Bambi to use contrast codes of -1 
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">subj_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">shooter</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">subj_fitted</span> <span class="o">=</span> <span class="n">subj_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;rate ~ C(race, Sum)*C(object, Sum)&#39;</span><span class="p">,</span>
-                             <span class="n">random</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;C(race, Sum)*C(object, Sum)|subject&#39;</span><span class="p">],</span>
-                             <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+                             <span class="n">group_specific</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;C(race, Sum)*C(object, Sum)|subject&#39;</span><span class="p">],</span>
+                             <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1454,8 +1454,7 @@ that we use to parse formulae. This instructs Bambi to use contrast codes of -1 
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/bambi/models.py:149: UserWarning: Automatically removing 98/3600 rows from the dataset.
-  warnings.warn(msg)
+Automatically removing 98/3600 rows from the dataset.
 Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [rate_sigma, C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject_offset, C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject_sigma, C(object, Sum)[S.gun]|subject_offset, C(object, Sum)[S.gun]|subject_sigma, C(race, Sum)[S.black]|subject_offset, C(race, Sum)[S.black]|subject_sigma, 1|subject_offset, 1|subject_sigma, C(race, Sum):C(object, Sum), C(object, Sum), C(race, Sum), Intercept]
 </pre></div></div>
@@ -1478,7 +1477,7 @@ NUTS: [rate_sigma, C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject_offset, C
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:28<00:00 Sampling 2 chains, 1 divergences]
+  100.00% [4000/4000 00:26<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1486,18 +1485,17 @@ NUTS: [rate_sigma, C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject_offset, C
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 29 seconds.
-There was 1 divergence after tuning. Increase `target_accept` or reparameterize.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 27 seconds.
 The number of effective samples is smaller than 25% for some parameters.
 </pre></div></div>
 </div>
-<p>First let’s visualize the default priors that Bambi automatically decided on for each of the parameters. We do this by calling the <code class="docutils literal notranslate"><span class="pre">.plot()</span></code> method of the <code class="docutils literal notranslate"><span class="pre">Model</span></code> object.</p>
+<p>First let’s visualize the default priors that Bambi automatically decided on for each of the parameters. We do this by calling the <code class="docutils literal notranslate"><span class="pre">.plot_priors()</span></code> method of the <code class="docutils literal notranslate"><span class="pre">Model</span></code> object.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">subj_model</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+<span></span><span class="n">subj_model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -1508,8 +1506,8 @@ The number of effective samples is smaller than 25% for some parameters.
 <img alt="../_images/notebooks_shooter_crossed_random_ANOVA_17_0.png" src="../_images/notebooks_shooter_crossed_random_ANOVA_17_0.png" />
 </div>
 </div>
-<p>The priors on the fixed effects seem quite reasonable. Recall that because of the -1 vs +1 contrast coding, the coefficients correspond to <em>half</em> the difference betwen the two levels of each factor. So the priors on the fixed effects essentially say that the black vs. white and gun vs. no gun (and their interaction) response rate differences are very unlikely to be as large as a full response per second. The priors on the standard deviations of the random effects are yoked to the corresponding
-fixed effect priors (see <a class="reference external" href="https://arxiv.org/abs/1702.01201">our technical paper</a> for more info).</p>
+<p>The priors on the common effects seem quite reasonable. Recall that because of the -1 vs +1 contrast coding, the coefficients correspond to <em>half</em> the difference betwen the two levels of each factor. So the priors on the common effects essentially say that the black vs. white and gun vs. no gun (and their interaction) response rate differences are very unlikely to be as large as a full response per second. The priors on the standard deviations of the group specific effects are yoked to the
+corresponding common effect priors (see <a class="reference external" href="https://arxiv.org/abs/1702.01201">our technical paper</a> for more info).</p>
 <p>Now let’s visualize the model estimates. We do this by passing the object that resulted from the <code class="docutils literal notranslate"><span class="pre">Model.fit()</span></code> call to <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
@@ -1534,7 +1532,11 @@ fixed effect priors (see <a class="reference external" href="https://arxiv.org/a
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1"># by default the variables plotted by subj_model.plot() are different than those from:</span>
-<span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">subj_fitted</span><span class="p">)</span>
+<span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">subj_fitted</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum):C(object, Sum)&#39;</span><span class="p">,</span>
+                                 <span class="s1">&#39;1|subject&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum)[S.black]|subject&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;C(object, Sum)[S.gun]|subject&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;rate_sigma&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -1576,74 +1578,74 @@ fixed effect priors (see <a class="reference external" href="https://arxiv.org/a
   </thead>
   <tbody>
     <tr>
-      <th>Intercept[0]</th>
-      <td>1.708</td>
+      <th>Intercept</th>
+      <td>1.706</td>
       <td>0.014</td>
-      <td>1.682</td>
+      <td>1.681</td>
       <td>1.735</td>
       <td>0.001</td>
-      <td>0.000</td>
-      <td>447.0</td>
-      <td>447.0</td>
-      <td>447.0</td>
-      <td>879.0</td>
-      <td>1.0</td>
+      <td>0.001</td>
+      <td>395.0</td>
+      <td>395.0</td>
+      <td>397.0</td>
+      <td>781.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
-      <th>C(race, Sum)[0]</th>
+      <th>C(race, Sum)</th>
       <td>-0.001</td>
       <td>0.004</td>
       <td>-0.009</td>
-      <td>0.007</td>
+      <td>0.006</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>3074.0</td>
-      <td>926.0</td>
-      <td>3053.0</td>
-      <td>1169.0</td>
-      <td>1.0</td>
+      <td>2432.0</td>
+      <td>728.0</td>
+      <td>2427.0</td>
+      <td>1231.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
-      <th>C(object, Sum)[0]</th>
+      <th>C(object, Sum)</th>
       <td>0.093</td>
       <td>0.006</td>
-      <td>0.082</td>
-      <td>0.104</td>
+      <td>0.081</td>
+      <td>0.105</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1487.0</td>
-      <td>1480.0</td>
-      <td>1494.0</td>
-      <td>1405.0</td>
-      <td>1.0</td>
+      <td>1228.0</td>
+      <td>1216.0</td>
+      <td>1258.0</td>
+      <td>1125.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
-      <th>C(race, Sum):C(object, Sum)[0]</th>
-      <td>0.023</td>
+      <th>C(race, Sum):C(object, Sum)</th>
+      <td>0.024</td>
       <td>0.004</td>
-      <td>0.015</td>
-      <td>0.032</td>
+      <td>0.016</td>
+      <td>0.031</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>3839.0</td>
-      <td>3839.0</td>
-      <td>3842.0</td>
-      <td>1336.0</td>
-      <td>1.0</td>
+      <td>2314.0</td>
+      <td>2115.0</td>
+      <td>2372.0</td>
+      <td>1373.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
-      <th>1|subject_offset[0]</th>
-      <td>-0.037</td>
-      <td>0.335</td>
-      <td>-0.662</td>
-      <td>0.582</td>
-      <td>0.009</td>
-      <td>0.007</td>
-      <td>1454.0</td>
-      <td>1011.0</td>
-      <td>1458.0</td>
-      <td>1188.0</td>
-      <td>1.0</td>
+      <th>1|subject[0]</th>
+      <td>-0.001</td>
+      <td>0.026</td>
+      <td>-0.048</td>
+      <td>0.050</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>1168.0</td>
+      <td>765.0</td>
+      <td>1166.0</td>
+      <td>1236.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>...</th>
@@ -1661,77 +1663,77 @@ fixed effect priors (see <a class="reference external" href="https://arxiv.org/a
     </tr>
     <tr>
       <th>C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject[32]</th>
-      <td>-0.000</td>
+      <td>0.000</td>
       <td>0.006</td>
       <td>-0.012</td>
-      <td>0.013</td>
+      <td>0.011</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2004.0</td>
-      <td>1065.0</td>
-      <td>2508.0</td>
-      <td>1312.0</td>
-      <td>1.0</td>
+      <td>2050.0</td>
+      <td>1275.0</td>
+      <td>2371.0</td>
+      <td>1499.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject[33]</th>
       <td>0.000</td>
       <td>0.006</td>
-      <td>-0.014</td>
-      <td>0.012</td>
+      <td>-0.013</td>
+      <td>0.010</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2379.0</td>
-      <td>1399.0</td>
-      <td>2712.0</td>
-      <td>1668.0</td>
-      <td>1.0</td>
+      <td>2095.0</td>
+      <td>1223.0</td>
+      <td>2341.0</td>
+      <td>1461.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject[34]</th>
       <td>-0.000</td>
       <td>0.006</td>
-      <td>-0.012</td>
-      <td>0.012</td>
+      <td>-0.011</td>
+      <td>0.013</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2022.0</td>
-      <td>1266.0</td>
-      <td>2361.0</td>
-      <td>1170.0</td>
-      <td>1.0</td>
+      <td>2195.0</td>
+      <td>1179.0</td>
+      <td>2331.0</td>
+      <td>1538.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject[35]</th>
       <td>-0.001</td>
-      <td>0.007</td>
+      <td>0.006</td>
       <td>-0.014</td>
-      <td>0.012</td>
+      <td>0.010</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2294.0</td>
-      <td>1297.0</td>
-      <td>2732.0</td>
-      <td>1489.0</td>
-      <td>1.0</td>
+      <td>1959.0</td>
+      <td>1246.0</td>
+      <td>1994.0</td>
+      <td>1546.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>rate_sigma</th>
       <td>0.240</td>
       <td>0.003</td>
-      <td>0.234</td>
+      <td>0.235</td>
       <td>0.245</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>3256.0</td>
-      <td>3252.0</td>
-      <td>3247.0</td>
-      <td>1374.0</td>
-      <td>1.0</td>
+      <td>2647.0</td>
+      <td>2647.0</td>
+      <td>2614.0</td>
+      <td>1415.0</td>
+      <td>1.00</td>
     </tr>
   </tbody>
 </table>
-<p>297 rows × 11 columns</p>
+<p>149 rows × 11 columns</p>
 </div></div>
 </div>
 <p>The take-home message from the analysis seems to be that we do find evidence for the usual finding that subjects are especially quick to respond (presumably with a shoot response) to armed black targets and especially slow to respond to unarmed black targets (while unarmed white targets receive “don’t shoot” responses with less hesitation). We see this in the fact that the marginal posterior for the <code class="docutils literal notranslate"><span class="pre">C(race,</span> <span class="pre">Sum):C(object,</span> <span class="pre">Sum)</span></code> interaction coefficient is concentrated strongly away from 0.</p>
@@ -1740,11 +1742,11 @@ fixed effect priors (see <a class="reference external" href="https://arxiv.org/a
 We see this in the fact that the marginal posterior for the `C(race, Sum)[S.black]:C(object, Sum)[S.gun]` interaction coefficient is concentrated strongly away from 0.
 
 But that coefficient is not written like that in the output of `az.plot_trace()`. --></div>
-<div class="section" id="Random-stimulus-effects">
-<h3>Random stimulus effects<a class="headerlink" href="#Random-stimulus-effects" title="Permalink to this headline">¶</a></h3>
-<p>A major flaw in the analysis above is that random stimulus effects are ignored. The model does include random effects for subjects, reflecting the fact that the subjects we observed are but a sample from the broader population of subjects we are interested in and that potentially could have appeared in our study. But the targets we observed – the 50 photographs of white and black men that subjets responded to – are also but a sample from the broader theoretical population of targets we are
-interested in talking about, and that we could have just as easily and justifiably used as the experimental stimuli in the study. Since the stimuli comprise a random sample, they are subject to sampling variability, and this sampling variability should be accounted in the analysis by including random stimulus effects. For some more information on this, <a class="reference external" href="http://jakewestfall.org/publications/JWK.pdf">see here, particularly pages 62-63</a>.</p>
-<p>To account for this, we let the intercept and slope for <code class="docutils literal notranslate"><span class="pre">object</span></code> vary randomly across <code class="docutils literal notranslate"><span class="pre">target</span></code>. Random object slopes across targets are possible because, if you recall, the design of the study was such that each target gets viewed twice by each subject, once with a gun and once without a gun. However, because each target is always either white or black, it’s not possible to add random slopes for the <code class="docutils literal notranslate"><span class="pre">race</span></code> factor or the interaction.</p>
+<div class="section" id="Stimulus-specific-effects">
+<h3>Stimulus specific effects<a class="headerlink" href="#Stimulus-specific-effects" title="Permalink to this headline">¶</a></h3>
+<p>A major flaw in the analysis above is that stimulus specific effects are ignored. The model does include group specific effects for subjects, reflecting the fact that the subjects we observed are but a sample from the broader population of subjects we are interested in and that potentially could have appeared in our study. But the targets we observed – the 50 photographs of white and black men that subjets responded to – are also but a sample from the broader theoretical population of targets we
+are interested in talking about, and that we could have just as easily and justifiably used as the experimental stimuli in the study. Since the stimuli comprise a random sample, they are subject to sampling variability, and this sampling variability should be accounted in the analysis by including stimulus specific effects. For some more information on this, <a class="reference external" href="http://jakewestfall.org/publications/JWK.pdf">see here, particularly pages 62-63</a>.</p>
+<p>To account for this, we let the intercept and slope for <code class="docutils literal notranslate"><span class="pre">object</span></code> be different for each <code class="docutils literal notranslate"><span class="pre">target</span></code>. Specific slopes for object across targets are possible because, if you recall, the design of the study was such that each target gets viewed twice by each subject, once with a gun and once without a gun. However, because each target is always either white or black, it’s not possible to add group specific slopes for the <code class="docutils literal notranslate"><span class="pre">race</span></code> factor or the interaction.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
@@ -1752,9 +1754,8 @@ interested in talking about, and that we could have just as easily and justifiab
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">stim_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">shooter</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">stim_fitted</span> <span class="o">=</span> <span class="n">stim_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;rate ~ C(race, Sum)*C(object, Sum)&#39;</span><span class="p">,</span>
-                             <span class="n">random</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;C(race, Sum)*C(object, Sum)|subject&#39;</span><span class="p">,</span>
-                                     <span class="s1">&#39;C(object, Sum)|target&#39;</span><span class="p">],</span>
-                             <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+                             <span class="n">group_specific</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;C(race, Sum)*C(object, Sum)|subject&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)|target&#39;</span><span class="p">],</span>
+                             <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1763,8 +1764,7 @@ interested in talking about, and that we could have just as easily and justifiab
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/bambi/models.py:149: UserWarning: Automatically removing 98/3600 rows from the dataset.
-  warnings.warn(msg)
+Automatically removing 98/3600 rows from the dataset.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
@@ -1789,7 +1789,7 @@ NUTS: [rate_sigma, C(object, Sum)[S.gun]|target_offset, C(object, Sum)[S.gun]|ta
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:45<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:41<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1797,23 +1797,13 @@ NUTS: [rate_sigma, C(object, Sum)[S.gun]|target_offset, C(object, Sum)[S.gun]|ta
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 46 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 41 seconds.
 The estimated number of effective samples is smaller than 200 for some parameters.
 </pre></div></div>
 </div>
 <p>Now let’s look at the results…</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># To get all the traces plotted</span>
-<span class="n">az</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;plot.max_subplots&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-</pre></div>
-</div>
-</div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -1825,20 +1815,23 @@ The estimated number of effective samples is smaller than 200 for some parameter
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_shooter_crossed_random_ANOVA_30_0.png" src="../_images/notebooks_shooter_crossed_random_ANOVA_30_0.png" />
+<img alt="../_images/notebooks_shooter_crossed_random_ANOVA_29_0.png" src="../_images/notebooks_shooter_crossed_random_ANOVA_29_0.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">stim_fitted</span><span class="p">)</span>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">stim_fitted</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum):C(object, Sum)&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;1|subject&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)[S.gun]|subject&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject&#39;</span><span class="p">,</span>
+                                  <span class="s1">&#39;rate_sigma&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1875,73 +1868,73 @@ The estimated number of effective samples is smaller than 200 for some parameter
   </thead>
   <tbody>
     <tr>
-      <th>Intercept[0]</th>
-      <td>1.705</td>
+      <th>Intercept</th>
+      <td>1.704</td>
       <td>0.020</td>
-      <td>1.669</td>
-      <td>1.743</td>
-      <td>0.002</td>
+      <td>1.668</td>
+      <td>1.739</td>
       <td>0.001</td>
-      <td>141.0</td>
-      <td>141.0</td>
-      <td>141.0</td>
-      <td>301.0</td>
+      <td>0.001</td>
+      <td>190.0</td>
+      <td>189.0</td>
+      <td>192.0</td>
+      <td>251.0</td>
       <td>1.01</td>
     </tr>
     <tr>
-      <th>C(race, Sum)[0]</th>
+      <th>C(race, Sum)</th>
       <td>-0.001</td>
       <td>0.014</td>
       <td>-0.026</td>
-      <td>0.024</td>
+      <td>0.026</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>194.0</td>
-      <td>194.0</td>
-      <td>195.0</td>
-      <td>403.0</td>
-      <td>1.02</td>
+      <td>212.0</td>
+      <td>212.0</td>
+      <td>213.0</td>
+      <td>510.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
-      <th>C(object, Sum)[0]</th>
-      <td>0.091</td>
+      <th>C(object, Sum)</th>
+      <td>0.095</td>
+      <td>0.015</td>
+      <td>0.067</td>
+      <td>0.125</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>154.0</td>
+      <td>154.0</td>
+      <td>156.0</td>
+      <td>360.0</td>
+      <td>1.01</td>
+    </tr>
+    <tr>
+      <th>C(race, Sum):C(object, Sum)</th>
+      <td>0.025</td>
       <td>0.014</td>
-      <td>0.066</td>
-      <td>0.119</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>272.0</td>
-      <td>271.0</td>
-      <td>272.0</td>
-      <td>686.0</td>
-      <td>1.01</td>
-    </tr>
-    <tr>
-      <th>C(race, Sum):C(object, Sum)[0]</th>
-      <td>0.024</td>
-      <td>0.013</td>
       <td>-0.001</td>
-      <td>0.048</td>
+      <td>0.050</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>227.0</td>
-      <td>222.0</td>
-      <td>230.0</td>
-      <td>384.0</td>
+      <td>262.0</td>
+      <td>262.0</td>
+      <td>266.0</td>
+      <td>446.0</td>
       <td>1.01</td>
     </tr>
     <tr>
-      <th>1|subject_offset[0]</th>
-      <td>-0.065</td>
-      <td>0.291</td>
-      <td>-0.610</td>
-      <td>0.482</td>
-      <td>0.013</td>
-      <td>0.009</td>
-      <td>488.0</td>
-      <td>488.0</td>
-      <td>490.0</td>
-      <td>814.0</td>
+      <th>1|subject[0]</th>
+      <td>-0.004</td>
+      <td>0.024</td>
+      <td>-0.051</td>
+      <td>0.039</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>672.0</td>
+      <td>672.0</td>
+      <td>677.0</td>
+      <td>1118.0</td>
       <td>1.00</td>
     </tr>
     <tr>
@@ -1959,83 +1952,83 @@ The estimated number of effective samples is smaller than 200 for some parameter
       <td>...</td>
     </tr>
     <tr>
-      <th>C(object, Sum)[S.gun]|target[46]</th>
-      <td>0.082</td>
-      <td>0.031</td>
-      <td>0.025</td>
-      <td>0.140</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>606.0</td>
-      <td>606.0</td>
-      <td>604.0</td>
-      <td>1032.0</td>
+      <th>C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject[32]</th>
+      <td>-0.000</td>
+      <td>0.006</td>
+      <td>-0.016</td>
+      <td>0.011</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>1757.0</td>
+      <td>1285.0</td>
+      <td>1848.0</td>
+      <td>1466.0</td>
       <td>1.00</td>
     </tr>
     <tr>
-      <th>C(object, Sum)[S.gun]|target[47]</th>
-      <td>0.008</td>
-      <td>0.029</td>
-      <td>-0.045</td>
-      <td>0.066</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>579.0</td>
-      <td>579.0</td>
-      <td>582.0</td>
-      <td>938.0</td>
+      <th>C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject[33]</th>
+      <td>0.000</td>
+      <td>0.006</td>
+      <td>-0.012</td>
+      <td>0.014</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>2472.0</td>
+      <td>1223.0</td>
+      <td>2590.0</td>
+      <td>1452.0</td>
       <td>1.00</td>
     </tr>
     <tr>
-      <th>C(object, Sum)[S.gun]|target[48]</th>
-      <td>0.089</td>
-      <td>0.029</td>
-      <td>0.034</td>
-      <td>0.145</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>644.0</td>
-      <td>644.0</td>
-      <td>641.0</td>
-      <td>1043.0</td>
+      <th>C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject[34]</th>
+      <td>0.000</td>
+      <td>0.007</td>
+      <td>-0.012</td>
+      <td>0.014</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>1759.0</td>
+      <td>1224.0</td>
+      <td>1814.0</td>
+      <td>1309.0</td>
       <td>1.00</td>
     </tr>
     <tr>
-      <th>C(object, Sum)[S.gun]|target[49]</th>
-      <td>-0.018</td>
-      <td>0.029</td>
-      <td>-0.074</td>
-      <td>0.033</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>536.0</td>
-      <td>536.0</td>
-      <td>537.0</td>
-      <td>1064.0</td>
+      <th>C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject[35]</th>
+      <td>-0.002</td>
+      <td>0.007</td>
+      <td>-0.017</td>
+      <td>0.010</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>1554.0</td>
+      <td>1083.0</td>
+      <td>1916.0</td>
+      <td>1422.0</td>
       <td>1.00</td>
     </tr>
     <tr>
       <th>rate_sigma</th>
       <td>0.205</td>
-      <td>0.003</td>
-      <td>0.200</td>
+      <td>0.002</td>
+      <td>0.201</td>
       <td>0.210</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2204.0</td>
-      <td>2204.0</td>
-      <td>2196.0</td>
-      <td>1214.0</td>
+      <td>2683.0</td>
+      <td>2683.0</td>
+      <td>2694.0</td>
+      <td>1371.0</td>
       <td>1.00</td>
     </tr>
   </tbody>
 </table>
-<p>499 rows × 11 columns</p>
+<p>113 rows × 11 columns</p>
 </div></div>
 </div>
-<p>There are two interesting things to note here. The first is that the key interaction effect, <code class="docutils literal notranslate"><span class="pre">C(race,</span> <span class="pre">Sum):C(object,</span> <span class="pre">Sum)</span></code> is much less clear now. The marginal posterior is still mostly concentrated away from 0, but there’s certainly a nontrivial part that overlaps with 0; 3.1% of the distribution, to be exact.</p>
+<p>There are two interesting things to note here. The first is that the key interaction effect, <code class="docutils literal notranslate"><span class="pre">C(race,</span> <span class="pre">Sum):C(object,</span> <span class="pre">Sum)</span></code> is much less clear now. The marginal posterior is still mostly concentrated away from 0, but there’s certainly a nontrivial part that overlaps with 0; 3.65% of the distribution, to be exact.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -2044,7 +2037,7 @@ The estimated number of effective samples is smaller than 200 for some parameter
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -2399,9 +2392,9 @@ dl.xr-attrs {
   fill: currentColor;
 }
 </style><pre class='xr-text-repr-fallback'>&lt;xarray.DataArray &#x27;C(race, Sum):C(object, Sum)&#x27; ()&gt;
-array(0.031)</pre><div class='xr-wrap' hidden><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'C(race, Sum):C(object, Sum)'</div></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-2a0dfc44-8428-4c8a-9348-fd8a29a97df6' class='xr-array-in' type='checkbox' checked><label for='section-2a0dfc44-8428-4c8a-9348-fd8a29a97df6' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>0.031</span></div><div class='xr-array-data'><pre>array(0.031)</pre></div></div></li><li class='xr-section-item'><input id='section-9bba4a27-72e5-4e76-812c-635288f7a2fb' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-9bba4a27-72e5-4e76-812c-635288f7a2fb' class='xr-section-summary'  title='Expand/collapse section'>Coordinates: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'></ul></div></li><li class='xr-section-item'><input id='section-1eec525e-dd7f-49cf-8f60-bdc294bb7706' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-1eec525e-dd7f-49cf-8f60-bdc294bb7706' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
+array(0.0365)</pre><div class='xr-wrap' hidden><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'C(race, Sum):C(object, Sum)'</div></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-79ba85a9-53d4-426b-adbf-f954f199df0a' class='xr-array-in' type='checkbox' checked><label for='section-79ba85a9-53d4-426b-adbf-f954f199df0a' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>0.0365</span></div><div class='xr-array-data'><pre>array(0.0365)</pre></div></div></li><li class='xr-section-item'><input id='section-fd875718-5091-4a22-8f08-4e7669b293c3' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-fd875718-5091-4a22-8f08-4e7669b293c3' class='xr-section-summary'  title='Expand/collapse section'>Coordinates: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'></ul></div></li><li class='xr-section-item'><input id='section-f36ad8a2-5225-4fe5-9cd0-97f19f4243fc' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-f36ad8a2-5225-4fe5-9cd0-97f19f4243fc' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
 </div>
-<p>The second interesting thing is that the two new variance components in the model, those associated with the random stimulus effects, are actually rather large. This actually largely explains the first fact above, since if these where estimated to be close to 0 anyway, the model estimates wouldn’t be much different than they were in the <code class="docutils literal notranslate"><span class="pre">subj_model</span></code>. It makes sense that there is a strong tendency for different targets to elicit difference reaction times on average, which leads to a large
+<p>The second interesting thing is that the two new variance components in the model, those associated with the stimulus specific effects, are actually rather large. This actually largely explains the first fact above, since if these where estimated to be close to 0 anyway, the model estimates wouldn’t be much different than they were in the <code class="docutils literal notranslate"><span class="pre">subj_model</span></code>. It makes sense that there is a strong tendency for different targets to elicit difference reaction times on average, which leads to a large
 estimate of <code class="docutils literal notranslate"><span class="pre">1|target_sigma</span></code>. Less obviously, the large estimate of <code class="docutils literal notranslate"><span class="pre">C(object,</span> <span class="pre">Sum)[S.gun]|target_sigma</span></code> (targets tend to vary a lot in their response rate differences when they have a gun vs. some other object) also makes sense, because in this experiment, different targets were pictured with different non-gun objects. Some of these objects, such as a bright red can of Coca-Cola, are not easily confused with a gun, so subjects are able to quickly decide on the correct response. Other
 objects, such as a black cell phone, are possibly easier to confuse with a gun, so subjects take longer to decide on the correct response when confronted with this object. Since each target is yoked to a particular non-gun object, there is good reason to expect large target-to-target variability in the <code class="docutils literal notranslate"><span class="pre">object</span></code> effect, which is indeed what we see in the model estimates.</p>
 </div>
@@ -2410,7 +2403,7 @@ objects, such as a black cell phone, are possibly easier to confuse with a gun, 
 <h2>Fit response models<a class="headerlink" href="#Fit-response-models" title="Permalink to this headline">¶</a></h2>
 <p>Here we seek evidence of the second traditional finding, that subjects are more likely to response ‘shoot’ toward black targets than toward white targets, regardless of whether they are armed or not. Currently the dataset just records whether the given response was correct or not, so first we transformed this into whether the response was ‘shoot’ or ‘dontshoot’.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -2431,7 +2424,7 @@ objects, such as a black cell phone, are possibly easier to confuse with a gun, 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -2709,18 +2702,18 @@ objects, such as a black cell phone, are possibly easier to confuse with a gun, 
 </table>
 </div></div>
 </div>
-<p>Let’s skip straight to the correct model that includes random stimulus effects. This looks quite similiar to the <code class="docutils literal notranslate"><span class="pre">stim_model</span></code> from above except that we change the response to the new <code class="docutils literal notranslate"><span class="pre">shoot_or_not</span> <span class="pre">variable</span></code> – notice the <code class="docutils literal notranslate"><span class="pre">[shoot]</span></code> syntax indicating that we wish to model the prbability that <code class="docutils literal notranslate"><span class="pre">shoot_or_not=='shoot'</span></code>, not <code class="docutils literal notranslate"><span class="pre">shoot_or_not=='dontshoot'</span></code> – and then change to <code class="docutils literal notranslate"><span class="pre">family='bernoulli'</span></code> to indicate a mixed effects logistic regression.</p>
+<p>Let’s skip straight to the correct model that includes stimulus specific effects. This looks quite similiar to the <code class="docutils literal notranslate"><span class="pre">stim_model</span></code> from above except that we change the response to the new <code class="docutils literal notranslate"><span class="pre">shoot_or_not</span> <span class="pre">variable</span></code> – notice the <code class="docutils literal notranslate"><span class="pre">[shoot]</span></code> syntax indicating that we wish to model the prbability that <code class="docutils literal notranslate"><span class="pre">shoot_or_not=='shoot'</span></code>, not <code class="docutils literal notranslate"><span class="pre">shoot_or_not=='dontshoot'</span></code> – and then change to <code class="docutils literal notranslate"><span class="pre">family='bernoulli'</span></code> to indicate a mixed effects logistic regression.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">stim_response_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">shooter</span><span class="o">.</span><span class="n">dropna</span><span class="p">())</span>
+<span class="c1"># Note we increased target_accept from default 0.8 to 0.9 because there were divergences</span>
 <span class="n">stim_response_fitted</span> <span class="o">=</span> <span class="n">stim_response_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="s1">&#39;shoot_or_not[shoot] ~ C(race, Sum)*C(object, Sum)&#39;</span><span class="p">,</span>
-    <span class="n">random</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;C(race, Sum)*C(object, Sum)|subject&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)|target&#39;</span><span class="p">],</span>
-    <span class="n">samples</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;bernoulli&#39;</span><span class="p">)</span>
-
+    <span class="n">group_specific</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;C(race, Sum)*C(object, Sum)|subject&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)|target&#39;</span><span class="p">],</span>
+    <span class="n">draws</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s1">&#39;bernoulli&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2729,8 +2722,7 @@ objects, such as a black cell phone, are possibly easier to confuse with a gun, 
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/bambi/models.py:256: UserWarning: Modeling the probability that shoot_or_not==&#39;shoot&#39;
-  warnings.warn(
+Modeling the probability that shoot_or_not==shoot
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
@@ -2755,7 +2747,7 @@ NUTS: [C(object, Sum)[S.gun]|target_offset, C(object, Sum)[S.gun]|target_sigma, 
         }
     </style>
   <progress value='5000' class='' max='5000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [5000/5000 00:40<00:00 Sampling 2 chains, 11 divergences]
+  100.00% [5000/5000 00:59<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -2763,15 +2755,13 @@ NUTS: [C(object, Sum)[S.gun]|target_offset, C(object, Sum)[S.gun]|target_sigma, 
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_500 draw iterations (2_000 + 3_000 draws total) took 40 seconds.
-There were 9 divergences after tuning. Increase `target_accept` or reparameterize.
-There were 2 divergences after tuning. Increase `target_accept` or reparameterize.
+Sampling 2 chains for 1_000 tune and 1_500 draw iterations (2_000 + 3_000 draws total) took 60 seconds.
 The number of effective samples is smaller than 25% for some parameters.
 </pre></div></div>
 </div>
 <p>Show the trace plot</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -2783,12 +2773,12 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_shooter_crossed_random_ANOVA_41_0.png" src="../_images/notebooks_shooter_crossed_random_ANOVA_41_0.png" />
+<img alt="../_images/notebooks_shooter_crossed_random_ANOVA_40_0.png" src="../_images/notebooks_shooter_crossed_random_ANOVA_40_0.png" />
 </div>
 </div>
 <p>Looks pretty good! Now for the more concise summary.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -2797,7 +2787,7 @@ The number of effective samples is smaller than 25% for some parameters.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -2834,74 +2824,74 @@ The number of effective samples is smaller than 25% for some parameters.
   </thead>
   <tbody>
     <tr>
-      <th>Intercept[0]</th>
+      <th>Intercept</th>
       <td>-0.021</td>
-      <td>0.150</td>
-      <td>-0.308</td>
-      <td>0.251</td>
-      <td>0.005</td>
+      <td>0.149</td>
+      <td>-0.315</td>
+      <td>0.241</td>
       <td>0.004</td>
-      <td>910.0</td>
-      <td>848.0</td>
-      <td>937.0</td>
-      <td>1046.0</td>
-      <td>1.00</td>
+      <td>0.003</td>
+      <td>1752.0</td>
+      <td>1389.0</td>
+      <td>1780.0</td>
+      <td>1810.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
-      <th>C(race, Sum)[0]</th>
-      <td>0.221</td>
-      <td>0.148</td>
-      <td>-0.056</td>
-      <td>0.484</td>
-      <td>0.005</td>
-      <td>0.005</td>
-      <td>832.0</td>
-      <td>486.0</td>
-      <td>986.0</td>
-      <td>766.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>C(object, Sum)[0]</th>
-      <td>4.173</td>
-      <td>0.253</td>
-      <td>3.717</td>
-      <td>4.642</td>
-      <td>0.009</td>
-      <td>0.006</td>
-      <td>847.0</td>
-      <td>845.0</td>
-      <td>848.0</td>
-      <td>1181.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>C(race, Sum):C(object, Sum)[0]</th>
-      <td>0.195</td>
-      <td>0.173</td>
-      <td>-0.105</td>
-      <td>0.539</td>
-      <td>0.006</td>
+      <th>C(race, Sum)</th>
+      <td>0.217</td>
+      <td>0.151</td>
+      <td>-0.060</td>
+      <td>0.502</td>
       <td>0.004</td>
-      <td>807.0</td>
-      <td>787.0</td>
-      <td>813.0</td>
-      <td>1044.0</td>
-      <td>1.01</td>
+      <td>0.003</td>
+      <td>1818.0</td>
+      <td>1818.0</td>
+      <td>1821.0</td>
+      <td>2084.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
-      <th>1|subject_offset[0]</th>
-      <td>-0.005</td>
-      <td>0.943</td>
-      <td>-1.700</td>
-      <td>1.800</td>
-      <td>0.019</td>
-      <td>0.020</td>
-      <td>2548.0</td>
-      <td>1132.0</td>
-      <td>2541.0</td>
-      <td>1705.0</td>
-      <td>1.00</td>
+      <th>C(object, Sum)</th>
+      <td>4.161</td>
+      <td>0.247</td>
+      <td>3.700</td>
+      <td>4.621</td>
+      <td>0.007</td>
+      <td>0.005</td>
+      <td>1180.0</td>
+      <td>1170.0</td>
+      <td>1194.0</td>
+      <td>1648.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>C(race, Sum):C(object, Sum)</th>
+      <td>0.196</td>
+      <td>0.165</td>
+      <td>-0.106</td>
+      <td>0.506</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>1841.0</td>
+      <td>1699.0</td>
+      <td>1849.0</td>
+      <td>2010.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>1|subject_sigma</th>
+      <td>0.233</td>
+      <td>0.151</td>
+      <td>0.000</td>
+      <td>0.483</td>
+      <td>0.005</td>
+      <td>0.003</td>
+      <td>1032.0</td>
+      <td>1032.0</td>
+      <td>932.0</td>
+      <td>1199.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>...</th>
@@ -2919,82 +2909,82 @@ The number of effective samples is smaller than 25% for some parameters.
     </tr>
     <tr>
       <th>C(object, Sum)[S.gun]|target[45]</th>
-      <td>0.337</td>
-      <td>0.585</td>
-      <td>-0.818</td>
-      <td>1.398</td>
-      <td>0.013</td>
-      <td>0.012</td>
-      <td>2023.0</td>
-      <td>1238.0</td>
-      <td>2102.0</td>
-      <td>1619.0</td>
-      <td>1.00</td>
+      <td>0.346</td>
+      <td>0.591</td>
+      <td>-0.726</td>
+      <td>1.482</td>
+      <td>0.011</td>
+      <td>0.009</td>
+      <td>3152.0</td>
+      <td>2159.0</td>
+      <td>3187.0</td>
+      <td>2567.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>C(object, Sum)[S.gun]|target[46]</th>
-      <td>0.050</td>
-      <td>0.539</td>
-      <td>-1.003</td>
-      <td>1.022</td>
-      <td>0.013</td>
-      <td>0.011</td>
-      <td>1683.0</td>
-      <td>1161.0</td>
-      <td>1690.0</td>
-      <td>1699.0</td>
-      <td>1.00</td>
+      <td>0.028</td>
+      <td>0.536</td>
+      <td>-1.029</td>
+      <td>0.989</td>
+      <td>0.009</td>
+      <td>0.010</td>
+      <td>3214.0</td>
+      <td>1538.0</td>
+      <td>3237.0</td>
+      <td>2124.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>C(object, Sum)[S.gun]|target[47]</th>
-      <td>0.303</td>
-      <td>0.575</td>
-      <td>-0.664</td>
-      <td>1.417</td>
-      <td>0.013</td>
-      <td>0.011</td>
-      <td>1906.0</td>
-      <td>1375.0</td>
-      <td>1996.0</td>
-      <td>1610.0</td>
-      <td>1.00</td>
+      <td>0.293</td>
+      <td>0.548</td>
+      <td>-0.702</td>
+      <td>1.325</td>
+      <td>0.009</td>
+      <td>0.009</td>
+      <td>3436.0</td>
+      <td>1824.0</td>
+      <td>3522.0</td>
+      <td>2245.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>C(object, Sum)[S.gun]|target[48]</th>
-      <td>0.345</td>
-      <td>0.563</td>
-      <td>-0.615</td>
-      <td>1.490</td>
-      <td>0.013</td>
+      <td>0.348</td>
+      <td>0.581</td>
+      <td>-0.705</td>
+      <td>1.439</td>
       <td>0.010</td>
-      <td>1846.0</td>
-      <td>1562.0</td>
-      <td>1847.0</td>
-      <td>1655.0</td>
-      <td>1.00</td>
+      <td>0.009</td>
+      <td>3480.0</td>
+      <td>1935.0</td>
+      <td>3595.0</td>
+      <td>2151.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>C(object, Sum)[S.gun]|target[49]</th>
-      <td>0.015</td>
-      <td>0.556</td>
-      <td>-0.973</td>
-      <td>1.145</td>
-      <td>0.013</td>
-      <td>0.011</td>
-      <td>1956.0</td>
-      <td>1219.0</td>
-      <td>1956.0</td>
-      <td>1563.0</td>
-      <td>1.00</td>
+      <td>0.004</td>
+      <td>0.546</td>
+      <td>-1.055</td>
+      <td>0.985</td>
+      <td>0.009</td>
+      <td>0.010</td>
+      <td>4023.0</td>
+      <td>1523.0</td>
+      <td>4156.0</td>
+      <td>2087.0</td>
+      <td>1.0</td>
     </tr>
   </tbody>
 </table>
-<p>498 rows × 11 columns</p>
+<p>254 rows × 11 columns</p>
 </div></div>
 </div>
 <p>There is some slight evidence here for the hypothesis that subjects are more likely to shoot the black targets, regardless of whether they are armed or not, but the evidence is not too strong. The marginal posterior for the <code class="docutils literal notranslate"><span class="pre">C(race,</span> <span class="pre">Sum)</span></code> coefficient is mostly concentrated away from 0, but it overlaps even more in this case with 0 than did the key interaction effect in the previous model.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -3003,7 +2993,7 @@ The number of effective samples is smaller than 25% for some parameters.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -3358,7 +3348,33 @@ dl.xr-attrs {
   fill: currentColor;
 }
 </style><pre class='xr-text-repr-fallback'>&lt;xarray.DataArray &#x27;C(race, Sum)&#x27; ()&gt;
-array(0.06)</pre><div class='xr-wrap' hidden><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'C(race, Sum)'</div></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-9067bd2d-8671-40e0-994d-1430dce394db' class='xr-array-in' type='checkbox' checked><label for='section-9067bd2d-8671-40e0-994d-1430dce394db' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>0.06</span></div><div class='xr-array-data'><pre>array(0.06)</pre></div></div></li><li class='xr-section-item'><input id='section-38716f9f-19b6-40f2-ba11-addb98f64306' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-38716f9f-19b6-40f2-ba11-addb98f64306' class='xr-section-summary'  title='Expand/collapse section'>Coordinates: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'></ul></div></li><li class='xr-section-item'><input id='section-1a369b62-26de-4a32-94a8-be232c2d25dd' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-1a369b62-26de-4a32-94a8-be232c2d25dd' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
+array(0.07066667)</pre><div class='xr-wrap' hidden><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'C(race, Sum)'</div></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-e222b3fb-bc91-411c-8722-f9d5d90cf2b5' class='xr-array-in' type='checkbox' checked><label for='section-e222b3fb-bc91-411c-8722-f9d5d90cf2b5' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>0.07067</span></div><div class='xr-array-data'><pre>array(0.07066667)</pre></div></div></li><li class='xr-section-item'><input id='section-91d650c0-bb66-4e89-a7bd-77b4fe813d43' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-91d650c0-bb66-4e89-a7bd-77b4fe813d43' class='xr-section-summary'  title='Expand/collapse section'>Coordinates: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'></ul></div></li><li class='xr-section-item'><input id='section-8715a59b-1fc2-4405-bf58-804412d957c2' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-8715a59b-1fc2-4405-bf58-804412d957c2' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+arviz  0.10.0
+numpy  1.19.4
+pandas 1.1.5
+bambi  0.2.0
+last updated: Wed Dec 16 2020
+
+CPython 3.8.5
+IPython 7.18.1
+watermark 2.0.2
+</pre></div></div>
 </div>
 </div>
 </div>
@@ -3377,27 +3393,35 @@ array(0.06)</pre><div class='xr-wrap' hidden><div class='xr-header'><div class='
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=bambinos&repo=bambi&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="bayesian_logistic_regression.html">Bayesian Logistic Regression Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bayesian_multi-level_regression.html">Bayesian Multi-level Regression</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bayesian_t-test.html">Bayesian T-test</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html">Bayesian Multiple Regression Example</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Bayesian Workflow Example (Police Officer’s Dilemma)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="logistic_regression.html">Logistic Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi-level_regression.html">Multi-level Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t-test.html">T-test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html">Multiple Regression</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Bayesian Workflow (Police Officer’s Dilemma)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Load-and-examine-data">Load and examine data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Fit-response-rate-models">Fit response rate models</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#Random-subject-effects-only">Random subject effects only</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#Random-stimulus-effects">Random stimulus effects</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Subject-specific-effects-only">Subject specific effects only</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Stimulus-specific-effects">Stimulus specific effects</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#Fit-response-models">Fit response models</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="Strack_RRR_re_analysis.html">Bayesian Workflow Example (Strack RRR Analysis Replication)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Strack_RRR_re_analysis.html">Bayesian Workflow (Strack RRR Analysis Replication)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="model_comparison.html">Logistic Regression and Model Comparison with Bambi and Arviz</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference.html">API Reference</a></li>
@@ -3408,8 +3432,8 @@ array(0.06)</pre><div class='xr-wrap' hidden><div class='xr-header'><div class='
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../examples.html">Examples</a><ul>
-      <li>Previous: <a href="ESCS_multiple_regression.html" title="previous chapter">Bayesian Multiple Regression Example</a></li>
-      <li>Next: <a href="Strack_RRR_re_analysis.html" title="next chapter">Bayesian Workflow Example (Strack RRR Analysis Replication)</a></li>
+      <li>Previous: <a href="ESCS_multiple_regression.html" title="previous chapter">Multiple Regression</a></li>
+      <li>Next: <a href="Strack_RRR_re_analysis.html" title="next chapter">Bayesian Workflow (Strack RRR Analysis Replication)</a></li>
   </ul></li>
   </ul></li>
 </ul>
@@ -3448,6 +3472,10 @@ array(0.06)</pre><div class='xr-wrap' hidden><div class='xr-header'><div class='
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/bambinos/bambi" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     

@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bayesian Workflow Example (Strack RRR Analysis Replication) &#8212; bambi 0.2.0 documentation</title>
+    <title>Bayesian Workflow (Strack RRR Analysis Replication) &#8212; bambi 0.2.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -18,8 +18,8 @@
     <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="API Reference" href="../api_reference.html" />
-    <link rel="prev" title="Bayesian Workflow Example (Police Officer’s Dilemma)" href="shooter_crossed_random_ANOVA.html" />
+    <link rel="next" title="Logistic Regression and Model Comparison with Bambi and Arviz" href="model_comparison.html" />
+    <link rel="prev" title="Bayesian Workflow (Police Officer’s Dilemma)" href="shooter_crossed_random_ANOVA.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -256,8 +256,8 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Bayesian-Workflow-Example-(Strack-RRR-Analysis-Replication)">
-<h1>Bayesian Workflow Example (Strack RRR Analysis Replication)<a class="headerlink" href="#Bayesian-Workflow-Example-(Strack-RRR-Analysis-Replication)" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="Bayesian-Workflow-(Strack-RRR-Analysis-Replication)">
+<h1>Bayesian Workflow (Strack RRR Analysis Replication)<a class="headerlink" href="#Bayesian-Workflow-(Strack-RRR-Analysis-Replication)" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -527,9 +527,9 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <h2>Fitting the model<a class="headerlink" href="#Fitting-the-model" title="Permalink to this headline">¶</a></h2>
 <p>Now that we’re all done with our (minimal) preprocessing, it’s time to fit the model! This turns out to be a snap in Bambi. We’ll begin with a very naive (and, as we’ll see later, incorrect) model that includes only the following terms:</p>
 <ul class="simple">
-<li><p>An overall (fixed) intercept.</p></li>
-<li><p>The fixed effect of experimental condition (“smiling” by holding a pen in one’s teeth vs. “pouting” by holding a pen in one’s lips). This is the primary variable of interest in the study.</p></li>
-<li><p>A random intercept for each of the 1,728 subjects in the ‘long’ dataset. (There were 2,576 subjects in the original dataset, but about 25% were excluded for various reasons, and we’re further excluding all subjects who lack complete data. As an exercise, you can try relaxing some of these criteria and re-fitting the models, though you’ll probably find that it makes no meaningful difference to the results.)</p></li>
+<li><p>An overall (common) intercept.</p></li>
+<li><p>The common effect of experimental condition (“smiling” by holding a pen in one’s teeth vs. “pouting” by holding a pen in one’s lips). This is the primary variable of interest in the study.</p></li>
+<li><p>A group specific intercept for each of the 1,728 subjects in the ‘long’ dataset. (There were 2,576 subjects in the original dataset, but about 25% were excluded for various reasons, and we’re further excluding all subjects who lack complete data. As an exercise, you can try relaxing some of these criteria and re-fitting the models, though you’ll probably find that it makes no meaningful difference to the results.)</p></li>
 </ul>
 <p>We’ll create a Bambi model, fit it, and store the results in a new object–which we can then interrogate in various ways.</p>
 <div class="nbinput docutils container">
@@ -538,17 +538,16 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="c1"># Initialize the model, passing in the dataset we want to use.</span>
-
 <span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">long</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;value ~ condition&#39;</span><span class="p">,</span> <span class="n">random</span><span class="o">=</span><span class="s1">&#39;1|uid&#39;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;value ~ condition&#39;</span><span class="p">,</span> <span class="n">group_specific</span><span class="o">=</span><span class="s1">&#39;1|uid&#39;</span><span class="p">)</span>
 
-<span class="c1"># Set a custom prior on random factor variances—just for illustration</span>
-<span class="n">random_sd</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;HalfNormal&#39;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">random_prior</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">random_sd</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">set_priors</span><span class="p">(</span><span class="n">random</span><span class="o">=</span><span class="n">random_prior</span><span class="p">)</span>
+<span class="c1"># Set a custom prior on group specific factor variances—just for illustration</span>
+<span class="n">group_specific_sd</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;HalfNormal&#39;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">group_specific_prior</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">group_specific_sd</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">set_priors</span><span class="p">(</span><span class="n">group_specific</span><span class="o">=</span><span class="n">group_specific_prior</span><span class="p">)</span>
 
-<span class="c1"># Fit the model, drawing 1,000 MCMC samples per chain</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="c1"># Fit the model, drawing 1,000 MCMC draws per chain</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -557,8 +556,7 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/bambi/models.py:149: UserWarning: Automatically removing 9/6940 rows from the dataset.
-  warnings.warn(msg)
+Automatically removing 9/6940 rows from the dataset.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
@@ -583,7 +581,7 @@ NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, condition, Intercept]
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:14<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:13<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -591,23 +589,23 @@ NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, condition, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 15 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 14 seconds.
 </pre></div></div>
 </div>
-<p>Notice that, in Bambi, the fixed and random effects are specified separately (for technical reasons we won’t get into here). The fixed effects can be specified using R-style formulas. The underlying parsing of the formula is done by <a class="reference external" href="https://github.com/pydata/patsy">patsy</a>, and you can find out much more about the operators patsy supports by reading its excellent <a class="reference external" href="http://patsy.readthedocs.io/en/latest/formulas.html">documentation</a>. The random effects are specified as a list, where each
-term is a separate element. In this case, we only have one random factor (unique subject id) to include, so we can just leave it as a string.</p>
-<p>When we run the above code, nothing much will happen for a while. The process of compiling the model in Theano (the numerical library that PyMC3–and hence, Bambi–relies on) can take a few minutes. Once sampling starts, we get a nice progress bar (courtesy of PyMC3) that keeps us updated on the sampler’s progress. Our model is fairly large, in that it includes nearly 1800 parameters (most of which are the random subject intercepts); even so, it should take only a few minutes or less to run on
-newer machines.</p>
+<p>Notice that, in Bambi, the common and group specific effects are specified separately (for technical reasons we won’t get into here). The common effects can be specified using R-style formulas. The underlying parsing of the formula is done by <a class="reference external" href="https://github.com/pydata/patsy">patsy</a>, and you can find out much more about the operators patsy supports by reading its excellent <a class="reference external" href="http://patsy.readthedocs.io/en/latest/formulas.html">documentation</a>. The group specific effects are specified as a
+list, where each term is a separate element. In this case, we only have one group specific factor (unique subject id) to include, so we can just leave it as a string.</p>
+<p>When we run the above code, nothing much will happen for a while. The process of compiling the model in Theano (the numerical library that PyMC3–and hence, Bambi–relies on) can take a few minutes. Once sampling starts, we get a nice progress bar (courtesy of PyMC3) that keeps us updated on the sampler’s progress. Our model is fairly large, in that it includes nearly 1800 parameters (most of which are the group specific subject intercepts); even so, it should take only a few minutes or less to
+run on newer machines.</p>
 </div>
 <div class="section" id="Inspecting-results">
 <h2>Inspecting results<a class="headerlink" href="#Inspecting-results" title="Permalink to this headline">¶</a></h2>
-<p>We can plot the prior distributions for all parameters with a call to the <code class="docutils literal notranslate"><span class="pre">plot()</span></code> method.</p>
+<p>We can plot the prior distributions for all parameters with a call to the <code class="docutils literal notranslate"><span class="pre">plot_priors()</span></code> method.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+<span></span><span class="n">model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -641,7 +639,7 @@ newer machines.</p>
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;1|uid_sigma&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -683,162 +681,63 @@ newer machines.</p>
   </thead>
   <tbody>
     <tr>
-      <th>Intercept[0]</th>
-      <td>4.565</td>
-      <td>0.048</td>
-      <td>4.470</td>
-      <td>4.648</td>
-      <td>0.002</td>
+      <th>Intercept</th>
+      <td>4.564</td>
+      <td>0.047</td>
+      <td>4.484</td>
+      <td>4.657</td>
       <td>0.001</td>
-      <td>869.0</td>
-      <td>869.0</td>
-      <td>870.0</td>
-      <td>1115.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>condition[0]</th>
-      <td>-0.031</td>
-      <td>0.059</td>
-      <td>-0.151</td>
-      <td>0.071</td>
-      <td>0.002</td>
       <td>0.001</td>
-      <td>1166.0</td>
-      <td>1077.0</td>
-      <td>1160.0</td>
-      <td>1094.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>1|uid_offset[0]</th>
-      <td>-0.531</td>
-      <td>0.767</td>
-      <td>-1.968</td>
-      <td>0.861</td>
-      <td>0.018</td>
-      <td>0.017</td>
-      <td>1806.0</td>
-      <td>1038.0</td>
-      <td>1812.0</td>
-      <td>1195.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>1|uid_offset[1]</th>
-      <td>-0.258</td>
-      <td>0.836</td>
-      <td>-1.792</td>
-      <td>1.236</td>
-      <td>0.019</td>
-      <td>0.021</td>
-      <td>1904.0</td>
-      <td>771.0</td>
-      <td>1911.0</td>
-      <td>1333.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>1|uid_offset[2]</th>
-      <td>-0.563</td>
-      <td>0.759</td>
-      <td>-1.900</td>
-      <td>0.934</td>
-      <td>0.018</td>
-      <td>0.016</td>
-      <td>1825.0</td>
-      <td>1166.0</td>
-      <td>1821.0</td>
-      <td>1307.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-      <td>...</td>
-    </tr>
-    <tr>
-      <th>1|uid[185]</th>
-      <td>0.059</td>
-      <td>0.291</td>
-      <td>-0.470</td>
-      <td>0.611</td>
-      <td>0.006</td>
-      <td>0.007</td>
-      <td>2050.0</td>
-      <td>885.0</td>
-      <td>2054.0</td>
-      <td>1342.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>1|uid[186]</th>
-      <td>-0.062</td>
-      <td>0.308</td>
-      <td>-0.635</td>
-      <td>0.513</td>
-      <td>0.008</td>
-      <td>0.007</td>
-      <td>1678.0</td>
-      <td>1030.0</td>
-      <td>1672.0</td>
-      <td>1169.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>1|uid[187]</th>
-      <td>-0.138</td>
-      <td>0.297</td>
-      <td>-0.709</td>
-      <td>0.439</td>
-      <td>0.008</td>
-      <td>0.007</td>
-      <td>1430.0</td>
-      <td>939.0</td>
-      <td>1447.0</td>
+      <td>1029.0</td>
       <td>1027.0</td>
+      <td>1029.0</td>
+      <td>1106.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>1|uid[188]</th>
-      <td>-0.131</td>
-      <td>0.291</td>
-      <td>-0.725</td>
-      <td>0.387</td>
-      <td>0.007</td>
-      <td>0.006</td>
-      <td>1713.0</td>
-      <td>1010.0</td>
-      <td>1737.0</td>
-      <td>1333.0</td>
+      <th>condition</th>
+      <td>-0.033</td>
+      <td>0.059</td>
+      <td>-0.136</td>
+      <td>0.081</td>
+      <td>0.002</td>
+      <td>0.001</td>
+      <td>1427.0</td>
+      <td>823.0</td>
+      <td>1419.0</td>
+      <td>1188.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>value_sigma</th>
       <td>2.402</td>
       <td>0.021</td>
-      <td>2.358</td>
-      <td>2.438</td>
-      <td>0.001</td>
+      <td>2.361</td>
+      <td>2.442</td>
       <td>0.000</td>
-      <td>1315.0</td>
-      <td>1311.0</td>
-      <td>1324.0</td>
-      <td>1321.0</td>
+      <td>0.000</td>
+      <td>2053.0</td>
+      <td>2049.0</td>
+      <td>2050.0</td>
+      <td>1372.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>1|uid_sigma</th>
+      <td>0.306</td>
+      <td>0.045</td>
+      <td>0.216</td>
+      <td>0.389</td>
+      <td>0.002</td>
+      <td>0.001</td>
+      <td>617.0</td>
+      <td>613.0</td>
+      <td>619.0</td>
+      <td>862.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
 </table>
-<p>382 rows × 11 columns</p>
 </div></div>
 </div>
 </div>
@@ -846,12 +745,12 @@ newer machines.</p>
 <h2>Expanding the model<a class="headerlink" href="#Expanding-the-model" title="Permalink to this headline">¶</a></h2>
 <p>Looking at the parameter estimates produced by our model, it seems pretty clear that there’s no meaningful effect of condition. The posterior distribution is centered almost exactly on 0, with most of the probability mass on very small values. The 94% HDI spans from -0.143 to 0.083–in other words, the plausible effect of the experimental manipulation is, at best, to produce a change of &lt; 0.2 on cartoon ratings made on a 10-point scale. For perspective, the variation between subjects is enormous
 in comparison–the standard deviation <code class="docutils literal notranslate"><span class="pre">u_uid</span></code> is around 1.2. We can also see that the model is behaving well, and the sampler seems to have converged nicely (the traces for all parameters look stationary).</p>
-<p>Unfortunately, our first model has at least two pretty serious problems. First, it gives no consideration to between-study variation–we’re simply lumping all 1,728 subjects together, as if they came from the same study. A better model would properly account for study-level variation. We could model study as either a fixed or a random factor in this case–both choices are defensible, depending on whether we want to think of the 17 studies in this dataset as the only sites of interest, or as if
-they’re just 17 random sites drawn from some much larger population. For present purposes, we’ll adopt the latter strategy (as an exercise, you can modify the the code below and re-run the model with study as a fixed factor). We’ll <a class="reference external" href="http://idiom.ucsd.edu/~rlevy/papers/barr-etal-2013-jml.pdf">“keep it maximal”</a> by adding both random study intercepts and random study slopes to the model. That is, we’ll assume that the subjects at each research site have a different baseline appreciation of the
-cartoons (some find the cartoons funnier than others), and that the effect of condition also varies across sites.</p>
-<p>Second, our model also fails to explicitly model variation in cartoon ratings that should properly be attributed to the 4 stimuli. In principle, our estimate of the fixed effect of condition could change somewhat once we correctly account for stimulus variability (though in practice, the net effect is almost always to <em>reduce</em> effects, not increase them–so in this case, it’s very unlikely that adding random stimulus effects will produce a meaningful effect of condition). So we’ll deal with this
-by adding random intercepts for the 4 stimuli. We’ll model the stimuli as random rather than fixed, because it wouldn’t make sense to think of these particular cartoons as exhausting the universe of stimuli we care about (i.e., we wouldn’t really care about the facial-feedback effect if we knew that it only applied to 4 specific Far Side cartoons, and no other stimuli).</p>
-<p>Lastly, just for fun, we can throw in some additional covariates, since they’re readily available in the dataset, and may be of interest even if they don’t directly inform the core hypothesis. Specifically, we’ll add fixed effects of gender and age to the model, which will let us estimate the degree to which participants’ ratings of the cartoons varies as a function of these background variables.</p>
+<p>Unfortunately, our first model has at least two pretty serious problems. First, it gives no consideration to between-study variation–we’re simply lumping all 1,728 subjects together, as if they came from the same study. A better model would properly account for study-level variation. We could model study as either a common or a group specific factor in this case–both choices are defensible, depending on whether we want to think of the 17 studies in this dataset as the only sites of interest, or
+as if they’re just 17 random sites drawn from some much larger population that have particular characteristics we want to account for. For present purposes, we’ll adopt the latter strategy (as an exercise, you can modify the the code below and re-run the model with study as a common factor). We’ll <a class="reference external" href="http://idiom.ucsd.edu/~rlevy/papers/barr-etal-2013-jml.pdf">“keep it maximal”</a> by adding both group specific study intercepts and group specific study slopes to the model. That is, we’ll assume
+that the subjects at each research site have a different baseline appreciation of the cartoons (some find the cartoons funnier than others), and that the effect of condition also varies across sites.</p>
+<p>Second, our model also fails to explicitly model variation in cartoon ratings that should properly be attributed to the 4 stimuli. In principle, our estimate of the common effect of condition could change somewhat once we correctly account for stimulus variability (though in practice, the net effect is almost always to <em>reduce</em> effects, not increase them–so in this case, it’s very unlikely that adding group specific stimulus effects will produce a meaningful effect of condition). So we’ll deal
+with this by adding specific intercepts for the 4 stimuli. We’ll model the stimuli as group specific effect, rather than common, because it wouldn’t make sense to think of these particular cartoons as exhausting the universe of stimuli we care about (i.e., we wouldn’t really care about the facial-feedback effect if we knew that it only applied to 4 specific Far Side cartoons, and no other stimuli).</p>
+<p>Lastly, just for fun, we can throw in some additional covariates, since they’re readily available in the dataset, and may be of interest even if they don’t directly inform the core hypothesis. Specifically, we’ll add common effects of gender and age to the model, which will let us estimate the degree to which participants’ ratings of the cartoons varies as a function of these background variables.</p>
 <p>Once we’ve done all that, we end up with a model that’s in a good position to answer the question we care about–namely, whether the smiling/pouting manipulation has an effect on cartoon ratings that generalizes across the subjects, studies, and stimuli found in the RRR dataset.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
@@ -859,13 +758,16 @@ by adding random intercepts for the 4 stimuli. We’ll model the stimuli as rand
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">long</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;value ~ 1 + condition + age + gender&#39;</span><span class="p">,</span>
-          <span class="n">random</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;condition|study&#39;</span><span class="p">,</span> <span class="s1">&#39;1|uid&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|stimulus&#39;</span><span class="p">],</span>
-          <span class="n">run</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">random_sd</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;HalfNormal&#39;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">random_prior</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">random_sd</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">set_priors</span><span class="p">(</span><span class="n">random</span><span class="o">=</span><span class="n">random_prior</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="s1">&#39;adapt_diag&#39;</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;value ~ 1 + condition + age + gender&#39;</span><span class="p">,</span>
+          <span class="n">group_specific</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;condition|study&#39;</span><span class="p">,</span> <span class="s1">&#39;1|uid&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|stimulus&#39;</span><span class="p">])</span>
+
+<span class="n">group_specific_sd</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;HalfNormal&#39;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">group_specific_prior</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">group_specific_sd</span><span class="p">)</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">set_priors</span><span class="p">(</span><span class="n">group_specific</span><span class="o">=</span><span class="n">group_specific_prior</span><span class="p">)</span>
+<span class="c1"># Not we use 2000 samples for tuning and increase the taget_accept to 0.99.</span>
+<span class="c1"># The default values result in divergences.</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -874,10 +776,9 @@ by adding random intercepts for the 4 stimuli. We’ll model the stimuli as rand
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/bambi/models.py:149: UserWarning: Automatically removing 33/6940 rows from the dataset.
-  warnings.warn(msg)
+Automatically removing 33/6940 rows from the dataset.
 Auto-assigning NUTS sampler...
-Initializing NUTS using adapt_diag...
+Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [value_sigma, condition|stimulus_offset, condition|stimulus_sigma, 1|stimulus_offset, 1|stimulus_sigma, 1|uid_offset, 1|uid_sigma, condition|study_offset, condition|study_sigma, 1|study_offset, 1|study_sigma, gender, age, condition, Intercept]
 </pre></div></div>
@@ -899,8 +800,8 @@ NUTS: [value_sigma, condition|stimulus_offset, condition|stimulus_sigma, 1|stimu
             background: #F44336;
         }
     </style>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 02:20<00:00 Sampling 2 chains, 87 divergences]
+  <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [6000/6000 23:09<00:00 Sampling 2 chains, 2 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -908,20 +809,22 @@ NUTS: [value_sigma, condition|stimulus_offset, condition|stimulus_sigma, 1|stimu
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 140 seconds.
-There were 42 divergences after tuning. Increase `target_accept` or reparameterize.
-There were 45 divergences after tuning. Increase `target_accept` or reparameterize.
-The number of effective samples is smaller than 25% for some parameters.
+Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws total) took 1390 seconds.
+There was 1 divergence after tuning. Increase `target_accept` or reparameterize.
+There was 1 divergence after tuning. Increase `target_accept` or reparameterize.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;1|stimulus_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|stimulus_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|study&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;1|stimulus&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|study_sigma&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;1|study&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|stimulus&#39;</span><span class="p">],</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
+              <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sigma&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;1|study&#39;</span><span class="p">,</span> <span class="s1">&#39;1|stimulus&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|study&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|stimulus&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;1|study_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;1|stimulus_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|study_sigma&#39;</span><span class="p">,</span>
+                        <span class="p">],</span>
+              <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -936,8 +839,36 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="section" id="And-the-answer-is…">
 <h2>And the answer is…<a class="headerlink" href="#And-the-answer-is…" title="Permalink to this headline">¶</a></h2>
 <p>No. There’s still no discernible effect. Modeling the data using a mixed-effects model does highlight a number of other interesting features, however: * The stimulus-level variance <code class="docutils literal notranslate"><span class="pre">1|stimulus_sigma</span></code> is quite large compared to the other factors. This is potentially problematic, because it suggests that a more conventional analysis that left individual stimulus effects out of the model could potentially run a high false positive rate. Note that this is a problem that affects both the RRR and
-the original Strack study equally; the moral of the story is <a class="reference external" href="http://jakewestfall.org/publications/crossed_power_JEPG.pdf">to deliberately sample large numbers of stimuli and explicitly model their influence</a>. * Older people seem to rate cartoons as being (a little bit) funnier. * The variation across sites is surprisingly small–in terms of both the random intercepts (<code class="docutils literal notranslate"><span class="pre">1|study</span></code>) and the random slopes (<code class="docutils literal notranslate"><span class="pre">condition|study</span></code>). In other words, the constitution of the sample, the gender of the
-experimenter, or any of the hundreds of others of between-site differences that one might conceivably have expected to matter, don’t really seem to make much of a difference to participants’ ratings of the cartoons.</p>
+the original Strack study equally; the moral of the story is <a class="reference external" href="http://jakewestfall.org/publications/crossed_power_JEPG.pdf">to deliberately sample large numbers of stimuli and explicitly model their influence</a>. * Older people seem to rate cartoons as being (a little bit) funnier. * The variation across sites is surprisingly small–in terms of both the group specific intercepts (<code class="docutils literal notranslate"><span class="pre">1|study</span></code>) and the group specific slopes (<code class="docutils literal notranslate"><span class="pre">condition|study</span></code>). In other words, the constitution of the sample,
+the gender of the experimenter, or any of the hundreds of others of between-site differences that one might conceivably have expected to matter, don’t really seem to make much of a difference to participants’ ratings of the cartoons.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+The watermark extension is already loaded. To reload it, use:
+  %reload_ext watermark
+bambi  0.2.0
+pandas 1.1.5
+numpy  1.19.4
+arviz  0.10.0
+last updated: Tue Dec 15 2020
+
+CPython 3.8.5
+IPython 7.18.1
+watermark 2.0.2
+</pre></div></div>
+</div>
 </div>
 </div>
 
@@ -955,18 +886,25 @@ experimenter, or any of the hundreds of others of between-site differences that 
 
 
 
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=bambinos&repo=bambi&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
 
 
 <h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="bayesian_logistic_regression.html">Bayesian Logistic Regression Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bayesian_multi-level_regression.html">Bayesian Multi-level Regression</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bayesian_t-test.html">Bayesian T-test</a></li>
-<li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html">Bayesian Multiple Regression Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="shooter_crossed_random_ANOVA.html">Bayesian Workflow Example (Police Officer’s Dilemma)</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Bayesian Workflow Example (Strack RRR Analysis Replication)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="logistic_regression.html">Logistic Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="multi-level_regression.html">Multi-level Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="t-test.html">T-test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html">Multiple Regression</a></li>
+<li class="toctree-l2"><a class="reference internal" href="shooter_crossed_random_ANOVA.html">Bayesian Workflow (Police Officer’s Dilemma)</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Bayesian Workflow (Strack RRR Analysis Replication)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Reading-in-the-data">Reading in the data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Reshaping-the-data">Reshaping the data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#Fitting-the-model">Fitting the model</a></li>
@@ -975,6 +913,7 @@ experimenter, or any of the hundreds of others of between-site differences that 
 <li class="toctree-l3"><a class="reference internal" href="#And-the-answer-is…">And the answer is…</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="model_comparison.html">Logistic Regression and Model Comparison with Bambi and Arviz</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api_reference.html">API Reference</a></li>
@@ -985,8 +924,8 @@ experimenter, or any of the hundreds of others of between-site differences that 
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../examples.html">Examples</a><ul>
-      <li>Previous: <a href="shooter_crossed_random_ANOVA.html" title="previous chapter">Bayesian Workflow Example (Police Officer’s Dilemma)</a></li>
-      <li>Next: <a href="../api_reference.html" title="next chapter">API Reference</a></li>
+      <li>Previous: <a href="shooter_crossed_random_ANOVA.html" title="previous chapter">Bayesian Workflow (Police Officer’s Dilemma)</a></li>
+      <li>Next: <a href="model_comparison.html" title="next chapter">Logistic Regression and Model Comparison with Bambi and Arviz</a></li>
   </ul></li>
   </ul></li>
 </ul>
@@ -1025,6 +964,10 @@ experimenter, or any of the hundreds of others of between-site differences that 
           rel="nofollow">Page source</a>
     </div>
 
+    
+    <a href="https://github.com/bambinos/bambi" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
     
 
     
