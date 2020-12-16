@@ -30,6 +30,8 @@
 * Fix notebooks (#222)
 * Clean docs (#200)
 * Added notebook using Bambi and ArviZ for model comparison (#267)
+* Use same color palette in all notebooks (#282)
+* Fix divergences in examples (two divergences remaining in Strack RRR example) (#282)
 
 ### Deprecation
 * Drop support python 3.6 (#218)
