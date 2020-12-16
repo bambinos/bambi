@@ -23,6 +23,8 @@
 * Use logging instead of warnings (#270)
 * Omits ploting group-level effects and offset variables (#276)
 * Logistic regression works with no explicit index (#277)
+* Add argument to optionally keep offsets in InferenceData (#288)
+* Add argument to optionally keep group level effects and offsets variables in `plot_prior` (#288)
 
 ### Documentation
 * Update example notebooks (#232)
