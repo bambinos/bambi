@@ -60,6 +60,27 @@ A simple fixed effects model is shown below as example.
 
 For a more in-depth introduction to Bambi see our `Quickstart <https://github.com/bambinos/bambi#quickstart>`_ or our set of example notebooks.
 
+Citation
+========
+If you use Bambi and want to cite it please use |arXiv|
+
+.. |arXiv| image:: https://img.shields.io/badge/arXiv-2012.10754-b31b1b.svg
+    :target: https://arxiv.org/abs/2012.10754
+
+Here is the citation in BibTeX format
+
+.. code-block::
+
+    @misc{capretto2020,
+        title={Bambi: A simple interface for fitting Bayesian linear models in Python}, 
+        author={Tomás Capretto and Camen Piho and Ravin Kumar and Jacob Westfall and Tal Yarkoni and Osvaldo A. Martin},
+        year={2020},
+        eprint={2012.10754},
+        archivePrefix={arXiv},
+        primaryClass={stat.CO}
+    }
+
+
 Contributing
 ============
 We welcome contributions from interested individuals or groups! For information about contributing to Bambi, check out our instructions, policies, and guidelines `here <https://github.com/bambinos/bambi/blob/master/CONTRIBUTING.md>`_.

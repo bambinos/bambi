@@ -30,6 +30,23 @@ Bambi requires working versions of numpy, pandas, matplotlib, patsy, pymc3, and 
 
 The Bambi documentation can be found in the [official docs](https://bambinos.github.io/bambi/index.html)
 
+## Citation
+
+If you use Bambi and want to cite it please use [![arXiv](https://img.shields.io/badge/arXiv-2012.10754-b31b1b.svg)](https://arxiv.org/abs/2012.10754)
+
+Here is the citation in BibTeX format
+
+```
+@misc{capretto2020,
+      title={Bambi: A simple interface for fitting Bayesian linear models in Python}, 
+      author={Tomás Capretto and Camen Piho and Ravin Kumar and Jacob Westfall and Tal Yarkoni and Osvaldo A. Martin},
+      year={2020},
+      eprint={2012.10754},
+      archivePrefix={arXiv},
+      primaryClass={stat.CO}
+}
+```
+
 ## Contributions
 
 Bambi is a community project and welcomes contributions. Additional information can be found in the [Contributing](https://github.com/bambinos/bambi/blob/master/CONTRIBUTING.md) Readme.
