@@ -143,11 +143,7 @@ class PyMC3BackEnd(BackEnd):
         model = self.model
 
         if method.lower() == "mcmc":
-            if "samples" in kwargs:
-                _log.warning("samples will be deprecated, please use draws instead")
-                draws = kwargs.pop("samples", 1000)
-            else:
-                draws = kwargs.pop("draws", 1000)
+            draws = kwargs.pop("draws", 1000)
             with model:
                 self.trace = pm.sample(draws, start=start, init=init, n_init=n_init, **kwargs)
 
