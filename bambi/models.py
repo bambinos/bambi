@@ -271,8 +271,6 @@ class Model:
         self,
         common=None,
         group_specific=None,
-        fixed=None,
-        random=None,
         priors=None,
         family="gaussian",
         link=None,
@@ -320,13 +318,6 @@ class Model:
         backend : str
             The name of the BackEnd to use. Currently only 'pymc' backend is supported.
         """
-        if fixed is not None:
-            _log.warning("The fixed argument has been deprecated, please use common")
-            common = fixed
-        if random is not None:
-            _log.warning("The random argument has been deprecated, please use group_specific")
-            group_specific = random
-
         if common is not None or group_specific is not None:
             self.add(
                 common=common,
@@ -774,10 +765,6 @@ class Model:
                 prior._auto_scale = False  # pylint: disable=protected-access
         return prior
 
-    def plot(self, draws=5000, var_names=None):
-        _log.warning("plot will be deprecated, please use plot_priors")
-        return self.plot_priors(draws, var_names)
-
     def plot_priors(
         self,
         draws=5000,
@@ -818,7 +805,7 @@ class Model:
             Controls formatting of floats. Defaults to 2 or the integer part, whichever is bigger.
         point_estimate: Optional[str]
             Plot point estimate per variable. Values should be 'mean', 'median', 'mode' or None.
-            Defaults to 'auto' i.e. it falls back to default set in rcParams.
+            Defaults to 'auto' i.e. it falls back to default set in ArviZ's rcParams.
         kind: str
             Type of plot to display (kde or hist) For discrete variables this argument is ignored
             and a histogram is always used.
@@ -906,7 +893,7 @@ class Model:
         Returns
         -------
         InferenceData
-            InferenceData object with the groups prior, prior_predictive and ovserved_data.
+            InferenceData object with the groups prior, prior_predictive and observed_data.
         """
         if var_names is None:
             variables = self.backend.model.unobserved_RVs + self.backend.model.observed_RVs
@@ -964,15 +951,15 @@ class Model:
             distribution. Defaults to both observed and unobserved RVs.
         inplace : bool
             If ``True`` it will add a posterior_predictive group to idata, otherwise it will
-            return a copy of idata with the added group. If true and idata already have a
-            posterior_predictive group it will be overwritted
+            return a copy of idata with the added group. If True and idata already have a
+            posterior_predictive group it will be overwritten.
         random_seed : int
             Seed for the random number generator.
 
         Returns
         -------
         None or InferenceData
-            When ``inplace=True`` add posterior_predictive group inplace to idata and return
+            When ``inplace=True`` add posterior_predictive group to idata and return
             ``None`. Otherwise a copy of idata with a posterior_predictive group.
 
         """
