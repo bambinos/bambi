@@ -1,7 +1,6 @@
 import logging
 
 import numpy as np
-from arviz import from_pymc3
 import theano
 import pymc3 as pm
 
