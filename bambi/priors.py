@@ -174,7 +174,8 @@ class PriorFactory:
             or 'group_specific'.
         family : str
             The name of the Family to retrieve. Must be a value defined internally. In the default
-            config, this is one of 'bernoulli', 'gamma', 'gaussian', 'negativebinomial', 'poisson', 't' or 'wald'.
+            config, this is one of 'bernoulli', 'gamma', 'gaussian', 'negativebinomial',
+            'poisson', 't' or 'wald'.
         """
 
         if dist is not None:
