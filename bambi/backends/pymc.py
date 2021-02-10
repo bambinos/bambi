@@ -36,6 +36,13 @@ class PyMC3BackEnd(BackEnd):
         self.trace = None  # build()
         self.advi_params = None  # build()
 
+    # Inspect all args in case we have hyperparameters
+    def _expand_args(self, key, value, label, noncentered):
+        if isinstance(value, Prior):
+            label = f"{label}_{key}"
+            return self._build_dist(noncentered, label, value.name, **value.args)
+        return value
+
     def _build_dist(self, noncentered, label, dist, **kwargs):
         """Build and return a PyMC3 Distribution."""
         if isinstance(dist, str):
@@ -47,14 +54,8 @@ class PyMC3BackEnd(BackEnd):
                 raise ValueError(
                     f"The Distribution {dist} was not found in PyMC3 or the PyMC3BackEnd."
                 )
-        # Inspect all args in case we have hyperparameters
-        def _expand_args(key, value, label):
-            if isinstance(value, Prior):
-                label = f"{label}_{key}"
-                return self._build_dist(noncentered, label, value.name, **value.args)
-            return value
 
-        kwargs = {k: _expand_args(k, v, label) for (k, v) in kwargs.items()}
+        kwargs = {k: self._expand_args(k, v, label, noncentered) for (k, v) in kwargs.items()}
 
         # Non-centered parameterization for hyperpriors
         if (
@@ -80,32 +81,30 @@ class PyMC3BackEnd(BackEnd):
 
         coords = spec._get_pymc_coords()  # pylint: disable=protected-access
         self.model = pm.Model(coords=coords)
+        noncentered = spec.noncentered
 
         with self.model:
             self.mu = 0.0
-            for t in spec.terms.values():
-                data = t.data
-                label = t.name
-                dist_name = t.prior.name
-                dist_args = t.prior.args
-                dist_shape = t.data.shape[1]
+            for term in spec.terms.values():
+                data = term.data
+                label = term.name
+                dist_name = term.prior.name
+                dist_args = term.prior.args
+                dist_shape = term.data.shape[1]
                 if dist_shape == 1:
                     dist_shape = ()
+                coef = self._build_dist(noncentered, label, dist_name, shape=dist_shape, **dist_args)
+                self.mu += pm.math.dot(data, coef)[:, None]
 
-                coef = self._build_dist(spec.noncentered, label, dist_name, shape=dist_shape, **dist_args)
-                if t.group_specific:
-                    self.mu += coef[t.group_index][:, None] * t.predictor
-                else:
-                    self.mu += pm.math.dot(data, coef)[:, None]
-
-            y = spec.y.data
-            y_prior = spec.family.prior
+            response = spec.response.data
+            response_name = spec.response.name
+            response_prior = spec.family.prior
             link_f = spec.family.link
             if isinstance(link_f, str):
                 link_f = self.links[link_f]
-            y_prior.args[spec.family.parent] = link_f(self.mu)
-            y_prior.args["observed"] = y
-            self._build_dist(spec, spec.y.name, y_prior.name, **y_prior.args)
+            response_prior.args[spec.family.parent] = link_f(self.mu)
+            response_prior.args["observed"] = response
+            self._build_dist(noncentered, response_name, response_prior.name, **response_prior.args)
             self.spec = spec
 
     # pylint: disable=arguments-differ, inconsistent-return-statements
