@@ -7,16 +7,17 @@ from copy import deepcopy
 
 import numpy as np
 import pandas as pd
+import pymc3 as pm
 import statsmodels.api as sm
+
 from arviz.plots import plot_posterior
 from arviz.data import from_dict
-from patsy import dmatrices, dmatrix, EvalFactor
-import pymc3 as pm
+from formulae import design_matrices
 
 import bambi.version as version
 from .backends import PyMC3BackEnd
-from .external.patsy import Custom_NA
 from .priors import Prior, PriorFactory, PriorScaler
+from .terms import ResponseTerm, Term, GroupSpecificTerm
 from .utils import listify, get_bernoulli_data, extract_label
 
 _log = logging.getLogger("bambi")
@@ -69,19 +70,10 @@ class Model:
 
         self.default_priors = PriorFactory(default_priors)
 
+        # This conversion is not necessary I think
         obj_cols = data.select_dtypes(["object"]).columns
         data[obj_cols] = data[obj_cols].apply(lambda x: x.astype("category"))
         self.data = data
-        # Some group_specific effects stuff later requires us to make guesses about
-        # column groupings into terms based on patsy's naming scheme.
-        if re.search(r"[\[\]]+", "".join(data.columns)):
-            _log.warning(
-                "At least one of the column names in the specified "
-                "dataset contain square brackets ('[' or ']')."
-                "This may cause unexpected behavior if you specify "
-                "models with group specific effects. You are encouraged to "
-                "rename your columns to avoid square brackets."
-            )
         self.reset()
 
         self.auto_scale = auto_scale
@@ -99,8 +91,8 @@ class Model:
         self.clean_data = None
 
         # attributes that are set later
-        self.y = None  # _add_y()
-        self.family = None  # _add_y()
+        self.response = None  # _add_response()
+        self.family = None  # _add_response()
         self.backend = None  # _set_backend()
         self.dm_statistics = None  # build()
         self._diagnostics = None  # build()
@@ -109,7 +101,7 @@ class Model:
     def reset(self):
         """Reset list of terms and y-variable."""
         self.terms = OrderedDict()
-        self.y = None
+        self.response = None
         self.backend = None
         self.added_terms = []
         self._added_priors = {}
@@ -118,7 +110,6 @@ class Model:
 
     def _set_backend(self, backend):
         backend = backend.lower()
-
         if backend.startswith("pymc"):
             self.backend = PyMC3BackEnd()
         else:
@@ -137,24 +128,6 @@ class Model:
         backend : str
             The name of the backend to use for model fitting. Currently only 'pymc' is supported.
         """
-
-        # retain only the complete cases
-        n_total = len(self.data.index)
-        if self.completes:
-            completes = [set(x) for x in sum(self.completes, [])]
-            completes = set.intersection(*completes)
-        else:
-            completes = range(len(self.data.index))
-        self.clean_data = self.data.iloc[list(completes), :]
-
-        # warn the user about any dropped rows
-        # NOTE: When this message is shown the rows have already been removed.
-        if len(completes) < n_total:
-            _log.info(
-                "Automatically removing %d/%d rows from the dataset.",
-                n_total - len(completes),
-                n_total,
-            )
 
         # loop over the added terms and _add() them
         for term_args in self.added_terms:
@@ -183,7 +156,7 @@ class Model:
             backend = self._backend_name
 
         # check for outcome
-        if self.y is None:
+        if self.response is None:
             raise ValueError(
                 "No outcome (y) variable is set! Please specify "
                 "an outcome variable using the formula interface "
@@ -258,9 +231,7 @@ class Model:
         # Tell user which event is being modeled
         if self.family.name == "bernoulli":
             _log.info(
-                "Modeling the probability that %s==%s",
-                self.y.name,
-                str(self.y.success_event),
+                f"Modeling the probability that {self.response.name}=={self.response.success_event}"
             )
 
         self._set_backend(backend)
@@ -399,6 +370,7 @@ class Model:
 
         # Explicitly convert columns to category if desired--though this
         # can also be done within the formula using C().
+        # NOTE: Encourage the usage of C()?
         if categorical is not None:
             data = data.copy()
             cats = listify(categorical)
@@ -440,8 +412,7 @@ class Model:
 
     def _add(
         self,
-        common=None,
-        group_specific=None,
+        formula=None,
         priors=None,
         family="gaussian",
         link=None,
@@ -452,7 +423,7 @@ class Model:
         Runs during Model.build()
         """
         # use cleaned data with NAs removed (if user requested)
-        data = self.clean_data
+        data = self.data
         # alter this pandas flag to avoid false positive SettingWithCopyWarnings
         data._is_copy = False  # pylint: disable=protected-access
 
@@ -463,20 +434,27 @@ class Model:
             cats = listify(categorical)
             data[cats] = data[cats].apply(lambda x: x.astype("category"))
 
-        if common is not None:
-            self._add_common(common, data, family, link, priors)
+        design = design_matrices(formula, data)
 
-        if group_specific is not None:
-            self._add_group_specific(listify(group_specific), data, priors)
+        if design.response is not None:
+            self._add_response(design.response, family=family, link=link)
+
+        # design.common is an empty list if there are no common terms
+        if design.common:
+            self._add_common(design.common, family, link, priors)
+
+        # design.group is an empty list if there are no group specific terms
+        if design.group:
+            self._add_group_specific(design.group, priors)
 
     # pylint: disable=keyword-arg-before-vararg
-    def _add_y(self, vector, prior=None, family="gaussian", link=None, event=None):
-        """Add a dependent (or outcome) variable to the model.
+    def _add_response(self, response, prior=None, family="gaussian", link=None):
+        """Add a response (or outcome/dependent) variable to the model.
 
         Parameters
         ----------
-        variable : str
-            The name of the dataset column containing the y values.
+        response : formulae.ResponseVector
+            An instance of formulae.ResponseVector as returned by formulae.design_matrices()
         prior : Prior, int, float, str
             Optional specification of prior. Can be an instance of class Prior, a numeric value,
             or a string describing the width. In the numeric case, the distribution specified in
@@ -505,153 +483,37 @@ class Model:
         if prior is None:
             prior = self.family.prior
 
-        variable = vector.design_info.term_names[0]
-
         if self.family.name == "gaussian":
-            prior.update(sigma=Prior("HalfStudentT", nu=4, sigma=self.clean_data[variable].std()))
+            prior.update(sigma=Prior("HalfStudentT", nu=4, sigma=np.std(response.design_vector)))
 
-        # Success event when family = 'bernoulli'
-        success_event = None
-        categorical = False
+        if response.refclass is not None and self.family.name != "bernoulli":
+            raise ValueError("Response index notation only available for 'bernoulli' family")
 
-        if event is not None:
-            if self.family.name != "bernoulli":
-                raise ValueError("Index notation only available for 'bernoulli' family")
-            # pass in new Y data that has 1 if y=event and 0 otherwise
-            success_event = event.group(1)
-            categorical = True
-            data = vector[:, vector.design_info.column_names.index(success_event)]
-            # recall group(3) contains 'event' from 'y[event]' notation
-            data = pd.DataFrame({event.group(3): data})
-        else:
-            data = self.clean_data[variable]
-            if self.family.name == "bernoulli":
-                categorical = True
-                data, success_event = get_bernoulli_data(data)
-
-        self.y = ResponseTerm(variable, data, categorical, prior, success_event=success_event)
+        categorical = response.type == "categoric"
+        success_event = response.refclass
+        self.response = ResponseTerm(response.data, categorical, success_event, prior)
         self.built = False
 
-    def _add_common(self, common, data, family, link, priors):
-        # Create design matrices and add response
-        if "~" in common:
-            # check to see if formula is using the 'y[event] ~ x' syntax.
-            # If so, chop it into groups:
-            # 1 = 'y[event]', 2 = 'y', 3 = 'event', 4 = 'x'
-            # If this syntax is not being used, event = None
-            event = re.match(r"^((\S+)\[(\S+)\])\s*~(.*)$", common)
-            if event is not None:
-                common = "{}~{}".format(event.group(2), event.group(4))
-            y_vector, x_matrix = dmatrices(common, data=data, NA_action="raise")
-            self._add_y(y_vector, family=family, link=link, event=event)
-        else:
-            x_matrix = dmatrix(common, data=data, NA_action="raise")
+    def _add_common(self, common, priors):
+        for name, term in common.terms_info.items():
+            data = common[name]
+            prior = priors.pop(name, priors.get("common", None))
+            categorical = term["type"] == "categoric"
 
-        # Add predictors
-        self._add_common_predictors(x_matrix, priors)
-
-    def _add_group_specific(self, group_specific, data, priors):
-        for group_specific_effect in group_specific:
-
-            group_specific_effect = group_specific_effect.strip()
-
-            # Split specification into intercept, predictor, and grouper
-            patt = r"^([01]+)*[\s\+]*([^\|]+)*\|(.*)"
-
-            intcpt, pred, grpr = re.search(patt, group_specific_effect).groups()
-            label = "{}|{}".format(pred, grpr) if pred else grpr
-            prior = priors.pop(label, priors.get("group_specific", None))
-
-            # Treat all grouping variables as categoricals, regardless of
-            # their dtype and what the user may have specified in the
-            # 'categorical' argument.
-            var_names = re.findall(r"(\w+)", grpr)
-            for var_name in var_names:
-                if var_name in data.columns:
-                    data.loc[:, var_name] = data.loc[:, var_name].astype("category")
-                    self.clean_data.loc[:, var_name] = data.loc[:, var_name]
-
-            # Default to including group specific intercepts
-            intcpt = 1 if intcpt is None else int(intcpt)
-
-            grpr_df = dmatrix(f"0+{grpr}", data, return_type="dataframe", NA_action="raise")
-
-            # If there's no predictor, we must be adding group specific intercepts
-            if not pred and grpr not in self.terms:
-                name = "1|" + grpr
-                pred = np.ones((len(grpr_df), 1))
-                term = GroupSpecificTerm(
-                    name, grpr_df, pred, grpr_df.values, categorical=True, prior=prior
-                )
-                self.terms[name] = term
+            if term["type"] == "interaction":
+                # Any interaction with 1 categorical is considered categorical (at least for now)
+                if any([v["type"] == "categoric" for v in term["terms"].values()]):
+                    categorical = True
+                _term = InteractionTerm(name, data, categorical=categorical, prior=prior)
             else:
-                pred_df = dmatrix(
-                    f"{intcpt}+{pred}", data, return_type="dataframe", NA_action="raise"
-                )
-                # determine value of the 'constant' attribute
-                const = np.atleast_2d(pred_df.T).T.sum(1).var() == 0
-                factor_infos = pred_df.design_info.factor_infos
+                _term = Term(name, data, categorical=categorical, prior=prior)
+            self.terms[name] = _term
 
-                for col, i in pred_df.design_info.column_name_indexes.items():
-                    pred_data = pred_df.iloc[:, i]
-                    lev_data = grpr_df.multiply(pred_data, axis=0)
-
-                    # Also rename intercepts and skip if already added.
-                    # This can happen if user specifies something like
-                    # group_specific=['1|school', 'student|school'].
-                    if col == "Intercept":
-                        if grpr in self.terms:
-                            continue
-                        label = f"1|{grpr}"
-                    else:
-                        label = col + "|" + grpr
-
-                    # Delete everything between brackets and the brackets
-                    col = re.sub(r"\[.*?\]\ *", "", col)
-                    if EvalFactor(col) in factor_infos:
-                        categorical = factor_infos[EvalFactor(col)].type == "categorical"
-                    else:
-                        categorical = False
-
-                    prior = priors.pop(label, priors.get("group_specific", None))
-
-                    pred_data = pred_data.to_numpy()
-                    pred_data = pred_data[:, None]  # Must be 2D later
-                    term = GroupSpecificTerm(
-                        label,
-                        lev_data,
-                        pred_data,
-                        grpr_df.values,
-                        categorical=categorical,
-                        constant=const if const else None,
-                        prior=prior,
-                    )
-                    self.terms[label] = term
-
-    def _add_common_predictors(self, x_matrix, priors):
-        design_info = x_matrix.design_info
-
-        for term in design_info.terms:
-            _slice = design_info.term_slices[term]
-            _name = term.name()
-            cols = design_info.column_names[_slice]
-            data = pd.DataFrame(np.asfortranarray(x_matrix[:, _slice]), columns=cols)
-
-            # General for main or interaction effects.
-            # Any interaction with one categorical predictor, is considered categorical.
-            categorical = "categorical" in [
-                design_info.factor_infos[fct].type for fct in term.factors
-            ]
-
-            prior = priors.pop(_name, priors.get("common", None))
-
-            # If there is more than one factor, we have an interaction
-            if len(term.factors) > 1:
-                term = InteractionTerm(_name, data, categorical=categorical, prior=prior)
-            else:
-                term = Term(_name, data, categorical=categorical, prior=prior)
-
-            self.terms[_name] = term
+    def _add_group_specific(self, group, priors):
+        for name, term in group.terms_info.items():
+            data = group[name]
+            prior = priors.pop(name, priors.get("group_specific", None))
+            self.terms[name] = GroupSpecificTerm(name, data, prior=prior)
 
     def _match_derived_terms(self, name):
         """Return all (group_specific) terms whose named are derived from the specified string.
@@ -908,11 +770,11 @@ class Model:
             samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
         )
 
-        y_name = self.y.name
+        response_name = self.response.name
 
-        if y_name in pps:
-            prior_predictive = {y_name: np.moveaxis(pps.pop(y_name), 2, 0)}
-            observed_data = {y_name: self.y.data.squeeze()}
+        if response_name in pps:
+            prior_predictive = {response_name: np.moveaxis(pps.pop(response_name), 2, 0)}
+            observed_data = {response_name: self.response.data.squeeze()}
         else:
             prior_predictive = {}
             observed_data = {}
@@ -995,6 +857,7 @@ class Model:
             return idata
 
     def _get_pymc_coords(self):
+        # categorical attribute is important because of this coordinates stuff
         common_terms = {
             k + "_dim_0": v.cleaned_levels for k, v in self.common_terms.items() if v.categorical
         }
@@ -1018,171 +881,3 @@ class Model:
     def group_specific_terms(self):
         """Return dict of all and only group specific effects in model."""
         return {k: v for (k, v) in self.terms.items() if v.group_specific}
-
-
-class BaseTerm:
-    """Base class for all model terms"""
-
-    group_specific = False
-
-    def __init__(self, name, categorical, prior):
-        self.name = name
-        self.categorical = categorical
-        self.prior = prior
-
-
-class ResponseTerm(BaseTerm):
-    """Representation of a single response model term.
-
-    Parameters
-    ----------
-    name : str
-        Name of the term.
-    data : (DataFrame, Series, ndarray)
-        The term values.
-    categorical : bool
-        If True, the source variable is interpreted as nominal/categorical. If False, the source
-        variable is treated as continuous.
-    prior : Prior
-        A specification of the prior(s) to use. An instance of class priors.Prior.
-    success_event: str or None
-        Indicates the success level when the term is a categorical variable.
-    """
-
-    def __init__(self, name, data, categorical=False, prior=None, success_event=None):
-        super().__init__(name, categorical, prior)
-
-        if isinstance(data, pd.Series):
-            data = data.to_frame()
-        if isinstance(data, pd.DataFrame):
-            self.levels = list(data.columns)
-            data = data.values
-
-        self.data = data
-        self.constant = np.atleast_2d(data.T).T.sum(1).var() == 0
-        self.success_event = str(success_event)
-        self.clean_event()
-
-    def clean_event(self):
-        event = re.search(r"\[([\S+]+)\]", self.success_event)
-        if event is not None:
-            self.success_event = event.group(1)
-
-
-class Term(BaseTerm):
-    """Representation of a single (common) model term.
-
-    Parameters
-    ----------
-    name : str
-        Name of the term.
-    data : (DataFrame, Series, ndarray)
-        The term values.
-    categorical : bool
-        If True, the source variable is interpreted as nominal/categorical. If False, the source
-        variable is treated as continuous.
-    prior : Prior
-        A specification of the prior(s) to use. An instance of class priors.Prior.
-    constant : bool
-        indicates whether the term levels collectively act as a constant, in which case the term is
-        treated as an intercept for prior distribution purposes.
-    """
-
-    def __init__(self, name, data, categorical=False, prior=None, constant=None):
-        super().__init__(name, categorical, prior)
-
-        if isinstance(data, pd.Series):
-            data = data.to_frame()
-
-        if isinstance(data, pd.DataFrame):
-            self.levels = list(data.columns)
-            data = data.values
-        # Group specific effects pass through here
-        else:
-            data = np.atleast_2d(data)
-            self.levels = list(range(data.shape[1]))
-
-        self.data = data
-
-        # identify and flag intercept and cell-means terms (i.e., full-rank
-        # dummy codes), which receive special priors
-        if constant is None:
-            self.constant = np.atleast_2d(data.T).T.sum(1).var() == 0
-        else:
-            self.constant = constant
-        self.clean_levels()
-
-    def clean_levels(self):
-        self.cleaned_levels = [extract_label(level, "common") for level in self.levels]
-
-
-class InteractionTerm(Term):
-    """Representation of a single (common) interaction model term.
-
-    Parameters
-    ----------
-    name : str
-        Name of the term.
-    data : (DataFrame, Series, ndarray)
-        The term values.
-    categorical : bool
-        If True, the source variable is interpreted as nominal/categorical. If False, the source
-        variable is treated as continuous.
-    prior : Prior
-        A specification of the prior(s) to use. An instance of class priors.Prior.
-    """
-
-    def __init__(self, name, data, categorical=False, prior=None):
-        super().__init__(name, data, categorical, prior)
-
-    def clean_levels(self):
-        # Delete "T." within square brackets
-        self.cleaned_levels = [re.sub("T.(?=[^[]]*\\])", "", level) for level in self.levels]
-
-
-class GroupSpecificTerm(Term):
-    """Representation of a single (group specific) model term.
-
-    Parameters
-    ----------
-    name : str
-        Name of the term.
-    data : (DataFrame, Series, ndarray)
-        The term values.
-    predictor: (DataFrame, Series, ndarray)
-        Data of the predictor variable in the group specific term.
-    grouper: (DataFrame, Series, ndarray)
-        Data of the grouping variable in the group specific term.
-    categorical : bool
-        If True, the source variable is interpreted as nominal/categorical. If False, the source
-        variable is treated as continuous.
-    prior : Prior
-        A specification of the prior(s) to use. An instance of class priors.Prior.
-    constant : bool
-        indicates whether the term levels collectively act as a constant, in which case the term is
-        treated as an intercept for prior distribution purposes.
-    """
-
-    group_specific = True
-
-    def __init__(
-        self, name, data, predictor, grouper, categorical=False, prior=None, constant=None
-    ):
-        super().__init__(name, data, categorical, prior, constant)
-        self.grouper = grouper
-        self.predictor = predictor
-        self.group_index = self.invert_dummies(grouper)
-
-    def clean_levels(self):
-        self.cleaned_levels = [extract_label(level, "group_specific") for level in self.levels]
-
-    def invert_dummies(self, dummies):
-        """
-        For the sake of computational efficiency (i.e., to avoid lots of large matrix
-        multiplications in the backends), invert the dummy-coding process and represent full-rank
-        dummies as a vector of indices into the coefficients.
-        """
-        vec = np.zeros(len(dummies), dtype=int)
-        for i in range(1, dummies.shape[1]):
-            vec[dummies[:, i] == 1] = i
-        return vec
