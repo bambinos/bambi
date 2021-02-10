@@ -36,7 +36,7 @@ class PyMC3BackEnd(BackEnd):
         self.trace = None  # build()
         self.advi_params = None  # build()
 
-    def _build_dist(self, spec, label, dist, **kwargs):
+    def _build_dist(self, noncentered, label, dist, **kwargs):
         """Build and return a PyMC3 Distribution."""
         if isinstance(dist, str):
             if hasattr(pm, dist):
@@ -51,14 +51,14 @@ class PyMC3BackEnd(BackEnd):
         def _expand_args(key, value, label):
             if isinstance(value, Prior):
                 label = f"{label}_{key}"
-                return self._build_dist(spec, label, value.name, **value.args)
+                return self._build_dist(noncentered, label, value.name, **value.args)
             return value
 
         kwargs = {k: _expand_args(k, v, label) for (k, v) in kwargs.items()}
 
         # Non-centered parameterization for hyperpriors
         if (
-            spec.noncentered
+            noncentered
             and "sigma" in kwargs
             and "observed" not in kwargs
             and isinstance(kwargs["sigma"], pm.model.TransformedRV)
@@ -92,7 +92,7 @@ class PyMC3BackEnd(BackEnd):
                 if dist_shape == 1:
                     dist_shape = ()
 
-                coef = self._build_dist(spec, label, dist_name, shape=dist_shape, **dist_args)
+                coef = self._build_dist(spec.noncentered, label, dist_name, shape=dist_shape, **dist_args)
                 if t.group_specific:
                     self.mu += coef[t.group_index][:, None] * t.predictor
                 else:
