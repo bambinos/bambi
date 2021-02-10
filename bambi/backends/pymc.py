@@ -94,7 +94,11 @@ class PyMC3BackEnd(BackEnd):
                 if dist_shape == 1:
                     dist_shape = ()
                 coef = self._build_dist(noncentered, label, dist_name, shape=dist_shape, **dist_args)
-                self.mu += pm.math.dot(data, coef)[:, None]
+
+                if term.group_specific:
+                    self.mu += coef[term.group_index][:, None] * term.predictor
+                else:
+                    self.mu += pm.math.dot(data, coef)[:, None]
 
             response = spec.response.data
             response_name = spec.response.name

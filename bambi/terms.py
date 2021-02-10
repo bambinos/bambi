@@ -5,8 +5,6 @@ class ResponseTerm:
 
     Parameters
     ----------
-    name : str
-        Name of the term.
     term: formulae.ResponseVector
         An object describing the response of the model,
         as returned by formulae.design_matrices().response
@@ -17,8 +15,8 @@ class ResponseTerm:
     def __init__(self, term, prior=None):
         self.name = term.name
         self.data = term.design_vector
-        self.categorical = term["type"] == "categoric"
-        self.success_event = term["refclass"]
+        self.categorical = term.type == "categoric"
+        self.success_event = term.refclass
         self.prior = prior
         self.constant = np.var(self.data) == 0
 
@@ -48,14 +46,19 @@ class Term:
         self.data = data
         self.prior = prior
         self.categorical = term_dict["type"] == "categoric"
+        self.levels = term_dict["full_names"]
 
         # identify and flag intercept and cell-means terms (i.e., full-rankdummy codes),
         # which receive special priors
-        # DONT SEE ITS UTILITY NOW
         if constant is None:
             self.constant = np.atleast_2d(self.data.T).T.sum(1).var() == 0
         else:
             self.constant = constant
+
+        # Any interaction with 1 categorical is considered categorical (at least for now)
+        if term_dict["type"] == "interaction":
+            if any([v["type"] == "categoric" for v in term_dict["terms"].values()]):
+                self.categorical = True
 
         if self.categorical:
             if "levels" in term_dict.keys():
@@ -97,8 +100,24 @@ class GroupSpecificTerm:
         self.prior = prior
         self.categorical = term_dict["type"] == "categoric"
         self.cleaned_levels = term_dict["groups"]
+        self.levels = term_dict["full_names"]
+
+        self.grouper = term_dict["Ji"]
+        self.predictor = term_dict["Xi"]
+        self.group_index = self.invert_dummies(self.grouper)
 
         if constant is None:
             self.constant = np.atleast_2d(self.data.T).T.sum(1).var() == 0
         else:
             self.constant = constant
+
+    def invert_dummies(self, dummies):
+        """
+        For the sake of computational efficiency (i.e., to avoid lots of large matrix
+        multiplications in the backends), invert the dummy-coding process and represent full-rank
+        dummies as a vector of indices into the coefficients.
+        """
+        vec = np.zeros(len(dummies), dtype=int)
+        for i in range(1, dummies.shape[1]):
+            vec[dummies[:, i] == 1] = i
+        return vec

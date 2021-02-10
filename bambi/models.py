@@ -14,11 +14,11 @@ from arviz.plots import plot_posterior
 from arviz.data import from_dict
 from formulae import design_matrices
 
-import bambi.version as version
 from .backends import PyMC3BackEnd
 from .priors import Prior, PriorFactory, PriorScaler
 from .terms import ResponseTerm, Term, GroupSpecificTerm
-from .utils import listify, get_bernoulli_data, extract_label
+from .utils import listify
+from .version import __version__ as version
 
 _log = logging.getLogger("bambi")
 
@@ -70,7 +70,6 @@ class Model:
 
         self.default_priors = PriorFactory(default_priors)
 
-        # This conversion is not necessary I think
         obj_cols = data.select_dtypes(["object"]).columns
         data[obj_cols] = data[obj_cols].apply(lambda x: x.astype("category"))
         self.data = data
@@ -86,9 +85,6 @@ class Model:
         self.added_terms = []
         self._added_priors = {}
 
-        # if dropna=True, completes gets updated by add() to track complete cases
-        self.completes = []
-        self.clean_data = None
 
         # attributes that are set later
         self.response = None  # _add_response()
@@ -105,8 +101,6 @@ class Model:
         self.backend = None
         self.added_terms = []
         self._added_priors = {}
-        self.completes = []
-        self.clean_data = None
 
     def _set_backend(self, backend):
         backend = backend.lower()
@@ -197,8 +191,7 @@ class Model:
             for x_col in list(mat.columns):
                 mat.loc[x_col, x_col] = self.dm_statistics["mean_x"][x_col]
             self._diagnostics = {
-                # the Variance Inflation Factors (VIF), which is possibly
-                # useful for diagnostics
+                # the Variance Inflation Factors (VIF), which is possibly useful for diagnostics
                 "VIF": 1 / (1 - self.dm_statistics["r2_x"]),
                 "corr_mean_X": mat,
             }
@@ -240,8 +233,7 @@ class Model:
 
     def fit(
         self,
-        common=None,
-        group_specific=None,
+        formula,
         priors=None,
         family="gaussian",
         link=None,
@@ -255,10 +247,8 @@ class Model:
 
         Parameters
         ----------
-        common : str
-            Optional formula specification of common effects.
-        group_specific : list
-            Optional list-based specification of group specific effects.
+        formula : str
+            A model description written in model formula language
         priors : dict
             Optional specification of priors for one or more terms. A dict where the keys are the
             names of terms in the model, and the values are either instances of class Prior or
@@ -289,16 +279,36 @@ class Model:
         backend : str
             The name of the BackEnd to use. Currently only 'pymc' backend is supported.
         """
-        if common is not None or group_specific is not None:
-            self.add(
-                common=common,
-                group_specific=group_specific,
-                priors=priors,
-                family=family,
-                link=link,
-                categorical=categorical,
-                append=False,
-            )
+
+        if priors is None:
+            priors = {}
+        else:
+            priors = deepcopy(priors)
+
+        data = self.data
+        # alter this pandas flag to avoid false positive SettingWithCopyWarnings
+        data._is_copy = False  # pylint: disable=protected-access
+
+        # Explicitly convert columns to category if desired--though this
+        # can also be done within the formula using C().
+        if categorical is not None:
+            data = data.copy()
+            cats = listify(categorical)
+            data[cats] = data[cats].apply(lambda x: x.astype("category"))
+
+        na_action = "drop" if self.dropna else "error"
+        design = design_matrices(formula, data, na_action)
+
+        if design.response is not None:
+            self._add_response(design.response, family=family, link=link)
+
+        # design.common is an empty list if there are no common terms
+        if design.common:
+            self._add_common(design.common, priors)
+
+        # design.group is an empty list if there are no group specific terms
+        if design.group:
+            self._add_group_specific(design.group, priors)
 
         # Run the BackEnd to fit the model.
         if backend is None:
@@ -311,141 +321,6 @@ class Model:
 
         self._backend_name = backend
         return None
-
-    def add(
-        self,
-        common=None,
-        group_specific=None,
-        priors=None,
-        family="gaussian",
-        link=None,
-        categorical=None,
-        append=True,
-    ):
-        """Add one or more terms to the model via an R-like formula syntax.
-
-        Parameters
-        ----------
-        common : str
-            Optional formula specification of common effects.
-        group_specific : list
-            Optional list-based specification of group specific effects.
-        priors : dict
-            Optional specification of priors for one or more terms. A dict where the keys are the
-            names of terms in the model, and the values are either instances of class Prior or
-            ints, floats, or strings that specify the width of the priors on a standardized scale.
-        family : str, Family
-            A specification of the model family (analogous to the family object in R).
-            Either a string, or an instance of class priors.Family. If a string is passed, a family
-            with the corresponding name must be defined in the defaults loaded at Model
-            initialization. Valid pre-defined families are 'gaussian', 'bernoulli', 'poisson',
-            and 't'.
-        link : str
-            The model link function to use. Can be either a string (must be one of the options
-            defined in the current backend; typically this will include at least 'identity',
-            'logit', 'inverse', and 'log'), or a callable that takes a 1D ndarray or theano tensor
-            as the sole argument and returns one with the same shape.
-        categorical : str or list
-            The names of any variables to treat as categorical. Can be either a single variable
-            name, or a list of names. If categorical is None, the data type of the columns in the
-            DataFrame will be used to infer handling. In cases where numeric columns are to be
-            treated as categoricals (e.g., group specific factors coded as numerical IDs),
-            explicitly passing variable names via this argument is recommended.
-        append : bool
-            If True, terms are appended to the existing model rather than replacing any
-            existing terms. This allows formula-based specification of the model in stages.
-        """
-        data = self.data
-
-        # Primitive values (floats, strs) can be overwritten with Prior objects
-        # so we need to make sure to copy first to avoid bad things happening
-        # if user is re-using same prior dict in multiple models.
-        if priors is None:
-            priors = {}
-        else:
-            priors = deepcopy(priors)
-
-        if not append:
-            self.reset()
-
-        # Explicitly convert columns to category if desired--though this
-        # can also be done within the formula using C().
-        # NOTE: Encourage the usage of C()?
-        if categorical is not None:
-            data = data.copy()
-            cats = listify(categorical)
-            data[cats] = data[cats].apply(lambda x: x.astype("category"))
-
-        # Custom patsy.missing.NAAction class. Similar to patsy drop/raise
-        # defaults, but changes the raised message and logs any dropped rows
-        NA_handler = Custom_NA(dropna=self.dropna)
-
-        # screen common terms
-        # it deletes everything between [] and the brackets too.
-        if common is not None:
-            if "~" in common:
-                clean_fix = re.sub(r"\[.+\]", "", common)
-                dmatrices(clean_fix, data=data, NA_action=NA_handler)
-            else:
-                dmatrix(common, data=data, NA_action=NA_handler)
-
-        # screen group specific terms
-        if group_specific is not None:
-            for term in listify(group_specific):
-                for side in term.split("|"):
-                    dmatrix(side, data=data, NA_action=NA_handler)
-
-        # update the running list of complete cases
-        if NA_handler.completes:
-            self.completes.append(NA_handler.completes)
-
-        # save arguments to pass to _add()
-        args = dict(
-            zip(
-                ["common", "group_specific", "priors", "family", "link", "categorical"],
-                [common, group_specific, priors, family, link, categorical],
-            )
-        )
-        self.added_terms.append(args)
-
-        self.built = False
-
-    def _add(
-        self,
-        formula=None,
-        priors=None,
-        family="gaussian",
-        link=None,
-        categorical=None,
-    ):
-        """Internal version of add(), with the same arguments.
-
-        Runs during Model.build()
-        """
-        # use cleaned data with NAs removed (if user requested)
-        data = self.data
-        # alter this pandas flag to avoid false positive SettingWithCopyWarnings
-        data._is_copy = False  # pylint: disable=protected-access
-
-        # Explicitly convert columns to category if desired--though this
-        # can also be done within the formula using C().
-        if categorical is not None:
-            data = data.copy()
-            cats = listify(categorical)
-            data[cats] = data[cats].apply(lambda x: x.astype("category"))
-
-        design = design_matrices(formula, data)
-
-        if design.response is not None:
-            self._add_response(design.response, family=family, link=link)
-
-        # design.common is an empty list if there are no common terms
-        if design.common:
-            self._add_common(design.common, family, link, priors)
-
-        # design.group is an empty list if there are no group specific terms
-        if design.group:
-            self._add_group_specific(design.group, priors)
 
     # pylint: disable=keyword-arg-before-vararg
     def _add_response(self, response, prior=None, family="gaussian", link=None):
@@ -487,33 +362,22 @@ class Model:
             prior.update(sigma=Prior("HalfStudentT", nu=4, sigma=np.std(response.design_vector)))
 
         if response.refclass is not None and self.family.name != "bernoulli":
-            raise ValueError("Response index notation only available for 'bernoulli' family")
+            raise ValueError("Index notation for response only available for 'bernoulli' family")
 
-        categorical = response.type == "categoric"
-        success_event = response.refclass
-        self.response = ResponseTerm(response.data, categorical, success_event, prior)
+        self.response = ResponseTerm(response, prior)
         self.built = False
 
     def _add_common(self, common, priors):
         for name, term in common.terms_info.items():
             data = common[name]
             prior = priors.pop(name, priors.get("common", None))
-            categorical = term["type"] == "categoric"
-
-            if term["type"] == "interaction":
-                # Any interaction with 1 categorical is considered categorical (at least for now)
-                if any([v["type"] == "categoric" for v in term["terms"].values()]):
-                    categorical = True
-                _term = InteractionTerm(name, data, categorical=categorical, prior=prior)
-            else:
-                _term = Term(name, data, categorical=categorical, prior=prior)
-            self.terms[name] = _term
+            self.terms[name] = Term(name, term, data, prior)
 
     def _add_group_specific(self, group, priors):
         for name, term in group.terms_info.items():
             data = group[name]
             prior = priors.pop(name, priors.get("group_specific", None))
-            self.terms[name] = GroupSpecificTerm(name, data, prior=prior)
+            self.terms[name] = GroupSpecificTerm(name, term, data, prior)
 
     def _match_derived_terms(self, name):
         """Return all (group_specific) terms whose named are derived from the specified string.

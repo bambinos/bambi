@@ -213,7 +213,7 @@ class PriorScaler:
         self.priors = {}
         missing = "drop" if self.model.dropna else "none"
         self.mle = GLM(
-            endog=self.model.y.data,
+            endog=self.model.response.data,
             exog=self.dm,
             family=self.model.family.smfamily(),
             missing=missing,
@@ -250,7 +250,7 @@ class PriorScaler:
         if keeps:
             null = [
                 GLM(
-                    endog=self.model.y.data, exog=exog, family=self.model.family.smfamily()
+                    endog=self.model.response.data, exog=exog, family=self.model.family.smfamily()
                 ).fit_constrained(str(exog.columns[i]) + "=" + str(val))
                 for val in values[:-1]
             ]
@@ -259,7 +259,7 @@ class PriorScaler:
         # if just a single predictor, use statsmodels to evaluate the LL
         else:
             null = [
-                self.model.family.smfamily().loglike(np.squeeze(self.model.y.data), val * predictor)
+                self.model.family.smfamily().loglike(np.squeeze(self.model.response.data), val * predictor)
                 for val in values[:-1]
             ]
             log_likelihood = np.append(null, full_mod.llf)
@@ -294,7 +294,7 @@ class PriorScaler:
         # generally gives good results, but the higher order the expansion, the
         # further from 0 we need to evaluate the derivatives, or they blow up.
         point = dict(zip(range(1, 14), 2 ** np.linspace(-1, 5, 13) / 100))
-        vals = dict(a=coef_a, b=coef_b, n=len(self.model.y.data), r=point[self.taylor])
+        vals = dict(a=coef_a, b=coef_b, n=len(self.model.response.data), r=point[self.taylor])
         _deriv = [eval(x, globals(), vals) for x in self.deriv]  # pylint: disable=eval-used
 
         # compute and return the approximate sigma
@@ -315,8 +315,8 @@ class PriorScaler:
     def _get_intercept_stats(self, add_slopes=True):
         # start with mean and variance of Y on the link scale
         mod = GLM(
-            endog=self.model.y.data,
-            exog=np.repeat(1, len(self.model.y.data)),
+            endog=self.model.response.data,
+            exog=np.repeat(1, len(self.model.response.data)),
             family=self.model.family.smfamily(),
             missing="drop" if self.model.dropna else "none",
         ).fit()
@@ -419,7 +419,7 @@ class PriorScaler:
                 # this will replace self.mle (which is missing predictors)
                 missing = "drop" if self.model.dropna else "none"
                 full_mod = GLM(
-                    endog=self.model.y.data,
+                    endog=self.model.response.data,
                     exog=exog,
                     family=self.model.family.smfamily(),
                     missing=missing,
