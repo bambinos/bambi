@@ -18,7 +18,7 @@ from .backends import PyMC3BackEnd
 from .priors import Prior, PriorFactory, PriorScaler
 from .terms import ResponseTerm, Term, GroupSpecificTerm
 from .utils import listify
-from .version import __version__ as version
+from .version import __version__
 
 _log = logging.getLogger("bambi")
 
@@ -654,7 +654,7 @@ class Model:
                 "inference_library": self.backend.name,
                 "inference_library_version": self.backend.name,
                 "modeling_interface": "bambi",
-                "modeling_interface_version": version.__version__,
+                "modeling_interface_version": __version__,
             },
         )
 
@@ -714,7 +714,7 @@ class Model:
         getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
         getattr(idata, "posterior_predictive").attrs[
             "modeling_interface_version"
-        ] = version.__version__
+        ] = __version__
         if inplace:
             return None
         else:

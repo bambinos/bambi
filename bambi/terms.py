@@ -1,3 +1,4 @@
+import itertools
 import numpy as np
 
 class ResponseTerm:
@@ -55,18 +56,24 @@ class Term:
         else:
             self.constant = constant
 
-        # Any interaction with 1 categorical is considered categorical (at least for now)
-        if term_dict["type"] == "interaction":
-            if any([v["type"] == "categoric" for v in term_dict["terms"].values()]):
-                self.categorical = True
-
         if self.categorical:
             if "levels" in term_dict.keys():
-                self.cleaned_levels = term_dict["levels"]
+                if term_dict["encoding"] == "full":
+                    self.cleaned_levels = term_dict["levels"]
+                else:
+                    self.cleaned_levels = term_dict["levels"][1:]
             else:
                 self.cleaned_levels = term_dict["reference"]
         else:
             self.cleaned_levels = None
+
+        # Any interaction with 1 categorical is considered categorical (at least for now)
+        if term_dict["type"] == "interaction":
+            if any([v["type"] == "categoric" for v in term_dict["terms"].values()]):
+                self.categorical = True
+                self.cleaned_levels = _interaction_labels(term_dict)
+
+
 
 
 class GroupSpecificTerm:
@@ -121,3 +128,22 @@ class GroupSpecificTerm:
         for i in range(1, dummies.shape[1]):
             vec[dummies[:, i] == 1] = i
         return vec
+
+def _interaction_labels(x):
+    # taken from formulae
+    terms = x["terms"]
+    colnames = []
+
+    for k, v in terms.items():
+        if v["type"] in ["numeric", "call"]:
+            colnames.append([k])
+        if v["type"] == "categoric":
+            if "levels" in v.keys():
+                if v["encoding"] == "full":
+                    colnames.append([f"{k}[{level}]" for level in v["levels"]])
+                else:
+                    colnames.append([f"{k}[{level}]" for level in v["levels"][1:]])
+            else:
+                colnames.append([f"{k}[{v['reference']}]"])
+
+    return [":".join(str_tuple) for str_tuple in list(itertools.product(*colnames))]
