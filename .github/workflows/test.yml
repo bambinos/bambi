@@ -1,0 +1,63 @@
+name: Run tests
+
+on:
+    push:
+        branches:
+         - master
+    pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ '3.7', '3.8', '3.9' ]
+
+    name: Set up Python ${{ matrix.python-version }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          channels: conda-forge,defaults
+          channel-priority: true
+          python-version: ${{ matrix.python-version }}
+          auto-update-conda: true
+
+      - name: Install dev environment & bambi
+        shell: bash -l {0}
+        run: |
+          conda install pip
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+          pip install .
+
+          python --version
+          conda list
+          pip freeze
+
+      - name: Run linters
+        shell: bash -l {0}
+        run: |
+          python -m black bambi --check
+          echo "Success!"
+
+          echo "Checking code style with pylint..."
+          python -m pylint bambi/
+
+      - name: Run tests
+        shell: bash -l {0}
+        run: |
+          python -m pytest -vv --cov=bambi --cov-report=term --cov-report=xml bambi/tests
+        env:
+          PYTHON_VERSION: ${{ matrix.python-version }}
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          env_vars: OS,PYTHON
+          name: codecov-umbrella
+          fail_ci_if_error: false
