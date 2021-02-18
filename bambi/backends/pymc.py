@@ -93,7 +93,9 @@ class PyMC3BackEnd(BackEnd):
                 dist_shape = term.data.shape[1]
                 if dist_shape == 1:
                     dist_shape = ()
-                coef = self._build_dist(noncentered, label, dist_name, shape=dist_shape, **dist_args)
+                coef = self._build_dist(
+                    noncentered, label, dist_name, shape=dist_shape, **dist_args
+                )
 
                 if term.group_specific:
                     self.mu += coef[term.group_index][:, None] * term.predictor

@@ -85,7 +85,6 @@ class Model:
         self.added_terms = []
         self._added_priors = {}
 
-
         # attributes that are set later
         self.response = None  # _add_response()
         self.family = None  # _add_response()
@@ -297,7 +296,7 @@ class Model:
             data[cats] = data[cats].apply(lambda x: x.astype("category"))
 
         na_action = "drop" if self.dropna else "error"
-        design = design_matrices(formula, data, na_action)
+        design = design_matrices(formula, data, na_action, eval_env=1)
 
         if design.response is not None:
             self._add_response(design.response, family=family, link=link)
@@ -364,7 +363,7 @@ class Model:
         if response.refclass is not None and self.family.name != "bernoulli":
             raise ValueError("Index notation for response only available for 'bernoulli' family")
 
-        self.response = ResponseTerm(response, prior)
+        self.response = ResponseTerm(response, prior, self.family.name)
         self.built = False
 
     def _add_common(self, common, priors):
@@ -712,9 +711,7 @@ class Model:
         )
 
         getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
-        getattr(idata, "posterior_predictive").attrs[
-            "modeling_interface_version"
-        ] = __version__
+        getattr(idata, "posterior_predictive").attrs["modeling_interface_version"] = __version__
         if inplace:
             return None
         else:

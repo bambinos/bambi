@@ -1,5 +1,6 @@
 import itertools
 import numpy as np
+from pandas.api.types import is_numeric_dtype
 
 class ResponseTerm:
     """Representation of a single response model term.
@@ -13,13 +14,20 @@ class ResponseTerm:
         A specification of the prior(s) to use. An instance of class priors.Prior.
     """
 
-    def __init__(self, term, prior=None):
+    def __init__(self, term, prior=None, family=None):
         self.name = term.name
         self.data = term.design_vector
         self.categorical = term.type == "categoric"
         self.success_event = term.refclass
         self.prior = prior
         self.constant = np.var(self.data) == 0
+
+        if family == "bernoulli":
+            if is_numeric_dtype(self.data):
+                if not all(np.isin(self.data, ([0, 1]))):
+                    raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
+            self.success_event = 1
+
 
 class Term:
     """Representation of a single (common) model term.
@@ -74,8 +82,6 @@ class Term:
                 self.cleaned_levels = _interaction_labels(term_dict)
 
 
-
-
 class GroupSpecificTerm:
     """Representation of a single (group specific) model term.
 
@@ -128,6 +134,7 @@ class GroupSpecificTerm:
         for i in range(1, dummies.shape[1]):
             vec[dummies[:, i] == 1] = i
         return vec
+
 
 def _interaction_labels(x):
     # taken from formulae

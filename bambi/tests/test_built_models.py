@@ -36,38 +36,25 @@ def crossed_data():
 
 def test_empty_model(crossed_data):
     model0 = Model(crossed_data)
-    model0.add("Y ~ 0")
-    model0.build(backend="pymc3")
-    model0.fit(tune=0, draws=1)
+    model0.fit("Y ~ 0", tune=0, draws=1)
 
     model1 = Model(crossed_data)
-    model1.fit("Y ~ 0", run=False)
+    model1.fit("Y ~ 0", tune=0, draws=1)
 
-    model1.build(backend="pymc3")
-    model1.fit(tune=0, draws=1)
-
-    # check that both models have same priors for common effects
+    # check that both models have same priors for common effects -> emtpy priors
     priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
     priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
     assert set(priors0) == set(priors1)
 
 
 def test_intercept_only_model(crossed_data):
-    # using fit
     model0 = Model(crossed_data)
-    model0.fit("Y ~ 1", run=False)
-    model0.build(backend="pymc3")
-    model0.fit(tune=0, draws=1, init=None)
+    model0.fit("Y ~ 1", tune=0, draws=1, init=None)
 
-    # using add
     model1 = Model(crossed_data)
-    model1.add("Y ~ 0")
-    model1.add("1")
-    model1.build(backend="pymc3")
-    model1.fit(tune=0, draws=1)
+    model1.fit("Y ~ 1", tune=0, draws=1)
 
-    # check that fit and add models have same priors for common
-    # effects
+    # check that fit and add models have same priors for common effects
     priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
     priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
     assert set(priors0) == set(priors1)
@@ -76,16 +63,11 @@ def test_intercept_only_model(crossed_data):
 def test_slope_only_model(crossed_data):
     # using fit
     model0 = Model(crossed_data)
-    model0.fit("Y ~ 0 + continuous", run=False)
-    model0.build(backend="pymc3")
-    model0.fit(tune=0, draws=1, init=None)
+    model0.fit("Y ~ 0 + continuous", tune=0, draws=1, init=None)
 
     # using add
     model1 = Model(crossed_data)
-    model1.add("Y ~ 0")
-    model1.add("0 + continuous")
-    model1.build(backend="pymc3")
-    model1.fit(tune=0, draws=1)
+    model1.fit("Y ~ 0 + continuous", tune=0, draws=1)
 
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)
@@ -100,16 +82,11 @@ def test_slope_only_model(crossed_data):
 def test_cell_means_parameterization(crossed_data):
     # build model using fit
     model0 = Model(crossed_data)
-    model0.fit("Y ~ 0 + threecats", run=False)
-    model0.build(backend="pymc3")
-    model0.fit(tune=0, draws=1, init=None)
+    model0.fit("Y ~ 0 + threecats", tune=0, draws=1, init=None)
 
     # build model using add
     model1 = Model(crossed_data)
-    model1.add("Y ~ 0")
-    model1.add("0 + threecats")
-    model1.build(backend="pymc3")
-    model1.fit(tune=0, draws=1)
+    model1.fit("Y ~ 0 + threecats", tune=0, draws=1)
 
     # check that design matrices are the same,
     # even if term names / level names / order of columns is different
@@ -129,8 +106,7 @@ def test_cell_means_parameterization(crossed_data):
     )
     assert X0 == X1
 
-    # check that fit and add models have same priors for common
-    # effects
+    # check that fit and add models have same priors for common effects
     priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
     priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
     assert set(priors0) == set(priors1)
@@ -140,35 +116,23 @@ def test_3x4_common_anova(crossed_data):
     # add a four-level category that's perfectly crossed with threecats
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
 
-    # using fit, with intercept
+    # with intercept
     model0 = Model(crossed_data)
-    model0.fit("Y ~ threecats*fourcats", run=False)
-    model0.build(backend="pymc3")
-    fitted0 = model0.fit(tune=0, draws=1, init=None)
+    fitted0 = model0.fit("Y ~ threecats*fourcats", tune=0, draws=1, init=None)
     assert len(fitted0.posterior.data_vars) == 5
 
-    # using fit, without intercept (i.e., 2-factor cell means model)
+    # without intercept (i.e., 2-factor cell means model)
     model1 = Model(crossed_data)
-    model1.fit("Y ~ 0 + threecats*fourcats", run=False)
-    model1.build(backend="pymc3")
-    fitted1 = model1.fit(tune=0, draws=1)
+    fitted1 = model1.fit("Y ~ 0 + threecats*fourcats", tune=0, draws=1)
     assert len(fitted1.posterior.data_vars) == 4
 
 
 def test_cell_means_with_covariate(crossed_data):
-    # build model using fit
     model0 = Model(crossed_data)
-    model0.fit("Y ~ 0 + threecats + continuous", run=False)
-    model0.build(backend="pymc3")
-    # model0.fit(tune=0, draws=1)
+    model0.fit("Y ~ 0 + threecats + continuous", tune=0, draws=1, init=None)
 
-    # build model using add
     model1 = Model(crossed_data)
-    model1.add("Y ~ 0")
-    model1.add("0 + threecats")
-    model1.add("0 + continuous")
-    model1.build(backend="pymc3")
-    # model1.fit(tune=0, draws=1)
+    model1.fit("Y ~ 0 + threecats + continuous", tune=0, draws=1,)
 
     # check that design matrices are the same,
     # even if term names / level names / order of columns is different
@@ -191,8 +155,7 @@ def test_cell_means_with_covariate(crossed_data):
     # check that threecats priors have finite variance
     assert not np.isinf(model0.terms["threecats"].prior.args["sigma"])
 
-    # check that fit and add models have same priors for common
-    # effects
+    # check that fit and add models have same priors for common effects
     priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
     priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
     assert set(priors0) == set(priors1)
@@ -207,36 +170,21 @@ def test_many_common_many_group_specific(crossed_data):
 
     # build model using fit
     model0 = Model(crossed_data_missing, dropna=True)
-    fitted = model0.fit(
-        "Y ~ continuous + dummy + threecats",
-        group_specific=[
-            "0+threecats|subj",
-            "1|item",
-            "0+continuous|item",
-            "dummy|item",
-            "threecats|site",
-        ],
-        backend="pymc3",
+    model0.fit(
+        "Y ~ continuous + dummy + threecats + (0+threecats|subj) + (1|item) + (0+continuous|item) + (dummy|item) + (threecats|site)",
         init=None,
         tune=10,
         draws=10,
         chains=2,
     )
-    # model0.build(backend='pymc3')
-    # model0.fit(tune=0, draws=1)
 
-    # build model using add(append=True)
     model1 = Model(crossed_data_missing, dropna=True)
-    model1.add("Y ~ 1")
-    model1.add("continuous")
-    model1.add("dummy")
-    model1.add("threecats")
-    model1.add(group_specific="0+threecats|subj")
-    model1.add(group_specific="1|item")
-    model1.add(group_specific="0+continuous|item")
-    model1.add(group_specific="dummy|item")
-    model1.add(group_specific="threecats|site")
-    model1.build(backend="pymc3")
+    model1.fit(
+        "Y ~ continuous + dummy + threecats + (0+threecats|subj) + (continuous|item) + (dummy|item) + (threecats|site)",
+        tune=10,
+        draws=10,
+        chains=2,
+    )
 
     # check that the group specific effects design matrices have the same shape
     X0 = pd.concat(
@@ -318,27 +266,33 @@ def test_many_common_many_group_specific(crossed_data):
 
 
 def test_cell_means_with_many_group_specific_effects(crossed_data):
-    # build model using fit
+    # Group specific intercepts are added in different way, but the final result
+    # should be the same.
+    formula = "Y ~" + "+".join([
+        "0",
+        "threecats",
+        "(0+threecats|subj)",
+        "(1|subj)",
+        "(0 + continuous|item)",
+        "(dummy|item)",
+        "(0 + threecats|site)",
+        "(1|site)"
+    ])
     model0 = Model(crossed_data)
-    model0.fit(
-        "Y ~ 0 + threecats",
-        group_specific=["0+threecats|subj", "continuous|item", "dummy|item", "threecats|site"],
-        run=False,
-    )
-    model0.build(backend="pymc3")
-    # model0.fit(tune=0, draws=1)
+    model0.fit(formula, tune=0, draws=1)
 
-    # build model using add(append=True)
+
+    formula = "Y ~" + "+".join([
+        "0",
+        "threecats",
+        "(threecats|subj)",
+        "(continuous|item)",
+        "(dummy|item)",
+        "(threecats|site)"
+    ])
     model1 = Model(crossed_data)
-    model1.add("Y ~ 0")
-    model1.add("0 + threecats")
-    model1.add(group_specific="0+threecats|subj")
-    model1.add(group_specific="1|item")
-    model1.add(group_specific="0+continuous|item")
-    model1.add(group_specific="dummy|item")
-    model1.add(group_specific="threecats|site")
-    model1.build(backend="pymc3")
-    # model1.fit(tune=0, draws=1)
+    model1.fit(formula, tune=0, draws=1)
+
 
     # check that the group specific effects design matrices have the same shape
     X0 = pd.concat(
@@ -385,14 +339,12 @@ def test_cell_means_with_many_group_specific_effects(crossed_data):
     )
     assert X0 == X1
 
-    # check that fit and add models have same priors for common
-    # effects
+    # check that fit and add models have same priors for common effects
     priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
     priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
     assert set(priors0) == set(priors1)
 
-    # check that fit and add models have same priors for group specific
-    # effects
+    # check that fit and add models have same priors for group specific effects
     priors0 = {
         x.name: x.prior.args["sigma"].args for x in model0.terms.values() if x.group_specific
     }
@@ -403,26 +355,14 @@ def test_cell_means_with_many_group_specific_effects(crossed_data):
 
 
 def test_logistic_regression(crossed_data):
-    # build model using fit and pymc3
     model0 = Model(crossed_data)
     fitted0 = model0.fit(
         "threecats[b] ~ continuous + dummy",
         family="bernoulli",
         link="logit",
-        backend="pymc3",
         tune=0,
         draws=1000,
     )
-    # model0.build()
-    # fitted0 = model0.fit()
-
-    # build model using add
-    model1 = Model(crossed_data)
-    model1.add("threecats[b] ~ 1", family="bernoulli", link="logit")
-    model1.add("continuous")
-    model1.add("dummy")
-    model1.build(backend="pymc3")
-    model1.fit(tune=0, draws=1)
 
     # build model using fit, pymc3 and theano link function
     model3 = Model(crossed_data)
@@ -430,7 +370,6 @@ def test_logistic_regression(crossed_data):
         "threecats[b] ~ continuous + dummy",
         family="bernoulli",
         link=tt.nnet.sigmoid,
-        backend="pymc3",
         tune=0,
         draws=1000,
     )
@@ -439,7 +378,7 @@ def test_logistic_regression(crossed_data):
     assert np.allclose(az.summary(fitted0)["mean"], az.summary(fitted3)["mean"], atol=0.2)
 
     # check that term names agree
-    assert set(model0.term_names) == set(model1.term_names)
+    assert set(model0.term_names) == set(model3.term_names)
 
     # check that common effect design matrices are the same,
     # even if term names / level names / order of columns is different
@@ -453,7 +392,7 @@ def test_logistic_regression(crossed_data):
     X1 = set(
         [
             tuple(t.data[:, lev])
-            for t in model1.common_terms.values()
+            for t in model3.common_terms.values()
             for lev in range(len(t.levels))
         ]
     )
@@ -462,7 +401,7 @@ def test_logistic_regression(crossed_data):
 
     # check that models have same priors for common effects
     priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
-    priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
+    priors1 = {x.name: x.prior.args for x in model3.terms.values() if not x.group_specific}
     # check dictionary keys
     assert set(priors0) == set(priors1)
     # check dictionary values
@@ -478,52 +417,38 @@ def test_logistic_regression(crossed_data):
 def test_logistic_regression_empty_index():
     data = pd.DataFrame({"y": np.random.choice(["a", "b"], 50), "x": np.random.normal(size=50)})
     model = Model(data)
-    fitted = model.fit("y ~ x", family="bernoulli")
+    model.fit("y ~ x", family="bernoulli")
 
 
 def test_logistic_regression_good_numeric():
     data = pd.DataFrame({"y": np.random.choice([1, 0], 50), "x": np.random.normal(size=50)})
     model = Model(data)
-    fitted = model.fit("y ~ x", family="bernoulli")
+    model.fit("y ~ x", family="bernoulli")
 
 
 def test_logistic_regression_bad_numeric():
     data = pd.DataFrame({"y": np.random.choice([1, 2], 50), "x": np.random.normal(size=50)})
     with pytest.raises(ValueError):
         model = Model(data)
-        fitted = model.fit("y ~ x", family="bernoulli")
+        model.fit("y ~ x", family="bernoulli")
 
 
 def test_logistic_regression_categoric():
     y = pd.Series(np.random.choice(["a", "b"], 50), dtype="category")
     data = pd.DataFrame({"y": y, "x": np.random.normal(size=50)})
     model = Model(data)
-    fitted = model.fit("y ~ x", family="bernoulli")
+    model.fit("y ~ x", family="bernoulli")
 
 
 def test_poisson_regression(crossed_data):
     # build model using fit and pymc3
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
     model0 = Model(crossed_data)
-    fitted = model0.fit(
-        "count ~ threecats + continuous + dummy",
-        family="poisson",
-        backend="pymc3",
-        tune=0,
-        draws=1,
-        init=None,
-    )
-    # model0.build()
-    # model0.fit()
+    model0.fit("count ~ dummy + continuous + threecats", family="poisson", tune=0, draws=1)
 
     # build model using add
     model1 = Model(crossed_data)
-    model1.add("count ~ 1", family="poisson")
-    model1.add("threecats")
-    model1.add("continuous")
-    model1.add("dummy")
-    model1.build(backend="pymc3")
-    model1.fit(tune=0, draws=1, init=None)
+    model1.fit("count ~ threecats + continuous + dummy", family="poisson", tune=0, draws=1)
 
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)

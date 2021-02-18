@@ -259,7 +259,9 @@ class PriorScaler:
         # if just a single predictor, use statsmodels to evaluate the LL
         else:
             null = [
-                self.model.family.smfamily().loglike(np.squeeze(self.model.response.data), val * predictor)
+                self.model.family.smfamily().loglike(
+                    np.squeeze(self.model.response.data), val * predictor
+                )
                 for val in values[:-1]
             ]
             log_likelihood = np.append(null, full_mod.llf)
