@@ -12,8 +12,6 @@ from bambi.models import Model
 from bambi.terms import Term, GroupSpecificTerm
 
 
-
-
 @pytest.fixture(scope="module")
 def diabetes_data():
     data_dir = join(dirname(__file__), "data")
@@ -76,7 +74,7 @@ def test_distribute_group_specific_effect_over(diabetes_data):
     lvls = list(diabetes_data["age_grp"].unique())[1:]
     for lvl in lvls:
         assert model.terms[f"C(age_grp)[{lvl}]|BMI"].data.shape == (442, 163)
-    assert '1|BMI' in model.terms
+    assert "1|BMI" in model.terms
 
     # Without intercept
     model.reset()
@@ -84,11 +82,12 @@ def test_distribute_group_specific_effect_over(diabetes_data):
     assert model.terms["C(age_grp)[0]|BMI"].data.shape == (442, 163)
     assert model.terms["C(age_grp)[1]|BMI"].data.shape == (442, 163)
     assert model.terms["C(age_grp)[2]|BMI"].data.shape == (442, 163)
-    assert not '1|BMI' in model.terms
+    assert not "1|BMI" in model.terms
 
 
 def test_model_init_from_filename():
     from os.path import dirname, join
+
     data_dir = join(dirname(__file__), "data")
     filename = join(data_dir, "diabetes.txt")
     model = Model(filename)

@@ -132,7 +132,11 @@ def test_cell_means_with_covariate(crossed_data):
     model0.fit("Y ~ 0 + threecats + continuous", tune=0, draws=1, init=None)
 
     model1 = Model(crossed_data)
-    model1.fit("Y ~ 0 + threecats + continuous", tune=0, draws=1,)
+    model1.fit(
+        "Y ~ 0 + threecats + continuous",
+        tune=0,
+        draws=1,
+    )
 
     # check that design matrices are the same,
     # even if term names / level names / order of columns is different
@@ -268,31 +272,33 @@ def test_many_common_many_group_specific(crossed_data):
 def test_cell_means_with_many_group_specific_effects(crossed_data):
     # Group specific intercepts are added in different way, but the final result
     # should be the same.
-    formula = "Y ~" + "+".join([
-        "0",
-        "threecats",
-        "(0+threecats|subj)",
-        "(1|subj)",
-        "(0 + continuous|item)",
-        "(dummy|item)",
-        "(0 + threecats|site)",
-        "(1|site)"
-    ])
+    formula = "Y ~" + "+".join(
+        [
+            "0",
+            "threecats",
+            "(0+threecats|subj)",
+            "(1|subj)",
+            "(0 + continuous|item)",
+            "(dummy|item)",
+            "(0 + threecats|site)",
+            "(1|site)",
+        ]
+    )
     model0 = Model(crossed_data)
     model0.fit(formula, tune=0, draws=1)
 
-
-    formula = "Y ~" + "+".join([
-        "0",
-        "threecats",
-        "(threecats|subj)",
-        "(continuous|item)",
-        "(dummy|item)",
-        "(threecats|site)"
-    ])
+    formula = "Y ~" + "+".join(
+        [
+            "0",
+            "threecats",
+            "(threecats|subj)",
+            "(continuous|item)",
+            "(dummy|item)",
+            "(threecats|site)",
+        ]
+    )
     model1 = Model(crossed_data)
     model1.fit(formula, tune=0, draws=1)
-
 
     # check that the group specific effects design matrices have the same shape
     X0 = pd.concat(
