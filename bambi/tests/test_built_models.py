@@ -175,7 +175,7 @@ def test_many_common_many_group_specific(crossed_data):
     # build model using fit
     model0 = Model(crossed_data_missing, dropna=True)
     model0.fit(
-        "Y ~ continuous + dummy + threecats + (0+threecats|subj) + (1|item) + (0+continuous|item) + (dummy|item) + (threecats|site)",
+        "Y ~ continuous + dummy + threecats + (threecats|subj) + (1|item) + (0+continuous|item) + (dummy|item) + (threecats|site)",
         init=None,
         tune=10,
         draws=10,
@@ -184,7 +184,7 @@ def test_many_common_many_group_specific(crossed_data):
 
     model1 = Model(crossed_data_missing, dropna=True)
     model1.fit(
-        "Y ~ continuous + dummy + threecats + (0+threecats|subj) + (continuous|item) + (dummy|item) + (threecats|site)",
+        "Y ~ continuous + dummy + threecats + (threecats|subj) + (continuous|item) + (dummy|item) + (threecats|site)",
         tune=10,
         draws=10,
         chains=2,
@@ -276,7 +276,7 @@ def test_cell_means_with_many_group_specific_effects(crossed_data):
         [
             "0",
             "threecats",
-            "(0+threecats|subj)",
+            "(threecats|subj)",
             "(1|subj)",
             "(0 + continuous|item)",
             "(dummy|item)",

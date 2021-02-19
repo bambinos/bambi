@@ -122,10 +122,6 @@ class Model:
             The name of the backend to use for model fitting. Currently only 'pymc' is supported.
         """
 
-        # loop over the added terms and _add() them
-        for term_args in self.added_terms:
-            self._add(**term_args)
-
         # set custom priors
         self._set_priors(**self._added_priors)
 
@@ -204,13 +200,13 @@ class Model:
                     + "\n"
                     + str(self._diagnostics)
                 )
-
         # throw informative error message if any categorical predictors have 1 category
         num_cats = [x.data.size for x in self.common_terms.values()]
         if any(np.array(num_cats) == 0):
             raise ValueError("At least one categorical predictor contains only 1 category!")
 
         # only set priors if there is at least one term in the model
+
         if self.terms:
             # Get and scale default priors if none are defined yet
             if self.taylor is not None:
@@ -219,11 +215,12 @@ class Model:
                 taylor = 5 if self.family.name == "gaussian" else 1
             scaler = PriorScaler(self, taylor=taylor)
             scaler.scale()
-
         # Tell user which event is being modeled
         if self.family.name == "bernoulli":
             _log.info(
-                f"Modeling the probability that {self.response.name}=={self.response.success_event}"
+                "Modeling the probability that %s==%s",
+                self.response.name,
+                str(self.response.success_event),
             )
 
         self._set_backend(backend)

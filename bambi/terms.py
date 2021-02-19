@@ -142,16 +142,16 @@ def _interaction_labels(x):
     terms = x["terms"]
     colnames = []
 
-    for k, v in terms.items():
-        if v["type"] in ["numeric", "call"]:
+    for k, val in terms.items():
+        if val["type"] in ["numeric", "call"]:
             colnames.append([k])
-        if v["type"] == "categoric":
-            if "levels" in v.keys():
-                if v["encoding"] == "full":
-                    colnames.append([f"{k}[{level}]" for level in v["levels"]])
+        if val["type"] == "categoric":
+            if "levels" in val.keys():
+                if val["encoding"] == "full":
+                    colnames.append([f"{k}[{level}]" for level in val["levels"]])
                 else:
-                    colnames.append([f"{k}[{level}]" for level in v["levels"][1:]])
+                    colnames.append([f"{k}[{level}]" for level in val["levels"][1:]])
             else:
-                colnames.append([f"{k}[{v['reference']}]"])
+                colnames.append([f"{k}[{val['reference']}]"])
 
     return [":".join(str_tuple) for str_tuple in list(itertools.product(*colnames))]

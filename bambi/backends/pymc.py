@@ -56,7 +56,6 @@ class PyMC3BackEnd(BackEnd):
                 )
 
         kwargs = {k: self._expand_args(k, v, label, noncentered) for (k, v) in kwargs.items()}
-
         # Non-centered parameterization for hyperpriors
         if (
             noncentered
