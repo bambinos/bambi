@@ -78,7 +78,7 @@ class Term:
 
         # Any interaction with 1 categorical is considered categorical (at least for now)
         if term_dict["type"] == "interaction":
-            if any([v["type"] == "categoric" for v in term_dict["terms"].values()]):
+            if any((v["type"] == "categoric" for v in term_dict["terms"].values())):
                 self.categorical = True
                 self.cleaned_levels = _interaction_labels(term_dict)
 
