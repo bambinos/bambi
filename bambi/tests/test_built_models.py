@@ -38,78 +38,20 @@ def test_empty_model(crossed_data):
     model0 = Model(crossed_data)
     model0.fit("Y ~ 0", tune=0, draws=1)
 
-    model1 = Model(crossed_data)
-    model1.fit("Y ~ 0", tune=0, draws=1)
-
-    # check that both models have same priors for common effects -> emtpy priors
-    priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
-    priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
-    assert set(priors0) == set(priors1)
-
 
 def test_intercept_only_model(crossed_data):
     model0 = Model(crossed_data)
     model0.fit("Y ~ 1", tune=0, draws=1, init=None)
 
-    model1 = Model(crossed_data)
-    model1.fit("Y ~ 1", tune=0, draws=1)
-
-    # check that fit and add models have same priors for common effects
-    priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
-    priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
-    assert set(priors0) == set(priors1)
-
 
 def test_slope_only_model(crossed_data):
-    # using fit
     model0 = Model(crossed_data)
     model0.fit("Y ~ 0 + continuous", tune=0, draws=1, init=None)
 
-    # using add
-    model1 = Model(crossed_data)
-    model1.fit("Y ~ 0 + continuous", tune=0, draws=1)
-
-    # check that term names agree
-    assert set(model0.term_names) == set(model1.term_names)
-
-    # check that fit and add models have same priors for common
-    # effects
-    priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
-    priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
-    assert set(priors0) == set(priors1)
-
 
 def test_cell_means_parameterization(crossed_data):
-    # build model using fit
     model0 = Model(crossed_data)
     model0.fit("Y ~ 0 + threecats", tune=0, draws=1, init=None)
-
-    # build model using add
-    model1 = Model(crossed_data)
-    model1.fit("Y ~ 0 + threecats", tune=0, draws=1)
-
-    # check that design matrices are the same,
-    # even if term names / level names / order of columns is different
-    X0 = set(
-        [
-            tuple(t.data[:, lev])
-            for t in model0.common_terms.values()
-            for lev in range(len(t.levels))
-        ]
-    )
-    X1 = set(
-        [
-            tuple(t.data[:, lev])
-            for t in model1.common_terms.values()
-            for lev in range(len(t.levels))
-        ]
-    )
-    assert X0 == X1
-
-    # check that fit and add models have same priors for common effects
-    priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
-    priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
-    assert set(priors0) == set(priors1)
 
 
 def test_3x4_common_anova(crossed_data):
@@ -131,38 +73,8 @@ def test_cell_means_with_covariate(crossed_data):
     model0 = Model(crossed_data)
     model0.fit("Y ~ 0 + threecats + continuous", tune=0, draws=1, init=None)
 
-    model1 = Model(crossed_data)
-    model1.fit(
-        "Y ~ 0 + threecats + continuous",
-        tune=0,
-        draws=1,
-    )
-
-    # check that design matrices are the same,
-    # even if term names / level names / order of columns is different
-    X0 = set(
-        [
-            tuple(t.data[:, lev])
-            for t in model0.common_terms.values()
-            for lev in range(len(t.levels))
-        ]
-    )
-    X1 = set(
-        [
-            tuple(t.data[:, lev])
-            for t in model1.common_terms.values()
-            for lev in range(len(t.levels))
-        ]
-    )
-    assert X0 == X1
-
     # check that threecats priors have finite variance
     assert not np.isinf(model0.terms["threecats"].prior.args["sigma"])
-
-    # check that fit and add models have same priors for common effects
-    priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
-    priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
-    assert set(priors0) == set(priors1)
 
 
 def test_many_common_many_group_specific(crossed_data):
@@ -172,7 +84,7 @@ def test_many_common_many_group_specific(crossed_data):
     crossed_data_missing.loc[1, "continuous"] = np.nan
     crossed_data_missing.loc[2, "threecats"] = np.nan
 
-    # build model using fit
+    # Here I'm comparing implicit/explicit intercepts for group specific effects workY the same way.
     model0 = Model(crossed_data_missing, dropna=True)
     model0.fit(
         "Y ~ continuous + dummy + threecats + (threecats|subj) + (1|item) + (0+continuous|item) + (dummy|item) + (threecats|site)",
@@ -270,8 +182,7 @@ def test_many_common_many_group_specific(crossed_data):
 
 
 def test_cell_means_with_many_group_specific_effects(crossed_data):
-    # Group specific intercepts are added in different way, but the final result
-    # should be the same.
+    # Group specific intercepts are added in different way, but the final result should be the same.
     formula = "Y ~" + "+".join(
         [
             "0",
@@ -361,6 +272,7 @@ def test_cell_means_with_many_group_specific_effects(crossed_data):
 
 
 def test_logistic_regression(crossed_data):
+    # Tests passing link="logit" is equivalent to using tt.nnet.sigmoid
     model0 = Model(crossed_data)
     fitted0 = model0.fit(
         "threecats[b] ~ continuous + dummy",
@@ -371,8 +283,8 @@ def test_logistic_regression(crossed_data):
     )
 
     # build model using fit, pymc3 and theano link function
-    model3 = Model(crossed_data)
-    fitted3 = model3.fit(
+    model1 = Model(crossed_data)
+    fitted3 = model1.fit(
         "threecats[b] ~ continuous + dummy",
         family="bernoulli",
         link=tt.nnet.sigmoid,
@@ -384,7 +296,7 @@ def test_logistic_regression(crossed_data):
     assert np.allclose(az.summary(fitted0)["mean"], az.summary(fitted3)["mean"], atol=0.2)
 
     # check that term names agree
-    assert set(model0.term_names) == set(model3.term_names)
+    assert set(model0.term_names) == set(model1.term_names)
 
     # check that common effect design matrices are the same,
     # even if term names / level names / order of columns is different
@@ -398,7 +310,7 @@ def test_logistic_regression(crossed_data):
     X1 = set(
         [
             tuple(t.data[:, lev])
-            for t in model3.common_terms.values()
+            for t in model1.common_terms.values()
             for lev in range(len(t.levels))
         ]
     )
@@ -407,7 +319,7 @@ def test_logistic_regression(crossed_data):
 
     # check that models have same priors for common effects
     priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
-    priors1 = {x.name: x.prior.args for x in model3.terms.values() if not x.group_specific}
+    priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
     # check dictionary keys
     assert set(priors0) == set(priors1)
     # check dictionary values
