@@ -71,7 +71,7 @@ def test_distribute_group_specific_effect_over(diabetes_data):
     model = Model(diabetes_data)
     model.fit("BP ~ (C(age_grp)|BMI)", run=False)
     # Since intercept is present, it uses treatment encoding
-    lvls = list(diabetes_data["age_grp"].unique())[1:]
+    lvls = sorted(list(diabetes_data["age_grp"].unique()))[1:]
     for lvl in lvls:
         assert model.terms[f"C(age_grp)[{lvl}]|BMI"].data.shape == (442, 163)
     assert "1|BMI" in model.terms
@@ -178,7 +178,7 @@ def test_derived_term_search(diabetes_data):
     names = set([t.name for t in terms])
 
     # Since intercept is present, it uses treatment encoding
-    lvls = list(diabetes_data["age_grp"].unique())[1:]
+    lvls = sorted(list(diabetes_data["age_grp"].unique()))[1:]
     assert names == set(["1|BP"] + [f"age_grp[{lvl}]|BP" for lvl in lvls])
 
     term = model._match_derived_terms("1|BP")[0]
