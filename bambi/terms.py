@@ -1,6 +1,6 @@
 import itertools
 import numpy as np
-from pandas.api.types import is_numeric_dtype
+# from pandas.api.types import is_numeric_dtype
 
 
 class ResponseTerm:
@@ -19,15 +19,13 @@ class ResponseTerm:
         self.name = term.name
         self.data = term.design_vector
         self.categorical = term.type == "categoric"
-        self.success_event = term.refclass
+        self.success_event = term.refclass if term.refclass is not None else 1
         self.prior = prior
         self.constant = np.var(self.data) == 0
 
         if family == "bernoulli":
-            if is_numeric_dtype(self.data):
-                if not all(np.isin(self.data, ([0, 1]))):
-                    raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
-            self.success_event = 1
+            if not all(np.isin(self.data, ([0, 1]))):
+                raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
 
 
 class Term:

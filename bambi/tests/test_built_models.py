@@ -275,7 +275,7 @@ def test_logistic_regression(crossed_data):
     # Tests passing link="logit" is equivalent to using tt.nnet.sigmoid
     model0 = Model(crossed_data)
     fitted0 = model0.fit(
-        "threecats[b] ~ continuous + dummy",
+        "threecats['b'] ~ continuous + dummy",
         family="bernoulli",
         link="logit",
         tune=0,
@@ -285,7 +285,7 @@ def test_logistic_regression(crossed_data):
     # build model using fit, pymc3 and theano link function
     model1 = Model(crossed_data)
     fitted3 = model1.fit(
-        "threecats[b] ~ continuous + dummy",
+        "threecats['b'] ~ continuous + dummy",
         family="bernoulli",
         link=tt.nnet.sigmoid,
         tune=0,
