@@ -1,10 +1,15 @@
+from functools import reduce
+from operator import add
 from os.path import dirname, join
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from bambi.models import Model, Term, GroupSpecificTerm, InteractionTerm
+from formulae import design_matrices
+
+from bambi.models import Model
+from bambi.terms import Term, GroupSpecificTerm
 
 
 @pytest.fixture(scope="module")
@@ -49,30 +54,35 @@ def base_model(diabetes_data):
 
 
 def test_term_init(diabetes_data):
-    model = Model(diabetes_data)
-    term = Term("BMI", diabetes_data["BMI"])
+    design = design_matrices("BMI", diabetes_data)
+    term_info = design.common.terms_info["BMI"]
+    term = Term("BMI", term_info, diabetes_data["BMI"])
     # Test that all defaults are properly initialized
     assert term.name == "BMI"
-    assert term.categorical == False
+    assert not term.categorical
     assert not term.group_specific
     assert term.levels is not None
-    assert term.data.shape == (442, 1)
+    assert term.data.shape == (442,)
 
 
 def test_distribute_group_specific_effect_over(diabetes_data):
-    # Group_specific slopes
-    model = Model(diabetes_data)
-    model.add("BP ~ 1")
-    model.add(group_specific="C(age_grp)|BMI")
-    model.build(backend="pymc")
-    assert model.terms["C(age_grp)[T.1]|BMI"].data.shape == (442, 163)
-    # Nested or crossed group specific intercepts
-    model.reset()
-    model.add("BP ~ 1")
-    model.add(group_specific="0+C(age_grp)|BMI")
-    model.build(backend="pymc")
-    assert model.terms["C(age_grp)[0]|BMI"].data.shape == (442, 163)
     # 163 unique levels of BMI in diabetes_data
+    # With intercept
+    model = Model(diabetes_data)
+    model.fit("BP ~ (C(age_grp)|BMI)", run=False)
+    # Since intercept is present, it uses treatment encoding
+    lvls = sorted(list(diabetes_data["age_grp"].unique()))[1:]
+    for lvl in lvls:
+        assert model.terms[f"C(age_grp)[{lvl}]|BMI"].data.shape == (442, 163)
+    assert "1|BMI" in model.terms
+
+    # Without intercept
+    model.reset()
+    model.fit("BP ~ (0 + C(age_grp)|BMI)", run=False)
+    assert model.terms["C(age_grp)[0]|BMI"].data.shape == (442, 163)
+    assert model.terms["C(age_grp)[1]|BMI"].data.shape == (442, 163)
+    assert model.terms["C(age_grp)[2]|BMI"].data.shape == (442, 163)
+    assert not "1|BMI" in model.terms
 
 
 def test_model_init_from_filename():
@@ -88,30 +98,27 @@ def test_model_init_from_filename():
 
 def test_model_term_names_property(diabetes_data):
     model = Model(diabetes_data)
-    model.add("BMI ~ age_grp")
-    model.add("BP")
-    model.add("S1")
-    model.build(backend="pymc")
+    model.fit("BMI ~ age_grp + BP + S1", run=False)
     assert model.term_names == ["Intercept", "age_grp", "BP", "S1"]
 
 
 def test_model_term_names_property_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
     model = Model(crossed_data)
-    fitted = model.fit("Y ~ threecats*fourcats")
+    model.fit("Y ~ threecats*fourcats", run=False)
     assert model.term_names == ["Intercept", "threecats", "fourcats", "threecats:fourcats"]
 
 
 def test_model_terms_cleaned_levels_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
     model = Model(crossed_data)
-    fitted = model.fit("Y ~ threecats*fourcats")
+    model.fit("Y ~ threecats*fourcats", run=False)
     assert model.terms["threecats:fourcats"].cleaned_levels == [
         "threecats[b]:fourcats[b]",
-        "threecats[c]:fourcats[b]",
         "threecats[b]:fourcats[c]",
-        "threecats[c]:fourcats[c]",
         "threecats[b]:fourcats[d]",
+        "threecats[c]:fourcats[b]",
+        "threecats[c]:fourcats[c]",
         "threecats[c]:fourcats[d]",
     ]
 
@@ -121,36 +128,16 @@ def test_model_terms_cleaned_levels():
         {
             "y": np.random.normal(size=50),
             "x": np.random.normal(size=50),
-            "z": ["Group 1"] * 10
-            + ["Group 2"] * 10
-            + ["Group 3"] * 10
-            + ["Group 1"] * 10
-            + ["Group 2"] * 10,
-            "time": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] * 5,
-            "subject": ["Subject 1"] * 10
-            + ["Subject 2"] * 10
-            + ["Subject 3"] * 10
-            + ["Subject 4"] * 10
-            + ["Subject 5"] * 10,
+            "z": reduce(add, [[f"Group {x}"] * 10 for x in ["1", "2", "3", "1", "2"]]),
+            "time": list(range(1, 11)) * 5,
+            "subject": reduce(add, [[f"Subject {x}"] * 10 for x in range(1, 6)]),
         }
     )
     model = Model(data)
-    fitted = model.fit("y ~ x + z + time", group_specific=["time|subject"])
+    model.fit("y ~ x + z + time + (time|subject)", run=False)
     model.terms["z"].cleaned_levels == ["Group 2", "Group 3"]
-    model.terms["1|subject"].cleaned_levels == [
-        "Subject 1",
-        "Subject 2",
-        "Subject 3",
-        "Subject 4",
-        "Subject 5",
-    ]
-    model.terms["time|subject"].cleaned_levels == [
-        "Subject 1",
-        "Subject 2",
-        "Subject 3",
-        "Subject 4",
-        "Subject 5",
-    ]
+    model.terms["1|subject"].cleaned_levels == [f"Subject {x}" for x in range(1, 6)]
+    model.terms["time|subject"].cleaned_levels == [f"Subject {x}" for x in range(1, 6)]
 
 
 def test_model_term_classes():
@@ -164,70 +151,35 @@ def test_model_term_classes():
     )
 
     model = Model(data)
-    fitted = model.fit("y ~ x*g", group_specific=["x|s"])
+    model.fit("y ~ x*g + (x|s)", run=False)
 
-    assert isinstance(model.terms["g"], Term)
     assert isinstance(model.terms["x"], Term)
-    assert isinstance(model.terms["x|s"], GroupSpecificTerm)
+    assert isinstance(model.terms["g"], Term)
+    assert isinstance(model.terms["x:g"], Term)
     assert isinstance(model.terms["1|s"], GroupSpecificTerm)
-    assert isinstance(model.terms["x:g"], InteractionTerm)
+    assert isinstance(model.terms["x|s"], GroupSpecificTerm)
 
     # Also check 'categorical' attribute is right
     assert model.terms["g"].categorical
 
 
-def test_add_to_model(diabetes_data):
-    model = Model(diabetes_data)
-    model.add("BP ~ BMI")
-    model.build(backend="pymc")
-    assert isinstance(model.terms["BMI"], Term)
-    model.add("age_grp")
-    model.build(backend="pymc")
-    assert set(model.terms.keys()) == {"Intercept", "BMI", "age_grp"}
-    # Test that arguments are passed appropriately onto Term initializer
-    model.add(group_specific="C(age_grp)|BP")
-    model.build(backend="pymc")
-    assert isinstance(model.terms["C(age_grp)[T.1]|BP"], Term)
-    assert "108.0" in model.terms["C(age_grp)[T.1]|BP"].cleaned_levels
-
-
 def test_one_shot_formula_fit(diabetes_data):
     model = Model(diabetes_data)
-    model.fit("S3 ~ S1 + S2", draws=50, run=False)
-    model.build(backend="pymc3")
-    nv = model.backend.model.named_vars
+    model.fit("S3 ~ S1 + S2", draws=50)
+    named_vars = model.backend.model.named_vars
     targets = ["S3", "S1", "Intercept"]
-    assert len(set(nv.keys()) & set(targets)) == 3
-
-
-def test_invalid_chars_in_group_specific_effect(diabetes_data):
-    model = Model(diabetes_data)
-    with pytest.raises(ValueError):
-        model.fit(group_specific=["1+BP|age_grp"])
-
-
-def test_add_formula_append(diabetes_data):
-    model = Model(diabetes_data)
-    model.add("S3 ~ 0")
-    model.add("S1")
-    model.build(backend="pymc")
-    assert hasattr(model, "y") and model.y is not None and model.y.name == "S3"
-    assert "S1" in model.terms
-    model.add("S2", append=False)
-    assert model.y is None
-    model.add("S3 ~ 0")
-    model.build(backend="pymc")
-    assert "S2" in model.terms
-    assert "S1" not in model.terms
+    assert len(set(named_vars.keys()) & set(targets)) == 3
 
 
 def test_derived_term_search(diabetes_data):
     model = Model(diabetes_data)
-    model.add("BMI ~ 1", group_specific="age_grp|BP", categorical=["age_grp"])
-    model.build(backend="pymc")
+    model.fit("BMI ~ 1 + (age_grp|BP)", categorical=["age_grp"], run=False)
     terms = model._match_derived_terms("age_grp|BP")
     names = set([t.name for t in terms])
-    assert names == {"1|BP", "age_grp[T.1]|BP", "age_grp[T.2]|BP"}
+
+    # Since intercept is present, it uses treatment encoding
+    lvls = sorted(list(diabetes_data["age_grp"].unique()))[1:]
+    assert names == set(["1|BP"] + [f"age_grp[{lvl}]|BP" for lvl in lvls])
 
     term = model._match_derived_terms("1|BP")[0]
     assert term.name == "1|BP"
@@ -250,9 +202,8 @@ def test_categorical_term():
         }
     )
     model = Model(data)
-    model.add("y ~ x1 + x2 + g1", group_specific=["g1|g2", "x2|g2"])
-    model.build()
-    terms = ["x1", "x2", "g1", "1|g2", "g1[T.b]|g2", "x2|g2"]
+    model.fit("y ~ x1 + x2 + g1 + (g1|g2) + (x2|g2)", run=False)
+    terms = ["x1", "x2", "g1", "1|g2", "g1[b]|g2", "x2|g2"]
     expecteds = [False, False, True, False, True, False]
 
     for term, expected in zip(terms, expecteds):
@@ -268,7 +219,7 @@ def test_omit_offsets_false():
         }
     )
     model = Model(data)
-    fitted = model.fit("y ~ x1", group_specific=["x1|g1"], omit_offsets=False)
+    fitted = model.fit("y ~ x1 + (x1|g1)", omit_offsets=False)
     offsets = [v for v in fitted.posterior.dims if "offset" in v]
     assert offsets == ["1|g1_offset_dim_0", "x1|g1_offset_dim_0"]
 
@@ -282,6 +233,6 @@ def test_omit_offsets_true():
         }
     )
     model = Model(data)
-    fitted = model.fit("y ~ x1", group_specific=["x1|g1"], omit_offsets=True)
+    fitted = model.fit("y ~ x1 + (x1|g1)", omit_offsets=True)
     offsets = [v for v in fitted.posterior.dims if "offset" in v]
     assert not offsets
