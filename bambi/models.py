@@ -93,6 +93,12 @@ class Model:
         self._diagnostics = None  # build()
         self.built = False  # build()
 
+    def __str__(self):
+        return self.backend.model.__str__()
+
+    def __repr__(self):
+        return self.backend.model.__str__()
+
     def reset(self):
         """Reset list of terms and y-variable."""
         self.terms = OrderedDict()
@@ -716,6 +722,24 @@ class Model:
             return None
         else:
             return idata
+
+    def graph(self, formatting="plain"):
+        """
+        Produce a graphviz Digraph from a PyMC3 model.
+
+        Requires graphviz, which may be installed most easily with
+            conda install -c conda-forge python-graphviz
+
+        Alternatively, you may install the `graphviz` binaries yourself, and then
+        `pip install graphviz` to get the python bindings.
+        See http://graphviz.readthedocs.io/en/stable/manual.html for more information.
+
+        Parameters
+        ----------
+        formatting : str
+            one of { "plain", "plain_with_params" }
+        """
+        return pm.model_to_graphviz(model=self.backend.model, formatting=formatting)
 
     def _get_pymc_coords(self):
         # categorical attribute is important because of this coordinates stuff
