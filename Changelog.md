@@ -1,6 +1,15 @@
 # Changelog
 
-### 0.X.X
+### New features
+* Add model representation (#300)
+
+### Maintenance and fixes
+
+### Documentation
+
+### Deprecation
+
+### 0.3.0
 
 ### New features
 * Add posterior predictive sampling (#250)
