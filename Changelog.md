@@ -1,11 +1,18 @@
 # Changelog
 
+### 0.x.x
+
 ### New features
+* Use formulae to parse model formulas (#299) 
 * Add model representation (#300)
 
+
 ### Maintenance and fixes
+* Remove deprecation warning related to pm.sample returning idata (#295) 
 
 ### Documentation
+* Add citation to Bambi preprint (#290) 
+* Remove reference to pystan (#292) 
 
 ### Deprecation
 
