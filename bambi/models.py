@@ -302,7 +302,9 @@ class Model:
 
         na_action = "drop" if self.dropna else "error"
         if formula is not None:
-            self.reset()
+            # Only reset self.terms and self.response (keep priors, for example)
+            self.terms = OrderedDict()
+            self.response = None
             self._design = design_matrices(formula, data, na_action, eval_env=1)
         else:
             if self._design is None:
