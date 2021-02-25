@@ -10,6 +10,7 @@ from formulae import design_matrices
 
 from bambi.models import Model
 from bambi.terms import Term, GroupSpecificTerm
+from bambi.priors import Prior
 
 
 @pytest.fixture(scope="module")
@@ -236,6 +237,7 @@ def test_omit_offsets_true():
     fitted = model.fit("y ~ x1 + (x1|g1)", omit_offsets=True)
     offsets = [v for v in fitted.posterior.dims if "offset" in v]
     assert not offsets
+
 
 def test_hyperprior_on_common_effect():
     data = pd.DataFrame(
