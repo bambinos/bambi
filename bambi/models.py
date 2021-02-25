@@ -94,6 +94,7 @@ class Model:
         self.dm_statistics = None  # build()
         self._diagnostics = None  # build()
         self.built = False  # build()
+        self.terms = OrderedDict()
 
     def __str__(self):
         return self.backend.model.__str__()
