@@ -374,7 +374,7 @@ class Model:
             data = common[name]
             prior = priors.pop(name, priors.get("common", None))
             if isinstance(prior, Prior):
-                any_hyperprior = any([isinstance(x, Prior) for x in prior.args.values()])
+                any_hyperprior = any(isinstance(x, Prior) for x in prior.args.values())
                 if any_hyperprior:
                     raise ValueError(
                         f"Trying to set hyperprior on '{name}'. "
