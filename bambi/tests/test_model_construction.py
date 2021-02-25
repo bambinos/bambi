@@ -236,3 +236,53 @@ def test_omit_offsets_true():
     fitted = model.fit("y ~ x1 + (x1|g1)", omit_offsets=True)
     offsets = [v for v in fitted.posterior.dims if "offset" in v]
     assert not offsets
+
+
+def test_set_formula_and_then_fit():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "x1": np.random.normal(size=100),
+            "g1": ["a"] * 50 + ["b"] * 50,
+        }
+    )
+    model = Model(data)
+    model.fit("y ~ x1 + (x1|g1)", run=False)
+    model.fit(draws=200)
+
+
+def test_formula_overwrite():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "x1": np.random.normal(size=100),
+            "x2": np.random.normal(size=100),
+            "g1": ["a"] * 50 + ["b"] * 50,
+        }
+    )
+    model = Model(data)
+    model.fit("y ~ x1 + (x1|g1)", run=False)
+    assert "x1" in model.terms
+    assert "x1|g1" in model.terms
+    model.fit("y ~ x2 + (x2|g1)")
+    assert "x1" not in model.terms
+    assert "x1|g1" not in model.terms
+    assert "x2" in model.terms
+    assert "x2|g1" in model.terms
+
+
+def test_empty_formula_assertion():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "x1": np.random.normal(size=100),
+            "g1": ["a"] * 50 + ["b"] * 50,
+        }
+    )
+    model = Model(data)
+    # ValueError when attempt to fit a model without having passed a formula
+    with pytest.raises(ValueError):
+        model.fit()
+    # But if you then pass a formula, you can fit.
+    model.fit("y ~ x1 + (x1|g1)", run=False)
+    model.fit(draws=200)

@@ -81,9 +81,11 @@ class Model:
         self.noncentered = noncentered
         self._backend_name = None
 
-        # build() will loop over these, calling _add() and _set_priors()
-        self.added_terms = []
+        # build() will loop over this, calling _set_priors()
         self._added_priors = {}
+
+        # Design object returned by formulae.design_matrices()
+        self._design = None
 
         # attributes that are set later
         self.response = None  # _add_response()
@@ -100,12 +102,12 @@ class Model:
         return self.backend.model.__str__()
 
     def reset(self):
-        """Reset list of terms and y-variable."""
+        """Reset list of terms and response variable."""
         self.terms = OrderedDict()
         self.response = None
         self.backend = None
-        self.added_terms = []
         self._added_priors = {}
+        self._design = None
 
     def _set_backend(self, backend):
         backend = backend.lower()
@@ -235,7 +237,7 @@ class Model:
 
     def fit(
         self,
-        formula,
+        formula=None,
         priors=None,
         family="gaussian",
         link=None,
@@ -299,20 +301,22 @@ class Model:
             data[cats] = data[cats].apply(lambda x: x.astype("category"))
 
         na_action = "drop" if self.dropna else "error"
-        design = design_matrices(formula, data, na_action, eval_env=1)
+        if formula is not None:
+            self.reset()
+            self._design = design_matrices(formula, data, na_action, eval_env=1)
+        else:
+            if self._design is None:
+                raise ValueError("Can't fit a model without design matrices.")
 
-        if design.response is not None:
-            self._add_response(design.response, family=family, link=link)
+        if self._design.response is not None:
+            self._add_response(self._design.response, family=family, link=link)
 
-        # design.common is an empty list if there are no common terms
-        if design.common:
-            self._add_common(design.common, priors)
+        if self._design.common:
+            self._add_common(self._design.common, priors)
 
-        # design.group is an empty list if there are no group specific terms
-        if design.group:
-            self._add_group_specific(design.group, priors)
+        if self._design.group:
+            self._add_group_specific(self._design.group, priors)
 
-        # Run the BackEnd to fit the model.
         if backend is None:
             backend = "pymc" if self._backend_name is None else self._backend_name
 
