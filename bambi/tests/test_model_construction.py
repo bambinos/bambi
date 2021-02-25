@@ -10,6 +10,7 @@ from formulae import design_matrices
 
 from bambi.models import Model
 from bambi.terms import Term, GroupSpecificTerm
+from bambi.priors import Prior
 
 
 @pytest.fixture(scope="module")
@@ -286,3 +287,23 @@ def test_empty_formula_assertion():
     # But if you then pass a formula, you can fit.
     model.fit("y ~ x1 + (x1|g1)", run=False)
     model.fit(draws=200)
+
+
+def test_hyperprior_on_common_effect():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "x1": np.random.normal(size=100),
+            "g1": ["a"] * 50 + ["b"] * 50,
+        }
+    )
+    sigma = Prior("HalfCauchy", beta=2)
+    slope = Prior("Normal", mu=0, sd=sigma)
+    priors = {"x1": slope}
+    model = Model(data)
+    with pytest.raises(ValueError):
+        model.fit("y ~ x1 + (x1|g1)", priors=priors)
+
+    priors = {"common": slope}
+    with pytest.raises(ValueError):
+        model.fit("y ~ x1 + (x1|g1)", priors=priors)
