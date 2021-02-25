@@ -373,6 +373,13 @@ class Model:
         for name, term in common.terms_info.items():
             data = common[name]
             prior = priors.pop(name, priors.get("common", None))
+            if isinstance(prior, Prior):
+                any_hyperprior = any([isinstance(x, Prior) for x in prior.args.values()])
+                if any_hyperprior:
+                    raise ValueError(
+                        f"Trying to set hyperprior on '{name}'. "
+                        "Can't set a hyperprior on common effects."
+                    )
             self.terms[name] = Term(name, term, data, prior)
 
     def _add_group_specific(self, group, priors):
