@@ -251,7 +251,7 @@ def test_hyperprior_on_common_effect():
     slope = Prior("Normal", mu=0, sd=sigma)
     priors = {"x1": slope}
     model = Model(data)
-    
+
     with pytest.raises(ValueError):
         model.fit("y ~ x1 + (x1|g1)", priors=priors)
 
@@ -270,7 +270,7 @@ def test_set_formula_and_then_fit():
     )
     model = Model(data)
     model.fit("y ~ x1 + (x1|g1)", run=False)
-    model.fit(draws=200)  
+    model.fit(draws=200)
 
 
 def test_formula_overwrite():
