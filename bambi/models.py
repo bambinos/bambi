@@ -81,17 +81,20 @@ class Model:
         self.noncentered = noncentered
         self._backend_name = None
 
-        # build() will loop over these, calling _add() and _set_priors()
-        self.added_terms = []
+        # _build() will loop over this, calling _set_priors()
         self._added_priors = {}
+
+        # Design object returned by formulae.design_matrices()
+        self._design = None
 
         # attributes that are set later
         self.response = None  # _add_response()
         self.family = None  # _add_response()
         self.backend = None  # _set_backend()
-        self.dm_statistics = None  # build()
-        self._diagnostics = None  # build()
-        self.built = False  # build()
+        self.dm_statistics = None  # _build()
+        self._diagnostics = None  # _build()
+        self.built = False  # _build()
+        self.terms = OrderedDict()
 
     def __str__(self):
         return self.backend.model.__str__()
@@ -100,12 +103,12 @@ class Model:
         return self.backend.model.__str__()
 
     def reset(self):
-        """Reset list of terms and y-variable."""
+        """Reset list of terms and response variable."""
         self.terms = OrderedDict()
         self.response = None
         self.backend = None
-        self.added_terms = []
         self._added_priors = {}
+        self._design = None
 
     def _set_backend(self, backend):
         backend = backend.lower()
@@ -116,11 +119,11 @@ class Model:
 
         self._backend_name = backend
 
-    def build(self, backend="pymc"):
+    def _build(self, backend="pymc"):
         """Set up the model for sampling/fitting.
 
         Performs any steps that require access to all model terms (e.g., scaling priors
-        on each term), then calls the BackEnd's build() method.
+        on each term), then calls the BackEnd's _build() method.
 
         Parameters
         ----------
@@ -155,7 +158,7 @@ class Model:
             raise ValueError(
                 "No outcome (y) variable is set! Please specify "
                 "an outcome variable using the formula interface "
-                "before build() or fit()."
+                "before _build() or fit()."
             )
 
         # X = common effects design matrix (excluding intercept/constant term)
@@ -235,7 +238,7 @@ class Model:
 
     def fit(
         self,
-        formula,
+        formula=None,
         priors=None,
         family="gaussian",
         link=None,
@@ -299,26 +302,30 @@ class Model:
             data[cats] = data[cats].apply(lambda x: x.astype("category"))
 
         na_action = "drop" if self.dropna else "error"
-        design = design_matrices(formula, data, na_action, eval_env=1)
+        if formula is not None:
+            # Only reset self.terms and self.response (keep priors, for example)
+            self.terms = OrderedDict()
+            self.response = None
+            self._design = design_matrices(formula, data, na_action, eval_env=1)
+        else:
+            if self._design is None:
+                raise ValueError("Can't fit a model without design matrices.")
 
-        if design.response is not None:
-            self._add_response(design.response, family=family, link=link)
+        if self._design.response is not None:
+            self._add_response(self._design.response, family=family, link=link)
 
-        # design.common is an empty list if there are no common terms
-        if design.common:
-            self._add_common(design.common, priors)
+        if self._design.common:
+            self._add_common(self._design.common, priors)
 
-        # design.group is an empty list if there are no group specific terms
-        if design.group:
-            self._add_group_specific(design.group, priors)
+        if self._design.group:
+            self._add_group_specific(self._design.group, priors)
 
-        # Run the BackEnd to fit the model.
         if backend is None:
             backend = "pymc" if self._backend_name is None else self._backend_name
 
         if run:
             if not self.built or backend != self._backend_name:
-                self.build(backend)
+                self._build(backend)
             return self.backend.run(omit_offsets=omit_offsets, **kwargs)
 
         self._backend_name = backend
@@ -444,7 +451,7 @@ class Model:
     def _set_priors(self, priors=None, common=None, group_specific=None, match_derived_names=True):
         """Internal version of set_priors(), with same arguments.
 
-        Runs during Model.build().
+        Runs during Model._build().
         """
         targets = {}
 
