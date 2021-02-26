@@ -94,60 +94,13 @@ def test_prior_retrieval():
         pf.get(family="cantaloupe")
 
 
-"""
-disabled since there's no .add method now
-def test_update_term_priors_after_init(diabetes_data):
-    model = Model(diabetes_data)
-    model.add("Y ~ BMI")
-    model.add("S1")
-    model.add(group_specific="age_grp|BP")
-
-    p1 = Prior("Normal", mu=-10, sigma=10)
-    p2 = Prior("Beta", alpha=2, beta=2)
-
-    model.set_priors({"BMI": 0.3, "S1": p2})
-    model.build(backend="pymc")
-    assert model.terms["S1"].prior.args["beta"] == 2
-    assert model.terms["BMI"].prior.scale == 0.3
-    assert np.isclose(model.terms["BMI"].prior.args["sigma"], 4.7, rtol=0.1)
-
-    model.set_priors({("S1", "BMI"): p1})
-    model.build(backend="pymc")
-    assert model.terms["S1"].prior.args["sigma"] == 10
-    assert model.terms["BMI"].prior.args["mu"] == -10
-
-    p3 = Prior("Normal", mu=0, sigma=Prior("Normal", mu=0, sigma=7))
-    model.set_priors(common=0.3, group_specific=p3)
-    model.build(backend="pymc")
-    assert model.terms["BMI"].prior.scale == 0.3
-    assert np.isclose(model.terms["BMI"].prior.args["sigma"], 4.7, rtol=0.1)
-    assert model.terms["age_grp|BP"].prior.args["sigma"].args["sigma"] == 7
-
-    # Invalid names should raise error
-    with pytest.raises(ValueError):
-        model.set_priors({"nonexistent_term": 0.3})
-        model.build(backend="pymc")
-
-    # Test for partial names, e.g., 'threecats' should match 'threecats[0]'.
-    model = Model(diabetes_data)
-    model.add("Y ~ 1", group_specific="age_grp|BP", categorical="age_grp")
-    model.set_priors({"age_grp|BP": 0.5})
-    model.build(backend="pymc")
-    assert model.terms["age_grp[T.1]|BP"].prior.scale == 0.5
-    assert np.isclose(
-        model.terms["age_grp[T.1]|BP"].prior.args["sigma"].args["sigma"], 94, rtol=0.2
-    )
-    assert model.terms["1|BP"].prior.scale == 0.5
-"""
-
-
 def test_auto_scale(diabetes_data):
 
     # By default, should scale everything except custom Prior() objects
     model = Model(diabetes_data)
     priors = {"S1": 0.3, "BP": Prior("Cauchy", alpha=1, beta=17.5)}
     model.fit("BMI ~ S1 + S2 + BP", run=False, priors=priors)
-    model.build(backend="pymc3")
+    model._build(backend="pymc3")
     p1 = model.terms["S1"].prior
     p2 = model.terms["S2"].prior
     p3 = model.terms["BP"].prior
@@ -161,7 +114,7 @@ def test_auto_scale(diabetes_data):
     # in priors
     model = Model(diabetes_data, auto_scale=False)
     model.fit("BMI ~ S1 + S2 + BP", run=False, priors=priors)
-    model.build(backend="pymc3")
+    model._build(backend="pymc3")
     p1_off = model.terms["S1"].prior
     p2_off = model.terms["S2"].prior
     p3_off = model.terms["BP"].prior

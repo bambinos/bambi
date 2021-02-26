@@ -81,7 +81,7 @@ class Model:
         self.noncentered = noncentered
         self._backend_name = None
 
-        # build() will loop over this, calling _set_priors()
+        # _build() will loop over this, calling _set_priors()
         self._added_priors = {}
 
         # Design object returned by formulae.design_matrices()
@@ -91,9 +91,9 @@ class Model:
         self.response = None  # _add_response()
         self.family = None  # _add_response()
         self.backend = None  # _set_backend()
-        self.dm_statistics = None  # build()
-        self._diagnostics = None  # build()
-        self.built = False  # build()
+        self.dm_statistics = None  # _build()
+        self._diagnostics = None  # _build()
+        self.built = False  # _build()
         self.terms = OrderedDict()
 
     def __str__(self):
@@ -119,11 +119,11 @@ class Model:
 
         self._backend_name = backend
 
-    def build(self, backend="pymc"):
+    def _build(self, backend="pymc"):
         """Set up the model for sampling/fitting.
 
         Performs any steps that require access to all model terms (e.g., scaling priors
-        on each term), then calls the BackEnd's build() method.
+        on each term), then calls the BackEnd's _build() method.
 
         Parameters
         ----------
@@ -158,7 +158,7 @@ class Model:
             raise ValueError(
                 "No outcome (y) variable is set! Please specify "
                 "an outcome variable using the formula interface "
-                "before build() or fit()."
+                "before _build() or fit()."
             )
 
         # X = common effects design matrix (excluding intercept/constant term)
@@ -325,7 +325,7 @@ class Model:
 
         if run:
             if not self.built or backend != self._backend_name:
-                self.build(backend)
+                self._build(backend)
             return self.backend.run(omit_offsets=omit_offsets, **kwargs)
 
         self._backend_name = backend
@@ -451,7 +451,7 @@ class Model:
     def _set_priors(self, priors=None, common=None, group_specific=None, match_derived_names=True):
         """Internal version of set_priors(), with same arguments.
 
-        Runs during Model.build().
+        Runs during Model._build().
         """
         targets = {}
 
