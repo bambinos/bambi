@@ -15,7 +15,7 @@ from arviz.data import from_dict
 from formulae import design_matrices
 
 from .backends import PyMC3BackEnd
-from .priors import Prior, PriorFactory, PriorScaler
+from .priors import Prior, PriorFactory, PriorScaler, Family
 from .terms import ResponseTerm, Term, GroupSpecificTerm
 from .utils import listify
 from .version import __version__
@@ -156,7 +156,7 @@ class Model:
         # check for outcome
         if self.response is None:
             raise ValueError(
-                "No outcome (y) variable is set! Please specify "
+                "No outcome variable is set! Please specify "
                 "an outcome variable using the formula interface "
                 "before _build() or fit()."
             )
@@ -209,13 +209,13 @@ class Model:
                     + "\n"
                     + str(self._diagnostics)
                 )
+
         # throw informative error message if any categorical predictors have 1 category
         num_cats = [x.data.size for x in self.common_terms.values()]
         if any(np.array(num_cats) == 0):
             raise ValueError("At least one categorical predictor contains only 1 category!")
 
         # only set priors if there is at least one term in the model
-
         if self.terms:
             # Get and scale default priors if none are defined yet
             if self.taylor is not None:
@@ -224,6 +224,7 @@ class Model:
                 taylor = 5 if self.family.name == "gaussian" else 1
             scaler = PriorScaler(self, taylor=taylor)
             scaler.scale()
+
         # Tell user which event is being modeled
         if self.family.name == "bernoulli":
             _log.info(
@@ -256,13 +257,13 @@ class Model:
             A model description written in model formula language
         priors : dict
             Optional specification of priors for one or more terms. A dict where the keys are the
-            names of terms in the model, and the values are either instances of class Prior or
-            ints, floats, or strings that specify the width of the priors on a standardized scale.
+            names of terms in the model, 'common' or 'group_specific' and the values are either
+            instances of class Prior or ints, floats, or strings that specify the width of the
+            priors on a standardized scale.
         family : str or Family
             A specification of the model family (analogous to the family object in R). Either a
             string, or an instance of class priors.Family. If a string is passed, a family with
-            the corresponding name be defined in the defaults loaded at Model
-            initialization.
+            the corresponding name must be defined in the defaults loaded at Model initialization.
             Valid pre-defined families are 'gaussian', 'bernoulli', 'poisson', and 't'.
         link : str
             The model link function to use. Can be either a string (must be one of the options
@@ -303,16 +304,17 @@ class Model:
 
         na_action = "drop" if self.dropna else "error"
         if formula is not None:
-            # Only reset self.terms and self.response (keep priors, for example)
+            # Only reset self.terms and self.response (e.g., keep priors)
             self.terms = OrderedDict()
             self.response = None
             self._design = design_matrices(formula, data, na_action, eval_env=1)
         else:
             if self._design is None:
-                raise ValueError("Can't fit a model without design matrices.")
+                raise ValueError("Can't fit a model without a description of the model.")
 
         if self._design.response is not None:
-            self._add_response(self._design.response, family=family, link=link)
+            _family = family.name if isinstance(family, Family) else family
+            self._add_response(self._design.response, family=_family, link=link)
 
         if self._design.common:
             self._add_common(self._design.common, priors)
@@ -331,7 +333,6 @@ class Model:
         self._backend_name = backend
         return None
 
-    # pylint: disable=keyword-arg-before-vararg
     def _add_response(self, response, prior=None, family="gaussian", link=None):
         """Add a response (or outcome/dependent) variable to the model.
 
@@ -524,7 +525,7 @@ class Model:
         ax=None,
     ):
         """
-        Samples from the prior distribution and plot its marginals.
+        Samples from the prior distribution and plots its marginals.
 
         Parameters
         ----------
@@ -540,18 +541,18 @@ class Model:
         textsize: float
             Text size scaling factor for labels, titles and lines. If None it will be autoscaled
             based on figsize.
-        hdi_prob: float, optional
+        hdi_prob: float
             Plots highest density interval for chosen percentage of density.
             Use 'hide' to hide the highest density interval. Defaults to 0.94.
-        round_to: int, optional
+        round_to: int
             Controls formatting of floats. Defaults to 2 or the integer part, whichever is bigger.
-        point_estimate: Optional[str]
+        point_estimate: str
             Plot point estimate per variable. Values should be 'mean', 'median', 'mode' or None.
             Defaults to 'auto' i.e. it falls back to default set in ArviZ's rcParams.
         kind: str
             Type of plot to display (kde or hist) For discrete variables this argument is ignored
             and a histogram is always used.
-        bins: integer or sequence or 'auto', optional
+        bins: integer or sequence or 'auto'
             Controls the number of bins, accepts the same keywords `matplotlib.hist()` does.
             Only works if `kind == hist`. If None (default) it will use `auto` for continuous
             variables and `range(xmin, xmax + 1)` for discrete variables.
@@ -559,7 +560,7 @@ class Model:
             Whether to omit offset terms in the plot. Defaults to True.
         omit_group_specific: bool
             Whether to omit group specific effects in the plot. Defaults to True.
-        ax: numpy array-like of matplotlib axes or bokeh figures, optional
+        ax: numpy array-like of matplotlib axes or bokeh figures
             A 2D array of locations into which to plot the densities. If not supplied, ArviZ will
             create its own array of plot areas (and return it).
         **kwargs
@@ -751,7 +752,7 @@ class Model:
         Parameters
         ----------
         formatting : str
-            one of { "plain", "plain_with_params" }
+            One of 'plain' or 'plain_with_params'. Defaults to 'plain'.
         """
         return pm.model_to_graphviz(model=self.backend.model, formatting=formatting)
 

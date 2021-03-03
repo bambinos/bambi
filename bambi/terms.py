@@ -12,6 +12,8 @@ class ResponseTerm:
         as returned by formulae.design_matrices().response
     prior : Prior
         A specification of the prior(s) to use. An instance of class priors.Prior.
+    family : str
+        The name of the model family.
     """
 
     def __init__(self, term, prior=None, family=None):
