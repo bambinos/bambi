@@ -337,13 +337,11 @@ class Model:
         self.built = False
 
     def _add_common(self, common, priors):
-        """
         if matrix_rank(common.design_matrix) < common.design_matrix.shape[1]:
             raise ValueError(
                 "Design matrix for common effects is not full-rank. "
                 "Bambi does not support sparse settings yet."
             )
-        """
 
         for name, term in common.terms_info.items():
             data = common[name]

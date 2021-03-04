@@ -317,7 +317,7 @@ def test_sparse_fails():
             "x1": np.random.normal(size=4),
             "x2": np.random.normal(size=4),
             "x3": np.random.normal(size=4),
-            "x4": np.random.normal(size=4)
+            "x4": np.random.normal(size=4),
         }
     )
     model = Model(data)
