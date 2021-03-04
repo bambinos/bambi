@@ -75,7 +75,8 @@ class PyMC3BackEnd(BackEnd):
         Parameters
         ----------
         spec : Bambi model
-            A Bambi Model instance containing the abstract specification of the model to compile.
+            A Bambi ``Model`` instance containing the abstract specification of the model
+            to compile.
         """
 
         coords = spec._get_pymc_coords()  # pylint: disable=protected-access
@@ -121,7 +122,7 @@ class PyMC3BackEnd(BackEnd):
         Parameters
         ----------
         start: dict, or array of dict
-            Starting parameter values to pass to sampler; see ``'pm.sample()'`` for details.
+            Starting parameter values to pass to sampler; see ``pm.sample()`` for details.
         method: str
             The method to use for fitting the model. By default, 'mcmc', in which case the
             PyMC3 sampler will be used. Alternatively, 'advi', in which case the model will be
@@ -136,12 +137,12 @@ class PyMC3BackEnd(BackEnd):
             PyMC3 for the kinds of models we expect to see run with Bambi, so we lower it
             considerably.
         omit_offsets: bool
-            Omits offset terms in the InferenceData object when the model includes
-            group specific effects. Defaults to True.
+            Omits offset terms in the ``InferenceData`` object when the model includes
+            group specific effects. Defaults to ``True``.
 
         Returns
         -------
-        An ArviZ InferenceData instance.
+        An ArviZ ``InferenceData`` instance.
         """
         model = self.model
 

@@ -9,9 +9,9 @@ class ResponseTerm:
     ----------
     term: formulae.ResponseVector
         An object describing the response of the model,
-        as returned by formulae.design_matrices().response
+        as returned by ``formulae.design_matrices().response``
     prior : Prior
-        A specification of the prior(s) to use. An instance of class priors.Prior.
+        A specification of the prior(s) to use. An instance of class ``priors.Prior``.
     family : str
         The name of the model family.
     """
@@ -38,11 +38,11 @@ class Term:
         Name of the term.
     term: dict
         A dictionary describing the components of the term. These can be found in
-        formulae.design_matrices().common.terms_info
+        ``formulae.design_matrices().common.terms_info``
     data : ndarray
         The term values.
     prior : Prior
-        A specification of the prior(s) to use. An instance of class priors.Prior.
+        A specification of the prior(s) to use. An instance of class ``priors.Prior``.
     constant : bool
         indicates whether the term levels collectively act as a constant, in which case the term is
         treated as an intercept for prior distribution purposes.
@@ -89,34 +89,30 @@ class GroupSpecificTerm:
     ----------
     name : str
         Name of the term.
+    term: dict
+        A dictionary describing the components of the term. These can be found in
+        ``formulae.design_matrices().group.terms_info``
     data : (DataFrame, Series, ndarray)
         The term values.
-    predictor: (DataFrame, Series, ndarray)
-        Data of the predictor variable in the group specific term.
-    grouper: (DataFrame, Series, ndarray)
-        Data of the grouping variable in the group specific term.
-    categorical : bool
-        If True, the source variable is interpreted as nominal/categorical. If False, the source
-        variable is treated as continuous.
     prior : Prior
-        A specification of the prior(s) to use. An instance of class priors.Prior.
+        A specification of the prior(s) to use. An instance of class ``priors.Prior``.
     constant : bool
-        indicates whether the term levels collectively act as a constant, in which case the term is
+        Indicates whether the term levels collectively act as a constant, in which case the term is
         treated as an intercept for prior distribution purposes.
     """
 
     group_specific = True
 
-    def __init__(self, name, term_dict, data, prior=None, constant=None):
+    def __init__(self, name, term, data, prior=None, constant=None):
         self.name = name
         self.data = data
         self.prior = prior
-        self.categorical = term_dict["type"] == "categoric"
-        self.cleaned_levels = term_dict["groups"]
-        self.levels = term_dict["full_names"]
+        self.categorical = term["type"] == "categoric"
+        self.cleaned_levels = term["groups"]
+        self.levels = term["full_names"]
 
-        self.grouper = term_dict["Ji"]
-        self.predictor = term_dict["Xi"]
+        self.grouper = term["Ji"]
+        self.predictor = term["Xi"]
         self.group_index = self.invert_dummies(self.grouper)
 
         if constant is None:
