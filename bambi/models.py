@@ -8,10 +8,10 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 import pymc3 as pm
-import statsmodels.api as sm
 
 from arviz.plots import plot_posterior
 from arviz.data import from_dict
+from numpy.linalg import matrix_rank
 from formulae import design_matrices
 
 from .backends import PyMC3BackEnd
@@ -161,54 +161,14 @@ class Model:
                 "before _build() or fit()."
             )
 
-        # X = common effects design matrix (excluding intercept/constant term)
-        # r2_x = 1 - 1/VIF, i.e., R2 for predicting each x from all other x's.
-        # only compute these stats if there are multiple terms in the model
+        # Only compute the mean stats if there are multiple terms in the model
         terms = [t for t in self.common_terms.values() if t.name != "Intercept"]
 
         if len(self.common_terms) > 1:
-
             x_matrix = [pd.DataFrame(x.data, columns=x.levels) for x in terms]
             x_matrix = pd.concat(x_matrix, axis=1)
+            self.dm_statistics = {"mean_x": x_matrix.mean(axis=0)}
 
-            self.dm_statistics = {
-                "r2_x": pd.Series(
-                    {
-                        x: sm.OLS(
-                            endog=x_matrix[x],
-                            exog=sm.add_constant(x_matrix.drop(x, axis=1))
-                            if "Intercept" in self.term_names
-                            else x_matrix.drop(x, axis=1),
-                        )
-                        .fit()
-                        .rsquared
-                        for x in list(x_matrix.columns)
-                    }
-                ),
-                "sigma_x": x_matrix.std(),
-                "mean_x": x_matrix.mean(axis=0),
-            }
-
-            # save potentially useful info for diagnostics
-            # mat = correlation matrix of X, w/ diagonal replaced by X means
-            mat = x_matrix.corr()
-            for x_col in list(mat.columns):
-                mat.loc[x_col, x_col] = self.dm_statistics["mean_x"][x_col]
-            self._diagnostics = {
-                # the Variance Inflation Factors (VIF), which is possibly useful for diagnostics
-                "VIF": 1 / (1 - self.dm_statistics["r2_x"]),
-                "corr_mean_X": mat,
-            }
-
-            # throw informative error if perfect collinearity among common fx
-            if any(self.dm_statistics["r2_x"] > 0.999):
-                raise ValueError(
-                    "There is perfect collinearity among the common effects!\n"
-                    "Printing some design matrix statistics:\n"
-                    + str(self.dm_statistics)
-                    + "\n"
-                    + str(self._diagnostics)
-                )
         # throw informative error message if any categorical predictors have 1 category
         num_cats = [x.data.size for x in self.common_terms.values()]
         if any(np.array(num_cats) == 0):
@@ -377,6 +337,12 @@ class Model:
         self.built = False
 
     def _add_common(self, common, priors):
+        if matrix_rank(common.design_matrix) < common.design_matrix.shape[1]:
+            raise ValueError(
+                "Design matrix for common effects is not full-rank."
+                "Bambi does not support sparse settings yet."
+            )
+
         for name, term in common.terms_info.items():
             data = common[name]
             prior = priors.pop(name, priors.get("common", None))
