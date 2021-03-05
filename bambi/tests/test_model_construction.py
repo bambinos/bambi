@@ -308,3 +308,29 @@ def test_empty_formula_assertion():
     # But if you then pass a formula, you can fit.
     model.fit("y ~ x1 + (x1|g1)", run=False)
     model.fit(draws=200)
+
+
+def test_sparse_fails():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=4),
+            "x1": np.random.normal(size=4),
+            "x2": np.random.normal(size=4),
+            "x3": np.random.normal(size=4),
+            "x4": np.random.normal(size=4),
+        }
+    )
+    model = Model(data)
+    with pytest.raises(ValueError):
+        model.fit("y ~ x1 + x2 + x3 + x4")
+
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=4),
+            "g1": ["a", "b", "c", "d"],
+            "g2": ["a", "b", "c", "d"],
+        }
+    )
+    model = Model(data)
+    with pytest.raises(ValueError):
+        model.fit("y ~ g1 + g2")
