@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 
 
 class BackEnd:
-    """Base class for BackEnd hierarchy."""
+    """Base class for backend hierarchy."""
 
     __metaclass__ = ABCMeta
 

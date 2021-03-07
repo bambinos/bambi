@@ -19,13 +19,13 @@ class Family:
     name : str
         Family name.
     prior : Prior
-        A Prior instance specifying the model likelihood prior.
+        A ``Prior`` instance specifying the model likelihood prior.
     link : str
         The name of the link function transforming the linear model prediction to a parameter of
         the likelihood.
     parent : str
         The name of the prior parameter to set to the link-transformed predicted outcome
-        (e.g., mu, p, etc.).
+        (e.g., ``'mu'``, ``'p'``, etc.).
     """
 
     def __init__(self, name, prior, link, parent):
@@ -51,7 +51,7 @@ class Prior:
     Parameters
     ----------
     name : str
-        Name of prior distribution (e.g., Normal, Bernoulli, etc.)
+        Name of prior distribution (e.g., ``'Normal'``, ``'Bernoulli'``, etc.)
     kwargs : dict
         Optional keywords specifying the parameters of the named distribution.
     """
@@ -90,24 +90,24 @@ class PriorFactory:
     defaults : str or dict
         Optional base configuration containing default priors for distribution, families, and term
         types. If a string, the name of a JSON file containing the config. If a dict, must contain
-        keys for 'dists', 'terms', and 'families'; see the built-in JSON configuration for an
-        example. If None, a built-in set of priors will be used as defaults.
+        keys for ``'dists'``, ``'terms'``, and ``'families'``; see the built-in JSON configuration
+        for an example. If ``None``, a built-in set of priors will be used as defaults.
     dists : dict
         Optional specification of named distributions to use as priors. Each key gives the name of
         a newly defined distribution; values are two-element lists, where the first element is the
-        name of the built-in distribution to use ('Normal', 'Cauchy', etc.), and the second element
-        is a dictionary of parameters on that distribution (e.g., {'mu': 0, 'sigma': 10}). Priors
-        can be nested to arbitrary depths by replacing any parameter with another prior
-        specification.
+        name of the built-in distribution to use (``'Normal'``, ``'Cauchy',`` etc.), and the second
+        element is a dictionary of parameters on that distribution
+        (e.g., ``{'mu': 0, 'sigma': 10}``). Priors can be nested to arbitrary depths by replacing
+        any parameter with another prior specification.
     terms : dict
         Optional specification of default priors for different model term types. Valid keys are
-        'intercept', 'common', or 'group_specific'. Values are either strings preprended
+        ``'intercept'``, ``'common'``, or ``'group_specific'``. Values are either strings preprended
         by a #, in which case they are interpreted as pointers to distributions named in
         the dists dictionary, or key -> value specifications in the same format as elements in
         the dists dictionary.
     families : dict
         Optional specification of default priors for named family objects. Keys are family names,
-        and values are dicts containing mandatory keys for 'dist', 'link', and 'parent'.
+        and values are dicts containing mandatory keys for ``'dist'``, ``'link'``, and ``'parent'``.
 
     Examples
     --------
@@ -168,14 +168,14 @@ class PriorFactory:
         ----------
         dist : str
             Name of desired distribution. Note that the name is the key in the defaults dictionary,
-            not the name of the Distribution object used to construct the prior.
+            not the name of the ``Distribution`` object used to construct the prior.
         term : str
-            The type of term family to retrieve defaults for. Must be one of 'intercept', 'common',
-            or 'group_specific'.
+            The type of term family to retrieve defaults for. Must be one of ``'intercept'``,
+            ``'common'``, or ``'group_specific'``.
         family : str
-            The name of the Family to retrieve. Must be a value defined internally. In the default
-            config, this is one of 'bernoulli', 'gamma', 'gaussian', 'negativebinomial',
-            'poisson', 't' or 'wald'.
+            The name of the ``Family`` to retrieve. Must be a value defined internally.
+            In the default config, this is one of  ``'gaussian'``, ``'bernoulli'``, ``'poisson'``,
+            ``'gama'``, ``'wald'``, or ``'negativebinomial'``.
         """
 
         if dist is not None:
@@ -227,8 +227,8 @@ class PriorScaler:
         Parameters
         ----------
             full_mod : statsmodels.genmod.generalized_linear_model.GLM
-                Statsmodels GLM to replace MLE model. For when 'predictor' is not in the common part
-                of the model.
+                Statsmodels GLM to replace MLE model. For when ``'predictor'`` is not in the common
+                part of the model.
             points : int
                 Number of points to use for LL approximation.
         """

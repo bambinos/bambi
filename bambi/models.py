@@ -15,7 +15,7 @@ from numpy.linalg import matrix_rank
 from formulae import design_matrices
 
 from .backends import PyMC3BackEnd
-from .priors import Prior, PriorFactory, PriorScaler
+from .priors import Prior, PriorFactory, PriorScaler, Family
 from .terms import ResponseTerm, Term, GroupSpecificTerm
 from .utils import listify
 from .version import __version__
@@ -29,19 +29,19 @@ class Model:
     Parameters
     ----------
     data : DataFrame or str
-        The dataset to use. Either a pandas DataFrame, or the name of the file containing the data,
-        which will be passed to `pd.read_csv()`.
+        The dataset to use. Either a pandas ``DataFrame``, or the name of the file containing
+        the data, which will be passed to ``pd.read_csv()``.
     default_priors : dict or str
         An optional specification of the default priors to use for all model terms. Either a
         dictionary containing named distributions, families, and terms (see the documentation in
-        priors.PriorFactory for details), or the name of a JSON file containing the same
+        ``priors.PriorFactory`` for details), or the name of a JSON file containing the same
         information.
     auto_scale : bool
-        If True (default), priors are automatically rescaled to the data (to be weakly informative)
-        any time default priors are used. Note that any priors explicitly set by the user will
-        always take precedence over default priors.
+        If ``True`` (default), priors are automatically rescaled to the data
+        (to be weakly informative) any time default priors are used. Note that any priors
+        explicitly set by the user will always take precedence over default priors.
     dropna : bool
-        When True, rows with any missing values in either the predictors or outcome are
+        When ``True``, rows with any missing values in either the predictors or outcome are
         automatically dropped from the dataset in a listwise manner.
     taylor : int
         Order of Taylor expansion to use in approximate variance when constructing the default
@@ -50,8 +50,8 @@ class Model:
         tend to work better. Defaults to 5 for Normal models and 1 for non-Normal models. Values
         higher than the defaults are generally not recommended as they can be unstable.
     noncentered : bool
-        If True (default), uses a non-centered parameterization for normal hyperpriors on grouped
-        parameters. If False, naive (centered) parameterization is used.
+        If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on
+        grouped parameters. If ``False``, naive (centered) parameterization is used.
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -123,12 +123,13 @@ class Model:
         """Set up the model for sampling/fitting.
 
         Performs any steps that require access to all model terms (e.g., scaling priors
-        on each term), then calls the BackEnd's _build() method.
+        on each term), then calls the backend's ``_build()`` method.
 
         Parameters
         ----------
         backend : str
-            The name of the backend to use for model fitting. Currently only 'pymc' is supported.
+            The name of the backend to use for model fitting.
+            Currently only ``'pymc'`` is supported.
         """
 
         # set custom priors
@@ -156,7 +157,7 @@ class Model:
         # check for outcome
         if self.response is None:
             raise ValueError(
-                "No outcome (y) variable is set! Please specify "
+                "No outcome variable is set! Please specify "
                 "an outcome variable using the formula interface "
                 "before _build() or fit()."
             )
@@ -175,7 +176,6 @@ class Model:
             raise ValueError("At least one categorical predictor contains only 1 category!")
 
         # only set priors if there is at least one term in the model
-
         if self.terms:
             # Get and scale default priors if none are defined yet
             if self.taylor is not None:
@@ -184,6 +184,7 @@ class Model:
                 taylor = 5 if self.family.name == "gaussian" else 1
             scaler = PriorScaler(self, taylor=taylor)
             scaler.scale()
+
         # Tell user which event is being modeled
         if self.family.name == "bernoulli":
             _log.info(
@@ -208,41 +209,43 @@ class Model:
         backend="pymc",
         **kwargs,
     ):
-        """Fit the model using the specified BackEnd.
+        """Fit the model using the specified backend.
 
         Parameters
         ----------
         formula : str
-            A model description written in model formula language
+            A model description written in model formula language.
         priors : dict
-            Optional specification of priors for one or more terms. A dict where the keys are the
-            names of terms in the model, and the values are either instances of class Prior or
-            ints, floats, or strings that specify the width of the priors on a standardized scale.
+            Optional specification of priors for one or more terms. A dictionary where the keys are
+            the names of terms in the model, 'common' or 'group_specific' and the values are either
+            instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the
+            width of the priors on a standardized scale.
         family : str or Family
-            A specification of the model family (analogous to the family object in R). Either a
-            string, or an instance of class priors.Family. If a string is passed, a family with
-            the corresponding name be defined in the defaults loaded at Model
-            initialization.
-            Valid pre-defined families are 'gaussian', 'bernoulli', 'poisson', and 't'.
+            A specification of the model family (analogous to the family object in R). Either
+            a string, or an instance of class ``priors.Family``. If a string is passed, a family
+            with the corresponding name must be defined in the defaults loaded at ``Model``
+            initialization.Valid pre-defined families are ``'gaussian'``, ``'bernoulli'``,
+            ``'poisson'``, ``'gama'``, ``'wald'``, and ``'negativebinomial'``.
+            Defaults to ``'gaussian'``.
         link : str
             The model link function to use. Can be either a string (must be one of the options
-            defined in the current backend; typically this will include at least 'identity',
-            'logit', 'inverse', and 'log'), or a callable that takes a 1D ndarray or theano tensor
-            as the sole argument and returns one with the same shape.
+            defined in the current backend; typically this will include at least ``'identity'``,
+            ``'logit'``, ``'inverse'``, and ``'log'``), or a callable that takes a 1D ndarray or
+            theano tensor as the sole argument and returns one with the same shape.
         run : bool
             Whether or not to immediately begin fitting the model once any set up of passed
-            arguments is complete.
+            arguments is complete. Defaults to ``True``.
         categorical : str or list
             The names of any variables to treat as categorical. Can be either a single variable
-            name, or a list of names. If categorical is None, the data type of the columns in the
-            DataFrame will be used to infer handling. In cases where numeric columns are to be
-            treated as categoricals (e.g., group specific factors coded as numerical IDs),
+            name, or a list of names. If categorical is ``None``, the data type of the columns in
+            the ``DataFrame`` will be used to infer handling. In cases where numeric columns are
+            to be treated as categoricals (e.g., group specific factors coded as numerical IDs),
             explicitly passing variable names via this argument is recommended.
         omit_offsets: bool
-            Omits offset terms in the InferenceData object when the model includes
-            group specific effects. Defaults to True.
+            Omits offset terms in the ``InferenceData`` object when the model includes group
+            specific effects. Defaults to ``True``.
         backend : str
-            The name of the BackEnd to use. Currently only 'pymc' backend is supported.
+            The name of the backend to use. Currently only ``'pymc'`` backend is supported.
         """
 
         if priors is None:
@@ -263,16 +266,17 @@ class Model:
 
         na_action = "drop" if self.dropna else "error"
         if formula is not None:
-            # Only reset self.terms and self.response (keep priors, for example)
+            # Only reset self.terms and self.response (e.g., keep priors)
             self.terms = OrderedDict()
             self.response = None
             self._design = design_matrices(formula, data, na_action, eval_env=1)
         else:
             if self._design is None:
-                raise ValueError("Can't fit a model without design matrices.")
+                raise ValueError("Can't fit a model without a description of the model.")
 
         if self._design.response is not None:
-            self._add_response(self._design.response, family=family, link=link)
+            _family = family.name if isinstance(family, Family) else family
+            self._add_response(self._design.response, family=_family, link=link)
 
         if self._design.common:
             self._add_common(self._design.common, priors)
@@ -291,30 +295,31 @@ class Model:
         self._backend_name = backend
         return None
 
-    # pylint: disable=keyword-arg-before-vararg
     def _add_response(self, response, prior=None, family="gaussian", link=None):
         """Add a response (or outcome/dependent) variable to the model.
 
         Parameters
         ----------
         response : formulae.ResponseVector
-            An instance of formulae.ResponseVector as returned by formulae.design_matrices()
+            An instance of ``formulae.ResponseVector`` as returned by
+            ``formulae.design_matrices()``.
         prior : Prior, int, float, str
-            Optional specification of prior. Can be an instance of class Prior, a numeric value,
+            Optional specification of prior. Can be an instance of class ``Prior``, a numeric value,
             or a string describing the width. In the numeric case, the distribution specified in
             the defaults will be used, and the passed value will be used to scale the appropriate
-            variance parameter. For strings (e.g., 'wide', 'narrow', 'medium', or 'superwide'),
-            predefined values will be used.
+            variance parameter. For strings (e.g., ``'wide'``, ``'narrow'``, ``'medium'``, or
+            ``'superwide'``), predefined values will be used.
         family : str or Family
             A specification of the model family (analogous to the family object in R). Either a
-            string, or an instance of class priors.Family. If a string is passed, a family with the
-            corresponding name must be defined in the defaults loaded at Model initialization.
-            Valid pre-defined families are 'gaussian', 'bernoulli', 'poisson', and 't'.
+            string, or an instance of class ``priors.Family``. If a string is passed, a family with
+            the corresponding name must be defined in the defaults loaded at Model initialization.
+            Valid pre-defined families are ``'gaussian'``, ``'bernoulli'``, ``'poisson'``,
+            ``'gama'``, ``'wald'``, and ``'negativebinomial'``. Defaults to ``'gaussian'``.
         link : str
             The model link function to use. Can be either a string (must be one of the options
-            defined in the current backend; typically this will include at least 'identity',
-            'logit', 'inverse', and 'log'), or a callable that takes a 1D ndarray or theano tensor
-            as the sole argument and returns one with the same shape.
+            defined in the current backend; typically this will include at least ``'identity'``,
+            ``'logit'``, ``'inverse'``, and ``'log'``), or a callable that takes a 1D ndarray or
+            theano tensor as the sole argument and returns one with the same shape.
         """
         if isinstance(family, str):
             family = self.default_priors.get(family=family)
@@ -364,8 +369,9 @@ class Model:
     def _match_derived_terms(self, name):
         """Return all (group_specific) terms whose named are derived from the specified string.
 
-        For example, 'condition|subject' should match the terms with names '1|subject',
-        'condition[T.1]|subject', and so on. Only works for strings with grouping operator ('|').
+        For example, ``'condition|subject'`` should match the terms with names ``'1|subject'``,
+        ``'condition[T.1]|subject'``, and so on.
+        Only works for strings with grouping operator ``('|')``.
         """
         if "|" not in name:
             return None
@@ -394,21 +400,21 @@ class Model:
         Parameters
         ----------
         priors : dict
-            Dict of priors to update. Keys are names of terms to update; values are the new priors
-            (either a Prior instance, or an int or float that scales the default priors). Note that
-            a tuple can be passed as the key, in which case the same prior will be applied to all
-            terms named in the tuple.
+            Dictionary of priors to update. Keys are names of terms to update; values are the new
+            priors (either a ``Prior`` instance, or an int or float that scales the default priors).
+            Note that a tuple can be passed as the key, in which case the same prior will be applied
+            to all terms named in the tuple.
         common : Prior, int, float or str
             A prior specification to apply to all common terms included in the model.
         group_specific : Prior, int, float or str
             A prior specification to apply to all group specific terms included in the model.
         match_derived_names : bool
-            If True, the specified prior(s) will be applied not only to terms that match the
+            If ``True``, the specified prior(s) will be applied not only to terms that match the
             keyword exactly, but to the levels of group specific effects that were derived from the
             original specification with the passed name. For example,
-            `priors={'condition|subject':0.5}` would apply the prior to the terms with names
-            '1|subject', 'condition[T.1]|subject', and so on. If False, an exact match is required
-            for the prior to be applied.
+            ``priors={'condition|subject':0.5}`` would apply the prior to the terms with names
+            ``'1|subject'``, ``'condition[T.1]|subject'``, and so on. If ``False``, an exact
+            match is required for the prior to be applied.
         """
         # save arguments to pass to _set_priors() at build time
         kwargs = dict(
@@ -422,9 +428,9 @@ class Model:
         self.built = False
 
     def _set_priors(self, priors=None, common=None, group_specific=None, match_derived_names=True):
-        """Internal version of set_priors(), with same arguments.
+        """Internal version of ``set_priors()``, with same arguments.
 
-        Runs during Model._build().
+        Runs during ``Model._build()``.
         """
         targets = {}
 
@@ -452,13 +458,13 @@ class Model:
             self.terms[name].prior = prior
 
     def _prepare_prior(self, prior, _type):
-        """Helper function to correctly set default priors, auto_scaling, etc.
+        """Helper function to correctly set default priors, auto scaling, etc.
 
         Parameters
         ----------
         prior : Prior object, or float, or None.
         _type : string
-            accepted values are: 'intercept, 'common', or 'group_specific'.
+            accepted values are: ``'intercept'``, ``'common'``, or ``'group_specific'``.
         """
         if prior is None and not self.auto_scale:
             prior = self.default_priors.get(term=_type + "_flat")
@@ -490,7 +496,7 @@ class Model:
         ax=None,
     ):
         """
-        Samples from the prior distribution and plot its marginals.
+        Samples from the prior distribution and plots its marginals.
 
         Parameters
         ----------
@@ -502,34 +508,36 @@ class Model:
         random_seed : int
             Seed for the random number generator.
         figsize: tuple
-            Figure size. If None it will be defined automatically.
+            Figure size. If ``None`` it will be defined automatically.
         textsize: float
-            Text size scaling factor for labels, titles and lines. If None it will be autoscaled
-            based on figsize.
-        hdi_prob: float, optional
+            Text size scaling factor for labels, titles and lines. If ``None`` it will be
+            autoscaled based on ``figsize``.
+        hdi_prob: float
             Plots highest density interval for chosen percentage of density.
-            Use 'hide' to hide the highest density interval. Defaults to 0.94.
-        round_to: int, optional
+            Use ``'hide'`` to hide the highest density interval. Defaults to 0.94.
+        round_to: int
             Controls formatting of floats. Defaults to 2 or the integer part, whichever is bigger.
-        point_estimate: Optional[str]
-            Plot point estimate per variable. Values should be 'mean', 'median', 'mode' or None.
-            Defaults to 'auto' i.e. it falls back to default set in ArviZ's rcParams.
+        point_estimate: str
+            Plot point estimate per variable. Values should be ``'mean'``, ``'median'``, ``'mode'``
+             or ``None``. Defaults to ``'auto'`` i.e. it falls back to default set in
+             ArviZ's rcParams.
         kind: str
-            Type of plot to display (kde or hist) For discrete variables this argument is ignored
-            and a histogram is always used.
-        bins: integer or sequence or 'auto', optional
-            Controls the number of bins, accepts the same keywords `matplotlib.hist()` does.
-            Only works if `kind == hist`. If None (default) it will use `auto` for continuous
-            variables and `range(xmin, xmax + 1)` for discrete variables.
+            Type of plot to display (``'kde'`` or ``'hist'``) For discrete variables this argument
+            is ignored and a histogram is always used.
+        bins: integer or sequence or 'auto'
+            Controls the number of bins, accepts the same keywords ``matplotlib.hist()`` does.
+            Only works if ``kind == hist``. If ``None`` (default) it will use ``auto`` for
+            continuous variables and ``range(xmin, xmax + 1)`` for discrete variables.
         omit_offsets: bool
-            Whether to omit offset terms in the plot. Defaults to True.
+            Whether to omit offset terms in the plot. Defaults to ``True``.
         omit_group_specific: bool
-            Whether to omit group specific effects in the plot. Defaults to True.
-        ax: numpy array-like of matplotlib axes or bokeh figures, optional
+            Whether to omit group specific effects in the plot. Defaults to ``True``.
+        ax: numpy array-like of matplotlib axes or bokeh figures
             A 2D array of locations into which to plot the densities. If not supplied, ArviZ will
             create its own array of plot areas (and return it).
         **kwargs
-            Passed as-is to plt.hist() or plt.plot() function depending on the value of `kind`.
+            Passed as-is to ``plt.hist()`` or ``plt.plot()`` function depending on the value of
+            ``kind``.
 
         Returns
         -------
@@ -601,7 +609,8 @@ class Model:
         Returns
         -------
         InferenceData
-            InferenceData object with the groups prior, prior_predictive and observed_data.
+            ``InferenceData`` object with the groups `prior`, ``prior_predictive`` and
+            ``observed_data``.
         """
         if var_names is None:
             variables = self.backend.model.unobserved_RVs + self.backend.model.observed_RVs
@@ -654,24 +663,24 @@ class Model:
         Parameters
         ----------
         idata : InfereceData
-            InfereceData with samples from the posterior distribution.
+            ``InfereceData`` with samples from the posterior distribution.
         draws : int
             Number of draws to sample from the prior predictive distribution. Defaults to 500.
         var_names : str or list
             A list of names of variables for which to compute the posterior predictive
             distribution. Defaults to both observed and unobserved RVs.
         inplace : bool
-            If ``True`` it will add a posterior_predictive group to idata, otherwise it will
-            return a copy of idata with the added group. If True and idata already have a
-            posterior_predictive group it will be overwritten.
+            If ``True`` it will add a ``posterior_predictive`` group to idata, otherwise it will
+            return a copy of idata with the added group. If ``True`` and idata already have a
+            ``posterior_predictive`` group it will be overwritten.
         random_seed : int
             Seed for the random number generator.
 
         Returns
         -------
         None or InferenceData
-            When ``inplace=True`` add posterior_predictive group to idata and return
-            ``None`. Otherwise a copy of idata with a posterior_predictive group.
+            When ``inplace=True`` add ``posterior_predictive`` group to idata and return
+            ``None``. Otherwise a copy of idata with a ``posterior_predictive`` group.
 
         """
         if var_names is None:
@@ -708,16 +717,16 @@ class Model:
         Produce a graphviz Digraph from a PyMC3 model.
 
         Requires graphviz, which may be installed most easily with
-            conda install -c conda-forge python-graphviz
+            ``conda install -c conda-forge python-graphviz``
 
-        Alternatively, you may install the `graphviz` binaries yourself, and then
-        `pip install graphviz` to get the python bindings.
+        Alternatively, you may install the ``graphviz`` binaries yourself, and then
+        ``pip install graphviz`` to get the python bindings.
         See http://graphviz.readthedocs.io/en/stable/manual.html for more information.
 
         Parameters
         ----------
         formatting : str
-            one of { "plain", "plain_with_params" }
+            One of ``'plain'`` or ``'plain_with_params'``. Defaults to ``'plain'``.
         """
         return pm.model_to_graphviz(model=self.backend.model, formatting=formatting)
 

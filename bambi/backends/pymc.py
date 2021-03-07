@@ -12,7 +12,7 @@ _log = logging.getLogger("bambi")
 
 
 class PyMC3BackEnd(BackEnd):
-    """PyMC3 model-fitting back-end."""
+    """PyMC3 model-fitting backend."""
 
     # Available link functions
     links = {
@@ -75,7 +75,8 @@ class PyMC3BackEnd(BackEnd):
         Parameters
         ----------
         spec : Bambi model
-            A Bambi Model instance containing the abstract specification of the model to compile.
+            A Bambi ``Model`` instance containing the abstract specification of the model
+            to compile.
         """
 
         coords = spec._get_pymc_coords()  # pylint: disable=protected-access
@@ -121,27 +122,27 @@ class PyMC3BackEnd(BackEnd):
         Parameters
         ----------
         start: dict, or array of dict
-            Starting parameter values to pass to sampler; see ``'pm.sample()'`` for details.
+            Starting parameter values to pass to sampler; see ``pm.sample()`` for details.
         method: str
-            The method to use for fitting the model. By default, 'mcmc', in which case the
-            PyMC3 sampler will be used. Alternatively, 'advi', in which case the model will be
+            The method to use for fitting the model. By default, ``'mcmc'``, in which case the
+            PyMC3 sampler will be used. Alternatively, ``'advi'``, in which case the model will be
             fitted using  automatic differentiation variational inference as implemented in PyMC3.
-            Finally, 'laplace', in which case a laplace approximation is used, 'laplace' is not
-            recommended other than for pedagogical use.
+            Finally, ``'laplace'``, in which case a laplace approximation is used, ``'laplace'`` is
+            not recommended other than for pedagogical use.
         init: str
             Initialization method (see PyMC3 sampler documentation). Currently, this is
             ``'jitter+adapt_diag'``, but this can change in the future.
         n_init: int
-            Number of initialization iterations if init = 'advi' or 'nuts'. Default is kind of in
-            PyMC3 for the kinds of models we expect to see run with Bambi, so we lower it
-            considerably.
+            Number of initialization iterations if ``init = 'advi'`` or '``init = 'nuts'``.
+            Default is kind of in PyMC3 for the kinds of models we expect to see run with Bambi,
+            so we lower it considerably.
         omit_offsets: bool
-            Omits offset terms in the InferenceData object when the model includes
-            group specific effects. Defaults to True.
+            Omits offset terms in the ``InferenceData`` object when the model includes
+            group specific effects. Defaults to ``True``.
 
         Returns
         -------
-        An ArviZ InferenceData instance.
+        An ArviZ ``InferenceData`` instance.
         """
         model = self.model
 
@@ -179,7 +180,7 @@ class PyMC3BackEnd(BackEnd):
 
 
 def _laplace(model):
-    """Fit a model using a laplace approximation.
+    """Fit a model using a Laplace approximation.
 
     Mainly for pedagogical use. ``mcmc`` and ``advi`` are better approximations.
 
