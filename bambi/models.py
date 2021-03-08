@@ -97,10 +97,16 @@ class Model:
         self.terms = OrderedDict()
 
     def __str__(self):
-        return self.backend.model.__str__()
+        if self.backend is None:
+            return ""
+        else:
+            return self.backend.model.__str__()
 
     def __repr__(self):
-        return self.backend.model.__str__()
+        if self.backend is None:
+            return ""
+        else:
+            return self.backend.model.__str__()
 
     def reset(self):
         """Reset list of terms and response variable."""
