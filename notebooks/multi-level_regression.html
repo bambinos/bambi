@@ -277,7 +277,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;arviz-darkgrid&#39;</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">12345</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -418,15 +418,15 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>where <span class="math notranslate nohighlight">\(\beta_0\)</span> and <span class="math notranslate nohighlight">\(\beta_1\)</span> are usual common intercept and slope you find in a linear regression. <span class="math notranslate nohighlight">\(\alpha_{0, i}\)</span> and <span class="math notranslate nohighlight">\(\alpha_{1, i}\)</span> are the group specific components for the pig <span class="math notranslate nohighlight">\(i\)</span>, influencing the intercept and the slope respectively. Finally <span class="math notranslate nohighlight">\(\epsilon_i\)</span> is the random error we always see in this type of models, assumed to be Gaussian with mean 0. Note that here we use “common” and “group specific” effects to denote what in many fields are known as
 “fixed” and “random” effects, respectively.</p>
-<p>We use the formula syntax to specify the model. The first argument passed to the <code class="docutils literal notranslate"><span class="pre">.fit()</span></code> call describes the fixed components and the second named argument, <code class="docutils literal notranslate"><span class="pre">group_specific</span></code>, describes the group specific components. In order to use a model that allows varying intercepts and slopes for the predictor <code class="docutils literal notranslate"><span class="pre">'Time'</span></code> we need to include <code class="docutils literal notranslate"><span class="pre">'Time'</span></code> as a common effect and write <code class="docutils literal notranslate"><span class="pre">'Time|Pig'</span></code> in the group specific argument. The latter means each pig as a different intercept and <code class="docutils literal notranslate"><span class="pre">'Time'</span></code> slope. If we
-only wanted different intercepts, we would have written <code class="docutils literal notranslate"><span class="pre">group_specific='1|Pig'</span></code>, and if we wanted slopes specific to each pig without including a specific intercept for each pig, we would write <code class="docutils literal notranslate"><span class="pre">group_specific</span> <span class="pre">=</span> <span class="pre">'0</span> <span class="pre">+</span> <span class="pre">Time|Pig'</span></code>.</p>
+<p>We use the formula syntax to specify the model. Previously, you had to specify common and group specific components separately. Now, thanks to <a class="reference external" href="https://github.com/bambinos/formulae">formulae</a>, you can specify model formulas just as you would do with R packages like <a class="reference external" href="https://CRAN.R-project.org/package=lme4">lme4</a> and <a class="reference external" href="https://CRAN.R-project.org/package=brms">brms</a>. In a nutshell, the term on the left side tells <code class="docutils literal notranslate"><span class="pre">Weight</span></code> is the response variable, <code class="docutils literal notranslate"><span class="pre">Time</span></code> on the right-hand side tells we
+include a main effect for the variable <code class="docutils literal notranslate"><span class="pre">Time</span></code>, and <code class="docutils literal notranslate"><span class="pre">(Time|Pig)</span></code> indicates we want to allow a each pig to have its own slope for <code class="docutils literal notranslate"><span class="pre">Time</span></code> as well as its own intercept (which is implicit). If we only wanted different intercepts, we would have written <code class="docutils literal notranslate"><span class="pre">Weight</span> <span class="pre">~</span> <span class="pre">Time</span> <span class="pre">+</span> <span class="pre">(1</span> <span class="pre">|</span> <span class="pre">Pig)</span></code> and if we wanted slopes specific to each pig without including a pig specific intercept, we would write <code class="docutils literal notranslate"><span class="pre">Weight</span> <span class="pre">~</span> <span class="pre">Time</span> <span class="pre">+</span> <span class="pre">(0</span> <span class="pre">+</span> <span class="pre">Time</span> <span class="pre">|</span> <span class="pre">Pig)</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;Weight ~ Time&#39;</span><span class="p">,</span> <span class="n">group_specific</span><span class="o">=</span><span class="s1">&#39;Time|Pig&#39;</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s2">&quot;Weight ~ Time + (Time|Pig)&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -459,7 +459,7 @@ NUTS: [Weight_sigma, Time|Pig_offset, Time|Pig_sigma, 1|Pig_offset, 1|Pig_sigma,
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:19<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:23<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -467,10 +467,12 @@ NUTS: [Weight_sigma, Time|Pig_offset, Time|Pig_sigma, 1|Pig_offset, 1|Pig_sigma,
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 20 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 25 seconds.
 The number of effective samples is smaller than 25% for some parameters.
 </pre></div></div>
 </div>
+<div class="section" id="Random-intercept">
+<h3>Random intercept<a class="headerlink" href="#Random-intercept" title="Permalink to this headline">¶</a></h3>
 <p>Since we have not specified prior distributions for the parameters in the model, Bambi has chosen sensible defaults for us. We can explore these priors through samples generated from them with a call to <code class="docutils literal notranslate"><span class="pre">Model.plot_priors()</span></code>, which plots a kernel density estimate for each prior.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -485,7 +487,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_multi-level_regression_9_0.png" src="../_images/notebooks_multi-level_regression_9_0.png" />
+<img alt="../_images/notebooks_multi-level_regression_10_0.png" src="../_images/notebooks_multi-level_regression_10_0.png" />
 </div>
 </div>
 <p>Now we are ready to check the results. Using <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> we get traceplots that show the values sampled from the posteriors and density estimates that gives us an idea of the shape of the posterior distribution of our parameters.</p>
@@ -508,7 +510,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_multi-level_regression_11_0.png" src="../_images/notebooks_multi-level_regression_11_0.png" />
+<img alt="../_images/notebooks_multi-level_regression_12_0.png" src="../_images/notebooks_multi-level_regression_12_0.png" />
 </div>
 </div>
 <p>The same plot could have been generated with less typing by calling</p>
@@ -517,7 +519,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="line">which uses an alternative notation to pass <code class="docutils literal notranslate"><span class="pre">var_names</span></code> based on the negation symbol in Python, <code class="docutils literal notranslate"><span class="pre">~</span></code>. There we are telling ArviZ to plot all the variables in the InferenceData object <code class="docutils literal notranslate"><span class="pre">results</span></code>, except from <code class="docutils literal notranslate"><span class="pre">1|Pig_sigma</span></code> and <code class="docutils literal notranslate"><span class="pre">Time|Pig_sigma</span></code>.</div>
 <div class="line">Can’t believe it? Come on, run this notebook on your side and have a try!</div>
 </div>
-<p>The plots generated by <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> are enough to be confident that the sampler did a good job and conclude about plausible values for the distribution of each parameter in the model. But if we want to, and is a good idea to do it, we can get umerical summaries for the posteriors with <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>.</p>
+<p>The plots generated by <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> are enough to be confident that the sampler did a good job and conclude about plausible values for the distribution of each parameter in the model. But if we want to, and it is a good idea to do it, we can get umerical summaries for the posteriors with <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
@@ -556,8 +558,6 @@ The number of effective samples is smaller than 25% for some parameters.
       <th>hdi_97%</th>
       <th>mcse_mean</th>
       <th>mcse_sd</th>
-      <th>ess_mean</th>
-      <th>ess_sd</th>
       <th>ess_bulk</th>
       <th>ess_tail</th>
       <th>r_hat</th>
@@ -566,83 +566,74 @@ The number of effective samples is smaller than 25% for some parameters.
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>15.762</td>
-      <td>0.561</td>
-      <td>14.757</td>
-      <td>16.828</td>
-      <td>0.029</td>
-      <td>0.020</td>
-      <td>380.0</td>
-      <td>380.0</td>
-      <td>380.0</td>
-      <td>820.0</td>
-      <td>1.0</td>
+      <td>15.774</td>
+      <td>0.579</td>
+      <td>14.666</td>
+      <td>16.867</td>
+      <td>0.030</td>
+      <td>0.021</td>
+      <td>370.0</td>
+      <td>828.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>Time</th>
-      <td>6.926</td>
-      <td>0.082</td>
-      <td>6.762</td>
-      <td>7.064</td>
-      <td>0.004</td>
+      <td>6.932</td>
+      <td>0.084</td>
+      <td>6.784</td>
+      <td>7.095</td>
+      <td>0.005</td>
       <td>0.003</td>
-      <td>401.0</td>
-      <td>401.0</td>
-      <td>404.0</td>
-      <td>746.0</td>
-      <td>1.0</td>
+      <td>331.0</td>
+      <td>498.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>1|Pig_sigma</th>
-      <td>4.547</td>
-      <td>0.442</td>
-      <td>3.733</td>
-      <td>5.372</td>
+      <td>4.537</td>
+      <td>0.425</td>
+      <td>3.804</td>
+      <td>5.381</td>
       <td>0.017</td>
       <td>0.012</td>
-      <td>703.0</td>
-      <td>689.0</td>
-      <td>739.0</td>
-      <td>720.0</td>
-      <td>1.0</td>
+      <td>611.0</td>
+      <td>953.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>Time|Pig_sigma</th>
-      <td>0.665</td>
-      <td>0.063</td>
-      <td>0.549</td>
-      <td>0.776</td>
+      <td>0.662</td>
+      <td>0.059</td>
+      <td>0.557</td>
+      <td>0.778</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>561.0</td>
-      <td>560.0</td>
-      <td>570.0</td>
-      <td>916.0</td>
-      <td>1.0</td>
+      <td>558.0</td>
+      <td>823.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>Weight_sigma</th>
       <td>2.460</td>
-      <td>0.065</td>
-      <td>2.340</td>
-      <td>2.582</td>
+      <td>0.067</td>
+      <td>2.334</td>
+      <td>2.584</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>2652.0</td>
-      <td>2652.0</td>
-      <td>2633.0</td>
-      <td>1112.0</td>
-      <td>1.0</td>
+      <td>2194.0</td>
+      <td>1626.0</td>
+      <td>1.00</td>
     </tr>
   </tbody>
 </table>
 </div></div>
 </div>
 </div>
+</div>
 <div class="section" id="Estimated-regression-line">
 <h2>Estimated regression line<a class="headerlink" href="#Estimated-regression-line" title="Permalink to this headline">¶</a></h2>
 <p>Here we’ll visualize the regression equations we have sampled for a particular pig and then we’ll compare the mean regression equation for all the 72 pigs in the dataset.</p>
-<p>In the following plot we can see the 2000 linear regressions we have sampled for the pig ‘4601’. The mean regression line is plotted in black and the observed weights for this pig are marked by the blue dots.</p>
+<p>In the following plot we can see the 2000 linear regressions we have sampled for the pig ‘4601’. The mean regression line is plotted in black and the observed weights for this pig are respresented by the blue dots.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
@@ -673,7 +664,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_multi-level_regression_16_0.png" src="../_images/notebooks_multi-level_regression_16_0.png" />
+<img alt="../_images/notebooks_multi-level_regression_17_0.png" src="../_images/notebooks_multi-level_regression_17_0.png" />
 </div>
 </div>
 <p>Next, we calculate the mean regression line for each pig and show them together in one plot. Here we clearly see each pig has a different pair of intercept and slope.</p>
@@ -696,13 +687,13 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_multi-level_regression_18_0.png" src="../_images/notebooks_multi-level_regression_18_0.png" />
+<img alt="../_images/notebooks_multi-level_regression_19_0.png" src="../_images/notebooks_multi-level_regression_19_0.png" />
 </div>
 </div>
 <p>We can get credible interval plots with ArviZ. Here the line indicates a 94% credible interval calculated as higher posterior density, the thicker line represents the interquartile range and the dot is the median. We can quickly note two things:</p>
 <ul class="simple">
-<li><p>The uncertainty about the intercept estimate is much higher than the uncertainty about the ‘Time’ slope.</p></li>
-<li><p>The credible interval for ‘Time’ is far away from 0, so we can be confident there’s a positive relationship the ‘Weight’ of the pigs and ‘Time’.</p></li>
+<li><p>The uncertainty about the intercept estimate is much higher than the uncertainty about the <code class="docutils literal notranslate"><span class="pre">Time</span></code> slope.</p></li>
+<li><p>The credible interval for <code class="docutils literal notranslate"><span class="pre">Time</span></code> is far away from 0, so we can be confident there’s a positive relationship the <code class="docutils literal notranslate"><span class="pre">Weight</span></code> of the pigs and <code class="docutils literal notranslate"><span class="pre">Time</span></code>.</p></li>
 </ul>
 <p>We’re not making any great discovering by stating that as time passes we expect the pigs to weight more, but this very simple example can be used as a starting point in applications where the relationship between the variables is not that clear beforehand.</p>
 <div class="nbinput docutils container">
@@ -712,7 +703,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_forest</span><span class="p">(</span>
     <span class="n">results</span><span class="p">,</span>
-    <span class="n">var_names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">vars</span><span class="p">[:</span><span class="mi">2</span><span class="p">])),</span> <span class="c1"># or just [&#39;Intercept&#39;, &#39;Time&#39;]</span>
+    <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">],</span>
     <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
 <span class="p">);</span>
 </pre></div>
@@ -722,7 +713,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_multi-level_regression_20_0.png" src="../_images/notebooks_multi-level_regression_20_0.png" />
+<img alt="../_images/notebooks_multi-level_regression_21_0.png" src="../_images/notebooks_multi-level_regression_21_0.png" />
 </div>
 </div>
 <p>We can also plot the posterior overlayed with a region of practical equivalence (ROPE). This region indicates a range of parameter values that are considered to be practically equivalent to some reference value of interest to the particular application, for example 0. In the following plot we can see that all our posterior distributions fall outside of this range.</p>
@@ -733,7 +724,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span>
     <span class="n">results</span><span class="p">,</span>
-    <span class="n">var_names</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">vars</span><span class="p">[:</span><span class="mi">2</span><span class="p">])),</span>
+    <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;Time&#39;</span><span class="p">],</span>
     <span class="n">ref_val</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="n">rope</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
 <span class="p">);</span>
@@ -744,8 +735,39 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_multi-level_regression_22_0.png" src="../_images/notebooks_multi-level_regression_22_0.png" />
+<img alt="../_images/notebooks_multi-level_regression_23_0.png" src="../_images/notebooks_multi-level_regression_23_0.png" />
 </div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Last updated: Mon Feb 22 2021
+
+Python implementation: CPython
+Python version       : 3.8.5
+IPython version      : 7.18.1
+
+arviz      : 0.11.2
+statsmodels: 0.12.2
+bambi      : 0.3.0
+matplotlib : 3.3.3
+numpy      : 1.20.1
+
+Watermark: 2.1.0
+
+</pre></div></div>
 </div>
 </div>
 </div>
@@ -775,18 +797,21 @@ The number of effective samples is smaller than 25% for some parameters.
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="logistic_regression.html">Logistic Regression</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Multi-level Regression</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Load-data">Load data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#Model">Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Model">Model</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Random-intercept">Random intercept</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#Estimated-regression-line">Estimated regression line</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="t-test.html">T-test</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html">Multiple Regression</a></li>
-<li class="toctree-l2"><a class="reference internal" href="shooter_crossed_random_ANOVA.html">Bayesian Workflow (Police Officer’s Dilemma)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html#Posterior-Predictive">Posterior Predictive</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Strack_RRR_re_analysis.html">Bayesian Workflow (Strack RRR Analysis Replication)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model_comparison.html">Logistic Regression and Model Comparison with Bambi and Arviz</a></li>
 </ul>
@@ -828,7 +853,7 @@ The number of effective samples is smaller than 25% for some parameters.
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, The developers of Bambi.
+      &copy;2021, The developers of Bambi.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>

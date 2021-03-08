@@ -734,8 +734,7 @@ memory usage: 604.7 KB
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">model1</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">fitted1</span> <span class="o">=</span> <span class="n">model1</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;income[&gt;50K] ~ sex + race + age + hs_week&#39;</span><span class="p">,</span>
-                     <span class="n">family</span><span class="o">=</span><span class="s1">&#39;bernoulli&#39;</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">fitted1</span> <span class="o">=</span> <span class="n">model1</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s2">&quot;income[&#39;&gt;50K&#39;] ~ sex + race + age + hs_week&quot;</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -769,7 +768,7 @@ NUTS: [hs_week, age, race, sex, Intercept]
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 01:12<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 01:21<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -777,7 +776,8 @@ NUTS: [hs_week, age, race, sex, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 73 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 83 seconds.
+The acceptance probability does not match the target. It is 0.884106519949443, but should be close to 0.8. Try to increase the number of tuning steps.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -819,8 +819,6 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
       <th>hdi_97%</th>
       <th>mcse_mean</th>
       <th>mcse_sd</th>
-      <th>ess_mean</th>
-      <th>ess_sd</th>
       <th>ess_bulk</th>
       <th>ess_tail</th>
       <th>r_hat</th>
@@ -829,72 +827,62 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-2.635</td>
+      <td>-2.637</td>
       <td>0.062</td>
-      <td>-2.741</td>
-      <td>-2.514</td>
+      <td>-2.759</td>
+      <td>-2.525</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>1276.0</td>
-      <td>1272.0</td>
-      <td>1271.0</td>
-      <td>1189.0</td>
+      <td>1220.0</td>
+      <td>1035.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sex</th>
-      <td>1.017</td>
-      <td>0.037</td>
-      <td>0.943</td>
-      <td>1.084</td>
+      <td>1.018</td>
+      <td>0.038</td>
+      <td>0.944</td>
+      <td>1.086</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>1689.0</td>
-      <td>1689.0</td>
-      <td>1673.0</td>
-      <td>1282.0</td>
+      <td>1575.0</td>
+      <td>1154.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>race</th>
       <td>0.632</td>
-      <td>0.058</td>
-      <td>0.519</td>
-      <td>0.736</td>
+      <td>0.059</td>
+      <td>0.527</td>
+      <td>0.750</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>1333.0</td>
-      <td>1297.0</td>
-      <td>1338.0</td>
-      <td>1013.0</td>
+      <td>1232.0</td>
+      <td>1125.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>age</th>
-      <td>0.578</td>
+      <td>0.579</td>
       <td>0.015</td>
-      <td>0.552</td>
+      <td>0.553</td>
       <td>0.607</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1792.0</td>
-      <td>1792.0</td>
-      <td>1789.0</td>
-      <td>1426.0</td>
+      <td>2209.0</td>
+      <td>1418.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>hs_week</th>
-      <td>0.504</td>
+      <td>0.505</td>
       <td>0.015</td>
-      <td>0.475</td>
-      <td>0.533</td>
+      <td>0.476</td>
+      <td>0.532</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2082.0</td>
-      <td>2082.0</td>
-      <td>2080.0</td>
-      <td>1244.0</td>
+      <td>2065.0</td>
+      <td>1617.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -924,8 +912,8 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">model2</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">fitted2</span> <span class="o">=</span> <span class="n">model2</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;income[&gt;50K] ~ sex + race + age + age2 + hs_week + hs_week2&#39;</span><span class="p">,</span>
-                     <span class="n">family</span><span class="o">=</span><span class="s1">&#39;bernoulli&#39;</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">fitted2</span> <span class="o">=</span> <span class="n">model2</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s2">&quot;income[&#39;&gt;50K&#39;] ~ sex + race + age + age2 + hs_week + hs_week2&quot;</span><span class="p">,</span>
+                     <span class="n">family</span><span class="o">=</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -959,7 +947,7 @@ NUTS: [hs_week2, hs_week, age2, age, race, sex, Intercept]
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 01:24<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 01:36<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -967,7 +955,7 @@ NUTS: [hs_week2, hs_week, age2, age, race, sex, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 85 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 97 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1009,8 +997,6 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
       <th>hdi_97%</th>
       <th>mcse_mean</th>
       <th>mcse_sd</th>
-      <th>ess_mean</th>
-      <th>ess_sd</th>
       <th>ess_bulk</th>
       <th>ess_tail</th>
       <th>r_hat</th>
@@ -1019,100 +1005,86 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-2.285</td>
+      <td>-2.286</td>
       <td>0.065</td>
-      <td>-2.401</td>
-      <td>-2.165</td>
+      <td>-2.418</td>
+      <td>-2.172</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>1247.0</td>
-      <td>1244.0</td>
-      <td>1255.0</td>
-      <td>1144.0</td>
+      <td>1174.0</td>
+      <td>1233.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sex</th>
-      <td>1.005</td>
-      <td>0.037</td>
-      <td>0.932</td>
-      <td>1.070</td>
+      <td>1.006</td>
+      <td>0.038</td>
+      <td>0.938</td>
+      <td>1.076</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>1579.0</td>
-      <td>1579.0</td>
-      <td>1592.0</td>
-      <td>1307.0</td>
+      <td>1728.0</td>
+      <td>1564.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>race</th>
-      <td>0.705</td>
-      <td>0.061</td>
-      <td>0.595</td>
-      <td>0.819</td>
+      <td>0.706</td>
+      <td>0.060</td>
+      <td>0.594</td>
+      <td>0.822</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>1375.0</td>
-      <td>1362.0</td>
-      <td>1366.0</td>
-      <td>1363.0</td>
+      <td>1221.0</td>
+      <td>1167.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>age</th>
       <td>1.069</td>
       <td>0.024</td>
-      <td>1.025</td>
+      <td>1.026</td>
       <td>1.116</td>
       <td>0.001</td>
       <td>0.000</td>
-      <td>1397.0</td>
-      <td>1397.0</td>
-      <td>1402.0</td>
-      <td>1512.0</td>
+      <td>1491.0</td>
+      <td>1502.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>age2</th>
-      <td>-0.538</td>
-      <td>0.018</td>
-      <td>-0.572</td>
-      <td>-0.502</td>
+      <td>-0.537</td>
+      <td>0.019</td>
+      <td>-0.570</td>
+      <td>-0.499</td>
       <td>0.001</td>
       <td>0.000</td>
-      <td>1255.0</td>
-      <td>1254.0</td>
-      <td>1254.0</td>
-      <td>1374.0</td>
+      <td>1288.0</td>
+      <td>1345.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>hs_week</th>
       <td>0.499</td>
-      <td>0.022</td>
-      <td>0.459</td>
+      <td>0.023</td>
+      <td>0.455</td>
       <td>0.540</td>
       <td>0.001</td>
       <td>0.000</td>
-      <td>1624.0</td>
-      <td>1624.0</td>
-      <td>1617.0</td>
-      <td>1432.0</td>
+      <td>1289.0</td>
+      <td>1233.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>hs_week2</th>
       <td>-0.088</td>
-      <td>0.008</td>
-      <td>-0.103</td>
-      <td>-0.071</td>
+      <td>0.009</td>
+      <td>-0.105</td>
+      <td>-0.072</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1644.0</td>
-      <td>1640.0</td>
-      <td>1626.0</td>
-      <td>1521.0</td>
+      <td>1301.0</td>
+      <td>1268.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1142,8 +1114,8 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">model3</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">fitted3</span> <span class="o">=</span> <span class="n">model3</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;income[&gt;50K] ~ age + age2 + age3 + hs_week + hs_week2 + hs_week3 + sex + race&#39;</span><span class="p">,</span>
-                     <span class="n">family</span><span class="o">=</span><span class="s1">&#39;bernoulli&#39;</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">fitted3</span> <span class="o">=</span> <span class="n">model3</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s2">&quot;income[&#39;&gt;50K&#39;] ~ age + age2 + age3 + hs_week + hs_week2 + hs_week3 + sex + race&quot;</span><span class="p">,</span>
+                     <span class="n">family</span><span class="o">=</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1156,7 +1128,7 @@ Modeling the probability that income==&gt;50K
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [hs_week3, hs_week2, hs_week, age3, age2, age, race, sex, Intercept]
+NUTS: [race, sex, hs_week3, hs_week2, hs_week, age3, age2, age, Intercept]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1177,7 +1149,7 @@ NUTS: [hs_week3, hs_week2, hs_week, age3, age2, age, race, sex, Intercept]
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 01:45<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 02:13<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1185,7 +1157,7 @@ NUTS: [hs_week3, hs_week2, hs_week, age3, age2, age, race, sex, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 106 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 134 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1227,8 +1199,6 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
       <th>hdi_97%</th>
       <th>mcse_mean</th>
       <th>mcse_sd</th>
-      <th>ess_mean</th>
-      <th>ess_sd</th>
       <th>ess_bulk</th>
       <th>ess_tail</th>
       <th>r_hat</th>
@@ -1237,128 +1207,110 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-2.144</td>
-      <td>0.064</td>
-      <td>-2.268</td>
-      <td>-2.024</td>
+      <td>-2.147</td>
+      <td>0.063</td>
+      <td>-2.274</td>
+      <td>-2.039</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>1339.0</td>
-      <td>1339.0</td>
-      <td>1344.0</td>
-      <td>1437.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>sex</th>
-      <td>0.986</td>
-      <td>0.036</td>
-      <td>0.920</td>
-      <td>1.053</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>2166.0</td>
-      <td>2147.0</td>
-      <td>2165.0</td>
-      <td>1382.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>race</th>
-      <td>0.679</td>
-      <td>0.060</td>
-      <td>0.558</td>
-      <td>0.784</td>
-      <td>0.002</td>
-      <td>0.001</td>
-      <td>1456.0</td>
-      <td>1456.0</td>
-      <td>1452.0</td>
-      <td>1243.0</td>
+      <td>1716.0</td>
+      <td>1413.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>age</th>
       <td>0.964</td>
       <td>0.026</td>
-      <td>0.914</td>
+      <td>0.918</td>
       <td>1.011</td>
-      <td>0.001</td>
       <td>0.000</td>
-      <td>2620.0</td>
-      <td>2620.0</td>
-      <td>2635.0</td>
-      <td>1343.0</td>
+      <td>0.000</td>
+      <td>2663.0</td>
+      <td>1440.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>age2</th>
-      <td>-0.895</td>
-      <td>0.030</td>
-      <td>-0.956</td>
-      <td>-0.841</td>
+      <td>-0.894</td>
+      <td>0.031</td>
+      <td>-0.951</td>
+      <td>-0.837</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>1273.0</td>
-      <td>1273.0</td>
-      <td>1275.0</td>
-      <td>1257.0</td>
+      <td>1336.0</td>
+      <td>1357.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>age3</th>
       <td>0.175</td>
       <td>0.011</td>
-      <td>0.153</td>
-      <td>0.194</td>
+      <td>0.154</td>
+      <td>0.195</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1523.0</td>
-      <td>1523.0</td>
-      <td>1522.0</td>
-      <td>1433.0</td>
+      <td>1437.0</td>
+      <td>1289.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>hs_week</th>
       <td>0.612</td>
-      <td>0.024</td>
+      <td>0.025</td>
       <td>0.566</td>
-      <td>0.658</td>
+      <td>0.660</td>
       <td>0.001</td>
       <td>0.000</td>
-      <td>1793.0</td>
-      <td>1793.0</td>
-      <td>1787.0</td>
-      <td>1405.0</td>
+      <td>2073.0</td>
+      <td>1436.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>hs_week2</th>
-      <td>-0.010</td>
-      <td>0.010</td>
-      <td>-0.031</td>
-      <td>0.007</td>
+      <td>-0.011</td>
+      <td>0.011</td>
+      <td>-0.030</td>
+      <td>0.009</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1678.0</td>
-      <td>1355.0</td>
-      <td>1696.0</td>
-      <td>1426.0</td>
+      <td>1971.0</td>
+      <td>1483.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>hs_week3</th>
       <td>-0.035</td>
-      <td>0.003</td>
+      <td>0.004</td>
       <td>-0.041</td>
       <td>-0.028</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1382.0</td>
-      <td>1382.0</td>
-      <td>1393.0</td>
-      <td>1331.0</td>
+      <td>1522.0</td>
+      <td>1450.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>sex</th>
+      <td>0.985</td>
+      <td>0.038</td>
+      <td>0.911</td>
+      <td>1.054</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>2470.0</td>
+      <td>1209.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>race</th>
+      <td>0.681</td>
+      <td>0.059</td>
+      <td>0.567</td>
+      <td>0.786</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>2028.0</td>
+      <td>1402.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1397,7 +1349,7 @@ other options within the function <a class="reference external" href="https://ar
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/arviz/stats/stats.py:144: UserWarning: The default method used to estimate the weights for each model,has changed from BB-pseudo-BMA to stacking
+/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/arviz/stats/stats.py:145: UserWarning: The default method used to estimate the weights for each model,has changed from BB-pseudo-BMA to stacking
   warnings.warn(
 </pre></div></div>
 </div>
@@ -1439,36 +1391,36 @@ other options within the function <a class="reference external" href="https://ar
     <tr>
       <th>model3</th>
       <td>0</td>
-      <td>-13986.8</td>
-      <td>9.31418</td>
-      <td>0</td>
-      <td>1</td>
-      <td>89.3039</td>
-      <td>0</td>
+      <td>-13987.278640</td>
+      <td>9.788643</td>
+      <td>0.000000</td>
+      <td>1.0</td>
+      <td>89.313491</td>
+      <td>0.000000</td>
       <td>False</td>
       <td>log</td>
     </tr>
     <tr>
       <th>model2</th>
       <td>1</td>
-      <td>-14155</td>
-      <td>8.03055</td>
-      <td>168.148</td>
-      <td>2.3648e-08</td>
-      <td>91.3281</td>
-      <td>19.855</td>
+      <td>-14155.117342</td>
+      <td>8.204390</td>
+      <td>167.838702</td>
+      <td>0.0</td>
+      <td>91.325478</td>
+      <td>19.838396</td>
       <td>False</td>
       <td>log</td>
     </tr>
     <tr>
       <th>model1</th>
       <td>2</td>
-      <td>-14915.9</td>
-      <td>4.88729</td>
-      <td>929.021</td>
-      <td>0</td>
-      <td>90.9626</td>
-      <td>38.9311</td>
+      <td>-14915.929045</td>
+      <td>4.944337</td>
+      <td>928.650405</td>
+      <td>0.0</td>
+      <td>91.016821</td>
+      <td>38.932336</td>
       <td>False</td>
       <td>log</td>
     </tr>
@@ -1636,16 +1588,21 @@ We know it’s going to take a couple of hours to fit all those models :)</p></l
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-pandas  1.1.5
-numpy   1.19.4
-bambi   0.2.0
-arviz   0.10.0
-seaborn 0.11.0
-last updated: Tue Dec 15 2020
+Last updated: Mon Feb 22 2021
 
-CPython 3.8.5
-IPython 7.18.1
-watermark 2.0.2
+Python implementation: CPython
+Python version       : 3.8.5
+IPython version      : 7.18.1
+
+matplotlib: 3.3.3
+seaborn   : 0.11.0
+arviz     : 0.11.2
+numpy     : 1.20.1
+bambi     : 0.3.0
+pandas    : 1.2.2
+
+Watermark: 2.1.0
+
 </pre></div></div>
 </div>
 </div>
@@ -1677,13 +1634,13 @@ watermark 2.0.2
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="logistic_regression.html">Logistic Regression</a></li>
 <li class="toctree-l2"><a class="reference internal" href="multi-level_regression.html">Multi-level Regression</a></li>
 <li class="toctree-l2"><a class="reference internal" href="t-test.html">T-test</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html">Multiple Regression</a></li>
-<li class="toctree-l2"><a class="reference internal" href="shooter_crossed_random_ANOVA.html">Bayesian Workflow (Police Officer’s Dilemma)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html#Posterior-Predictive">Posterior Predictive</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Strack_RRR_re_analysis.html">Bayesian Workflow (Strack RRR Analysis Replication)</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Logistic Regression and Model Comparison with Bambi and Arviz</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Adults-dataset">Adults dataset</a></li>
@@ -1737,7 +1694,7 @@ watermark 2.0.2
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, The developers of Bambi.
+      &copy;2021, The developers of Bambi.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>

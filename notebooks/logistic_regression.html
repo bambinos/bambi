@@ -595,7 +595,7 @@ Name: party_id, dtype: int64
 <p><span class="math">\right</span>. \ X_2 = :nbsphinx-math:<a href="#id4"><span class="problematic" id="id5">`</span></a>left`{</p>
 <p><span class="math">\right</span>. \ X_3 = :nbsphinx-math:<a href="#id6"><span class="problematic" id="id7">`</span></a>left`{</p>
 <p><span class="math">\right</span>. \ X_4 = <span class="math">\text{Age}</span> $</p>
-<p>Notice we don’t have a main effect for <span class="math notranslate nohighlight">\(X_3\)</span>. This happens because Democrat party affiliation is being taken as baseline and <span class="math notranslate nohighlight">\(\beta_1\)</span> and <span class="math notranslate nohighlight">\(\beta_2\)</span> represent deviations from that baseline. Thus, we see the main effect of Democrat affiliation is being represented by the Intercept, <span class="math notranslate nohighlight">\(\beta_0\)</span>.</p>
+<p>Notice we don’t have a main effect for <span class="math notranslate nohighlight">\(X_3\)</span>. This happens because Democrat party affiliation is being taken as baseline in the encoding of the categorical variable <code class="docutils literal notranslate"><span class="pre">party_id</span></code> and <span class="math notranslate nohighlight">\(\beta_1\)</span> and <span class="math notranslate nohighlight">\(\beta_2\)</span> represent deviations from that baseline. Thus, we see the main effect of Democrat affiliation is being represented by the Intercept, <span class="math notranslate nohighlight">\(\beta_0\)</span>.</p>
 <p>If we represent the right hand side of the model equation with <span class="math notranslate nohighlight">\(\eta\)</span>, the expression can be re-arranged to express our probability of interest, <span class="math notranslate nohighlight">\(\pi\)</span>, as a function of the linear predictor <span class="math notranslate nohighlight">\(\eta\)</span>.</p>
 <div class="math notranslate nohighlight">
 \[\pi = \frac{e^\eta}{1 + e^\eta}= \frac{1}{1 + e^{-\eta}}\]</div>
@@ -612,8 +612,8 @@ pick one of the events to model, but will inform you which one it picked when yo
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">clinton_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">clinton_data</span><span class="p">)</span>
-<span class="n">clinton_fitted</span> <span class="o">=</span> <span class="n">clinton_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;vote[clinton] ~ party_id + party_id:age&#39;</span><span class="p">,</span>
-                                   <span class="n">family</span><span class="o">=</span><span class="s1">&#39;bernoulli&#39;</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+<span class="n">clinton_fitted</span> <span class="o">=</span> <span class="n">clinton_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s2">&quot;vote[&#39;clinton&#39;] ~ party_id + party_id:age&quot;</span><span class="p">,</span>
+                                   <span class="n">family</span><span class="o">=</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -622,7 +622,7 @@ pick one of the events to model, but will inform you which one it picked when yo
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/pandas/core/frame.py:3069: SettingWithCopyWarning:
+/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/pandas/core/frame.py:3188: SettingWithCopyWarning:
 A value is trying to be set on a copy of a slice from a DataFrame.
 Try using .loc[row_indexer,col_indexer] = value instead
 
@@ -653,7 +653,7 @@ NUTS: [party_id:age, party_id, Intercept]
         }
     </style>
   <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [6000/6000 00:14<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [6000/6000 00:12<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -661,8 +661,7 @@ NUTS: [party_id:age, party_id, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 15 seconds.
-WARNING (theano.gof.compilelock): Overriding existing lock by dead process &#39;9084&#39; (I am process &#39;8817&#39;)
+Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 14 seconds.
 </pre></div></div>
 </div>
 <p>To see the sensitive default priors Bambi has chosen for us, we just call <code class="docutils literal notranslate"><span class="pre">Model.plot_priors()</span></code>.</p>
@@ -712,7 +711,7 @@ WARNING (theano.gof.compilelock): Overriding existing lock by dead process &#39;
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">clinton_fitted</span><span class="p">);</span>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">clinton_fitted</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -761,8 +760,6 @@ WARNING (theano.gof.compilelock): Overriding existing lock by dead process &#39;
       <th>hdi_97%</th>
       <th>mcse_mean</th>
       <th>mcse_sd</th>
-      <th>ess_mean</th>
-      <th>ess_sd</th>
       <th>ess_bulk</th>
       <th>ess_tail</th>
       <th>r_hat</th>
@@ -771,44 +768,38 @@ WARNING (theano.gof.compilelock): Overriding existing lock by dead process &#39;
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>1.698</td>
-      <td>0.733</td>
-      <td>0.338</td>
-      <td>3.115</td>
-      <td>0.020</td>
+      <td>1.671</td>
+      <td>0.728</td>
+      <td>0.298</td>
+      <td>3.003</td>
+      <td>0.018</td>
       <td>0.014</td>
-      <td>1349.0</td>
-      <td>1349.0</td>
-      <td>1343.0</td>
-      <td>1596.0</td>
+      <td>1629.0</td>
+      <td>1704.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[0]</th>
-      <td>-0.284</td>
-      <td>0.959</td>
-      <td>-2.127</td>
-      <td>1.460</td>
-      <td>0.026</td>
+      <td>-0.293</td>
+      <td>0.960</td>
+      <td>-2.041</td>
+      <td>1.479</td>
+      <td>0.023</td>
       <td>0.018</td>
-      <td>1365.0</td>
-      <td>1365.0</td>
-      <td>1363.0</td>
-      <td>1421.0</td>
+      <td>1717.0</td>
+      <td>1965.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[1]</th>
-      <td>-0.899</td>
-      <td>1.718</td>
-      <td>-4.140</td>
-      <td>2.198</td>
-      <td>0.041</td>
+      <td>-0.837</td>
+      <td>1.707</td>
+      <td>-4.009</td>
+      <td>2.260</td>
+      <td>0.040</td>
       <td>0.029</td>
-      <td>1770.0</td>
-      <td>1722.0</td>
-      <td>1793.0</td>
-      <td>1873.0</td>
+      <td>1802.0</td>
+      <td>1963.0</td>
       <td>1.0</td>
     </tr>
     <tr>
@@ -816,41 +807,35 @@ WARNING (theano.gof.compilelock): Overriding existing lock by dead process &#39;
       <td>0.013</td>
       <td>0.015</td>
       <td>-0.015</td>
-      <td>0.043</td>
+      <td>0.041</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1410.0</td>
-      <td>1185.0</td>
-      <td>1414.0</td>
-      <td>1725.0</td>
+      <td>1580.0</td>
+      <td>1793.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[1]</th>
-      <td>-0.034</td>
+      <td>-0.033</td>
       <td>0.012</td>
-      <td>-0.058</td>
-      <td>-0.011</td>
+      <td>-0.054</td>
+      <td>-0.010</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2160.0</td>
-      <td>2000.0</td>
-      <td>2183.0</td>
-      <td>1954.0</td>
+      <td>2214.0</td>
+      <td>2167.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[2]</th>
-      <td>-0.087</td>
-      <td>0.042</td>
+      <td>-0.088</td>
+      <td>0.041</td>
       <td>-0.165</td>
-      <td>-0.015</td>
+      <td>-0.013</td>
       <td>0.001</td>
       <td>0.001</td>
+      <td>2083.0</td>
       <td>1907.0</td>
-      <td>1612.0</td>
-      <td>2022.0</td>
-      <td>1655.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -911,7 +896,7 @@ WARNING (theano.gof.compilelock): Overriding existing lock by dead process &#39;
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.996
+0.9975
 </pre></div></div>
 </div>
 <p>Probability that the Democrat slope is greater than the Independent slope?</p>
@@ -930,7 +915,7 @@ WARNING (theano.gof.compilelock): Overriding existing lock by dead process &#39;
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.9955
+0.99225
 </pre></div></div>
 </div>
 <p>Probability that the Independent slope is greater than the Republican slope?</p>
@@ -949,7 +934,7 @@ WARNING (theano.gof.compilelock): Overriding existing lock by dead process &#39;
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.9115
+0.913
 </pre></div></div>
 </div>
 <p>Probability that the Democrat slope is greater than 0?</p>
@@ -968,7 +953,7 @@ WARNING (theano.gof.compilelock): Overriding existing lock by dead process &#39;
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.79125
+0.7955
 </pre></div></div>
 </div>
 <p>Probability that the Republican slope is less than 0?</p>
@@ -987,7 +972,7 @@ WARNING (theano.gof.compilelock): Overriding existing lock by dead process &#39;
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.99425
+0.99475
 </pre></div></div>
 </div>
 <p>Probability that the Independent slope is less than 0?</p>
@@ -1006,10 +991,10 @@ WARNING (theano.gof.compilelock): Overriding existing lock by dead process &#39;
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.998
+0.99475
 </pre></div></div>
 </div>
-<p>If we look at the plot of the marginal posteriors, we may be suspicious that, for example, the probability that Democrat slope is greater than the Republican slope is 0.996 (almost 1!), given the overlap between the blue and green density functions. However, we can’t answer such a question using the marginal posteriors only, as shown in the plot. Since Democrat and Republican slopes (<span class="math notranslate nohighlight">\(\beta_3\)</span> and <span class="math notranslate nohighlight">\(\beta_5\)</span>, respectively) are random variables, we need to use their joint distribution
+<p>If we look at the plot of the marginal posteriors, we may be suspicious that, for example, the probability that Democrat slope is greater than the Republican slope is 0.998 (almost 1!), given the overlap between the blue and green density functions. However, we can’t answer such a question using the marginal posteriors only, as shown in the plot. Since Democrat and Republican slopes (<span class="math notranslate nohighlight">\(\beta_3\)</span> and <span class="math notranslate nohighlight">\(\beta_5\)</span>, respectively) are random variables, we need to use their joint distribution
 to answer probability questions that involve both of them. The fact that logical comparisons (e.g. <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> in <code class="docutils literal notranslate"><span class="pre">dem</span> <span class="pre">&gt;</span> <span class="pre">ind</span></code>) are performed elementwise ensures we’re using samples from the joint posterior as we should. We also note that when the question involves only one of the random variables, it is fine to use the marginal distribution (e.g. <code class="docutils literal notranslate"><span class="pre">(rep</span> <span class="pre">&lt;</span> <span class="pre">0).mean()</span></code>).</p>
 <p>Finally, all these comments may have not been necessary since we didn’t need to mention anything about marginal or joint distributions when performing the calculations, we’ve just grabbed the samples and applied some basic math. But that’s an advantage of Bambi and the Bayesian approach. Things that are not so simple, became simpler :)</p>
 </div>
@@ -1031,10 +1016,10 @@ to answer probability questions that involve both of them. The fact that logical
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">intercept_dem</span> <span class="o">=</span> <span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
-<span class="n">intercept_ind</span> <span class="o">=</span> <span class="n">intercept_dem</span> <span class="o">+</span> <span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;party_id&#39;</span><span class="p">][:,:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
-<span class="n">intercept_rep</span> <span class="o">=</span> <span class="n">intercept_dem</span> <span class="o">+</span> <span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;party_id&#39;</span><span class="p">][:,:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+<span class="n">intercept_rep</span> <span class="o">=</span> <span class="n">intercept_dem</span> <span class="o">+</span> <span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;party_id&#39;</span><span class="p">][:,:,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
+<span class="n">intercept_ind</span> <span class="o">=</span> <span class="n">intercept_dem</span> <span class="o">+</span> <span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;party_id&#39;</span><span class="p">][:,:,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,)</span>
 
-<span class="n">intercepts</span> <span class="o">=</span> <span class="p">[</span><span class="n">intercept_dem</span><span class="p">,</span> <span class="n">intercept_ind</span><span class="p">,</span> <span class="n">intercept_rep</span><span class="p">]</span>
+<span class="n">intercepts</span> <span class="o">=</span> <span class="p">[</span><span class="n">intercept_dem</span><span class="p">,</span> <span class="n">intercept_rep</span><span class="p">,</span> <span class="n">intercept_ind</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -1060,8 +1045,8 @@ to answer probability questions that involve both of them. The fact that logical
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">500</span><span class="p">):</span>
         <span class="n">axes</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">yhat</span><span class="p">[</span><span class="n">i</span><span class="p">][:,</span> <span class="n">t</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;C</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="n">axes</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;P(vote=</span><span class="se">\&#39;</span><span class="s1">clinton</span><span class="se">\&#39;</span><span class="s1"> | age)&#39;</span><span class="p">)</span>
-<span class="n">axes</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Age&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;P(vote=&#39;clinton&#39; | age)&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Age&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
 <span class="n">axes</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">90</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -1070,13 +1055,13 @@ to answer probability questions that involve both of them. The fact that logical
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_logistic_regression_54_0.png" src="../_images/notebooks_logistic_regression_54_0.png" />
+<img alt="../_images/notebooks_logistic_regression_53_0.png" src="../_images/notebooks_logistic_regression_53_0.png" />
 </div>
 </div>
 <p>The following is a rough interpretation of the information contained in the plot we’ve just created.</p>
-<p>According to our logistic model, the mean probability of voting for Clinton is almost always 0.8 or greater for Democrats no matter the age. Also, the older the person, the closer the mean probability of voting Clinton to 1.</p>
-<p>On the other hand, Republicans have a non-zero probability of voting for Clinton when they are young, but it tends to zero for older persons. We can also note the high variability of P(vote = ‘Clinton’) for young Republicans. This reflects our high uncertainty when estimating this probability and it is due to the small amount of Republicans in that age range plus there are only 5 Republicans out of 97 voting for Clinton in the dataset.</p>
-<p>Finally, the mean probability of voting Clinton for the independents is around 0.7 for the youngests and decreases towards 0.2 as they get older. Since the spread of the lines is similar along all the ages, we can conclude our uncertainty in this estimate is similar for all the age groups.</p>
+<p>According to our logistic model, the mean probability of voting for Clinton is almost always 0.8 or greater for Democrats no matter the age (blue line). Also, the older the person, the closer the mean probability of voting Clinton to 1.</p>
+<p>On the other hand, Republicans have a non-zero probability of voting for Clinton when they are young, but it tends to zero for older persons (green line). We can also note the high variability of P(vote = ‘Clinton’) for young Republicans. This reflects our high uncertainty when estimating this probability and it is due to the small amount of Republicans in that age range plus there are only 5 Republicans out of 97 voting for Clinton in the dataset.</p>
+<p>Finally, the mean probability of voting Clinton for the independents is around 0.7 for the youngest and decreases towards 0.2 as they get older (orange line). Since the spread of the lines is similar along all the ages, we can conclude our uncertainty in this estimate is similar for all the age groups.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
@@ -1092,15 +1077,20 @@ to answer probability questions that involve both of them. The fact that logical
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-pandas 1.1.5
-arviz  0.10.0
-numpy  1.19.4
-bambi  0.2.0
-last updated: Fri Dec 11 2020
+Last updated: Mon Feb 22 2021
 
-CPython 3.8.5
-IPython 7.18.1
-watermark 2.0.2
+Python implementation: CPython
+Python version       : 3.8.5
+IPython version      : 7.18.1
+
+arviz     : 0.11.2
+matplotlib: 3.3.3
+pandas    : 1.2.2
+bambi     : 0.3.0
+numpy     : 1.20.1
+
+Watermark: 2.1.0
+
 </pre></div></div>
 </div>
 </div>
@@ -1131,7 +1121,7 @@ watermark 2.0.2
 
 <h3>Navigation</h3>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../examples.html">Examples</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Logistic Regression</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#Load-and-examine-American-National-Election-Studies-(ANES)-data">Load and examine American National Election Studies (ANES) data</a></li>
@@ -1147,7 +1137,7 @@ watermark 2.0.2
 <li class="toctree-l2"><a class="reference internal" href="multi-level_regression.html">Multi-level Regression</a></li>
 <li class="toctree-l2"><a class="reference internal" href="t-test.html">T-test</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html">Multiple Regression</a></li>
-<li class="toctree-l2"><a class="reference internal" href="shooter_crossed_random_ANOVA.html">Bayesian Workflow (Police Officer’s Dilemma)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ESCS_multiple_regression.html#Posterior-Predictive">Posterior Predictive</a></li>
 <li class="toctree-l2"><a class="reference internal" href="Strack_RRR_re_analysis.html">Bayesian Workflow (Strack RRR Analysis Replication)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="model_comparison.html">Logistic Regression and Model Comparison with Bambi and Arviz</a></li>
 </ul>
@@ -1189,7 +1179,7 @@ watermark 2.0.2
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, The developers of Bambi.
+      &copy;2021, The developers of Bambi.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>

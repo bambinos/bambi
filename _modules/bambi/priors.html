@@ -56,13 +56,13 @@
 <span class="sd">    name : str</span>
 <span class="sd">        Family name.</span>
 <span class="sd">    prior : Prior</span>
-<span class="sd">        A Prior instance specifying the model likelihood prior.</span>
+<span class="sd">        A ``Prior`` instance specifying the model likelihood prior.</span>
 <span class="sd">    link : str</span>
 <span class="sd">        The name of the link function transforming the linear model prediction to a parameter of</span>
 <span class="sd">        the likelihood.</span>
 <span class="sd">    parent : str</span>
 <span class="sd">        The name of the prior parameter to set to the link-transformed predicted outcome</span>
-<span class="sd">        (e.g., mu, p, etc.).</span>
+<span class="sd">        (e.g., ``&#39;mu&#39;``, ``&#39;p&#39;``, etc.).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
@@ -88,7 +88,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    name : str</span>
-<span class="sd">        Name of prior distribution (e.g., Normal, Bernoulli, etc.)</span>
+<span class="sd">        Name of prior distribution (e.g., ``&#39;Normal&#39;``, ``&#39;Bernoulli&#39;``, etc.)</span>
 <span class="sd">    kwargs : dict</span>
 <span class="sd">        Optional keywords specifying the parameters of the named distribution.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -127,24 +127,24 @@
 <span class="sd">    defaults : str or dict</span>
 <span class="sd">        Optional base configuration containing default priors for distribution, families, and term</span>
 <span class="sd">        types. If a string, the name of a JSON file containing the config. If a dict, must contain</span>
-<span class="sd">        keys for &#39;dists&#39;, &#39;terms&#39;, and &#39;families&#39;; see the built-in JSON configuration for an</span>
-<span class="sd">        example. If None, a built-in set of priors will be used as defaults.</span>
+<span class="sd">        keys for ``&#39;dists&#39;``, ``&#39;terms&#39;``, and ``&#39;families&#39;``; see the built-in JSON configuration</span>
+<span class="sd">        for an example. If ``None``, a built-in set of priors will be used as defaults.</span>
 <span class="sd">    dists : dict</span>
 <span class="sd">        Optional specification of named distributions to use as priors. Each key gives the name of</span>
 <span class="sd">        a newly defined distribution; values are two-element lists, where the first element is the</span>
-<span class="sd">        name of the built-in distribution to use (&#39;Normal&#39;, &#39;Cauchy&#39;, etc.), and the second element</span>
-<span class="sd">        is a dictionary of parameters on that distribution (e.g., {&#39;mu&#39;: 0, &#39;sigma&#39;: 10}). Priors</span>
-<span class="sd">        can be nested to arbitrary depths by replacing any parameter with another prior</span>
-<span class="sd">        specification.</span>
+<span class="sd">        name of the built-in distribution to use (``&#39;Normal&#39;``, ``&#39;Cauchy&#39;,`` etc.), and the second</span>
+<span class="sd">        element is a dictionary of parameters on that distribution</span>
+<span class="sd">        (e.g., ``{&#39;mu&#39;: 0, &#39;sigma&#39;: 10}``). Priors can be nested to arbitrary depths by replacing</span>
+<span class="sd">        any parameter with another prior specification.</span>
 <span class="sd">    terms : dict</span>
 <span class="sd">        Optional specification of default priors for different model term types. Valid keys are</span>
-<span class="sd">        &#39;intercept&#39;, &#39;common&#39;, or &#39;group_specific&#39;. Values are either strings preprended</span>
+<span class="sd">        ``&#39;intercept&#39;``, ``&#39;common&#39;``, or ``&#39;group_specific&#39;``. Values are either strings preprended</span>
 <span class="sd">        by a #, in which case they are interpreted as pointers to distributions named in</span>
 <span class="sd">        the dists dictionary, or key -&gt; value specifications in the same format as elements in</span>
 <span class="sd">        the dists dictionary.</span>
 <span class="sd">    families : dict</span>
 <span class="sd">        Optional specification of default priors for named family objects. Keys are family names,</span>
-<span class="sd">        and values are dicts containing mandatory keys for &#39;dist&#39;, &#39;link&#39;, and &#39;parent&#39;.</span>
+<span class="sd">        and values are dicts containing mandatory keys for ``&#39;dist&#39;``, ``&#39;link&#39;``, and ``&#39;parent&#39;``.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -205,13 +205,14 @@
 <span class="sd">        ----------</span>
 <span class="sd">        dist : str</span>
 <span class="sd">            Name of desired distribution. Note that the name is the key in the defaults dictionary,</span>
-<span class="sd">            not the name of the Distribution object used to construct the prior.</span>
+<span class="sd">            not the name of the ``Distribution`` object used to construct the prior.</span>
 <span class="sd">        term : str</span>
-<span class="sd">            The type of term family to retrieve defaults for. Must be one of &#39;intercept&#39;, &#39;common&#39;,</span>
-<span class="sd">            or &#39;group_specific&#39;.</span>
+<span class="sd">            The type of term family to retrieve defaults for. Must be one of ``&#39;intercept&#39;``,</span>
+<span class="sd">            ``&#39;common&#39;``, or ``&#39;group_specific&#39;``.</span>
 <span class="sd">        family : str</span>
-<span class="sd">            The name of the Family to retrieve. Must be a value defined internally. In the default</span>
-<span class="sd">            config, this is one of &#39;gaussian&#39;, &#39;bernoulli&#39;, &#39;poisson&#39;, or &#39;t&#39;.</span>
+<span class="sd">            The name of the ``Family`` to retrieve. Must be a value defined internally.</span>
+<span class="sd">            In the default config, this is one of  ``&#39;gaussian&#39;``, ``&#39;bernoulli&#39;``, ``&#39;poisson&#39;``,</span>
+<span class="sd">            ``&#39;gama&#39;``, ``&#39;wald&#39;``, or ``&#39;negativebinomial&#39;``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">dist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -249,7 +250,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">priors</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">missing</span> <span class="o">=</span> <span class="s2">&quot;drop&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">dropna</span> <span class="k">else</span> <span class="s2">&quot;none&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mle</span> <span class="o">=</span> <span class="n">GLM</span><span class="p">(</span>
-            <span class="n">endog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">endog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
             <span class="n">exog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dm</span><span class="p">,</span>
             <span class="n">family</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">smfamily</span><span class="p">(),</span>
             <span class="n">missing</span><span class="o">=</span><span class="n">missing</span><span class="p">,</span>
@@ -263,8 +264,8 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">            full_mod : statsmodels.genmod.generalized_linear_model.GLM</span>
-<span class="sd">                Statsmodels GLM to replace MLE model. For when &#39;predictor&#39; is not in the common part</span>
-<span class="sd">                of the model.</span>
+<span class="sd">                Statsmodels GLM to replace MLE model. For when ``&#39;predictor&#39;`` is not in the common</span>
+<span class="sd">                part of the model.</span>
 <span class="sd">            points : int</span>
 <span class="sd">                Number of points to use for LL approximation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -286,7 +287,7 @@
         <span class="k">if</span> <span class="n">keeps</span><span class="p">:</span>
             <span class="n">null</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">GLM</span><span class="p">(</span>
-                    <span class="n">endog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">exog</span><span class="o">=</span><span class="n">exog</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">smfamily</span><span class="p">()</span>
+                    <span class="n">endog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">exog</span><span class="o">=</span><span class="n">exog</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">smfamily</span><span class="p">()</span>
                 <span class="p">)</span><span class="o">.</span><span class="n">fit_constrained</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exog</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">))</span>
                 <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">values</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="p">]</span>
@@ -295,7 +296,9 @@
         <span class="c1"># if just a single predictor, use statsmodels to evaluate the LL</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">null</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">smfamily</span><span class="p">()</span><span class="o">.</span><span class="n">loglike</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="n">val</span> <span class="o">*</span> <span class="n">predictor</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">smfamily</span><span class="p">()</span><span class="o">.</span><span class="n">loglike</span><span class="p">(</span>
+                    <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="n">val</span> <span class="o">*</span> <span class="n">predictor</span>
+                <span class="p">)</span>
                 <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">values</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="p">]</span>
             <span class="n">log_likelihood</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">null</span><span class="p">,</span> <span class="n">full_mod</span><span class="o">.</span><span class="n">llf</span><span class="p">)</span>
@@ -330,7 +333,7 @@
         <span class="c1"># generally gives good results, but the higher order the expansion, the</span>
         <span class="c1"># further from 0 we need to evaluate the derivatives, or they blow up.</span>
         <span class="n">point</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span> <span class="o">/</span> <span class="mi">100</span><span class="p">))</span>
-        <span class="n">vals</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">coef_a</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">coef_b</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="n">r</span><span class="o">=</span><span class="n">point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">taylor</span><span class="p">])</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">coef_a</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">coef_b</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">),</span> <span class="n">r</span><span class="o">=</span><span class="n">point</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">taylor</span><span class="p">])</span>
         <span class="n">_deriv</span> <span class="o">=</span> <span class="p">[</span><span class="nb">eval</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">globals</span><span class="p">(),</span> <span class="n">vals</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">deriv</span><span class="p">]</span>  <span class="c1"># pylint: disable=eval-used</span>
 
         <span class="c1"># compute and return the approximate sigma</span>
@@ -351,8 +354,8 @@
     <span class="k">def</span> <span class="nf">_get_intercept_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">add_slopes</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="c1"># start with mean and variance of Y on the link scale</span>
         <span class="n">mod</span> <span class="o">=</span> <span class="n">GLM</span><span class="p">(</span>
-            <span class="n">endog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
-            <span class="n">exog</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">data</span><span class="p">)),</span>
+            <span class="n">endog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">exog</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">)),</span>
             <span class="n">family</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">smfamily</span><span class="p">(),</span>
             <span class="n">missing</span><span class="o">=</span><span class="s2">&quot;drop&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">dropna</span> <span class="k">else</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span>
         <span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
@@ -455,7 +458,7 @@
                 <span class="c1"># this will replace self.mle (which is missing predictors)</span>
                 <span class="n">missing</span> <span class="o">=</span> <span class="s2">&quot;drop&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">dropna</span> <span class="k">else</span> <span class="s2">&quot;none&quot;</span>
                 <span class="n">full_mod</span> <span class="o">=</span> <span class="n">GLM</span><span class="p">(</span>
-                    <span class="n">endog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+                    <span class="n">endog</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
                     <span class="n">exog</span><span class="o">=</span><span class="n">exog</span><span class="p">,</span>
                     <span class="n">family</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">smfamily</span><span class="p">(),</span>
                     <span class="n">missing</span><span class="o">=</span><span class="n">missing</span><span class="p">,</span>
@@ -529,7 +532,7 @@
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/getting_started.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../api_reference.html">API Reference</a></li>
 </ul>
@@ -566,7 +569,7 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2019, The developers of Bambi.
+      &copy;2021, The developers of Bambi.
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
