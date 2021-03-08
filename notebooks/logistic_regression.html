@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Logistic Regression &#8212; bambi 0.3.0 documentation</title>
+    <title>Logistic Regression &#8212; bambi 0.4.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -653,7 +653,7 @@ NUTS: [party_id:age, party_id, Intercept]
         }
     </style>
   <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [6000/6000 00:12<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [6000/6000 00:10<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -661,7 +661,7 @@ NUTS: [party_id:age, party_id, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 14 seconds.
+Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 11 seconds.
 </pre></div></div>
 </div>
 <p>To see the sensitive default priors Bambi has chosen for us, we just call <code class="docutils literal notranslate"><span class="pre">Model.plot_priors()</span></code>.</p>
@@ -779,7 +779,7 @@ Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws 
       <td>1.0</td>
     </tr>
     <tr>
-      <th>party_id[0]</th>
+      <th>party_id[independent]</th>
       <td>-0.293</td>
       <td>0.960</td>
       <td>-2.041</td>
@@ -791,7 +791,7 @@ Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws 
       <td>1.0</td>
     </tr>
     <tr>
-      <th>party_id[1]</th>
+      <th>party_id[republican]</th>
       <td>-0.837</td>
       <td>1.707</td>
       <td>-4.009</td>
@@ -803,7 +803,7 @@ Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws 
       <td>1.0</td>
     </tr>
     <tr>
-      <th>party_id:age[0]</th>
+      <th>party_id:age[party_id[democrat]:age]</th>
       <td>0.013</td>
       <td>0.015</td>
       <td>-0.015</td>
@@ -815,7 +815,7 @@ Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws 
       <td>1.0</td>
     </tr>
     <tr>
-      <th>party_id:age[1]</th>
+      <th>party_id:age[party_id[independent]:age]</th>
       <td>-0.033</td>
       <td>0.012</td>
       <td>-0.054</td>
@@ -827,7 +827,7 @@ Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws 
       <td>1.0</td>
     </tr>
     <tr>
-      <th>party_id:age[2]</th>
+      <th>party_id:age[party_id[republican]:age]</th>
       <td>-0.088</td>
       <td>0.041</td>
       <td>-0.165</td>
@@ -1077,17 +1077,17 @@ to answer probability questions that involve both of them. The fact that logical
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Mon Feb 22 2021
+Last updated: Mon Mar 08 2021
 
 Python implementation: CPython
 Python version       : 3.8.5
 IPython version      : 7.18.1
 
-arviz     : 0.11.2
 matplotlib: 3.3.3
-pandas    : 1.2.2
-bambi     : 0.3.0
+bambi     : 0.4.0
 numpy     : 1.20.1
+pandas    : 1.2.2
+arviz     : 0.11.2
 
 Watermark: 2.1.0
 

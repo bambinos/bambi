@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bayesian Workflow (Strack RRR Analysis Replication) &#8212; bambi 0.3.0 documentation</title>
+    <title>Bayesian Workflow (Strack RRR Analysis Replication) &#8212; bambi 0.4.0 documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
@@ -581,7 +581,7 @@ NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, condition, Intercept]
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:13<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:15<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -589,7 +589,7 @@ NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, condition, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 15 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 16 seconds.
 </pre></div></div>
 </div>
 <p>Notice that, in Bambi, the common and group specific effects are specified in the same formula just as you would do in <a class="reference external" href="https://CRAN.R-project.org/package=brms">brms</a> because Bambi relies on <a class="reference external" href="https://github.com/bambinos/formulae">formulae</a> to parse model formulas.</p>
@@ -791,7 +791,7 @@ NUTS: [value_sigma, condition|stimulus_offset, condition|stimulus_sigma, 1|stimu
         }
     </style>
   <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [6000/6000 24:00<00:00 Sampling 2 chains, 5 divergences]
+  100.00% [6000/6000 25:08<00:00 Sampling 2 chains, 5 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -799,7 +799,7 @@ NUTS: [value_sigma, condition|stimulus_offset, condition|stimulus_sigma, 1|stimu
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws total) took 1441 seconds.
+Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws total) took 1509 seconds.
 There were 5 divergences after tuning. Increase `target_accept` or reparameterize.
 The number of effective samples is smaller than 25% for some parameters.
 </pre></div></div>
@@ -846,15 +846,15 @@ sample, the gender of the experimenter, or any of the hundreds of others of betw
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Mon Feb 22 2021
+Last updated: Mon Mar 08 2021
 
 Python implementation: CPython
 Python version       : 3.8.5
 IPython version      : 7.18.1
 
-pandas: 1.2.2
-bambi : 0.3.0
+bambi : 0.4.0
 arviz : 0.11.2
+pandas: 1.2.2
 numpy : 1.20.1
 
 Watermark: 2.1.0
