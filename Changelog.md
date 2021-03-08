@@ -1,6 +1,6 @@
 # Changelog
 
-### 0.x.x
+### 0.4.0
 
 ### New features
 * Use formulae to parse model formulas (#299) 
