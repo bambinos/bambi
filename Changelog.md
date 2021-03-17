@@ -1,5 +1,18 @@
 # Changelog
 
+### 0.X.X
+
+### New features
+* Add option to save a figure from model.graph() by passing the name of a file. Figure format and resolution can also be set. (317)
+
+### Maintenance and fixes
+
+
+### Documentation
+
+### Deprecation
+
+
 ### 0.4.0
 
 ### New features

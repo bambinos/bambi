@@ -718,9 +718,9 @@ class Model:
         else:
             return idata
 
-    def graph(self, formatting="plain"):
+    def graph(self, formatting="plain", name=None, figsize=None, dpi=300, fmt="png"):
         """
-        Produce a graphviz Digraph from a PyMC3 model.
+        Produce a graphviz Digraph from a Bambi model.
 
         Requires graphviz, which may be installed most easily with
             ``conda install -c conda-forge python-graphviz``
@@ -733,8 +733,34 @@ class Model:
         ----------
         formatting : str
             One of ``'plain'`` or ``'plain_with_params'``. Defaults to ``'plain'``.
+        name : str
+            Name of the figure to save. Defaults to None, no figure is saved.
+        figsize : tuple
+            Maximum width and height of figure in inches. Defaults to None, the figure size is set
+            automatically. If defined and the drawing is larger than the given size, the drawing is
+            uniformly scaled down so that it fits within the given size.  Only works if ``name``
+            is not None.
+        dpi : int
+            Point per inch of the figure to save.
+            Defaults to 300. Only works if ``name`` is not None.
+        fmt : str
+            Format of the figure to save.
+            Defaults to ``'png'``. Only works if ``name`` is not None.
         """
-        return pm.model_to_graphviz(model=self.backend.model, formatting=formatting)
+        if self.backend is None:
+            raise ValueError("The model is empty, please define a Bambi model")
+
+        graphviz = pm.model_to_graphviz(model=self.backend.model, formatting=formatting)
+
+        width, height = (None, None) if figsize is None else figsize
+
+        if name is not None:
+            graphviz_ = graphviz.copy()
+            graphviz_.graph_attr.update(size=f"{width},{height}!")
+            graphviz_.graph_attr.update(dpi=str(dpi))
+            graphviz_.render(filename=name, format=fmt, cleanup=True)
+
+        return graphviz
 
     def _get_pymc_coords(self):
         # categorical attribute is important because of this coordinates stuff
