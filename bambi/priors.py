@@ -81,6 +81,21 @@ class Prior:
             kwargs_[key] = val
         self.args.update(kwargs_)
 
+    def __str__(self):
+        if any(isinstance(arg, Prior) for arg in self.args.values()):
+            args = ",\n  ".join(
+                [
+                    f"{k}: {'  '.join(str(v).splitlines(True)) if isinstance(v, Prior) else v}"
+                    for k, v in self.args.items()
+                ]
+            )
+            return f"{self.name}(\n  {args}\n)"
+        else:
+            args = ", ".join([f"{k}: {v}" for k, v in self.args.items()])
+            return f"{self.name}({args})"
+
+    def __repr__(self):
+        return self.__str__()
 
 class PriorFactory:
     """An object that supports specification and easy retrieval of default priors.
