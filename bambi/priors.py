@@ -44,6 +44,24 @@ class Family:
         }
         self.smfamily = fams[name] if name in fams.keys() else None
 
+    def __str__(self):
+        alternative_names = {
+            "InverseGaussian": "Wald",
+            "NegativeBinomial": "Negative Binomial",
+        }
+        if self.smfamily is None:
+            str_ = "No family set"
+        else:
+            name = alternative_names.get(self.smfamily.__name__, self.smfamily.__name__)
+            str_ = f"{name} family\n"
+            str_ += f"{'-' * len(str_)}\n"
+            str_ += f"Link:\n  {self.link}\n"
+            str_ += f"Prior:\n  {'  '.join(str(self.prior).splitlines(True))}"
+        return str_
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class Prior:
     """Abstract specification of a term prior.
@@ -87,6 +105,7 @@ class Prior:
                 [
                     f"{k}: {'  '.join(str(v).splitlines(True)) if isinstance(v, Prior) else v}"
                     for k, v in self.args.items()
+                    if k != "observed"
                 ]
             )
             return f"{self.name}(\n  {args}\n)"
@@ -96,6 +115,7 @@ class Prior:
 
     def __repr__(self):
         return self.__str__()
+
 
 class PriorFactory:
     """An object that supports specification and easy retrieval of default priors.
