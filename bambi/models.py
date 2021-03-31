@@ -2,7 +2,6 @@
 # pylint: disable=too-many-lines
 import re
 import logging
-from collections import OrderedDict
 from copy import deepcopy
 
 import numpy as np
@@ -94,7 +93,7 @@ class Model:
         self.dm_statistics = None  # _build()
         self._diagnostics = None  # _build()
         self.built = False  # _build()
-        self.terms = OrderedDict()
+        self.terms = {}  # OrderedDict()
 
     def __str__(self):
         if self.backend is None:
@@ -110,7 +109,7 @@ class Model:
 
     def reset(self):
         """Reset list of terms and response variable."""
-        self.terms = OrderedDict()
+        self.terms = {}  # OrderedDict()
         self.response = None
         self.backend = None
         self._added_priors = {}
@@ -273,7 +272,7 @@ class Model:
         na_action = "drop" if self.dropna else "error"
         if formula is not None:
             # Only reset self.terms and self.response (e.g., keep priors)
-            self.terms = OrderedDict()
+            self.terms = {}  # OrderedDict()
             self.response = None
             self._design = design_matrices(formula, data, na_action, eval_env=1)
         else:
