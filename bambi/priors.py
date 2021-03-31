@@ -47,16 +47,24 @@ class Family:
     def __str__(self):
         alternative_names = {
             "InverseGaussian": "Wald",
-            "NegativeBinomial": "Negative Binomial",
+            "NegativeBinomial": "Negative binomial",
         }
         if self.smfamily is None:
             str_ = "No family set"
         else:
             name = alternative_names.get(self.smfamily.__name__, self.smfamily.__name__)
+            priors_str = ",\n  ".join(
+                [
+                    f"{k}: {'  '.join(str(v).splitlines(True)) if isinstance(v, Prior) else v}"
+                    for k, v in self.prior.args.items()
+                    if k not in ["observed", self.parent]
+                ]
+            )
             str_ = f"{name} family\n"
             str_ += f"{'-' * len(str_)}\n"
-            str_ += f"Link:\n  {self.link}\n"
-            str_ += f"Prior:\n  {'  '.join(str(self.prior).splitlines(True))}"
+            str_ += f"Response distribution: {name}\n"
+            str_ += f"Link: {self.link}\n"
+            str_ += f"Priors:\n  {priors_str}"
         return str_
 
     def __repr__(self):
