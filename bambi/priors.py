@@ -108,18 +108,8 @@ class Prior:
         self.args.update(kwargs_)
 
     def __str__(self):
-        if any(isinstance(arg, Prior) for arg in self.args.values()):
-            args = ",\n  ".join(
-                [
-                    f"{k}: {'  '.join(str(v).splitlines(True)) if isinstance(v, Prior) else v}"
-                    for k, v in self.args.items()
-                    if k != "observed"
-                ]
-            )
-            return f"{self.name}(\n  {args}\n)"
-        else:
-            args = ", ".join([f"{k}: {v}" for k, v in self.args.items()])
-            return f"{self.name}({args})"
+        args = ", ".join([f"{k}: {v}" for k, v in self.args.items()])
+        return f"{self.name}({args})"
 
     def __repr__(self):
         return self.__str__()

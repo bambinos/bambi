@@ -87,29 +87,48 @@ class Model:
         self._design = None
 
         # attributes that are set later
+        self.formula = None
         self.response = None  # _add_response()
         self.family = None  # _add_response()
         self.backend = None  # _set_backend()
         self.dm_statistics = None  # _build()
         self._diagnostics = None  # _build()
         self.built = False  # _build()
-        self.terms = {}  # OrderedDict()
+        self.terms = {}
 
     def __str__(self):
         if self.backend is None:
             return ""
         else:
-            return self.backend.model.__str__()
+            priors = [f"  {term.name} ~ {term.prior}" for term in self.terms.values()]
+            priors_extra_params = [
+                f"  {k} ~ {v}"
+                for k, v in self.family.prior.args.items()
+                if k not in ["observed", self.family.parent]
+            ]
+            priors = priors + priors_extra_params
+            foot_1 = "* To see a plot of the priors call model.plot_priors()"
+            foot_2 = "* To see a summary or a plot of the posterior call az.summary(fitted) or"
+            foot_2 += " az.plot_trace(fitted)"
+            str_list = [
+                f"Formula: {self.formula}",
+                f"Family name: {self.family.name.capitalize()}",
+                f"Link: {self.family.link}",
+                "Priors:",
+                "\n".join(priors),
+                "------",
+                foot_1,
+                foot_2,
+            ]
+            return "\n".join(str_list)
 
     def __repr__(self):
-        if self.backend is None:
-            return ""
-        else:
-            return self.backend.model.__str__()
+        return self.__str__()
 
     def reset(self):
         """Reset list of terms and response variable."""
-        self.terms = {}  # OrderedDict()
+        self.formula = None
+        self.terms = {}
         self.response = None
         self.backend = None
         self._added_priors = {}
@@ -272,7 +291,8 @@ class Model:
         na_action = "drop" if self.dropna else "error"
         if formula is not None:
             # Only reset self.terms and self.response (e.g., keep priors)
-            self.terms = {}  # OrderedDict()
+            self.formula = formula
+            self.terms = {}
             self.response = None
             self._design = design_matrices(formula, data, na_action, eval_env=1)
         else:
