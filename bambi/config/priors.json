@@ -57,6 +57,16 @@
       ],
       "link": "identity",
       "parent": "mu"
+    },
+    "negativebinomial": {
+      "dist": [
+        "#negativebinomial",
+        {
+          "mu": "#halfcauchy"
+        }
+      ],
+      "link": "log",
+      "parent": "alpha"
     }
   },
   "dists": {
@@ -118,6 +128,12 @@
       "Bernoulli",
       {
         "p": 0.5
+      }
+    ],
+    "negativebinomial": [
+      "NegativeBinomial", {
+        "alpha": 1,
+        "mu": 1
       }
     ]
   }
