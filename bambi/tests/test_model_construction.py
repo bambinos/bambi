@@ -334,3 +334,21 @@ def test_sparse_fails():
     model = Model(data)
     with pytest.raises(ValueError):
         model.fit("y ~ g1 + g2")
+
+
+@pytest.mark.parametrize(
+    "family",
+    [
+        "negativebinomial",
+        "gaussian",
+        "bernoulli",
+        "poisson",
+        pytest.param("gamma", marks=pytest.mark.xfail),
+        pytest.param("wald", marks=pytest.mark.xfail),
+    ],
+)
+def test_automatic_priors(family):
+    """Test that automatic priors work correctly"""
+    obs = pd.DataFrame([0], columns=["x"])
+    model = Model(obs)
+    model.fit("x ~ 0", draws=1, chains=1, run=False, family=family)
