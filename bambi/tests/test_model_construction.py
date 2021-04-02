@@ -339,8 +339,8 @@ def test_sparse_fails():
 @pytest.mark.parametrize(
     "family",
     [
-        "negativebinomial",
         "gaussian",
+        "negativebinomial",
         "bernoulli",
         "poisson",
         pytest.param("gamma", marks=pytest.mark.xfail),
