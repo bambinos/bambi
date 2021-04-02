@@ -231,7 +231,7 @@ class Model:
             a string, or an instance of class ``priors.Family``. If a string is passed, a family
             with the corresponding name must be defined in the defaults loaded at ``Model``
             initialization.Valid pre-defined families are ``'gaussian'``, ``'bernoulli'``,
-            ``'poisson'``, ``'gama'``, ``'wald'``, and ``'negativebinomial'``.
+            ``'poisson'``, ``'gamma'``, ``'wald'``, and ``'negativebinomial'``.
             Defaults to ``'gaussian'``.
         link : str
             The model link function to use. Can be either a string (must be one of the options
@@ -320,7 +320,7 @@ class Model:
             string, or an instance of class ``priors.Family``. If a string is passed, a family with
             the corresponding name must be defined in the defaults loaded at Model initialization.
             Valid pre-defined families are ``'gaussian'``, ``'bernoulli'``, ``'poisson'``,
-            ``'gama'``, ``'wald'``, and ``'negativebinomial'``. Defaults to ``'gaussian'``.
+            ``'gamma'``, ``'wald'``, and ``'negativebinomial'``. Defaults to ``'gaussian'``.
         link : str
             The model link function to use. Can be either a string (must be one of the options
             defined in the current backend; typically this will include at least ``'identity'``,
