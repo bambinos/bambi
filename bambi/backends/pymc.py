@@ -35,6 +35,7 @@ class PyMC3BackEnd(BackEnd):
         self.spec = None  # build()
         self.trace = None  # build()
         self.advi_params = None  # build()
+        self.fit = False  # run()
 
     # Inspect all args in case we have hyperparameters
     def _expand_args(self, key, value, label, noncentered):
@@ -166,6 +167,7 @@ class PyMC3BackEnd(BackEnd):
                 getattr(idata, group).attrs["modeling_interface"] = "bambi"
                 getattr(idata, group).attrs["modeling_interface_version"] = version.__version__
 
+            self.fit = True
             return idata
 
         elif method.lower() == "advi":

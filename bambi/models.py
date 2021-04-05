@@ -99,28 +99,31 @@ class Model:
     def __str__(self):
         if self.backend is None:
             return ""
-        else:
-            priors = [f"  {term.name} ~ {term.prior}" for term in self.terms.values()]
-            priors_extra_params = [
-                f"  {k} ~ {v}"
-                for k, v in self.family.prior.args.items()
-                if k not in ["observed", self.family.parent]
-            ]
-            priors = priors + priors_extra_params
-            foot_1 = "* To see a plot of the priors call model.plot_priors()"
-            foot_2 = "* To see a summary or a plot of the posterior call az.summary(fitted) or"
-            foot_2 += " az.plot_trace(fitted)"
-            str_list = [
-                f"Formula: {self.formula}",
-                f"Family name: {self.family.name.capitalize()}",
-                f"Link: {self.family.link}",
-                "Priors:",
-                "\n".join(priors),
-                "------",
-                foot_1,
-                foot_2,
-            ]
-            return "\n".join(str_list)
+
+        priors = [f"  {term.name} ~ {term.prior}" for term in self.terms.values()]
+        priors_extra_params = [
+            f"  {k} ~ {v}"
+            for k, v in self.family.prior.args.items()
+            if k not in ["observed", self.family.parent]
+        ]
+        priors = priors + priors_extra_params
+        foot = ["* To see a plot of the priors call the .plot_priors() method."]
+
+        if self.backend.fit:
+            foot_ = "* To see a summary or plot of the posterior pass the object returned by"
+            foot_ += " .fit() to az.summary() or az.plot_trace()"
+            foot += [foot_]
+
+        str_list = [
+            f"Formula: {self.formula}",
+            f"Family name: {self.family.name.capitalize()}",
+            f"Link: {self.family.link}",
+            "Priors:",
+            "\n".join(priors),
+            "------",
+        ]
+
+        return "\n".join(str_list + foot)
 
     def __repr__(self):
         return self.__str__()
