@@ -50,7 +50,7 @@ class Family:
         else:
             priors_str = ",\n  ".join(
                 [
-                    f"{k}: {v:.8g}" if not isinstance(v, Prior) else f"{k}: {v}"
+                    f"{k}: {np.round_(v, 8)}" if not isinstance(v, Prior) else f"{k}: {v}"
                     for k, v in self.prior.args.items()
                     if k not in ["observed", self.parent]
                 ]
@@ -103,7 +103,7 @@ class Prior:
     def __str__(self):
         args = ", ".join(
             [
-                f"{k}: {v:.8g}" if not isinstance(v, Prior) else f"{k}: {v}"
+                f"{k}: {np.round_(v, 8)}" if not isinstance(v, Prior) else f"{k}: {v}"
                 for k, v in self.args.items()
             ]
         )
