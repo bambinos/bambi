@@ -3,29 +3,42 @@
 ### 0.X.X
 
 ### New features
-* Add option to save a figure from model.graph() by passing the name of a file. Figure format and resolution can also be set. (317)
 
 ### Maintenance and fixes
-
 
 ### Documentation
 
 ### Deprecation
 
+### 0.4.1
+
+### New features
+* Add option to save a figure from model.graph() by passing the name of a file. Figure format and resolution can also be set (#317)
+* Objects of class Prior, Family and Model have nicer print methods (#326)
+
+### Maintenance and fixes
+* Add negative binomial family to config file, which was missing (#324)
+* Add test to check model compilation with families available (#327)
+* Update formulae to version 0.0.9 (#329)
+
+### Documentation
+* Fix gamma docstring (#328)
+
+### Deprecation
 
 ### 0.4.0
 
 ### New features
-* Use formulae to parse model formulas (#299) 
+* Use formulae to parse model formulas (#299)
 * Add model representation (#300)
 
 
 ### Maintenance and fixes
-* Remove deprecation warning related to pm.sample returning idata (#295) 
+* Remove deprecation warning related to pm.sample returning idata (#295)
 
 ### Documentation
-* Add citation to Bambi preprint (#290) 
-* Remove reference to pystan (#292) 
+* Add citation to Bambi preprint (#290)
+* Remove reference to pystan (#292)
 
 ### Deprecation
 
