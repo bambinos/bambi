@@ -19,7 +19,7 @@
 ### Maintenance and fixes
 * Add negative binomial family to config file, which was missing (#324)
 * Add test to check model compilation with families available (#327)
-* Update formulae to version 0.0.9
+* Update formulae to version 0.0.9 (#329)
 
 ### Documentation
 * Fix gamma docstring (#328)
