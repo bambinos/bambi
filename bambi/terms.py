@@ -36,7 +36,7 @@ class Term:
     ----------
     name : str
         Name of the term.
-    term: dict
+    term_dict: dict
         A dictionary describing the components of the term. These can be found in
         ``formulae.design_matrices().common.terms_info``
     data : ndarray
@@ -44,7 +44,7 @@ class Term:
     prior : Prior
         A specification of the prior(s) to use. An instance of class ``priors.Prior``.
     constant : bool
-        indicates whether the term levels collectively act as a constant, in which case the term is
+        Indicates whether the term levels collectively act as a constant, in which case the term is
         treated as an intercept for prior distribution purposes.
     """
 
@@ -138,7 +138,7 @@ def _interaction_labels(x):
     colnames = []
 
     for k, val in terms.items():
-        if val["type"] in ["numeric", "call"]:
+        if val["type"] in ["numeric"]:
             colnames.append([k])
         if val["type"] == "categoric":
             if "levels" in val.keys():

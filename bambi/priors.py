@@ -44,6 +44,25 @@ class Family:
         }
         self.smfamily = fams[name] if name in fams.keys() else None
 
+    def __str__(self):
+        if self.smfamily is None:
+            str_ = "No family set"
+        else:
+            priors_str = ",\n  ".join(
+                [
+                    f"{k}: {np.round_(v, 8)}" if not isinstance(v, Prior) else f"{k}: {v}"
+                    for k, v in self.prior.args.items()
+                    if k not in ["observed", self.parent]
+                ]
+            )
+            str_ = f"Response distribution: {self.smfamily.__name__}\n"
+            str_ += f"Link: {self.link}\n"
+            str_ += f"Priors:\n  {priors_str}"
+        return str_
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class Prior:
     """Abstract specification of a term prior.
@@ -80,6 +99,18 @@ class Prior:
                 val = val.squeeze()
             kwargs_[key] = val
         self.args.update(kwargs_)
+
+    def __str__(self):
+        args = ", ".join(
+            [
+                f"{k}: {np.round_(v, 8)}" if not isinstance(v, Prior) else f"{k}: {v}"
+                for k, v in self.args.items()
+            ]
+        )
+        return f"{self.name}({args})"
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class PriorFactory:
