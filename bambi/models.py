@@ -101,19 +101,13 @@ class Model:
             return ""
 
         priors = [f"  {term.name} ~ {term.prior}" for term in self.terms.values()]
+        # Priors for nuisance parameters, i.e., standar deviation in normal linear model
         priors_extra_params = [
             f"  {k} ~ {v}"
             for k, v in self.family.prior.args.items()
             if k not in ["observed", self.family.parent]
         ]
-        priors = priors + priors_extra_params
-        foot = ["* To see a plot of the priors call the .plot_priors() method."]
-
-        if self.backend.fit:
-            foot_ = "* To see a summary or plot of the posterior pass the object returned by"
-            foot_ += " .fit() to az.summary() or az.plot_trace()"
-            foot += [foot_]
-
+        priors += priors_extra_params
         str_list = [
             f"Formula: {self.formula}",
             f"Family name: {self.family.name.capitalize()}",
@@ -121,9 +115,15 @@ class Model:
             "Priors:",
             "\n".join(priors),
             "------",
+            "* To see a plot of the priors call the .plot_priors() method.",
         ]
 
-        return "\n".join(str_list + foot)
+        if self.backend.fit:
+            extra_foot = "* To see a summary or plot of the posterior pass the object returned by"
+            extra_foot += " .fit() to az.summary() or az.plot_trace()"
+            str_list += [extra_foot]
+
+        return "\n".join(str_list)
 
     def __repr__(self):
         return self.__str__()
