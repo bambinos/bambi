@@ -99,10 +99,9 @@ def test_prior_retrieval():
 def test_auto_scale(diabetes_data):
 
     # By default, should scale everything except custom Prior() objects
-    model = Model(diabetes_data)
     priors = {"S1": 0.3, "BP": Prior("Cauchy", alpha=1, beta=17.5)}
-    model.fit("BMI ~ S1 + S2 + BP", run=False, priors=priors)
-    model._build(backend="pymc3")
+    model = Model("BMI ~ S1 + S2 + BP", diabetes_data, priors=priors)
+    model.build(backend="pymc3")
     p1 = model.terms["S1"].prior
     p2 = model.terms["S2"].prior
     p3 = model.terms["BP"].prior
@@ -112,11 +111,9 @@ def test_auto_scale(diabetes_data):
     assert p3.name == "Cauchy"
     assert p3.args["beta"] == 17.5
 
-    # With auto_scale off, everything should be flat unless explicitly named
-    # in priors
-    model = Model(diabetes_data, auto_scale=False)
-    model.fit("BMI ~ S1 + S2 + BP", run=False, priors=priors)
-    model._build(backend="pymc3")
+    # With auto_scale off, everything should be flat unless explicitly named in priors
+    model = Model("BMI ~ S1 + S2 + BP", diabetes_data, priors=priors, auto_scale=False)
+    model.build(backend="pymc3")
     p1_off = model.terms["S1"].prior
     p2_off = model.terms["S2"].prior
     p3_off = model.terms["BP"].prior
@@ -132,8 +129,8 @@ def test_complete_separation():
     data = pd.DataFrame({"y": [0] * 5 + [1] * 5, "g": ["a"] * 5 + ["b"] * 5})
 
     with pytest.raises(PerfectSeparationError):
-        Model(data).fit("y ~ g", family="bernoulli")
+        Model("y ~ g", data, family="bernoulli").fit()
 
     # No error is raised
     priors = {"common": Prior("Normal", mu=0, sigma=10)}
-    Model(data).fit("y ~ g", family="bernoulli", priors=priors)
+    Model("y ~ g", data, family="bernoulli", priors=priors).fit()

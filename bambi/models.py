@@ -313,7 +313,6 @@ class Model:
 
         return self.backend.run(omit_offsets=omit_offsets, **kwargs)
 
-
     def _add_response(self, response, prior=None, family="gaussian", link=None):
         """Add a response (or outcome/dependent) variable to the model.
 

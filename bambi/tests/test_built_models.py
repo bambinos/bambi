@@ -35,23 +35,23 @@ def crossed_data():
 
 
 def test_empty_model(crossed_data):
-    model0 = Model(crossed_data)
-    model0.fit("Y ~ 0", tune=0, draws=1)
+    model0 = Model("Y ~ 0", crossed_data)
+    model0.fit(tune=0, draws=1)
 
 
 def test_intercept_only_model(crossed_data):
-    model0 = Model(crossed_data)
-    model0.fit("Y ~ 1", tune=0, draws=1, init=None)
+    model0 = Model("Y ~ 1", crossed_data)
+    model0.fit(tune=0, draws=1, init=None)
 
 
 def test_slope_only_model(crossed_data):
-    model0 = Model(crossed_data)
-    model0.fit("Y ~ 0 + continuous", tune=0, draws=1, init=None)
+    model0 = Model("Y ~ 0 + continuous", crossed_data)
+    model0.fit(tune=0, draws=1, init=None)
 
 
 def test_cell_means_parameterization(crossed_data):
-    model0 = Model(crossed_data)
-    model0.fit("Y ~ 0 + threecats", tune=0, draws=1, init=None)
+    model0 = Model("Y ~ 0 + threecats", crossed_data)
+    model0.fit(tune=0, draws=1, init=None)
 
 
 def test_3x4_common_anova(crossed_data):
@@ -59,19 +59,19 @@ def test_3x4_common_anova(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
 
     # with intercept
-    model0 = Model(crossed_data)
-    fitted0 = model0.fit("Y ~ threecats*fourcats", tune=0, draws=1, init=None)
+    model0 = Model("Y ~ threecats*fourcats", crossed_data)
+    fitted0 = model0.fit(tune=0, draws=1, init=None)
     assert len(fitted0.posterior.data_vars) == 5
 
     # without intercept (i.e., 2-factor cell means model)
-    model1 = Model(crossed_data)
-    fitted1 = model1.fit("Y ~ 0 + threecats*fourcats", tune=0, draws=1)
+    model1 = Model("Y ~ 0 + threecats*fourcats", crossed_data)
+    fitted1 = model1.fit(tune=0, draws=1)
     assert len(fitted1.posterior.data_vars) == 4
 
 
 def test_cell_means_with_covariate(crossed_data):
-    model0 = Model(crossed_data)
-    model0.fit("Y ~ 0 + threecats + continuous", tune=0, draws=1, init=None)
+    model0 = Model("Y ~ 0 + threecats + continuous", crossed_data)
+    model0.fit(tune=0, draws=1, init=None)
 
     # check that threecats priors have finite variance
     assert not np.isinf(model0.terms["threecats"].prior.args["sigma"])
@@ -85,18 +85,24 @@ def test_many_common_many_group_specific(crossed_data):
     crossed_data_missing.loc[2, "threecats"] = np.nan
 
     # Here I'm comparing implicit/explicit intercepts for group specific effects workY the same way.
-    model0 = Model(crossed_data_missing, dropna=True)
-    model0.fit(
+    model0 = Model(
         "Y ~ continuous + dummy + threecats + (threecats|subj) + (1|item) + (0+continuous|item) + (dummy|item) + (threecats|site)",
+        crossed_data_missing,
+        dropna=True,
+    )
+    model0.fit(
         init=None,
         tune=10,
         draws=10,
         chains=2,
     )
 
-    model1 = Model(crossed_data_missing, dropna=True)
-    model1.fit(
+    model1 = Model(
         "Y ~ continuous + dummy + threecats + (threecats|subj) + (continuous|item) + (dummy|item) + (threecats|site)",
+        crossed_data_missing,
+        dropna=True,
+    )
+    model1.fit(
         tune=10,
         draws=10,
         chains=2,
@@ -195,8 +201,8 @@ def test_cell_means_with_many_group_specific_effects(crossed_data):
             "(1|site)",
         ]
     )
-    model0 = Model(crossed_data)
-    model0.fit(formula, tune=0, draws=1)
+    model0 = Model(formula, crossed_data)
+    model0.fit(tune=0, draws=1)
 
     formula = "Y ~" + "+".join(
         [
@@ -208,8 +214,8 @@ def test_cell_means_with_many_group_specific_effects(crossed_data):
             "(threecats|site)",
         ]
     )
-    model1 = Model(crossed_data)
-    model1.fit(formula, tune=0, draws=1)
+    model1 = Model(formula, crossed_data)
+    model1.fit(tune=0, draws=1)
 
     # check that the group specific effects design matrices have the same shape
     X0 = pd.concat(
@@ -273,21 +279,22 @@ def test_cell_means_with_many_group_specific_effects(crossed_data):
 
 def test_logistic_regression(crossed_data):
     # Tests passing link="logit" is equivalent to using tt.nnet.sigmoid
-    model0 = Model(crossed_data)
+    model0 = Model(
+        "threecats['b'] ~ continuous + dummy", crossed_data, family="bernoulli", link="logit"
+    )
     fitted0 = model0.fit(
-        "threecats['b'] ~ continuous + dummy",
-        family="bernoulli",
-        link="logit",
         tune=0,
         draws=1000,
     )
 
     # build model using fit, pymc3 and theano link function
-    model1 = Model(crossed_data)
-    fitted3 = model1.fit(
+    model1 = Model(
         "threecats['b'] ~ continuous + dummy",
+        crossed_data,
         family="bernoulli",
         link=tt.nnet.sigmoid,
+    )
+    fitted3 = model1.fit(
         tune=0,
         draws=1000,
     )
@@ -334,39 +341,39 @@ def test_logistic_regression(crossed_data):
 
 def test_logistic_regression_empty_index():
     data = pd.DataFrame({"y": np.random.choice(["a", "b"], 50), "x": np.random.normal(size=50)})
-    model = Model(data)
-    model.fit("y ~ x", family="bernoulli")
+    model = Model("y ~ x", data, family="bernoulli")
+    model.fit()
 
 
 def test_logistic_regression_good_numeric():
     data = pd.DataFrame({"y": np.random.choice([1, 0], 50), "x": np.random.normal(size=50)})
-    model = Model(data)
-    model.fit("y ~ x", family="bernoulli")
+    model = Model("y ~ x", data, family="bernoulli")
+    model.fit()
 
 
 def test_logistic_regression_bad_numeric():
     data = pd.DataFrame({"y": np.random.choice([1, 2], 50), "x": np.random.normal(size=50)})
     with pytest.raises(ValueError):
-        model = Model(data)
-        model.fit("y ~ x", family="bernoulli")
+        model = Model("y ~ x", data, family="bernoulli")
+        model.fit()
 
 
 def test_logistic_regression_categoric():
     y = pd.Series(np.random.choice(["a", "b"], 50), dtype="category")
     data = pd.DataFrame({"y": y, "x": np.random.normal(size=50)})
-    model = Model(data)
-    model.fit("y ~ x", family="bernoulli")
+    model = Model("y ~ x", data, family="bernoulli")
+    model.fit()
 
 
 def test_poisson_regression(crossed_data):
     # build model using fit and pymc3
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
-    model0 = Model(crossed_data)
-    model0.fit("count ~ dummy + continuous + threecats", family="poisson", tune=0, draws=1)
+    model0 = Model("count ~ dummy + continuous + threecats", crossed_data, family="poisson")
+    model0.fit(tune=0, draws=1)
 
     # build model using add
-    model1 = Model(crossed_data)
-    model1.fit("count ~ threecats + continuous + dummy", family="poisson", tune=0, draws=1)
+    model1 = Model("count ~ threecats + continuous + dummy", crossed_data, family="poisson")
+    model1.fit(tune=0, draws=1)
 
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)
@@ -407,11 +414,9 @@ def test_poisson_regression(crossed_data):
 
 def test_laplace():
     data = pd.DataFrame(np.repeat((0, 1), (30, 60)), columns=["w"])
-    model = Model(data=data)
     priors = {"Intercept": Prior("Uniform", lower=0, upper=1)}
-    results = model.fit(
-        "w ~ 1", family="bernoulli", link="identity", priors=priors, method="laplace"
-    )
+    model = Model("w ~ 1", data=data, family="bernoulli", priors=priors, link="identity")
+    results = model.fit(method="laplace")
     mode_n = np.round(results["Intercept"][0], 2)
     std_n = np.round(results["Intercept"][1][0], 2)
     mode_a = data.mean()
@@ -421,8 +426,8 @@ def test_laplace():
 
 def test_prior_predictive(crossed_data):
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
-    model = Model(crossed_data)
-    fitted = model.fit("count ~ threecats + continuous + dummy", family="poisson", tune=0, draws=2)
+    model = Model("count ~ threecats + continuous + dummy", crossed_data, family="poisson")
+    model.fit(tune=0, draws=2)
     pps = model.prior_predictive(draws=500)
 
     keys = ["Intercept", "threecats", "continuous", "dummy"]
@@ -443,8 +448,8 @@ def test_prior_predictive(crossed_data):
 
 def test_posterior_predictive(crossed_data):
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
-    model = Model(crossed_data)
-    fitted = model.fit("count ~ threecats + continuous + dummy", family="poisson", tune=0, draws=2)
+    model = Model("count ~ threecats + continuous + dummy", crossed_data, family="poisson")
+    fitted = model.fit(tune=0, draws=2)
     pps = model.posterior_predictive(fitted, draws=500, inplace=False)
 
     assert pps.posterior_predictive["count"].shape == (1, 500, 120)
