@@ -168,7 +168,7 @@ class Model:
 
     def __str__(self):
         priors = [f"  {term.name} ~ {term.prior}" for term in self.terms.values()]
-        # Priors for nuisance parameters, i.e., standar deviation in normal linear model
+        # Priors for nuisance parameters, i.e., standard deviation in normal linear model
         priors_extra_params = [
             f"  {k} ~ {v}"
             for k, v in self.family.prior.args.items()
@@ -194,16 +194,6 @@ class Model:
     def __repr__(self):
         return self.__str__()
 
-    def reset(self):
-        """Reset list of terms and response variable."""
-        # Not used anymore?
-        self.formula = None
-        self.terms = {}
-        self.response = None
-        self.backend = None
-        self._added_priors = {}
-        self._design = None
-
     def _set_backend(self, backend):
         backend = backend.lower()
         if backend.startswith("pymc"):
@@ -214,6 +204,7 @@ class Model:
         self._backend_name = backend
 
     def _build_priors(self):
+        """Carry out all operations related to the construction and/or scaling of priors."""
         # set custom priors
         self._set_priors(**self._added_priors)
 
@@ -264,7 +255,7 @@ class Model:
             Currently only ``'pymc'`` is supported.
         """
 
-        # check for backend
+        # Check for backend
         if backend is None:
             if self._backend_name is None:
                 raise ValueError(
@@ -360,6 +351,20 @@ class Model:
         self.built = False
 
     def _add_common(self, common, priors):
+        """Add common (or fixed) terms to the model.
+
+        Parameters
+        ----------
+        common : formulae.CommonEffectsMatrix
+            Representation of the design matrix for the common effects of a model. It contains all
+            the necessary information to build the ``Term`` objects associated with each common
+            term in the model.
+        priors : dict
+            Optional specification of priors for one or more terms. A dictionary where the keys are
+            any of the names of the common terms in the model or 'common' and the values are either
+            instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the width
+            of the priors on a standardized scale.
+        """
         if matrix_rank(common.design_matrix) < common.design_matrix.shape[1]:
             raise ValueError(
                 "Design matrix for common effects is not full-rank. "
@@ -379,6 +384,20 @@ class Model:
             self.terms[name] = Term(name, term, data, prior)
 
     def _add_group_specific(self, group, priors):
+        """Add group-specific (or random) terms to the model.
+
+        Parameters
+        ----------
+        group : formulae.GroupEffectsMatrix
+            Representation of the design matrix for the group specific effects of a model. It
+            contains all the necessary information to build the ``GroupSpecificTerm`` objects
+            associated with each group-specific term in the model.
+        priors : dict
+            Optional specification of priors for one or more terms. A dictionary where the keys are
+            any of the names of the group-specific terms in the model or 'group_specific' and the
+            values are either instances of class ``Prior`` or ``int``, ``float``, or ``str``
+            that specify the width of the priors on a standardized scale.
+        """
         for name, term in group.terms_info.items():
             data = group[name]
             prior = priors.pop(name, priors.get("group_specific", None))
