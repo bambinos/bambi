@@ -27,79 +27,146 @@ class Model:
 
     Parameters
     ----------
+    formula : str
+        A model description written in model formula language.
     data : DataFrame or str
         The dataset to use. Either a pandas ``DataFrame``, or the name of the file containing
         the data, which will be passed to ``pd.read_csv()``.
+    family : str or Family
+        A specification of the model family (analogous to the family object in R). Either
+        a string, or an instance of class ``priors.Family``. If a string is passed, a family
+        with the corresponding name must be defined in the defaults loaded at ``Model``
+        initialization.Valid pre-defined families are ``'gaussian'``, ``'bernoulli'``,
+        ``'poisson'``, ``'gamma'``, ``'wald'``, and ``'negativebinomial'``.
+        Defaults to ``'gaussian'``.
+    priors : dict
+        Optional specification of priors for one or more terms. A dictionary where the keys are
+        the names of terms in the model, 'common' or 'group_specific' and the values are either
+        instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the
+        width of the priors on a standardized scale.
+    link : str
+        The model link function to use. Can be either a string (must be one of the options
+        defined in the current backend; typically this will include at least ``'identity'``,
+        ``'logit'``, ``'inverse'``, and ``'log'``), or a callable that takes a 1D ndarray or
+        theano tensor as the sole argument and returns one with the same shape.
+    categorical : str or list
+        The names of any variables to treat as categorical. Can be either a single variable
+        name, or a list of names. If categorical is ``None``, the data type of the columns in
+        the ``DataFrame`` will be used to infer handling. In cases where numeric columns are
+        to be treated as categoricals (e.g., group specific factors coded as numerical IDs),
+        explicitly passing variable names via this argument is recommended.
+    dropna : bool
+        When ``True``, rows with any missing values in either the predictors or outcome are
+        automatically dropped from the dataset in a listwise manner.
+    auto_scale : bool
+        If ``True`` (default), priors are automatically rescaled to the data
+        (to be weakly informative) any time default priors are used. Note that any priors
+        explicitly set by the user will always take precedence over default priors.
     default_priors : dict or str
         An optional specification of the default priors to use for all model terms. Either a
         dictionary containing named distributions, families, and terms (see the documentation in
         ``priors.PriorFactory`` for details), or the name of a JSON file containing the same
         information.
-    auto_scale : bool
-        If ``True`` (default), priors are automatically rescaled to the data
-        (to be weakly informative) any time default priors are used. Note that any priors
-        explicitly set by the user will always take precedence over default priors.
-    dropna : bool
-        When ``True``, rows with any missing values in either the predictors or outcome are
-        automatically dropped from the dataset in a listwise manner.
+    noncentered : bool
+        If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on
+        grouped parameters. If ``False``, naive (centered) parameterization is used.
     taylor : int
         Order of Taylor expansion to use in approximate variance when constructing the default
         priors. Should be between 1 and 13. Lower values are less accurate, tending to undershoot
         the correct prior width, but are faster to compute and more stable. Odd-numbered values
         tend to work better. Defaults to 5 for Normal models and 1 for non-Normal models. Values
         higher than the defaults are generally not recommended as they can be unstable.
-    noncentered : bool
-        If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on
-        grouped parameters. If ``False``, naive (centered) parameterization is used.
     """
 
     # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
+        formula=None,
         data=None,
-        default_priors=None,
-        auto_scale=True,
+        family="gaussian",
+        priors=None,
+        link=None,
+        categorical=None,
         dropna=False,
-        taylor=None,
+        auto_scale=True,
+        default_priors=None,
         noncentered=True,
+        taylor=None,
     ):
+        # attributes that are set later
+        self.terms = {}
+        self.dm_statistics = None  # build()
+        self._diagnostics = None  # build()
+        self.built = False  # build()
+        self._backend_name = None
 
-        if isinstance(data, str):
-            data = pd.read_csv(data, sep=None, engine="python")
+        # build() will loop over this, calling _set_priors()
+        self._added_priors = {}
 
-        self.default_priors = PriorFactory(default_priors)
-
-        obj_cols = data.select_dtypes(["object"]).columns
-        data[obj_cols] = data[obj_cols].apply(lambda x: x.astype("category"))
-        self.data = data
-        self.reset()
+        self._design = None
+        self.formula = None
+        self.response = None  # _add_response()
+        self.family = None  # _add_response()
+        self.backend = None  # _set_backend()
 
         self.auto_scale = auto_scale
         self.dropna = dropna
         self.taylor = taylor
         self.noncentered = noncentered
-        self._backend_name = None
 
-        # _build() will loop over this, calling _set_priors()
-        self._added_priors = {}
+        # Read and clean data
+        if isinstance(data, str):
+            data = pd.read_csv(data, sep=None, engine="python")
+        elif not isinstance(data, pd.DataFrame):
+            raise ValueError("data must be a string with a path to a .csv or a pandas DataFrame.")
 
-        # Design object returned by formulae.design_matrices()
-        self._design = None
+        # Object columns converted to category by default.
+        obj_cols = data.select_dtypes(["object"]).columns
+        data[obj_cols] = data[obj_cols].apply(lambda x: x.astype("category"))
 
-        # attributes that are set later
-        self.formula = None
-        self.response = None  # _add_response()
-        self.family = None  # _add_response()
-        self.backend = None  # _set_backend()
-        self.dm_statistics = None  # _build()
-        self._diagnostics = None  # _build()
-        self.built = False  # _build()
-        self.terms = {}
+        # Explicitly convert columns to category if desired--though this
+        # can also be done within the formula using C().
+        if categorical is not None:
+            data = data.copy()
+            cats = listify(categorical)
+            data[cats] = data[cats].apply(lambda x: x.astype("category"))
+
+        self.data = data
+
+        # Handle priors
+        if priors is None:
+            priors = {}
+        else:
+            priors = deepcopy(priors)
+        self.default_priors = PriorFactory(default_priors)
+
+        # Obtain design matrices and related objects.
+        na_action = "drop" if dropna else "error"
+        if formula is not None:
+            self.formula = formula
+            self._design = design_matrices(formula, data, na_action, eval_env=1)
+        else:
+            raise ValueError("Can't instantiate a model without a model formula.")
+
+        if self._design.response is not None:
+            _family = family.name if isinstance(family, Family) else family
+            self._add_response(self._design.response, family=_family, link=link)
+        else:
+            raise ValueError(
+                "No outcome variable is set! "
+                "Please specify an outcome variable using the formula interface."
+            )
+
+        if self._design.common:
+            self._add_common(self._design.common, priors)
+
+        if self._design.group:
+            self._add_group_specific(self._design.group, priors)
+
+        # Build priors
+        self._build_priors()
 
     def __str__(self):
-        if self.backend is None:
-            return ""
-
         priors = [f"  {term.name} ~ {term.prior}" for term in self.terms.values()]
         # Priors for nuisance parameters, i.e., standar deviation in normal linear model
         priors_extra_params = [
@@ -117,8 +184,7 @@ class Model:
             "------",
             "* To see a plot of the priors call the .plot_priors() method.",
         ]
-
-        if self.backend.fit:
+        if self.backend and self.backend.fit:
             extra_foot = "* To see a summary or plot of the posterior pass the object returned by"
             extra_foot += " .fit() to az.summary() or az.plot_trace()"
             str_list += [extra_foot]
@@ -130,6 +196,7 @@ class Model:
 
     def reset(self):
         """Reset list of terms and response variable."""
+        # Not used anymore?
         self.formula = None
         self.terms = {}
         self.response = None
@@ -146,19 +213,7 @@ class Model:
 
         self._backend_name = backend
 
-    def _build(self, backend="pymc"):
-        """Set up the model for sampling/fitting.
-
-        Performs any steps that require access to all model terms (e.g., scaling priors
-        on each term), then calls the backend's ``_build()`` method.
-
-        Parameters
-        ----------
-        backend : str
-            The name of the backend to use for model fitting.
-            Currently only ``'pymc'`` is supported.
-        """
-
+    def _build_priors(self):
         # set custom priors
         self._set_priors(**self._added_priors)
 
@@ -172,22 +227,6 @@ class Model:
                 else "common"
             )
             term.prior = self._prepare_prior(term.prior, type_)
-
-        # check for backend
-        if backend is None:
-            if self._backend_name is None:
-                raise ValueError(
-                    "No backend was passed or set in the Model; did you forget to call fit()?"
-                )
-            backend = self._backend_name
-
-        # check for outcome
-        if self.response is None:
-            raise ValueError(
-                "No outcome variable is set! Please specify "
-                "an outcome variable using the formula interface "
-                "before _build() or fit()."
-            )
 
         # Only compute the mean stats if there are multiple terms in the model
         terms = [t for t in self.common_terms.values() if t.name != "Intercept"]
@@ -212,13 +251,26 @@ class Model:
             scaler = PriorScaler(self, taylor=taylor)
             scaler.scale()
 
-        # Tell user which event is being modeled
-        if self.family.name == "bernoulli":
-            _log.info(
-                "Modeling the probability that %s==%s",
-                self.response.name,
-                str(self.response.success_event),
-            )
+    def build(self, backend="pymc"):
+        """Set up the model for sampling/fitting.
+
+        Performs any steps that require access to all model terms (e.g., scaling priors
+        on each term), then calls the backend's ``build()`` method.
+
+        Parameters
+        ----------
+        backend : str
+            The name of the backend to use for model fitting.
+            Currently only ``'pymc'`` is supported.
+        """
+
+        # check for backend
+        if backend is None:
+            if self._backend_name is None:
+                raise ValueError(
+                    "No backend was passed or set in the Model; did you forget to call fit()?"
+                )
+            backend = self._backend_name
 
         self._set_backend(backend)
         self.backend.build(self)
@@ -226,12 +278,6 @@ class Model:
 
     def fit(
         self,
-        formula=None,
-        priors=None,
-        family="gaussian",
-        link=None,
-        run=True,
-        categorical=None,
         omit_offsets=True,
         backend="pymc",
         **kwargs,
@@ -240,34 +286,6 @@ class Model:
 
         Parameters
         ----------
-        formula : str
-            A model description written in model formula language.
-        priors : dict
-            Optional specification of priors for one or more terms. A dictionary where the keys are
-            the names of terms in the model, 'common' or 'group_specific' and the values are either
-            instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the
-            width of the priors on a standardized scale.
-        family : str or Family
-            A specification of the model family (analogous to the family object in R). Either
-            a string, or an instance of class ``priors.Family``. If a string is passed, a family
-            with the corresponding name must be defined in the defaults loaded at ``Model``
-            initialization.Valid pre-defined families are ``'gaussian'``, ``'bernoulli'``,
-            ``'poisson'``, ``'gamma'``, ``'wald'``, and ``'negativebinomial'``.
-            Defaults to ``'gaussian'``.
-        link : str
-            The model link function to use. Can be either a string (must be one of the options
-            defined in the current backend; typically this will include at least ``'identity'``,
-            ``'logit'``, ``'inverse'``, and ``'log'``), or a callable that takes a 1D ndarray or
-            theano tensor as the sole argument and returns one with the same shape.
-        run : bool
-            Whether or not to immediately begin fitting the model once any set up of passed
-            arguments is complete. Defaults to ``True``.
-        categorical : str or list
-            The names of any variables to treat as categorical. Can be either a single variable
-            name, or a list of names. If categorical is ``None``, the data type of the columns in
-            the ``DataFrame`` will be used to infer handling. In cases where numeric columns are
-            to be treated as categoricals (e.g., group specific factors coded as numerical IDs),
-            explicitly passing variable names via this argument is recommended.
         omit_offsets: bool
             Omits offset terms in the ``InferenceData`` object when the model includes group
             specific effects. Defaults to ``True``.
@@ -275,53 +293,26 @@ class Model:
             The name of the backend to use. Currently only ``'pymc'`` backend is supported.
         """
 
-        if priors is None:
-            priors = {}
-        else:
-            priors = deepcopy(priors)
-
-        data = self.data
-        # alter this pandas flag to avoid false positive SettingWithCopyWarnings
-        data._is_copy = False  # pylint: disable=protected-access
-
-        # Explicitly convert columns to category if desired--though this
-        # can also be done within the formula using C().
-        if categorical is not None:
-            data = data.copy()
-            cats = listify(categorical)
-            data[cats] = data[cats].apply(lambda x: x.astype("category"))
-
-        na_action = "drop" if self.dropna else "error"
-        if formula is not None:
-            # Only reset self.terms and self.response (e.g., keep priors)
-            self.formula = formula
-            self.terms = {}
-            self.response = None
-            self._design = design_matrices(formula, data, na_action, eval_env=1)
-        else:
-            if self._design is None:
-                raise ValueError("Can't fit a model without a description of the model.")
-
-        if self._design.response is not None:
-            _family = family.name if isinstance(family, Family) else family
-            self._add_response(self._design.response, family=_family, link=link)
-
-        if self._design.common:
-            self._add_common(self._design.common, priors)
-
-        if self._design.group:
-            self._add_group_specific(self._design.group, priors)
-
+        # There's a problem if we pretend to move .build() to instantiation
+        # We would have to assume the backend, which is fine now since we're using PyMC3.
+        # Nevermind, prior scaling can be outside .build() bc the backend is not needed!!
         if backend is None:
             backend = "pymc" if self._backend_name is None else self._backend_name
 
-        if run:
-            if not self.built or backend != self._backend_name:
-                self._build(backend)
-            return self.backend.run(omit_offsets=omit_offsets, **kwargs)
+        if not self.built or backend != self._backend_name:
+            self.build(backend)
+            self._backend_name = backend
 
-        self._backend_name = backend
-        return None
+        # Tell user which event is being modeled
+        if self.family.name == "bernoulli":
+            _log.info(
+                "Modeling the probability that %s==%s",
+                self.response.name,
+                str(self.response.success_event),
+            )
+
+        return self.backend.run(omit_offsets=omit_offsets, **kwargs)
+
 
     def _add_response(self, response, prior=None, family="gaussian", link=None):
         """Add a response (or outcome/dependent) variable to the model.
@@ -452,13 +443,15 @@ class Model:
             )
         )
         self._added_priors.update(kwargs)
-
+        # After updating, we need to rebuild priors.
+        # There is redundancy here, so there's place for performance improvements.
+        self._build_priors()
         self.built = False
 
     def _set_priors(self, priors=None, common=None, group_specific=None, match_derived_names=True):
         """Internal version of ``set_priors()``, with same arguments.
 
-        Runs during ``Model._build()``.
+        Runs during ``Model._build_priors()``.
         """
         targets = {}
 
@@ -572,7 +565,10 @@ class Model:
         axes: matplotlib axes or bokeh figures
         """
         if not self.built:
-            raise ValueError("Cannot plot priors until model is built!")
+            raise ValueError(
+                "Cannot plot priors until model is built!! "
+                "Call .build() to build the model or .fit() to build and sample from the posterior."
+            )
 
         unobserved_rvs_names = []
         flat_rvs = []
