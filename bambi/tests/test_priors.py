@@ -8,6 +8,8 @@ import pytest
 from bambi.models import Model
 from bambi.priors import Family, Prior, PriorFactory
 
+from statsmodels.tools.sm_exceptions import PerfectSeparationError
+
 
 @pytest.fixture(scope="module")
 def diabetes_data():
@@ -124,3 +126,14 @@ def test_auto_scale(diabetes_data):
     assert "sigma" not in p2_off.args
     assert p3_off.name == "Cauchy"
     assert p3_off.args["beta"] == 17.5
+
+
+def test_complete_separation():
+    data = pd.DataFrame({"y": [0] * 5 + [1] * 5, "g": ["a"] * 5 + ["b"] * 5})
+
+    with pytest.raises(PerfectSeparationError):
+        Model(data).fit("y ~ g", family="bernoulli")
+
+    # No error is raised
+    priors = {"common": Prior("Normal", mu=0, sigma=10)}
+    Model(data).fit("y ~ g", family="bernoulli", priors=priors)

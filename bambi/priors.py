@@ -1,6 +1,8 @@
 # pylint: disable=no-name-in-module
 import json
 import re
+import sys
+
 from copy import deepcopy
 from os.path import dirname, join
 
@@ -9,6 +11,7 @@ import pandas as pd
 from scipy.special import hyp2f1
 from statsmodels.genmod import families as genmod_families
 from statsmodels.genmod.generalized_linear_model import GLM
+from statsmodels.tools.sm_exceptions import PerfectSeparationError
 
 
 class Family:
@@ -235,20 +238,13 @@ class PriorScaler:
         self.stats = model.dm_statistics if hasattr(model, "dm_statistics") else None
         self.dm = pd.DataFrame(
             {
-                lev: t.data[:, i]
-                for t in model.common_terms.values()
-                for i, lev in enumerate(t.levels)
+                lev: term.data[:, i]
+                for term in model.common_terms.values()
+                for i, lev in enumerate(term.levels)
             }
         )
-
         self.priors = {}
-        missing = "drop" if self.model.dropna else "none"
-        self.mle = GLM(
-            endog=self.model.response.data,
-            exog=self.dm,
-            family=self.model.family.smfamily(),
-            missing=missing,
-        ).fit()
+        self.mle = None
         self.taylor = taylor
         with open(join(dirname(__file__), "config", "derivs.txt"), "r") as file:
             self.deriv = [next(file).strip("\n") for x in range(taylor + 1)]
@@ -263,10 +259,8 @@ class PriorScaler:
             points : int
                 Number of points to use for LL approximation.
         """
-
         if full_mod is None:
             full_mod = self.mle
-
         # figure out which column of exog to drop for the null model
         keeps = [
             i
@@ -467,16 +461,16 @@ class PriorScaler:
     def scale(self):
         # classify all terms
         common_intercepts = [
-            t
-            for t in self.model.terms.values()
-            if not t.group_specific and t.data.sum(1).var() == 0
+            term
+            for term in self.model.terms.values()
+            if not term.group_specific and term.data.sum(1).var() == 0
         ]
         common_slopes = [
-            t
-            for t in self.model.terms.values()
-            if not t.group_specific and not t.data.sum(1).var() == 0
+            term
+            for term in self.model.terms.values()
+            if not term.group_specific and not term.data.sum(1).var() == 0
         ]
-        group_specific_terms = [t for t in self.model.terms.values() if t.group_specific]
+        group_specific_terms = [term for term in self.model.terms.values() if term.group_specific]
 
         # arrange them in the order in which they should be initialized
         term_list = common_slopes + common_intercepts + group_specific_terms
@@ -487,16 +481,43 @@ class PriorScaler:
         )
 
         # initialize them in order
-        for t, term_type in zip(term_list, term_types):
-            if t.prior.scale is None:
+        for term, term_type in zip(term_list, term_types):
+
+            if term.prior.scale is None:
                 # pylint: disable=protected-access
-                if not t.prior._auto_scale or not self.model.auto_scale:
+                if not term.prior._auto_scale or not self.model.auto_scale:
                     continue
-                t.prior.scale = "wide"
+                term.prior.scale = "wide"
+
+            # MLE is fitted only once.
+            if self.mle is None:
+                self._fit_mle()
 
             # Convert scale names to float
-            if isinstance(t.prior.scale, str):
-                t.prior.scale = PriorScaler.names[t.prior.scale]
+            if isinstance(term.prior.scale, str):
+                term.prior.scale = PriorScaler.names[term.prior.scale]
 
             # scale it!
-            getattr(self, f"_scale_{term_type}")(t)
+            getattr(self, f"_scale_{term_type}")(term)
+
+    def _fit_mle(self):
+        """Fits MLE of the common part of the model.
+
+        This used to be called in the class instantiation, but there is no need to fit the GLM when
+        there are no automatic priors. So this method is only called when needed.
+        """
+        missing = "drop" if self.model.dropna else "none"
+        try:
+            self.mle = GLM(
+                endog=self.model.response.data,
+                exog=self.dm,
+                family=self.model.family.smfamily(),
+                missing=missing,
+            ).fit()
+        except PerfectSeparationError as error:
+            msg = "Perfect separation detected, automatic priors are not available. "
+            msg += "Please indicate priors manually."
+            raise PerfectSeparationError(msg) from error
+        except:
+            print("Unexpected error:", sys.exc_info()[0])
+            raise
