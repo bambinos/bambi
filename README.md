@@ -56,15 +56,15 @@ visualize them.
 
 ### Logistic regression
 
-Here we just add the `family` argument set to `"bernoulli"`. And we can use some syntax sugar that
-allows us to specify which event we consider a success in a logistic regression. We just say
-`g['Yes']` and Bambi will understand we want to model the probability of a `"Yes"` response.
+Here we just add the `family` argument set to `"bernoulli"` to tell Bambi we are modelling a binary
+response. By default, it uses a logit link. We can also use some syntax sugar to specify which event
+we want to model. We just say `g['Yes']` and Bambi will understand we want to model the probability
+of a `"Yes"` response. Bambi will pick a value and inform about it if we don't use this notation.
 
 ```python
 model = bmb.Model("g['Yes'] ~ x1 + x2", data, family="bernoulli")
 fitted = model.fit()
 ```
-
 
 ## Documentation
 
