@@ -793,14 +793,15 @@ class Model:
             f"Formula: {self.formula}",
             f"Family name: {self.family.name.capitalize()}",
             f"Link: {self.family.link}",
+            f"Observations: {self.response.data.shape[0]}",
             "Priors:",
             "\n".join(priors),
-            "------",
-            "* To see a plot of the priors call the .plot_priors() method.",
         ]
         if self.backend and self.backend.fit:
-            extra_foot = "* To see a summary or plot of the posterior pass the object returned by"
-            extra_foot += " .fit() to az.summary() or az.plot_trace()"
+            extra_foot = "------\n"
+            extra_foot += "* To see a plot of the priors call the .plot_priors() method.\n"
+            extra_foot += "* To see a summary or plot of the posterior pass the object returned"
+            extra_foot += " by .fit() to az.summary() or az.plot_trace()\n"
             str_list += [extra_foot]
 
         return "\n".join(str_list)
