@@ -96,7 +96,6 @@ class Model:
         # attributes that are set later
         self.terms = {}
         self.dm_statistics = None  # build()
-        self._diagnostics = None  # build()
         self.built = False  # build()
         self._backend_name = None
 
@@ -166,33 +165,102 @@ class Model:
         # Build priors
         self._build_priors()
 
-    def __str__(self):
-        priors = [f"  {term.name} ~ {term.prior}" for term in self.terms.values()]
-        # Priors for nuisance parameters, i.e., standard deviation in normal linear model
-        priors_extra_params = [
-            f"  {k} ~ {v}"
-            for k, v in self.family.prior.args.items()
-            if k not in ["observed", self.family.parent]
-        ]
-        priors += priors_extra_params
-        str_list = [
-            f"Formula: {self.formula}",
-            f"Family name: {self.family.name.capitalize()}",
-            f"Link: {self.family.link}",
-            "Priors:",
-            "\n".join(priors),
-            "------",
-            "* To see a plot of the priors call the .plot_priors() method.",
-        ]
-        if self.backend and self.backend.fit:
-            extra_foot = "* To see a summary or plot of the posterior pass the object returned by"
-            extra_foot += " .fit() to az.summary() or az.plot_trace()"
-            str_list += [extra_foot]
+    def fit(
+        self,
+        omit_offsets=True,
+        backend="pymc",
+        **kwargs,
+    ):
+        """Fit the model using the specified backend.
 
-        return "\n".join(str_list)
+        Parameters
+        ----------
+        omit_offsets: bool
+            Omits offset terms in the ``InferenceData`` object when the model includes group
+            specific effects. Defaults to ``True``.
+        backend : str
+            The name of the backend to use. Currently only ``'pymc'`` backend is supported.
+        """
 
-    def __repr__(self):
-        return self.__str__()
+        # There's a problem if we pretend to move .build() to instantiation
+        # We would have to assume the backend, which is fine now since we're using PyMC3.
+        # Nevermind, prior scaling can be outside .build() bc the backend is not needed!!
+        if backend is None:
+            backend = "pymc" if self._backend_name is None else self._backend_name
+
+        if not self.built or backend != self._backend_name:
+            self.build(backend)
+            self._backend_name = backend
+
+        # Tell user which event is being modeled
+        if self.family.name == "bernoulli":
+            _log.info(
+                "Modeling the probability that %s==%s",
+                self.response.name,
+                str(self.response.success_event),
+            )
+
+        return self.backend.run(omit_offsets=omit_offsets, **kwargs)
+
+    def build(self, backend="pymc"):
+        """Set up the model for sampling/fitting.
+
+        Performs any steps that require access to all model terms (e.g., scaling priors
+        on each term), then calls the backend's ``build()`` method.
+
+        Parameters
+        ----------
+        backend : str
+            The name of the backend to use for model fitting.
+            Currently only ``'pymc'`` is supported.
+        """
+
+        # Check for backend
+        if backend is None:
+            if self._backend_name is None:
+                raise ValueError(
+                    "No backend was passed or set in the Model; did you forget to call fit()?"
+                )
+            backend = self._backend_name
+
+        self._set_backend(backend)
+        self.backend.build(self)
+        self.built = True
+
+    def set_priors(self, priors=None, common=None, group_specific=None, match_derived_names=True):
+        """Set priors for one or more existing terms.
+
+        Parameters
+        ----------
+        priors : dict
+            Dictionary of priors to update. Keys are names of terms to update; values are the new
+            priors (either a ``Prior`` instance, or an int or float that scales the default priors).
+            Note that a tuple can be passed as the key, in which case the same prior will be applied
+            to all terms named in the tuple.
+        common : Prior, int, float or str
+            A prior specification to apply to all common terms included in the model.
+        group_specific : Prior, int, float or str
+            A prior specification to apply to all group specific terms included in the model.
+        match_derived_names : bool
+            If ``True``, the specified prior(s) will be applied not only to terms that match the
+            keyword exactly, but to the levels of group specific effects that were derived from the
+            original specification with the passed name. For example,
+            ``priors={'condition|subject':0.5}`` would apply the prior to the terms with names
+            ``'1|subject'``, ``'condition[T.1]|subject'``, and so on. If ``False``, an exact
+            match is required for the prior to be applied.
+        """
+        # save arguments to pass to _set_priors() at build time
+        kwargs = dict(
+            zip(
+                ["priors", "common", "group_specific", "match_derived_names"],
+                [priors, common, group_specific, match_derived_names],
+            )
+        )
+        self._added_priors.update(kwargs)
+        # After updating, we need to rebuild priors.
+        # There is redundancy here, so there's place for performance improvements.
+        self._build_priors()
+        self.built = False
 
     def _set_backend(self, backend):
         backend = backend.lower()
@@ -242,67 +310,57 @@ class Model:
             scaler = PriorScaler(self, taylor=taylor)
             scaler.scale()
 
-    def build(self, backend="pymc"):
-        """Set up the model for sampling/fitting.
+    def _set_priors(self, priors=None, common=None, group_specific=None, match_derived_names=True):
+        """Internal version of ``set_priors()``, with same arguments.
 
-        Performs any steps that require access to all model terms (e.g., scaling priors
-        on each term), then calls the backend's ``build()`` method.
+        Runs during ``Model._build_priors()``.
+        """
+        targets = {}
+
+        if common is not None:
+            targets.update({name: common for name in self.common_terms.keys()})
+
+        if group_specific is not None:
+            targets.update({name: group_specific for name in self.group_specific_terms.keys()})
+
+        if priors is not None:
+            for k, prior in priors.items():
+                for name in listify(k):
+                    term_names = list(self.terms.keys())
+                    msg = f"No terms in model match {name}."
+                    if name not in term_names:
+                        terms = self._match_derived_terms(name)
+                        if not match_derived_names or terms is None:
+                            raise ValueError(msg)
+                        for term in terms:
+                            targets[term.name] = prior
+                    else:
+                        targets[name] = prior
+
+        for name, prior in targets.items():
+            self.terms[name].prior = prior
+
+    def _prepare_prior(self, prior, _type):
+        """Helper function to correctly set default priors, auto scaling, etc.
 
         Parameters
         ----------
-        backend : str
-            The name of the backend to use for model fitting.
-            Currently only ``'pymc'`` is supported.
+        prior : Prior object, or float, or None.
+        _type : string
+            accepted values are: ``'intercept'``, ``'common'``, or ``'group_specific'``.
         """
+        if prior is None and not self.auto_scale:
+            prior = self.default_priors.get(term=_type + "_flat")
 
-        # Check for backend
-        if backend is None:
-            if self._backend_name is None:
-                raise ValueError(
-                    "No backend was passed or set in the Model; did you forget to call fit()?"
-                )
-            backend = self._backend_name
-
-        self._set_backend(backend)
-        self.backend.build(self)
-        self.built = True
-
-    def fit(
-        self,
-        omit_offsets=True,
-        backend="pymc",
-        **kwargs,
-    ):
-        """Fit the model using the specified backend.
-
-        Parameters
-        ----------
-        omit_offsets: bool
-            Omits offset terms in the ``InferenceData`` object when the model includes group
-            specific effects. Defaults to ``True``.
-        backend : str
-            The name of the backend to use. Currently only ``'pymc'`` backend is supported.
-        """
-
-        # There's a problem if we pretend to move .build() to instantiation
-        # We would have to assume the backend, which is fine now since we're using PyMC3.
-        # Nevermind, prior scaling can be outside .build() bc the backend is not needed!!
-        if backend is None:
-            backend = "pymc" if self._backend_name is None else self._backend_name
-
-        if not self.built or backend != self._backend_name:
-            self.build(backend)
-            self._backend_name = backend
-
-        # Tell user which event is being modeled
-        if self.family.name == "bernoulli":
-            _log.info(
-                "Modeling the probability that %s==%s",
-                self.response.name,
-                str(self.response.success_event),
-            )
-
-        return self.backend.run(omit_offsets=omit_offsets, **kwargs)
+        if isinstance(prior, Prior):
+            prior._auto_scale = False  # pylint: disable=protected-access
+        else:
+            _scale = prior
+            prior = self.default_priors.get(term=_type)
+            prior.scale = _scale
+            if prior.scale is not None:
+                prior._auto_scale = False  # pylint: disable=protected-access
+        return prior
 
     def _add_response(self, response, prior=None, family="gaussian", link=None):
         """Add a response (or outcome/dependent) variable to the model.
@@ -430,93 +488,6 @@ class Model:
         # 'condition|subject' if no slopes are found (e.g., the intercept could
         # have been set by some other specification like 'gender|subject').
         return found if found and (len(found) > 1 or found[0].name != intcpt) else None
-
-    def set_priors(self, priors=None, common=None, group_specific=None, match_derived_names=True):
-        """Set priors for one or more existing terms.
-
-        Parameters
-        ----------
-        priors : dict
-            Dictionary of priors to update. Keys are names of terms to update; values are the new
-            priors (either a ``Prior`` instance, or an int or float that scales the default priors).
-            Note that a tuple can be passed as the key, in which case the same prior will be applied
-            to all terms named in the tuple.
-        common : Prior, int, float or str
-            A prior specification to apply to all common terms included in the model.
-        group_specific : Prior, int, float or str
-            A prior specification to apply to all group specific terms included in the model.
-        match_derived_names : bool
-            If ``True``, the specified prior(s) will be applied not only to terms that match the
-            keyword exactly, but to the levels of group specific effects that were derived from the
-            original specification with the passed name. For example,
-            ``priors={'condition|subject':0.5}`` would apply the prior to the terms with names
-            ``'1|subject'``, ``'condition[T.1]|subject'``, and so on. If ``False``, an exact
-            match is required for the prior to be applied.
-        """
-        # save arguments to pass to _set_priors() at build time
-        kwargs = dict(
-            zip(
-                ["priors", "common", "group_specific", "match_derived_names"],
-                [priors, common, group_specific, match_derived_names],
-            )
-        )
-        self._added_priors.update(kwargs)
-        # After updating, we need to rebuild priors.
-        # There is redundancy here, so there's place for performance improvements.
-        self._build_priors()
-        self.built = False
-
-    def _set_priors(self, priors=None, common=None, group_specific=None, match_derived_names=True):
-        """Internal version of ``set_priors()``, with same arguments.
-
-        Runs during ``Model._build_priors()``.
-        """
-        targets = {}
-
-        if common is not None:
-            targets.update({name: common for name in self.common_terms.keys()})
-
-        if group_specific is not None:
-            targets.update({name: group_specific for name in self.group_specific_terms.keys()})
-
-        if priors is not None:
-            for k, prior in priors.items():
-                for name in listify(k):
-                    term_names = list(self.terms.keys())
-                    msg = f"No terms in model match {name}."
-                    if name not in term_names:
-                        terms = self._match_derived_terms(name)
-                        if not match_derived_names or terms is None:
-                            raise ValueError(msg)
-                        for term in terms:
-                            targets[term.name] = prior
-                    else:
-                        targets[name] = prior
-
-        for name, prior in targets.items():
-            self.terms[name].prior = prior
-
-    def _prepare_prior(self, prior, _type):
-        """Helper function to correctly set default priors, auto scaling, etc.
-
-        Parameters
-        ----------
-        prior : Prior object, or float, or None.
-        _type : string
-            accepted values are: ``'intercept'``, ``'common'``, or ``'group_specific'``.
-        """
-        if prior is None and not self.auto_scale:
-            prior = self.default_priors.get(term=_type + "_flat")
-
-        if isinstance(prior, Prior):
-            prior._auto_scale = False  # pylint: disable=protected-access
-        else:
-            _scale = prior
-            prior = self.default_priors.get(term=_type)
-            prior.scale = _scale
-            if prior.scale is not None:
-                prior._auto_scale = False  # pylint: disable=protected-access
-        return prior
 
     def plot_priors(
         self,
@@ -808,6 +779,34 @@ class Model:
             k + "_dim_0": v.cleaned_levels for k, v in self.group_specific_terms.items()
         }
         return {**common_terms, **group_specific_terms}
+
+    def __str__(self):
+        priors = [f"  {term.name} ~ {term.prior}" for term in self.terms.values()]
+        # Priors for nuisance parameters, i.e., standard deviation in normal linear model
+        priors_extra_params = [
+            f"  {k} ~ {v}"
+            for k, v in self.family.prior.args.items()
+            if k not in ["observed", self.family.parent]
+        ]
+        priors += priors_extra_params
+        str_list = [
+            f"Formula: {self.formula}",
+            f"Family name: {self.family.name.capitalize()}",
+            f"Link: {self.family.link}",
+            "Priors:",
+            "\n".join(priors),
+            "------",
+            "* To see a plot of the priors call the .plot_priors() method.",
+        ]
+        if self.backend and self.backend.fit:
+            extra_foot = "* To see a summary or plot of the posterior pass the object returned by"
+            extra_foot += " .fit() to az.summary() or az.plot_trace()"
+            str_list += [extra_foot]
+
+        return "\n".join(str_list)
+
+    def __repr__(self):
+        return self.__str__()
 
     @property
     def term_names(self):

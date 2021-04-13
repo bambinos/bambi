@@ -23,7 +23,48 @@ Alternatively, if you want the bleeding edge version of the package you can inst
 
 ### Dependencies
 
-Bambi requires working versions of numpy, pandas, matplotlib, patsy, pymc3, and theano. Dependencies are listed in `requirements.txt`, and should all be installed by the Bambi installer; no further action should be required.
+Bambi requires working versions of arviz, formulae, numpy, pandas, pymc3, and statsmodels. Dependencies are listed in `requirements.txt`, and should all be installed by the Bambi installer; no further action should be required.
+
+## Example
+
+In the following two examples we assume the following basic setup
+
+```python
+import bambi as bmb
+import numpy as np
+import pandas as pd
+
+data = pd.DataFrame({
+    "y": np.random.normal(size=50),
+    "g": np.random.choice(["Yes", "No"], size=50)
+    "x1": np.random.normal(size=50),
+    "x2": np.random.normal(size=50)
+})
+```
+
+### Linear regression
+
+```python
+model = bmb.Model("y ~ x1 + x2 + x3", data)
+fitted = model.fit()
+```
+
+In the first line we create and build a Bambi `Model`. The second line tells the sampler to start
+running and it returns an `InferenceData` object, which can be passed to several ArviZ functions
+such as `az.summary()` to get a summary of model parameters posterior or `az.plot_traces()` to
+visualize them.
+
+### Logistic regression
+
+Here we just add the `family` argument set to `"bernoulli"`. And we can use some syntax sugar that
+allows us to specify which event we consider a success in a logistic regression. We just say
+`g['Yes']` and Bambi will understand we want to model the probability of a `"Yes"` response.
+
+```python
+model = bmb.Model("g['Yes'] ~ x1 + x2", data, family="bernoulli")
+fitted = model.fit()
+```
+
 
 ## Documentation
 
@@ -37,7 +78,7 @@ Here is the citation in BibTeX format
 
 ```
 @misc{capretto2020,
-      title={Bambi: A simple interface for fitting Bayesian linear models in Python}, 
+      title={Bambi: A simple interface for fitting Bayesian linear models in Python},
       author={Tomás Capretto and Camen Piho and Ravin Kumar and Jacob Westfall and Tal Yarkoni and Osvaldo A. Martin},
       year={2020},
       eprint={2012.10754},
