@@ -23,7 +23,7 @@ Alternatively, if you want the bleeding edge version of the package you can inst
 
 ### Dependencies
 
-Bambi requires working versions of arviz, formulae, numpy, pandas, pymc3, and statsmodels. Dependencies are listed in `requirements.txt`, and should all be installed by the Bambi installer; no further action should be required.
+Bambi requires working versions of ArviZ, formulae, NumPy, pandas, PyMC3 and statsmodels. Dependencies are listed in `requirements.txt`, and should all be installed by the Bambi installer; no further action should be required.
 
 ## Example
 
@@ -51,15 +51,18 @@ fitted = model.fit()
 
 In the first line we create and build a Bambi `Model`. The second line tells the sampler to start
 running and it returns an `InferenceData` object, which can be passed to several ArviZ functions
-such as `az.summary()` to get a summary of model parameters posterior or `az.plot_traces()` to
-visualize them.
+such as `az.summary()` to get a summary of the parameters distribution and sample diagnostics or
+ `az.plot_traces()` to visualize them.
+
 
 ### Logistic regression
 
 Here we just add the `family` argument set to `"bernoulli"` to tell Bambi we are modelling a binary
 response. By default, it uses a logit link. We can also use some syntax sugar to specify which event
 we want to model. We just say `g['Yes']` and Bambi will understand we want to model the probability
-of a `"Yes"` response. Bambi will pick a value and inform about it if we don't use this notation.
+of a `"Yes"` response. But this notation is not mandatory. If we use `"g ~ x1 + x2"`, Bambi will
+pick one of the events to model and will inform us which one it picked.
+
 
 ```python
 model = bmb.Model("g['Yes'] ~ x1 + x2", data, family="bernoulli")
