@@ -36,7 +36,7 @@ import pandas as pd
 
 data = pd.DataFrame({
     "y": np.random.normal(size=50),
-    "g": np.random.choice(["Yes", "No"], size=50)
+    "g": np.random.choice(["Yes", "No"], size=50),
     "x1": np.random.normal(size=50),
     "x2": np.random.normal(size=50)
 })
