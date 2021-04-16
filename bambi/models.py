@@ -16,7 +16,7 @@ from formulae import design_matrices
 from .backends import PyMC3BackEnd
 from .priors import Prior, PriorFactory, PriorScaler, Family
 from .terms import ResponseTerm, Term, GroupSpecificTerm
-from .utils import listify
+from .utils import listify, extract_family_prior
 from .version import __version__
 
 _log = logging.getLogger("bambi")
@@ -148,8 +148,8 @@ class Model:
             raise ValueError("Can't instantiate a model without a model formula.")
 
         if self._design.response is not None:
-            _family = family.name if isinstance(family, Family) else family
-            self._add_response(self._design.response, family=_family, link=link)
+            prior = extract_family_prior(family, priors)
+            self._add_response(self._design.response, prior, family, link)
         else:
             raise ValueError(
                 "No outcome variable is set! "
@@ -390,17 +390,27 @@ class Model:
         """
         if isinstance(family, str):
             family = self.default_priors.get(family=family)
+        elif not isinstance(family, Family):
+            raise ValueError("family must be a string or a Family object.")
+
         self.family = family
 
         # Override family's link if another is explicitly passed
         if link is not None:
             self.family.link = link
 
-        if prior is None:
-            prior = self.family.prior
+        prior_ = self.family.prior
+        # Will be not None when family is 'gaussian' or 'negativebinomial' and the user passes
+        # a prior for 'sigma' or 'mu', respectively.
+        # prior is of class dict -> update doc
+        if prior is not None:
+            prior_.args.update(prior)
 
         if self.family.name == "gaussian":
-            prior.update(sigma=Prior("HalfStudentT", nu=4, sigma=np.std(response.design_vector)))
+            if prior is None:
+                prior_.update(
+                    sigma=Prior("HalfStudentT", nu=4, sigma=np.std(response.design_vector))
+                )
 
         if response.refclass is not None and self.family.name != "bernoulli":
             raise ValueError("Index notation for response only available for 'bernoulli' family")
