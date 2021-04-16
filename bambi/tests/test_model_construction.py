@@ -49,11 +49,6 @@ def crossed_data():
     return data
 
 
-@pytest.fixture(scope="module")
-def base_model(diabetes_data):
-    return Model(diabetes_data)
-
-
 def test_term_init(diabetes_data):
     design = design_matrices("BMI", diabetes_data)
     term_info = design.common.terms_info["BMI"]
@@ -69,8 +64,8 @@ def test_term_init(diabetes_data):
 def test_distribute_group_specific_effect_over(diabetes_data):
     # 163 unique levels of BMI in diabetes_data
     # With intercept
-    model = Model(diabetes_data)
-    model.fit("BP ~ (C(age_grp)|BMI)", run=False)
+    model = Model("BP ~ (C(age_grp)|BMI)", diabetes_data)
+    model.build()
     # Since intercept is present, it uses treatment encoding
     lvls = sorted(list(diabetes_data["age_grp"].unique()))[1:]
     for lvl in lvls:
@@ -78,8 +73,8 @@ def test_distribute_group_specific_effect_over(diabetes_data):
     assert "1|BMI" in model.terms
 
     # Without intercept
-    model.reset()
-    model.fit("BP ~ (0 + C(age_grp)|BMI)", run=False)
+    model = Model("BP ~ (0 + C(age_grp)|BMI)", diabetes_data)
+    model.build()
     assert model.terms["C(age_grp)[0]|BMI"].data.shape == (442, 163)
     assert model.terms["C(age_grp)[1]|BMI"].data.shape == (442, 163)
     assert model.terms["C(age_grp)[2]|BMI"].data.shape == (442, 163)
@@ -91,29 +86,29 @@ def test_model_init_from_filename():
 
     data_dir = join(dirname(__file__), "data")
     filename = join(data_dir, "diabetes.txt")
-    model = Model(filename)
+    model = Model("BP ~ BMI", filename)
     assert isinstance(model.data, pd.DataFrame)
     assert model.data.shape == (442, 11)
     assert "BMI" in model.data.columns
 
 
 def test_model_term_names_property(diabetes_data):
-    model = Model(diabetes_data)
-    model.fit("BMI ~ age_grp + BP + S1", run=False)
+    model = Model("BMI ~ age_grp + BP + S1", diabetes_data)
+    model.build()
     assert model.term_names == ["Intercept", "age_grp", "BP", "S1"]
 
 
 def test_model_term_names_property_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
-    model = Model(crossed_data)
-    model.fit("Y ~ threecats*fourcats", run=False)
+    model = Model("Y ~ threecats*fourcats", crossed_data)
+    model.build()
     assert model.term_names == ["Intercept", "threecats", "fourcats", "threecats:fourcats"]
 
 
 def test_model_terms_cleaned_levels_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
-    model = Model(crossed_data)
-    model.fit("Y ~ threecats*fourcats", run=False)
+    model = Model("Y ~ threecats*fourcats", crossed_data)
+    model.build()
     assert model.terms["threecats:fourcats"].cleaned_levels == [
         "threecats[b]:fourcats[b]",
         "threecats[b]:fourcats[c]",
@@ -134,8 +129,8 @@ def test_model_terms_cleaned_levels():
             "subject": reduce(add, [[f"Subject {x}"] * 10 for x in range(1, 6)]),
         }
     )
-    model = Model(data)
-    model.fit("y ~ x + z + time + (time|subject)", run=False)
+    model = Model("y ~ x + z + time + (time|subject)", data)
+    model.build()
     model.terms["z"].cleaned_levels == ["Group 2", "Group 3"]
     model.terms["1|subject"].cleaned_levels == [f"Subject {x}" for x in range(1, 6)]
     model.terms["time|subject"].cleaned_levels == [f"Subject {x}" for x in range(1, 6)]
@@ -151,8 +146,8 @@ def test_model_term_classes():
         }
     )
 
-    model = Model(data)
-    model.fit("y ~ x*g + (x|s)", run=False)
+    model = Model("y ~ x*g + (x|s)", data)
+    model.build()
 
     assert isinstance(model.terms["x"], Term)
     assert isinstance(model.terms["g"], Term)
@@ -165,16 +160,16 @@ def test_model_term_classes():
 
 
 def test_one_shot_formula_fit(diabetes_data):
-    model = Model(diabetes_data)
-    model.fit("S3 ~ S1 + S2", draws=50)
+    model = Model("S3 ~ S1 + S2", diabetes_data)
+    model.fit(draws=50)
     named_vars = model.backend.model.named_vars
     targets = ["S3", "S1", "Intercept"]
     assert len(set(named_vars.keys()) & set(targets)) == 3
 
 
 def test_derived_term_search(diabetes_data):
-    model = Model(diabetes_data)
-    model.fit("BMI ~ 1 + (age_grp|BP)", categorical=["age_grp"], run=False)
+    model = Model("BMI ~ 1 + (age_grp|BP)", diabetes_data, categorical=["age_grp"])
+    model.build()
     terms = model._match_derived_terms("age_grp|BP")
     names = set([t.name for t in terms])
 
@@ -202,8 +197,8 @@ def test_categorical_term():
             "g2": ["x", "x", "z", "z", "y", "y"],
         }
     )
-    model = Model(data)
-    model.fit("y ~ x1 + x2 + g1 + (g1|g2) + (x2|g2)", run=False)
+    model = Model("y ~ x1 + x2 + g1 + (g1|g2) + (x2|g2)", data)
+    model.build()
     terms = ["x1", "x2", "g1", "1|g2", "g1[b]|g2", "x2|g2"]
     expecteds = [False, False, True, False, True, False]
 
@@ -219,8 +214,8 @@ def test_omit_offsets_false():
             "g1": ["a"] * 50 + ["b"] * 50,
         }
     )
-    model = Model(data)
-    fitted = model.fit("y ~ x1 + (x1|g1)", omit_offsets=False)
+    model = Model("y ~ x1 + (x1|g1)", data)
+    fitted = model.fit(omit_offsets=False)
     offsets = [v for v in fitted.posterior.dims if "offset" in v]
     assert offsets == ["1|g1_offset_dim_0", "x1|g1_offset_dim_0"]
 
@@ -233,8 +228,8 @@ def test_omit_offsets_true():
             "g1": ["a"] * 50 + ["b"] * 50,
         }
     )
-    model = Model(data)
-    fitted = model.fit("y ~ x1 + (x1|g1)", omit_offsets=True)
+    model = Model("y ~ x1 + (x1|g1)", data)
+    fitted = model.fit(omit_offsets=True)
     offsets = [v for v in fitted.posterior.dims if "offset" in v]
     assert not offsets
 
@@ -247,67 +242,22 @@ def test_hyperprior_on_common_effect():
             "g1": ["a"] * 50 + ["b"] * 50,
         }
     )
-    sigma = Prior("HalfCauchy", beta=2)
-    slope = Prior("Normal", mu=0, sd=sigma)
-    priors = {"x1": slope}
-    model = Model(data)
+    slope = Prior("Normal", mu=0, sd=Prior("HalfCauchy", beta=2))
 
+    priors = {"x1": slope}
     with pytest.raises(ValueError):
-        model.fit("y ~ x1 + (x1|g1)", priors=priors)
+        Model("y ~ x1 + (x1|g1)", data, priors=priors)
 
     priors = {"common": slope}
     with pytest.raises(ValueError):
-        model.fit("y ~ x1 + (x1|g1)", priors=priors)
-
-
-def test_set_formula_and_then_fit():
-    data = pd.DataFrame(
-        {
-            "y": np.random.normal(size=100),
-            "x1": np.random.normal(size=100),
-            "g1": ["a"] * 50 + ["b"] * 50,
-        }
-    )
-    model = Model(data)
-    model.fit("y ~ x1 + (x1|g1)", run=False)
-    model.fit(draws=200)
-
-
-def test_formula_overwrite():
-    data = pd.DataFrame(
-        {
-            "y": np.random.normal(size=100),
-            "x1": np.random.normal(size=100),
-            "x2": np.random.normal(size=100),
-            "g1": ["a"] * 50 + ["b"] * 50,
-        }
-    )
-    model = Model(data)
-    model.fit("y ~ x1 + (x1|g1)", run=False)
-    assert "x1" in model.terms
-    assert "x1|g1" in model.terms
-    model.fit("y ~ x2 + (x2|g1)")
-    assert "x1" not in model.terms
-    assert "x1|g1" not in model.terms
-    assert "x2" in model.terms
-    assert "x2|g1" in model.terms
+        Model("y ~ x1 + (x1|g1)", data, priors=priors)
 
 
 def test_empty_formula_assertion():
-    data = pd.DataFrame(
-        {
-            "y": np.random.normal(size=100),
-            "x1": np.random.normal(size=100),
-            "g1": ["a"] * 50 + ["b"] * 50,
-        }
-    )
-    model = Model(data)
+    data = pd.DataFrame({"y": [1]})
     # ValueError when attempt to fit a model without having passed a formula
     with pytest.raises(ValueError):
-        model.fit()
-    # But if you then pass a formula, you can fit.
-    model.fit("y ~ x1 + (x1|g1)", run=False)
-    model.fit(draws=200)
+        Model(data=data)
 
 
 def test_sparse_fails():
@@ -320,9 +270,8 @@ def test_sparse_fails():
             "x4": np.random.normal(size=4),
         }
     )
-    model = Model(data)
     with pytest.raises(ValueError):
-        model.fit("y ~ x1 + x2 + x3 + x4")
+        Model("y ~ x1 + x2 + x3 + x4", data)
 
     data = pd.DataFrame(
         {
@@ -331,9 +280,8 @@ def test_sparse_fails():
             "g2": ["a", "b", "c", "d"],
         }
     )
-    model = Model(data)
     with pytest.raises(ValueError):
-        model.fit("y ~ g1 + g2")
+        Model("y ~ g1 + g2", data)
 
 
 @pytest.mark.parametrize(
@@ -350,5 +298,4 @@ def test_sparse_fails():
 def test_automatic_priors(family):
     """Test that automatic priors work correctly"""
     obs = pd.DataFrame([0], columns=["x"])
-    model = Model(obs)
-    model.fit("x ~ 0", draws=1, chains=1, run=False, family=family)
+    Model("x ~ 0", obs, family=family)
