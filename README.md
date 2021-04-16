@@ -45,7 +45,7 @@ data = pd.DataFrame({
 ### Linear regression
 
 ```python
-model = bmb.Model("y ~ x1 + x2 + x3", data)
+model = bmb.Model("y ~ x1 + x2", data)
 fitted = model.fit()
 ```
 
