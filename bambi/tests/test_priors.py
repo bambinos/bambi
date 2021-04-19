@@ -154,9 +154,9 @@ def test_set_response_prior():
     priors = {"sigma": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data)
     model.set_priors(priors)
-    assert model.response.prior.args["sigma"] == priors["sigma"]
+    assert model.response.prior.args["sigma"] == Prior("Uniform", lower=0, upper=50)
 
     priors = {"mu": Prior("Uniform", lower=1, upper=20)}
     model = Model("y ~ x", data, family="negativebinomial")
     model.set_priors(priors)
-    assert model.response.prior.args["mu"] == priors["mu"]
+    assert model.response.prior.args["mu"] == Prior("Uniform", lower=1, upper=20)
