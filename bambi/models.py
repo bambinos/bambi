@@ -148,8 +148,8 @@ class Model:
             raise ValueError("Can't instantiate a model without a model formula.")
 
         if self._design.response is not None:
-            prior = extract_family_prior(family, priors)
-            self._add_response(self._design.response, prior, family, link)
+            priors_ = extract_family_prior(family, priors)
+            self._add_response(self._design.response, family, link, priors_)
         else:
             raise ValueError(
                 "No outcome variable is set! "
@@ -362,7 +362,7 @@ class Model:
                 prior._auto_scale = False  # pylint: disable=protected-access
         return prior
 
-    def _add_response(self, response, prior=None, family="gaussian", link=None):
+    def _add_response(self, response, family="gaussian", link=None, priors=None):
         """Add a response (or outcome/dependent) variable to the model.
 
         Parameters
@@ -370,12 +370,6 @@ class Model:
         response : formulae.ResponseVector
             An instance of ``formulae.ResponseVector`` as returned by
             ``formulae.design_matrices()``.
-        prior : Prior, int, float, str
-            Optional specification of prior. Can be an instance of class ``Prior``, a numeric value,
-            or a string describing the width. In the numeric case, the distribution specified in
-            the defaults will be used, and the passed value will be used to scale the appropriate
-            variance parameter. For strings (e.g., ``'wide'``, ``'narrow'``, ``'medium'``, or
-            ``'superwide'``), predefined values will be used.
         family : str or Family
             A specification of the model family (analogous to the family object in R). Either a
             string, or an instance of class ``priors.Family``. If a string is passed, a family with
@@ -387,6 +381,14 @@ class Model:
             defined in the current backend; typically this will include at least ``'identity'``,
             ``'logit'``, ``'inverse'``, and ``'log'``), or a callable that takes a 1D ndarray or
             theano tensor as the sole argument and returns one with the same shape.
+        priors : dict
+            Optional dictionary with specification of priors for the parameters in the family of
+            the response. Keys are nuisance parameters in the family (i.e. they cannot be equal to
+            family.parent) and values can be an instance of class ``Prior``, a numeric value,
+            or a string describing the width. In the numeric case, the distribution specified in
+            the defaults will be used, and the passed value will be used to scale the appropriate
+            variance parameter. For strings (e.g., ``'wide'``, ``'narrow'``, ``'medium'``, or
+            ``'superwide'``), predefined values will be used.
         """
         if isinstance(family, str):
             family = self.default_priors.get(family=family)
@@ -399,16 +401,16 @@ class Model:
         if link is not None:
             self.family.link = link
 
-        prior_ = self.family.prior
-        # Will be not None when family is 'gaussian' or 'negativebinomial' and the user passes
-        # a prior for 'sigma' or 'mu', respectively.
-        # prior is of class dict -> update doc
-        if prior is not None:
-            prior_.args.update(prior)
+        prior = self.family.prior
+
+        # not None when user passes priors for nuisance parameters, either for built-in familes or
+        # for custom families.
+        if priors is not None:
+            prior.args.update(priors)
 
         if self.family.name == "gaussian":
-            if prior is None:
-                prior_.update(
+            if priors is None:
+                prior.update(
                     sigma=Prior("HalfStudentT", nu=4, sigma=np.std(response.design_vector))
                 )
 

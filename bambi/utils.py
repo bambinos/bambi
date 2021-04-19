@@ -13,12 +13,10 @@ def listify(obj):
 
 
 def extract_family_prior(family, priors):
-    """
-    Given a family and a dictionary of priors, return the prior that could be
-    passed to update the prior of a parameter in that family.
-    """
+    # Given a family and a dictionary of priors, return the prior that could be
+    # passed to update the prior of a parameter in that family.
 
-    # Only gaussian and negativebinomial have nuisance parameters
+    # Only built-in gaussian and negativebinomial have nuisance parameters
     # i.e, parameters not related to the link-transformed predicted outcome
     if isinstance(family, str):
         if family == "gaussian" and "sigma" in priors:
