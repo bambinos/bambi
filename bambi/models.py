@@ -333,6 +333,15 @@ class Model:
             targets.update({name: group_specific for name in self.group_specific_terms.keys()})
 
         if priors is not None:
+            # Update priors related to nuisance parameters of response distribution
+            priors_ = extract_family_prior(self.family, priors)
+            if priors_:
+                # Remove keys passed to the response.
+                for key in priors_:
+                    priors.pop(key)
+                self.response.prior.args.update(priors_)
+
+            # Prepare priors for explanatory terms.
             for k, prior in priors.items():
                 for name in listify(k):
                     term_names = list(self.terms.keys())
@@ -346,6 +355,7 @@ class Model:
                     else:
                         targets[name] = prior
 
+        # Set priors for explanatory terms.
         for name, prior in targets.items():
             self.terms[name].prior = prior
 
