@@ -152,11 +152,11 @@ class Model:
             if priors_ and self._design.common:
                 conflicts = [name for name in priors_ if name in self._design.common.terms_info]
                 if len(conflicts) > 0:
-                    _log.info(
+                    _log.warning(
                         "The prior for %s is ambiguous because its name conflicts "
                         "with the name of a parameter in the response distribution.\n"
                         "Consider renaming the term to prevent an unexpected behaviour.",
-                        ", ".join(conflicts)
+                        ", ".join(conflicts),
                     )
             self._add_response(self._design.response, family, link, priors_)
         else:
