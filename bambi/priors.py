@@ -103,6 +103,17 @@ class Prior:
             kwargs_[key] = val
         self.args.update(kwargs_)
 
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return False
+        else:
+            return (
+                self.name == other.name
+                and self.args == other.args
+                and self.scale == other.scale
+                and self._auto_scale == other._auto_scale
+            )
+
     def __str__(self):
         args = ", ".join(
             [
