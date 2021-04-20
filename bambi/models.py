@@ -119,6 +119,9 @@ class Model:
         elif not isinstance(data, pd.DataFrame):
             raise ValueError("data must be a string with a path to a .csv or a pandas DataFrame.")
 
+        # To avoid SettingWithCopyWarning when converting object columns to category
+        data._is_copy = False
+
         # Object columns converted to category by default.
         obj_cols = data.select_dtypes(["object"]).columns
         data[obj_cols] = data[obj_cols].apply(lambda x: x.astype("category"))
