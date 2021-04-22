@@ -67,6 +67,15 @@
       ],
       "link": "log",
       "parent": "alpha"
+    },
+    "gamma": {
+      "dist": [
+        "#gamma", {
+          "sigma": "#halfnormal"
+        }
+      ],
+      "link": "inverse",
+      "parent": "mu"
     }
   },
   "dists": {
@@ -134,6 +143,12 @@
       "NegativeBinomial", {
         "alpha": 1,
         "mu": 1
+      }
+    ],
+    "gamma": [
+      "Gamma", {
+        "mu": 2,
+        "sigma": 2
       }
     ]
   }
