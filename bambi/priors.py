@@ -222,7 +222,6 @@ class PriorFactory:
             return self._get_prior(self.terms[term])
         elif family is not None:
             if family not in self.families:
-                print(self.families)
                 raise ValueError(f"{family} is not a valid family name.")
             _f = self.families[family]
             prior = self._get_prior(_f["dist"])
