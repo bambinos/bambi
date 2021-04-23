@@ -401,12 +401,12 @@ class Model:
             theano tensor as the sole argument and returns one with the same shape.
         priors : dict
             Optional dictionary with specification of priors for the parameters in the family of
-            the response. Keys are nuisance parameters in the family (i.e. they cannot be equal to
-            family.parent) and values can be an instance of class ``Prior``, a numeric value,
-            or a string describing the width. In the numeric case, the distribution specified in
-            the defaults will be used, and the passed value will be used to scale the appropriate
-            variance parameter. For strings (e.g., ``'wide'``, ``'narrow'``, ``'medium'``, or
-            ``'superwide'``), predefined values will be used.
+            the response. Keys are names of other parameters than the mean in the family
+            (i.e. they cannot be equal to family.parent) and values can be an instance of class
+            ``Prior``, a numeric value, or a string describing the width. In the numeric case,
+            the distribution specified in the defaults will be used, and the passed value will be
+            used to scale the appropriate variance parameter. For strings (e.g., ``'wide'``,
+            ``'narrow'``, ``'medium'``, or ``'superwide'``), predefined values will be used.
         """
         if isinstance(family, str):
             family = self.default_priors.get(family=family)
