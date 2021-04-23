@@ -41,10 +41,10 @@ class PyMC3BackEnd(BackEnd):
     def _expand_args(self, key, value, label, noncentered):
         if isinstance(value, Prior):
             label = f"{label}_{key}"
-            return self._build_dist(noncentered, label, value.name, **value.args)
+            return self._build_dist(label, noncentered, value.name, **value.args)
         return value
 
-    def _build_dist(self, noncentered, label, dist, **kwargs):
+    def _build_dist(self, label, noncentered, dist, **kwargs):
         """Build and return a PyMC3 Distribution."""
         if isinstance(dist, str):
             if hasattr(pm, dist):
@@ -57,13 +57,9 @@ class PyMC3BackEnd(BackEnd):
                 )
 
         kwargs = {k: self._expand_args(k, v, label, noncentered) for (k, v) in kwargs.items()}
+
         # Non-centered parameterization for hyperpriors
-        if (
-            noncentered
-            and "sigma" in kwargs
-            and "observed" not in kwargs
-            and isinstance(kwargs["sigma"], pm.model.TransformedRV)
-        ):
+        if noncentered and has_hyperprior(kwargs):
             old_sigma = kwargs["sigma"]
             _offset = pm.Normal(label + "_offset", mu=0, sigma=1, shape=kwargs["shape"])
             return pm.Deterministic(label, _offset * old_sigma)
@@ -95,7 +91,7 @@ class PyMC3BackEnd(BackEnd):
                 if dist_shape == 1:
                     dist_shape = ()
                 coef = self._build_dist(
-                    noncentered, label, dist_name, shape=dist_shape, **dist_args
+                    label, noncentered, dist_name, shape=dist_shape, **dist_args
                 )
 
                 if term.group_specific:
@@ -103,16 +99,37 @@ class PyMC3BackEnd(BackEnd):
                 else:
                     self.mu += pm.math.dot(data, coef)[:, None]
 
-            response = spec.response.data
-            response_name = spec.response.name
-            response_prior = spec.family.prior
-            link_f = spec.family.link
-            if isinstance(link_f, str):
-                link_f = self.links[link_f]
-            response_prior.args[spec.family.parent] = link_f(self.mu)
-            response_prior.args["observed"] = response
-            self._build_dist(noncentered, response_name, response_prior.name, **response_prior.args)
+            self._build_response(spec)
             self.spec = spec
+
+    def _build_response(self, spec):
+        data = spec.response.data
+        name = spec.response.name
+        prior = spec.family.prior
+        link = spec.family.link
+        if isinstance(link, str):
+            link = self.links[link]
+        prior.args[spec.family.parent] = link(self.mu)
+        prior.args["observed"] = data
+
+        dist = prior.name
+        if hasattr(pm, dist):
+            dist = getattr(pm, dist)
+        elif dist in self.dists:
+            dist = self.dists[dist]
+        else:
+            raise ValueError(f"The Distribution {dist} was not found in PyMC3 or the PyMC3BackEnd.")
+
+        kwargs = {k: self._expand_args(k, v, name, False) for (k, v) in prior.args.items()}
+
+        if spec.family.name == "gamma":
+            # Gamma distribution is specified using mu and sigma, but we request prior for alpha,
+            # so we need to build sigma from mu and alpha.
+            beta = kwargs["alpha"] / kwargs["mu"]
+            sigma = (kwargs["mu"] / beta) ** 0.5
+            return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
+
+        return dist(name, **kwargs)
 
     # pylint: disable=arguments-differ, inconsistent-return-statements
     def run(
@@ -213,3 +230,13 @@ def _laplace(model):
             stds_reshaped.append(np.reshape(stds[idx0:idx1], shape))
             idx0 = idx1
     return dict(zip(names, zip(modes, stds_reshaped)))
+
+
+def has_hyperprior(kwargs):
+    """Determines if a Prior has an hyperprior"""
+
+    return (
+        "sigma" in kwargs
+        and "observed" not in kwargs
+        and isinstance(kwargs["sigma"], pm.model.TransformedRV)
+    )

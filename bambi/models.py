@@ -405,10 +405,6 @@ class Model:
         if self.family.name == "gaussian":
             prior.update(sigma=Prior("HalfStudentT", nu=4, sigma=np.std(response.design_vector)))
 
-        if self.family.name == "gamma":
-            # as in stan docs
-            prior.update(sigma=Prior("Gamma", alpha=0.01, beta=0.01))
-
         if response.refclass is not None and self.family.name != "bernoulli":
             raise ValueError("Index notation for response only available for 'bernoulli' family")
 
