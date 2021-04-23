@@ -107,12 +107,7 @@ class Prior:
         if not isinstance(other, type(self)):
             return False
         else:
-            return (
-                self.name == other.name
-                and self.args == other.args
-                and self.scale == other.scale
-                and self._auto_scale == other._auto_scale
-            )
+            return self.__dict__ == other.__dict__
 
     def __str__(self):
         args = ", ".join(
