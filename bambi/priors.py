@@ -123,6 +123,12 @@ class Prior:
             kwargs_[key] = val
         self.args.update(kwargs_)
 
+    def __eq__(self, other):
+        if not isinstance(other, type(self)):
+            return False
+        else:
+            return self.__dict__ == other.__dict__
+
     def __str__(self):
         args = ", ".join(
             [
