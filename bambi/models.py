@@ -414,6 +414,9 @@ class Model:
         """
         if isinstance(family, str):
             family = self.default_priors.get(family=family)
+            if family.name == "gamma":
+                # Here we drop 'beta' param. But it should be handled better in the future.
+                family.prior.args.pop("beta")
         elif not isinstance(family, Family):
             raise ValueError("family must be a string or a Family object.")
 
