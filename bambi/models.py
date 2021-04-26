@@ -16,7 +16,7 @@ from formulae import design_matrices
 from .backends import PyMC3BackEnd
 from .priors import Prior, PriorFactory, PriorScaler, Family
 from .terms import ResponseTerm, Term, GroupSpecificTerm
-from .utils import listify
+from .utils import listify, extract_family_prior
 from .version import __version__
 
 _log = logging.getLogger("bambi")
@@ -151,8 +151,16 @@ class Model:
             raise ValueError("Can't instantiate a model without a model formula.")
 
         if self._design.response is not None:
-            _family = family.name if isinstance(family, Family) else family
-            self._add_response(self._design.response, family=_family, link=link)
+            priors_ = extract_family_prior(family, priors)
+            if priors_ and self._design.common:
+                conflicts = [name for name in priors_ if name in self._design.common.terms_info]
+                if conflicts:
+                    raise ValueError(
+                        f"The prior name for {', '.join(conflicts)} conflicts with the name of a "
+                        "parameter in the response distribution.\n"
+                        "Please rename the term(s) to prevent an unexpected behaviour."
+                    )
+            self._add_response(self._design.response, family, link, priors_)
         else:
             raise ValueError(
                 "No outcome variable is set! "
@@ -327,6 +335,15 @@ class Model:
             targets.update({name: group_specific for name in self.group_specific_terms.keys()})
 
         if priors is not None:
+            # Update priors related to nuisance parameters of response distribution
+            priors_ = extract_family_prior(self.family, priors)
+            if priors_:
+                # Remove keys passed to the response.
+                for key in priors_:
+                    priors.pop(key)
+                self.response.prior.args.update(priors_)
+
+            # Prepare priors for explanatory terms.
             for k, prior in priors.items():
                 for name in listify(k):
                     term_names = list(self.terms.keys())
@@ -340,6 +357,7 @@ class Model:
                     else:
                         targets[name] = prior
 
+        # Set priors for explanatory terms.
         for name, prior in targets.items():
             self.terms[name].prior = prior
 
@@ -365,7 +383,7 @@ class Model:
                 prior._auto_scale = False  # pylint: disable=protected-access
         return prior
 
-    def _add_response(self, response, prior=None, family="gaussian", link=None):
+    def _add_response(self, response, family="gaussian", link=None, priors=None):
         """Add a response (or outcome/dependent) variable to the model.
 
         Parameters
@@ -373,12 +391,6 @@ class Model:
         response : formulae.ResponseVector
             An instance of ``formulae.ResponseVector`` as returned by
             ``formulae.design_matrices()``.
-        prior : Prior, int, float, str
-            Optional specification of prior. Can be an instance of class ``Prior``, a numeric value,
-            or a string describing the width. In the numeric case, the distribution specified in
-            the defaults will be used, and the passed value will be used to scale the appropriate
-            variance parameter. For strings (e.g., ``'wide'``, ``'narrow'``, ``'medium'``, or
-            ``'superwide'``), predefined values will be used.
         family : str or Family
             A specification of the model family (analogous to the family object in R). Either a
             string, or an instance of class ``priors.Family``. If a string is passed, a family with
@@ -390,20 +402,38 @@ class Model:
             defined in the current backend; typically this will include at least ``'identity'``,
             ``'logit'``, ``'inverse'``, and ``'log'``), or a callable that takes a 1D ndarray or
             theano tensor as the sole argument and returns one with the same shape.
+        priors : dict
+            Optional dictionary with specification of priors for the parameters in the family of
+            the response. Keys are names of other parameters than the mean in the family
+            (i.e. they cannot be equal to family.parent) and values can be an instance of class
+            ``Prior``, a numeric value, or a string describing the width. In the numeric case,
+            the distribution specified in the defaults will be used, and the passed value will be
+            used to scale the appropriate variance parameter. For strings (e.g., ``'wide'``,
+            ``'narrow'``, ``'medium'``, or ``'superwide'``), predefined values will be used.
         """
         if isinstance(family, str):
             family = self.default_priors.get(family=family)
+        elif not isinstance(family, Family):
+            raise ValueError("family must be a string or a Family object.")
+
         self.family = family
 
         # Override family's link if another is explicitly passed
         if link is not None:
             self.family.link = link
 
-        if prior is None:
-            prior = self.family.prior
+        prior = self.family.prior
+
+        # not None when user passes priors for nuisance parameters, either for built-in familes or
+        # for custom families.
+        if priors is not None:
+            prior.args.update(priors)
 
         if self.family.name == "gaussian":
-            prior.update(sigma=Prior("HalfStudentT", nu=4, sigma=np.std(response.design_vector)))
+            if priors is None:
+                prior.update(
+                    sigma=Prior("HalfStudentT", nu=4, sigma=np.std(response.design_vector))
+                )
 
         if response.refclass is not None and self.family.name != "bernoulli":
             raise ValueError("Index notation for response only available for 'bernoulli' family")

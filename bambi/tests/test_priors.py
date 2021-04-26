@@ -134,3 +134,29 @@ def test_complete_separation():
     # No error is raised
     priors = {"common": Prior("Normal", mu=0, sigma=10)}
     Model("y ~ g", data, family="bernoulli", priors=priors).fit()
+
+
+def test_response_prior():
+    data = pd.DataFrame({"y": np.random.randint(3, 10, size=50), "x": np.random.normal(size=50)})
+
+    priors = {"sigma": Prior("Uniform", lower=0, upper=50)}
+    model = Model("y ~ x", data, priors=priors)
+    assert model.response.prior.args["sigma"] == priors["sigma"]
+
+    priors = {"mu": Prior("Uniform", lower=1, upper=20)}
+    model = Model("y ~ x", data, family="negativebinomial", priors=priors)
+    assert model.response.prior.args["mu"] == priors["mu"]
+
+
+def test_set_response_prior():
+    data = pd.DataFrame({"y": np.random.randint(3, 10, size=50), "x": np.random.normal(size=50)})
+
+    priors = {"sigma": Prior("Uniform", lower=0, upper=50)}
+    model = Model("y ~ x", data)
+    model.set_priors(priors)
+    assert model.response.prior.args["sigma"] == Prior("Uniform", lower=0, upper=50)
+
+    priors = {"mu": Prior("Uniform", lower=1, upper=20)}
+    model = Model("y ~ x", data, family="negativebinomial")
+    model.set_priors(priors)
+    assert model.response.prior.args["mu"] == Prior("Uniform", lower=1, upper=20)
