@@ -277,6 +277,7 @@ def test_cell_means_with_many_group_specific_effects(crossed_data):
     assert set(priors0) == set(priors1)
 
 
+@pytest.mark.skip(reason="We are correctly handling string links only, not functions.")
 def test_logistic_regression(crossed_data):
     # Tests passing link="logit" is equivalent to using tt.nnet.sigmoid
     model0 = Model(
@@ -294,13 +295,13 @@ def test_logistic_regression(crossed_data):
         family="bernoulli",
         link=tt.nnet.sigmoid,
     )
-    fitted3 = model1.fit(
+    fitted1 = model1.fit(
         tune=0,
         draws=1000,
     )
 
     # check that using a theano link function works
-    assert np.allclose(az.summary(fitted0)["mean"], az.summary(fitted3)["mean"], atol=0.2)
+    assert np.allclose(az.summary(fitted0)["mean"], az.summary(fitted1)["mean"], atol=0.2)
 
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)

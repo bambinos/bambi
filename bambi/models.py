@@ -152,6 +152,7 @@ class Model:
 
         if self._design.response is not None:
             _family = family.name if isinstance(family, Family) else family
+            print(link)
             self._add_response(self._design.response, family=_family, link=link)
         else:
             raise ValueError(
@@ -397,7 +398,7 @@ class Model:
 
         # Override family's link if another is explicitly passed
         if link is not None:
-            self.family.link = link
+            self.family._set_link(link)  # pylint: disable=protected-access
 
         if prior is None:
             prior = self.family.prior

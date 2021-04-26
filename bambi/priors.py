@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 from scipy.special import hyp2f1
 from statsmodels.genmod import families as genmod_families
+import statsmodels.genmod.families.links as genmod_links
 from statsmodels.genmod.generalized_linear_model import GLM
 from statsmodels.tools.sm_exceptions import PerfectSeparationError
 
@@ -32,10 +33,7 @@ class Family:
     """
 
     def __init__(self, name, prior, link, parent):
-        self.name = name
-        self.prior = prior
-        self.link = link
-        self.parent = parent
+        self.smlink = None
         fams = {
             "bernoulli": genmod_families.Binomial,
             "gamma": genmod_families.Gamma,
@@ -45,7 +43,29 @@ class Family:
             "poisson": genmod_families.Poisson,
             "t": None,  # not implemented in statsmodels
         }
-        self.smfamily = fams[name] if name in fams.keys() else None
+        self.name = name
+        self.prior = prior
+        self.link = link
+        self.parent = parent
+        self.smfamily = fams.get(name, None)
+
+    def _set_link(self, link):
+        """Set new link function.
+        It updates both ``self.link`` (a string consumed by the backend) and ``self.smlink``
+        (the link instance for the statsmodel family)
+        """
+        links = {
+            "identity": genmod_links.identity,
+            "logit": genmod_links.logit,
+            "inverse": genmod_links.inverse_power,
+            "inverse_squared": genmod_links.inverse_squared,
+            "log": genmod_links.log,
+        }
+        self.link = link
+        if link in links:
+            self.smlink = links[link]
+        else:
+            raise ValueError("Link name is not supported.")
 
     def __str__(self):
         if self.smfamily is None:
@@ -275,7 +295,9 @@ class PriorScaler:
         if keeps:
             null = [
                 GLM(
-                    endog=self.model.response.data, exog=exog, family=self.model.family.smfamily()
+                    endog=self.model.response.data,
+                    exog=exog,
+                    family=self.model.family.smfamily(self.model.family.smlink),
                 ).fit_constrained(str(exog.columns[i]) + "=" + str(val))
                 for val in values[:-1]
             ]
@@ -284,7 +306,7 @@ class PriorScaler:
         # if just a single predictor, use statsmodels to evaluate the LL
         else:
             null = [
-                self.model.family.smfamily().loglike(
+                self.model.family.smfamily(self.model.family.smlink).loglike(
                     np.squeeze(self.model.response.data), val * predictor
                 )
                 for val in values[:-1]
@@ -344,7 +366,7 @@ class PriorScaler:
         mod = GLM(
             endog=self.model.response.data,
             exog=np.repeat(1, len(self.model.response.data)),
-            family=self.model.family.smfamily(),
+            family=self.model.family.smfamily(self.model.family.smlink),
             missing="drop" if self.model.dropna else "none",
         ).fit()
         mu = mod.params
@@ -448,7 +470,7 @@ class PriorScaler:
                 full_mod = GLM(
                     endog=self.model.response.data,
                     exog=exog,
-                    family=self.model.family.smfamily(),
+                    family=self.model.family.smfamily(self.model.family.smlink),
                     missing=missing,
                 ).fit()
                 sigma = self._get_slope_stats(
@@ -511,7 +533,7 @@ class PriorScaler:
             self.mle = GLM(
                 endog=self.model.response.data,
                 exog=self.dm,
-                family=self.model.family.smfamily(),
+                family=self.model.family.smfamily(self.model.family.smlink),
                 missing=missing,
             ).fit()
         except PerfectSeparationError as error:

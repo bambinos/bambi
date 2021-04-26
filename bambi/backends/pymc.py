@@ -37,35 +37,6 @@ class PyMC3BackEnd(BackEnd):
         self.advi_params = None  # build()
         self.fit = False  # run()
 
-    # Inspect all args in case we have hyperparameters
-    def _expand_args(self, key, value, label, noncentered):
-        if isinstance(value, Prior):
-            label = f"{label}_{key}"
-            return self._build_dist(label, noncentered, value.name, **value.args)
-        return value
-
-    def _build_dist(self, label, noncentered, dist, **kwargs):
-        """Build and return a PyMC3 Distribution."""
-        if isinstance(dist, str):
-            if hasattr(pm, dist):
-                dist = getattr(pm, dist)
-            elif dist in self.dists:
-                dist = self.dists[dist]
-            else:
-                raise ValueError(
-                    f"The Distribution {dist} was not found in PyMC3 or the PyMC3BackEnd."
-                )
-
-        kwargs = {k: self._expand_args(k, v, label, noncentered) for (k, v) in kwargs.items()}
-
-        # Non-centered parameterization for hyperpriors
-        if noncentered and has_hyperprior(kwargs):
-            old_sigma = kwargs["sigma"]
-            _offset = pm.Normal(label + "_offset", mu=0, sigma=1, shape=kwargs["shape"])
-            return pm.Deterministic(label, _offset * old_sigma)
-
-        return dist(label, **kwargs)
-
     def build(self, spec):  # pylint: disable=arguments-differ
         """Compile the PyMC3 model from an abstract model specification.
 
@@ -101,35 +72,6 @@ class PyMC3BackEnd(BackEnd):
 
             self._build_response(spec)
             self.spec = spec
-
-    def _build_response(self, spec):
-        data = spec.response.data
-        name = spec.response.name
-        prior = spec.family.prior
-        link = spec.family.link
-        if isinstance(link, str):
-            link = self.links[link]
-        prior.args[spec.family.parent] = link(self.mu)
-        prior.args["observed"] = data
-
-        dist = prior.name
-        if hasattr(pm, dist):
-            dist = getattr(pm, dist)
-        elif dist in self.dists:
-            dist = self.dists[dist]
-        else:
-            raise ValueError(f"The Distribution {dist} was not found in PyMC3 or the PyMC3BackEnd.")
-
-        kwargs = {k: self._expand_args(k, v, name, False) for (k, v) in prior.args.items()}
-
-        if spec.family.name == "gamma":
-            # Gamma distribution is specified using mu and sigma, but we request prior for alpha,
-            # so we need to build sigma from mu and alpha.
-            beta = kwargs["alpha"] / kwargs["mu"]
-            sigma = (kwargs["mu"] / beta) ** 0.5
-            return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
-
-        return dist(name, **kwargs)
 
     # pylint: disable=arguments-differ, inconsistent-return-statements
     def run(
@@ -196,6 +138,64 @@ class PyMC3BackEnd(BackEnd):
 
         elif method.lower() == "laplace":
             return _laplace(model)
+
+    def _build_dist(self, label, noncentered, dist, **kwargs):
+        """Build and return a PyMC3 Distribution."""
+
+        dist = self._get_dist(dist)
+        kwargs = {k: self._expand_args(k, v, label, noncentered) for (k, v) in kwargs.items()}
+
+        # Non-centered parameterization for hyperpriors
+        if noncentered and has_hyperprior(kwargs):
+            old_sigma = kwargs["sigma"]
+            _offset = pm.Normal(label + "_offset", mu=0, sigma=1, shape=kwargs["shape"])
+            return pm.Deterministic(label, _offset * old_sigma)
+
+        return dist(label, **kwargs)
+
+    def _get_dist(self, dist):
+        """Return a PyMC3 distribution."""
+        if isinstance(dist, str):
+            if hasattr(pm, dist):
+                dist = getattr(pm, dist)
+            elif dist in self.dists:
+                dist = self.dists[dist]
+            else:
+                raise ValueError(
+                    f"The Distribution {dist} was not found in PyMC3 or the PyMC3BackEnd."
+                )
+        return dist
+
+    def _build_response(self, spec):
+        """Build and return a response distribution."""
+
+        data = spec.response.data
+        name = spec.response.name
+        prior = spec.family.prior
+        link = spec.family.link
+        if isinstance(link, str):
+            link = self.links[link]
+        prior.args[spec.family.parent] = link(self.mu)
+        prior.args["observed"] = data
+
+        dist = self._get_dist(prior.name)
+        kwargs = {k: self._expand_args(k, v, name, False) for (k, v) in prior.args.items()}
+
+        if spec.family.name == "gamma":
+            # Gamma distribution is specified using mu and sigma, but we request prior for alpha,
+            # so we need to build sigma from mu and alpha.
+            beta = kwargs["alpha"] / kwargs["mu"]
+            sigma = (kwargs["mu"] / beta) ** 0.5
+            return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
+
+        return dist(name, **kwargs)
+
+    def _expand_args(self, key, value, label, noncentered):
+        # Inspect all args in case we have hyperparameters
+        if isinstance(value, Prior):
+            label = f"{label}_{key}"
+            return self._build_dist(label, noncentered, value.name, **value.args)
+        return value
 
 
 def _laplace(model):
