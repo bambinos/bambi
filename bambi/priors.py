@@ -59,6 +59,7 @@ class Family:
             "identity": genmod_links.identity(),
             "logit": genmod_links.logit(),
             "probit": genmod_links.probit(),
+            "cloglog": genmod_links.cloglog(),
             "inverse": genmod_links.inverse_power(),
             "inverse_squared": genmod_links.inverse_squared(),
             "log": genmod_links.log(),

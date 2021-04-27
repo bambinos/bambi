@@ -19,6 +19,7 @@ class PyMC3BackEnd(BackEnd):
         "identity": lambda x: x,
         "logit": theano.tensor.nnet.sigmoid,
         "probit": lambda x: 0.5 + 0.5 * theano.tensor.erf(x / theano.tensor.sqrt(2)),
+        "cloglog": lambda x: 1 - theano.tensor.exp(- theano.tensor.exp(x)),
         "inverse": theano.tensor.inv,
         "inverse_squared": lambda x: theano.tensor.inv(theano.tensor.sqrt(x)),
         "log": theano.tensor.exp,
