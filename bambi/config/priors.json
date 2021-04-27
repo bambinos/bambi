@@ -76,6 +76,15 @@
       ],
       "link": "inverse",
       "parent": "mu"
+    },
+    "wald": {
+      "dist": [
+        "#wald", {
+          "lam": "#halfcauchy"
+        }
+      ],
+      "link": "inverse_squared",
+      "parent": "mu"
     }
   },
   "dists": {
@@ -149,6 +158,12 @@
       "Gamma", {
         "alpha": 2,
         "beta": 2
+      }
+    ],
+    "wald": [
+      "Wald", {
+        "mu": 1,
+        "lam": 1
       }
     ]
   }
