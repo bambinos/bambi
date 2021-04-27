@@ -21,8 +21,8 @@ def extract_family_prior(family, priors):
     if isinstance(family, str):
         if family == "gaussian" and "sigma" in priors:
             return {"sigma": priors["sigma"]}
-        elif family == "negativebinomial" and "mu" in priors:
-            return {"mu": priors["mu"]}
+        elif family == "negativebinomial" and "alpha" in priors:
+            return {"alpha": priors["alpha"]}
         elif family == "gamma" and "alpha" in priors:
             return {"alpha": priors["alpha"]}
     elif isinstance(family, Family):
