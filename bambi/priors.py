@@ -10,9 +10,10 @@ import numpy as np
 import pandas as pd
 from scipy.special import hyp2f1
 from statsmodels.genmod import families as genmod_families
-import statsmodels.genmod.families.links as genmod_links
 from statsmodels.genmod.generalized_linear_model import GLM
 from statsmodels.tools.sm_exceptions import PerfectSeparationError
+
+genmod_links = genmod_families.links
 
 
 class Family:
@@ -55,11 +56,11 @@ class Family:
         (the link instance for the statsmodel family)
         """
         links = {
-            "identity": genmod_links.identity,
-            "logit": genmod_links.logit,
-            "inverse": genmod_links.inverse_power,
-            "inverse_squared": genmod_links.inverse_squared,
-            "log": genmod_links.log,
+            "identity": genmod_links.identity(),
+            "logit": genmod_links.logit(),
+            "inverse": genmod_links.inverse_power(),
+            "inverse_squared": genmod_links.inverse_squared(),
+            "log": genmod_links.log(),
         }
         self.link = link
         if link in links:

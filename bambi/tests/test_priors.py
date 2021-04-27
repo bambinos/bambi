@@ -147,6 +147,10 @@ def test_response_prior():
     model = Model("y ~ x", data, family="negativebinomial", priors=priors)
     assert model.response.prior.args["mu"] == priors["mu"]
 
+    priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
+    model = Model("y ~ x", data, family="gamma", priors=priors)
+    assert model.response.prior.args["alpha"] == Prior("Uniform", lower=0, upper=50)
+
 
 def test_set_response_prior():
     data = pd.DataFrame({"y": np.random.randint(3, 10, size=50), "x": np.random.normal(size=50)})
@@ -160,3 +164,28 @@ def test_set_response_prior():
     model = Model("y ~ x", data, family="negativebinomial")
     model.set_priors(priors)
     assert model.response.prior.args["mu"] == Prior("Uniform", lower=1, upper=20)
+
+    priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
+    model = Model("y ~ x", data, family="gamma")
+    model.set_priors(priors)
+    assert model.response.prior.args["alpha"] == Prior("Uniform", lower=0, upper=50)
+
+
+def test_response_prior_fail():
+    data = pd.DataFrame(
+        {"y": np.random.randint(3, 10, size=50), "sigma": np.random.normal(size=50)}
+    )
+
+    priors = {"sigma": Prior("Uniform", lower=0, upper=50)}
+    with pytest.raises(ValueError):
+        Model("y ~ sigma", data, priors=priors)
+
+    data.rename(columns={"sigma": "mu"}, inplace=True)
+    priors = {"mu": Prior("Uniform", lower=0, upper=50)}
+    with pytest.raises(ValueError):
+        Model("y ~ mu", data, family="negativebinomial", priors=priors)
+
+    data.rename(columns={"mu": "alpha"}, inplace=True)
+    priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
+    with pytest.raises(ValueError):
+        Model("y ~ alpha", data, family="gamma", priors=priors)

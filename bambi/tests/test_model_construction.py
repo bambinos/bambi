@@ -291,7 +291,7 @@ def test_sparse_fails():
         "negativebinomial",
         "bernoulli",
         "poisson",
-        pytest.param("gamma", marks=pytest.mark.xfail),
+        "gamma",
         pytest.param("wald", marks=pytest.mark.xfail),
     ],
 )
@@ -299,3 +299,32 @@ def test_automatic_priors(family):
     """Test that automatic priors work correctly"""
     obs = pd.DataFrame([0], columns=["x"])
     Model("x ~ 0", obs, family=family)
+
+
+def test_non_default_links():
+    data = pd.DataFrame(
+        {
+            "y": np.random.randint(3, 10, size=100),
+            "x": np.random.randint(3, 10, size=100),
+        }
+    )
+    gaussian_links = ["identity", "log", "inverse"]
+    gamma_links = ["identity", "inverse", "log"]
+
+    for link in gaussian_links:
+        Model("y ~ x", data, family="gaussian", link=link)
+
+    for link in gamma_links:
+        Model("y ~ x", data, family="gamma", link=link)
+
+    # todo for bernoulli
+    # logit, probit, cauchy, log, cloglog, identity, default is logit
+
+    # todo for wald
+    # inverse_squared, inverse_power, identity, log, default is inverse squared
+
+    # todo for negativebinomial
+    # log, cloglog, identity, nbinom, Power.. maybe not the last two. default is log
+
+    # todo for poisson
+    # log, identity, sqrt, default is log
