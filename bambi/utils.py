@@ -32,3 +32,20 @@ def extract_family_prior(family, priors):
         if set(nuisance_params).intersection(set(priors)):
             return {k: priors[k] for k in nuisance_params if k in priors}
     return None
+
+
+def link_match_family(link, family_name):  # pylint: disable= too-many-return-statements
+    if family_name == "gaussian":
+        return link in ["identity", "log", "inverse"]
+    elif family_name == "gamma":
+        return link in ["identity", "log", "inverse"]
+    elif family_name == "bernoulli":
+        return link in ["identity", "logit", "probit", "cloglog"]
+    elif family_name == "wald":
+        return link in ["inverse_squared", "inverse_power", "identity", "log"]
+    elif family_name == "negativebinomial":
+        return link in ["identity", "log", "cloglog"]
+    elif family_name == "poisson":
+        return link in ["identity", "log"]
+    else:  # Custom family, we don't know what link functions can be used
+        return True

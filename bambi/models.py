@@ -16,7 +16,7 @@ from formulae import design_matrices
 from .backends import PyMC3BackEnd
 from .priors import Prior, PriorFactory, PriorScaler, Family
 from .terms import ResponseTerm, Term, GroupSpecificTerm
-from .utils import listify, extract_family_prior
+from .utils import listify, extract_family_prior, link_match_family
 from .version import __version__
 
 _log = logging.getLogger("bambi")
@@ -151,7 +151,6 @@ class Model:
             raise ValueError("Can't instantiate a model without a model formula.")
 
         if self._design.response is not None:
-            _family = family.name if isinstance(family, Family) else family
             priors_ = extract_family_prior(family, priors)
             if priors_ and self._design.common:
                 conflicts = [name for name in priors_ if name in self._design.common.terms_info]
@@ -424,7 +423,10 @@ class Model:
 
         # Override family's link if another is explicitly passed
         if link is not None:
-            self.family._set_link(link)  # pylint: disable=protected-access
+            if link_match_family(link, family.name):
+                self.family._set_link(link)  # pylint: disable=protected-access
+            else:
+                raise ValueError(f"Link {link} cannot be used with family {family.name}")
 
         prior = self.family.prior
 
