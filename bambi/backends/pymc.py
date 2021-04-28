@@ -19,7 +19,7 @@ def probit(x):
     zero = theano.shared(np.array(0), "zero")
     one = theano.shared(np.array(1), "one")
 
-    result =  0.5 + 0.5 * tsr.erf(x / tsr.sqrt(2))
+    result = 0.5 + 0.5 * tsr.erf(x / tsr.sqrt(2))
     result = tsr.switch(tsr.eq(result, zero), eps, result)
     result = tsr.switch(tsr.eq(result, one), one - eps, result)
 
