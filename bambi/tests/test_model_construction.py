@@ -11,6 +11,7 @@ from formulae import design_matrices
 from bambi.models import Model
 from bambi.terms import Term, GroupSpecificTerm
 from bambi.priors import Prior
+from bambi.utils import link_match_family
 
 
 @pytest.fixture(scope="module")
@@ -301,30 +302,109 @@ def test_automatic_priors(family):
     Model("x ~ 0", obs, family=family)
 
 
-def test_non_default_links():
+def test_links():
     data = pd.DataFrame(
         {
+            "g": np.random.choice([0, 1], size=100),
             "y": np.random.randint(3, 10, size=100),
             "x": np.random.randint(3, 10, size=100),
         }
     )
-    gaussian_links = ["identity", "log", "inverse"]
-    gamma_links = ["identity", "inverse", "log"]
+    gaussian = ["identity", "log", "inverse"]
+    gamma = ["identity", "inverse", "log"]
+    bernoulli = ["identity", "logit", "probit", "cloglog"]
+    wald = ["inverse", "inverse_squared", "identity", "log"]
+    negativebinomial = ["identity", "log", "cloglog"]
+    poisson = ["identity", "log"]
 
-    for link in gaussian_links:
+    for link in gaussian:
         Model("y ~ x", data, family="gaussian", link=link)
 
-    for link in gamma_links:
+    for link in gamma:
         Model("y ~ x", data, family="gamma", link=link)
 
-    # todo for bernoulli
-    # logit, probit, cauchy, log, cloglog, identity, default is logit
+    for link in bernoulli:
+        Model("g ~ x", data, family="bernoulli", link=link)
 
-    # todo for wald
-    # inverse_squared, inverse_power, identity, log, default is inverse squared
+    for link in wald:
+        Model("y ~ x", data, family="wald", link=link)
 
-    # todo for negativebinomial
-    # log, cloglog, identity, nbinom, Power.. maybe not the last two. default is log
+    for link in negativebinomial:
+        Model("y ~ x", data, family="negativebinomial", link=link)
 
-    # todo for poisson
-    # log, identity, sqrt, default is log
+    for link in poisson:
+        Model("y ~ x", data, family="poisson", link=link)
+
+
+def test_bad_links():
+    """Passes names of links that are not suitable for the family."""
+    data = pd.DataFrame(
+        {
+            "g": np.random.choice([0, 1], size=100),
+            "y": np.random.randint(3, 10, size=100),
+            "x": np.random.randint(3, 10, size=100),
+        }
+    )
+    gaussian = ["logit", "probit", "cloglog"]
+    gamma = ["logit", "probit", "cloglog"]
+    bernoulli = ["inverse", "inverse_squared", "log"]
+    wald = ["logit", "probit", "cloglog"]
+    negativebinomial = ["logit", "probit", "inverse", "inverse_squared"]
+    poisson = ["logit", "probit", "cloglog", "inverse", "inverse_squared"]
+
+    for link in gaussian:
+        with pytest.raises(ValueError):
+            Model("y ~ x", data, family="gaussian", link=link)
+
+    for link in gamma:
+        with pytest.raises(ValueError):
+            Model("y ~ x", data, family="gamma", link=link)
+
+    for link in bernoulli:
+        with pytest.raises(ValueError):
+            Model("g ~ x", data, family="bernoulli", link=link)
+
+    for link in wald:
+        with pytest.raises(ValueError):
+            Model("y ~ x", data, family="wald", link=link)
+
+    for link in negativebinomial:
+        with pytest.raises(ValueError):
+            Model("y ~ x", data, family="negativebinomial", link=link)
+
+    for link in poisson:
+        with pytest.raises(ValueError):
+            Model("y ~ x", data, family="poisson", link=link)
+
+
+def test_link_match_family():
+    accepted = {
+        "gaussian": ["identity", "log", "inverse"],
+        "gamma": ["identity", "inverse", "log"],
+        "bernoulli": ["identity", "logit", "probit", "cloglog"],
+        "wald": ["inverse", "inverse_squared", "identity", "log"],
+        "negativebinomial": ["identity", "log", "cloglog"],
+        "poisson": ["identity", "log"],
+    }
+
+    unaccepted = {
+        "gaussian": ["logit", "probit", "cloglog"],
+        "gamma": ["logit", "probit", "cloglog"],
+        "bernoulli": ["inverse", "inverse_squared", "log"],
+        "wald": ["logit", "probit", "cloglog"],
+        "negativebinomial": ["logit", "probit", "inverse", "inverse_squared"],
+        "poisson": ["logit", "probit", "cloglog", "inverse", "inverse_squared"],
+    }
+
+    custom_families = ["hi", "dear", "friend"]
+
+    for family, links in accepted.items():
+        for link in links:
+            assert link_match_family(link, family)
+
+    for family, links in unaccepted.items():
+        for link in links:
+            assert not link_match_family(link, family)
+
+    for family in custom_families:
+        assert link_match_family("anything", family)

@@ -49,7 +49,7 @@ def link_match_family(link, family_name):  # pylint: disable= too-many-return-st
     elif family_name == "bernoulli":
         return link in ["identity", "logit", "probit", "cloglog"]
     elif family_name == "wald":
-        return link in ["inverse_squared", "inverse_power", "identity", "log"]
+        return link in ["inverse", "inverse_squared", "identity", "log"]
     elif family_name == "negativebinomial":
         return link in ["identity", "log", "cloglog"]
     elif family_name == "poisson":
