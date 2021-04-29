@@ -1,8 +1,7 @@
 import logging
 
 import numpy as np
-import theano
-import theano.tensor as tsr
+import theano.tensor as tt
 import pymc3 as pm
 
 from bambi.priors import Prior
@@ -15,26 +14,20 @@ _log = logging.getLogger("bambi")
 
 def probit(x):
     """Probit function that ensures result is in (0, 1)"""
-    eps = theano.shared(np.array(np.finfo(float).eps), "eps")
-    zero = theano.shared(np.array(0), "zero")
-    one = theano.shared(np.array(1), "one")
-
-    result = 0.5 + 0.5 * tsr.erf(x / tsr.sqrt(2))
-    result = tsr.switch(tsr.eq(result, zero), eps, result)
-    result = tsr.switch(tsr.eq(result, one), one - eps, result)
+    eps = np.finfo(float).eps
+    result = 0.5 + 0.5 * tt.erf(x / tt.sqrt(2))
+    result = tt.switch(tt.eq(result, 0), eps, result)
+    result = tt.switch(tt.eq(result, 1), 1 - eps, result)
 
     return result
 
 
 def cloglog(x):
     """Cloglog function that ensures result is in (0, 1)"""
-    eps = theano.shared(np.array(np.finfo(float).eps), "eps")
-    zero = theano.shared(np.array(0), "zero")
-    one = theano.shared(np.array(1), "one")
-
-    result = 1 - tsr.exp(-tsr.exp(x))
-    result = tsr.switch(tsr.eq(result, zero), eps, result)
-    result = tsr.switch(tsr.eq(result, one), one - eps, result)
+    eps = np.finfo(float).eps
+    result = 1 - tt.exp(-tt.exp(x))
+    result = tt.switch(tt.eq(result, 0), eps, result)
+    result = tt.switch(tt.eq(result, 1), 1 - eps, result)
 
     return result
 
@@ -45,12 +38,12 @@ class PyMC3BackEnd(BackEnd):
     # Available link functions
     links = {
         "identity": lambda x: x,
-        "logit": tsr.nnet.sigmoid,
+        "logit": tt.nnet.sigmoid,
         "probit": probit,
         "cloglog": cloglog,
-        "inverse": tsr.inv,
-        "inverse_squared": lambda x: tsr.inv(tsr.sqrt(x)),
-        "log": tsr.exp,
+        "inverse": tt.inv,
+        "inverse_squared": lambda x: tt.inv(tt.sqrt(x)),
+        "log": tt.exp,
     }
 
     dists = {"HalfFlat": pm.Bound(pm.Flat, lower=0)}

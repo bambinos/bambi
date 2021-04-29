@@ -35,6 +35,13 @@ def extract_family_prior(family, priors):
 
 
 def link_match_family(link, family_name):  # pylint: disable= too-many-return-statements
+    """Checks whether the a link can be used in a given family.
+
+    When this function is used with built-in family names, it tests whether the link name can be
+    used with the given built-in family. If the family name is not known, we return True because
+    the user is working with a custom ``Family`` object.
+    Which links can work with which families are taken from statsmodels.
+    """
     if family_name == "gaussian":
         return link in ["identity", "log", "inverse"]
     elif family_name == "gamma":
