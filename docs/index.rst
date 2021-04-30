@@ -8,7 +8,7 @@ BAyesian Model-Building Interface (Bambi) in Python
 
 
 .. |PyPI version| image:: https://badge.fury.io/py/bambi.svg
-    :target: https://badge.fury.io/py/arviz
+    :target: https://badge.fury.io/py/bambi
 
 .. |Tests| image:: https://github.com/bambinos/bambi/actions/workflows/test.yml/badge.svg
     :target: https://github.com/bambinos/bambi
