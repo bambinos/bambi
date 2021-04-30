@@ -310,6 +310,7 @@ def test_links():
             "x": np.random.randint(3, 10, size=100),
         }
     )
+
     gaussian = ["identity", "log", "inverse"]
     gamma = ["identity", "inverse", "log"]
     bernoulli = ["identity", "logit", "probit", "cloglog"]

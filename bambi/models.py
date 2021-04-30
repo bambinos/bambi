@@ -151,6 +151,7 @@ class Model:
             raise ValueError("Can't instantiate a model without a model formula.")
 
         if self._design.response is not None:
+            _family = family.name if isinstance(family, Family) else family
             priors_ = extract_family_prior(family, priors)
             if priors_ and self._design.common:
                 conflicts = [name for name in priors_ if name in self._design.common.terms_info]
