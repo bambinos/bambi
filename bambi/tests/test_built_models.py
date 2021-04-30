@@ -34,6 +34,19 @@ def crossed_data():
     return data
 
 
+@pytest.fixture(scope="module")
+def dm():
+    """
+    Data obtained from from https://github.com/jswesner/nps_emergence/tree/v2_nps_emerge
+    and used in Gamma GLM
+    """
+    from os.path import dirname, join
+
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "dm.csv"))
+    return data
+
+
 def test_empty_model(crossed_data):
     model0 = Model("Y ~ 0", crossed_data)
     model0.fit(tune=0, draws=1)
@@ -277,6 +290,7 @@ def test_cell_means_with_many_group_specific_effects(crossed_data):
     assert set(priors0) == set(priors1)
 
 
+@pytest.mark.skip(reason="We are correctly handling string links only, not functions.")
 def test_logistic_regression(crossed_data):
     # Tests passing link="logit" is equivalent to using tt.nnet.sigmoid
     model0 = Model(
@@ -294,13 +308,13 @@ def test_logistic_regression(crossed_data):
         family="bernoulli",
         link=tt.nnet.sigmoid,
     )
-    fitted3 = model1.fit(
+    fitted1 = model1.fit(
         tune=0,
         draws=1000,
     )
 
     # check that using a theano link function works
-    assert np.allclose(az.summary(fitted0)["mean"], az.summary(fitted3)["mean"], atol=0.2)
+    assert np.allclose(az.summary(fitted0)["mean"], az.summary(fitted1)["mean"], atol=0.2)
 
     # check that term names agree
     assert set(model0.term_names) == set(model1.term_names)
@@ -458,3 +472,24 @@ def test_posterior_predictive(crossed_data):
 
     assert pps is None
     assert fitted.posterior_predictive["count"].shape == (1, 500, 120)
+
+
+def test_gamma_regression(dm):
+    # simulated data
+    np.random.seed(1234)
+    N = 100
+    x = np.random.uniform(-1, 1, N)
+    a = 0.5
+    b = 1.2
+    y_true = np.exp(a + b * x)
+    shape_true = 10  # alpha
+
+    y = np.random.gamma(shape_true, y_true / shape_true, N)
+    data = pd.DataFrame({"x": x, "y": y})
+    model = Model("y ~ x", data, family="gamma", link="log")
+    model.fit()
+
+    # Real data, categorical predictor.
+    data = dm[["order", "ind_mg_dry"]]
+    model = Model("ind_mg_dry ~ order", data, family="gamma", link="log")
+    model.fit()

@@ -151,6 +151,7 @@ class Model:
             raise ValueError("Can't instantiate a model without a model formula.")
 
         if self._design.response is not None:
+            _family = family.name if isinstance(family, Family) else family
             priors_ = extract_family_prior(family, priors)
             if priors_ and self._design.common:
                 conflicts = [name for name in priors_ if name in self._design.common.terms_info]
@@ -413,6 +414,9 @@ class Model:
         """
         if isinstance(family, str):
             family = self.default_priors.get(family=family)
+            if family.name == "gamma":
+                # Drop 'beta' param. Should be handled better in the future.
+                family.prior.args.pop("beta")
         elif not isinstance(family, Family):
             raise ValueError("family must be a string or a Family object.")
 
@@ -420,7 +424,7 @@ class Model:
 
         # Override family's link if another is explicitly passed
         if link is not None:
-            self.family.link = link
+            self.family._set_link(link)  # pylint: disable=protected-access
 
         prior = self.family.prior
 

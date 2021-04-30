@@ -23,6 +23,8 @@ def extract_family_prior(family, priors):
             return {"sigma": priors["sigma"]}
         elif family == "negativebinomial" and "mu" in priors:
             return {"mu": priors["mu"]}
+        elif family == "gamma" and "alpha" in priors:
+            return {"alpha": priors["alpha"]}
     elif isinstance(family, Family):
         # Only work if there are nuisance parameters in the family, and if any of these nuisance
         # parameters is present in 'priors' dictionary.
