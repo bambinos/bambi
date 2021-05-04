@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'bambi'
+project = 'Bambi'
 copyright = '2021, The developers of Bambi'
 author = 'The developers of Bambi'
 
@@ -83,7 +83,7 @@ pygments_style = "sphinx"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+html_theme = 'alabaster' # pydata_sphinx_theme
 # html_theme_path = [sphinx_alabaster_theme.get_html_theme_path()]
 
 # Theme options are theme-specific and customize the look and feel of a theme

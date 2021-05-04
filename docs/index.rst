@@ -1,21 +1,35 @@
 BAyesian Model-Building Interface (Bambi) in Python
 ===================================================
+|PyPI version|
 |Build|
+|Tests|
 |Coverage|
+|Black|
 
+
+.. |PyPI version| image:: https://badge.fury.io/py/bambi.svg
+    :target: https://badge.fury.io/py/bambi
+
+.. |Tests| image:: https://github.com/bambinos/bambi/actions/workflows/test.yml/badge.svg
+    :target: https://github.com/bambinos/bambi
 
 .. |Build| image:: https://travis-ci.org/bambinos/bambi.svg
     :target: https://travis-ci.org/bambinos/bambi
 
-.. |Coverage| image:: https://coveralls.io/repos/github/bambinos/bambi/badge.svg
+.. |Coverage| image:: https://codecov.io/gh/bambinos/bambi/branch/master/graph/badge.svg?token=ZqH0KCLKAE
     :target: https://coveralls.io/github/bambinos/bambi
+
+.. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/ambv/black
+
+
 
 Bambi is a high-level Bayesian model-building interface written in Python. It works with the probabilistic programming frameworks `PyMC3 <https://docs.pymc.io/>`__ and is designed to make it extremely easy to fit Bayesian mixed-effects models common in biology, social sciences and other disciplines.
 
 
 Dependencies
 ============
-Bambi is tested on Python 3.6+ and depends on NumPy, Pandas, PyMC3, Patsy and ArviZ (see `requirements.txt <https://github.com/bambinos/bambi/blob/master/requirements.txt>`_ for version information).
+Bambi is tested on Python 3.7+ and depends on ArviZ, formulae, NumPy, pandas, PyMC3 and statsmodels (see `requirements.txt <https://github.com/bambinos/bambi/blob/master/requirements.txt>`_ for version information).
 
 Installation
 ============
@@ -43,11 +57,11 @@ A simple fixed effects model is shown below as example.
     # Read in a tab-delimited file containing our data
     data = pd.read_table('my_data.txt', sep='\t')
 
-    # Initialize the model
-    model = Model(data)
+    # Initialize the fixed effects only model
+    model = Model('DV ~ IV1 + IV2', data)
 
-    # Fixed effects only model
-    results = model.fit('DV ~ IV1 + IV2', draws=1000, chains=4)
+    # Fit the model using 1000 on each of 4 chains
+    results = model.fit(draws=1000, chains=4)
 
     # Use ArviZ to plot the results
     az.plot_trace(results)
@@ -72,7 +86,7 @@ Here is the citation in BibTeX format
 .. code-block::
 
     @misc{capretto2020,
-        title={Bambi: A simple interface for fitting Bayesian linear models in Python}, 
+        title={Bambi: A simple interface for fitting Bayesian linear models in Python},
         author={Tomás Capretto and Camen Piho and Ravin Kumar and Jacob Westfall and Tal Yarkoni and Osvaldo A. Martin},
         year={2020},
         eprint={2012.10754},
