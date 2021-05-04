@@ -16,7 +16,7 @@ from formulae import design_matrices
 from .backends import PyMC3BackEnd
 from .priors import Prior, PriorFactory, PriorScaler, Family
 from .terms import ResponseTerm, Term, GroupSpecificTerm
-from .utils import listify, extract_family_prior
+from .utils import listify, extract_family_prior, link_match_family
 from .version import __version__
 
 _log = logging.getLogger("bambi")
@@ -424,7 +424,10 @@ class Model:
 
         # Override family's link if another is explicitly passed
         if link is not None:
-            self.family._set_link(link)  # pylint: disable=protected-access
+            if link_match_family(link, family.name):
+                self.family._set_link(link)  # pylint: disable=protected-access
+            else:
+                raise ValueError(f"Link {link} cannot be used with family {family.name}")
 
         prior = self.family.prior
 

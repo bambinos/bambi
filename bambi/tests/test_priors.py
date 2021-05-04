@@ -143,9 +143,13 @@ def test_response_prior():
     model = Model("y ~ x", data, priors=priors)
     assert model.response.prior.args["sigma"] == priors["sigma"]
 
-    priors = {"mu": Prior("Uniform", lower=1, upper=20)}
+    priors = {"alpha": Prior("Uniform", lower=1, upper=20)}
     model = Model("y ~ x", data, family="negativebinomial", priors=priors)
-    assert model.response.prior.args["mu"] == priors["mu"]
+    assert model.response.prior.args["alpha"] == priors["alpha"]
+
+    priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
+    model = Model("y ~ x", data, family="gamma", priors=priors)
+    assert model.response.prior.args["alpha"] == Prior("Uniform", lower=0, upper=50)
 
     priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data, family="gamma", priors=priors)
@@ -160,10 +164,10 @@ def test_set_response_prior():
     model.set_priors(priors)
     assert model.response.prior.args["sigma"] == Prior("Uniform", lower=0, upper=50)
 
-    priors = {"mu": Prior("Uniform", lower=1, upper=20)}
+    priors = {"alpha": Prior("Uniform", lower=1, upper=20)}
     model = Model("y ~ x", data, family="negativebinomial")
     model.set_priors(priors)
-    assert model.response.prior.args["mu"] == Prior("Uniform", lower=1, upper=20)
+    assert model.response.prior.args["alpha"] == Prior("Uniform", lower=1, upper=20)
 
     priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data, family="gamma")
@@ -180,12 +184,10 @@ def test_response_prior_fail():
     with pytest.raises(ValueError):
         Model("y ~ sigma", data, priors=priors)
 
-    data.rename(columns={"sigma": "mu"}, inplace=True)
-    priors = {"mu": Prior("Uniform", lower=0, upper=50)}
-    with pytest.raises(ValueError):
-        Model("y ~ mu", data, family="negativebinomial", priors=priors)
-
-    data.rename(columns={"mu": "alpha"}, inplace=True)
+    data.rename(columns={"sigma": "alpha"}, inplace=True)
     priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
+    with pytest.raises(ValueError):
+        Model("y ~ alpha", data, family="negativebinomial", priors=priors)
+
     with pytest.raises(ValueError):
         Model("y ~ alpha", data, family="gamma", priors=priors)

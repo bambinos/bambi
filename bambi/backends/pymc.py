@@ -1,14 +1,35 @@
 import logging
 
 import numpy as np
-import theano
+import theano.tensor as tt
 import pymc3 as pm
 
 from bambi.priors import Prior
 import bambi.version as version
+
 from .base import BackEnd
 
 _log = logging.getLogger("bambi")
+
+
+def probit(x):
+    """Probit function that ensures result is in (0, 1)"""
+    eps = np.finfo(float).eps
+    result = 0.5 + 0.5 * tt.erf(x / tt.sqrt(2))
+    result = tt.switch(tt.eq(result, 0), eps, result)
+    result = tt.switch(tt.eq(result, 1), 1 - eps, result)
+
+    return result
+
+
+def cloglog(x):
+    """Cloglog function that ensures result is in (0, 1)"""
+    eps = np.finfo(float).eps
+    result = 1 - tt.exp(-tt.exp(x))
+    result = tt.switch(tt.eq(result, 0), eps, result)
+    result = tt.switch(tt.eq(result, 1), 1 - eps, result)
+
+    return result
 
 
 class PyMC3BackEnd(BackEnd):
@@ -17,10 +38,12 @@ class PyMC3BackEnd(BackEnd):
     # Available link functions
     links = {
         "identity": lambda x: x,
-        "logit": theano.tensor.nnet.sigmoid,
-        "inverse": theano.tensor.inv,
-        "inverse_squared": lambda x: theano.tensor.inv(theano.tensor.sqrt(x)),
-        "log": theano.tensor.exp,
+        "logit": tt.nnet.sigmoid,
+        "probit": probit,
+        "cloglog": cloglog,
+        "inverse": tt.inv,
+        "inverse_squared": lambda x: tt.inv(tt.sqrt(x)),
+        "log": tt.exp,
     }
 
     dists = {"HalfFlat": pm.Bound(pm.Flat, lower=0)}
