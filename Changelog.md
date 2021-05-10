@@ -14,6 +14,7 @@
 * Fix Wald family (#340)
 * Fix Negative binomial family (#340)
 * Add informative message when link function is not available for a given family (#340)
+* Update formulae version to 0.0.10 (#348)
 
 ### Documentation
 * Notebooks are updated to the new API (#336)
