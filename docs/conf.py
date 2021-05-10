@@ -83,7 +83,7 @@ pygments_style = "sphinx"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster' # pydata_sphinx_theme
+html_theme = 'pydata_sphinx_theme'
 # html_theme_path = [sphinx_alabaster_theme.get_html_theme_path()]
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -91,9 +91,18 @@ html_theme = 'alabaster' # pydata_sphinx_theme
 # documentation.
 #
 html_theme_options = {
-    'github_banner': 'true',
-    'github_user': 'bambinos',
-    'github_repo': 'bambi',
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/bambinos/bambi",
+            "icon": "fab fa-github-square",
+        },
+        {
+            "name": "PyPi",
+            "url": "https://pypi.org/project/bambi/",
+            "icon": "fas fa-box",
+        }
+    ]
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
