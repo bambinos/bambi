@@ -17,7 +17,7 @@ BAyesian Model-Building Interface (Bambi) in Python
     :target: https://travis-ci.org/bambinos/bambi
 
 .. |Coverage| image:: https://codecov.io/gh/bambinos/bambi/branch/master/graph/badge.svg?token=ZqH0KCLKAE
-    :target: https://coveralls.io/github/bambinos/bambi
+    :target: https://codecov.io/gh/bambinos/bambi
 
 .. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
