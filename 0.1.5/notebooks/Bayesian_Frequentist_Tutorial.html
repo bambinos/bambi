@@ -1,0 +1,1647 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bayesian/Frequentist Tutorial &#8212; Bambi 0.4.1 documentation</title>
+    
+  <link href="../_static/css/theme.css" rel="stylesheet" />
+  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Bayesian Multiple Regression Example" href="ESCS_multiple_regression.html" />
+    <link rel="prev" title="Bayesian Logistic Regression Example" href="ANES_logistic_regression.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../index.html">
+<p class="title">Bambi</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../getting_started.html">
+  Getting Started
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="../examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../api_reference.html">
+  API Reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub">
+            <span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bambi/" rel="noopener" target="_blank" title="PyPi">
+            <span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label>
+          </a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+  
+  <p style="margin-top: 1em; margin-bottom: 0;">
+    <strong>
+    You're reading an old version of this documentation (v. 0.1.5).<br>
+    If you want up-to-date information, please have a look at <a href="../../0.4.1/index.html">latest</a>.
+  </strong>
+  </p>
+  
+
+  
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Versions navigation">
+    <div class="bd-toc-item active">
+        <ul class="current nav bd-sidenav">
+        <li class="toctree-l1 has-children">
+            <p class="caption"><span class="caption-text">Version</span></p>
+            <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox">
+            <label for="toctree-checkbox-1"> <i class="fas fa-chevron-down"></i></label>
+
+            <ul>
+                  
+                  <li><a href="../../master/index.html"> Development </a></li>
+                  
+
+                
+
+                  
+                    <li><a href="../../0.4.1/index.html">0.4.1 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.4.0/index.html">0.4.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.3.0/index.html">0.3.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.2.0/index.html">0.2.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li class="toctree-l2 current active"><a href="Bayesian_Frequentist_Tutorial.html">0.1.5</a></li>
+                  
+
+                
+
+            </ul>
+        </li>
+        </ul>
+    </div>
+  </nav>
+
+
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Generate-t-test-data">
+   Generate t-test data
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Frequentist">
+     Frequentist
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Bayesian">
+     Bayesian
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Generate-multi-level-regression-data">
+   Generate multi-level regression data
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Frequentist-multi-level-model">
+     Frequentist multi-level model
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Bayesian-multi-level-model">
+     Bayesian multi-level model
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Bayesian/Frequentist-Tutorial">
+<h1>Bayesian/Frequentist Tutorial<a class="headerlink" href="#Bayesian/Frequentist-Tutorial" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Author: ejolly</span>
+<span class="c1"># Created At: Jul 22, 2018</span>
+<span class="c1"># Last Run: Jul 22, 2018</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">from</span> <span class="nn">pymer4.simulate</span> <span class="kn">import</span> <span class="n">simulate_lm</span><span class="p">,</span> <span class="n">simulate_lmm</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">In this notebook we demo how to perform the same set of analyses using a frequentist approach and a bayesian approach.</div>
+<div class="line">We’ll perform two sets of analyses:</div>
+<div class="line">1) Simple between groups t-test (i.e. univariate regression with dummy-coding)</div>
+<div class="line">2) Multi-level multivariate regression model (with two predictors)</div>
+<div class="line">We’ll estimate the frequentist statistics using <a class="reference external" href="http://eshinjolly.com/pymer4/">pymer4</a>.</div>
+</div>
+<div class="section" id="Generate-t-test-data">
+<h2>Generate t-test data<a class="headerlink" href="#Generate-t-test-data" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[86]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mf">2.5</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;Group&#39;</span><span class="p">:[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">1000</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span><span class="s1">&#39;Val&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">])})</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[87]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Group&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[87]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead tr th {
+        text-align: left;
+    }
+
+    .dataframe thead tr:last-of-type th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr>
+      <th></th>
+      <th colspan="8" halign="left">Val</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>count</th>
+      <th>mean</th>
+      <th>std</th>
+      <th>min</th>
+      <th>25%</th>
+      <th>50%</th>
+      <th>75%</th>
+      <th>max</th>
+    </tr>
+    <tr>
+      <th>Group</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>a</th>
+      <td>1000.0</td>
+      <td>4.980000</td>
+      <td>2.014565</td>
+      <td>-0.732913</td>
+      <td>3.518155</td>
+      <td>5.013075</td>
+      <td>6.387810</td>
+      <td>11.466186</td>
+    </tr>
+    <tr>
+      <th>b</th>
+      <td>1000.0</td>
+      <td>8.129861</td>
+      <td>2.559710</td>
+      <td>0.074312</td>
+      <td>6.338794</td>
+      <td>8.150710</td>
+      <td>9.877882</td>
+      <td>16.458058</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[88]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">);</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_Bayesian_Frequentist_Tutorial_7_0.png" class="no-scaled-link" src="../_images/notebooks_Bayesian_Frequentist_Tutorial_7_0.png" style="width: 482px; height: 358px;" />
+</div>
+</div>
+<div class="section" id="Frequentist">
+<h3>Frequentist<a class="headerlink" href="#Frequentist" title="Permalink to this headline">¶</a></h3>
+<p>Since this analysis is relateively straightforward we can perform a between groups t-test using scipy</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[89]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">ttest_ind</span>
+<span class="n">ttest_ind</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[89]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Ttest_indResult(statistic=30.57888496642679, pvalue=8.697871985710429e-169)
+</pre></div></div>
+</div>
+<p>We can also set this up as a dummy-coded univariate regression model which is identical</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[90]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Using the pymer4 package, but we could have used statsmodels instead</span>
+<span class="kn">from</span> <span class="nn">pymer4.models</span> <span class="kn">import</span> <span class="n">Lm</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Lm</span><span class="p">(</span><span class="s1">&#39;Val ~ Group&#39;</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Formula: Val ~ Group
+
+Family: gaussian
+
+Std-errors: non-robust  CIs: standard 95%       Inference: parametric
+
+Number of observations: 2000     R^2: 0.319      R^2_adj: 0.318
+
+Log-likelihood: -4505.582        AIC: 9015.163   BIC: 9026.365
+
+Fixed effects:
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[90]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Estimate</th>
+      <th>2.5_ci</th>
+      <th>97.5_ci</th>
+      <th>SE</th>
+      <th>DF</th>
+      <th>T-stat</th>
+      <th>P-val</th>
+      <th>Sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>4.98</td>
+      <td>4.837</td>
+      <td>5.123</td>
+      <td>0.073</td>
+      <td>1998</td>
+      <td>68.371</td>
+      <td>0.0</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>Group[T.b]</th>
+      <td>3.15</td>
+      <td>2.948</td>
+      <td>3.352</td>
+      <td>0.103</td>
+      <td>1998</td>
+      <td>30.579</td>
+      <td>0.0</td>
+      <td>***</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</div>
+<div class="section" id="Bayesian">
+<h3>Bayesian<a class="headerlink" href="#Bayesian" title="Permalink to this headline">¶</a></h3>
+<p>We can compute the equivalent dummy-coded regression model to estimate with bambi and the pymc3 backend</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[91]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">bambi</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">import</span> <span class="nn">pymc3</span> <span class="k">as</span> <span class="nn">pm</span>
+<span class="kn">import</span> <span class="nn">bambi</span>
+
+<span class="n">b_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">res_b</span> <span class="o">=</span> <span class="n">b_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;Val ~ Group&#39;</span><span class="p">,</span><span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span><span class="n">chains</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Auto-assigning NUTS sampler...
+Initializing NUTS using advi...
+Average Loss = 4,542.7:  22%|██▏       | 11113/50000 [00:06&lt;00:22, 1709.95it/s]
+Convergence archived at 11300
+Interrupted at 11,299 [22%]: Average Loss = 5,277
+Multiprocess sampling (3 chains in 3 jobs)
+NUTS: [Val_sd_interval__, Group, Intercept]
+100%|██████████| 1500/1500 [00:01&lt;00:00, 844.89it/s]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[93]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Here&#39;s the setup for the model</span>
+<span class="n">b_model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[93]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="math notranslate nohighlight">
+$$
+            \begin{array}{rcl}
+            \text{Intercept} &amp;\sim &amp; \text{Normal}(\mathit{mu}=array,~\mathit{sd}=array)\\\text{Group} &amp;\sim &amp; \text{Normal}(\mathit{mu}=array,~\mathit{sd}=array)\\\text{Val_sd} &amp;\sim &amp; \text{Uniform}(\mathit{lower}=0.0,~\mathit{upper}=2.7900334350095957)\\\text{Val} &amp;\sim &amp; \text{Normal}(\mathit{mu}=f(f(f(),~f(f(array,~\text{Intercept}))),~f(f(array,~\text{Group}))),~\mathit{sd}=f(\text{Val_sd}))
+            \end{array}
+            $$</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[94]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Model priors</span>
+<span class="n">b_model</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/Users/Esh/anaconda3/lib/python3.6/site-packages/matplotlib/axes/_axes.py:6462: UserWarning: The &#39;normed&#39; kwarg is deprecated, and has been replaced by the &#39;density&#39; kwarg.
+  warnings.warn(&#34;The &#39;normed&#39; kwarg is deprecated, and has been &#34;
+/Users/Esh/anaconda3/lib/python3.6/site-packages/matplotlib/axes/_axes.py:6462: UserWarning: The &#39;normed&#39; kwarg is deprecated, and has been replaced by the &#39;density&#39; kwarg.
+  warnings.warn(&#34;The &#39;normed&#39; kwarg is deprecated, and has been &#34;
+/Users/Esh/anaconda3/lib/python3.6/site-packages/matplotlib/axes/_axes.py:6462: UserWarning: The &#39;normed&#39; kwarg is deprecated, and has been replaced by the &#39;density&#39; kwarg.
+  warnings.warn(&#34;The &#39;normed&#39; kwarg is deprecated, and has been &#34;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_Bayesian_Frequentist_Tutorial_15_1.png" class="no-scaled-link" src="../_images/notebooks_Bayesian_Frequentist_Tutorial_15_1.png" style="width: 856px; height: 279px;" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[95]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#Posterior plots removing first 100 samples for burn-in</span>
+<span class="n">res_b</span><span class="p">[</span><span class="mi">100</span><span class="p">:]</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_Bayesian_Frequentist_Tutorial_16_0.png" class="no-scaled-link" src="../_images/notebooks_Bayesian_Frequentist_Tutorial_16_0.png" style="width: 855px; height: 423px;" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[96]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">res_b</span><span class="p">[</span><span class="mi">100</span><span class="p">:]</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[96]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>sd</th>
+      <th>hpd0.95_lower</th>
+      <th>hpd0.95_upper</th>
+      <th>effective_n</th>
+      <th>gelman_rubin</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Group[T.b]</th>
+      <td>3.145886</td>
+      <td>0.104301</td>
+      <td>2.936774</td>
+      <td>3.344979</td>
+      <td>1493</td>
+      <td>1.000435</td>
+    </tr>
+    <tr>
+      <th>Intercept</th>
+      <td>4.981076</td>
+      <td>0.072968</td>
+      <td>4.850235</td>
+      <td>5.129755</td>
+      <td>1415</td>
+      <td>1.000364</td>
+    </tr>
+    <tr>
+      <th>Val_sd</th>
+      <td>2.304672</td>
+      <td>0.035844</td>
+      <td>2.235005</td>
+      <td>2.376468</td>
+      <td>1881</td>
+      <td>0.999520</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[97]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#Grab just the posterior of the term of interest (group)</span>
+<span class="n">group_posterior</span> <span class="o">=</span> <span class="n">res_b</span><span class="o">.</span><span class="n">to_df</span><span class="p">()[</span><span class="s1">&#39;Group[T.b]&#39;</span><span class="p">]</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">group_posterior</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;kde&#39;</span><span class="p">,</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">.5</span><span class="p">,</span><span class="mi">4</span><span class="p">],</span><span class="n">ylim</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_Bayesian_Frequentist_Tutorial_18_0.png" class="no-scaled-link" src="../_images/notebooks_Bayesian_Frequentist_Tutorial_18_0.png" style="width: 384px; height: 252px;" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[98]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#Probabiliy that posterior is &gt; 0</span>
+<span class="p">(</span><span class="n">group_posterior</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[98]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1.0
+</pre></div></div>
+</div>
+</div>
+</div>
+<div class="section" id="Generate-multi-level-regression-data">
+<h2>Generate multi-level regression data<a class="headerlink" href="#Generate-multi-level-regression-data" title="Permalink to this headline">¶</a></h2>
+<p>Generate data for a multivariate regression model with random intercepts and slope effect for each group</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Simulate some multi-level data with pymer4</span>
+<span class="kn">from</span> <span class="nn">pymer4.simulate</span> <span class="kn">import</span> <span class="n">simulate_lmm</span>
+<span class="n">df</span><span class="p">,</span> <span class="n">blups</span><span class="p">,</span> <span class="n">coefs</span> <span class="o">=</span> <span class="n">simulate_lmm</span><span class="p">(</span><span class="n">num_obs</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">num_coef</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">num_grps</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">coef_vals</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="n">blups</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>DV</th>
+      <th>IV1</th>
+      <th>IV2</th>
+      <th>Group</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>6.304926</td>
+      <td>-0.610891</td>
+      <td>-1.567181</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>9.350987</td>
+      <td>1.118879</td>
+      <td>-0.072492</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3.917564</td>
+      <td>-0.919558</td>
+      <td>-1.009021</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2.390540</td>
+      <td>-1.832521</td>
+      <td>-0.850452</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>-0.622128</td>
+      <td>-1.382818</td>
+      <td>0.737954</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Intercept</th>
+      <th>IV1</th>
+      <th>IV2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Grp1</th>
+      <td>5.181938</td>
+      <td>2.930271</td>
+      <td>-0.937849</td>
+    </tr>
+    <tr>
+      <th>Grp2</th>
+      <td>5.176513</td>
+      <td>2.789747</td>
+      <td>-1.283368</td>
+    </tr>
+    <tr>
+      <th>Grp3</th>
+      <td>5.155200</td>
+      <td>3.143078</td>
+      <td>-0.891992</td>
+    </tr>
+    <tr>
+      <th>Grp4</th>
+      <td>5.215888</td>
+      <td>3.263981</td>
+      <td>-1.136450</td>
+    </tr>
+    <tr>
+      <th>Grp5</th>
+      <td>4.754923</td>
+      <td>2.589841</td>
+      <td>-0.879531</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="section" id="Frequentist-multi-level-model">
+<h3>Frequentist multi-level model<a class="headerlink" href="#Frequentist-multi-level-model" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Fit multi-level model using pymer4 (lmer in R)</span>
+<span class="kn">from</span> <span class="nn">pymer4.models</span> <span class="kn">import</span> <span class="n">Lmer</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">Lmer</span><span class="p">(</span><span class="s1">&#39;DV ~ IV1 + IV2 + (IV1 + IV2|Group)&#39;</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Formula: DV ~ IV1 + IV2 + (IV1 + IV2|Group)
+
+Family: gaussian         Inference: parametric
+
+Number of observations: 12500    Groups: {&#39;Group&#39;: 25.0}
+
+Log-likelihood: -17812.104       AIC: 35624.208
+
+Random effects:
+
+                 Name    Var    Std
+Group     (Intercept)  0.079  0.281
+Group             IV1  0.094  0.307
+Group             IV2  0.070  0.265
+Residual               0.989  0.995
+
+               IV1  IV2   Corr
+Group  (Intercept)  IV1  0.152
+Group  (Intercept)  IV2 -0.081
+Group          IV1  IV2 -0.329
+
+Fixed effects:
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Estimate</th>
+      <th>2.5_ci</th>
+      <th>97.5_ci</th>
+      <th>SE</th>
+      <th>DF</th>
+      <th>T-stat</th>
+      <th>P-val</th>
+      <th>Sig</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>(Intercept)</th>
+      <td>5.099</td>
+      <td>4.987</td>
+      <td>5.210</td>
+      <td>0.057</td>
+      <td>24.001</td>
+      <td>89.480</td>
+      <td>0.0</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>IV1</th>
+      <td>3.049</td>
+      <td>2.927</td>
+      <td>3.170</td>
+      <td>0.062</td>
+      <td>23.962</td>
+      <td>49.169</td>
+      <td>0.0</td>
+      <td>***</td>
+    </tr>
+    <tr>
+      <th>IV2</th>
+      <td>-0.988</td>
+      <td>-1.093</td>
+      <td>-0.883</td>
+      <td>0.054</td>
+      <td>24.006</td>
+      <td>-18.386</td>
+      <td>0.0</td>
+      <td>***</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[56]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Plot coefficients and the group BLUPs as well</span>
+<span class="n">model</span><span class="o">.</span><span class="n">plot_summary</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_Bayesian_Frequentist_Tutorial_25_0.png" class="no-scaled-link" src="../_images/notebooks_Bayesian_Frequentist_Tutorial_25_0.png" style="width: 746px; height: 372px;" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[81]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Alternatively visualize coefficients as regression lines with BLUPs overlaid</span>
+<span class="n">f</span><span class="p">,</span><span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span><span class="mi">6</span><span class="p">));</span>
+<span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;IV1&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">],);</span>
+<span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;IV2&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_Bayesian_Frequentist_Tutorial_26_0.png" class="no-scaled-link" src="../_images/notebooks_Bayesian_Frequentist_Tutorial_26_0.png" style="width: 832px; height: 372px;" />
+</div>
+</div>
+</div>
+<div class="section" id="Bayesian-multi-level-model">
+<h3>Bayesian multi-level model<a class="headerlink" href="#Bayesian-multi-level-model" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[57]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">b_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">b_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;DV ~ IV1 + IV2&#39;</span><span class="p">,</span><span class="n">random</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;IV1+IV2|Group&#39;</span><span class="p">],</span><span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span><span class="n">chains</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Auto-assigning NUTS sampler...
+Initializing NUTS using advi...
+Average Loss = 17,878:  57%|█████▋    | 28265/50000 [00:41&lt;00:32, 675.56it/s]
+Convergence archived at 28300
+Interrupted at 28,299 [56%]: Average Loss = 22,176
+Multiprocess sampling (3 chains in 3 jobs)
+NUTS: [DV_sd_interval__, IV2|Group_offset, IV2|Group_sd_log__, IV1|Group_offset, IV1|Group_sd_log__, 1|Group_offset, 1|Group_sd_log__, IV2, IV1, Intercept]
+100%|██████████| 1500/1500 [02:04&lt;00:00, 12.04it/s]
+The number of effective samples is smaller than 25% for some parameters.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">b_model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[59]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="math notranslate nohighlight">
+$$
+            \begin{array}{rcl}
+            \text{Intercept} &amp;\sim &amp; \text{Normal}(\mathit{mu}=array,~\mathit{sd}=array)\\\text{IV1} &amp;\sim &amp; \text{Normal}(\mathit{mu}=array,~\mathit{sd}=array)\\\text{IV2} &amp;\sim &amp; \text{Normal}(\mathit{mu}=array,~\mathit{sd}=array)\\\text{1|Group_offset} &amp;\sim &amp; \text{Normal}(\mathit{mu}=0,~\mathit{sd}=1.0)\\\text{IV1|Group_offset} &amp;\sim &amp; \text{Normal}(\mathit{mu}=0,~\mathit{sd}=1.0)\\\text{IV2|Group_offset} &amp;\sim &amp; \text{Normal}(\mathit{mu}=0,~\mathit{sd}=1.0)\\\text{1|Group_sd} &amp;\sim &amp; \text{HalfNormal}(\mathit{sd}=1.9523978881345576)\\\text{1|Group} &amp;\sim &amp; \text{Deterministic}(\text{1|Group_offset},~\text{1|Group_sd_log__})\\\text{IV1|Group_sd} &amp;\sim &amp; \text{HalfNormal}(\mathit{sd}=1.0591557459361283)\\\text{IV1|Group} &amp;\sim &amp; \text{Deterministic}(\text{IV1|Group_offset},~\text{IV1|Group_sd_log__})\\\text{IV2|Group_sd} &amp;\sim &amp; \text{HalfNormal}(\mathit{sd}=0.908072744219487)\\\text{IV2|Group} &amp;\sim &amp; \text{Deterministic}(\text{IV2|Group_offset},~\text{IV2|Group_sd_log__})\\\text{DV_sd} &amp;\sim &amp; \text{Uniform}(\mathit{lower}=0.0,~\mathit{upper}=3.3816361039387886)\\\text{DV} &amp;\sim &amp; \text{Normal}(\mathit{mu}=f(f(f(f(f(f(f(),~f(f(array,~\text{Intercept}))),~f(f(array,~\text{IV1}))),~f(f(array,~\text{IV2}))),~f(f(f(\text{1|Group},~array)),~array)),~f(f(f(\text{IV1|Group},~array)),~array)),~f(f(f(\text{IV2|Group},~array)),~array)),~\mathit{sd}=f(\text{DV_sd}))
+            \end{array}
+            $$</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[60]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Plot priors</span>
+<span class="n">b_model</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/Users/Esh/anaconda3/lib/python3.6/site-packages/matplotlib/axes/_axes.py:6462: UserWarning: The &#39;normed&#39; kwarg is deprecated, and has been replaced by the &#39;density&#39; kwarg.
+  warnings.warn(&#34;The &#39;normed&#39; kwarg is deprecated, and has been &#34;
+/Users/Esh/anaconda3/lib/python3.6/site-packages/matplotlib/axes/_axes.py:6462: UserWarning: The &#39;normed&#39; kwarg is deprecated, and has been replaced by the &#39;density&#39; kwarg.
+  warnings.warn(&#34;The &#39;normed&#39; kwarg is deprecated, and has been &#34;
+/Users/Esh/anaconda3/lib/python3.6/site-packages/matplotlib/axes/_axes.py:6462: UserWarning: The &#39;normed&#39; kwarg is deprecated, and has been replaced by the &#39;density&#39; kwarg.
+  warnings.warn(&#34;The &#39;normed&#39; kwarg is deprecated, and has been &#34;
+/Users/Esh/anaconda3/lib/python3.6/site-packages/matplotlib/axes/_axes.py:6462: UserWarning: The &#39;normed&#39; kwarg is deprecated, and has been replaced by the &#39;density&#39; kwarg.
+  warnings.warn(&#34;The &#39;normed&#39; kwarg is deprecated, and has been &#34;
+/Users/Esh/anaconda3/lib/python3.6/site-packages/matplotlib/axes/_axes.py:6462: UserWarning: The &#39;normed&#39; kwarg is deprecated, and has been replaced by the &#39;density&#39; kwarg.
+  warnings.warn(&#34;The &#39;normed&#39; kwarg is deprecated, and has been &#34;
+/Users/Esh/anaconda3/lib/python3.6/site-packages/matplotlib/axes/_axes.py:6462: UserWarning: The &#39;normed&#39; kwarg is deprecated, and has been replaced by the &#39;density&#39; kwarg.
+  warnings.warn(&#34;The &#39;normed&#39; kwarg is deprecated, and has been &#34;
+/Users/Esh/anaconda3/lib/python3.6/site-packages/matplotlib/axes/_axes.py:6462: UserWarning: The &#39;normed&#39; kwarg is deprecated, and has been replaced by the &#39;density&#39; kwarg.
+  warnings.warn(&#34;The &#39;normed&#39; kwarg is deprecated, and has been &#34;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_Bayesian_Frequentist_Tutorial_30_1.png" class="no-scaled-link" src="../_images/notebooks_Bayesian_Frequentist_Tutorial_30_1.png" style="width: 856px; height: 567px;" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[61]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#Plot posteriors</span>
+<span class="n">results</span><span class="p">[</span><span class="mi">100</span><span class="p">:]</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_Bayesian_Frequentist_Tutorial_31_0.png" class="no-scaled-link" src="../_images/notebooks_Bayesian_Frequentist_Tutorial_31_0.png" style="width: 855px; height: 1431px;" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[63]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">results</span><span class="p">[</span><span class="mi">100</span><span class="p">:]</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[63]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>sd</th>
+      <th>hpd0.95_lower</th>
+      <th>hpd0.95_upper</th>
+      <th>effective_n</th>
+      <th>gelman_rubin</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1|Group_sd</th>
+      <td>0.296123</td>
+      <td>0.046973</td>
+      <td>0.213154</td>
+      <td>0.394314</td>
+      <td>569</td>
+      <td>1.000344</td>
+    </tr>
+    <tr>
+      <th>DV_sd</th>
+      <td>0.994745</td>
+      <td>0.006591</td>
+      <td>0.981409</td>
+      <td>1.007187</td>
+      <td>2700</td>
+      <td>0.999791</td>
+    </tr>
+    <tr>
+      <th>IV1</th>
+      <td>3.039772</td>
+      <td>0.065466</td>
+      <td>2.905801</td>
+      <td>3.164539</td>
+      <td>592</td>
+      <td>0.999766</td>
+    </tr>
+    <tr>
+      <th>IV1|Group_sd</th>
+      <td>0.325975</td>
+      <td>0.052205</td>
+      <td>0.236429</td>
+      <td>0.434760</td>
+      <td>500</td>
+      <td>0.999868</td>
+    </tr>
+    <tr>
+      <th>IV2</th>
+      <td>-0.983000</td>
+      <td>0.054667</td>
+      <td>-1.102063</td>
+      <td>-0.885895</td>
+      <td>1421</td>
+      <td>0.999686</td>
+    </tr>
+    <tr>
+      <th>IV2|Group_sd</th>
+      <td>0.277549</td>
+      <td>0.043083</td>
+      <td>0.200689</td>
+      <td>0.365828</td>
+      <td>977</td>
+      <td>1.002444</td>
+    </tr>
+    <tr>
+      <th>Intercept</th>
+      <td>5.098220</td>
+      <td>0.062943</td>
+      <td>4.972299</td>
+      <td>5.217102</td>
+      <td>1570</td>
+      <td>1.000099</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[76]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1">#Plot all posterior on the same plot</span>
+<span class="n">results_df</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">to_df</span><span class="p">()</span>
+<span class="n">fixed_terms</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">results_df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s1">&#39;|&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">col</span> <span class="ow">and</span> <span class="s1">&#39;sd&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">col</span><span class="p">]</span>
+<span class="n">results_df</span> <span class="o">=</span> <span class="n">results_df</span><span class="p">[</span><span class="n">fixed_terms</span><span class="p">]</span>
+<span class="n">results_df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;kde&#39;</span><span class="p">,</span><span class="n">xlim</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">6</span><span class="p">],</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[76]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.lines.Line2D at 0x125d59400&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_Bayesian_Frequentist_Tutorial_33_1.png" class="no-scaled-link" src="../_images/notebooks_Bayesian_Frequentist_Tutorial_33_1.png" style="width: 490px; height: 358px;" />
+</div>
+</div>
+<p>Because we used pymc3 for the backend estimation in bambi, we have access to few extra goodies. Here we make a forest plot similar to the one above for the frequentist model, but with 95% credible intervals instead</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[73]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Credible interval plot using pymc3</span>
+<span class="c1"># Line line is 95% credible interval calculated as higher posterior density</span>
+<span class="c1"># Inter quartile range is thicker line</span>
+<span class="c1"># Dot is median</span>
+<span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">pm</span><span class="o">.</span><span class="n">forestplot</span><span class="p">(</span><span class="n">b_model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">trace</span><span class="p">,</span><span class="n">varnames</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="n">b_model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">vars</span><span class="p">[:</span><span class="mi">4</span><span class="p">])),</span><span class="n">rhat</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[73]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.gridspec.GridSpec at 0x11a911ba8&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_Bayesian_Frequentist_Tutorial_35_1.png" class="no-scaled-link" src="../_images/notebooks_Bayesian_Frequentist_Tutorial_35_1.png" style="width: 514px; height: 411px;" />
+</div>
+</div>
+<p>We can also plot the posterior overlayed with a region of practical equivalence (ROPE), i.e. range of values that were the coefficients to fall into, we might interpret them differently. We can see that all our posterior distributions fall outside of this range.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[75]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Show credible interval cutoffs, and also overlay region of practical equivalence (arbitrary, in this case close enough to 0 to not matter)</span>
+<span class="n">pm</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">b_model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">trace</span><span class="p">,</span>
+                  <span class="n">varnames</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span><span class="n">b_model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">vars</span><span class="p">[:</span><span class="mi">4</span><span class="p">])),</span>
+                  <span class="n">ref_val</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                  <span class="n">text_size</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
+                  <span class="n">rope</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">.01</span><span class="p">,</span><span class="mf">.01</span><span class="p">],</span>
+                  <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">8</span><span class="p">));</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_Bayesian_Frequentist_Tutorial_37_0.png" class="no-scaled-link" src="../_images/notebooks_Bayesian_Frequentist_Tutorial_37_0.png" style="width: 739px; height: 568px;" />
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="ANES_logistic_regression.html" title="previous page">Bayesian Logistic Regression Example</a>
+    <a class='right-next' id="next-link" href="ESCS_multiple_regression.html" title="next page">Bayesian Multiple Regression Example</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2021, The developers of Bambi.<br/>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.1.<br/>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

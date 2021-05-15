@@ -1,0 +1,679 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bambi.results &#8212; Bambi 0.4.1 documentation</title>
+    
+  <link href="../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css" />
+    
+  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../../index.html">
+<p class="title">Bambi</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../getting_started.html">
+  Getting Started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../api_reference.html">
+  API Reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub">
+            <span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bambi/" rel="noopener" target="_blank" title="PyPi">
+            <span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label>
+          </a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+  
+  <p style="margin-top: 1em; margin-bottom: 0;">
+    <strong>
+    You're reading an old version of this documentation (v. 0.1.5).<br>
+    If you want up-to-date information, please have a look at <a href="../../../0.4.1/index.html">latest</a>.
+  </strong>
+  </p>
+  
+
+  
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Versions navigation">
+    <div class="bd-toc-item active">
+        <ul class="current nav bd-sidenav">
+        <li class="toctree-l1 has-children">
+            <p class="caption"><span class="caption-text">Version</span></p>
+            <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox">
+            <label for="toctree-checkbox-1"> <i class="fas fa-chevron-down"></i></label>
+
+            <ul>
+                  
+                  <li><a href="../../../master/index.html"> Development </a></li>
+                  
+
+                
+
+                  
+                    <li><a href="../../../0.4.1/index.html">0.4.1 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.4.0/index.html">0.4.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.3.0/index.html">0.3.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.2.0/index.html">0.2.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li class="toctree-l2 current active"><a href="results.html">0.1.5</a></li>
+                  
+
+                
+
+            </ul>
+        </li>
+        </ul>
+    </div>
+  </nav>
+
+
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for bambi.results</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">abstractmethod</span><span class="p">,</span> <span class="n">ABCMeta</span>
+<span class="kn">from</span> <span class="nn">bambi.external.six</span> <span class="kn">import</span> <span class="n">string_types</span>
+<span class="kn">from</span> <span class="nn">bambi</span> <span class="kn">import</span> <span class="n">diagnostics</span> <span class="k">as</span> <span class="n">bmd</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">listify</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">pymc3</span> <span class="k">as</span> <span class="nn">pm</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">pm</span><span class="o">.</span><span class="n">plots</span><span class="p">,</span> <span class="s1">&#39;kdeplot_op&#39;</span><span class="p">):</span>
+        <span class="n">pma</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">plots</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pma</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">artists</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="n">pma</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;MCMCResults&#39;</span><span class="p">,</span> <span class="s1">&#39;PyMC3ADVIResults&#39;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">ModelResults</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39;Base class for ModelResults hierarchy.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        model (Model): a bambi Model instance specifying the model.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">__metaclass__</span> <span class="o">=</span> <span class="n">ABCMeta</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terms</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">terms</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diagnostics</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_diagnostics</span> \
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;_diagnostics&#39;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="MCMCResults"><a class="viewcode-back" href="../../api_reference.html#bambi.results.MCMCResults">[docs]</a><span class="k">class</span> <span class="nc">MCMCResults</span><span class="p">(</span><span class="n">ModelResults</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39;Holds sampler results; provides slicing, plotting, and summarization tools.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        model (Model): a bambi Model instance specifying the model.</span>
+<span class="sd">        data (array-like): Raw storage of MCMC samples in array with</span>
+<span class="sd">            dimensions 0, 1, 2 = samples, chains, variables</span>
+<span class="sd">        names (list): Names of all Terms.</span>
+<span class="sd">        dims (list): Numbers of levels for all Terms.</span>
+<span class="sd">        levels (list): Names of all levels for all Terms.</span>
+<span class="sd">        transformed (list): Optional list of variable names to treat as</span>
+<span class="sd">            transformed--and hence, to exclude from the output by default.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">dims</span><span class="p">,</span> <span class="n">levels</span><span class="p">,</span>
+                 <span class="n">transformed_vars</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># store the arguments</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="n">names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dims</span> <span class="o">=</span> <span class="n">dims</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">levels</span> <span class="o">=</span> <span class="n">levels</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformed_vars</span> <span class="o">=</span> <span class="n">transformed_vars</span>
+
+        <span class="c1"># compute basic stuff to use later</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_chains</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_params</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_terms</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">transformed_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">utv</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">transformed_vars</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">utv</span> <span class="o">=</span> <span class="n">names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">untransformed_vars</span> <span class="o">=</span> <span class="n">utv</span>
+        <span class="c1"># this keeps track of which columns in &#39;data&#39; go with which terms</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">else</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dims</span><span class="p">][:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># build level_dict: dictionary of lists containing levels of each Term</span>
+        <span class="n">level_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">dim</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">dims</span><span class="p">):</span>
+            <span class="n">dim</span> <span class="o">=</span> <span class="n">dim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span> <span class="k">else</span> <span class="mi">1</span>
+            <span class="n">level_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">levels</span><span class="p">[</span><span class="n">i</span><span class="p">:(</span><span class="n">i</span><span class="o">+</span><span class="n">dim</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">level_dict</span> <span class="o">=</span> <span class="n">level_dict</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">MCMCResults</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        If a variable name, return MCMCResults with only that variable</span>
+<span class="sd">            e.g., fit[&#39;subject&#39;]</span>
+<span class="sd">        If a list of variable names, return MCMCResults with those variables</span>
+<span class="sd">            e.g., fit[[&#39;subject&#39;,&#39;item]]</span>
+<span class="sd">        If a slice, return MCMCResults with sliced samples</span>
+<span class="sd">            e.g., fit[500:]</span>
+<span class="sd">        If a tuple, return MCMCResults with those variables sliced</span>
+<span class="sd">            e.g., fit[[&#39;subject&#39;,&#39;item&#39;], 500:] OR fit[500:, [&#39;subject&#39;,&#39;item&#39;]]</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span>
+            <span class="n">vslice</span> <span class="o">=</span> <span class="n">idx</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">string_types</span><span class="p">):</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+            <span class="n">vslice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">string_types</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">idx</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;If passing a list, all elements must be &quot;</span>
+                                 <span class="s2">&quot;parameter names.&quot;</span><span class="p">)</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="n">idx</span>
+            <span class="n">vslice</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only two arguments can be passed. If you &quot;</span>
+                                 <span class="s2">&quot;want to select multiple parameters and a &quot;</span>
+                                 <span class="s2">&quot;subset of samples, pass a slice and a list &quot;</span>
+                                 <span class="s2">&quot;of parameter names.&quot;</span><span class="p">)</span>
+            <span class="n">vslice</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">slice</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">vslice</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;At least one argument must be a slice. If &quot;</span>
+                                 <span class="s2">&quot;you want to select multiple parameters by &quot;</span>
+                                 <span class="s2">&quot;name, pass a list (not a tuple) of names.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vslice</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Slices can only be applied &quot;</span>
+                                 <span class="s2">&quot;over the samples dimension.&quot;</span><span class="p">)</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="n">idx</span><span class="p">[</span><span class="mi">1</span> <span class="o">-</span> <span class="n">vslice</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">vslice</span> <span class="o">=</span> <span class="n">idx</span><span class="p">[</span><span class="n">vslice</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="n">var</span> <span class="o">=</span> <span class="p">[</span><span class="n">var</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unrecognized index type.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># do slicing/selection and return subsetted copy of MCMCResults</span>
+        <span class="n">levels</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">level_dict</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">var</span><span class="p">],</span> <span class="p">[])</span>
+        <span class="n">level_iloc</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">levels</span><span class="p">]</span>
+        <span class="n">var_iloc</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">var</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">MCMCResults</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+                           <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">vslice</span><span class="p">,</span> <span class="p">:,</span> <span class="n">level_iloc</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="n">var</span><span class="p">,</span>
+                           <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">var_iloc</span><span class="p">],</span>
+                           <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span>
+                           <span class="n">transformed_vars</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_vars</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_chains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="p">):</span>
+        <span class="c1"># Return copy of self but only for chains with the passed indices</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">indices</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">indices</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">MCMCResults</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="n">indices</span><span class="p">,</span> <span class="p">:],</span>
+                           <span class="n">names</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">names</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dims</span><span class="p">,</span>
+                           <span class="n">levels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="p">,</span>
+                           <span class="n">transformed_vars</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transformed_vars</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_filter_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varnames</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ranefs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">transformed</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">untransformed_vars</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">transformed</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">names</span>
+        <span class="k">if</span> <span class="n">varnames</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">listify</span><span class="p">(</span><span class="n">varnames</span><span class="p">)</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ranefs</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;_offset$&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+                     <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">random_terms</span><span class="p">]</span>
+        <span class="n">Intercept</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="s2">&quot;Intercept&quot;</span> <span class="ow">in</span> <span class="n">n</span><span class="p">]</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="s2">&quot;_&quot;</span> <span class="ow">in</span> <span class="n">n</span><span class="p">]</span>
+        <span class="n">rand_eff</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="s2">&quot;|&quot;</span> <span class="ow">in</span> <span class="n">n</span> <span class="ow">and</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">std</span><span class="p">]</span>
+        <span class="n">interac</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">n</span> <span class="ow">and</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">rand_eff</span> <span class="o">+</span> <span class="n">std</span><span class="p">]</span>
+        <span class="n">main_eff</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">interac</span> <span class="o">+</span> <span class="n">std</span> <span class="o">+</span> <span class="n">rand_eff</span> <span class="o">+</span> <span class="n">Intercept</span><span class="p">]</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="n">Intercept</span> <span class="o">+</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">main_eff</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span> <span class="o">+</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">interac</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span> \
+            <span class="o">+</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rand_eff</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span> <span class="o">+</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">std</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">names</span>
+
+<div class="viewcode-block" id="MCMCResults.plot"><a class="viewcode-back" href="../../api_reference.html#bambi.results.MCMCResults.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varnames</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ranefs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">transformed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+             <span class="n">combined</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hist</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s1">&#39;trace&#39;</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Plots posterior distributions and sample traces.</span>
+
+<span class="sd">        Basically a wrapperfor pm.traceplot() plus some niceties, based partly on code</span>
+<span class="sd">        from: https://pymc-devs.github.io/pymc3/notebooks/GLM-model-selection.html.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            varnames (list): List of variable names to plot. If None, all</span>
+<span class="sd">                eligible variables are plotted.</span>
+<span class="sd">            ranefs (bool): If True (default), shows trace plots for</span>
+<span class="sd">                individual random effects.</span>
+<span class="sd">            transformed (bool): If False (default), excludes internally</span>
+<span class="sd">                transformed variables from plotting.</span>
+<span class="sd">            combined (bool): If True, concatenates all chains into one before</span>
+<span class="sd">                plotting. If False (default), plots separately lines for</span>
+<span class="sd">                each chain (on the same axes).</span>
+<span class="sd">            hist (bool): If True, plots a histogram for each fixed effect,</span>
+<span class="sd">                in addition to the kde plot. To prevent visual clutter,</span>
+<span class="sd">                histograms are never plotted for random effects.</span>
+<span class="sd">            bins (int): If hist is True, the number of bins in the histogram.</span>
+<span class="sd">                Ignored if hist is False.</span>
+<span class="sd">            kind (str): Either &#39;trace&#39; (default) or &#39;priors&#39;. If &#39;priors&#39;,</span>
+<span class="sd">                this just internally calls Model.plot()</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="k">def</span> <span class="nf">_plot_row</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">hist</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="c1"># density plot</span>
+            <span class="n">axes</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pma</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_2d</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">pma</span><span class="o">.</span><span class="n">kdeplot_op</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">arr</span><span class="p">,</span> <span class="n">bw</span> <span class="o">=</span> <span class="mf">4.5</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;kde&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="c1"># trace plot</span>
+            <span class="n">axes</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;line&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="c1"># histogram</span>
+            <span class="k">if</span> <span class="n">hist</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">pma</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">pma</span><span class="o">.</span><span class="n">histplot_op</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">arr</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;hist&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="n">row</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                              <span class="n">normed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;priors&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">varnames</span><span class="p">)</span>
+
+        <span class="c1"># count the total number of rows in the plot</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_names</span><span class="p">(</span><span class="n">varnames</span><span class="p">,</span> <span class="n">ranefs</span><span class="p">,</span> <span class="n">transformed</span><span class="p">)</span>
+        <span class="n">random</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;_offset$&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">random_terms</span>
+                  <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">level_dict</span><span class="p">[</span><span class="n">p</span><span class="p">])</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">r</span> <span class="k">else</span> <span class="mi">1</span>
+                    <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">random</span><span class="p">)])</span>
+
+        <span class="c1"># make the plot!</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">rows</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">rows</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">axes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">axes</span><span class="p">])</span>  <span class="c1"># For consistent 2D indexing</span>
+
+        <span class="n">_select_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ranefs&#39;</span><span class="p">:</span> <span class="n">ranefs</span><span class="p">,</span> <span class="s1">&#39;transformed&#39;</span><span class="p">:</span> <span class="n">transformed</span><span class="p">}</span>
+
+        <span class="c1"># Create list of chains (for combined, just one list w/ all chains)</span>
+        <span class="n">chains</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_chains</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">combined</span><span class="p">:</span>
+            <span class="n">chains</span> <span class="o">=</span> <span class="p">[</span><span class="n">chains</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">chains</span><span class="p">:</span>
+
+            <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+
+                <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">.</span><span class="n">to_df</span><span class="p">(</span><span class="n">chains</span><span class="o">=</span><span class="n">c</span><span class="p">,</span> <span class="o">**</span><span class="n">_select_args</span><span class="p">)</span>
+                <span class="c1"># if p == &#39;floor|county_sd&#39;:</span>
+
+                <span class="c1"># fixed effects</span>
+                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;_offset$&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">random_terms</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">lev</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">level_dict</span><span class="p">[</span><span class="n">p</span><span class="p">]:</span>
+                        <span class="n">lev_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">lev</span><span class="p">]</span>
+                        <span class="n">_plot_row</span><span class="p">(</span><span class="n">lev_df</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">lev</span><span class="p">,</span> <span class="n">hist</span><span class="p">)</span>
+                        <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="c1"># random effects</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">_plot_row</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">hist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># too much clutter</span>
+                    <span class="n">row</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+        <span class="c1"># For bernoulli models, tell user which event is being modeled</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;bernoulli&#39;</span><span class="p">:</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+                         <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mf">.99</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Modeling the probability that </span><span class="si">{}</span><span class="s1">==</span><span class="se">\&#39;</span><span class="si">{}</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">clean_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="n">event</span><span class="p">])))</span>
+
+        <span class="k">return</span> <span class="n">axes</span></div>
+
+    <span class="k">def</span> <span class="nf">_hpd_interval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Code adapted from pymc3.stats.calc_min_interval:</span>
+<span class="sd">        https://github.com/pymc-devs/pymc3/blob/master/pymc3/stats.py</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">interval_idx_inc</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">width</span> <span class="o">*</span> <span class="n">n</span><span class="p">))</span>
+        <span class="n">n_intervals</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="n">interval_idx_inc</span>
+        <span class="n">interval_width</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">interval_idx_inc</span><span class="p">:]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[:</span><span class="n">n_intervals</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">interval_width</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Too few elements for interval calculation&#39;</span><span class="p">)</span>
+
+        <span class="n">min_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">interval_width</span><span class="p">)</span>
+        <span class="n">hdi_min</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">min_idx</span><span class="p">]</span>
+        <span class="n">hdi_max</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">min_idx</span> <span class="o">+</span> <span class="n">interval_idx_inc</span><span class="p">]</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;hpd</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">width</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;lower&#39;</span><span class="p">,</span> <span class="s1">&#39;upper&#39;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="n">hdi_min</span><span class="p">,</span> <span class="n">hdi_max</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MCMCResults.summary"><a class="viewcode-back" href="../../api_reference.html#bambi.results.MCMCResults.summary">[docs]</a>    <span class="k">def</span> <span class="nf">summary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varnames</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ranefs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">transformed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">hpd</span><span class="o">=</span><span class="mf">.95</span><span class="p">,</span>
+                <span class="n">quantiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">diagnostics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;effective_n&#39;</span><span class="p">,</span> <span class="s1">&#39;gelman_rubin&#39;</span><span class="p">]):</span>
+        <span class="sd">&#39;&#39;&#39;Returns a DataFrame of summary/diagnostic statistics for the parameters.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            varnames (list): List of variable names to include; if None</span>
+<span class="sd">                (default), all eligible variables are included.</span>
+<span class="sd">            ranefs (bool): Whether or not to include random effects in the</span>
+<span class="sd">                summary. Default is False.</span>
+<span class="sd">            transformed (bool): Whether or not to include internally</span>
+<span class="sd">                transformed variables in the summary. Default is False.</span>
+<span class="sd">            hpd (float, between 0 and 1): Show Highest Posterior Density (HPD)</span>
+<span class="sd">                intervals with specified width/proportion for all parameters.</span>
+<span class="sd">                If None, HPD intervals are suppressed.</span>
+<span class="sd">            quantiles (float, list): Show</span>
+<span class="sd">                specified quantiles of the marginal posterior distributions for</span>
+<span class="sd">                all parameters. If list, must be a list of floats between 0 and 1. If</span>
+<span class="sd">                None (default), no quantiles are shown.</span>
+<span class="sd">            diagnostics (list): List of functions to use to compute convergence</span>
+<span class="sd">                diagnostics for all parameters. Each element can be either a</span>
+<span class="sd">                callable or a string giving the name of a function in the</span>
+<span class="sd">                diagnostics module. Valid strings are &#39;gelman_rubin&#39; and</span>
+<span class="sd">                &#39;effective_n&#39;. Functions must accept a MCMCResults object as</span>
+<span class="sd">                the sole input, and return a DataFrame with one labeled row per</span>
+<span class="sd">                parameter. If None, no convergence diagnostics are computed.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_df</span><span class="p">(</span><span class="n">varnames</span><span class="p">,</span> <span class="n">ranefs</span><span class="p">,</span> <span class="n">transformed</span><span class="p">)</span>
+
+        <span class="c1"># build the basic DataFrame</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">samples</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="s1">&#39;sd&#39;</span><span class="p">:</span> <span class="n">samples</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="mi">0</span><span class="p">)})</span>
+
+        <span class="c1"># add user-specified quantiles</span>
+        <span class="k">if</span> <span class="n">quantiles</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">quantiles</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+                <span class="n">quantiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">quantiles</span><span class="p">]</span>
+            <span class="n">qnames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;q&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">quantiles</span><span class="p">]</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">quantiles</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="n">qnames</span><span class="p">])</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                          <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># add HPD intervals</span>
+        <span class="k">if</span> <span class="n">hpd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_hpd_interval</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                          <span class="n">width</span><span class="o">=</span><span class="n">hpd</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># add convergence diagnostics</span>
+        <span class="k">if</span> <span class="n">diagnostics</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_names</span><span class="p">(</span><span class="n">ranefs</span><span class="o">=</span><span class="n">ranefs</span><span class="p">,</span> <span class="n">transformed</span><span class="o">=</span><span class="n">transformed</span><span class="p">)</span>
+            <span class="n">_self</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">_names</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_chains</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">diag</span> <span class="ow">in</span> <span class="n">diagnostics</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diag</span><span class="p">,</span> <span class="n">string_types</span><span class="p">):</span>
+                        <span class="n">diag</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">bmd</span><span class="p">,</span> <span class="n">diag</span><span class="p">)</span>
+                    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">diag</span><span class="p">(</span><span class="n">_self</span><span class="p">),</span> <span class="n">left_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                  <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Multiple MCMC chains are required in order &#39;</span>
+                              <span class="s1">&#39;to compute convergence diagnostics.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># For bernoulli models, tell user which event is being modeled</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;bernoulli&#39;</span><span class="p">:</span>
+            <span class="n">event</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+                         <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mf">.99</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;Modeling the probability that </span><span class="si">{}</span><span class="s1">==</span><span class="se">\&#39;</span><span class="si">{}</span><span class="se">\&#39;</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">clean_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="n">event</span><span class="p">])))</span>
+
+        <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="MCMCResults.to_df"><a class="viewcode-back" href="../../api_reference.html#bambi.results.MCMCResults.to_df">[docs]</a>    <span class="k">def</span> <span class="nf">to_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">varnames</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ranefs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">transformed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+              <span class="n">chains</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Returns the MCMC samples in a nice, neat pandas DataFrame with all MCMC chains</span>
+<span class="sd">        concatenated.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            varnames (list): List of variable names to include; if None</span>
+<span class="sd">                (default), all eligible variables are included.</span>
+<span class="sd">            ranefs (bool): Whether or not to include random effects in the</span>
+<span class="sd">                returned DataFrame. Default is True.</span>
+<span class="sd">            transformed (bool): Whether or not to include internally</span>
+<span class="sd">                transformed variables in the result. Default is False.</span>
+<span class="sd">            chains (int, list): Index, or list of indexes, of chains to</span>
+<span class="sd">                concatenate. E.g., [1, 3] would concatenate the first and</span>
+<span class="sd">                third chains, and ignore any others. If None (default),</span>
+<span class="sd">                concatenates all available chains.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="c1"># filter out unwanted variables</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filter_names</span><span class="p">(</span><span class="n">varnames</span><span class="p">,</span> <span class="n">ranefs</span><span class="p">,</span> <span class="n">transformed</span><span class="p">)</span>
+
+        <span class="c1"># concatenate the (pre-sliced) chains</span>
+        <span class="k">if</span> <span class="n">chains</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">chains</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_chains</span><span class="p">))</span>
+        <span class="n">chains</span> <span class="o">=</span> <span class="n">listify</span><span class="p">(</span><span class="n">chains</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">chains</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># construct the trace DataFrame</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">level_dict</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">names</span><span class="p">],</span> <span class="p">[])</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">x</span><span class="p">:</span> <span class="n">data</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">levels</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">x</span><span class="p">)]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">df</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">df</span></div></div>
+
+
+<div class="viewcode-block" id="PyMC3ADVIResults"><a class="viewcode-back" href="../../api_reference.html#bambi.results.PyMC3ADVIResults">[docs]</a><span class="k">class</span> <span class="nc">PyMC3ADVIResults</span><span class="p">(</span><span class="n">ModelResults</span><span class="p">):</span>
+
+    <span class="sd">&#39;&#39;&#39;Holds PyMC3 ADVI results and provides plotting and summarization tools.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        model (Model): A bambi Model instance specifying the model.</span>
+<span class="sd">        params (MultiTrace): ADVI parameters returned by PyMC3.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">means</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;means&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sds</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;stds&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">elbo_vals</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s1">&#39;elbo_vals&#39;</span><span class="p">]</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PyMC3ADVIResults</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model</span><span class="p">)</span></div>
+</pre></div>
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2021, The developers of Bambi.<br/>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.1.<br/>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

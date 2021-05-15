@@ -1,0 +1,1506 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wald and Gamma Regression (Australian insurance claims 2004-2005) &#8212; Bambi 0.4.1 documentation</title>
+    
+  <link href="../_static/css/theme.css" rel="stylesheet" />
+  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Binary response: Alternative link functions" href="alternative_links_binary.html" />
+    <link rel="prev" title="Bayesian Workflow (Strack RRR Analysis Replication)" href="Strack_RRR_re_analysis.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../index.html">
+<p class="title">Bambi</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="getting_started.html">
+  Getting Started
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="../examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../api_reference.html">
+  API Reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub">
+            <span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bambi/" rel="noopener" target="_blank" title="PyPi">
+            <span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label>
+          </a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+  
+
+  
+  <p style="margin-top: 1em; margin-bottom: 0;">
+  <strong>
+    You're reading the documentation for a development version (master).<br>
+    For the latest released version, please have a look at <a href="../../0.4.1/index.html">latest</a>.
+  </strong>
+  </p>
+  
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Versions navigation">
+    <div class="bd-toc-item active">
+        <ul class="current nav bd-sidenav">
+        <li class="toctree-l1 has-children">
+            <p class="caption"><span class="caption-text">Version</span></p>
+            <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox">
+            <label for="toctree-checkbox-1"> <i class="fas fa-chevron-down"></i></label>
+
+            <ul>
+                  
+                  <li class="toctree-l2 current active"><a href="wald_gamma_glm.html"> Development </a></li>
+                  
+
+                
+
+                  
+                    <li><a href="../../0.4.1/index.html">0.4.1 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.4.0/index.html">0.4.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.3.0/index.html">0.3.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.2.0/index.html">0.2.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.1.5/index.html">0.1.5</a></li>
+                  
+
+                
+
+            </ul>
+        </li>
+        </ul>
+    </div>
+  </nav>
+
+
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Load-and-examine-Vehicle-insurance-data">
+   Load and examine Vehicle insurance data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Wald-family">
+   Wald family
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Gamma-family">
+   Gamma family
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Model-fit">
+   Model fit
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Wald">
+     Wald
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Gamma">
+     Gamma
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Model-comparison">
+   Model comparison
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Wald-and-Gamma-Regression-(Australian-insurance-claims-2004-2005)">
+<h1>Wald and Gamma Regression (Australian insurance claims 2004-2005)<a class="headerlink" href="#Wald-and-Gamma-Regression-(Australian-insurance-claims-2004-2005)" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="Load-and-examine-Vehicle-insurance-data">
+<h2>Load and examine Vehicle insurance data<a class="headerlink" href="#Load-and-examine-Vehicle-insurance-data" title="Permalink to this headline">¶</a></h2>
+<p>In this notebook we use a data set consisting of 67856 insurance policies and 4624 (6.8%) claims in Australia between 2004 and 2005. The original source of this dataset is the book <a class="reference external" href="http://www.businessandeconomics.mq.edu.au/our_departments/Applied_Finance_and_Actuarial_Studies/research/books/GLMsforInsuranceData">Generalized Linear Models for Insurance Data</a> by Piet de Jong and Gillian Z. Heller.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data/carclaims.csv&quot;</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>veh_value</th>
+      <th>exposure</th>
+      <th>clm</th>
+      <th>numclaims</th>
+      <th>claimcst0</th>
+      <th>veh_body</th>
+      <th>veh_age</th>
+      <th>gender</th>
+      <th>area</th>
+      <th>agecat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.06</td>
+      <td>0.303901</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>HBACK</td>
+      <td>3</td>
+      <td>F</td>
+      <td>C</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.03</td>
+      <td>0.648871</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>HBACK</td>
+      <td>2</td>
+      <td>F</td>
+      <td>A</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3.26</td>
+      <td>0.569473</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>UTE</td>
+      <td>2</td>
+      <td>F</td>
+      <td>E</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4.14</td>
+      <td>0.317591</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>STNWG</td>
+      <td>2</td>
+      <td>F</td>
+      <td>D</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.72</td>
+      <td>0.648871</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>HBACK</td>
+      <td>4</td>
+      <td>F</td>
+      <td>C</td>
+      <td>2</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Let’s see the meaning of the variables before creating any plot or fitting any model.</p>
+<ul class="simple">
+<li><p><strong>veh_value</strong>: Vehicle value, ranges from \$0 to \$350,000.</p></li>
+<li><p><strong>exposure</strong>: Proportion of the year where the policy was exposed. In practice each policy is not exposed for the full year. Some policies come into force partly into the year while others are canceled before the year’s end.</p></li>
+<li><p><strong>clm</strong>: Claim occurrence. 0 (no), 1 (yes).</p></li>
+<li><p><strong>numclaims</strong>: Number of claims.</p></li>
+<li><p><strong>claimcst0</strong>: Claim amount. 0 if no claim. Ranges from \$200 to \$55922.</p></li>
+<li><p><strong>veh_body</strong>: Vehicle body type. Can be one of bus, convertible, coupe, hatchback, hardtop, motorized caravan/combi, minibus, panel van, roadster, sedan, station wagon, truck, and utility.</p></li>
+<li><p><strong>veh_age</strong>: Vehicle age. 1 (new), 2, 3, and 4.</p></li>
+<li><p><strong>gender</strong>: Gender of the driver. M (Male) and F (Female).</p></li>
+<li><p><strong>area</strong>: Driver’s area of residence. Can be one of A, B, C, D, E, and F.</p></li>
+<li><p><strong>agecat</strong>: Driver’s age category. 1 (youngest), 2, 3, 4, 5, and 6.</p></li>
+</ul>
+<p>The variable of interest is the claim amount, given by <code class="docutils literal notranslate"><span class="pre">&quot;claimcst0&quot;</span></code>. We keep the records where there is a claim, so claim amount is greater than 0.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>For clarity, we only show those claims amounts below \$15,000, since there are only 65 records above that threshold.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">15000</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+65
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">15000</span><span class="p">][</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Distribution of claim amount&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Claim amount ($)&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_wald_gamma_glm_10_0.png" src="../_images/notebooks_wald_gamma_glm_10_0.png" />
+</div>
+</div>
+<p>And this is when you say: “Oh, there really are ugly right-skewed distributions out there!”. Well, yes, we’ve all been there :)</p>
+<p>In this case we are going to fit GLMs with a right-skewed distribution for the random component. This time we will be using Wald and Gamma distributions. One of their differences is that the variance is proportional to the cubic mean in the case of the Wald distribution, and proportional to the squared mean in the case of the Gamma distribution.</p>
+</div>
+<div class="section" id="Wald-family">
+<h2>Wald family<a class="headerlink" href="#Wald-family" title="Permalink to this headline">¶</a></h2>
+<p>The Wald family (a.k.a inverse Gaussian model) states that</p>
+<div class="math notranslate nohighlight">
+\[\begin{array}{cc}
+y_i \sim \text{Wald}(\mu_i, \lambda) &amp; g(\mu_i) = \mathbf{x}_i^T\beta
+\end{array}\]</div>
+<p>where the pdf of a Wald distribution is given by</p>
+<div class="math notranslate nohighlight">
+\[f(x|\mu, \lambda) =
+\left(\frac{\lambda}{2\pi}\right)^{1/2}x^{-3/2}\exp\left\{ -\frac{\lambda}{2x} \left(\frac{x - \mu}{\mu} \right)^2 \right\}\]</div>
+<p>for <span class="math notranslate nohighlight">\(x &gt; 0\)</span>, mean <span class="math notranslate nohighlight">\(\mu &gt; 0\)</span> and <span class="math notranslate nohighlight">\(\lambda &gt; 0\)</span> is the shape parameter. The variance is given by <span class="math notranslate nohighlight">\(\sigma^2 = \mu^3/\lambda\)</span>. The canonical link is <span class="math notranslate nohighlight">\(g(\mu_i) = \mu_i^{-2}\)</span>, but <span class="math notranslate nohighlight">\(g(\mu_i) = \log(\mu_i)\)</span> is usually preferred, and it is what we use here.</p>
+</div>
+<div class="section" id="Gamma-family">
+<h2>Gamma family<a class="headerlink" href="#Gamma-family" title="Permalink to this headline">¶</a></h2>
+<p>The default parametrization of the Gamma density function is</p>
+<div class="math notranslate nohighlight">
+\[\displaystyle f(x | \alpha, \beta) = \frac{\beta^\alpha x^{\alpha -1} e^{-\beta x}}{\Gamma(\alpha)}\]</div>
+<p>where <span class="math notranslate nohighlight">\(x &gt; 0\)</span>, and <span class="math notranslate nohighlight">\(\alpha &gt; 0\)</span> and <span class="math notranslate nohighlight">\(\beta &gt; 0\)</span> are the shape and rate parameters, respectively.</p>
+<p>But GLMs model the mean of the function, so we need to use an alternative parametrization where</p>
+<div class="math notranslate nohighlight">
+\[\begin{array}{ccc}
+\displaystyle \mu = \frac{\alpha}{\beta} &amp; \text{and} &amp; \displaystyle \sigma^2 = \frac{\alpha}{\beta^2}
+\end{array}\]</div>
+<p>and thus we have</p>
+<div class="math notranslate nohighlight">
+\[\begin{array}{cccc}
+y_i \sim \text{Gamma}(\mu_i, \sigma_i), &amp; g(\mu_i) = \mathbf{x}_i^T\beta, &amp; \text{and} &amp; \sigma_i = \mu_i^2/\alpha
+\end{array}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\alpha\)</span> is the shape parameter in the original parametrization of the gamma pdf. The canonical link is <span class="math notranslate nohighlight">\(g(\mu_i) = \mu_i^{-1}\)</span>, but here we use <span class="math notranslate nohighlight">\(g(\mu_i) = \log(\mu_i)\)</span> again.</p>
+</div>
+<div class="section" id="Model-fit">
+<h2>Model fit<a class="headerlink" href="#Model-fit" title="Permalink to this headline">¶</a></h2>
+<p>In this example we are going to use the binned age, the gender, and the area of residence to predict the amount of the claim, conditional on the existence of the claim because we are only working with observations where there is a claim.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;agecat&quot;</span></code> is interpreted as a numeric variable in our data frame, but we know it is categorical, and we wouldn’t be happy if our model takes it as if it was numeric, would we?</p>
+<p>We have two alternatives to tell Bambi that this numeric variable must be treated as categorical. The first one is to wrap the name of the variable with <code class="docutils literal notranslate"><span class="pre">C()</span></code>, and the other is to pass the same name to the categorical argument when we create the model. We are going to use the first approach with the Wald family and the second with the Gamma.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">C()</span></code> notation is taken from <a class="reference external" href="https://patsy.readthedocs.io/en/latest/index.html">Patsy</a> and is encouraged when you want to explicitly pass the order of the levels of the variables. If you are happy with the default order, better pass the name to <code class="docutils literal notranslate"><span class="pre">categorical</span></code> so tables and plots have prettier labels :)</p>
+<div class="section" id="Wald">
+<h3>Wald<a class="headerlink" href="#Wald" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">model_wald</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;claimcst0 ~ C(agecat) + gender + area&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s2">&quot;wald&quot;</span><span class="p">,</span> <span class="n">link</span> <span class="o">=</span> <span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">fitted_wald</span> <span class="o">=</span> <span class="n">model_wald</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [claimcst0_lam, area, gender, C(agecat), Intercept]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+    <style>
+        /* Turns off some styling */
+        progress {
+            /* gets rid of default border in Firefox and Opera. */
+            border: none;
+            /* Needs to be in here for Safari polyfill so background images work as expected. */
+            background-size: auto;
+        }
+        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+            background: #F44336;
+        }
+    </style>
+  <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [6000/6000 00:21<00:00 Sampling 2 chains, 0 divergences]
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws total) took 22 seconds.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">fitted_wald</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_wald_gamma_glm_18_0.png" src="../_images/notebooks_wald_gamma_glm_18_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">fitted_wald</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>sd</th>
+      <th>hdi_3%</th>
+      <th>hdi_97%</th>
+      <th>mcse_mean</th>
+      <th>mcse_sd</th>
+      <th>ess_bulk</th>
+      <th>ess_tail</th>
+      <th>r_hat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>7.716</td>
+      <td>0.094</td>
+      <td>7.543</td>
+      <td>7.898</td>
+      <td>0.004</td>
+      <td>0.002</td>
+      <td>730.0</td>
+      <td>748.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>C(agecat)[2]</th>
+      <td>-0.147</td>
+      <td>0.095</td>
+      <td>-0.335</td>
+      <td>0.021</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>825.0</td>
+      <td>1218.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>C(agecat)[3]</th>
+      <td>-0.247</td>
+      <td>0.093</td>
+      <td>-0.422</td>
+      <td>-0.088</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>806.0</td>
+      <td>1167.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>C(agecat)[4]</th>
+      <td>-0.252</td>
+      <td>0.093</td>
+      <td>-0.429</td>
+      <td>-0.087</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>801.0</td>
+      <td>1289.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>C(agecat)[5]</th>
+      <td>-0.365</td>
+      <td>0.100</td>
+      <td>-0.546</td>
+      <td>-0.171</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>853.0</td>
+      <td>1217.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>C(agecat)[6]</th>
+      <td>-0.307</td>
+      <td>0.116</td>
+      <td>-0.521</td>
+      <td>-0.085</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>980.0</td>
+      <td>1378.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>gender</th>
+      <td>0.153</td>
+      <td>0.051</td>
+      <td>0.054</td>
+      <td>0.246</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>2044.0</td>
+      <td>1272.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>area[B]</th>
+      <td>-0.034</td>
+      <td>0.074</td>
+      <td>-0.185</td>
+      <td>0.093</td>
+      <td>0.002</td>
+      <td>0.002</td>
+      <td>1260.0</td>
+      <td>1162.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>area[C]</th>
+      <td>0.064</td>
+      <td>0.068</td>
+      <td>-0.058</td>
+      <td>0.200</td>
+      <td>0.002</td>
+      <td>0.001</td>
+      <td>1495.0</td>
+      <td>1358.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>area[D]</th>
+      <td>-0.028</td>
+      <td>0.089</td>
+      <td>-0.206</td>
+      <td>0.130</td>
+      <td>0.002</td>
+      <td>0.002</td>
+      <td>1785.0</td>
+      <td>1557.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>area[E]</th>
+      <td>0.143</td>
+      <td>0.101</td>
+      <td>-0.054</td>
+      <td>0.326</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>1584.0</td>
+      <td>1405.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>area[F]</th>
+      <td>0.366</td>
+      <td>0.132</td>
+      <td>0.140</td>
+      <td>0.639</td>
+      <td>0.003</td>
+      <td>0.003</td>
+      <td>1536.0</td>
+      <td>1260.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>claimcst0_lam</th>
+      <td>722.912</td>
+      <td>14.869</td>
+      <td>697.317</td>
+      <td>753.632</td>
+      <td>0.299</td>
+      <td>0.211</td>
+      <td>2474.0</td>
+      <td>1365.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>If we look at the <code class="docutils literal notranslate"><span class="pre">agecat</span></code> variable, we can see the log mean of the claim amount tends to decrease when the age of the person increases, with the exception of the last category where we can see a slight increase in the mean of the coefficient (-0.307 vs -0.365 of the previous category). However, these differences only represent a slight tendency because of the large overlap between the marginal posteriors for these coefficients (see overlayed density plots for <code class="docutils literal notranslate"><span class="pre">C(agecat)</span></code>.</p>
+<p>The posterior for <code class="docutils literal notranslate"><span class="pre">gender</span></code> tells us that the claim amount tends to be larger for males than for females, with the mean being 0.153 and the credible interval ranging from 0.054 to 0.246.</p>
+<p>Finally, from the marginal posteriors for the areas, we can see that F is the only area that clearly stands out, with a higher mean claim amount than in the rest. Area E may also have a higher claim amount, but this difference with the other areas is not as evident as it happens with F.</p>
+</div>
+<div class="section" id="Gamma">
+<h3>Gamma<a class="headerlink" href="#Gamma" title="Permalink to this headline">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">model_gamma</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+    <span class="s2">&quot;claimcst0 ~ agecat + gender + area&quot;</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">family</span><span class="o">=</span><span class="s2">&quot;gamma&quot;</span><span class="p">,</span>
+    <span class="n">link</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">categorical</span><span class="o">=</span><span class="s2">&quot;agecat&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fitted_gamma</span> <span class="o">=</span> <span class="n">model_gamma</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [claimcst0_alpha, area, gender, agecat, Intercept]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+    <style>
+        /* Turns off some styling */
+        progress {
+            /* gets rid of default border in Firefox and Opera. */
+            border: none;
+            /* Needs to be in here for Safari polyfill so background images work as expected. */
+            background-size: auto;
+        }
+        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+            background: #F44336;
+        }
+    </style>
+  <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [6000/6000 00:18<00:00 Sampling 2 chains, 0 divergences]
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws total) took 19 seconds.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">fitted_gamma</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_wald_gamma_glm_23_0.png" src="../_images/notebooks_wald_gamma_glm_23_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">fitted_gamma</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>sd</th>
+      <th>hdi_3%</th>
+      <th>hdi_97%</th>
+      <th>mcse_mean</th>
+      <th>mcse_sd</th>
+      <th>ess_bulk</th>
+      <th>ess_tail</th>
+      <th>r_hat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>7.596</td>
+      <td>0.034</td>
+      <td>7.530</td>
+      <td>7.658</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>942.0</td>
+      <td>1321.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>agecat[2]</th>
+      <td>-0.004</td>
+      <td>0.018</td>
+      <td>-0.037</td>
+      <td>0.032</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>1642.0</td>
+      <td>1538.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>agecat[3]</th>
+      <td>-0.105</td>
+      <td>0.044</td>
+      <td>-0.182</td>
+      <td>-0.026</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>1569.0</td>
+      <td>1489.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>agecat[4]</th>
+      <td>-0.053</td>
+      <td>0.028</td>
+      <td>-0.106</td>
+      <td>-0.003</td>
+      <td>0.001</td>
+      <td>0.000</td>
+      <td>1783.0</td>
+      <td>1655.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>agecat[5]</th>
+      <td>-0.227</td>
+      <td>0.054</td>
+      <td>-0.328</td>
+      <td>-0.126</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>1815.0</td>
+      <td>1442.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>agecat[6]</th>
+      <td>-0.111</td>
+      <td>0.058</td>
+      <td>-0.221</td>
+      <td>-0.006</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>2171.0</td>
+      <td>1585.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>gender</th>
+      <td>0.171</td>
+      <td>0.034</td>
+      <td>0.111</td>
+      <td>0.238</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>2337.0</td>
+      <td>1562.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>area[B]</th>
+      <td>-0.068</td>
+      <td>0.044</td>
+      <td>-0.161</td>
+      <td>0.005</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>2099.0</td>
+      <td>1588.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>area[C]</th>
+      <td>0.008</td>
+      <td>0.018</td>
+      <td>-0.024</td>
+      <td>0.043</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>1737.0</td>
+      <td>1275.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>area[D]</th>
+      <td>-0.065</td>
+      <td>0.057</td>
+      <td>-0.159</td>
+      <td>0.057</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>2611.0</td>
+      <td>1529.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>area[E]</th>
+      <td>0.042</td>
+      <td>0.036</td>
+      <td>-0.028</td>
+      <td>0.107</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>2184.0</td>
+      <td>1418.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>area[F]</th>
+      <td>0.342</td>
+      <td>0.074</td>
+      <td>0.204</td>
+      <td>0.483</td>
+      <td>0.002</td>
+      <td>0.001</td>
+      <td>2026.0</td>
+      <td>1581.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>claimcst0_alpha</th>
+      <td>0.761</td>
+      <td>0.014</td>
+      <td>0.734</td>
+      <td>0.785</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>2769.0</td>
+      <td>1781.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>The interpretation of the parameter posteriors is very similar to what we’ve done for the Wald family. The only difference is that some differences, such as the ones for the area posteriors, are a little more exacerbated here.</p>
+</div>
+</div>
+<div class="section" id="Model-comparison">
+<h2>Model comparison<a class="headerlink" href="#Model-comparison" title="Permalink to this headline">¶</a></h2>
+<p>We can perform a Bayesian model comparison very easily with <code class="docutils literal notranslate"><span class="pre">az.compare()</span></code>. Here we pass a dictionary with the InferenceData objects that <code class="docutils literal notranslate"><span class="pre">Model.fit()</span></code> returned and <code class="docutils literal notranslate"><span class="pre">az.compare()</span></code> returns a data frame that is ordered from best to worst according to the criteria used.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">models</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;wald&quot;</span><span class="p">:</span> <span class="n">fitted_wald</span><span class="p">,</span> <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="n">fitted_gamma</span><span class="p">}</span>
+<span class="n">df_compare</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
+<span class="n">df_compare</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/arviz/stats/stats.py:146: UserWarning: The default method used to estimate the weights for each model,has changed from BB-pseudo-BMA to stacking
+  warnings.warn(
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>rank</th>
+      <th>loo</th>
+      <th>p_loo</th>
+      <th>d_loo</th>
+      <th>weight</th>
+      <th>se</th>
+      <th>dse</th>
+      <th>warning</th>
+      <th>loo_scale</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>wald</th>
+      <td>0</td>
+      <td>-38580.899355</td>
+      <td>12.387424</td>
+      <td>0.000000</td>
+      <td>1.0</td>
+      <td>106.032186</td>
+      <td>0.000000</td>
+      <td>False</td>
+      <td>log</td>
+    </tr>
+    <tr>
+      <th>gamma</th>
+      <td>1</td>
+      <td>-39632.373091</td>
+      <td>20.093466</td>
+      <td>1051.473736</td>
+      <td>0.0</td>
+      <td>104.104053</td>
+      <td>34.589669</td>
+      <td>False</td>
+      <td>log</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_compare</span><span class="p">(</span><span class="n">df_compare</span><span class="p">,</span> <span class="n">insample_dev</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_wald_gamma_glm_28_0.png" src="../_images/notebooks_wald_gamma_glm_28_0.png" />
+</div>
+</div>
+<p>By default, ArviZ uses <em>loo</em>, which is an estimation of leave one out cross-validation. Another option is the widely applicable information criterion (WAIC). Since the results are in the log scale, the better out-of-sample predictive fit is given by the model with the highest value, which is the Wald model.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Last updated: Tue May 04 2021
+
+Python implementation: CPython
+Python version       : 3.8.5
+IPython version      : 7.18.1
+
+json      : 2.0.9
+bambi     : 0.4.1
+arviz     : 0.11.2
+numpy     : 1.20.1
+matplotlib: 3.3.3
+pandas    : 1.2.2
+
+Watermark: 2.1.0
+
+</pre></div></div>
+</div>
+</div>
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="Strack_RRR_re_analysis.html" title="previous page">Bayesian Workflow (Strack RRR Analysis Replication)</a>
+    <a class='right-next' id="next-link" href="alternative_links_binary.html" title="next page">Binary response: Alternative link functions</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2021, The developers of Bambi.<br/>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.1.<br/>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

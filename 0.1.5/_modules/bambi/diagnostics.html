@@ -1,0 +1,394 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bambi.diagnostics &#8212; Bambi 0.4.1 documentation</title>
+    
+  <link href="../../_static/css/theme.css" rel="stylesheet" />
+  <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css" />
+    
+  <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../../index.html">
+<p class="title">Bambi</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../getting_started.html">
+  Getting Started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../api_reference.html">
+  API Reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub">
+            <span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bambi/" rel="noopener" target="_blank" title="PyPi">
+            <span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label>
+          </a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+  
+  <p style="margin-top: 1em; margin-bottom: 0;">
+    <strong>
+    You're reading an old version of this documentation (v. 0.1.5).<br>
+    If you want up-to-date information, please have a look at <a href="../../../0.4.1/index.html">latest</a>.
+  </strong>
+  </p>
+  
+
+  
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Versions navigation">
+    <div class="bd-toc-item active">
+        <ul class="current nav bd-sidenav">
+        <li class="toctree-l1 has-children">
+            <p class="caption"><span class="caption-text">Version</span></p>
+            <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox">
+            <label for="toctree-checkbox-1"> <i class="fas fa-chevron-down"></i></label>
+
+            <ul>
+                  
+                  <li><a href="../../../master/index.html"> Development </a></li>
+                  
+
+                
+
+                  
+                    <li><a href="../../../0.4.1/index.html">0.4.1 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.4.0/index.html">0.4.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.3.0/index.html">0.3.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.2.0/index.html">0.2.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li class="toctree-l2 current active"><a href="diagnostics.html">0.1.5</a></li>
+                  
+
+                
+
+            </ul>
+        </li>
+        </ul>
+    </div>
+  </nav>
+
+
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for bambi.diagnostics</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="kn">import</span> <span class="n">fftconvolve</span>
+
+<span class="c1"># code adapted from pymc3.diagnostics:</span>
+<span class="c1"># https://github.com/pymc-devs/pymc3/blob/master/pymc3/diagnostics.py</span>
+
+
+<div class="viewcode-block" id="autocorr"><a class="viewcode-back" href="../../api_reference.html#bambi.diagnostics.autocorr">[docs]</a><span class="k">def</span> <span class="nf">autocorr</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute autocorrelation using FFT for every lag for the input array</span>
+<span class="sd">    https://en.wikipedia.org/wiki/Autocorrelation#Efficient_computation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x (array-like): An array containing MCMC samples.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: An array of the same size as the input array.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">fftconvolve</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">y</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">acorr</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">:]</span>
+    <span class="n">acorr</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">acorr</span> <span class="o">/=</span> <span class="n">acorr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">acorr</span></div>
+
+
+<div class="viewcode-block" id="autocov"><a class="viewcode-back" href="../../api_reference.html#bambi.diagnostics.autocov">[docs]</a><span class="k">def</span> <span class="nf">autocov</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute autocovariance estimates for every lag for the input array.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        x (array-like): An array containing MCMC samples.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: An array of the same size as the input array.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">acorr</span> <span class="o">=</span> <span class="n">autocorr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">varx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">acov</span> <span class="o">=</span> <span class="n">acorr</span> <span class="o">*</span> <span class="n">varx</span>
+    <span class="k">return</span> <span class="n">acov</span></div>
+
+
+<span class="k">def</span> <span class="nf">_vhat_w</span><span class="p">(</span><span class="n">mcmc</span><span class="p">):</span>
+    <span class="c1"># Calculate between-chain variance</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">mcmc</span><span class="o">.</span><span class="n">n_samples</span> <span class="o">*</span> <span class="n">mcmc</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Calculate within-chain variance</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="n">mcmc</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># Estimate of marginal posterior variance</span>
+    <span class="n">Vhat</span> <span class="o">=</span> <span class="n">W</span> <span class="o">*</span> <span class="p">(</span><span class="n">mcmc</span><span class="o">.</span><span class="n">n_samples</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="n">mcmc</span><span class="o">.</span><span class="n">n_samples</span> <span class="o">+</span> <span class="n">B</span> <span class="o">/</span> <span class="n">mcmc</span><span class="o">.</span><span class="n">n_samples</span>
+
+    <span class="k">return</span> <span class="n">Vhat</span><span class="p">,</span> <span class="n">W</span>
+
+
+<div class="viewcode-block" id="gelman_rubin"><a class="viewcode-back" href="../../api_reference.html#bambi.diagnostics.gelman_rubin">[docs]</a><span class="k">def</span> <span class="nf">gelman_rubin</span><span class="p">(</span><span class="n">mcmc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        mcmc (MCMCResults): Pre-sliced MCMC samples to compute diagnostics for.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">mcmc</span><span class="o">.</span><span class="n">n_chains</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;Gelman-Rubin diagnostic requires multiple chains &#39;</span>
+            <span class="s1">&#39;of the same length.&#39;</span><span class="p">)</span>
+
+    <span class="c1"># get Vhat and within-chain variance</span>
+    <span class="n">Vhat</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="n">_vhat_w</span><span class="p">(</span><span class="n">mcmc</span><span class="p">)</span>
+
+    <span class="c1"># compute and return Gelman-Rubin statistic</span>
+    <span class="n">Rhat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Vhat</span> <span class="o">/</span> <span class="n">W</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;gelman_rubin&#39;</span><span class="p">:</span> <span class="n">Rhat</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">mcmc</span><span class="o">.</span><span class="n">levels</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="effective_n"><a class="viewcode-back" href="../../api_reference.html#bambi.diagnostics.effective_n">[docs]</a><span class="k">def</span> <span class="nf">effective_n</span><span class="p">(</span><span class="n">mcmc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        mcmc (MCMCResults): Pre-sliced MCMC samples to compute diagnostics for.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">mcmc</span><span class="o">.</span><span class="n">n_chains</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s1">&#39;Calculation of effective sample size requires multiple chains &#39;</span>
+            <span class="s1">&#39;of the same length.&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_neff</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Compute the effective sample size for a 2D array.&quot;&quot;&quot;</span>
+        <span class="n">trace_value</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">nchain</span><span class="p">,</span> <span class="n">n_samples</span> <span class="o">=</span> <span class="n">trace_value</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="n">acov</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">autocov</span><span class="p">(</span><span class="n">trace_value</span><span class="p">[</span><span class="n">chain</span><span class="p">])</span> <span class="k">for</span> <span class="n">chain</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nchain</span><span class="p">)])</span>
+
+        <span class="n">chain_mean</span> <span class="o">=</span> <span class="n">trace_value</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">chain_var</span> <span class="o">=</span> <span class="n">acov</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_samples</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_samples</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)</span>
+        <span class="n">acov_t</span> <span class="o">=</span> <span class="n">acov</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">n_samples</span> <span class="o">/</span> <span class="p">(</span><span class="n">n_samples</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)</span>
+        <span class="n">mean_var</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">chain_var</span><span class="p">)</span>
+        <span class="n">var_plus</span> <span class="o">=</span> <span class="n">mean_var</span> <span class="o">*</span> <span class="p">(</span><span class="n">n_samples</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_samples</span>
+        <span class="n">var_plus</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">chain_mean</span><span class="p">,</span> <span class="n">ddof</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">rho_hat_t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_samples</span><span class="p">)</span>
+        <span class="n">rho_hat_even</span> <span class="o">=</span> <span class="mf">1.</span>
+        <span class="n">rho_hat_t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">rho_hat_even</span>
+        <span class="n">rho_hat_odd</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">mean_var</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">acov_t</span><span class="p">))</span> <span class="o">/</span> <span class="n">var_plus</span>
+        <span class="n">rho_hat_t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">rho_hat_odd</span>
+        <span class="c1"># Geyer&#39;s initial positive sequence</span>
+        <span class="n">max_t</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">t</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">n_samples</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">rho_hat_even</span> <span class="o">+</span> <span class="n">rho_hat_odd</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mf">0.</span><span class="p">:</span>
+            <span class="n">rho_hat_even</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">mean_var</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">acov</span><span class="p">[:,</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]))</span> <span class="o">/</span> <span class="n">var_plus</span>
+            <span class="n">rho_hat_odd</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">-</span> <span class="p">(</span><span class="n">mean_var</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">acov</span><span class="p">[:,</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]))</span> <span class="o">/</span> <span class="n">var_plus</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">rho_hat_even</span> <span class="o">+</span> <span class="n">rho_hat_odd</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">rho_hat_t</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">rho_hat_even</span>
+                <span class="n">rho_hat_t</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">rho_hat_odd</span>
+            <span class="n">max_t</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="mi">2</span>
+            <span class="n">t</span> <span class="o">+=</span> <span class="mi">2</span>
+
+        <span class="c1"># Geyer&#39;s initial monotone sequence</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="k">while</span> <span class="n">t</span> <span class="o">&lt;=</span> <span class="n">max_t</span> <span class="o">-</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">rho_hat_t</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">rho_hat_t</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">2</span><span class="p">])</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">rho_hat_t</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">rho_hat_t</span><span class="p">[</span><span class="n">t</span><span class="p">]):</span>
+                <span class="n">rho_hat_t</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">rho_hat_t</span><span class="p">[</span><span class="n">t</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">rho_hat_t</span><span class="p">[</span><span class="n">t</span><span class="p">])</span> <span class="o">/</span> <span class="mf">2.</span>
+                <span class="n">rho_hat_t</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">rho_hat_t</span><span class="p">[</span><span class="n">t</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">t</span> <span class="o">+=</span> <span class="mi">2</span>
+        <span class="n">ess</span> <span class="o">=</span> <span class="n">nchain</span> <span class="o">*</span> <span class="n">n_samples</span>
+        <span class="n">ess</span> <span class="o">=</span> <span class="n">ess</span> <span class="o">/</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.</span> <span class="o">+</span> <span class="mf">2.</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">rho_hat_t</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">ess</span>
+
+    <span class="n">nvar</span> <span class="o">=</span> <span class="n">mcmc</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">n_eff</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_neff</span><span class="p">(</span><span class="n">mcmc</span><span class="o">.</span><span class="n">data</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nvar</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;effective_n&#39;</span><span class="p">:</span> <span class="n">n_eff</span><span class="p">},</span> <span class="n">index</span><span class="o">=</span><span class="n">mcmc</span><span class="o">.</span><span class="n">levels</span><span class="p">)</span></div>
+</pre></div>
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <script src="../../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2021, The developers of Bambi.<br/>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.0.1.<br/>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>
