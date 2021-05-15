@@ -145,10 +145,6 @@ smv_released_pattern = r'^refs/tags/.*$'
 # sphinx-multiversion options
 smv_rebuild_tags = False
 smv_tag_whitelist = r'^\d+\.\d+.\d+$'
-#smv_branch_whitelist = r'master'
-#smv_released_pattern = r'^tags/*$'
-
-
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
