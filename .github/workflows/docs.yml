@@ -13,6 +13,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    
+    - name: Install git 
+      run: |
+        apt-get install -y git
+        git --version
 
     # Example of using a custom build-command.
     - uses: ammaraskar/sphinx-action@master
