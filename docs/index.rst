@@ -1,7 +1,6 @@
 BAyesian Model-Building Interface (Bambi) in Python
 ===================================================
 |PyPI version|
-|Build|
 |Tests|
 |Coverage|
 |Black|
@@ -12,9 +11,6 @@ BAyesian Model-Building Interface (Bambi) in Python
 
 .. |Tests| image:: https://github.com/bambinos/bambi/actions/workflows/test.yml/badge.svg
     :target: https://github.com/bambinos/bambi
-
-.. |Build| image:: https://travis-ci.org/bambinos/bambi.svg
-    :target: https://travis-ci.org/bambinos/bambi
 
 .. |Coverage| image:: https://codecov.io/gh/bambinos/bambi/branch/master/graph/badge.svg?token=ZqH0KCLKAE
     :target: https://codecov.io/gh/bambinos/bambi
