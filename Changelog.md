@@ -3,6 +3,16 @@
 ### 0.X.X
 
 ### New features
+
+### Maintenance and fixes
+
+### Documentation
+
+### Deprecation
+
+### 0.5.0
+
+### New features
 * It is possible to specify priors for parameters in the response distribution (#335)
 * Add probit and cloglog link functions (#340)
 
@@ -20,6 +30,8 @@
 * Notebooks are updated to the new API (#336)
 * Add badges, update introduction and minor style changes in webpage (#344)
 * Add example using Gamma and Wald families (#345)
+* Webpage theme has been updated to PyData theme (#347)
+* Add model evaluation to logistic regression example (#350)
 
 ### Deprecation
 
