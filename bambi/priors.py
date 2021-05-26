@@ -485,7 +485,6 @@ class PriorScaler:
                 sigma = self._get_slope_stats(
                     exog=exog, predictor=fix_data, full_mod=full_mod, sigma_corr=sigma_corr
                 )
-
         # set the prior sigma.
         term.prior.args["sigma"].update(sigma=np.squeeze(np.atleast_1d(sigma)))
 
@@ -494,12 +493,12 @@ class PriorScaler:
         common_intercepts = [
             term
             for term in self.model.terms.values()
-            if not term.group_specific and term.data.sum(1).var() == 0
+            if not term.group_specific and term.name == "Intercept"
         ]
         common_slopes = [
             term
             for term in self.model.terms.values()
-            if not term.group_specific and not term.data.sum(1).var() == 0
+            if not term.group_specific and term.name != "Intercept"
         ]
         group_specific_terms = [term for term in self.model.terms.values() if term.group_specific]
 
@@ -513,7 +512,6 @@ class PriorScaler:
 
         # initialize them in order
         for term, term_type in zip(term_list, term_types):
-
             if term.prior.scale is None:
                 # pylint: disable=protected-access
                 if not term.prior._auto_scale or not self.model.auto_scale:

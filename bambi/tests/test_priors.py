@@ -191,3 +191,37 @@ def test_response_prior_fail():
 
     with pytest.raises(ValueError):
         Model("y ~ alpha", data, family="gamma", priors=priors)
+
+
+def test_prior_shape():
+    data = pd.DataFrame(
+        {
+            "score": np.random.normal(size=100),
+            "q": np.random.choice(["1", "2", "3", "4", "5"], size=100),
+            "s": np.random.choice(["a", "b", "c"], size=100),
+            "g": np.random.choice(["A", "B", "C"], size=100),
+        }
+    )
+
+    model = Model("score ~ 0 + q", data)
+    assert model.terms["q"].prior.args["mu"].shape == (5,)
+    assert model.terms["q"].prior.args["sigma"].shape == (5,)
+
+    model = Model("score ~ q", data)
+    assert model.terms["q"].prior.args["mu"].shape == (4,)
+    assert model.terms["q"].prior.args["sigma"].shape == (4,)
+
+    model = Model("score ~ 0 + q:s", data)
+    assert model.terms["q:s"].prior.args["mu"].shape == (15,)
+    assert model.terms["q:s"].prior.args["sigma"].shape == (15,)
+
+    # "s" is automatically added to ensure full rank matrix
+    model = Model("score ~ q:s", data)
+    assert model.terms["Intercept"].prior.args["mu"].shape == ()
+    assert model.terms["Intercept"].prior.args["sigma"].shape == ()
+
+    assert model.terms["s"].prior.args["mu"].shape == (2,)
+    assert model.terms["s"].prior.args["sigma"].shape == (2,)
+
+    assert model.terms["q:s"].prior.args["mu"].shape == (12,)
+    assert model.terms["q:s"].prior.args["sigma"].shape == (12,)

@@ -87,7 +87,7 @@ def test_cell_means_with_covariate(crossed_data):
     model0.fit(tune=0, draws=1, init=None)
 
     # check that threecats priors have finite variance
-    assert not np.isinf(model0.terms["threecats"].prior.args["sigma"])
+    assert not (np.isinf(model0.terms["threecats"].prior.args["sigma"])).all()
 
 
 def test_many_common_many_group_specific(crossed_data):
