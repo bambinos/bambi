@@ -11,3 +11,4 @@ Examples
       notebooks/shooter_crossed_random_ANOVA
   notebooks/Strack_RRR_re_analysis
   notebooks/model_comparison
+  notebooks/negative_binomial
