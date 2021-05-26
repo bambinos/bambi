@@ -111,12 +111,12 @@ def test_model_terms_cleaned_levels_interaction(crossed_data):
     model = Model("Y ~ threecats*fourcats", crossed_data)
     model.build()
     assert model.terms["threecats:fourcats"].cleaned_levels == [
-        "threecats[b]:fourcats[b]",
-        "threecats[b]:fourcats[c]",
-        "threecats[b]:fourcats[d]",
-        "threecats[c]:fourcats[b]",
-        "threecats[c]:fourcats[c]",
-        "threecats[c]:fourcats[d]",
+        "b:b",
+        "b:c",
+        "b:d",
+        "c:b",
+        "c:c",
+        "c:d",
     ]
 
 
