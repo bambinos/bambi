@@ -10,6 +10,7 @@ Examples
   notebooks/multi-level_regression
   notebooks/Strack_RRR_re_analysis
   notebooks/wald_gamma_glm
+  notebooks/negative_binomial
   notebooks/alternative_links_binary
   notebooks/model_comparison
       notebooks/shooter_crossed_random_ANOVA
