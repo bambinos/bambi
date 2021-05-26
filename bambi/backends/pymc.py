@@ -207,6 +207,7 @@ class PyMC3BackEnd(BackEnd):
         if spec.family.name == "gamma":
             # Gamma distribution is specified using mu and sigma, but we request prior for alpha,
             # so we need to build sigma from mu and alpha.
+            # we can just write kwargs["mu"] ** 2 / kwargs["alpha"]
             beta = kwargs["alpha"] / kwargs["mu"]
             sigma = (kwargs["mu"] / beta) ** 0.5
             return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])

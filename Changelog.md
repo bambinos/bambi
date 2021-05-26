@@ -10,6 +10,31 @@
 
 ### Deprecation
 
+### 0.5.0
+
+### New features
+* It is possible to specify priors for parameters in the response distribution (#335)
+* Add probit and cloglog link functions (#340)
+
+### Maintenance and fixes
+* Informative message when default priors fail because of perfect separation. Model can be fit with custom priors (#330)
+* Breaking changes to the API. All the information related to the model goes in `Model()` instantiation now (#333)
+* Fix gamma family (#337)
+* Non-default links are properly passed to statsmodels (#337)
+* Fix Wald family (#340)
+* Fix Negative binomial family (#340)
+* Add informative message when link function is not available for a given family (#340)
+* Update formulae version to 0.0.10 (#348)
+
+### Documentation
+* Notebooks are updated to the new API (#336)
+* Add badges, update introduction and minor style changes in webpage (#344)
+* Add example using Gamma and Wald families (#345)
+* Webpage theme has been updated to PyData theme (#347)
+* Add model evaluation to logistic regression example (#350)
+
+### Deprecation
+
 ### 0.4.1
 
 ### New features

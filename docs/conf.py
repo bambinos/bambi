@@ -45,13 +45,18 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
     'sphinx.ext.mathjax',
-    'nbsphinx'
+    'nbsphinx',
+    'sphinx_multiversion'
 ]
 
 nbsphinx_execute = "never"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
+
+html_sidebars = {
+    "**": ["searchbox.html", "versioning.html"]
+}
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -83,17 +88,31 @@ pygments_style = "sphinx"
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster' # pydata_sphinx_theme
-# html_theme_path = [sphinx_alabaster_theme.get_html_theme_path()]
+html_theme = 'pydata_sphinx_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#
+
+# https://pydata-sphinx-theme.readthedocs.io/en/latest/user_guide/configuring.html#remove-the-sidebar-from-some-pages
+
 html_theme_options = {
-    'github_banner': 'true',
-    'github_user': 'bambinos',
-    'github_repo': 'bambi',
+    "collapse_navigation": True,
+    "show_toc_level": 2,
+    "navigation_depth": 4,
+    "search_bar_text": "Search the docs...",
+    "icon_links": [
+        {
+            "name": "GitHub",
+            "url": "https://github.com/bambinos/bambi",
+            "icon": "fab fa-github-square",
+        },
+        {
+            "name": "PyPi",
+            "url": "https://pypi.org/project/bambi/",
+            "icon": "fas fa-box",
+        }
+    ]
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -111,6 +130,21 @@ html_static_path = ['_static']
 #
 # html_sidebars = {}
 
+# Whitelist pattern for remotes (set to None to use local branches only)
+smv_remote_whitelist = r"^origin$"
+
+# Whitelist pattern for branches (set to None to ignore all branches)
+smv_branch_whitelist = r"^master$"
+
+# Tags are released
+smv_released_pattern = r'^refs/tags/.*$'
+
+# Tags like 0.0.1, 0.5.1 are kept
+# smv_tag_whitelist = r'^\d+\.\d+\.\d+S'
+
+# sphinx-multiversion options
+smv_rebuild_tags = False
+smv_tag_whitelist = r'^\d+\.\d+.\d+$'
 
 # -- Options for HTMLHelp output ---------------------------------------------
 
@@ -188,3 +222,4 @@ epub_exclude_files = ['search.html']
 
 
 # -- Extension configuration -------------------------------------------------
+# https://svn.python.org/projects/external/Jinja-1.1/docs/build/designerdoc.html
