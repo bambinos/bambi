@@ -264,14 +264,15 @@ class PriorScaler:
 
     def __init__(self, model, taylor):
         self.model = model
-        self.stats = model.dm_statistics if hasattr(model, "dm_statistics") else None
-        self.dm = pd.DataFrame(
-            {
-                lev: term.data[:, i]
-                for term in model.common_terms.values()
-                for i, lev in enumerate(term.levels)
-            }
-        )
+        self.stats = model.dm_statistics
+
+        # Equal to the design matrix for the common terms.
+        # Categoricals are splitted in their levels, with names being "var[level]""
+        if model._design.common:
+            self.dm = model._design.common.as_dataframe()
+        else:
+            self.dm = pd.DataFrame()
+
         self.priors = {}
         self.mle = None
         self.taylor = taylor
@@ -354,7 +355,6 @@ class PriorScaler:
         point = dict(zip(range(1, 14), 2 ** np.linspace(-1, 5, 13) / 100))
         vals = dict(a=coef_a, b=coef_b, n=len(self.model.response.data), r=point[self.taylor])
         _deriv = [eval(x, globals(), vals) for x in self.deriv]  # pylint: disable=eval-used
-
         # compute and return the approximate sigma
         def term(i, j):
             return (
@@ -394,8 +394,8 @@ class PriorScaler:
         return mu, sigma
 
     def _scale_common(self, term):
-
-        # these defaults are only defined for Normal priors
+        """Scale common terms, excluding intercepts."""
+        # Defaults are only defined for Normal priors
         if term.prior.name != "Normal":
             return
 
@@ -406,21 +406,20 @@ class PriorScaler:
             mu += [0]
             sigma += [self._get_slope_stats(exog=self.dm, predictor=pred, sigma_corr=sigma_corr)]
 
-        # save and set prior
-        for i, lev in enumerate(term.levels):
-            self.priors.update({lev: {"mu": mu[i], "sigma": sigma[i]}})
+        # Save and set prior
+        for i, level in enumerate(term.levels):
+            self.priors.update({level: {"mu": mu[i], "sigma": sigma[i]}})
         term.prior.update(mu=np.array(mu), sigma=np.array(sigma))
 
     def _scale_intercept(self, term):
-
-        # default priors are only defined for Normal priors
+        # Default priors are only defined for Normal priors
         if term.prior.name != "Normal":
             return
 
-        # get prior mean and sigma for common intercept
+        # Get prior mean and sigma for common intercept
         mu, sigma = self._get_intercept_stats()
 
-        # save and set prior
+        # Save and set prior
         term.prior.update(mu=mu, sigma=sigma)
 
     def _scale_group_specific(self, term):
@@ -435,19 +434,21 @@ class PriorScaler:
         fix_data = term.data.sum(axis=1)
 
         # handle intercepts and cell means
-        if term.constant:
+        if term.type == "intercept" or term.is_cell_means:
             _, sigma = self._get_intercept_stats()
             sigma *= sigma_corr
         # handle slopes
         else:
             exists = [
-                x
-                for x in self.dm.columns  # pylint: disable=not-an-iterable
-                if np.array_equal(fix_data, self.dm[x].values)
+                colname
+                for colname in self.dm.columns  # pylint: disable=not-an-iterable
+                if np.array_equal(fix_data, self.dm[colname].values)
             ]
             # handle case where there IS a corresponding common effect
             if exists and exists[0] in self.priors.keys():
                 sigma = self.priors[exists[0]]["sigma"]
+                print(term.name)
+                print(exists)
             # handle case where there IS NOT a corresponding common effect
             else:
                 # the usual case: add the group specific effect data as a common effect
@@ -474,6 +475,7 @@ class PriorScaler:
                     exog = [v.data.sum(1) for v in exog if v.name.split("|")[-1] == group]
                     index = ["_" + str(i) for i in range(len(exog))]
                     exog = pd.DataFrame(exog, index=index).T
+
                 # this will replace self.mle (which is missing predictors)
                 missing = "drop" if self.model.dropna else "none"
                 full_mod = GLM(

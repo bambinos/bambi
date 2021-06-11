@@ -8,28 +8,9 @@ from bambi.priors import Prior
 import bambi.version as version
 
 from .base import BackEnd
+from .utils import probit, cloglog
 
 _log = logging.getLogger("bambi")
-
-
-def probit(x):
-    """Probit function that ensures result is in (0, 1)"""
-    eps = np.finfo(float).eps
-    result = 0.5 + 0.5 * tt.erf(x / tt.sqrt(2))
-    result = tt.switch(tt.eq(result, 0), eps, result)
-    result = tt.switch(tt.eq(result, 1), 1 - eps, result)
-
-    return result
-
-
-def cloglog(x):
-    """Cloglog function that ensures result is in (0, 1)"""
-    eps = np.finfo(float).eps
-    result = 1 - tt.exp(-tt.exp(x))
-    result = tt.switch(tt.eq(result, 0), eps, result)
-    result = tt.switch(tt.eq(result, 1), 1 - eps, result)
-
-    return result
 
 
 class PyMC3BackEnd(BackEnd):
@@ -79,18 +60,25 @@ class PyMC3BackEnd(BackEnd):
             for term in spec.terms.values():
                 data = term.data
                 label = term.name
-                dist_name = term.prior.name
-                dist_args = term.prior.args
-                dist_shape = term.data.shape[1]
-                if dist_shape == 1:
-                    dist_shape = ()
-                coef = self._build_dist(
-                    label, noncentered, dist_name, shape=dist_shape, **dist_args
-                )
+                name = term.prior.name
+                args = term.prior.args
+                shape = term.data.shape[1]
 
                 if term.group_specific:
+                    # Group-specific terms always have pymc_coords, at least for the group.
+                    dims = list(term.pymc_coords.keys())
+                    coef = self.build_group_specific_distribution(
+                        name, label, noncentered, dims=dims, **args
+                    )
                     self.mu += coef[term.group_index][:, None] * term.predictor
                 else:
+                    if term.pymc_coords:
+                        # Common effects have at most ONE coord.
+                        dims = list(term.pymc_coords.keys())
+                        coef = self.build_common_distribution(name, label, dims=dims, **args)
+                    else:
+                        shape = () if shape == 1 else shape
+                        coef = self.build_common_distribution(name, label, shape=shape, **args)
                     self.mu += pm.math.dot(data, coef)[:, None]
 
             self._build_response(spec)
@@ -142,12 +130,21 @@ class PyMC3BackEnd(BackEnd):
                 )
 
             if omit_offsets:
-                offset_dims = [vn for vn in idata.posterior.dims if "offset" in vn]
-                idata.posterior = idata.posterior.drop_dims(offset_dims)
+                offset_vars = [var for var in idata.posterior.var() if var.endswith("_offset")]
+                idata.posterior = idata.posterior.drop_vars(offset_vars)
 
             for group in idata.groups():
                 getattr(idata, group).attrs["modeling_interface"] = "bambi"
                 getattr(idata, group).attrs["modeling_interface_version"] = version.__version__
+
+            # Reorder coords
+            # pylint: disable=protected-access
+            coords_original = list(self.spec._get_pymc_coords().keys())
+            coords_group = [c for c in coords_original if c.endswith("_coord_group_factor")]
+            for coord in coords_group:
+                coords_original.remove(coord)
+            coords_new = ["chain", "draw"] + coords_original + coords_group
+            idata.posterior = idata.posterior.transpose(*coords_new)
 
             self.fit = True
             return idata
@@ -155,28 +152,32 @@ class PyMC3BackEnd(BackEnd):
         elif method.lower() == "advi":
             with model:
                 self.advi_params = pm.variational.ADVI(start, **kwargs)
-            return (
-                self.advi_params
-            )  # this should return an InferenceData object (once arviz adds support for VI)
+            # this should return an InferenceData object (once arviz adds support for VI)
+            return self.advi_params
 
         elif method.lower() == "laplace":
             return _laplace(model)
 
-    def _build_dist(self, label, noncentered, dist, **kwargs):
-        """Build and return a PyMC3 Distribution."""
+    def build_common_distribution(self, dist, label, **kwargs):
+        """Build and return a PyMC3 Distribution for a common term."""
+        # We are sure prior arguments aren't hyperpriors because it is already checked in the model
+        distribution = self.get_distribution(dist)
+        return distribution(label, **kwargs)
 
-        dist = self._get_dist(dist)
-        kwargs = {k: self._expand_args(k, v, label, noncentered) for (k, v) in kwargs.items()}
+    def build_group_specific_distribution(self, dist, label, noncentered, **kwargs):
+        """Build and return a PyMC3 Distribution."""
+        dist = self.get_distribution(dist)
+        kwargs = {k: self.expand_prior_args(k, v, label, noncentered) for (k, v) in kwargs.items()}
 
         # Non-centered parameterization for hyperpriors
         if noncentered and has_hyperprior(kwargs):
             old_sigma = kwargs["sigma"]
-            _offset = pm.Normal(label + "_offset", mu=0, sigma=1, shape=kwargs["shape"])
-            return pm.Deterministic(label, _offset * old_sigma)
+            _offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=kwargs["dims"])
+            return pm.Deterministic(label, _offset * old_sigma, dims=kwargs["dims"])
 
         return dist(label, **kwargs)
 
-    def _get_dist(self, dist):
+    def get_distribution(self, dist):
         """Return a PyMC3 distribution."""
         if isinstance(dist, str):
             if hasattr(pm, dist):
@@ -201,24 +202,25 @@ class PyMC3BackEnd(BackEnd):
         prior.args[spec.family.parent] = link(self.mu)
         prior.args["observed"] = data
 
-        dist = self._get_dist(prior.name)
-        kwargs = {k: self._expand_args(k, v, name, False) for (k, v) in prior.args.items()}
+        dist = self.get_distribution(prior.name)
+        kwargs = {k: self.expand_prior_args(k, v, name, False) for (k, v) in prior.args.items()}
 
         if spec.family.name == "gamma":
-            # Gamma distribution is specified using mu and sigma, but we request prior for alpha,
-            # so we need to build sigma from mu and alpha.
-            # we can just write kwargs["mu"] ** 2 / kwargs["alpha"]
+            # Gamma distribution is specified using mu and sigma, but we request prior for alpha.
+            # We need to build sigma from mu and alpha.
+            # kwargs["mu"] ** 2 / kwargs["alpha"] would also work
             beta = kwargs["alpha"] / kwargs["mu"]
             sigma = (kwargs["mu"] / beta) ** 0.5
             return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
 
         return dist(name, **kwargs)
 
-    def _expand_args(self, key, value, label, noncentered):
+    def expand_prior_args(self, key, value, label, noncentered):
         # Inspect all args in case we have hyperparameters
         if isinstance(value, Prior):
-            label = f"{label}_{key}"
-            return self._build_dist(label, noncentered, value.name, **value.args)
+            return self.build_group_specific_distribution(
+                value.name, f"{label}_{key}", noncentered, **value.args
+            )
         return value
 
 

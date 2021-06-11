@@ -303,7 +303,7 @@ class Model:
         terms = [t for t in self.common_terms.values() if t.name != "Intercept"]
 
         if len(self.common_terms) > 1:
-            x_matrix = [pd.DataFrame(x.data, columns=x.levels) for x in terms]
+            x_matrix = [pd.DataFrame(term.data, columns=term.levels) for term in terms]
             x_matrix = pd.concat(x_matrix, axis=1)
             self.dm_statistics = {"mean_x": x_matrix.mean(axis=0)}
 
@@ -320,6 +320,7 @@ class Model:
             else:
                 taylor = 5 if self.family.name == "gaussian" else 1
             scaler = PriorScaler(self, taylor=taylor)
+            self.scaler = scaler
             scaler.scale()
 
     def _set_priors(self, priors=None, common=None, group_specific=None, match_derived_names=True):
@@ -810,15 +811,10 @@ class Model:
         return graphviz
 
     def _get_pymc_coords(self):
-        # categorical attribute is important because of this coordinates stuff
-        common_terms = {
-            k + "_dim_0": v.cleaned_levels for k, v in self.common_terms.items() if v.categorical
-        }
-        # Include all group specific terms
-        group_specific_terms = {
-            k + "_dim_0": v.cleaned_levels for k, v in self.group_specific_terms.items()
-        }
-        return {**common_terms, **group_specific_terms}
+        coords = {}
+        for term in self.terms.values():
+            coords.update(**term.pymc_coords)
+        return coords
 
     def __str__(self):
         priors = [f"  {term.name} ~ {term.prior}" for term in self.terms.values()]
