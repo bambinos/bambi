@@ -106,11 +106,11 @@ def test_model_term_names_property_interaction(crossed_data):
     assert model.term_names == ["Intercept", "threecats", "fourcats", "threecats:fourcats"]
 
 
-def test_model_terms_cleaned_levels_interaction(crossed_data):
+def test_model_terms_levels_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
     model = Model("Y ~ threecats*fourcats", crossed_data)
     model.build()
-    assert model.terms["threecats:fourcats"].cleaned_levels == [
+    assert model.terms["threecats:fourcats"].levels == [
         "threecats[b]:fourcats[b]",
         "threecats[b]:fourcats[c]",
         "threecats[b]:fourcats[d]",
@@ -120,7 +120,7 @@ def test_model_terms_cleaned_levels_interaction(crossed_data):
     ]
 
 
-def test_model_terms_cleaned_levels():
+def test_model_terms_levels():
     data = pd.DataFrame(
         {
             "y": np.random.normal(size=50),
@@ -132,9 +132,9 @@ def test_model_terms_cleaned_levels():
     )
     model = Model("y ~ x + z + time + (time|subject)", data)
     model.build()
-    model.terms["z"].cleaned_levels == ["Group 2", "Group 3"]
-    model.terms["1|subject"].cleaned_levels == [f"Subject {x}" for x in range(1, 6)]
-    model.terms["time|subject"].cleaned_levels == [f"Subject {x}" for x in range(1, 6)]
+    model.terms["z"].levels == ["z[Group 2]", "z[Group 3]"]
+    model.terms["1|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
+    model.terms["time|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
 
 
 def test_model_term_classes():

@@ -70,7 +70,16 @@ class PyMC3BackEnd(BackEnd):
                     coef = self.build_group_specific_distribution(
                         name, label, noncentered, dims=dims, **args
                     )
-                    self.mu += coef[term.group_index][:, None] * term.predictor
+                    # term.predictor.shape[1] is larger than one when the expression is a
+                    # categorical variable with more than one level.
+                    # This is not the most beautiful alternative, but it resulted to be the
+                    # fastest. Doing matrix multiplication, pm.math.dot(data, coef), is slower.
+                    coef_ = coef[term.group_index]
+                    if term.predictor.shape[1] > 1:
+                        for col in range(term.predictor.shape[1]):
+                            self.mu += coef_[:, col][:, None] * term.predictor[:, col]
+                    else:
+                        self.mu += coef_[:, None] * term.predictor
                 else:
                     if term.pymc_coords:
                         # Common effects have at most ONE coord.
