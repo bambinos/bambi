@@ -621,8 +621,7 @@ class Model:
             )
 
         if omit_offsets:
-            omitted = [f"{rt}_offset" for rt in self.group_specific_terms]
-            var_names = [vn for vn in var_names if vn not in omitted]
+            var_names = [name for name in var_names if not name.endswith("_offset")]
 
         if omit_group_specific:
             omitted = list(self.group_specific_terms)
@@ -672,8 +671,7 @@ class Model:
             var_names = pm.util.get_default_varnames(variables_names, include_transformed=False)
 
         if omit_offsets:
-            offset_vars = [f"{rt}_offset" for rt in self.group_specific_terms]
-            var_names = [vn for vn in var_names if vn not in offset_vars]
+            var_names = [name for name in var_names if not name.endswith("_offset")]
 
         pps_ = pm.sample_prior_predictive(
             samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
@@ -693,11 +691,19 @@ class Model:
 
         prior = {k: v[np.newaxis] for k, v in pps.items()}
 
+        coords = {}
+        dims = {}
+        for name in var_names:
+            if name in self.terms:
+                coords.update(**self.terms[name].pymc_coords)
+                dims[name] = list(self.terms[name].pymc_coords.keys())
+
         idata = from_dict(
             prior_predictive=prior_predictive,
             prior=prior,
             observed_data=observed_data,
-            coords=self.backend.model.coords,  # new line
+            coords=coords,
+            dims=dims,
             attrs={
                 "inference_library": self.backend.name,
                 "inference_library_version": self.backend.name,

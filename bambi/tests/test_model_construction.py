@@ -2,6 +2,7 @@ from functools import reduce
 from operator import add
 from os.path import dirname, join
 
+import arviz as az
 import numpy as np
 import pandas as pd
 import pytest
@@ -67,19 +68,27 @@ def test_distribute_group_specific_effect_over(diabetes_data):
     # With intercept
     model = Model("BP ~ (C(age_grp)|BMI)", diabetes_data)
     model.build()
-    # Since intercept is present, it uses treatment encoding
-    lvls = sorted(list(diabetes_data["age_grp"].unique()))[1:]
-    for lvl in lvls:
-        assert model.terms[f"C(age_grp)[{lvl}]|BMI"].data.shape == (442, 163)
-    assert "1|BMI" in model.terms
 
-    # Without intercept
+    # Treatment encoding because of the intercept
+    lvls = sorted(list(diabetes_data["age_grp"].unique()))[1:]
+
+    assert "C(age_grp)|BMI" in model.terms
+    assert "1|BMI" in model.terms
+    assert model.terms["C(age_grp)|BMI"].pymc_coords["C(age_grp)_coord_group_expr"] == lvls
+
+    # This is equal to the sub-matrix of Z that corresponds to this term.
+    # 442 is the number of observations. 163 the number of groups.
+    # 2 is the number of levels of the categorical variable 'C(age_grp)' after removing
+    # the reference level. Then the number of columns is 326 = 163 * 2.
+    assert model.terms["C(age_grp)|BMI"].data.shape == (442, 326)
+
+    # Without intercept. Reference level is not removed.
     model = Model("BP ~ (0 + C(age_grp)|BMI)", diabetes_data)
     model.build()
-    assert model.terms["C(age_grp)[0]|BMI"].data.shape == (442, 163)
-    assert model.terms["C(age_grp)[1]|BMI"].data.shape == (442, 163)
-    assert model.terms["C(age_grp)[2]|BMI"].data.shape == (442, 163)
+
+    assert "C(age_grp)|BMI" in model.terms
     assert not "1|BMI" in model.terms
+    assert model.terms["C(age_grp)|BMI"].data.shape == (442, 489)
 
 
 def test_model_init_from_filename():
@@ -132,9 +141,9 @@ def test_model_terms_levels():
     )
     model = Model("y ~ x + z + time + (time|subject)", data)
     model.build()
-    model.terms["z"].levels == ["z[Group 2]", "z[Group 3]"]
-    model.terms["1|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
-    model.terms["time|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
+    assert model.terms["z"].levels == ["z[Group 2]", "z[Group 3]"]
+    assert model.terms["1|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
+    assert model.terms["time|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
 
 
 def test_model_term_classes():
@@ -168,6 +177,7 @@ def test_one_shot_formula_fit(diabetes_data):
     assert len(set(named_vars.keys()) & set(targets)) == 3
 
 
+@pytest.mark.skip(reason="Derived term search is going to be removed.")
 def test_derived_term_search(diabetes_data):
     model = Model("BMI ~ 1 + (age_grp|BP)", diabetes_data, categorical=["age_grp"])
     model.build()
@@ -199,12 +209,28 @@ def test_categorical_term():
         }
     )
     model = Model("y ~ x1 + x2 + g1 + (g1|g2) + (x2|g2)", data)
-    model.build()
-    terms = ["x1", "x2", "g1", "1|g2", "g1[b]|g2", "x2|g2"]
-    expecteds = [False, False, True, False, True, False]
-
-    for term, expected in zip(terms, expecteds):
-        assert model.terms[term].categorical is expected
+    fitted = model.fit(draws=10)
+    df = az.summary(fitted)
+    names = [
+        "Intercept",
+        "x1",
+        "x2",
+        "g1[b]",
+        "1|g2_sigma",
+        "1|g2[x]",
+        "1|g2[y]",
+        "1|g2[z]",
+        "g1|g2_sigma",
+        "g1|g2[b, x]",
+        "g1|g2[b, y]",
+        "g1|g2[b, z]",
+        "x2|g2_sigma",
+        "x2|g2[x]",
+        "x2|g2[y]",
+        "x2|g2[z]",
+        "y_sigma",
+    ]
+    assert list(df.index) == names
 
 
 def test_omit_offsets_false():
@@ -217,8 +243,8 @@ def test_omit_offsets_false():
     )
     model = Model("y ~ x1 + (x1|g1)", data)
     fitted = model.fit(omit_offsets=False)
-    offsets = [v for v in fitted.posterior.dims if "offset" in v]
-    assert offsets == ["1|g1_offset_dim_0", "x1|g1_offset_dim_0"]
+    offsets = [var for var in fitted.posterior.var() if var.endswith("_offset")]
+    assert offsets == ["1|g1_offset", "x1|g1_offset"]
 
 
 def test_omit_offsets_true():
@@ -231,7 +257,7 @@ def test_omit_offsets_true():
     )
     model = Model("y ~ x1 + (x1|g1)", data)
     fitted = model.fit(omit_offsets=True)
-    offsets = [v for v in fitted.posterior.dims if "offset" in v]
+    offsets = [var for var in fitted.posterior.var() if var.endswith("_offset")]
     assert not offsets
 
 
