@@ -1,0 +1,314 @@
+import sys
+
+from os.path import dirname, join
+
+import numpy as np
+import pandas as pd
+
+from scipy.special import hyp2f1
+from statsmodels.genmod.generalized_linear_model import GLM
+from statsmodels.tools.sm_exceptions import PerfectSeparationError
+
+
+class PriorScaler:
+    """Scale prior distributions parameters.
+
+    Used internally.
+    """
+
+    # Default is 'wide'. The wide prior sigma is sqrt(1/3) = .577 on the partial
+    # corr scale, which is the sigma of a flat prior over [-1,1].
+    names = {"narrow": 0.2, "medium": 0.4, "wide": 3 ** -0.5, "superwide": 0.8}
+
+    def __init__(self, model, taylor):
+        self.model = model
+
+        # Equal to the design matrix for the common terms. Categorical are like "var[level]".
+        # Q: What if the model does not have common effects? Not even intercepts. It doesn't work
+        # right now. Should we flag it? Attempt to fix it?
+        if model._design.common:
+            self.dm = model._design.common.as_dataframe()
+        else:
+            self.dm = pd.DataFrame()
+
+        self.has_intercept = any(term.name == "Intercept" for term in self.model.terms)
+
+        self.priors = {}
+        self.mle = None
+        self.taylor = taylor
+        with open(join(dirname(__file__), "config", "derivs.txt"), "r") as file:
+            self.deriv = [next(file).strip("\n") for x in range(taylor + 1)]
+
+    def get_intercept_stats(self, add_slopes=True):
+        # Start with mean and variance of Y on the link scale
+        mod = GLM(
+            endog=self.model.response.data,
+            exog=np.repeat(1, len(self.model.response.data)),
+            family=self.model.family.smfamily(self.model.family.smlink),
+            missing="drop" if self.model.dropna else "none",
+        ).fit()
+        mu = mod.params
+
+        # Multiply SE by sqrt(N) to turn it into (approx.) sigma(Y) on link scale
+        sigma = (mod.cov_params()[0] * len(mod.mu)) ** 0.5
+
+        # Modify mu and sigma based on means and sigmas of slope priors.
+        if len(self.model.common_terms) > 1 and add_slopes:
+            # prior["mu"] and prior["sigma"] have more than one value when the term is categoric.
+            means = np.hstack([prior["mu"] for prior in self.priors.values()])
+            sigmas = np.hstack([prior["sigma"] for prior in self.priors.values()])
+
+            # Add to intercept prior
+            if self.has_intercept:
+                x_matrix = self.dm.drop("Intercept", axis=1).to_numpy()
+            else:
+                x_matrix = self.dm.to_numpy()
+
+            x_matrix_mean = x_matrix.mean(axis=0)
+            mu -= np.dot(means, x_matrix_mean)
+            sigma = (sigma ** 2 + np.dot(sigmas ** 2, x_matrix_mean ** 2)) ** 0.5
+        return mu, sigma
+
+    def get_slope_stats(self, exog, predictor, sigma_corr, points=4, full_model=None):
+        """
+        Parameters
+        ----------
+        full_model: statsmodels.genmod.generalized_linear_model.GLM
+            Statsmodels GLM to replace MLE model. For when ``'predictor'`` is not in the common
+            part of the model.
+        points : int
+            Number of points to use for LL approximation.
+        """
+
+        # TODO: Modify!
+        # up to line 120 we compute the `log_likelihood`. We should have another method to do
+        # that task.
+        # Insetad of guessing which column to keep, which column to drop, and the position of the
+        # column based on the index, we pass that as a string.
+
+        if full_model is None:
+            full_model = self.mle
+
+        # Figure out which column of exog to drop for the null model
+        # (the model that omits the term (term/level))
+        keeps = [
+            i
+            for i, x in enumerate(list(exog.columns))
+            if not np.array_equal(predictor, exog[x].values.flatten())
+        ]
+        i = [x for x in range(exog.shape[1]) if x not in keeps][0]
+
+        # Get log-likelihood values from beta=0 to beta=MLE
+        values = np.linspace(0.0, full_model.params[i], points)
+        # If there are multiple predictors, use statsmodels to optimize the LL
+        if keeps:
+            null = [
+                GLM(
+                    endog=self.model.response.data,
+                    exog=exog,
+                    family=self.model.family.smfamily(self.model.family.smlink),
+                ).fit_constrained(str(exog.columns[i]) + "=" + str(val))
+                for val in values[:-1]
+            ]
+            null = np.append(null, full_model)
+            log_likelihood = np.array([x.llf for x in null])
+        # if just a single predictor, use statsmodels to evaluate the LL
+        else:
+            null = [
+                self.model.family.smfamily(self.model.family.smlink).loglike(
+                    np.squeeze(self.model.response.data), val * predictor
+                )
+                for val in values[:-1]
+            ]
+            log_likelihood = np.append(null, full_model.llf)
+
+        # compute params of quartic approximatino to log-likelihood
+        # c: intercept, d: shift parameter
+        # a: quartic coefficient, b: quadratic coefficient
+
+        intercept, shift_parameter = log_likelihood[-1], -(full_model.params[i].item())
+        X = np.array([(values + shift_parameter) ** 4, (values + shift_parameter) ** 2]).T
+        coef_a, coef_b = np.squeeze(
+            np.linalg.multi_dot(
+                [np.linalg.inv(np.dot(X.T, X)), X.T, (log_likelihood[:, None] - intercept)]
+            )
+        )
+
+        # m, v: mean and variance of beta distribution of correlations
+        # p, q: corresponding shape parameters of beta distribution
+        mean = 0.5
+        variance = sigma_corr ** 2 / 4
+        p = mean * (mean * (1 - mean) / variance - 1)
+        q = (1 - mean) * (mean * (1 - mean) / variance - 1)
+
+        # evaluate the derivatives of beta = f(correlation).
+        # dict 'point' gives points about which to Taylor expand. We want to
+        # expand about the mean (generally 0), but some of the derivatives
+        # do not exist at 0. Evaluating at a point very close to 0 (e.g., .001)
+        # generally gives good results, but the higher order the expansion, the
+        # further from 0 we need to evaluate the derivatives, or they blow up.
+        point = dict(zip(range(1, 14), 2 ** np.linspace(-1, 5, 13) / 100))
+        vals = dict(a=coef_a, b=coef_b, n=len(self.model.response.data), r=point[self.taylor])
+        deriv = [eval(x, globals(), vals) for x in self.deriv]  # pylint: disable=eval-used
+
+        terms = [
+            compute_sigma(deriv, p, q, i, j)
+            for i in range(1, self.taylor + 1)
+            for j in range(1, self.taylor + 1)
+        ]
+        return np.array(terms).sum() ** 0.5
+
+    def scale_common(self, term):
+        """Scale common terms, excluding intercepts."""
+        # Defaults are only defined for Normal priors
+        if term.prior.name != "Normal":
+            return
+        mu = []
+        sigma = []
+        sigma_corr = term.prior.scale
+        for pred in term.data.T:
+            mu += [0]
+            sigma += [self.get_slope_stats(exog=self.dm, predictor=pred, sigma_corr=sigma_corr)]
+        # Save and set prior
+        self.priors.update({term.name: {"mu": mu, "sigma": sigma}})
+        term.prior.update(mu=np.array(mu), sigma=np.array(sigma))
+
+    def scale_intercept(self, term):
+        # Default priors are only defined for Normal priors
+        if term.prior.name != "Normal":
+            return
+
+        # Get prior mean and sigma for common intercept
+        mu, sigma = self.get_intercept_stats()
+
+        # Save and set prior
+        term.prior.update(mu=mu, sigma=sigma)
+
+    def scale_group_specific(self, term):
+        # these default priors are only defined for HalfNormal priors
+        if term.prior.args["sigma"].name != "HalfNormal":
+            return
+
+        sigma_corr = term.prior.scale
+
+        # recreate the corresponding common effect data
+        data_as_common = term.predictor
+
+        # Handle intercepts
+        if term.type == "intercept":
+            _, sigma = self.get_intercept_stats()
+            sigma *= sigma_corr
+        # Handle slopes
+        else:
+            # Check whether the expr is also included as common term in the model.
+            expr = term.name.split("|")[0]
+            term_levels_len = term.predictor.shape[1]
+
+            # Handle case where there IS a corresponding common effect
+            if expr in self.priors:
+                # Common effect is present with same encoding
+                if term_levels_len == len(self.priors[expr]["mu"]):
+                    sigma = self.priors[expr]["sigma"]
+                # Common effect is present with different encoding
+                else:
+                    print(term.name)
+                    print(f"Term levels len {term_levels_len}")
+                    print(f"prior mu len {len(self.priors[expr]['mu'])}")
+            # Handle case where there IS NOT a corresponding common effect
+            else:
+                sigma = []
+                df_to_append = pd.DataFrame(data_as_common)
+                df_to_append.columns = [f"_name_{i}" for i in df_to_append.columns]
+                exog = self.dm.join(df_to_append)
+                for pred in data_as_common.T:
+                    full_model = GLM(
+                        endog=self.model.response.data,
+                        exog=exog,
+                        family=self.model.family.smfamily(self.model.family.smlink),
+                        missing="drop" if self.model.dropna else "none",
+                    ).fit()
+
+                    sigma += [
+                        self.get_slope_stats(
+                            exog=exog, predictor=pred, full_model=full_model, sigma_corr=sigma_corr
+                        )
+                    ]
+                sigma = np.array(sigma)
+        # set the prior sigma.
+        term.prior.args["sigma"].update(sigma=np.squeeze(np.atleast_1d(sigma)))
+
+    def scale(self):
+        # Classify all terms
+        intercept = [term for term in self.model.common_terms.values() if term.name == "Intercept"]
+        common = [term for term in self.model.common_terms.values() if term.name != "Intercept"]
+        group_specific = [term for term in self.model.group_specific_terms.values()]
+
+        # Arrange them in the order in which they should be initialized
+        terms = common + intercept + group_specific
+        term_types = (
+            ["common"] * len(common)
+            + ["intercept"] * len(intercept)
+            + ["group_specific"] * len(group_specific)
+        )
+
+        # Initialize terms in order
+        for term, term_type in zip(terms, term_types):
+            # Only scale priors if term or model is set to be auto scaled.
+            # By default, use "wide".
+            if term.prior.scale is None:
+                # pylint: disable=protected-access
+                if not (term.prior._auto_scale and self.model.auto_scale):
+                    continue
+                term.prior.scale = "wide"
+
+            if self.mle is None:
+                self.fit_mle()
+
+            # Convert scale names to floats
+            if isinstance(term.prior.scale, str):
+                term.prior.scale = self.names[term.prior.scale]
+
+            # Scale it
+            getattr(self, f"scale_{term_type}")(term)
+
+    def fit_mle(self):
+        """Fits MLE of the common part of the model.
+
+        This used to be called in the class instantiation, but there is no need to fit the GLM when
+        there are no automatic priors. So this method is only called when needed.
+        """
+        missing = "drop" if self.model.dropna else "none"
+        try:
+            self.mle = GLM(
+                endog=self.model.response.data,
+                exog=self.dm,
+                family=self.model.family.smfamily(self.model.family.smlink),
+                missing=missing,
+            ).fit()
+        except PerfectSeparationError as error:
+            msg = "Perfect separation detected, automatic priors are not available. "
+            msg += "Please indicate priors manually."
+            raise PerfectSeparationError(msg) from error
+        except:
+            msg = "Unexpected error when trying to compute automatic priors."
+            msg += "Please indicate priors manually."
+            print(msg, sys.exc_info()[0])
+            raise
+
+
+def moment(p, q, k):
+    """Return central moments of rescaled beta distribution"""
+    return (2 * p / (p + q)) ** k * hyp2f1(p, -k, p + q, (p + q) / p)
+
+
+def compute_sigma(deriv, p, q, i, j):
+    """Compute and return the approximate sigma"""
+    return (
+        1
+        / np.math.factorial(i)
+        * 1
+        / np.math.factorial(j)
+        * deriv[i]
+        * deriv[j]
+        * (moment(p, q, i + j) - moment(p, q, i) * moment(p, q, j))
+    )

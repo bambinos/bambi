@@ -176,7 +176,16 @@ class PyMC3BackEnd(BackEnd):
     def build_group_specific_distribution(self, dist, label, noncentered, **kwargs):
         """Build and return a PyMC3 Distribution."""
         dist = self.get_distribution(dist)
-        kwargs = {k: self.expand_prior_args(k, v, label, noncentered) for (k, v) in kwargs.items()}
+        if "dims" in kwargs:
+            group_dim = [dim for dim in kwargs["dims"] if dim.endswith("_group_expr")]
+            kwargs = {
+                k: self.expand_prior_args(k, v, label, noncentered, dims=group_dim)
+                for (k, v) in kwargs.items()
+            }
+        else:
+            kwargs = {
+                k: self.expand_prior_args(k, v, label, noncentered) for (k, v) in kwargs.items()
+            }
 
         # Non-centered parameterization for hyperpriors
         if noncentered and has_hyperprior(kwargs):
@@ -224,11 +233,12 @@ class PyMC3BackEnd(BackEnd):
 
         return dist(name, **kwargs)
 
-    def expand_prior_args(self, key, value, label, noncentered):
+    def expand_prior_args(self, key, value, label, noncentered, **kwargs):
         # Inspect all args in case we have hyperparameters
+        # kwargs are used to pass 'dims' for group specific terms.
         if isinstance(value, Prior):
             return self.build_group_specific_distribution(
-                value.name, f"{label}_{key}", noncentered, **value.args
+                value.name, f"{label}_{key}", noncentered, **value.args, **kwargs
             )
         return value
 

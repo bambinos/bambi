@@ -95,7 +95,6 @@ class Model:
     ):
         # attributes that are set later
         self.terms = {}
-        self.dm_statistics = None  # build()
         self.built = False  # build()
         self._backend_name = None
 
@@ -298,14 +297,6 @@ class Model:
                 else "common"
             )
             term.prior = self._prepare_prior(term.prior, type_)
-
-        # Only compute the mean stats if there are multiple terms in the model
-        terms = [t for t in self.common_terms.values() if t.name != "Intercept"]
-
-        if len(self.common_terms) > 1:
-            x_matrix = [pd.DataFrame(term.data, columns=term.levels) for term in terms]
-            x_matrix = pd.concat(x_matrix, axis=1)
-            self.dm_statistics = {"mean_x": x_matrix.mean(axis=0)}
 
         # throw informative error message if any categorical predictors have 1 category
         num_cats = [x.data.size for x in self.common_terms.values()]
