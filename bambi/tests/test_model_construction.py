@@ -119,6 +119,7 @@ def test_model_terms_levels_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
     model = Model("Y ~ threecats*fourcats", crossed_data)
     model.build()
+
     assert model.terms["threecats:fourcats"].levels == [
         "threecats[b]:fourcats[b]",
         "threecats[b]:fourcats[c]",
