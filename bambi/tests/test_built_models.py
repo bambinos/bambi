@@ -123,7 +123,7 @@ def test_many_common_many_group_specific(crossed_data):
     )
     # check that the group specific effects design matrices have the same shape
     X0 = pd.concat([pd.DataFrame(t.data) for t in model0.group_specific_terms.values()], axis=1)
-    X0 = pd.concat([pd.DataFrame(t.data) for t in model1.group_specific_terms.values()], axis=1)
+    X1 = pd.concat([pd.DataFrame(t.data) for t in model1.group_specific_terms.values()], axis=1)
     assert X0.shape == X1.shape
 
     # check that the group specific effect design matrix contain the same columns,

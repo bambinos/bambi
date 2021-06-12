@@ -1,3 +1,4 @@
+# pylint: disable=no-name-in-module
 import sys
 
 from os.path import dirname, join
@@ -31,7 +32,7 @@ class PriorScaler:
         else:
             self.dm = pd.DataFrame()
 
-        self.has_intercept = any(term.name == "Intercept" for term in self.model.terms)
+        self.has_intercept = any(term == "Intercept" for term in self.model.terms)
 
         self.priors = {}
         self.mle = None
@@ -57,22 +58,20 @@ class PriorScaler:
             # prior["mu"] and prior["sigma"] have more than one value when the term is categoric.
             means = np.hstack([prior["mu"] for prior in self.priors.values()])
             sigmas = np.hstack([prior["sigma"] for prior in self.priors.values()])
+            x_mean = np.hstack([self.model.terms[term].data.mean(axis=0) for term in self.priors])
 
-            # Add to intercept prior
-            if self.has_intercept:
-                x_matrix = self.dm.drop("Intercept", axis=1).to_numpy()
-            else:
-                x_matrix = self.dm.to_numpy()
-
-            x_matrix_mean = x_matrix.mean(axis=0)
-            mu -= np.dot(means, x_matrix_mean)
-            sigma = (sigma ** 2 + np.dot(sigmas ** 2, x_matrix_mean ** 2)) ** 0.5
+            mu -= np.dot(means, x_mean)
+            sigma = (sigma ** 2 + np.dot(sigmas ** 2, x_mean ** 2)) ** 0.5
         return mu, sigma
 
-    def get_slope_stats(self, exog, predictor, sigma_corr, points=4, full_model=None):
+    def get_slope_stats(self, exog, name, values, sigma_corr, points=4, full_model=None):
         """
         Parameters
         ----------
+        name: str
+            Name of the term
+        values: np.array
+            Values of the term
         full_model: statsmodels.genmod.generalized_linear_model.GLM
             Statsmodels GLM to replace MLE model. For when ``'predictor'`` is not in the common
             part of the model.
@@ -80,70 +79,22 @@ class PriorScaler:
             Number of points to use for LL approximation.
         """
 
-        # TODO: Modify!
-        # up to line 120 we compute the `log_likelihood`. We should have another method to do
-        # that task.
-        # Insetad of guessing which column to keep, which column to drop, and the position of the
-        # column based on the index, we pass that as a string.
+        # Make sure 'name' is in 'exog' columns
 
         if full_model is None:
             full_model = self.mle
 
-        # Figure out which column of exog to drop for the null model
-        # (the model that omits the term (term/level))
-        keeps = [
-            i
-            for i, x in enumerate(list(exog.columns))
-            if not np.array_equal(predictor, exog[x].values.flatten())
-        ]
-        i = [x for x in range(exog.shape[1]) if x not in keeps][0]
-
         # Get log-likelihood values from beta=0 to beta=MLE
-        values = np.linspace(0.0, full_model.params[i], points)
-        # If there are multiple predictors, use statsmodels to optimize the LL
-        if keeps:
-            null = [
-                GLM(
-                    endog=self.model.response.data,
-                    exog=exog,
-                    family=self.model.family.smfamily(self.model.family.smlink),
-                ).fit_constrained(str(exog.columns[i]) + "=" + str(val))
-                for val in values[:-1]
-            ]
-            null = np.append(null, full_model)
-            log_likelihood = np.array([x.llf for x in null])
-        # if just a single predictor, use statsmodels to evaluate the LL
-        else:
-            null = [
-                self.model.family.smfamily(self.model.family.smlink).loglike(
-                    np.squeeze(self.model.response.data), val * predictor
-                )
-                for val in values[:-1]
-            ]
-            log_likelihood = np.append(null, full_model.llf)
+        beta_mle = full_model.params[name].item()
+        beta_seq = np.linspace(0, beta_mle, points)
 
-        # compute params of quartic approximatino to log-likelihood
-        # c: intercept, d: shift parameter
-        # a: quartic coefficient, b: quadratic coefficient
+        log_likelihood = get_llh(self.model, exog, full_model, name, values, beta_seq)
+        coef_a, coef_b = get_llh_coeffs(log_likelihood, beta_mle, beta_seq)
+        p, q = shape_params(sigma_corr)
 
-        intercept, shift_parameter = log_likelihood[-1], -(full_model.params[i].item())
-        X = np.array([(values + shift_parameter) ** 4, (values + shift_parameter) ** 2]).T
-        coef_a, coef_b = np.squeeze(
-            np.linalg.multi_dot(
-                [np.linalg.inv(np.dot(X.T, X)), X.T, (log_likelihood[:, None] - intercept)]
-            )
-        )
-
-        # m, v: mean and variance of beta distribution of correlations
-        # p, q: corresponding shape parameters of beta distribution
-        mean = 0.5
-        variance = sigma_corr ** 2 / 4
-        p = mean * (mean * (1 - mean) / variance - 1)
-        q = (1 - mean) * (mean * (1 - mean) / variance - 1)
-
-        # evaluate the derivatives of beta = f(correlation).
-        # dict 'point' gives points about which to Taylor expand. We want to
-        # expand about the mean (generally 0), but some of the derivatives
+        # Evaluate the derivatives of beta = f(correlation).
+        # dict 'point' gives points about which to Taylor expand.
+        # We want to expand about the mean (generally 0), but some of the derivatives
         # do not exist at 0. Evaluating at a point very close to 0 (e.g., .001)
         # generally gives good results, but the higher order the expansion, the
         # further from 0 we need to evaluate the derivatives, or they blow up.
@@ -166,9 +117,11 @@ class PriorScaler:
         mu = []
         sigma = []
         sigma_corr = term.prior.scale
-        for pred in term.data.T:
+        for name, values in zip(term.levels, term.data.T):
             mu += [0]
-            sigma += [self.get_slope_stats(exog=self.dm, predictor=pred, sigma_corr=sigma_corr)]
+            sigma += [
+                self.get_slope_stats(exog=self.dm, name=name, values=values, sigma_corr=sigma_corr)
+            ]
         # Save and set prior
         self.priors.update({term.name: {"mu": mu, "sigma": sigma}})
         term.prior.update(mu=np.array(mu), sigma=np.array(sigma))
@@ -204,44 +157,55 @@ class PriorScaler:
             expr = term.name.split("|")[0]
             term_levels_len = term.predictor.shape[1]
 
-            # Handle case where there IS a corresponding common effect
-            if expr in self.priors:
-                # Common effect is present with same encoding
-                if term_levels_len == len(self.priors[expr]["mu"]):
-                    sigma = self.priors[expr]["sigma"]
-                # Common effect is present with different encoding
-                else:
-                    print(term.name)
-                    print(f"Term levels len {term_levels_len}")
-                    print(f"prior mu len {len(self.priors[expr]['mu'])}")
+            # Handle case where there IS a corresponding common effect with same encoding
+            if expr in self.priors and term_levels_len == len(self.priors[expr]["mu"]):
+                sigma = self.priors[expr]["sigma"]
             # Handle case where there IS NOT a corresponding common effect
             else:
-                sigma = []
+                if expr in self.priors and not term_levels_len == len(self.priors[expr]["mu"]):
+                    # Common effect is present, but with different encoding
+                    # Replace columns from the common term with those from the group specific term.
+                    exog = self.dm.drop(self.model.terms[expr].levels, axis=1)
+                else:
+                    # Common effect is not present
+                    exog = self.dm
+
+                # Append columns from 'data_as_common'
                 df_to_append = pd.DataFrame(data_as_common)
                 df_to_append.columns = [f"_name_{i}" for i in df_to_append.columns]
-                exog = self.dm.join(df_to_append)
-                for pred in data_as_common.T:
+                exog = exog.join(df_to_append)
+
+                # If there's intercept and the term is cell means, drop intercept to avoid
+                # linear dependence in design matrix columns.
+                if term.is_cell_means and self.has_intercept:
+                    exog = exog.drop("Intercept", axis=1)
+
+                sigma = []
+                for name, values in zip(df_to_append.columns, data_as_common.T):
                     full_model = GLM(
                         endog=self.model.response.data,
                         exog=exog,
                         family=self.model.family.smfamily(self.model.family.smlink),
                         missing="drop" if self.model.dropna else "none",
                     ).fit()
-
                     sigma += [
                         self.get_slope_stats(
-                            exog=exog, predictor=pred, full_model=full_model, sigma_corr=sigma_corr
+                            exog=exog,
+                            name=name,
+                            values=values,
+                            full_model=full_model,
+                            sigma_corr=sigma_corr,
                         )
                     ]
                 sigma = np.array(sigma)
-        # set the prior sigma.
+        # Set the prior sigma.
         term.prior.args["sigma"].update(sigma=np.squeeze(np.atleast_1d(sigma)))
 
     def scale(self):
         # Classify all terms
         intercept = [term for term in self.model.common_terms.values() if term.name == "Intercept"]
         common = [term for term in self.model.common_terms.values() if term.name != "Intercept"]
-        group_specific = [term for term in self.model.group_specific_terms.values()]
+        group_specific = list(self.model.group_specific_terms.values())
 
         # Arrange them in the order in which they should be initialized
         terms = common + intercept + group_specific
@@ -296,6 +260,42 @@ class PriorScaler:
             raise
 
 
+def get_llh(model, exog, full_model, name, values, beta_seq):
+    """
+    Parameters
+    ---------
+    model: bambi.Model
+    exog: pandas.DataFrame
+    name: str
+        Name of the term for which we want to compute the llh
+    values: np.array
+        Values of the term for which we want to compute the llh
+    beta_seq: np.array
+        Sequence of values from to beta_mle.
+    """
+    # True if there are other predictors appart from `predictor_name`
+    if name not in exog.columns:
+        raise ValueError("get_llh failed. Term name not in exog.")
+
+    multiple_predictors = exog.shape[1] > 1
+    sm_family = model.family.smfamily(model.family.smlink)
+
+    if multiple_predictors:
+        # Use statsmodels to _optimize_ the LL. Model is fitted 'points' times.
+        glm_model = GLM(endog=model.response.data, exog=exog, family=sm_family)
+        null_models = [glm_model.fit_constrained(f"{name}={beta}") for beta in beta_seq[:-1]]
+        null_models = np.append(null_models, full_model)
+        log_likelihood = np.array([x.llf for x in null_models])
+    else:
+        # Use statsmodels to _evaluate_ the LL. Model is fitted 'points' times.
+        log_likelihood = [
+            sm_family.loglike(np.squeeze(model.response.data), beta * values)
+            for beta in beta_seq[:-1]
+        ]
+        log_likelihood = np.append(log_likelihood, full_model.llf)
+    return log_likelihood
+
+
 def moment(p, q, k):
     """Return central moments of rescaled beta distribution"""
     return (2 * p / (p + q)) ** k * hyp2f1(p, -k, p + q, (p + q) / p)
@@ -312,3 +312,27 @@ def compute_sigma(deriv, p, q, i, j):
         * deriv[j]
         * (moment(p, q, i + j) - moment(p, q, i) * moment(p, q, j))
     )
+
+
+def get_llh_coeffs(llh, beta_mle, beta_seq):
+    # compute params of quartic approximation to log-likelihood
+    # c: intercept, d: shift parameter
+    # a: quartic coefficient, b: quadratic coefficient
+    # beta_mle: beta obtained via MLE
+    # beta_seq: sequence from 0 to beta_mle
+    intercept, shift_parameter = llh[-1], -beta_mle
+    X = np.array([(beta_seq + shift_parameter) ** 4, (beta_seq + shift_parameter) ** 2]).T
+    a, b = np.squeeze(  # pylint: disable=invalid-name
+        np.linalg.multi_dot([np.linalg.inv(np.dot(X.T, X)), X.T, (llh[:, None] - intercept)])
+    )
+    return a, b
+
+
+def shape_params(sigma_corr, mean=0.5):
+    # m, v: mean and variance of beta distribution of correlations
+    # p, q: corresponding shape parameters of beta distribution
+    mean = 0.5
+    variance = sigma_corr ** 2 / 4
+    p = mean * (mean * (1 - mean) / variance - 1)
+    q = (1 - mean) * (mean * (1 - mean) / variance - 1)
+    return p, q

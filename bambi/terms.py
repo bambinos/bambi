@@ -52,6 +52,7 @@ class Term:
         self.prior = prior
         self.type = term_dict["type"]
         self.levels = term_dict["full_names"]
+        self.categorical = False
 
         # If the term has one component, it's categorical if the component is categorical.
         # If the term has more than one component (i.e. it is an interaction), it's categorical if
@@ -109,6 +110,7 @@ class GroupSpecificTerm:
         self.grouper = term["Ji"]
         self.predictor = term["Xi"]
         self.group_index = self.invert_dummies(self.grouper)
+        self.categorical = False
 
         # Determine if the expression is categorical
         if self.type == "interaction":

@@ -46,7 +46,7 @@ setup(
     maintainer="Tal Yarkoni",
     maintainer_email="tyarkoni@gmail.com",
     packages=find_packages(exclude=["tests", "test_*"]),
-    package_data={"bambi": ["config/*"]},
+    package_data={"bambi": ["priors/config/*"]},
     tests_require=tests_require,
     license="MIT",
     **extra_setuptools_args,

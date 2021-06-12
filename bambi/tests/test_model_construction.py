@@ -220,7 +220,7 @@ def test_categorical_term():
         "1|g2[x]",
         "1|g2[y]",
         "1|g2[z]",
-        "g1|g2_sigma",
+        "g1|g2_sigma[b]",
         "g1|g2[b, x]",
         "g1|g2[b, y]",
         "g1|g2[b, z]",
