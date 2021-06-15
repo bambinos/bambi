@@ -95,7 +95,6 @@ class Model:
     ):
         # attributes that are set later
         self.terms = {}
-        self.dm_statistics = None  # build()
         self.built = False  # build()
         self._backend_name = None
 
@@ -299,14 +298,6 @@ class Model:
             )
             term.prior = self._prepare_prior(term.prior, type_)
 
-        # Only compute the mean stats if there are multiple terms in the model
-        terms = [t for t in self.common_terms.values() if t.name != "Intercept"]
-
-        if len(self.common_terms) > 1:
-            x_matrix = [pd.DataFrame(x.data, columns=x.levels) for x in terms]
-            x_matrix = pd.concat(x_matrix, axis=1)
-            self.dm_statistics = {"mean_x": x_matrix.mean(axis=0)}
-
         # throw informative error message if any categorical predictors have 1 category
         num_cats = [x.data.size for x in self.common_terms.values()]
         if any(np.array(num_cats) == 0):
@@ -320,6 +311,7 @@ class Model:
             else:
                 taylor = 5 if self.family.name == "gaussian" else 1
             scaler = PriorScaler(self, taylor=taylor)
+            self.scaler = scaler
             scaler.scale()
 
     def _set_priors(self, priors=None, common=None, group_specific=None, match_derived_names=True):
@@ -620,8 +612,7 @@ class Model:
             )
 
         if omit_offsets:
-            omitted = [f"{rt}_offset" for rt in self.group_specific_terms]
-            var_names = [vn for vn in var_names if vn not in omitted]
+            var_names = [name for name in var_names if not name.endswith("_offset")]
 
         if omit_group_specific:
             omitted = list(self.group_specific_terms)
@@ -671,8 +662,7 @@ class Model:
             var_names = pm.util.get_default_varnames(variables_names, include_transformed=False)
 
         if omit_offsets:
-            offset_vars = [f"{rt}_offset" for rt in self.group_specific_terms]
-            var_names = [vn for vn in var_names if vn not in offset_vars]
+            var_names = [name for name in var_names if not name.endswith("_offset")]
 
         pps_ = pm.sample_prior_predictive(
             samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
@@ -692,11 +682,19 @@ class Model:
 
         prior = {k: v[np.newaxis] for k, v in pps.items()}
 
+        coords = {}
+        dims = {}
+        for name in var_names:
+            if name in self.terms:
+                coords.update(**self.terms[name].pymc_coords)
+                dims[name] = list(self.terms[name].pymc_coords.keys())
+
         idata = from_dict(
             prior_predictive=prior_predictive,
             prior=prior,
             observed_data=observed_data,
-            coords=self.backend.model.coords,  # new line
+            coords=coords,
+            dims=dims,
             attrs={
                 "inference_library": self.backend.name,
                 "inference_library_version": self.backend.name,
@@ -810,15 +808,10 @@ class Model:
         return graphviz
 
     def _get_pymc_coords(self):
-        # categorical attribute is important because of this coordinates stuff
-        common_terms = {
-            k + "_dim_0": v.cleaned_levels for k, v in self.common_terms.items() if v.categorical
-        }
-        # Include all group specific terms
-        group_specific_terms = {
-            k + "_dim_0": v.cleaned_levels for k, v in self.group_specific_terms.items()
-        }
-        return {**common_terms, **group_specific_terms}
+        coords = {}
+        for term in self.terms.values():
+            coords.update(**term.pymc_coords)
+        return coords
 
     def __str__(self):
         priors = [f"  {term.name} ~ {term.prior}" for term in self.terms.values()]

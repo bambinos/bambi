@@ -1,4 +1,3 @@
-import itertools
 import numpy as np
 
 
@@ -43,46 +42,47 @@ class Term:
         The term values.
     prior : Prior
         A specification of the prior(s) to use. An instance of class ``priors.Prior``.
-    constant : bool
-        Indicates whether the term levels collectively act as a constant, in which case the term is
-        treated as an intercept for prior distribution purposes.
     """
 
     group_specific = False
 
-    def __init__(self, name, term_dict, data, prior=None, constant=None):
+    def __init__(self, name, term_dict, data, prior=None):
         self.name = name
         self.data = data
         self.prior = prior
-        self.categorical = term_dict["type"] == "categoric"
+        self.type = term_dict["type"]
         self.levels = term_dict["full_names"]
+        self.categorical = False
 
-        # identify and flag intercept and cell-means terms (i.e., full-rankdummy codes),
-        # which receive special priors
-        if constant is None:
-            self.constant = np.atleast_2d(self.data.T).T.sum(1).var() == 0
-        else:
-            self.constant = constant
-
-        if self.categorical:
-            if "levels" in term_dict.keys():
-                if term_dict["encoding"] == "full":
-                    self.cleaned_levels = term_dict["levels"]
-                else:
-                    self.cleaned_levels = term_dict["levels"][1:]
-            else:
-                self.cleaned_levels = term_dict["reference"]
-        else:
-            self.cleaned_levels = None
-
-        # Any interaction with 1 categorical is considered categorical (at least for now)
-        if term_dict["type"] == "interaction":
-            if any((v["type"] == "categoric" for v in term_dict["terms"].values())):
+        # If the term has one component, it's categorical if the component is categorical.
+        # If the term has more than one component (i.e. it is an interaction), it's categorical if
+        # at least one of the components is categorical.
+        if self.type == "interaction":
+            if any((term["type"] == "categoric" for term in term_dict["terms"].values())):
                 self.categorical = True
-                self.cleaned_levels = _interaction_labels(term_dict)
+        else:
+            self.categorical = self.type == "categoric"
+
+        # Flag cell-means terms (i.e., full-rank coding), which receive special priors
+        # To flag intercepts we use `self.type`
+        self.is_cell_means = self.categorical and (self.data.sum(1) == 1).all()
+
+        # Obtain pymc coordinates, only for categorical components of a term.
+        # A categorical component can have up to two coordinates if it is including with both
+        # reduced and full rank encodings.
+        self.pymc_coords = {}
+        if self.categorical:
+            name = self.name + "_coord"
+            if self.type == "interaction":
+                self.pymc_coords[name] = term_dict["levels"]
+            elif term_dict["encoding"] == "full":
+                self.pymc_coords[name] = term_dict["levels"]
+            else:
+                self.pymc_coords[name] = term_dict["levels"][1:]
 
 
 class GroupSpecificTerm:
+    # pylint: disable=too-many-instance-attributes
     """Representation of a single (group specific) model term.
 
     Parameters
@@ -96,29 +96,45 @@ class GroupSpecificTerm:
         The term values.
     prior : Prior
         A specification of the prior(s) to use. An instance of class ``priors.Prior``.
-    constant : bool
-        Indicates whether the term levels collectively act as a constant, in which case the term is
-        treated as an intercept for prior distribution purposes.
     """
 
     group_specific = True
 
-    def __init__(self, name, term, data, prior=None, constant=None):
+    def __init__(self, name, term, data, prior=None):
         self.name = name
         self.data = data
         self.prior = prior
-        self.categorical = term["type"] == "categoric"
-        self.cleaned_levels = term["groups"]
+        self.type = term["type"]
+        self.groups = term["groups"]
         self.levels = term["full_names"]
-
         self.grouper = term["Ji"]
         self.predictor = term["Xi"]
         self.group_index = self.invert_dummies(self.grouper)
+        self.categorical = False
 
-        if constant is None:
-            self.constant = np.atleast_2d(self.data.T).T.sum(1).var() == 0
+        # Determine if the expression is categorical
+        if self.type == "interaction":
+            if any((t["type"] == "categoric" for t in term["terms"].values())):
+                self.categorical = True
         else:
-            self.constant = constant
+            self.categorical = self.type == "categoric"
+
+        # Determine if it is cell means
+        self.is_cell_means = self.categorical and (self.data.sum(1) == 1).all()
+
+        self.pymc_coords = {}
+        # Group is always a coordinate added to the model.
+        expr, factor = self.name.split("|")
+        self.pymc_coords[factor + "_coord_group_factor"] = self.groups
+
+        if self.categorical:
+            name = expr + "_coord_group_expr"
+            if self.type == "interaction":
+                self.pymc_coords[name] = term["levels"]
+            elif term["encoding"] == "full":
+                self.pymc_coords[name] = term["levels"]
+            else:
+                self.pymc_coords[name] = term["levels"][1:]
 
     def invert_dummies(self, dummies):
         """
@@ -130,23 +146,3 @@ class GroupSpecificTerm:
         for i in range(1, dummies.shape[1]):
             vec[dummies[:, i] == 1] = i
         return vec
-
-
-def _interaction_labels(x):
-    # taken from formulae
-    terms = x["terms"]
-    colnames = []
-
-    for val in terms.values():
-        if val["type"] in ["numeric"]:
-            pass
-        if val["type"] == "categoric":
-            if "levels" in val.keys():
-                if val["encoding"] == "full":
-                    colnames.append([f"{level}" for level in val["levels"]])
-                else:
-                    colnames.append([f"{level}" for level in val["levels"][1:]])
-            else:
-                colnames.append([f"{val['reference']}"])
-
-    return [":".join(str_tuple) for str_tuple in list(itertools.product(*colnames))]

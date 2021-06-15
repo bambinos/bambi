@@ -87,10 +87,11 @@ def test_cell_means_with_covariate(crossed_data):
     model0.fit(tune=0, draws=1, init=None)
 
     # check that threecats priors have finite variance
-    assert not np.isinf(model0.terms["threecats"].prior.args["sigma"])
+    assert not (np.isinf(model0.terms["threecats"].prior.args["sigma"])).all()
 
 
 def test_many_common_many_group_specific(crossed_data):
+    # This test is kind of a mess, but it is very important, it checks lots of things.
     # delete a few values to also test dropna=True functionality
     crossed_data_missing = crossed_data.copy()
     crossed_data_missing.loc[0, "Y"] = np.nan
@@ -120,26 +121,9 @@ def test_many_common_many_group_specific(crossed_data):
         draws=10,
         chains=2,
     )
-
     # check that the group specific effects design matrices have the same shape
-    X0 = pd.concat(
-        [
-            pd.DataFrame(t.data)
-            if not isinstance(t.data, dict)
-            else pd.concat([pd.DataFrame(t.data[x]) for x in t.data.keys()], axis=1)
-            for t in model0.group_specific_terms.values()
-        ],
-        axis=1,
-    )
-    X1 = pd.concat(
-        [
-            pd.DataFrame(t.data)
-            if not isinstance(t.data, dict)
-            else pd.concat([pd.DataFrame(t.data[x]) for x in t.data.keys()], axis=1)
-            for t in model1.group_specific_terms.values()
-        ],
-        axis=1,
-    )
+    X0 = pd.concat([pd.DataFrame(t.data) for t in model0.group_specific_terms.values()], axis=1)
+    X1 = pd.concat([pd.DataFrame(t.data) for t in model1.group_specific_terms.values()], axis=1)
     assert X0.shape == X1.shape
 
     # check that the group specific effect design matrix contain the same columns,
@@ -182,14 +166,12 @@ def test_many_common_many_group_specific(crossed_data):
     assert all([dicts_close(priors0[x], priors1[x]) for x in priors0.keys()])
 
     # check that fit and add models have same priors for group specific effects
-    priors0 = {
-        x.name: x.prior.args["sigma"].args for x in model0.terms.values() if x.group_specific
-    }
-    priors1 = {
-        x.name: x.prior.args["sigma"].args for x in model1.terms.values() if x.group_specific
-    }
+    priors0 = {x.name: x.prior.args["sigma"].args for x in model0.group_specific_terms.values()}
+    priors1 = {x.name: x.prior.args["sigma"].args for x in model1.group_specific_terms.values()}
+
     # check dictionary keys
     assert set(priors0) == set(priors1)
+
     # check dictionary values
     def dicts_close(a, b):
         if set(a) != set(b):
