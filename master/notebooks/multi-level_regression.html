@@ -717,7 +717,7 @@ NUTS: [Weight_sigma, Time|Pig_offset, Time|Pig_sigma, 1|Pig_offset, 1|Pig_sigma,
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:17<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:20<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -725,7 +725,7 @@ NUTS: [Weight_sigma, Time|Pig_offset, Time|Pig_sigma, 1|Pig_offset, 1|Pig_sigma,
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 18 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 22 seconds.
 The number of effective samples is smaller than 25% for some parameters.
 </pre></div></div>
 </div>
@@ -789,33 +789,15 @@ Priors:
     <span class="n">results</span><span class="p">,</span>
     <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;1|Pig&quot;</span><span class="p">,</span> <span class="s2">&quot;Time|Pig&quot;</span><span class="p">,</span> <span class="s2">&quot;Weight_sigma&quot;</span><span class="p">],</span>
     <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="p">);</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-array([[&lt;AxesSubplot:title={&#39;center&#39;:&#39;Intercept&#39;}&gt;,
-        &lt;AxesSubplot:title={&#39;center&#39;:&#39;Intercept&#39;}&gt;],
-       [&lt;AxesSubplot:title={&#39;center&#39;:&#39;Time&#39;}&gt;,
-        &lt;AxesSubplot:title={&#39;center&#39;:&#39;Time&#39;}&gt;],
-       [&lt;AxesSubplot:title={&#39;center&#39;:&#39;1|Pig&#39;}&gt;,
-        &lt;AxesSubplot:title={&#39;center&#39;:&#39;1|Pig&#39;}&gt;],
-       [&lt;AxesSubplot:title={&#39;center&#39;:&#39;Time|Pig&#39;}&gt;,
-        &lt;AxesSubplot:title={&#39;center&#39;:&#39;Time|Pig&#39;}&gt;],
-       [&lt;AxesSubplot:title={&#39;center&#39;:&#39;Weight_sigma&#39;}&gt;,
-        &lt;AxesSubplot:title={&#39;center&#39;:&#39;Weight_sigma&#39;}&gt;]], dtype=object)
-</pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_multi-level_regression_13_1.png" src="../_images/notebooks_multi-level_regression_13_1.png" />
+<img alt="../_images/notebooks_multi-level_regression_13_0.png" src="../_images/notebooks_multi-level_regression_13_0.png" />
 </div>
 </div>
 <p>The same plot could have been generated with less typing by calling</p>
@@ -1052,18 +1034,18 @@ array([[&lt;AxesSubplot:title={&#39;center&#39;:&#39;Intercept&#39;}&gt;,
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Mon Apr 19 2021
+Last updated: Tue Jun 15 2021
 
 Python implementation: CPython
 Python version       : 3.8.5
 IPython version      : 7.18.1
 
+numpy      : 1.20.1
+bambi      : 0.5.0
 matplotlib : 3.3.3
+statsmodels: 0.12.2
 arviz      : 0.11.2
 json       : 2.0.9
-numpy      : 1.20.1
-bambi      : 0.4.1
-statsmodels: 0.12.2
 
 Watermark: 2.1.0
 

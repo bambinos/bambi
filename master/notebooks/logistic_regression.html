@@ -596,7 +596,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Generator(PCG64) at 0x7F957FE5E040
+Generator(PCG64) at 0x7F5AFC741C80
 </pre></div></div>
 </div>
 <div class="section" id="Load-and-examine-American-National-Election-Studies-(ANES)-data">
@@ -960,7 +960,7 @@ pick one of the events to model, but will inform you which one it picked when yo
 Modeling the probability that vote==clinton
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
+Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [party_id:age, party_id, Intercept]
 </pre></div></div>
 </div>
@@ -981,8 +981,8 @@ NUTS: [party_id:age, party_id, Intercept]
             background: #F44336;
         }
     </style>
-  <progress value='12000' class='' max='12000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [12000/12000 00:10<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [6000/6000 00:12<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -990,7 +990,7 @@ NUTS: [party_id:age, party_id, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 11 seconds.
+Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 14 seconds.
 </pre></div></div>
 </div>
 <p>We can print the model object to see information about the response distribution, the link function and the priors.</p>
@@ -1104,74 +1104,74 @@ Priors:
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>1.680</td>
-      <td>0.736</td>
-      <td>0.299</td>
-      <td>3.063</td>
+      <td>1.678</td>
+      <td>0.744</td>
+      <td>0.234</td>
+      <td>3.003</td>
+      <td>0.019</td>
       <td>0.013</td>
-      <td>0.010</td>
-      <td>2989.0</td>
-      <td>3410.0</td>
+      <td>1568.0</td>
+      <td>1551.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[independent]</th>
-      <td>-0.278</td>
-      <td>0.959</td>
-      <td>-1.975</td>
-      <td>1.571</td>
-      <td>0.018</td>
-      <td>0.014</td>
-      <td>2974.0</td>
-      <td>3386.0</td>
+      <td>-0.275</td>
+      <td>0.960</td>
+      <td>-2.099</td>
+      <td>1.516</td>
+      <td>0.023</td>
+      <td>0.019</td>
+      <td>1752.0</td>
+      <td>1852.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[republican]</th>
-      <td>-0.838</td>
-      <td>1.783</td>
-      <td>-4.246</td>
-      <td>2.475</td>
-      <td>0.030</td>
-      <td>0.023</td>
-      <td>3483.0</td>
-      <td>3809.0</td>
+      <td>-0.805</td>
+      <td>1.781</td>
+      <td>-4.245</td>
+      <td>2.528</td>
+      <td>0.045</td>
+      <td>0.032</td>
+      <td>1564.0</td>
+      <td>1767.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>party_id:age[party_id[democrat]:age]</th>
+      <th>party_id:age[democrat]</th>
       <td>0.013</td>
-      <td>0.015</td>
-      <td>-0.014</td>
-      <td>0.044</td>
+      <td>0.016</td>
+      <td>-0.016</td>
+      <td>0.042</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>3114.0</td>
-      <td>3380.0</td>
+      <td>1517.0</td>
+      <td>1585.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>party_id:age[party_id[independent]:age]</th>
+      <th>party_id:age[independent]</th>
       <td>-0.034</td>
       <td>0.012</td>
-      <td>-0.057</td>
-      <td>-0.011</td>
+      <td>-0.055</td>
+      <td>-0.010</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>4240.0</td>
-      <td>3994.0</td>
+      <td>2704.0</td>
+      <td>2487.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>party_id:age[party_id[republican]:age]</th>
-      <td>-0.089</td>
+      <th>party_id:age[republican]</th>
+      <td>-0.090</td>
       <td>0.043</td>
-      <td>-0.167</td>
-      <td>-0.008</td>
+      <td>-0.170</td>
+      <td>-0.011</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>3666.0</td>
-      <td>3181.0</td>
+      <td>1816.0</td>
+      <td>1715.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1216,8 +1216,8 @@ Priors:
             background: #F44336;
         }
     </style>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:04<00:00]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:04<00:00]
 </div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1417,13 +1417,6 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
   </thead>
   <tbody>
     <tr>
-      <th>62</th>
-      <td>68</td>
-      <td>trump</td>
-      <td>91</td>
-      <td>republican</td>
-    </tr>
-    <tr>
       <th>191</th>
       <td>215</td>
       <td>trump</td>
@@ -1438,10 +1431,17 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
       <td>republican</td>
     </tr>
     <tr>
-      <th>320</th>
-      <td>359</td>
-      <td>clinton</td>
-      <td>22</td>
+      <th>292</th>
+      <td>328</td>
+      <td>trump</td>
+      <td>23</td>
+      <td>republican</td>
+    </tr>
+    <tr>
+      <th>296</th>
+      <td>332</td>
+      <td>trump</td>
+      <td>21</td>
       <td>republican</td>
     </tr>
     <tr>
@@ -1602,15 +1602,10 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 
 <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">influential_observations</span><span class="p">))</span>
 
-
 <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">influential_observations</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-
     <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-
     <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">clinton_data</span><span class="p">)</span>
-
     <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-
     <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span><span class="n">pe</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)]);</span>
 </pre></div>
 </div>
@@ -1662,13 +1657,6 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
   </thead>
   <tbody>
     <tr>
-      <th>62</th>
-      <td>68</td>
-      <td>trump</td>
-      <td>91</td>
-      <td>republican</td>
-    </tr>
-    <tr>
       <th>191</th>
       <td>215</td>
       <td>trump</td>
@@ -1683,10 +1671,17 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
       <td>republican</td>
     </tr>
     <tr>
-      <th>320</th>
-      <td>359</td>
-      <td>clinton</td>
-      <td>22</td>
+      <th>292</th>
+      <td>328</td>
+      <td>trump</td>
+      <td>23</td>
+      <td>republican</td>
+    </tr>
+    <tr>
+      <th>296</th>
+      <td>332</td>
+      <td>trump</td>
+      <td>21</td>
       <td>republican</td>
     </tr>
     <tr>
@@ -1780,7 +1775,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.992375
+0.99525
 </pre></div></div>
 </div>
 <p>Probability that the Independent slope is greater than the Republican slope?</p>
@@ -1799,7 +1794,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.90025
+0.9055
 </pre></div></div>
 </div>
 <p>Probability that the Democrat slope is greater than 0?</p>
@@ -1818,7 +1813,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.80125
+0.8035
 </pre></div></div>
 </div>
 <p>Probability that the Republican slope is less than 0?</p>
@@ -1837,7 +1832,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.993875
+0.99725
 </pre></div></div>
 </div>
 <p>Probability that the Independent slope is less than 0?</p>
@@ -1856,7 +1851,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.997375
+0.99925
 </pre></div></div>
 </div>
 <p>If we look at the plot of the marginal posteriors, we may be suspicious that, for example, the probability that Democrat slope is greater than the Republican slope is 0.998 (almost 1!), given the overlap between the blue and green density functions. However, we can’t answer such a question using the marginal posteriors only, as shown in the plot. Since Democrat and Republican slopes (<span class="math notranslate nohighlight">\(\beta_3\)</span> and <span class="math notranslate nohighlight">\(\beta_5\)</span>, respectively) are random variables, we need to use their joint distribution
@@ -1943,19 +1938,20 @@ to answer probability questions that involve both of them. The fact that logical
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Thu May 13 2021
+Last updated: Tue Jun 15 2021
 
 Python implementation: CPython
-Python version       : 3.8.0
-IPython version      : 7.22.0
+Python version       : 3.8.5
+IPython version      : 7.18.1
 
 numpy     : 1.20.1
-bambi     : 0.4.1
+json      : 2.0.9
+pandas    : 1.2.2
+bambi     : 0.5.0
 arviz     : 0.11.2
-matplotlib: 3.4.2
-pandas    : 1.2.4
+matplotlib: 3.3.3
 
-Watermark: 2.2.0
+Watermark: 2.1.0
 
 </pre></div></div>
 </div>
