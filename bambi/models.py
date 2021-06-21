@@ -253,12 +253,7 @@ class Model:
             A prior specification to apply to all group specific terms included in the model.
         """
         # save arguments to pass to _set_priors() at build time
-        kwargs = dict(
-            zip(
-                ["priors", "common", "group_specific"],
-                [priors, common, group_specific],
-            )
-        )
+        kwargs = dict(zip(["priors", "common", "group_specific"], [priors, common, group_specific]))
         self._added_priors.update(kwargs)
         # After updating, we need to rebuild priors.
         # There is redundancy here, so there's place for performance improvements.
@@ -271,7 +266,6 @@ class Model:
             self.backend = PyMC3BackEnd()
         else:
             raise ValueError("At the moment, only the PyMC3 backend is supported.")
-
         self._backend_name = backend
 
     def _build_priors(self):
@@ -289,11 +283,6 @@ class Model:
                 else "common"
             )
             term.prior = self._prepare_prior(term.prior, type_)
-
-        # Throw informative error message if any categorical predictors have 1 category
-        num_cats = [x.data.size for x in self.common_terms.values()]
-        if any(np.array(num_cats) == 0):
-            raise ValueError("At least one categorical predictor contains only 1 category!")
 
         # Only set priors if there is at least one term in the model
         if self.terms:

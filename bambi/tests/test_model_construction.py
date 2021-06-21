@@ -415,3 +415,17 @@ def test_link_match_family():
 
     for family in custom_families:
         assert link_match_family("anything", family)
+
+
+def test_constant_terms():
+    data = pd.DataFrame({
+        "y" : np.random.normal(size=10),
+        "x" : np.random.choice([1], size=10),
+        "z" : np.random.choice(["A"], size=10)
+    })
+
+    with pytest.raises(ValueError):
+        Model("y ~ 0 + x", data)
+
+    with pytest.raises(ValueError):
+        Model("y ~ 0 + z", data)
