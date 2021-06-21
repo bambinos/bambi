@@ -178,27 +178,6 @@ def test_one_shot_formula_fit(diabetes_data):
     assert len(set(named_vars.keys()) & set(targets)) == 3
 
 
-@pytest.mark.skip(reason="Derived term search is going to be removed.")
-def test_derived_term_search(diabetes_data):
-    model = Model("BMI ~ 1 + (age_grp|BP)", diabetes_data, categorical=["age_grp"])
-    model.build()
-    terms = model._match_derived_terms("age_grp|BP")
-    names = set([t.name for t in terms])
-
-    # Since intercept is present, it uses treatment encoding
-    lvls = sorted(list(diabetes_data["age_grp"].unique()))[1:]
-    assert names == set(["1|BP"] + [f"age_grp[{lvl}]|BP" for lvl in lvls])
-
-    term = model._match_derived_terms("1|BP")[0]
-    assert term.name == "1|BP"
-
-    # All of these should find nothing
-    assert model._match_derived_terms("1|ZZZ") is None
-    assert model._match_derived_terms("ZZZ|BP") is None
-    assert model._match_derived_terms("BP") is None
-    assert model._match_derived_terms("BP") is None
-
-
 def test_categorical_term():
     data = pd.DataFrame(
         {

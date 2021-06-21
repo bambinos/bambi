@@ -1,6 +1,5 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
-import re
 import logging
 from copy import deepcopy
 
@@ -238,7 +237,7 @@ class Model:
         self.backend.build(self)
         self.built = True
 
-    def set_priors(self, priors=None, common=None, group_specific=None, match_derived_names=True):
+    def set_priors(self, priors=None, common=None, group_specific=None):
         """Set priors for one or more existing terms.
 
         Parameters
@@ -252,19 +251,12 @@ class Model:
             A prior specification to apply to all common terms included in the model.
         group_specific : Prior, int, float or str
             A prior specification to apply to all group specific terms included in the model.
-        match_derived_names : bool
-            If ``True``, the specified prior(s) will be applied not only to terms that match the
-            keyword exactly, but to the levels of group specific effects that were derived from the
-            original specification with the passed name. For example,
-            ``priors={'condition|subject':0.5}`` would apply the prior to the terms with names
-            ``'1|subject'``, ``'condition[T.1]|subject'``, and so on. If ``False``, an exact
-            match is required for the prior to be applied.
         """
         # save arguments to pass to _set_priors() at build time
         kwargs = dict(
             zip(
-                ["priors", "common", "group_specific", "match_derived_names"],
-                [priors, common, group_specific, match_derived_names],
+                ["priors", "common", "group_specific"],
+                [priors, common, group_specific],
             )
         )
         self._added_priors.update(kwargs)
@@ -284,10 +276,10 @@ class Model:
 
     def _build_priors(self):
         """Carry out all operations related to the construction and/or scaling of priors."""
-        # set custom priors
+        # Set custom priors
         self._set_priors(**self._added_priors)
 
-        # prepare all priors
+        # Prepare all priors
         for name, term in self.terms.items():
             type_ = (
                 "intercept"
@@ -298,12 +290,12 @@ class Model:
             )
             term.prior = self._prepare_prior(term.prior, type_)
 
-        # throw informative error message if any categorical predictors have 1 category
+        # Throw informative error message if any categorical predictors have 1 category
         num_cats = [x.data.size for x in self.common_terms.values()]
         if any(np.array(num_cats) == 0):
             raise ValueError("At least one categorical predictor contains only 1 category!")
 
-        # only set priors if there is at least one term in the model
+        # Only set priors if there is at least one term in the model
         if self.terms:
             # Get and scale default priors if none are defined yet
             if self.taylor is not None:
@@ -314,11 +306,13 @@ class Model:
             self.scaler = scaler
             scaler.scale()
 
-    def _set_priors(self, priors=None, common=None, group_specific=None, match_derived_names=True):
+    def _set_priors(self, priors=None, common=None, group_specific=None):
         """Internal version of ``set_priors()``, with same arguments.
 
         Runs during ``Model._build_priors()``.
         """
+        # First, it constructs a `targets` dict where it store key-value (name-prior) pairs that
+        # are going to be updated. Finally, the update is done in the last for loop in this method.
         targets = {}
 
         if common is not None:
@@ -328,7 +322,7 @@ class Model:
             targets.update({name: group_specific for name in self.group_specific_terms.keys()})
 
         if priors is not None:
-            # Update priors related to nuisance parameters of response distribution
+            # Update priors related to nuisance parameters of the response distribution
             priors_ = extract_family_prior(self.family, priors)
             if priors_:
                 # Remove keys passed to the response.
@@ -337,40 +331,37 @@ class Model:
                 self.response.prior.args.update(priors_)
 
             # Prepare priors for explanatory terms.
-            for k, prior in priors.items():
-                for name in listify(k):
-                    term_names = list(self.terms.keys())
-                    msg = f"No terms in model match {name}."
-                    if name not in term_names:
-                        terms = self._match_derived_terms(name)
-                        if not match_derived_names or terms is None:
-                            raise ValueError(msg)
-                        for term in terms:
-                            targets[term.name] = prior
-                    else:
-                        targets[name] = prior
+            for names, prior in priors.items():
+                # In case we have tuple-keys, we loop throuh each of them.
+                for name in listify(names):
+                    if name not in list(self.terms.keys()):
+                        raise ValueError(f"No terms in model match {name}.")
+                    targets[name] = prior
 
         # Set priors for explanatory terms.
         for name, prior in targets.items():
             self.terms[name].prior = prior
 
-    def _prepare_prior(self, prior, _type):
+    def _prepare_prior(self, prior, type_):
         """Helper function to correctly set default priors, auto scaling, etc.
 
         Parameters
         ----------
         prior : Prior object, or float, or None.
-        _type : string
+        type_ : string
             accepted values are: ``'intercept'``, ``'common'``, or ``'group_specific'``.
         """
+        # All this logic should go in the prior, not in the model.
+        # The model should call this method from the prior.
+
         if prior is None and not self.auto_scale:
-            prior = self.default_priors.get(term=_type + "_flat")
+            prior = self.default_priors.get(term=type_ + "_flat")
 
         if isinstance(prior, Prior):
             prior._auto_scale = False  # pylint: disable=protected-access
         else:
             _scale = prior
-            prior = self.default_priors.get(term=_type)
+            prior = self.default_priors.get(term=type_)
             prior.scale = _scale
             if prior.scale is not None:
                 prior._auto_scale = False  # pylint: disable=protected-access
@@ -492,34 +483,6 @@ class Model:
             data = group[name]
             prior = priors.pop(name, priors.get("group_specific", None))
             self.terms[name] = GroupSpecificTerm(name, term, data, prior)
-
-    def _match_derived_terms(self, name):
-        """Return all (group_specific) terms whose named are derived from the specified string.
-
-        For example, ``'condition|subject'`` should match the terms with names ``'1|subject'``,
-        ``'condition[T.1]|subject'``, and so on.
-        Only works for strings with grouping operator ``('|')``.
-        """
-        if "|" not in name:
-            return None
-
-        patt = r"^([01]+)*[\s\+]*([^\|]+)*\|(.*)"
-        intcpt, pred, grpr = re.search(patt, name).groups()
-        intcpt = f"1|{grpr}"
-        if not pred:
-            return [self.terms[intcpt]] if intcpt in self.terms else None
-
-        source = f"{pred}|{grpr}"
-        found = [
-            t
-            for (n, t) in self.terms.items()
-            if n == intcpt or re.sub(r"(\[.*?\])", "", n) == source
-        ]
-        # If only the intercept matches, return None, because we want to err
-        # on the side of caution and not consider '1|subject' to be a match for
-        # 'condition|subject' if no slopes are found (e.g., the intercept could
-        # have been set by some other specification like 'gender|subject').
-        return found if found and (len(found) > 1 or found[0].name != intcpt) else None
 
     def plot_priors(
         self,

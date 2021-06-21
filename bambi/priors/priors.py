@@ -2,7 +2,6 @@
 import json
 import re
 
-
 from copy import deepcopy
 from os.path import dirname, join
 
