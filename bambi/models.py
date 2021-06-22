@@ -281,10 +281,10 @@ class Model:
 
         # Prepare all priors
         for term in self.terms.values():
-            if term.type == "intercept":
-                type_ = "intercept"
-            elif term.group_specific:
+            if term.group_specific:
                 type_ = "group_specific"
+            elif term.type == "intercept":
+                type_ = "intercept"
             else:
                 type_ = "common"
             term.prior = self._prepare_prior(term.prior, type_)
@@ -298,8 +298,9 @@ class Model:
                     taylor = 5 if self.family.name == "gaussian" else 1
                     scaler = PriorScaler(self, taylor=taylor)
             elif self.automatic_priors == "rstanarm":
-                self.scaler = PriorScaler2(self)
-            scaler.scale()
+                scaler = PriorScaler2(self)
+            self.scaler = scaler
+            self.scaler.scale()
 
     def _set_priors(self, priors=None, common=None, group_specific=None):
         """Internal version of ``set_priors()``, with same arguments.
