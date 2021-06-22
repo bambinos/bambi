@@ -13,7 +13,7 @@ from numpy.linalg import matrix_rank
 from formulae import design_matrices
 
 from .backends import PyMC3BackEnd
-from .priors import Prior, PriorFactory, PriorScaler, Family
+from .priors import Prior, PriorFactory, PriorScaler, PriorScaler2, Family
 from .terms import ResponseTerm, Term, GroupSpecificTerm
 from .utils import listify, extract_family_prior, link_match_family
 from .version import __version__
@@ -66,6 +66,10 @@ class Model:
         dictionary containing named distributions, families, and terms (see the documentation in
         ``priors.PriorFactory`` for details), or the name of a JSON file containing the same
         information.
+    automatic_priors: str
+        An optional specification to compute/scale automatic priors. ``"default"`` means to use
+        Bambi's default method. ``"rstanarm"`` means to use default priors from the R rstanarm
+        library. The latter are available in more scenarios because they don't depend on MLE.
     noncentered : bool
         If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on
         grouped parameters. If ``False``, naive (centered) parameterization is used.
@@ -89,6 +93,7 @@ class Model:
         dropna=False,
         auto_scale=True,
         default_priors=None,
+        automatic_priors="default",
         noncentered=True,
         taylor=None,
     ):
@@ -138,7 +143,9 @@ class Model:
             priors = {}
         else:
             priors = deepcopy(priors)
+
         self.default_priors = PriorFactory(default_priors)
+        self.automatic_priors = automatic_priors
 
         # Obtain design matrices and related objects.
         na_action = "drop" if dropna else "error"
@@ -149,7 +156,6 @@ class Model:
             raise ValueError("Can't instantiate a model without a model formula.")
 
         if self._design.response is not None:
-            _family = family.name if isinstance(family, Family) else family
             priors_ = extract_family_prior(family, priors)
             if priors_ and self._design.common:
                 conflicts = [name for name in priors_ if name in self._design.common.terms_info]
@@ -274,25 +280,25 @@ class Model:
         self._set_priors(**self._added_priors)
 
         # Prepare all priors
-        for name, term in self.terms.items():
-            type_ = (
-                "intercept"
-                if name == "Intercept"
-                else "group_specific"
-                if self.terms[name].group_specific
-                else "common"
-            )
+        for term in self.terms.values():
+            if term.type == "intercept":
+                type_ = "intercept"
+            elif term.group_specific:
+                type_ = "group_specific"
+            else:
+                type_ = "common"
             term.prior = self._prepare_prior(term.prior, type_)
 
-        # Only set priors if there is at least one term in the model
-        if self.terms:
-            # Get and scale default priors if none are defined yet
-            if self.taylor is not None:
-                taylor = self.taylor
-            else:
-                taylor = 5 if self.family.name == "gaussian" else 1
-            scaler = PriorScaler(self, taylor=taylor)
-            self.scaler = scaler
+        # Scale priors if there is at least one term in the model and auto_scale is True
+        if self.terms and self.auto_scale:
+            if self.automatic_priors == "default":
+                if self.taylor is not None:
+                    taylor = self.taylor
+                else:
+                    taylor = 5 if self.family.name == "gaussian" else 1
+                    scaler = PriorScaler(self, taylor=taylor)
+            elif self.automatic_priors == "rstanarm":
+                self.scaler = PriorScaler2(self)
             scaler.scale()
 
     def _set_priors(self, priors=None, common=None, group_specific=None):
@@ -336,24 +342,22 @@ class Model:
 
         Parameters
         ----------
-        prior : Prior object, or float, or None.
+        prior : Prior, float, or None.
         type_ : string
             accepted values are: ``'intercept'``, ``'common'``, or ``'group_specific'``.
         """
-        # All this logic should go in the prior, not in the model.
-        # The model should call this method from the prior.
 
         if prior is None and not self.auto_scale:
             prior = self.default_priors.get(term=type_ + "_flat")
 
         if isinstance(prior, Prior):
-            prior._auto_scale = False  # pylint: disable=protected-access
+            prior.auto_scale = False
         else:
             _scale = prior
             prior = self.default_priors.get(term=type_)
             prior.scale = _scale
             if prior.scale is not None:
-                prior._auto_scale = False  # pylint: disable=protected-access
+                prior.auto_scale = False
         return prior
 
     def _add_response(self, response, family="gaussian", link=None, priors=None):
@@ -403,19 +407,14 @@ class Model:
 
         prior = self.family.prior
 
-        # not None when user passes priors for nuisance parameters, either for built-in familes or
-        # for custom families.
+        # not None when user passes priors for nuisance parameters (built-in or custom)
         if priors is not None:
+            # FIX: This does not check whether the arguments passed are correct for the prior
             prior.args.update(priors)
-
-        if self.family.name == "gaussian":
-            if priors is None:
-                prior.update(
-                    sigma=Prior("HalfStudentT", nu=4, sigma=np.std(response.design_vector))
-                )
+            prior.auto_scale = False
 
         if response.refclass is not None and self.family.name != "bernoulli":
-            raise ValueError("Index notation for response only available for 'bernoulli' family")
+            raise ValueError("Index notation for response is only available for 'bernoulli' family")
 
         self.response = ResponseTerm(response, prior, self.family.name)
         self.built = False

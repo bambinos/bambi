@@ -156,9 +156,9 @@ def test_prior_eq():
 
 
 def test_family_unsupported():
-    fm = Family("name", "prior", "link", "parent")
+    family = Family("name", "prior", "link", "parent")
     with pytest.raises(ValueError):
-        fm._set_link("Empty")
+        family._set_link("Empty")
 
 
 def test_complete_separation():

@@ -99,7 +99,7 @@ class Prior:
 
     def __init__(self, name, scale=None, **kwargs):
         self.name = name
-        self._auto_scale = True
+        self.auto_scale = True
         self.scale = scale
         self.args = {}
         self.update(**kwargs)
