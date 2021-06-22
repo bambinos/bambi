@@ -47,6 +47,17 @@ def test_prior_factory_init_from_default_config():
     assert "gaussian" in pf.families
 
 
+def test_prior_factory_get_fail():
+    # .get() must receive only, and only one, non None argument.
+    pf = PriorFactory()
+    with pytest.raises(ValueError):
+        assert pf.get(dist="ñam", term="fri", family="frufi")
+    with pytest.raises(ValueError):
+        assert pf.get(dist="fali", term="fru")
+    with pytest.raises(ValueError):
+        assert pf.get()
+
+
 def test_prior_factory_init_from_config():
     config_file = join(dirname(__file__), "data", "sample_priors.json")
     pf = PriorFactory(config_file)
@@ -123,6 +134,31 @@ def test_auto_scale(diabetes_data):
     assert "sigma" not in p2_off.args
     assert p3_off.name == "Cauchy"
     assert p3_off.args["beta"] == 17.5
+
+
+def test_prior_str():
+    # Tests __str__ method
+    prior1 = Prior("Normal", mu=0, sigma=1)
+    prior2 = Prior("Normal", mu=0, sigma=Prior("HalfNormal", sigma=1))
+    assert str(prior1) == "Normal(mu: 0, sigma: 1)"
+    assert str(prior2) == "Normal(mu: 0, sigma: HalfNormal(sigma: 1))"
+    assert str(prior1) == repr(prior1)
+
+
+def test_prior_eq():
+    # Tests __eq__ method
+    prior1 = Prior("Normal", mu=0, sigma=1)
+    prior2 = Prior("Normal", mu=0, sigma=Prior("HalfNormal", sigma=1))
+    assert prior1 == prior1
+    assert prior2 == prior2
+    assert prior1 != prior2
+    assert prior1 != "Prior"
+
+
+def test_family_unsupported():
+    fm = Family("name", "prior", "link", "parent")
+    with pytest.raises(ValueError):
+        fm._set_link("Empty")
 
 
 def test_complete_separation():
