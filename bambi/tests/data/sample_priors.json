@@ -1,47 +1,51 @@
 {
   "terms": {
-    "yellow": "#swiss",
-    "white": "#feta"
+    "yellow": {
+      "dist": "#swiss"
+    },
+    "white": {
+      "dist": "#feta"
+    }
   },
   "families": {
     "hard": {
-      "dist": [
-        "#asiago",
-        {
+      "dist": {
+        "dist": "#asiago",
+        "args": {
           "backup": "#parmesan"
         }
-      ],
+      },
       "link": "grate",
       "parent": "wedge"
     }
   },
   "dists": {
-    "swiss": [
-      "Swiss",
-      {
+    "swiss": {
+      "name": "Swiss",
+      "args": {
         "holes": 100,
         "flavor": 100
       }
-    ],
-    "feta": [
-      "Feta",
-      {
+    },
+    "feta": {
+      "name": "Feta",
+      "args": {
         "holes": 0,
         "hardness": -5
       }
-    ],
-    "asiago": [
-      "Asiago",
-      {
+    },
+    "asiago": {
+      "name": "Asiago",
+      "args": {
         "hardness": 10,
         "backup": 0
       }
-    ],
-    "parmesan": [
-      "Parmesan",
-      {
+    },
+    "parmesan": {
+      "name": "Parmesan",
+      "args": {
         "flavor": 10000
       }
-    ]
+    }
   }
 }
