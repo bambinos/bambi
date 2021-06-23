@@ -64,7 +64,7 @@ class Term:
             self.categorical = self.type == "categoric"
 
         # Flag constant terms
-        if self.categorical and len(term_dict["levels"]) == 1:
+        if self.categorical and len(term_dict["levels"]) == 1 and (data == data[0]).all():
             raise ValueError(f"The term '{name}' has only 1 category!")
 
         if not self.categorical and self.type != "intercept" and np.all(data == data[0]):

@@ -1,4 +1,5 @@
 import json
+from multiprocessing.sharedctypes import Value
 from os.path import dirname, join
 
 import numpy as np
@@ -160,6 +161,25 @@ def test_family_unsupported():
         family._set_link("Empty")
 
 
+def test_family_bad_type():
+    data = pd.DataFrame({"x": [1], "y": [1]})
+
+    with pytest.raises(ValueError):
+        Model("y ~ x", data, family=0)
+
+    with pytest.raises(ValueError):
+        Model("y ~ x", data, family=set("gaussian"))
+
+    with pytest.raises(ValueError):
+        Model("y ~ x", data, family={"family": "gaussian"})
+
+
+def test_family_unsupported_index_notation():
+    data = pd.DataFrame({"x": [1], "y": [1]})
+    with pytest.raises(ValueError):
+        Model("y[1] ~ x", data, family="gaussian")
+
+
 def test_complete_separation():
     data = pd.DataFrame({"y": [0] * 5 + [1] * 5, "g": ["a"] * 5 + ["b"] * 5})
 
@@ -169,6 +189,63 @@ def test_complete_separation():
     # No error is raised
     priors = {"common": Prior("Normal", mu=0, sigma=10)}
     Model("y ~ g", data, family="bernoulli", priors=priors)
+
+
+def test_set_priors():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "x": np.random.normal(size=100),
+            "g": np.random.choice(["A", "B"], size=100),
+        }
+    )
+    model = Model("y ~ x + (1|g)", data)
+    prior = Prior("Uniform", lower=0, upper=50)
+
+    # Common
+    model.set_priors(common=prior)
+    assert model.terms["Intercept"].prior == prior
+    assert model.terms["x"].prior == prior
+
+    # Group-specific
+    model.set_priors(group_specific=prior)
+    assert model.terms["1|g"].prior == prior
+
+    # By name
+    model = Model("y ~ x + (1|g)", data)
+    model.set_priors(priors={"x": prior})
+    model.set_priors(priors={"1|g": prior})
+    assert model.terms["x"].prior == prior
+    assert model.terms["1|g"].prior == prior
+
+
+def test_set_prior_with_tuple():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "x": np.random.normal(size=100),
+            "z": np.random.normal(size=100),
+        }
+    )
+    prior = Prior("Uniform", lower=0, upper=50)
+    model = Model("y ~ x + z", data)
+    model.set_priors(priors={("x", "z"): prior})
+
+    assert model.terms["x"].prior == prior
+    assert model.terms["z"].prior == prior
+
+
+def test_set_prior_unexisting_term():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "x": np.random.normal(size=100),
+        }
+    )
+    prior = Prior("Uniform", lower=0, upper=50)
+    model = Model("y ~ x", data)
+    with pytest.raises(ValueError):
+        model.set_priors(priors={("x", "z"): prior})
 
 
 def test_response_prior():

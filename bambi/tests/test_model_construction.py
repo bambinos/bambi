@@ -16,6 +16,17 @@ from bambi.utils import link_match_family
 
 
 @pytest.fixture(scope="module")
+def data_numeric_xy():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "x": np.random.normal(size=100),
+        }
+    )
+    return data
+
+
+@pytest.fixture(scope="module")
 def diabetes_data():
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "diabetes.txt"), sep="\t")
@@ -100,6 +111,41 @@ def test_model_init_from_filename():
     assert isinstance(model.data, pd.DataFrame)
     assert model.data.shape == (442, 11)
     assert "BMI" in model.data.columns
+
+
+def test_model_init_bad_data():
+    with pytest.raises(ValueError):
+        Model("y ~ x", {"x": 1})
+
+
+def test_model_categorical_argument():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "x": np.random.randint(2, size=100),
+            "z": np.random.randint(2, size=100),
+        }
+    )
+    model = Model("y ~ 0 + x", data, categorical="x")
+    assert model.terms["x"].categorical
+
+    model = Model("y ~ 0 + x*z", data, categorical=["x", "z"])
+    assert model.terms["x"].categorical
+    assert model.terms["z"].categorical
+    assert model.terms["x:z"].categorical
+
+
+def test_model_no_response():
+    with pytest.raises(ValueError):
+        Model("x", pd.DataFrame({"x": [1]}))
+
+
+def test_model_taylor_value(data_numeric_xy):
+    Model("y ~ x", data=data_numeric_xy, taylor=5)
+
+
+def test_model_alternative_scaler(data_numeric_xy):
+    Model("y ~ x", data=data_numeric_xy, automatic_priors="rstanarm")
 
 
 def test_model_term_names_property(diabetes_data):

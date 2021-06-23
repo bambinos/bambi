@@ -184,7 +184,6 @@ class Model:
     def fit(
         self,
         omit_offsets=True,
-        backend="pymc",
         **kwargs,
     ):
         """Fit the model using the specified backend.
@@ -194,16 +193,10 @@ class Model:
         omit_offsets: bool
             Omits offset terms in the ``InferenceData`` object when the model includes group
             specific effects. Defaults to ``True``.
-        backend : str
-            The name of the backend to use. Currently only ``'pymc'`` backend is supported.
         """
 
-        if backend is None:
-            backend = "pymc" if self._backend_name is None else self._backend_name
-
-        if not self.built or backend != self._backend_name:
-            self.build(backend)
-            self._backend_name = backend
+        if not self.built:
+            self.build()
 
         # Tell user which event is being modeled
         if self.family.name == "bernoulli":
@@ -215,28 +208,13 @@ class Model:
 
         return self.backend.run(omit_offsets=omit_offsets, **kwargs)
 
-    def build(self, backend="pymc"):
+    def build(self):
         """Set up the model for sampling/fitting.
 
         Performs any steps that require access to all model terms (e.g., scaling priors
         on each term), then calls the backend's ``build()`` method.
-
-        Parameters
-        ----------
-        backend : str
-            The name of the backend to use for model fitting.
-            Currently only ``'pymc'`` is supported.
         """
-
-        # Check for backend
-        if backend is None:
-            if self._backend_name is None:
-                raise ValueError(
-                    "No backend was passed or set in the Model; did you forget to call fit()?"
-                )
-            backend = self._backend_name
-
-        self._set_backend(backend)
+        self.backend = PyMC3BackEnd()
         self.backend.build(self)
         self.built = True
 
@@ -263,14 +241,6 @@ class Model:
         self._build_priors()
         self.built = False
 
-    def _set_backend(self, backend):
-        backend = backend.lower()
-        if backend.startswith("pymc"):
-            self.backend = PyMC3BackEnd()
-        else:
-            raise ValueError("At the moment, only the PyMC3 backend is supported.")
-        self._backend_name = backend
-
     def _build_priors(self):
         """Carry out all operations related to the construction and/or scaling of priors."""
         # Set custom priors that have been passed via `Model.set_priors()`
@@ -293,7 +263,7 @@ class Model:
                     taylor = self.taylor
                 else:
                     taylor = 5 if self.family.name == "gaussian" else 1
-                    scaler = PriorScaler(self, taylor=taylor)
+                scaler = PriorScaler(self, taylor=taylor)
             elif self.automatic_priors == "rstanarm":
                 scaler = PriorScaler2(self)
             self.scaler = scaler
