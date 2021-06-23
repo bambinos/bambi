@@ -156,16 +156,16 @@ class Model:
             raise ValueError("Can't instantiate a model without a model formula.")
 
         if self._design.response is not None:
-            priors_ = extract_family_prior(family, priors)
-            if priors_ and self._design.common:
-                conflicts = [name for name in priors_ if name in self._design.common.terms_info]
-                if conflicts:
+            family_prior = extract_family_prior(family, priors)
+            if family_prior and self._design.common:
+                conflict = [name for name in family_prior if name in self._design.common.terms_info]
+                if conflict:
                     raise ValueError(
-                        f"The prior name for {', '.join(conflicts)} conflicts with the name of a "
+                        f"The prior name for {', '.join(conflict)} conflicts with the name of a "
                         "parameter in the response distribution.\n"
                         "Please rename the term(s) to prevent an unexpected behaviour."
                     )
-            self._add_response(self._design.response, family, link, priors_)
+            self._add_response(self._design.response, family, link, family_prior)
         else:
             raise ValueError(
                 "No outcome variable is set! "
@@ -198,9 +198,6 @@ class Model:
             The name of the backend to use. Currently only ``'pymc'`` backend is supported.
         """
 
-        # There's a problem if we pretend to move .build() to instantiation
-        # We would have to assume the backend, which is fine now since we're using PyMC3.
-        # Nevermind, prior scaling can be outside .build() bc the backend is not needed!!
         if backend is None:
             backend = "pymc" if self._backend_name is None else self._backend_name
 
@@ -318,13 +315,10 @@ class Model:
             targets.update({name: group_specific for name in self.group_specific_terms.keys()})
 
         if priors is not None:
-            # Update priors related to nuisance parameters of the response distribution
-            priors_ = extract_family_prior(self.family, priors)
-            if priors_:
-                # Remove keys passed to the response.
-                for key in priors_:
-                    priors.pop(key)
-                self.response.prior.args.update(priors_)
+            # Prepare priors for response nuisance parameters
+            family_prior = extract_family_prior(self.family, priors)
+            if family_prior:
+                self.response.prior.args.update(family_prior)
                 self.response.prior.auto_scale = False
 
             # Prepare priors for explanatory terms.
@@ -358,9 +352,6 @@ class Model:
             _scale = prior
             prior = self.default_priors.get(term=type_)
             prior.scale = _scale
-            print(f"{prior}, scale: {prior.scale}")
-            # if prior.scale is not None:
-            #    prior.auto_scale = False
         return prior
 
     def _add_response(self, response, family="gaussian", link=None, priors=None):
@@ -399,27 +390,23 @@ class Model:
         elif not isinstance(family, Family):
             raise ValueError("family must be a string or a Family object.")
 
-        self.family = family
-
         # Override family's link if another is explicitly passed
         if link is not None:
             if link_match_family(link, family.name):
-                self.family._set_link(link)  # pylint: disable=protected-access
+                family._set_link(link)  # pylint: disable=protected-access
             else:
                 raise ValueError(f"Link {link} cannot be used with family {family.name}")
 
-        prior = self.family.prior
-
-        # not None when user passes priors for nuisance parameters (built-in or custom)
+        # Update nuisance parameters
         if priors is not None:
-            # FIX: This does not check whether the arguments passed are correct for the prior
-            prior.args.update(priors)
-            prior.auto_scale = False
+            family.prior.args.update(priors)
+            family.prior.auto_scale = False
 
-        if response.refclass is not None and self.family.name != "bernoulli":
+        if response.refclass is not None and family.name != "bernoulli":
             raise ValueError("Index notation for response is only available for 'bernoulli' family")
 
-        self.response = ResponseTerm(response, prior, self.family.name)
+        self.family = family
+        self.response = ResponseTerm(response, family.prior, family.name)
         self.built = False
 
     def _add_common(self, common, priors):

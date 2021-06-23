@@ -231,19 +231,18 @@ class PriorScaler:
         for term, term_type in zip(terms, term_types):
             # Only scale priors if term or model is set to be auto scaled.
             # By default, use "wide".
-            print(f"{term.name}, auto_scale: {term.prior.auto_scale}")
             if not term.prior.auto_scale:
                 continue
 
             if term.prior.scale is None:
                 term.prior.scale = "wide"
 
-            if self.mle is None:
-                self.fit_mle()
-
             # Convert scale names to floats
             if isinstance(term.prior.scale, str):
                 term.prior.scale = self.names[term.prior.scale]
+
+            if self.mle is None:
+                self.fit_mle()
 
             # Scale it
             getattr(self, f"scale_{term_type}")(term)
