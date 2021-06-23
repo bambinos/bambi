@@ -486,7 +486,7 @@ def test_plot_priors(crossed_data):
     model.plot_priors()
 
 
-def test_model_graph():
+def test_model_graph(crossed_data):
     model = Model("Y ~ 0 + threecats", crossed_data)
     # Graph cannot be plotted until model is built.
     with pytest.raises(ValueError):
