@@ -475,3 +475,21 @@ def test_gamma_regression(dm):
     data = dm[["order", "ind_mg_dry"]]
     model = Model("ind_mg_dry ~ order", data, family="gamma", link="log")
     model.fit()
+
+
+def test_plot_priors(crossed_data):
+    model = Model("Y ~ 0 + threecats", crossed_data)
+    # Priors cannot be plotted until model is built.
+    with pytest.raises(ValueError):
+        model.plot_priors()
+    model.build()
+    model.plot_priors()
+
+
+def test_model_graph():
+    model = Model("Y ~ 0 + threecats", crossed_data)
+    # Graph cannot be plotted until model is built.
+    with pytest.raises(ValueError):
+        model.graph()
+    model.build()
+    model.graph()
