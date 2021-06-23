@@ -276,7 +276,7 @@ class Model:
 
     def _build_priors(self):
         """Carry out all operations related to the construction and/or scaling of priors."""
-        # Set custom priors
+        # Set custom priors that have been passed via `Model.set_priors()`
         self._set_priors(**self._added_priors)
 
         # Prepare all priors
@@ -325,6 +325,7 @@ class Model:
                 for key in priors_:
                     priors.pop(key)
                 self.response.prior.args.update(priors_)
+                self.response.prior.auto_scale = False
 
             # Prepare priors for explanatory terms.
             for names, prior in priors.items():
@@ -357,8 +358,9 @@ class Model:
             _scale = prior
             prior = self.default_priors.get(term=type_)
             prior.scale = _scale
-            if prior.scale is not None:
-                prior.auto_scale = False
+            print(f"{prior}, scale: {prior.scale}")
+            # if prior.scale is not None:
+            #    prior.auto_scale = False
         return prior
 
     def _add_response(self, response, family="gaussian", link=None, priors=None):

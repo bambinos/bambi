@@ -231,6 +231,7 @@ class PriorScaler:
         for term, term_type in zip(terms, term_types):
             # Only scale priors if term or model is set to be auto scaled.
             # By default, use "wide".
+            print(f"{term.name}, auto_scale: {term.prior.auto_scale}")
             if not term.prior.auto_scale:
                 continue
 

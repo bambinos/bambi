@@ -104,21 +104,18 @@ def test_model_init_from_filename():
 
 def test_model_term_names_property(diabetes_data):
     model = Model("BMI ~ age_grp + BP + S1", diabetes_data)
-    model.build()
     assert model.term_names == ["Intercept", "age_grp", "BP", "S1"]
 
 
 def test_model_term_names_property_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
     model = Model("Y ~ threecats*fourcats", crossed_data)
-    model.build()
     assert model.term_names == ["Intercept", "threecats", "fourcats", "threecats:fourcats"]
 
 
 def test_model_terms_levels_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
     model = Model("Y ~ threecats*fourcats", crossed_data)
-    model.build()
 
     assert model.terms["threecats:fourcats"].levels == [
         "threecats[b]:fourcats[b]",
@@ -141,7 +138,6 @@ def test_model_terms_levels():
         }
     )
     model = Model("y ~ x + z + time + (time|subject)", data)
-    model.build()
     assert model.terms["z"].levels == ["z[Group 2]", "z[Group 3]"]
     assert model.terms["1|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
     assert model.terms["time|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
@@ -158,7 +154,6 @@ def test_model_term_classes():
     )
 
     model = Model("y ~ x*g + (x|s)", data)
-    model.build()
 
     assert isinstance(model.terms["x"], Term)
     assert isinstance(model.terms["g"], Term)
