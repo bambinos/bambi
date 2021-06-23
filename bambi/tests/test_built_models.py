@@ -272,6 +272,12 @@ def test_cell_means_with_many_group_specific_effects(crossed_data):
     assert set(priors0) == set(priors1)
 
 
+def test_group_specific_categorical_interaction(crossed_data):
+    crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
+    model = Model("Y ~ continuous + (threecats:fourcats|site)", crossed_data)
+    model.fit(tune=10, draws=10)
+
+
 @pytest.mark.skip(reason="We are correctly handling string links only, not functions.")
 def test_logistic_regression(crossed_data):
     # Tests passing link="logit" is equivalent to using tt.nnet.sigmoid
