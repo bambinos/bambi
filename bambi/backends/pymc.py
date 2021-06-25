@@ -77,11 +77,16 @@ class PyMC3BackEnd(BackEnd):
                 else:
                     self.mu += pm.math.dot(data, coef)
 
+        with self.model:
+            terms = list(spec.group_specific_terms.values())
+            self.mu += add_lkj("Subject", terms)
+
         ## Add group-specific effects
         # Group-specific effects always have pymc_coords. At least for the group.
         # The loop through precitor columns is not the most beautiful alternative.
         # But it's the fastest. Doing matrix multiplication, pm.math.dot(data, coef), is slower.
-        with self.model:
+        """
+         with self.model:
             for term in spec.group_specific_terms.values():
                 label = term.name
                 dist = term.prior.name
@@ -99,6 +104,7 @@ class PyMC3BackEnd(BackEnd):
                         self.mu += coef[:, col] * predictor[:, col]
                 else:
                     self.mu += coef * predictor
+        """
 
         # Build response distribution
         with self.model:
@@ -159,6 +165,13 @@ class PyMC3BackEnd(BackEnd):
                 getattr(idata, group).attrs["modeling_interface"] = "bambi"
                 getattr(idata, group).attrs["modeling_interface_version"] = version.__version__
 
+            # Drop variables and dimensions associated with LKJ prior
+            vars_to_drop = [var for var in idata.posterior.var() if var.startswith("_LKJ")]
+            dims_to_drop = [dim for dim in idata.posterior.dims if dim.startswith("_LKJ")]
+
+            idata.posterior = idata.posterior.drop_vars(vars_to_drop)
+            idata.posterior = idata.posterior.drop_dims(dims_to_drop)
+
             # Reorder coords
             # pylint: disable=protected-access
             coords_original = list(self.spec._get_pymc_coords().keys())
@@ -166,6 +179,7 @@ class PyMC3BackEnd(BackEnd):
             for coord in coords_group:
                 coords_original.remove(coord)
             coords_new = ["chain", "draw"] + coords_original + coords_group
+
             idata.posterior = idata.posterior.transpose(*coords_new)
 
             self.fit = True
@@ -297,7 +311,7 @@ def has_hyperprior(kwargs):
     )
 
 
-def add_lkj(grouper, terms, eta):
+def add_lkj(grouper, terms, eta=1):
     """
     grouper: The name of the grouper
     """
@@ -305,37 +319,43 @@ def add_lkj(grouper, terms, eta):
     mu = 0
 
     # Parameters
-    # rows: Number of columns in Z with the same grouper variable.
+    # rows: Sum of the columns dimension of the "Xi" of the terms for the same grouper.
     #       Same than the order of L
     # cols: Number of groups in the grouper variable
-    rows = np.sum([term.data.shape[1] for term in terms])
-    cols = terms[0].grouper.shape[1]  # not the most beautiful, but works
+    rows = int(np.sum([term.predictor.shape[1] for term in terms]))
+    cols = int(terms[0].grouper.shape[1])  # not the most beautiful, but works
 
     # Construct sigma
     # Horizontally stack the sigma values for all the hyperpriors
-    sigma = np.hstack([t.prior.args["sigma"].args["sigma"] for t in terms.values()])
+    sigma = np.hstack([term.prior.args["sigma"].args["sigma"] for term in terms])
 
     # Reconstruct the hyperprior for the standard deviations, using one variable
     sigma = pm.HalfNormal.dist(sigma=sigma, shape=rows)
 
     # Obtain Cholesky factor for the covariance
-    L, corr, sigma = pm.LKJCholeskyCov(
-        "L_" + grouper, n=rows, eta=eta, sd_dist=sigma, compute_corr=True, store_in_trace=False
+    LKJ, corr, sigma = pm.LKJCholeskyCov(
+        "_LKJ_" + grouper, n=rows, eta=eta, sd_dist=sigma, compute_corr=True, store_in_trace=False
     )
 
-    # L is (rows, rows)
-    # u_offset is (rows, cols)
-    u_offset = pm.Normal(grouper + "_group_offset", mu=0, sigma=1, shape=(rows, cols))
-    u = tt.dot(L, u_offset)
+    u_offset = pm.Normal("_LKJ_" + grouper + "_offset", mu=0, sigma=1, shape=(rows, cols))
+    u = tt.dot(LKJ, u_offset).T
 
     ## Separate group-specific terms
     start = 0
-    end = 0
-    for idx, term in enumerate(terms):
+
+    for term in terms:
         label = term.name
         dims = term.pymc_coords
         predictor = term.predictor.squeeze()
-        coef = pm.Deterministic(label, u[:, idx], dims=dims)[term.group_index]
+        delta = term.predictor.shape[1]
+
+        if delta == 1:
+            idx = start
+        else:
+            idx = slice(start, delta)
+
+        coef = pm.Deterministic(label, u[:, idx], dims=dims)
+        coef = coef[term.group_index]
 
         if predictor.ndim > 1:
             for col in range(predictor.shape[1]):
@@ -344,6 +364,7 @@ def add_lkj(grouper, terms, eta):
             mu += coef * predictor
 
         pm.Deterministic(label + "_sigma", sigma[idx])
+        start += delta
 
     # TOD: Add correlations!
     return mu
