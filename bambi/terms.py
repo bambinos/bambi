@@ -126,9 +126,10 @@ class GroupSpecificTerm:
         else:
             self.categorical = self.type == "categoric"
 
-        # Determine if it is cell means
+        # Determine if the term represents cell-means encoding.
         self.is_cell_means = self.categorical and (self.data.sum(1) == 1).all()
 
+        # Used in pymc3 model coords to label coordinates appropiately
         self.pymc_coords = {}
         # Group is always a coordinate added to the model.
         expr, factor = self.name.split("|")

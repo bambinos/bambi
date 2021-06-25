@@ -438,7 +438,7 @@ def test_prior_predictive(crossed_data):
     for key, shape in zip(keys, shapes):
         assert pps.prior[key].shape == shape
 
-    assert pps.prior_predictive["count"].shape == (1, 500, 120)
+    assert pps.prior_predictive["count"].shape == (500, 120)
     assert pps.observed_data["count"].shape == (120,)
 
     pps = model.prior_predictive(draws=500, var_names=["count"])

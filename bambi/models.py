@@ -581,11 +581,10 @@ class Model:
         # pps_ keys are not in the same order as `var_names` because `var_names` is converted
         # to set within pm.sample_prior_predictive()
         pps = {name: pps_[name] for name in var_names}
-
         response_name = self.response.name
 
         if response_name in pps:
-            prior_predictive = {response_name: np.moveaxis(pps.pop(response_name), 2, 0)}
+            prior_predictive = {response_name: pps.pop(response_name)}
             observed_data = {response_name: self.response.data.squeeze()}
         else:
             prior_predictive = {}

@@ -55,43 +55,56 @@ class PyMC3BackEnd(BackEnd):
         self.model = pm.Model(coords=coords)
         noncentered = spec.noncentered
 
+        ## Add common effects
+        # Common effects have at most ONE coord.
+        # If ndim > 1 we're certain there's more than one column because of the squeeze
         with self.model:
             self.mu = 0.0
-            for term in spec.terms.values():
-                data = term.data
+            for term in spec.common_terms.values():
+                data = term.data.squeeze()
                 label = term.name
-                name = term.prior.name
+                dist = term.prior.name
                 args = term.prior.args
-                shape = term.data.shape[1]
-
-                if term.group_specific:
-                    # Group-specific terms always have pymc_coords, at least for the group.
+                if term.pymc_coords:
                     dims = list(term.pymc_coords.keys())
-                    coef = self.build_group_specific_distribution(
-                        name, label, noncentered, dims=dims, **args
-                    )
-                    # term.predictor.shape[1] is larger than one when the expression is a
-                    # categorical variable with more than one level.
-                    # This is not the most beautiful alternative, but it resulted to be the
-                    # fastest. Doing matrix multiplication, pm.math.dot(data, coef), is slower.
-                    coef_ = coef[term.group_index]
-                    if term.predictor.shape[1] > 1:
-                        for col in range(term.predictor.shape[1]):
-                            self.mu += coef_[:, col][:, None] * term.predictor[:, col]
-                    else:
-                        self.mu += coef_[:, None] * term.predictor
+                    coef = self.build_common_distribution(dist, label, dims=dims, **args)
                 else:
-                    if term.pymc_coords:
-                        # Common effects have at most ONE coord.
-                        dims = list(term.pymc_coords.keys())
-                        coef = self.build_common_distribution(name, label, dims=dims, **args)
-                    else:
-                        shape = () if shape == 1 else shape
-                        coef = self.build_common_distribution(name, label, shape=shape, **args)
-                    self.mu += pm.math.dot(data, coef)[:, None]
+                    shape = () if data.ndim == 1 else data.shape[1]
+                    coef = self.build_common_distribution(dist, label, shape=shape, **args)
 
-            self._build_response(spec)
-            self.spec = spec
+                if data.ndim == 1:
+                    self.mu += data * coef
+                else:
+                    self.mu += pm.math.dot(data, coef)
+
+        ## Add group-specific effects
+        # Group-specific effects always have pymc_coords. At least for the group.
+        # The loop through precitor columns is not the most beautiful alternative.
+        # But it's the fastest. Doing matrix multiplication, pm.math.dot(data, coef), is slower.
+        with self.model:
+            for term in spec.group_specific_terms.values():
+                label = term.name
+                dist = term.prior.name
+                args = term.prior.args
+                predictor = term.predictor.squeeze()
+
+                dims = list(term.pymc_coords.keys())
+                coef = self.build_group_specific_distribution(
+                    dist, label, noncentered, dims=dims, **args
+                )
+
+                coef = coef[term.group_index]
+                if predictor.ndim > 1:
+                    for col in range(predictor.shape[1]):
+                        self.mu += coef[:, col] * predictor[:, col]
+                else:
+                    self.mu += coef * predictor
+
+        # Build response distribution
+        with self.model:
+            self.build_response(spec)
+
+        self.spec = spec
 
     # pylint: disable=arguments-differ, inconsistent-return-statements
     def run(
@@ -192,26 +205,11 @@ class PyMC3BackEnd(BackEnd):
             old_sigma = kwargs["sigma"]
             _offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=kwargs["dims"])
             return pm.Deterministic(label, _offset * old_sigma, dims=kwargs["dims"])
-
         return dist(label, **kwargs)
 
-    def get_distribution(self, dist):
-        """Return a PyMC3 distribution."""
-        if isinstance(dist, str):
-            if hasattr(pm, dist):
-                dist = getattr(pm, dist)
-            elif dist in self.dists:
-                dist = self.dists[dist]
-            else:
-                raise ValueError(
-                    f"The Distribution {dist} was not found in PyMC3 or the PyMC3BackEnd."
-                )
-        return dist
-
-    def _build_response(self, spec):
+    def build_response(self, spec):
         """Build and return a response distribution."""
-
-        data = spec.response.data
+        data = spec.response.data.squeeze()
         name = spec.response.name
         prior = spec.family.prior
         link = spec.family.link
@@ -232,6 +230,19 @@ class PyMC3BackEnd(BackEnd):
             return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
 
         return dist(name, **kwargs)
+
+    def get_distribution(self, dist):
+        """Return a PyMC3 distribution."""
+        if isinstance(dist, str):
+            if hasattr(pm, dist):
+                dist = getattr(pm, dist)
+            elif dist in self.dists:
+                dist = self.dists[dist]
+            else:
+                raise ValueError(
+                    f"The Distribution {dist} was not found in PyMC3 or the PyMC3BackEnd."
+                )
+        return dist
 
     def expand_prior_args(self, key, value, label, noncentered, **kwargs):
         # Inspect all args in case we have hyperparameters
