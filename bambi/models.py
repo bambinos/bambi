@@ -723,6 +723,16 @@ class Model:
             coords.update(**term.pymc_coords)
         return coords
 
+    def _get_group_specific_groups(self):
+        groups = {}
+        for term_name in self.group_specific_terms:
+            factor = term_name.split("|")[1]
+            if factor not in groups:
+                groups[factor] = [term_name]
+            else:
+                groups[factor].append(term_name)
+        return groups
+
     def __str__(self):
         priors = [f"  {term.name} ~ {term.prior}" for term in self.terms.values()]
         # Priors for nuisance parameters, i.e., standard deviation in normal linear model

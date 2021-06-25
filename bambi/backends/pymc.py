@@ -87,13 +87,13 @@ class PyMC3BackEnd(BackEnd):
                 dist = term.prior.name
                 args = term.prior.args
                 predictor = term.predictor.squeeze()
-
                 dims = list(term.pymc_coords.keys())
+
                 coef = self.build_group_specific_distribution(
                     dist, label, noncentered, dims=dims, **args
                 )
-
                 coef = coef[term.group_index]
+
                 if predictor.ndim > 1:
                     for col in range(predictor.shape[1]):
                         self.mu += coef[:, col] * predictor[:, col]
@@ -245,7 +245,7 @@ class PyMC3BackEnd(BackEnd):
         return dist
 
     def expand_prior_args(self, key, value, label, noncentered, **kwargs):
-        # Inspect all args in case we have hyperparameters
+        # Inspect all args in case we have hyperparameters.
         # kwargs are used to pass 'dims' for group specific terms.
         if isinstance(value, Prior):
             return self.build_group_specific_distribution(
@@ -290,9 +290,60 @@ def _laplace(model):
 
 def has_hyperprior(kwargs):
     """Determines if a Prior has an hyperprior"""
-
     return (
         "sigma" in kwargs
         and "observed" not in kwargs
         and isinstance(kwargs["sigma"], pm.model.TransformedRV)
     )
+
+
+def add_lkj(grouper, terms, eta):
+    """
+    grouper: The name of the grouper
+    """
+
+    mu = 0
+
+    # Parameters
+    # rows: Number of columns in Z with the same grouper variable.
+    #       Same than the order of L
+    # cols: Number of groups in the grouper variable
+    rows = np.sum([term.data.shape[1] for term in terms])
+    cols = terms[0].grouper.shape[1]  # not the most beautiful, but works
+
+    # Construct sigma
+    # Horizontally stack the sigma values for all the hyperpriors
+    sigma = np.hstack([t.prior.args["sigma"].args["sigma"] for t in terms.values()])
+
+    # Reconstruct the hyperprior for the standard deviations, using one variable
+    sigma = pm.HalfNormal.dist(sigma=sigma, shape=rows)
+
+    # Obtain Cholesky factor for the covariance
+    L, corr, sigma = pm.LKJCholeskyCov(
+        "L_" + grouper, n=rows, eta=eta, sd_dist=sigma, compute_corr=True, store_in_trace=False
+    )
+
+    # L is (rows, rows)
+    # u_offset is (rows, cols)
+    u_offset = pm.Normal(grouper + "_group_offset", mu=0, sigma=1, shape=(rows, cols))
+    u = tt.dot(L, u_offset)
+
+    ## Separate group-specific terms
+    start = 0
+    end = 0
+    for idx, term in enumerate(terms):
+        label = term.name
+        dims = term.pymc_coords
+        predictor = term.predictor.squeeze()
+        coef = pm.Deterministic(label, u[:, idx], dims=dims)[term.group_index]
+
+        if predictor.ndim > 1:
+            for col in range(predictor.shape[1]):
+                mu += coef[:, col] * predictor[:, col]
+        else:
+            mu += coef * predictor
+
+        pm.Deterministic(label + "_sigma", sigma[idx])
+
+    # TOD: Add correlations!
+    return mu

@@ -12,6 +12,7 @@ class PriorScaler2:
     def __init__(self, model):
         self.model = model
         self.has_intercept = any(term.type == "intercept" for term in self.model.terms.values())
+        self.priors = {}
 
         # Compute mean and std of the response
         if self.model.family.name == "gaussian":
@@ -31,8 +32,7 @@ class PriorScaler2:
     def scale_intercept(self, term):
         if term.prior.name != "Normal":
             return
-        mu = self.response_mean
-        sigma = self.STD * self.response_std
+        mu, sigma = self.get_intercept_stats()
         term.prior.update(mu=mu, sigma=sigma)
 
     def scale_common(self, term):
@@ -45,13 +45,30 @@ class PriorScaler2:
 
         # Iterate over columns in the data
         for i, x in enumerate(term.data.T):
-            sigma[i] = self.STD * (self.response_std * np.std(x))
+            sigma[i] = self.get_slope_sigma(x)
 
-        # Set prior
+        # Save and set prior
+        self.priors.update({term.name: {"mu": mu, "sigma": sigma}})
         term.prior.update(mu=mu, sigma=sigma)
 
     def scale_group_specific(self, term):
-        pass
+        # these default priors are only defined for HalfNormal priors
+        if term.prior.args["sigma"].name != "HalfNormal":
+            return
+
+        # Recreate the corresponding common effect data
+        data_as_common = term.predictor
+
+        # Handle intercepts
+        if term.type == "intercept":
+            _, sigma = self.get_intercept_stats()
+        # Handle slopes
+        else:
+            sigma = np.zeros(data_as_common.shape[1])
+            for i, x in enumerate(data_as_common.T):
+                sigma[i] = self.get_slope_sigma(x)
+
+        term.prior.args["sigma"].update(sigma=np.squeeze(np.atleast_1d(sigma)))
 
     def scale(self):
         # Scale response
@@ -75,3 +92,11 @@ class PriorScaler2:
         for term in self.model.group_specific_terms.values():
             if term.prior.auto_scale:
                 self.scale_group_specific(term)
+
+    def get_intercept_stats(self):
+        mu = self.response_mean
+        sigma = self.STD * self.response_std
+        return mu, sigma
+
+    def get_slope_sigma(self, x):
+        return self.STD * (self.response_std / np.std(x))
