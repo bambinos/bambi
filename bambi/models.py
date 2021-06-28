@@ -73,6 +73,9 @@ class Model:
     noncentered : bool
         If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on
         grouped parameters. If ``False``, naive (centered) parameterization is used.
+    priors_cor = dict
+        The value of eta in the prior for the correlation matrix of group-specific terms.
+        Keys in the dictionary indicate the groups, and values indicate the value of eta.
     taylor : int
         Order of Taylor expansion to use in approximate variance when constructing the default
         priors. Should be between 1 and 13. Lower values are less accurate, tending to undershoot
@@ -95,6 +98,7 @@ class Model:
         default_priors=None,
         automatic_priors="default",
         noncentered=True,
+        priors_cor=None,
         taylor=None,
     ):
         # attributes that are set later
@@ -110,6 +114,7 @@ class Model:
         self.response = None  # _add_response()
         self.family = None  # _add_response()
         self.backend = None  # _set_backend()
+        self.priors_cor = {}  # _add_priors_cor()
 
         self.auto_scale = auto_scale
         self.dropna = dropna
@@ -177,6 +182,9 @@ class Model:
 
         if self._design.group:
             self._add_group_specific(self._design.group, priors)
+
+        if priors_cor:
+            self._add_priors_cor(priors_cor)
 
         # Build priors
         self._build_priors()
@@ -431,6 +439,15 @@ class Model:
             data = group[name]
             prior = priors.pop(name, priors.get("group_specific", None))
             self.terms[name] = GroupSpecificTerm(name, term, data, prior)
+
+    def _add_priors_cor(self, priors):
+        # priors: dictionary. names are groups, values are the "eta" in the lkj prior
+        groups = self._get_group_specific_groups()
+        for group in groups:
+            if group in priors:
+                self.priors_cor[group] = priors[group]
+            else:
+                raise KeyError(f"The name {group} is not a group in any group-specific term.")
 
     def plot_priors(
         self,

@@ -77,17 +77,26 @@ class PyMC3BackEnd(BackEnd):
                 else:
                     self.mu += pm.math.dot(data, coef)
 
-        with self.model:
-            terms = list(spec.group_specific_terms.values())
-            self.mu += add_lkj("Subject", terms)
-
         ## Add group-specific effects
         # Group-specific effects always have pymc_coords. At least for the group.
         # The loop through precitor columns is not the most beautiful alternative.
         # But it's the fastest. Doing matrix multiplication, pm.math.dot(data, coef), is slower.
-        """
-         with self.model:
-            for term in spec.group_specific_terms.values():
+
+        # Add group specific terms that have prior for their correlation matrix
+        with self.model:
+            for group, eta in spec.priors_cor.items():
+                # pylint: disable=protected-access
+                terms = [spec.terms[name] for name in spec._get_group_specific_groups()[group]]
+                self.mu += add_lkj(terms, eta)
+
+        # Add group specific terms that dont have a prior for their correlation matrix
+        terms = [
+            term
+            for term in spec.group_specific_terms.values()
+            if term.name.split("|")[1] not in spec.priors_cor
+        ]
+        with self.model:
+            for term in terms:
                 label = term.name
                 dist = term.prior.name
                 args = term.prior.args
@@ -104,7 +113,6 @@ class PyMC3BackEnd(BackEnd):
                         self.mu += coef[:, col] * predictor[:, col]
                 else:
                     self.mu += coef * predictor
-        """
 
         # Build response distribution
         with self.model:
@@ -311,17 +319,16 @@ def has_hyperprior(kwargs):
     )
 
 
-def add_lkj(grouper, terms, eta=1):
-    """
-    grouper: The name of the grouper
-    """
+def add_lkj(terms, eta=1):
 
     mu = 0
 
     # Parameters
-    # rows: Sum of the columns dimension of the "Xi" of the terms for the same grouper.
+    # grouper: The name of the grouper.
+    # rows: Sum of the number of columns in all the "Xi" matrices for a given grouper.
     #       Same than the order of L
     # cols: Number of groups in the grouper variable
+    grouper = terms[0].name.split("|")[1]
     rows = int(np.sum([term.predictor.shape[1] for term in terms]))
     cols = int(terms[0].grouper.shape[1])  # not the most beautiful, but works
 
@@ -333,12 +340,17 @@ def add_lkj(grouper, terms, eta=1):
     sigma = pm.HalfNormal.dist(sigma=sigma, shape=rows)
 
     # Obtain Cholesky factor for the covariance
-    LKJ, corr, sigma = pm.LKJCholeskyCov(
-        "_LKJ_" + grouper, n=rows, eta=eta, sd_dist=sigma, compute_corr=True, store_in_trace=False
+    lkj_decomp, corr, sigma = pm.LKJCholeskyCov(  # pylint: disable=unused-variable
+        "_LKJCholeskyCov_" + grouper,
+        n=rows,
+        eta=eta,
+        sd_dist=sigma,
+        compute_corr=True,
+        store_in_trace=False,
     )
 
-    u_offset = pm.Normal("_LKJ_" + grouper + "_offset", mu=0, sigma=1, shape=(rows, cols))
-    u = tt.dot(LKJ, u_offset).T
+    coefs_offset = pm.Normal("_LKJ_" + grouper + "_offset", mu=0, sigma=1, shape=(rows, cols))
+    coefs = tt.dot(lkj_decomp, coefs_offset).T
 
     ## Separate group-specific terms
     start = 0
@@ -354,17 +366,21 @@ def add_lkj(grouper, terms, eta=1):
         else:
             idx = slice(start, delta)
 
-        coef = pm.Deterministic(label, u[:, idx], dims=dims)
+        # Add prior for the parameter
+        coef = pm.Deterministic(label, coefs[:, idx], dims=dims)
         coef = coef[term.group_index]
 
+        # Add standard deviation of the hyperprior distribution
+        pm.Deterministic(label + "_sigma", sigma[idx])
+
+        # Account for the contribution of the term to the linear predictor
         if predictor.ndim > 1:
             for col in range(predictor.shape[1]):
                 mu += coef[:, col] * predictor[:, col]
         else:
             mu += coef * predictor
 
-        pm.Deterministic(label + "_sigma", sigma[idx])
         start += delta
 
-    # TOD: Add correlations!
+    # TOD: Add correlations
     return mu
