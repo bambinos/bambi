@@ -98,7 +98,7 @@ def test_many_common_many_group_specific(crossed_data):
     crossed_data_missing.loc[1, "continuous"] = np.nan
     crossed_data_missing.loc[2, "threecats"] = np.nan
 
-    # Here I'm comparing implicit/explicit intercepts for group specific effects workY the same way.
+    # Here I'm comparing implicit/explicit intercepts for group specific effects work the same way.
     model0 = Model(
         "Y ~ continuous + dummy + threecats + (threecats|subj) + (1|item) + (0+continuous|item) + (dummy|item) + (threecats|site)",
         crossed_data_missing,

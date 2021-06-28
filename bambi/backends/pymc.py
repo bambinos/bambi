@@ -209,7 +209,7 @@ class PyMC3BackEnd(BackEnd):
         return distribution(label, **kwargs)
 
     def build_group_specific_distribution(self, dist, label, noncentered, **kwargs):
-        """Build and return a PyMC3 Distribution."""
+        """Build and return a PyMC3 Distribution for a group specific term."""
         dist = self.get_distribution(dist)
         if "dims" in kwargs:
             group_dim = [dim for dim in kwargs["dims"] if dim.endswith("_group_expr")]
@@ -221,7 +221,6 @@ class PyMC3BackEnd(BackEnd):
             kwargs = {
                 k: self.expand_prior_args(k, v, label, noncentered) for (k, v) in kwargs.items()
             }
-
         # Non-centered parameterization for hyperpriors
         if noncentered and has_hyperprior(kwargs):
             old_sigma = kwargs["sigma"]
@@ -357,21 +356,22 @@ def add_lkj(terms, eta=1):
 
     for term in terms:
         label = term.name
-        dims = term.pymc_coords
+        dims = list(term.pymc_coords.keys())
         predictor = term.predictor.squeeze()
         delta = term.predictor.shape[1]
 
         if delta == 1:
             idx = start
         else:
-            idx = slice(start, delta)
+            idx = slice(start, start + delta)
 
         # Add prior for the parameter
         coef = pm.Deterministic(label, coefs[:, idx], dims=dims)
         coef = coef[term.group_index]
 
         # Add standard deviation of the hyperprior distribution
-        pm.Deterministic(label + "_sigma", sigma[idx])
+        group_dim = [dim for dim in dims if dim.endswith("_group_expr")]
+        pm.Deterministic(label + "_sigma", sigma[idx], dims=group_dim)
 
         # Account for the contribution of the term to the linear predictor
         if predictor.ndim > 1:
@@ -382,5 +382,5 @@ def add_lkj(terms, eta=1):
 
         start += delta
 
-    # TOD: Add correlations
+    # TO DO: Add correlations
     return mu
