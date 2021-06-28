@@ -751,21 +751,36 @@ class Model:
         return groups
 
     def __str__(self):
-        priors = [f"  {term.name} ~ {term.prior}" for term in self.terms.values()]
-        # Priors for nuisance parameters, i.e., standard deviation in normal linear model
-        priors_extra_params = [
-            f"  {k} ~ {v}"
+        priors = ""
+        priors_common = [f"    {t.name} ~ {t.prior}" for t in self.common_terms.values()]
+        priors_group = [f"    {t.name} ~ {t.prior}" for t in self.group_specific_terms.values()]
+
+        # Prior for the correlation matrix in group-specific terms
+        priors_cor = [f"    {k} ~ LKJCorr({v})" for k, v in self.priors_cor.items()]
+
+        # Priors for auxiliary parameters, e.g., standard deviation in normal linear model
+        priors_aux = [
+            f"    {k} ~ {v}"
             for k, v in self.family.prior.args.items()
             if k not in ["observed", self.family.parent]
         ]
-        priors += priors_extra_params
+
+        if priors_common:
+            priors += "\n".join(["  Common-level effects", *priors_common]) + "\n\n"
+        if priors_group:
+            priors += "\n".join(["  Group-level effects", *priors_group]) + "\n\n"
+        if priors_cor:
+            priors += "\n".join(["  Group-level correlation", *priors_cor]) + "\n\n"
+        if priors_aux:
+            priors += "\n".join(["  Auxiliary parameters", *priors_aux]) + "\n\n"
+
         str_list = [
             f"Formula: {self.formula}",
             f"Family name: {self.family.name.capitalize()}",
             f"Link: {self.family.link}",
             f"Observations: {self.response.data.shape[0]}",
             "Priors:",
-            "\n".join(priors),
+            priors,
         ]
         if self.backend and self.backend.fit:
             extra_foot = "------\n"

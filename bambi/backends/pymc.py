@@ -57,7 +57,7 @@ class PyMC3BackEnd(BackEnd):
 
         ## Add common effects
         # Common effects have at most ONE coord.
-        # If ndim > 1 we're certain there's more than one column because of the squeeze
+        # If ndim > 1 we're certain there's more than one column (see squeeze)
         with self.model:
             self.mu = 0.0
             for term in spec.common_terms.values():
@@ -319,14 +319,12 @@ def has_hyperprior(kwargs):
 
 
 def add_lkj(terms, eta=1):
-
-    mu = 0
-
     # Parameters
     # grouper: The name of the grouper.
     # rows: Sum of the number of columns in all the "Xi" matrices for a given grouper.
     #       Same than the order of L
     # cols: Number of groups in the grouper variable
+    mu = 0
     grouper = terms[0].name.split("|")[1]
     rows = int(np.sum([term.predictor.shape[1] for term in terms]))
     cols = int(terms[0].grouper.shape[1])  # not the most beautiful, but works
@@ -353,7 +351,6 @@ def add_lkj(terms, eta=1):
 
     ## Separate group-specific terms
     start = 0
-
     for term in terms:
         label = term.name
         dims = list(term.pymc_coords.keys())
@@ -379,7 +376,6 @@ def add_lkj(terms, eta=1):
                 mu += coef[:, col] * predictor[:, col]
         else:
             mu += coef * predictor
-
         start += delta
 
     # TO DO: Add correlations
