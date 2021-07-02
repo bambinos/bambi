@@ -4,8 +4,8 @@ import numpy as np
 import theano.tensor as tt
 import pymc3 as pm
 
+from bambi import version
 from bambi.priors import Prior
-import bambi.version as version
 
 from .base import BackEnd
 from .utils import probit, cloglog
