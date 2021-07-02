@@ -428,7 +428,13 @@ def test_laplace():
 
 def test_prior_predictive(crossed_data):
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
-    model = Model("count ~ threecats + continuous + dummy", crossed_data, family="poisson")
+    # New default priors are too wide for this case... something to keep investigating
+    model = Model(
+        "count ~ threecats + continuous + dummy",
+        crossed_data,
+        family="poisson",
+        automatic_priors="mle",
+    )
     model.fit(tune=0, draws=2)
     pps = model.prior_predictive(draws=500)
 
