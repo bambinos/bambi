@@ -13,10 +13,10 @@ from statsmodels.tools.sm_exceptions import PerfectSeparationError
 from .priors import Prior
 
 
-class PriorScaler:
+class PriorScalerMLE:
     """Scale prior distributions parameters.
 
-    Used internally.
+    Used internally. Based on https://arxiv.org/abs/1702.01201
     """
 
     # Default is 'wide'. The wide prior sigma is sqrt(1/3) = .577 on the partial

@@ -13,7 +13,7 @@ from numpy.linalg import matrix_rank
 from formulae import design_matrices
 
 from .backends import PyMC3BackEnd
-from .priors import Prior, PriorFactory, PriorScaler, PriorScaler2, Family
+from .priors import Prior, PriorFactory, PriorScaler, PriorScalerMLE, Family
 from .terms import ResponseTerm, Term, GroupSpecificTerm
 from .utils import listify, extract_family_prior, link_match_family
 from .version import __version__
@@ -68,8 +68,8 @@ class Model:
         information.
     automatic_priors: str
         An optional specification to compute/scale automatic priors. ``"default"`` means to use
-        Bambi's default method. ``"rstanarm"`` means to use default priors from the R rstanarm
-        library. The latter are available in more scenarios because they don't depend on MLE.
+        a method inspired on the R rstanarm library. ``"mle"`` means to use old default priors in
+        Bambi that rely on maximum likelihood estimations obtained via the statsmodels library.
     noncentered : bool
         If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on
         grouped parameters. If ``False``, naive (centered) parameterization is used.
@@ -266,14 +266,19 @@ class Model:
 
         # Scale priors if there is at least one term in the model and auto_scale is True
         if self.terms and self.auto_scale:
-            if self.automatic_priors == "default":
+            method = self.automatic_priors
+            if method == "default":
+                scaler = PriorScaler(self)
+            elif method == "mle":
                 if self.taylor is not None:
                     taylor = self.taylor
                 else:
                     taylor = 5 if self.family.name == "gaussian" else 1
-                scaler = PriorScaler(self, taylor=taylor)
-            elif self.automatic_priors == "rstanarm":
-                scaler = PriorScaler2(self)
+                scaler = PriorScalerMLE(self, taylor=taylor)
+            else:
+                raise ValueError(
+                    f"{method} is not a valid method for default priors." "Use 'default' or 'mle'."
+                )
             self.scaler = scaler
             self.scaler.scale()
 

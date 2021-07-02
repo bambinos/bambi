@@ -3,7 +3,7 @@ import numpy as np
 from .priors import Prior
 
 
-class PriorScaler2:
+class PriorScaler:
     """Scale prior distributions parameters."""
 
     # Standard deviation multiplier.
