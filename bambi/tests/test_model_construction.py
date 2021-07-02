@@ -145,7 +145,7 @@ def test_model_taylor_value(data_numeric_xy):
 
 
 def test_model_alternative_scaler(data_numeric_xy):
-    Model("y ~ x", data=data_numeric_xy, automatic_priors="rstanarm")
+    Model("y ~ x", data=data_numeric_xy, automatic_priors="mle")
 
 
 def test_model_term_names_property(diabetes_data):

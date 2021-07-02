@@ -11,7 +11,9 @@ class PriorScaler:
 
     def __init__(self, model):
         self.model = model
-        self.has_intercept = any(term.type == "intercept" for term in self.model.terms.values())
+        self.has_intercept = any(
+            term.type == "intercept" for term in self.model.common_terms.values()
+        )
         self.priors = {}
 
         # Compute mean and std of the response

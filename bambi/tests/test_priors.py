@@ -184,7 +184,7 @@ def test_complete_separation():
     data = pd.DataFrame({"y": [0] * 5 + [1] * 5, "g": ["a"] * 5 + ["b"] * 5})
 
     with pytest.raises(PerfectSeparationError):
-        Model("y ~ g", data, family="bernoulli")
+        Model("y ~ g", data, family="bernoulli", automatic_priors="mle")
 
     # No error is raised
     priors = {"common": Prior("Normal", mu=0, sigma=10)}
