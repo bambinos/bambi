@@ -79,7 +79,7 @@ class PyMC3BackEnd(BackEnd):
 
         ## Add group-specific effects
         # Group-specific effects always have pymc_coords. At least for the group.
-        # The loop through precitor columns is not the most beautiful alternative.
+        # The loop through predictor columns is not the most beautiful alternative.
         # But it's the fastest. Doing matrix multiplication, pm.math.dot(data, coef), is slower.
 
         # Add group specific terms that have prior for their correlation matrix
@@ -89,7 +89,7 @@ class PyMC3BackEnd(BackEnd):
                 terms = [spec.terms[name] for name in spec._get_group_specific_groups()[group]]
                 self.mu += add_lkj(terms, eta)
 
-        # Add group specific terms that dont have a prior for their correlation matrix
+        # Add group specific terms that don't have a prior for their correlation matrix
         terms = [
             term
             for term in spec.group_specific_terms.values()

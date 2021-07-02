@@ -22,12 +22,20 @@ class PriorScaler2:
             self.response_mean = 0
             self.response_std = 1
 
+    def get_intercept_stats(self):
+        mu = self.response_mean
+        sigma = self.STD * self.response_std
+        return mu, sigma
+
+    def get_slope_sigma(self, x):
+        return self.STD * (self.response_std / np.std(x))
+
     def scale_response(self):
+        # Add cases for other families
         if self.model.response.prior.auto_scale:
             if self.model.family.name == "gaussian":
-                lam = 1 / self.response_std
-                self.model.response.prior.update(sigma=Prior("Exponential", lam=lam))
-            # Add cases for other families
+                sigma = self.response_std
+                self.model.response.prior.update(sigma=Prior("HalfStudentT", nu=4, sigma=sigma))
 
     def scale_intercept(self, term):
         if term.prior.name != "Normal":
@@ -52,7 +60,6 @@ class PriorScaler2:
         term.prior.update(mu=mu, sigma=sigma)
 
     def scale_group_specific(self, term):
-        # these default priors are only defined for HalfNormal priors
         if term.prior.args["sigma"].name != "HalfNormal":
             return
 
@@ -82,7 +89,7 @@ class PriorScaler2:
 
         # Scale common terms
         for term in self.model.common_terms.values():
-            # maybe intercept shouldn't go in common terms?
+            # Note: Intercept will be separated from common intercepts in the future.
             if term.type == "intercept":
                 continue
             if term.prior.auto_scale:
@@ -92,11 +99,3 @@ class PriorScaler2:
         for term in self.model.group_specific_terms.values():
             if term.prior.auto_scale:
                 self.scale_group_specific(term)
-
-    def get_intercept_stats(self):
-        mu = self.response_mean
-        sigma = self.STD * self.response_std
-        return mu, sigma
-
-    def get_slope_sigma(self, x):
-        return self.STD * (self.response_std / np.std(x))
