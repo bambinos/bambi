@@ -319,6 +319,26 @@ def has_hyperprior(kwargs):
 
 
 def add_lkj(terms, eta=1):
+    """Add correlated prior for group-specific effects.
+
+    This function receives a list of group-specific terms that share their `grouper`, constructs
+    a multivariate Normal prior with LKJ prior on the correlation matrix, and adds the necessary
+    variables to the model. It uses a non-centered parametrization.
+
+    Parameters
+    ----------
+    terms: list
+        A list of terms that share a common grouper (i.e. ``1|Group`` and ``Variable|Group`` in
+        formula notation).
+    eta: num
+        The value for the eta parameter in the LKJ distribution.
+
+    Parameters
+    ----------
+    mu:
+        The contribution to the linear predictor of the roup-specific terms in ``terms``.
+    """
+
     # Parameters
     # grouper: The name of the grouper.
     # rows: Sum of the number of columns in all the "Xi" matrices for a given grouper.

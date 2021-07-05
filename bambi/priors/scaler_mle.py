@@ -244,7 +244,7 @@ class PriorScalerMLE:
             if self.mle is None:
                 self.fit_mle()
 
-            # Scale it
+            # Scale term with the appropiate method
             getattr(self, f"scale_{term_type}")(term)
 
     def fit_mle(self):
