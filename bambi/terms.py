@@ -9,21 +9,19 @@ class ResponseTerm:
     term: formulae.ResponseVector
         An object describing the response of the model,
         as returned by ``formulae.design_matrices().response``
-    prior : Prior
-        A specification of the prior(s) to use. An instance of class ``priors.Prior``.
-    family : str
-        The name of the model family.
+    family : Family
+        An ``Family`` object.
     """
 
-    def __init__(self, term, prior=None, family=None):
+    def __init__(self, term, family):
         self.name = term.name
         self.data = term.design_vector
         self.categorical = term.type == "categoric"
         self.success_event = term.refclass if term.refclass is not None else 1
-        self.prior = prior
         self.constant = np.var(self.data) == 0
+        self.family = family
 
-        if family == "bernoulli":
+        if family.name == "bernoulli":
             if not all(np.isin(self.data, ([0, 1]))):
                 raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
 

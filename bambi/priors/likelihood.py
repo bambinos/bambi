@@ -1,4 +1,4 @@
-from .priors import Prior
+from .prior import Prior
 
 DISTRIBUTIONS = {
     "Normal": {"params": ("mu", "sigma"), "parent": "mu", "args": ("sigma",)},
@@ -12,7 +12,8 @@ DISTRIBUTIONS = {
 
 
 class Likelihood:
-    """
+    """Representation of a Likelihood function for a Bambi model.
+
     'parent' must not be in 'priors'. 'parent' is inferred from the 'name' if it is a known name
 
     Parameters
@@ -32,8 +33,8 @@ class Likelihood:
     def __init__(self, name, priors=None, parent=None):
         if name in self.DISTRIBUTIONS:
             self.name = name
-            parent = self._get_parent(parent)
-            priors = self._check_priors(priors)
+            self.parent = self._get_parent(parent)
+            self.priors = self._check_priors(priors)
         else:
             # On your own risk
             self.name = name

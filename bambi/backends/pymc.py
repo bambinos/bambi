@@ -102,7 +102,6 @@ class PyMC3BackEnd(BackEnd):
                 args = term.prior.args
                 predictor = term.predictor.squeeze()
                 dims = list(term.pymc_coords.keys())
-
                 coef = self.build_group_specific_distribution(
                     dist, label, noncentered, dims=dims, **args
                 )
@@ -232,15 +231,20 @@ class PyMC3BackEnd(BackEnd):
         """Build and return a response distribution."""
         data = spec.response.data.squeeze()
         name = spec.response.name
-        prior = spec.family.prior
         link = spec.family.link
         if isinstance(link, str):
             link = self.links[link]
-        prior.args[spec.family.parent] = link(self.mu)
-        prior.args["observed"] = data
 
-        dist = self.get_distribution(prior.name)
-        kwargs = {k: self.expand_prior_args(k, v, name, False) for (k, v) in prior.args.items()}
+        likelihood = spec.family.likelihood
+        dist = self.get_distribution(likelihood.name)
+        kwargs = {likelihood.parent: link(self.mu), "observed": data}
+        if likelihood.priors:
+            kwargs.update(
+                {
+                    k: self.expand_prior_args(k, v, name, False)
+                    for (k, v) in likelihood.priors.items()
+                }
+            )
 
         if spec.family.name == "gamma":
             # Gamma distribution is specified using mu and sigma, but we request prior for alpha.

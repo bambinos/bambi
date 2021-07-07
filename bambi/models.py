@@ -13,7 +13,8 @@ from numpy.linalg import matrix_rank
 from formulae import design_matrices
 
 from .backends import PyMC3BackEnd
-from .priors import Prior, PriorFactory, PriorScaler, PriorScalerMLE, Family
+from .defaults import get_default_prior, get_builtin_family
+from .priors import Family, Prior, PriorScaler, PriorScalerMLE
 from .terms import ResponseTerm, Term, GroupSpecificTerm
 from .utils import listify, extract_family_prior, link_match_family
 from .version import __version__
@@ -61,11 +62,6 @@ class Model:
         If ``True`` (default), priors are automatically rescaled to the data
         (to be weakly informative) any time default priors are used. Note that any priors
         explicitly set by the user will always take precedence over default priors.
-    default_priors : dict or str
-        An optional specification of the default priors to use for all model terms. Either a
-        dictionary containing named distributions, families, and terms (see the documentation in
-        ``priors.PriorFactory`` for details), or the name of a JSON file containing the same
-        information.
     automatic_priors: str
         An optional specification to compute/scale automatic priors. ``"default"`` means to use
         a method inspired on the R rstanarm library. ``"mle"`` means to use old default priors in
@@ -95,7 +91,6 @@ class Model:
         categorical=None,
         dropna=False,
         auto_scale=True,
-        default_priors=None,
         automatic_priors="default",
         noncentered=True,
         priors_cor=None,
@@ -149,7 +144,6 @@ class Model:
         else:
             priors = deepcopy(priors)
 
-        self.default_priors = PriorFactory(default_priors)
         self.automatic_priors = automatic_priors
 
         # Obtain design matrices and related objects.
@@ -298,11 +292,12 @@ class Model:
             targets.update({name: group_specific for name in self.group_specific_terms.keys()})
 
         if priors is not None:
-            # Prepare priors for response nuisance parameters
+            # Prepare priors for response auxiliary parameters
             family_prior = extract_family_prior(self.family, priors)
             if family_prior:
-                self.response.prior.args.update(family_prior)
-                self.response.prior.auto_scale = False
+                for prior in family_prior:
+                    prior.auto_scale = False
+                self.family.likelihood.priors.update(family_prior)
 
             # Prepare priors for explanatory terms.
             for names, prior in priors.items():
@@ -323,17 +318,17 @@ class Model:
         ----------
         prior : Prior, float, or None.
         type_ : string
-            accepted values are: ``'intercept'``, ``'common'``, or ``'group_specific'``.
+            Accepted values are: ``'intercept'``, ``'common'``, or ``'group_specific'``.
         """
 
         if prior is None and not self.auto_scale:
-            prior = self.default_priors.get(term=type_ + "_flat")
+            prior = get_default_prior(type_ + "_flat")
 
         if isinstance(prior, Prior):
             prior.auto_scale = False
         else:
             _scale = prior
-            prior = self.default_priors.get(term=type_)
+            prior = get_default_prior(type_)
             prior.scale = _scale
         return prior
 
@@ -366,10 +361,7 @@ class Model:
             ``'narrow'``, ``'medium'``, or ``'superwide'``), predefined values will be used.
         """
         if isinstance(family, str):
-            family = self.default_priors.get(family=family)
-            if family.name == "gamma":
-                # Drop 'beta' param. Should be handled better in the future.
-                family.prior.args.pop("beta")
+            family = get_builtin_family(family)
         elif not isinstance(family, Family):
             raise ValueError("family must be a string or a Family object.")
 
@@ -378,18 +370,19 @@ class Model:
             if link_match_family(link, family.name):
                 family._set_link(link)  # pylint: disable=protected-access
             else:
-                raise ValueError(f"Link {link} cannot be used with family {family.name}")
+                raise ValueError(f"Link '{link}'' cannot be used with family '{family.name}'")
 
-        # Update nuisance parameters
-        if priors is not None:
-            family.prior.args.update(priors)
-            family.prior.auto_scale = False
+        # Update auxiliary parameters
+        if priors:
+            for prior in priors:
+                prior.auto_scale = False
+            family.likelihood.priors.update(priors)
 
         if response.refclass is not None and family.name != "bernoulli":
             raise ValueError("Index notation for response is only available for 'bernoulli' family")
 
         self.family = family
-        self.response = ResponseTerm(response, family.prior, family.name)
+        self.response = ResponseTerm(response, family)
         self.built = False
 
     def _add_common(self, common, priors):
@@ -764,11 +757,7 @@ class Model:
         priors_cor = [f"    {k} ~ LKJCorr({v})" for k, v in self.priors_cor.items()]
 
         # Priors for auxiliary parameters, e.g., standard deviation in normal linear model
-        priors_aux = [
-            f"    {k} ~ {v}"
-            for k, v in self.family.prior.args.items()
-            if k not in ["observed", self.family.parent]
-        ]
+        priors_aux = [f"    {k} ~ {v}" for k, v in self.family.likelihood.priors.items()]
 
         if priors_common:
             priors += "\n".join(["  Common-level effects", *priors_common]) + "\n\n"

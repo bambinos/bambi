@@ -1,15 +1,13 @@
-import json
-from multiprocessing.sharedctypes import Value
 from os.path import dirname, join
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from bambi.models import Model
-from bambi.priors import Family, Prior, PriorFactory
-
 from statsmodels.tools.sm_exceptions import PerfectSeparationError
+
+from bambi.models import Model
+from bambi.priors import Family, Prior
 
 
 @pytest.fixture(scope="module")
@@ -36,76 +34,6 @@ def test_family_class():
     family = Family("cheese", prior, link="ferment", parent="holes")
     for name in ["name", "prior", "link", "parent"]:
         assert hasattr(family, name)
-
-
-def test_prior_factory_init_from_default_config():
-    pf = PriorFactory()
-    for d in ["dists", "terms", "families"]:
-        assert hasattr(pf, d)
-        assert isinstance(getattr(pf, d), dict)
-    assert "normal" in pf.dists
-    assert "common" in pf.terms
-    assert "gaussian" in pf.families
-
-
-def test_prior_factory_get_fail():
-    # .get() must receive only, and only one, non None argument.
-    pf = PriorFactory()
-    with pytest.raises(ValueError):
-        assert pf.get(dist="ñam", term="fri", family="frufi")
-    with pytest.raises(ValueError):
-        assert pf.get(dist="fali", term="fru")
-    with pytest.raises(ValueError):
-        assert pf.get()
-
-
-def test_prior_factory_init_from_config():
-    config_file = join(dirname(__file__), "data", "sample_priors.json")
-    pf = PriorFactory(config_file)
-    for d in ["dists", "terms", "families"]:
-        assert hasattr(pf, d)
-        assert isinstance(getattr(pf, d), dict)
-    config_dict = json.load(open(config_file, "r"))
-    pf = PriorFactory(config_dict)
-    for d in ["dists", "terms", "families"]:
-        assert hasattr(pf, d)
-        assert isinstance(getattr(pf, d), dict)
-    assert "feta" in pf.dists
-    assert "hard" in pf.families
-    assert "yellow" in pf.terms
-    pf = PriorFactory(dists=config_dict["dists"])
-    assert "feta" in pf.dists
-    pf = PriorFactory(terms=config_dict["terms"])
-    assert "yellow" in pf.terms
-    pf = PriorFactory(families=config_dict["families"])
-    assert "hard" in pf.families
-
-
-def test_prior_retrieval():
-    config_file = join(dirname(__file__), "data", "sample_priors.json")
-    pf = PriorFactory(config_file)
-    prior = pf.get(dist="asiago")
-    assert prior.name == "Asiago"
-    assert isinstance(prior, Prior)
-    assert prior.args["hardness"] == 10
-    with pytest.raises(KeyError):
-        assert prior.args["holes"] == 4
-    family = pf.get(family="hard")
-    assert isinstance(family, Family)
-    assert family.link == "grate"
-    backup = family.prior.args["backup"]
-    assert isinstance(backup, Prior)
-    assert backup.args["flavor"] == 10000
-    prior = pf.get(term="yellow")
-    assert prior.name == "Swiss"
-
-    # Test exception raising
-    with pytest.raises(ValueError):
-        pf.get(dist="apple")
-    with pytest.raises(ValueError):
-        pf.get(term="banana")
-    with pytest.raises(ValueError):
-        pf.get(family="cantaloupe")
 
 
 def test_auto_scale(diabetes_data):
@@ -253,19 +181,19 @@ def test_response_prior():
 
     priors = {"sigma": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data, priors=priors)
-    assert model.response.prior.args["sigma"] == priors["sigma"]
+    assert model.family.likelihood.priors["sigma"] == priors["sigma"]
 
     priors = {"alpha": Prior("Uniform", lower=1, upper=20)}
     model = Model("y ~ x", data, family="negativebinomial", priors=priors)
-    assert model.response.prior.args["alpha"] == priors["alpha"]
+    assert model.family.likelihood.priors["alpha"] == priors["alpha"]
 
     priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data, family="gamma", priors=priors)
-    assert model.response.prior.args["alpha"] == Prior("Uniform", lower=0, upper=50)
+    assert model.family.likelihood.priors["alpha"] == Prior("Uniform", lower=0, upper=50)
 
     priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data, family="gamma", priors=priors)
-    assert model.response.prior.args["alpha"] == Prior("Uniform", lower=0, upper=50)
+    assert model.family.likelihood.priors["alpha"] == Prior("Uniform", lower=0, upper=50)
 
 
 def test_set_response_prior():
@@ -274,17 +202,17 @@ def test_set_response_prior():
     priors = {"sigma": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data)
     model.set_priors(priors)
-    assert model.response.prior.args["sigma"] == Prior("Uniform", lower=0, upper=50)
+    assert model.family.likelihood.priors["sigma"] == Prior("Uniform", lower=0, upper=50)
 
     priors = {"alpha": Prior("Uniform", lower=1, upper=20)}
     model = Model("y ~ x", data, family="negativebinomial")
     model.set_priors(priors)
-    assert model.response.prior.args["alpha"] == Prior("Uniform", lower=1, upper=20)
+    assert model.family.likelihood.priors["alpha"] == Prior("Uniform", lower=1, upper=20)
 
     priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data, family="gamma")
     model.set_priors(priors)
-    assert model.response.prior.args["alpha"] == Prior("Uniform", lower=0, upper=50)
+    assert model.family.likelihood.priors["alpha"] == Prior("Uniform", lower=0, upper=50)
 
 
 def test_response_prior_fail():

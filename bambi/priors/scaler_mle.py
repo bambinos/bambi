@@ -10,7 +10,7 @@ from scipy.special import hyp2f1
 from statsmodels.genmod.generalized_linear_model import GLM
 from statsmodels.tools.sm_exceptions import PerfectSeparationError
 
-from .priors import Prior
+from .prior import Prior
 
 
 class PriorScalerMLE:
@@ -112,11 +112,12 @@ class PriorScalerMLE:
         return np.array(terms).sum() ** 0.5
 
     def scale_response(self):
-        if self.model.response.prior.auto_scale:
-            if self.model.family.name == "gaussian":
+        # Add cases for other families
+        priors = self.model.response.family.likelihood.priors
+        if self.model.family.name == "gaussian":
+            if priors["sigma"].auto_scale:
                 sigma = np.std(self.model.response.data)
-                self.model.response.prior.update(sigma=Prior("HalfStudentT", nu=4, sigma=sigma))
-            # Add cases for other families
+                priors["sigma"] = Prior("HalfStudentT", nu=4, sigma=sigma)
 
     def scale_common(self, term):
         """Scale common terms, excluding intercepts."""
