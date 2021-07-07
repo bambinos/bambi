@@ -9,13 +9,15 @@ class Prior:
     name : str
         Name of prior distribution. Must be the name of a PyMC3 distribution
         (e.g., ``'Normal'``, ``'Bernoulli'``, etc.)
+    auto_scale: bool
+        Whether to adjust the parameters of the prior or use them as passed. Default to ``True``.
     kwargs : dict
         Optional keywords specifying the parameters of the named distribution.
     """
 
-    def __init__(self, name, scale=None, **kwargs):
+    def __init__(self, name, auto_scale=True, scale=None, **kwargs):
         self.name = name
-        self.auto_scale = True
+        self.auto_scale = auto_scale
         self.scale = scale
         self.args = {}
         self.update(**kwargs)

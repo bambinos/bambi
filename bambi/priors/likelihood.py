@@ -38,6 +38,8 @@ class Likelihood:
         else:
             # On your own risk
             self.name = name
+            # Check priors passed are in fact of class Prior
+            check_all_are_priors(priors)
             self.priors = priors
             self.parent = parent
 
@@ -72,7 +74,11 @@ class Likelihood:
                 raise ValueError(f"'{self.name}' misses priors for the parameters {difference}")
 
             # And check priors passed are in fact of class Prior
-            if any(not isinstance(prior, Prior) for prior in priors.values()):
-                raise ValueError("Prior distributions must be of class 'Prior'")
+            check_all_are_priors(priors)
 
         return priors
+
+
+def check_all_are_priors(priors):
+    if any(not isinstance(prior, Prior) for prior in priors.values()):
+        raise ValueError("Prior distributions must be of class 'Prior'")

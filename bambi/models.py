@@ -295,7 +295,7 @@ class Model:
             # Prepare priors for response auxiliary parameters
             family_prior = extract_family_prior(self.family, priors)
             if family_prior:
-                for prior in family_prior:
+                for prior in family_prior.values():
                     prior.auto_scale = False
                 self.family.likelihood.priors.update(family_prior)
 
@@ -374,7 +374,7 @@ class Model:
 
         # Update auxiliary parameters
         if priors:
-            for prior in priors:
+            for prior in priors.values():
                 prior.auto_scale = False
             family.likelihood.priors.update(priors)
 
