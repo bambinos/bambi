@@ -99,9 +99,7 @@ def generate_prior(name, **kwargs):
 
 def generate_likelihood(name, args, parent):
     priors = {k: generate_prior(v) for k, v in args.items()}
-    if priors == dict():
-        priors = None
-    return Likelihood(name, priors, parent)
+    return Likelihood(name, parent, **priors)
 
 
 def generate_family(name, likelihood, link):

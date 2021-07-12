@@ -31,66 +31,56 @@ def test_prior_class():
 
 def test_likelihood_class():
     # A recognized likelihood
-    priors = {"sigma": Prior("HalfNormal", sigma=100)}
-    likelihood = Likelihood("Normal", priors=priors, parent="mu")
+    sigma = Prior("HalfNormal", sigma=100)
+    likelihood = Likelihood("Normal", parent="mu", sigma=sigma)
 
     for name in ["name", "priors", "parent"]:
         assert hasattr(likelihood, name)
 
     # A likelihood with unrecognized name
-    # The class is not going to complain. Whether "Magic" works in PyMC3 is up to you.
-    likelihood = Likelihood("Magic", priors=priors, parent="Wizard")
+    # The class is not going to complain. Whether "Magic" works in PyMC3 is up to the user.
+    likelihood = Likelihood("Magic", parent="Wizard", sigma=sigma)
     for name in ["name", "priors", "parent"]:
         assert hasattr(likelihood, name)
 
 
 def test_likelihood_bad_parent():
     with pytest.raises(ValueError):
-        Likelihood("Normal", priors={"sigma": Prior("HalfNormal", sigma=100)}, parent="Mu")
+        Likelihood("Normal", parent="Mu", sigma=Prior("HalfNormal", sigma=100))
 
     with pytest.raises(ValueError):
         Likelihood("Bernoulli", parent="mu")
 
 
 def test_likelihood_parent_inferred():
-    priors = {"sigma": Prior("HalfNormal", sigma=100)}
-    lh1 = Likelihood("Normal", priors=priors, parent="mu")
-    lh2 = Likelihood("Normal", priors=priors)
+    sigma = Prior("HalfNormal", sigma=100)
+    lh1 = Likelihood("Normal", parent="mu", sigma=sigma)
+    lh2 = Likelihood("Normal", sigma=sigma)
     assert lh1.parent == lh2.parent
 
 
 def test_likelihood_bad_priors():
-    priors = {"sigma": Prior("HalfNormal", sigma=100)}
+    sigma = Prior("HalfNormal", sigma=100)
     # Required prior is missing
     with pytest.raises(ValueError):
         Likelihood("Normal", parent="mu")
 
-    # Prior is not within a dictionary
-    priors = [Prior("HalfNormal", sigma=100)]
-    with pytest.raises(ValueError):
-        Likelihood("Normal", priors=priors)
-
-    # Prior is not within dictionary
-    priors = Prior("HalfNormal", sigma=100)
-    with pytest.raises(ValueError):
-        Likelihood("Normal", priors=priors)
-
     # Prior is not a prior
     with pytest.raises(ValueError):
-        Likelihood("Normal", priors={"sigma": "HalfNormal"}, parent="mu")
+        Likelihood("Normal", parent="mu", sigma="HalfNormal")
 
     # Passing unnecesary priors
     with pytest.raises(ValueError):
-        Likelihood("Bernoulli", priors=priors)
+        Likelihood("Bernoulli", sigma=sigma)
 
     # Passed priors, but not the one needed
     with pytest.raises(ValueError):
-        Likelihood("Gamma", priors=priors)
+        Likelihood("Gamma", sigma=sigma)
 
 
 def test_family_class():
-    prior = {"cheese": Prior("CheeseWhiz", holes=0, taste=-10)}
-    likelihood = Likelihood("Cheese", priors=prior, parent="holes")
+    cheese = Prior("CheeseWhiz", holes=0, taste=-10)
+    likelihood = Likelihood("Cheese", parent="holes", cheese=cheese)
     family = Family("cheese", likelihood=likelihood, link="ferment")
 
     for name in ["name", "likelihood", "link"]:
@@ -145,8 +135,8 @@ def test_prior_eq():
 
 
 def test_family_link_unsupported():
-    prior = {"cheese": Prior("CheeseWhiz", holes=0, taste=-10)}
-    likelihood = Likelihood("Cheese", priors=prior, parent="holes")
+    cheese = Prior("CheeseWhiz", holes=0, taste=-10)
+    likelihood = Likelihood("Cheese", parent="holes", cheese=cheese)
     family = Family("cheese", likelihood=likelihood, link="ferment")
     with pytest.raises(ValueError):
         family._set_link("Empty")
