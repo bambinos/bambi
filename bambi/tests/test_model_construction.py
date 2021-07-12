@@ -358,30 +358,21 @@ def test_links():
         }
     )
 
-    gaussian = ["identity", "log", "inverse"]
-    gamma = ["identity", "inverse", "log"]
-    bernoulli = ["identity", "logit", "probit", "cloglog"]
-    wald = ["inverse", "inverse_squared", "identity", "log"]
-    negativebinomial = ["identity", "log", "cloglog"]
-    poisson = ["identity", "log"]
-
-    for link in gaussian:
-        Model("y ~ x", data, family="gaussian", link=link)
-
-    for link in gamma:
-        Model("y ~ x", data, family="gamma", link=link)
-
-    for link in bernoulli:
-        Model("g ~ x", data, family="bernoulli", link=link)
-
-    for link in wald:
-        Model("y ~ x", data, family="wald", link=link)
-
-    for link in negativebinomial:
-        Model("y ~ x", data, family="negativebinomial", link=link)
-
-    for link in poisson:
-        Model("y ~ x", data, family="poisson", link=link)
+    FAMILIES = {
+        "bernoulli": ["identity", "logit", "probit", "cloglog"],
+        "beta": ["identity", "logit", "probit", "cloglog"],
+        "gamma": ["identity", "inverse", "log"],
+        "gaussian": ["identity", "log", "inverse"],
+        "negativebinomial": ["identity", "log", "cloglog"],
+        "poisson": ["identity", "log"],
+        "wald": ["inverse", "inverse_squared", "identity", "log"],
+    }
+    for family, links in FAMILIES.items():
+        for link in links:
+            if family == "bernoulli":
+                Model("g ~ x", data, family=family, link=link)
+            else:
+                Model("y ~ x", data, family=family, link=link)
 
 
 def test_bad_links():
@@ -393,55 +384,44 @@ def test_bad_links():
             "x": np.random.randint(3, 10, size=100),
         }
     )
-    gaussian = ["logit", "probit", "cloglog"]
-    gamma = ["logit", "probit", "cloglog"]
-    bernoulli = ["inverse", "inverse_squared", "log"]
-    wald = ["logit", "probit", "cloglog"]
-    negativebinomial = ["logit", "probit", "inverse", "inverse_squared"]
-    poisson = ["logit", "probit", "cloglog", "inverse", "inverse_squared"]
+    FAMILIES = {
+        "bernoulli": ["inverse", "inverse_squared", "log"],
+        "beta": ["inverse", "inverse_squared", "log"],
+        "gamma": ["logit", "probit", "cloglog"],
+        "gaussian": ["logit", "probit", "cloglog"],
+        "negativebinomial": ["logit", "probit", "inverse", "inverse_squared"],
+        "poisson": ["logit", "probit", "cloglog", "inverse", "inverse_squared"],
+        "wald": ["logit", "probit", "cloglog"],
+    }
 
-    for link in gaussian:
-        with pytest.raises(ValueError):
-            Model("y ~ x", data, family="gaussian", link=link)
-
-    for link in gamma:
-        with pytest.raises(ValueError):
-            Model("y ~ x", data, family="gamma", link=link)
-
-    for link in bernoulli:
-        with pytest.raises(ValueError):
-            Model("g ~ x", data, family="bernoulli", link=link)
-
-    for link in wald:
-        with pytest.raises(ValueError):
-            Model("y ~ x", data, family="wald", link=link)
-
-    for link in negativebinomial:
-        with pytest.raises(ValueError):
-            Model("y ~ x", data, family="negativebinomial", link=link)
-
-    for link in poisson:
-        with pytest.raises(ValueError):
-            Model("y ~ x", data, family="poisson", link=link)
+    for family, links in FAMILIES.items():
+        for link in links:
+            with pytest.raises(ValueError):
+                if family == "bernoulli":
+                    Model("g ~ x", data, family=family, link=link)
+                else:
+                    Model("y ~ x", data, family=family, link=link)
 
 
 def test_link_match_family():
     accepted = {
-        "gaussian": ["identity", "log", "inverse"],
-        "gamma": ["identity", "inverse", "log"],
         "bernoulli": ["identity", "logit", "probit", "cloglog"],
-        "wald": ["inverse", "inverse_squared", "identity", "log"],
+        "beta": ["identity", "logit", "probit", "cloglog"],
+        "gamma": ["identity", "log", "inverse"],
+        "gaussian": ["identity", "log", "inverse"],
         "negativebinomial": ["identity", "log", "cloglog"],
         "poisson": ["identity", "log"],
+        "wald": ["inverse", "inverse_squared", "identity", "log"],
     }
 
     unaccepted = {
-        "gaussian": ["logit", "probit", "cloglog"],
-        "gamma": ["logit", "probit", "cloglog"],
         "bernoulli": ["inverse", "inverse_squared", "log"],
-        "wald": ["logit", "probit", "cloglog"],
+        "beta": ["inverse", "inverse_squared", "log"],
+        "gamma": ["logit", "probit", "cloglog"],
+        "gaussian": ["logit", "probit", "cloglog"],
         "negativebinomial": ["logit", "probit", "inverse", "inverse_squared"],
         "poisson": ["logit", "probit", "cloglog", "inverse", "inverse_squared"],
+        "wald": ["logit", "probit", "cloglog"],
     }
 
     custom_families = ["hi", "dear", "friend"]

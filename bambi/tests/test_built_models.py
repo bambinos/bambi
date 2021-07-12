@@ -489,6 +489,15 @@ def test_gamma_regression(dm):
     model.fit()
 
 
+def test_beta_regression():
+    from os.path import dirname, join
+
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "gasoline.csv"))
+    model = Model("yield ~  temp + batch", data, family="beta", categorical="batch")
+    idata = model.fit(target_accept=0.9)
+
+
 def test_plot_priors(crossed_data):
     model = Model("Y ~ 0 + threecats", crossed_data)
     # Priors cannot be plotted until model is built.
