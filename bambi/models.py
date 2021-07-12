@@ -13,12 +13,8 @@ from numpy.linalg import matrix_rank
 from formulae import design_matrices
 
 from .backends import PyMC3BackEnd
-<<<<<<< HEAD
 from .defaults import get_default_prior, get_builtin_family
 from .priors import Family, Prior, PriorScaler, PriorScalerMLE
-=======
-from .priors import Prior, PriorFactory, PriorScaler, PriorScalerMLE, Family
->>>>>>> upstream/master
 from .terms import ResponseTerm, Term, GroupSpecificTerm
 from .utils import listify, extract_family_prior, link_match_family
 from .version import __version__
@@ -66,14 +62,6 @@ class Model:
         If ``True`` (default), priors are automatically rescaled to the data
         (to be weakly informative) any time default priors are used. Note that any priors
         explicitly set by the user will always take precedence over default priors.
-<<<<<<< HEAD
-=======
-    default_priors : dict or str
-        An optional specification of the default priors to use for all model terms. Either a
-        dictionary containing named distributions, families, and terms (see the documentation in
-        ``priors.PriorFactory`` for details), or the name of a JSON file containing the same
-        information.
->>>>>>> upstream/master
     automatic_priors: str
         An optional specification to compute/scale automatic priors. ``"default"`` means to use
         a method inspired on the R rstanarm library. ``"mle"`` means to use old default priors in
@@ -103,10 +91,6 @@ class Model:
         categorical=None,
         dropna=False,
         auto_scale=True,
-<<<<<<< HEAD
-=======
-        default_priors=None,
->>>>>>> upstream/master
         automatic_priors="default",
         noncentered=True,
         priors_cor=None,
@@ -160,10 +144,6 @@ class Model:
         else:
             priors = deepcopy(priors)
 
-<<<<<<< HEAD
-=======
-        self.default_priors = PriorFactory(default_priors)
->>>>>>> upstream/master
         self.automatic_priors = automatic_priors
 
         # Obtain design matrices and related objects.
@@ -338,29 +318,16 @@ class Model:
         ----------
         prior : Prior, float, or None.
         type_ : string
-<<<<<<< HEAD
             Accepted values are: ``'intercept'``, ``'common'``, or ``'group_specific'``.
         """
 
         if prior is None and not self.auto_scale:
             prior = get_default_prior(type_ + "_flat")
-=======
-            accepted values are: ``'intercept'``, ``'common'``, or ``'group_specific'``.
-        """
-
-        if prior is None and not self.auto_scale:
-            prior = self.default_priors.get(term=type_ + "_flat")
->>>>>>> upstream/master
-
         if isinstance(prior, Prior):
             prior.auto_scale = False
         else:
             _scale = prior
-<<<<<<< HEAD
             prior = get_default_prior(type_)
-=======
-            prior = self.default_priors.get(term=type_)
->>>>>>> upstream/master
             prior.scale = _scale
         return prior
 
@@ -404,28 +371,17 @@ class Model:
             else:
                 raise ValueError(f"Link '{link}'' cannot be used with family '{family.name}'")
 
-<<<<<<< HEAD
         # Update auxiliary parameters
         if priors:
             for prior in priors.values():
                 prior.auto_scale = False
             family.likelihood.priors.update(priors)
-=======
-        # Update nuisance parameters
-        if priors is not None:
-            family.prior.args.update(priors)
-            family.prior.auto_scale = False
->>>>>>> upstream/master
 
         if response.refclass is not None and family.name != "bernoulli":
             raise ValueError("Index notation for response is only available for 'bernoulli' family")
 
         self.family = family
-<<<<<<< HEAD
         self.response = ResponseTerm(response, family)
-=======
-        self.response = ResponseTerm(response, family.prior, family.name)
->>>>>>> upstream/master
         self.built = False
 
     def _add_common(self, common, priors):
@@ -800,15 +756,7 @@ class Model:
         priors_cor = [f"    {k} ~ LKJCorr({v})" for k, v in self.priors_cor.items()]
 
         # Priors for auxiliary parameters, e.g., standard deviation in normal linear model
-<<<<<<< HEAD
         priors_aux = [f"    {k} ~ {v}" for k, v in self.family.likelihood.priors.items()]
-=======
-        priors_aux = [
-            f"    {k} ~ {v}"
-            for k, v in self.family.prior.args.items()
-            if k not in ["observed", self.family.parent]
-        ]
->>>>>>> upstream/master
 
         if priors_common:
             priors += "\n".join(["  Common-level effects", *priors_common]) + "\n\n"
