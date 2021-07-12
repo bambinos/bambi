@@ -254,6 +254,13 @@ class PyMC3BackEnd(BackEnd):
             sigma = (kwargs["mu"] / beta) ** 0.5
             return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
 
+        if spec.family.name == "beta":
+            # Beta distribution is specified using alpha and beta, but we have mu and kappa.
+            # alpha = mu * kappa and beta = (1 - mu) * kappa
+            alpha = kwargs["mu"] * kwargs["kappa"]
+            beta = (1 - kwargs["mu"]) * kwargs["kappa"]
+            return dist(name, alpha=alpha, beta=beta, observed=kwargs["observed"])
+
         return dist(name, **kwargs)
 
     def get_distribution(self, dist):
