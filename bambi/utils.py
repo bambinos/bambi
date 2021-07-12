@@ -48,7 +48,7 @@ def extract_family_prior(family, priors):
     elif isinstance(family, Family):
         # Only work if there are nuisance parameters in the family, and if any of these nuisance
         # parameters is present in 'priors' dictionary.
-        nuisance_params = [k for k in family.prior.args if k not in ["observed", family.parent]]
+        nuisance_params = list(family.likelihood.priors)
         if set(nuisance_params).intersection(set(priors)):
             return {k: priors.pop(k) for k in nuisance_params if k in priors}
     return None

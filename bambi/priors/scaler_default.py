@@ -1,6 +1,6 @@
 import numpy as np
 
-from .priors import Prior
+from .prior import Prior
 
 
 class PriorScaler:
@@ -34,10 +34,10 @@ class PriorScaler:
 
     def scale_response(self):
         # Add cases for other families
-        if self.model.response.prior.auto_scale:
-            if self.model.family.name == "gaussian":
-                sigma = self.response_std
-                self.model.response.prior.update(sigma=Prior("HalfStudentT", nu=4, sigma=sigma))
+        priors = self.model.response.family.likelihood.priors
+        if self.model.family.name == "gaussian":
+            if priors["sigma"].auto_scale:
+                priors["sigma"] = Prior("HalfStudentT", nu=4, sigma=self.response_std)
 
     def scale_intercept(self, term):
         if term.prior.name != "Normal":
@@ -76,7 +76,6 @@ class PriorScaler:
             sigma = np.zeros(data_as_common.shape[1])
             for i, x in enumerate(data_as_common.T):
                 sigma[i] = self.get_slope_sigma(x)
-
         term.prior.args["sigma"].update(sigma=np.squeeze(np.atleast_1d(sigma)))
 
     def scale(self):

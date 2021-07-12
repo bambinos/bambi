@@ -1,15 +1,13 @@
-import json
-from multiprocessing.sharedctypes import Value
 from os.path import dirname, join
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from bambi.models import Model
-from bambi.priors import Family, Prior, PriorFactory
-
 from statsmodels.tools.sm_exceptions import PerfectSeparationError
+
+from bambi.models import Model
+from bambi.priors import Family, Likelihood, Prior
 
 
 @pytest.fixture(scope="module")
@@ -31,81 +29,62 @@ def test_prior_class():
     assert prior.args["return_to_store"] == 1
 
 
+def test_likelihood_class():
+    # A recognized likelihood
+    sigma = Prior("HalfNormal", sigma=100)
+    likelihood = Likelihood("Normal", parent="mu", sigma=sigma)
+
+    for name in ["name", "priors", "parent"]:
+        assert hasattr(likelihood, name)
+
+    # A likelihood with unrecognized name
+    # The class is not going to complain. Whether "Magic" works in PyMC3 is up to the user.
+    likelihood = Likelihood("Magic", parent="Wizard", sigma=sigma)
+    for name in ["name", "priors", "parent"]:
+        assert hasattr(likelihood, name)
+
+
+def test_likelihood_bad_parent():
+    with pytest.raises(ValueError):
+        Likelihood("Normal", parent="Mu", sigma=Prior("HalfNormal", sigma=100))
+
+    with pytest.raises(ValueError):
+        Likelihood("Bernoulli", parent="mu")
+
+
+def test_likelihood_parent_inferred():
+    sigma = Prior("HalfNormal", sigma=100)
+    lh1 = Likelihood("Normal", parent="mu", sigma=sigma)
+    lh2 = Likelihood("Normal", sigma=sigma)
+    assert lh1.parent == lh2.parent
+
+
+def test_likelihood_bad_priors():
+    sigma = Prior("HalfNormal", sigma=100)
+    # Required prior is missing
+    with pytest.raises(ValueError):
+        Likelihood("Normal", parent="mu")
+
+    # Prior is not a prior
+    with pytest.raises(ValueError):
+        Likelihood("Normal", parent="mu", sigma="HalfNormal")
+
+    # Passing unnecesary priors
+    with pytest.raises(ValueError):
+        Likelihood("Bernoulli", sigma=sigma)
+
+    # Passed priors, but not the one needed
+    with pytest.raises(ValueError):
+        Likelihood("Gamma", sigma=sigma)
+
+
 def test_family_class():
-    prior = Prior("CheeseWhiz", holes=0, taste=-10)
-    family = Family("cheese", prior, link="ferment", parent="holes")
-    for name in ["name", "prior", "link", "parent"]:
+    cheese = Prior("CheeseWhiz", holes=0, taste=-10)
+    likelihood = Likelihood("Cheese", parent="holes", cheese=cheese)
+    family = Family("cheese", likelihood=likelihood, link="ferment")
+
+    for name in ["name", "likelihood", "link"]:
         assert hasattr(family, name)
-
-
-def test_prior_factory_init_from_default_config():
-    pf = PriorFactory()
-    for d in ["dists", "terms", "families"]:
-        assert hasattr(pf, d)
-        assert isinstance(getattr(pf, d), dict)
-    assert "normal" in pf.dists
-    assert "common" in pf.terms
-    assert "gaussian" in pf.families
-
-
-def test_prior_factory_get_fail():
-    # .get() must receive only, and only one, non None argument.
-    pf = PriorFactory()
-    with pytest.raises(ValueError):
-        assert pf.get(dist="ñam", term="fri", family="frufi")
-    with pytest.raises(ValueError):
-        assert pf.get(dist="fali", term="fru")
-    with pytest.raises(ValueError):
-        assert pf.get()
-
-
-def test_prior_factory_init_from_config():
-    config_file = join(dirname(__file__), "data", "sample_priors.json")
-    pf = PriorFactory(config_file)
-    for d in ["dists", "terms", "families"]:
-        assert hasattr(pf, d)
-        assert isinstance(getattr(pf, d), dict)
-    config_dict = json.load(open(config_file, "r"))
-    pf = PriorFactory(config_dict)
-    for d in ["dists", "terms", "families"]:
-        assert hasattr(pf, d)
-        assert isinstance(getattr(pf, d), dict)
-    assert "feta" in pf.dists
-    assert "hard" in pf.families
-    assert "yellow" in pf.terms
-    pf = PriorFactory(dists=config_dict["dists"])
-    assert "feta" in pf.dists
-    pf = PriorFactory(terms=config_dict["terms"])
-    assert "yellow" in pf.terms
-    pf = PriorFactory(families=config_dict["families"])
-    assert "hard" in pf.families
-
-
-def test_prior_retrieval():
-    config_file = join(dirname(__file__), "data", "sample_priors.json")
-    pf = PriorFactory(config_file)
-    prior = pf.get(dist="asiago")
-    assert prior.name == "Asiago"
-    assert isinstance(prior, Prior)
-    assert prior.args["hardness"] == 10
-    with pytest.raises(KeyError):
-        assert prior.args["holes"] == 4
-    family = pf.get(family="hard")
-    assert isinstance(family, Family)
-    assert family.link == "grate"
-    backup = family.prior.args["backup"]
-    assert isinstance(backup, Prior)
-    assert backup.args["flavor"] == 10000
-    prior = pf.get(term="yellow")
-    assert prior.name == "Swiss"
-
-    # Test exception raising
-    with pytest.raises(ValueError):
-        pf.get(dist="apple")
-    with pytest.raises(ValueError):
-        pf.get(term="banana")
-    with pytest.raises(ValueError):
-        pf.get(family="cantaloupe")
 
 
 def test_auto_scale(diabetes_data):
@@ -155,8 +134,10 @@ def test_prior_eq():
     assert prior1 != "Prior"
 
 
-def test_family_unsupported():
-    family = Family("name", "prior", "link", "parent")
+def test_family_link_unsupported():
+    cheese = Prior("CheeseWhiz", holes=0, taste=-10)
+    likelihood = Likelihood("Cheese", parent="holes", cheese=cheese)
+    family = Family("cheese", likelihood=likelihood, link="ferment")
     with pytest.raises(ValueError):
         family._set_link("Empty")
 
@@ -253,19 +234,23 @@ def test_response_prior():
 
     priors = {"sigma": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data, priors=priors)
-    assert model.response.prior.args["sigma"] == priors["sigma"]
+    priors["sigma"].auto_scale = False  # the one in the model is set to False
+    assert model.family.likelihood.priors["sigma"] == priors["sigma"]
 
     priors = {"alpha": Prior("Uniform", lower=1, upper=20)}
     model = Model("y ~ x", data, family="negativebinomial", priors=priors)
-    assert model.response.prior.args["alpha"] == priors["alpha"]
+    priors["alpha"].auto_scale = False
+    assert model.family.likelihood.priors["alpha"] == priors["alpha"]
 
     priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data, family="gamma", priors=priors)
-    assert model.response.prior.args["alpha"] == Prior("Uniform", lower=0, upper=50)
+    priors["alpha"].auto_scale = False
+    assert model.family.likelihood.priors["alpha"] == priors["alpha"]
 
     priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data, family="gamma", priors=priors)
-    assert model.response.prior.args["alpha"] == Prior("Uniform", lower=0, upper=50)
+    priors["alpha"].auto_scale = False
+    assert model.family.likelihood.priors["alpha"] == priors["alpha"]
 
 
 def test_set_response_prior():
@@ -274,17 +259,17 @@ def test_set_response_prior():
     priors = {"sigma": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data)
     model.set_priors(priors)
-    assert model.response.prior.args["sigma"] == Prior("Uniform", lower=0, upper=50)
+    assert model.family.likelihood.priors["sigma"] == Prior("Uniform", False, lower=0, upper=50)
 
     priors = {"alpha": Prior("Uniform", lower=1, upper=20)}
     model = Model("y ~ x", data, family="negativebinomial")
     model.set_priors(priors)
-    assert model.response.prior.args["alpha"] == Prior("Uniform", lower=1, upper=20)
+    assert model.family.likelihood.priors["alpha"] == Prior("Uniform", False, lower=1, upper=20)
 
     priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data, family="gamma")
     model.set_priors(priors)
-    assert model.response.prior.args["alpha"] == Prior("Uniform", lower=0, upper=50)
+    assert model.family.likelihood.priors["alpha"] == Prior("Uniform", False, lower=0, upper=50)
 
 
 def test_response_prior_fail():
