@@ -4,7 +4,7 @@ DISTRIBUTIONS = {
     "Normal": {"params": ("mu", "sigma"), "parent": "mu", "args": ("sigma",)},
     "Bernoulli": {"params": ("p",), "parent": "p", "args": None},
     "Poisson": {"params": ("mu",), "parent": "mu", "args": None},
-    "StudentT": {"params": ("mu", "lam"), "args": ("lam",)},
+    "StudentT": {"params": ("mu", "lam"), "args": ("lam", "nu")},
     "NegativeBinomial": {"params": ("mu", "alpha"), "parent": "mu", "args": ("alpha",)},
     "Gamma": {"params": ("mu", "alpha"), "parent": "mu", "args": ("alpha",)},
     "Wald": {"params": ("mu", "lam"), "parent": "mu", "args": ("lam",)},
@@ -76,5 +76,5 @@ class Likelihood:
 
 
 def check_all_are_priors(priors):
-    if any(not isinstance(prior, Prior) for prior in priors.values()):
-        raise ValueError("Prior distributions must be of class 'Prior'")
+    if any(not isinstance(prior, (Prior, int, float)) for prior in priors.values()):
+        raise ValueError("Prior distributions must be a 'Prior' instance or a numeric value")
