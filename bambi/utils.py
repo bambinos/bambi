@@ -10,9 +10,9 @@ FAMILY_LINKS = {
 }
 
 FAMILY_PARAMS = {
-    "gaussian": "sigma",
-    "negativebinomial": "alpha",
-    "gamma": "alpha",
+    "gaussian": ("sigma",),
+    "negativebinomial": ("alpha",),
+    "gamma": ("alpha",),
     "t": ("lam", "nu"),
 }
 
