@@ -1,12 +1,13 @@
 from .priors import Family
 
 FAMILY_LINKS = {
-    "gaussian": ["identity", "log", "inverse"],
-    "gamma": ["identity", "log", "inverse"],
     "bernoulli": ["identity", "logit", "probit", "cloglog"],
-    "wald": ["inverse", "inverse_squared", "identity", "log"],
+    "gamma": ["identity", "log", "inverse"],
+    "gaussian": ["identity", "log", "inverse"],
     "negativebinomial": ["identity", "log", "cloglog"],
     "poisson": ["identity", "log"],
+    "t": ["identity", "log", "inverse"],
+    "wald": ["inverse", "inverse_squared", "identity", "log"],
 }
 
 FAMILY_PARAMS = {
