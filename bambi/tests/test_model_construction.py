@@ -16,6 +16,17 @@ from bambi.utils import link_match_family
 
 
 @pytest.fixture(scope="module")
+def data_numeric_xy():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "x": np.random.normal(size=100),
+        }
+    )
+    return data
+
+
+@pytest.fixture(scope="module")
 def diabetes_data():
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "diabetes.txt"), sep="\t")
@@ -102,23 +113,55 @@ def test_model_init_from_filename():
     assert "BMI" in model.data.columns
 
 
+def test_model_init_bad_data():
+    with pytest.raises(ValueError):
+        Model("y ~ x", {"x": 1})
+
+
+def test_model_categorical_argument():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "x": np.random.randint(2, size=100),
+            "z": np.random.randint(2, size=100),
+        }
+    )
+    model = Model("y ~ 0 + x", data, categorical="x")
+    assert model.terms["x"].categorical
+
+    model = Model("y ~ 0 + x*z", data, categorical=["x", "z"])
+    assert model.terms["x"].categorical
+    assert model.terms["z"].categorical
+    assert model.terms["x:z"].categorical
+
+
+def test_model_no_response():
+    with pytest.raises(ValueError):
+        Model("x", pd.DataFrame({"x": [1]}))
+
+
+def test_model_taylor_value(data_numeric_xy):
+    Model("y ~ x", data=data_numeric_xy, taylor=5)
+
+
+def test_model_alternative_scaler(data_numeric_xy):
+    Model("y ~ x", data=data_numeric_xy, automatic_priors="mle")
+
+
 def test_model_term_names_property(diabetes_data):
     model = Model("BMI ~ age_grp + BP + S1", diabetes_data)
-    model.build()
     assert model.term_names == ["Intercept", "age_grp", "BP", "S1"]
 
 
 def test_model_term_names_property_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
     model = Model("Y ~ threecats*fourcats", crossed_data)
-    model.build()
     assert model.term_names == ["Intercept", "threecats", "fourcats", "threecats:fourcats"]
 
 
 def test_model_terms_levels_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
     model = Model("Y ~ threecats*fourcats", crossed_data)
-    model.build()
 
     assert model.terms["threecats:fourcats"].levels == [
         "threecats[b]:fourcats[b]",
@@ -141,7 +184,6 @@ def test_model_terms_levels():
         }
     )
     model = Model("y ~ x + z + time + (time|subject)", data)
-    model.build()
     assert model.terms["z"].levels == ["z[Group 2]", "z[Group 3]"]
     assert model.terms["1|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
     assert model.terms["time|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
@@ -158,7 +200,6 @@ def test_model_term_classes():
     )
 
     model = Model("y ~ x*g + (x|s)", data)
-    model.build()
 
     assert isinstance(model.terms["x"], Term)
     assert isinstance(model.terms["g"], Term)
@@ -176,27 +217,6 @@ def test_one_shot_formula_fit(diabetes_data):
     named_vars = model.backend.model.named_vars
     targets = ["S3", "S1", "Intercept"]
     assert len(set(named_vars.keys()) & set(targets)) == 3
-
-
-@pytest.mark.skip(reason="Derived term search is going to be removed.")
-def test_derived_term_search(diabetes_data):
-    model = Model("BMI ~ 1 + (age_grp|BP)", diabetes_data, categorical=["age_grp"])
-    model.build()
-    terms = model._match_derived_terms("age_grp|BP")
-    names = set([t.name for t in terms])
-
-    # Since intercept is present, it uses treatment encoding
-    lvls = sorted(list(diabetes_data["age_grp"].unique()))[1:]
-    assert names == set(["1|BP"] + [f"age_grp[{lvl}]|BP" for lvl in lvls])
-
-    term = model._match_derived_terms("1|BP")[0]
-    assert term.name == "1|BP"
-
-    # All of these should find nothing
-    assert model._match_derived_terms("1|ZZZ") is None
-    assert model._match_derived_terms("ZZZ|BP") is None
-    assert model._match_derived_terms("BP") is None
-    assert model._match_derived_terms("BP") is None
 
 
 def test_categorical_term():
@@ -436,3 +456,19 @@ def test_link_match_family():
 
     for family in custom_families:
         assert link_match_family("anything", family)
+
+
+def test_constant_terms():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=10),
+            "x": np.random.choice([1], size=10),
+            "z": np.random.choice(["A"], size=10),
+        }
+    )
+
+    with pytest.raises(ValueError):
+        Model("y ~ 0 + x", data)
+
+    with pytest.raises(ValueError):
+        Model("y ~ 0 + z", data)

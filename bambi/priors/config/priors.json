@@ -1,170 +1,183 @@
 {
   "terms": {
-    "intercept": "#normal",
-    "common": "#normal",
-    "group_specific": [
-      "#normal",
-      {
+    "intercept": {
+      "dist": "#normal"
+    },
+    "common": {
+      "dist": "#normal"
+    },
+    "group_specific": {
+      "dist": "#normal",
+      "hyper": {
         "sigma": "#halfnormal"
       }
-    ],
-    "intercept_flat": "#flat",
-    "common_flat": "#flat",
-    "group_specific_flat": [
-      "#normal",
-      {
+    },
+    "intercept_flat": {
+      "dist": "#flat"
+    },
+    "common_flat": {
+      "dist": "#flat"
+    },
+    "group_specific_flat": {
+      "dist": "#normal",
+      "hyper": {
         "sigma": "#halfflat"
       }
-    ]
+    }
   },
   "families": {
     "gaussian": {
-      "dist": [
-        "#normal",
-        {
+      "dist": {
+        "dist": "#normal",
+        "args": {
           "sigma": "#halfnormal"
         }
-      ],
+      },
       "link": "identity",
       "parent": "mu"
     },
     "bernoulli": {
-      "dist": [
-        "#bernoulli",
-        {
+      "dist": {
+        "dist": "#bernoulli",
+        "args": {
           "p": "#beta"
         }
-      ],
+      },
       "link": "logit",
       "parent": "p"
     },
     "poisson": {
-      "dist": [
-        "#poisson",
-        {
+      "dist": {
+        "dist": "#poisson",
+        "args": {
           "mu": "#halfcauchy"
         }
-      ],
+      },
       "link": "log",
       "parent": "mu"
     },
     "t": {
-      "dist": [
-        "#t",
-        {
+      "dist": {
+        "dist": "#t",
+        "args": {
           "lam": "#halfcauchy"
         }
-      ],
+      },
       "link": "identity",
       "parent": "mu"
     },
     "negativebinomial": {
-      "dist": [
-        "#negativebinomial",
-        {
+      "dist": {
+        "dist": "#negativebinomial",
+        "args": {
           "alpha": "#halfcauchy"
         }
-      ],
+      },
       "link": "log",
       "parent": "mu"
     },
     "gamma": {
-      "dist": [
-        "#gamma", {
+      "dist": {
+        "dist": "#gamma",
+        "args": {
           "alpha": "#halfcauchy"
         }
-      ],
+      },
       "link": "inverse",
       "parent": "mu"
     },
     "wald": {
-      "dist": [
-        "#wald", {
+      "dist": {
+        "dist": "#wald",
+        "args": {
           "lam": "#halfcauchy"
         }
-      ],
+      },
       "link": "inverse_squared",
       "parent": "mu"
     }
   },
   "dists": {
-    "normal": [
-      "Normal",
-      {
+    "normal": {
+      "name": "Normal",
+      "args": {
         "mu": 0,
         "sigma": 1
       }
-    ],
-    "cauchy": [
-      "Cauchy",
-      {
+    },
+    "cauchy": {
+      "name": "Cauchy",
+      "args": {
         "alpha": 0,
         "beta": 1
       }
-    ],
-    "halfcauchy": [
-      "HalfCauchy",
-      {
+    },
+    "halfcauchy": {
+      "name": "HalfCauchy",
+      "args": {
         "beta": 1
       }
-    ],
-    "halfnormal": [
-      "HalfNormal",
-      {
+    },
+    "halfnormal": {
+      "name": "HalfNormal",
+      "args": {
         "sigma": 1
       }
-    ],
-    "flat": [
-      "Flat",
-      {}
-    ],
-    "halfflat": [
-      "HalfFlat",
-      {}
-    ],
-    "beta": [
-      "Beta",
-      {
+    },
+    "flat": {
+      "name": "Flat",
+      "args": {}
+    },
+    "halfflat": {
+      "name": "HalfFlat",
+      "args": {}
+    },
+    "beta": {
+      "name": "Beta",
+      "args": {
         "alpha": 1,
         "beta": 1
       }
-    ],
-    "poisson": [
-      "Poisson",
-      {
+    },
+    "poisson": {
+      "name": "Poisson",
+      "args": {
         "mu": 1
       }
-    ],
-    "t": [
-      "StudentT",
-      {
+    },
+    "t": {
+      "name": "StudentT",
+      "args": {
         "lam": 1,
         "nu": 1
       }
-    ],
-    "bernoulli": [
-      "Bernoulli",
-      {
+    },
+    "bernoulli": {
+      "name": "Bernoulli",
+      "args": {
         "p": 0.5
       }
-    ],
-    "negativebinomial": [
-      "NegativeBinomial", {
+    },
+    "negativebinomial": {
+      "name": "NegativeBinomial",
+      "args": {
         "alpha": 1,
         "mu": 1
       }
-    ],
-    "gamma": [
-      "Gamma", {
+    },
+    "gamma": {
+      "name": "Gamma",
+      "args": {
         "alpha": 2,
         "beta": 2
       }
-    ],
-    "wald": [
-      "Wald", {
+    },
+    "wald": {
+      "name": "Wald",
+      "args": {
         "mu": 1,
         "lam": 1
       }
-    ]
+    }
   }
 }

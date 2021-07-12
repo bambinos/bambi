@@ -98,7 +98,7 @@ def test_many_common_many_group_specific(crossed_data):
     crossed_data_missing.loc[1, "continuous"] = np.nan
     crossed_data_missing.loc[2, "threecats"] = np.nan
 
-    # Here I'm comparing implicit/explicit intercepts for group specific effects workY the same way.
+    # Here I'm comparing implicit/explicit intercepts for group specific effects work the same way.
     model0 = Model(
         "Y ~ continuous + dummy + threecats + (threecats|subj) + (1|item) + (0+continuous|item) + (dummy|item) + (threecats|site)",
         crossed_data_missing,
@@ -272,6 +272,12 @@ def test_cell_means_with_many_group_specific_effects(crossed_data):
     assert set(priors0) == set(priors1)
 
 
+def test_group_specific_categorical_interaction(crossed_data):
+    crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
+    model = Model("Y ~ continuous + (threecats:fourcats|site)", crossed_data)
+    model.fit(tune=10, draws=10)
+
+
 @pytest.mark.skip(reason="We are correctly handling string links only, not functions.")
 def test_logistic_regression(crossed_data):
     # Tests passing link="logit" is equivalent to using tt.nnet.sigmoid
@@ -422,7 +428,13 @@ def test_laplace():
 
 def test_prior_predictive(crossed_data):
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
-    model = Model("count ~ threecats + continuous + dummy", crossed_data, family="poisson")
+    # New default priors are too wide for this case... something to keep investigating
+    model = Model(
+        "count ~ threecats + continuous + dummy",
+        crossed_data,
+        family="poisson",
+        automatic_priors="mle",
+    )
     model.fit(tune=0, draws=2)
     pps = model.prior_predictive(draws=500)
 
@@ -432,7 +444,7 @@ def test_prior_predictive(crossed_data):
     for key, shape in zip(keys, shapes):
         assert pps.prior[key].shape == shape
 
-    assert pps.prior_predictive["count"].shape == (1, 500, 120)
+    assert pps.prior_predictive["count"].shape == (500, 120)
     assert pps.observed_data["count"].shape == (120,)
 
     pps = model.prior_predictive(draws=500, var_names=["count"])
@@ -475,3 +487,21 @@ def test_gamma_regression(dm):
     data = dm[["order", "ind_mg_dry"]]
     model = Model("ind_mg_dry ~ order", data, family="gamma", link="log")
     model.fit()
+
+
+def test_plot_priors(crossed_data):
+    model = Model("Y ~ 0 + threecats", crossed_data)
+    # Priors cannot be plotted until model is built.
+    with pytest.raises(ValueError):
+        model.plot_priors()
+    model.build()
+    model.plot_priors()
+
+
+def test_model_graph(crossed_data):
+    model = Model("Y ~ 0 + threecats", crossed_data)
+    # Graph cannot be plotted until model is built.
+    with pytest.raises(ValueError):
+        model.graph()
+    model.build()
+    model.graph()

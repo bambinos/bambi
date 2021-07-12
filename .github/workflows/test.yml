@@ -22,7 +22,7 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: conda-incubator/setup-miniconda@v2
         with:
-          channels: conda-forge,defaults
+          channels: conda-forge, defaults
           channel-priority: true
           python-version: ${{ matrix.python-version }}
           auto-update-conda: true
@@ -30,6 +30,7 @@ jobs:
       - name: Install dev environment & bambi
         shell: bash -l {0}
         run: |
+          conda install -c conda-forge python-graphviz
           conda install pip
           pip install -r requirements.txt
           pip install -r requirements-dev.txt

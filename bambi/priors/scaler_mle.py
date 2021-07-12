@@ -10,11 +10,13 @@ from scipy.special import hyp2f1
 from statsmodels.genmod.generalized_linear_model import GLM
 from statsmodels.tools.sm_exceptions import PerfectSeparationError
 
+from .priors import Prior
 
-class PriorScaler:
+
+class PriorScalerMLE:
     """Scale prior distributions parameters.
 
-    Used internally.
+    Used internally. Based on https://arxiv.org/abs/1702.01201
     """
 
     # Default is 'wide'. The wide prior sigma is sqrt(1/3) = .577 on the partial
@@ -32,7 +34,7 @@ class PriorScaler:
         else:
             self.dm = pd.DataFrame()
 
-        self.has_intercept = any(term == "Intercept" for term in self.model.terms)
+        self.has_intercept = any(term.type == "intercept" for term in self.model.terms.values())
 
         self.priors = {}
         self.mle = None
@@ -108,6 +110,13 @@ class PriorScaler:
             for j in range(1, self.taylor + 1)
         ]
         return np.array(terms).sum() ** 0.5
+
+    def scale_response(self):
+        if self.model.response.prior.auto_scale:
+            if self.model.family.name == "gaussian":
+                sigma = np.std(self.model.response.data)
+                self.model.response.prior.update(sigma=Prior("HalfStudentT", nu=4, sigma=sigma))
+            # Add cases for other families
 
     def scale_common(self, term):
         """Scale common terms, excluding intercepts."""
@@ -215,24 +224,27 @@ class PriorScaler:
             + ["group_specific"] * len(group_specific)
         )
 
+        # Scale response
+        self.scale_response()
+
         # Initialize terms in order
         for term, term_type in zip(terms, term_types):
             # Only scale priors if term or model is set to be auto scaled.
             # By default, use "wide".
-            if term.prior.scale is None:
-                # pylint: disable=protected-access
-                if not (term.prior._auto_scale and self.model.auto_scale):
-                    continue
-                term.prior.scale = "wide"
+            if not term.prior.auto_scale:
+                continue
 
-            if self.mle is None:
-                self.fit_mle()
+            if term.prior.scale is None:
+                term.prior.scale = "wide"
 
             # Convert scale names to floats
             if isinstance(term.prior.scale, str):
                 term.prior.scale = self.names[term.prior.scale]
 
-            # Scale it
+            if self.mle is None:
+                self.fit_mle()
+
+            # Scale term with the appropiate method
             getattr(self, f"scale_{term_type}")(term)
 
     def fit_mle(self):

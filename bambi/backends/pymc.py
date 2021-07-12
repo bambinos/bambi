@@ -4,8 +4,8 @@ import numpy as np
 import theano.tensor as tt
 import pymc3 as pm
 
+from bambi import version
 from bambi.priors import Prior
-import bambi.version as version
 
 from .base import BackEnd
 from .utils import probit, cloglog
@@ -55,43 +55,70 @@ class PyMC3BackEnd(BackEnd):
         self.model = pm.Model(coords=coords)
         noncentered = spec.noncentered
 
+        ## Add common effects
+        # Common effects have at most ONE coord.
+        # If ndim > 1 we're certain there's more than one column (see squeeze)
         with self.model:
             self.mu = 0.0
-            for term in spec.terms.values():
-                data = term.data
+            for term in spec.common_terms.values():
+                data = term.data.squeeze()
                 label = term.name
-                name = term.prior.name
+                dist = term.prior.name
                 args = term.prior.args
-                shape = term.data.shape[1]
-
-                if term.group_specific:
-                    # Group-specific terms always have pymc_coords, at least for the group.
+                if term.pymc_coords:
                     dims = list(term.pymc_coords.keys())
-                    coef = self.build_group_specific_distribution(
-                        name, label, noncentered, dims=dims, **args
-                    )
-                    # term.predictor.shape[1] is larger than one when the expression is a
-                    # categorical variable with more than one level.
-                    # This is not the most beautiful alternative, but it resulted to be the
-                    # fastest. Doing matrix multiplication, pm.math.dot(data, coef), is slower.
-                    coef_ = coef[term.group_index]
-                    if term.predictor.shape[1] > 1:
-                        for col in range(term.predictor.shape[1]):
-                            self.mu += coef_[:, col][:, None] * term.predictor[:, col]
-                    else:
-                        self.mu += coef_[:, None] * term.predictor
+                    coef = self.build_common_distribution(dist, label, dims=dims, **args)
                 else:
-                    if term.pymc_coords:
-                        # Common effects have at most ONE coord.
-                        dims = list(term.pymc_coords.keys())
-                        coef = self.build_common_distribution(name, label, dims=dims, **args)
-                    else:
-                        shape = () if shape == 1 else shape
-                        coef = self.build_common_distribution(name, label, shape=shape, **args)
-                    self.mu += pm.math.dot(data, coef)[:, None]
+                    shape = () if data.ndim == 1 else data.shape[1]
+                    coef = self.build_common_distribution(dist, label, shape=shape, **args)
 
-            self._build_response(spec)
-            self.spec = spec
+                if data.ndim == 1:
+                    self.mu += data * coef
+                else:
+                    self.mu += pm.math.dot(data, coef)
+
+        ## Add group-specific effects
+        # Group-specific effects always have pymc_coords. At least for the group.
+        # The loop through predictor columns is not the most beautiful alternative.
+        # But it's the fastest. Doing matrix multiplication, pm.math.dot(data, coef), is slower.
+
+        # Add group specific terms that have prior for their correlation matrix
+        with self.model:
+            for group, eta in spec.priors_cor.items():
+                # pylint: disable=protected-access
+                terms = [spec.terms[name] for name in spec._get_group_specific_groups()[group]]
+                self.mu += add_lkj(terms, eta)
+
+        # Add group specific terms that don't have a prior for their correlation matrix
+        terms = [
+            term
+            for term in spec.group_specific_terms.values()
+            if term.name.split("|")[1] not in spec.priors_cor
+        ]
+        with self.model:
+            for term in terms:
+                label = term.name
+                dist = term.prior.name
+                args = term.prior.args
+                predictor = term.predictor.squeeze()
+                dims = list(term.pymc_coords.keys())
+
+                coef = self.build_group_specific_distribution(
+                    dist, label, noncentered, dims=dims, **args
+                )
+                coef = coef[term.group_index]
+
+                if predictor.ndim > 1:
+                    for col in range(predictor.shape[1]):
+                        self.mu += coef[:, col] * predictor[:, col]
+                else:
+                    self.mu += coef * predictor
+
+        # Build response distribution
+        with self.model:
+            self.build_response(spec)
+
+        self.spec = spec
 
     # pylint: disable=arguments-differ, inconsistent-return-statements
     def run(
@@ -146,6 +173,13 @@ class PyMC3BackEnd(BackEnd):
                 getattr(idata, group).attrs["modeling_interface"] = "bambi"
                 getattr(idata, group).attrs["modeling_interface_version"] = version.__version__
 
+            # Drop variables and dimensions associated with LKJ prior
+            vars_to_drop = [var for var in idata.posterior.var() if var.startswith("_LKJ")]
+            dims_to_drop = [dim for dim in idata.posterior.dims if dim.startswith("_LKJ")]
+
+            idata.posterior = idata.posterior.drop_vars(vars_to_drop)
+            idata.posterior = idata.posterior.drop_dims(dims_to_drop)
+
             # Reorder coords
             # pylint: disable=protected-access
             coords_original = list(self.spec._get_pymc_coords().keys())
@@ -153,6 +187,7 @@ class PyMC3BackEnd(BackEnd):
             for coord in coords_group:
                 coords_original.remove(coord)
             coords_new = ["chain", "draw"] + coords_original + coords_group
+
             idata.posterior = idata.posterior.transpose(*coords_new)
 
             self.fit = True
@@ -174,7 +209,7 @@ class PyMC3BackEnd(BackEnd):
         return distribution(label, **kwargs)
 
     def build_group_specific_distribution(self, dist, label, noncentered, **kwargs):
-        """Build and return a PyMC3 Distribution."""
+        """Build and return a PyMC3 Distribution for a group specific term."""
         dist = self.get_distribution(dist)
         if "dims" in kwargs:
             group_dim = [dim for dim in kwargs["dims"] if dim.endswith("_group_expr")]
@@ -186,32 +221,16 @@ class PyMC3BackEnd(BackEnd):
             kwargs = {
                 k: self.expand_prior_args(k, v, label, noncentered) for (k, v) in kwargs.items()
             }
-
         # Non-centered parameterization for hyperpriors
         if noncentered and has_hyperprior(kwargs):
             old_sigma = kwargs["sigma"]
             _offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=kwargs["dims"])
             return pm.Deterministic(label, _offset * old_sigma, dims=kwargs["dims"])
-
         return dist(label, **kwargs)
 
-    def get_distribution(self, dist):
-        """Return a PyMC3 distribution."""
-        if isinstance(dist, str):
-            if hasattr(pm, dist):
-                dist = getattr(pm, dist)
-            elif dist in self.dists:
-                dist = self.dists[dist]
-            else:
-                raise ValueError(
-                    f"The Distribution {dist} was not found in PyMC3 or the PyMC3BackEnd."
-                )
-        return dist
-
-    def _build_response(self, spec):
+    def build_response(self, spec):
         """Build and return a response distribution."""
-
-        data = spec.response.data
+        data = spec.response.data.squeeze()
         name = spec.response.name
         prior = spec.family.prior
         link = spec.family.link
@@ -233,8 +252,21 @@ class PyMC3BackEnd(BackEnd):
 
         return dist(name, **kwargs)
 
+    def get_distribution(self, dist):
+        """Return a PyMC3 distribution."""
+        if isinstance(dist, str):
+            if hasattr(pm, dist):
+                dist = getattr(pm, dist)
+            elif dist in self.dists:
+                dist = self.dists[dist]
+            else:
+                raise ValueError(
+                    f"The Distribution {dist} was not found in PyMC3 or the PyMC3BackEnd."
+                )
+        return dist
+
     def expand_prior_args(self, key, value, label, noncentered, **kwargs):
-        # Inspect all args in case we have hyperparameters
+        # Inspect all args in case we have hyperparameters.
         # kwargs are used to pass 'dims' for group specific terms.
         if isinstance(value, Prior):
             return self.build_group_specific_distribution(
@@ -279,9 +311,92 @@ def _laplace(model):
 
 def has_hyperprior(kwargs):
     """Determines if a Prior has an hyperprior"""
-
     return (
         "sigma" in kwargs
         and "observed" not in kwargs
         and isinstance(kwargs["sigma"], pm.model.TransformedRV)
     )
+
+
+def add_lkj(terms, eta=1):
+    """Add correlated prior for group-specific effects.
+
+    This function receives a list of group-specific terms that share their `grouper`, constructs
+    a multivariate Normal prior with LKJ prior on the correlation matrix, and adds the necessary
+    variables to the model. It uses a non-centered parametrization.
+
+    Parameters
+    ----------
+    terms: list
+        A list of terms that share a common grouper (i.e. ``1|Group`` and ``Variable|Group`` in
+        formula notation).
+    eta: num
+        The value for the eta parameter in the LKJ distribution.
+
+    Parameters
+    ----------
+    mu:
+        The contribution to the linear predictor of the roup-specific terms in ``terms``.
+    """
+
+    # Parameters
+    # grouper: The name of the grouper.
+    # rows: Sum of the number of columns in all the "Xi" matrices for a given grouper.
+    #       Same than the order of L
+    # cols: Number of groups in the grouper variable
+    mu = 0
+    grouper = terms[0].name.split("|")[1]
+    rows = int(np.sum([term.predictor.shape[1] for term in terms]))
+    cols = int(terms[0].grouper.shape[1])  # not the most beautiful, but works
+
+    # Construct sigma
+    # Horizontally stack the sigma values for all the hyperpriors
+    sigma = np.hstack([term.prior.args["sigma"].args["sigma"] for term in terms])
+
+    # Reconstruct the hyperprior for the standard deviations, using one variable
+    sigma = pm.HalfNormal.dist(sigma=sigma, shape=rows)
+
+    # Obtain Cholesky factor for the covariance
+    lkj_decomp, corr, sigma = pm.LKJCholeskyCov(  # pylint: disable=unused-variable
+        "_LKJCholeskyCov_" + grouper,
+        n=rows,
+        eta=eta,
+        sd_dist=sigma,
+        compute_corr=True,
+        store_in_trace=False,
+    )
+
+    coefs_offset = pm.Normal("_LKJ_" + grouper + "_offset", mu=0, sigma=1, shape=(rows, cols))
+    coefs = tt.dot(lkj_decomp, coefs_offset).T
+
+    ## Separate group-specific terms
+    start = 0
+    for term in terms:
+        label = term.name
+        dims = list(term.pymc_coords.keys())
+        predictor = term.predictor.squeeze()
+        delta = term.predictor.shape[1]
+
+        if delta == 1:
+            idx = start
+        else:
+            idx = slice(start, start + delta)
+
+        # Add prior for the parameter
+        coef = pm.Deterministic(label, coefs[:, idx], dims=dims)
+        coef = coef[term.group_index]
+
+        # Add standard deviation of the hyperprior distribution
+        group_dim = [dim for dim in dims if dim.endswith("_group_expr")]
+        pm.Deterministic(label + "_sigma", sigma[idx], dims=group_dim)
+
+        # Account for the contribution of the term to the linear predictor
+        if predictor.ndim > 1:
+            for col in range(predictor.shape[1]):
+                mu += coef[:, col] * predictor[:, col]
+        else:
+            mu += coef * predictor
+        start += delta
+
+    # TO DO: Add correlations
+    return mu

@@ -1,4 +1,5 @@
 import json
+from multiprocessing.sharedctypes import Value
 from os.path import dirname, join
 
 import numpy as np
@@ -45,6 +46,17 @@ def test_prior_factory_init_from_default_config():
     assert "normal" in pf.dists
     assert "common" in pf.terms
     assert "gaussian" in pf.families
+
+
+def test_prior_factory_get_fail():
+    # .get() must receive only, and only one, non None argument.
+    pf = PriorFactory()
+    with pytest.raises(ValueError):
+        assert pf.get(dist="ñam", term="fri", family="frufi")
+    with pytest.raises(ValueError):
+        assert pf.get(dist="fali", term="fru")
+    with pytest.raises(ValueError):
+        assert pf.get()
 
 
 def test_prior_factory_init_from_config():
@@ -101,7 +113,6 @@ def test_auto_scale(diabetes_data):
     # By default, should scale everything except custom Prior() objects
     priors = {"S1": 0.3, "BP": Prior("Cauchy", alpha=1, beta=17.5)}
     model = Model("BMI ~ S1 + S2 + BP", diabetes_data, priors=priors)
-    model.build(backend="pymc3")
     p1 = model.terms["S1"].prior
     p2 = model.terms["S2"].prior
     p3 = model.terms["BP"].prior
@@ -111,29 +122,130 @@ def test_auto_scale(diabetes_data):
     assert p3.name == "Cauchy"
     assert p3.args["beta"] == 17.5
 
-    # With auto_scale off, everything should be flat unless explicitly named in priors
+    # With auto_scale off, custom priors are considered, but not custom scaling.
+    # Prior has no effect, and prior for BP has effect.
+    priors = {"S1": 0.3, "BP": Prior("Cauchy", alpha=1, beta=17.5)}
     model = Model("BMI ~ S1 + S2 + BP", diabetes_data, priors=priors, auto_scale=False)
-    model.build(backend="pymc3")
     p1_off = model.terms["S1"].prior
     p2_off = model.terms["S2"].prior
     p3_off = model.terms["BP"].prior
     assert p1_off.name == "Normal"
     assert p2_off.name == "Flat"
-    assert 0 < p1_off.args["sigma"] < 1
+    assert p1_off.args["sigma"] == 1
     assert "sigma" not in p2_off.args
     assert p3_off.name == "Cauchy"
-    assert p3_off.args["beta"] == 17.5
+
+
+def test_prior_str():
+    # Tests __str__ method
+    prior1 = Prior("Normal", mu=0, sigma=1)
+    prior2 = Prior("Normal", mu=0, sigma=Prior("HalfNormal", sigma=1))
+    assert str(prior1) == "Normal(mu: 0, sigma: 1)"
+    assert str(prior2) == "Normal(mu: 0, sigma: HalfNormal(sigma: 1))"
+    assert str(prior1) == repr(prior1)
+
+
+def test_prior_eq():
+    # Tests __eq__ method
+    prior1 = Prior("Normal", mu=0, sigma=1)
+    prior2 = Prior("Normal", mu=0, sigma=Prior("HalfNormal", sigma=1))
+    assert prior1 == prior1
+    assert prior2 == prior2
+    assert prior1 != prior2
+    assert prior1 != "Prior"
+
+
+def test_family_unsupported():
+    family = Family("name", "prior", "link", "parent")
+    with pytest.raises(ValueError):
+        family._set_link("Empty")
+
+
+def test_family_bad_type():
+    data = pd.DataFrame({"x": [1], "y": [1]})
+
+    with pytest.raises(ValueError):
+        Model("y ~ x", data, family=0)
+
+    with pytest.raises(ValueError):
+        Model("y ~ x", data, family=set("gaussian"))
+
+    with pytest.raises(ValueError):
+        Model("y ~ x", data, family={"family": "gaussian"})
+
+
+def test_family_unsupported_index_notation():
+    data = pd.DataFrame({"x": [1], "y": [1]})
+    with pytest.raises(ValueError):
+        Model("y[1] ~ x", data, family="gaussian")
 
 
 def test_complete_separation():
     data = pd.DataFrame({"y": [0] * 5 + [1] * 5, "g": ["a"] * 5 + ["b"] * 5})
 
     with pytest.raises(PerfectSeparationError):
-        Model("y ~ g", data, family="bernoulli").fit()
+        Model("y ~ g", data, family="bernoulli", automatic_priors="mle")
 
     # No error is raised
     priors = {"common": Prior("Normal", mu=0, sigma=10)}
-    Model("y ~ g", data, family="bernoulli", priors=priors).fit()
+    Model("y ~ g", data, family="bernoulli", priors=priors)
+
+
+def test_set_priors():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "x": np.random.normal(size=100),
+            "g": np.random.choice(["A", "B"], size=100),
+        }
+    )
+    model = Model("y ~ x + (1|g)", data)
+    prior = Prior("Uniform", lower=0, upper=50)
+
+    # Common
+    model.set_priors(common=prior)
+    assert model.terms["Intercept"].prior == prior
+    assert model.terms["x"].prior == prior
+
+    # Group-specific
+    model.set_priors(group_specific=prior)
+    assert model.terms["1|g"].prior == prior
+
+    # By name
+    model = Model("y ~ x + (1|g)", data)
+    model.set_priors(priors={"x": prior})
+    model.set_priors(priors={"1|g": prior})
+    assert model.terms["x"].prior == prior
+    assert model.terms["1|g"].prior == prior
+
+
+def test_set_prior_with_tuple():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "x": np.random.normal(size=100),
+            "z": np.random.normal(size=100),
+        }
+    )
+    prior = Prior("Uniform", lower=0, upper=50)
+    model = Model("y ~ x + z", data)
+    model.set_priors(priors={("x", "z"): prior})
+
+    assert model.terms["x"].prior == prior
+    assert model.terms["z"].prior == prior
+
+
+def test_set_prior_unexisting_term():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "x": np.random.normal(size=100),
+        }
+    )
+    prior = Prior("Uniform", lower=0, upper=50)
+    model = Model("y ~ x", data)
+    with pytest.raises(ValueError):
+        model.set_priors(priors={("x", "z"): prior})
 
 
 def test_response_prior():

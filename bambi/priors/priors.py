@@ -2,7 +2,6 @@
 import json
 import re
 
-
 from copy import deepcopy
 from os.path import dirname, join
 
@@ -73,7 +72,7 @@ class Family:
         else:
             priors_str = ",\n  ".join(
                 [
-                    f"{k}: {np.round_(v, 8)}" if not isinstance(v, Prior) else f"{k}: {v}"
+                    f"{k}: {np.round_(v, 4)}" if not isinstance(v, Prior) else f"{k}: {v}"
                     for k, v in self.prior.args.items()
                     if k not in ["observed", self.parent]
                 ]
@@ -100,7 +99,7 @@ class Prior:
 
     def __init__(self, name, scale=None, **kwargs):
         self.name = name
-        self._auto_scale = True
+        self.auto_scale = True
         self.scale = scale
         self.args = {}
         self.update(**kwargs)
@@ -132,7 +131,7 @@ class Prior:
     def __str__(self):
         args = ", ".join(
             [
-                f"{k}: {np.round_(v, 8)}" if not isinstance(v, Prior) else f"{k}: {v}"
+                f"{k}: {np.round_(v, 4)}" if not isinstance(v, Prior) else f"{k}: {v}"
                 for k, v in self.args.items()
             ]
         )
@@ -203,26 +202,32 @@ class PriorFactory:
         self.terms = defaults["terms"]
         self.families = defaults["families"]
 
-    def _get_prior(self, spec, **kwargs):
-        if isinstance(spec, str):
-            spec = re.sub(r"^\#", "", spec)
-            return self._get_prior(self.dists[spec])
-        elif isinstance(spec, (list, tuple)):
-            name, args = spec
-            if name.startswith("#"):
-                name = re.sub(r"^\#", "", name)
-                prior = self._get_prior(self.dists[name])
-            else:
-                prior = Prior(name, **kwargs)
-            args = {k: self._get_prior(v) for (k, v) in args.items()}
-            prior.update(**args)
-            return prior
-        else:
-            return spec
+    def _get_family(self, family):
+        """Returns a default prior for a family specified by name."""
+        config = self.families[family]
+        dist = config["dist"]
+        prior = self._get_dist(dist["dist"])
+        args = {k: self._get_dist(v) for (k, v) in dist["args"].items()}
+        prior.update(**args)
+        return Family(family, prior, config["link"], config["parent"])
 
-    # pylint: disable=inconsistent-return-statements
+    def _get_term(self, term):
+        config = self.terms[term]
+        prior = self._get_dist(config["dist"])
+        if "hyper" in config:
+            args = {k: self._get_dist(v) for (k, v) in config["hyper"].items()}
+            prior.update(**args)
+        return prior
+
+    def _get_dist(self, name):
+        if name.startswith("#"):
+            name = re.sub(r"^\#", "", name)
+        dist = self.dists[name]
+        return Prior(dist["name"], **dist["args"])
+
     def get(self, dist=None, term=None, family=None):
         """Retrieve default prior for a named distribution, term type, or family.
+        Only one of ``'dist'``, ``'term'`` or ``'family'`` can be passed.
 
         Parameters
         ----------
@@ -238,17 +243,28 @@ class PriorFactory:
             ``'gama'``, ``'wald'``, or ``'negativebinomial'``.
         """
 
+        # One, and only one, of 'dist', 'term' or 'family' must be set.
+        args_count = sum(arg is not None for arg in [dist, term, family])
+        if args_count == 0:
+            raise ValueError("One of 'dist', 'term' or 'family' is required.")
+        if args_count > 1:
+            raise ValueError("Only one of 'dist', 'term', and 'family' in the same call.")
+
         if dist is not None:
             if dist not in self.dists:
                 raise ValueError(f"{dist} is not a valid distribution name.")
-            return self._get_prior(self.dists[dist])
+            prior = self._get_dist(dist)
         elif term is not None:
             if term not in self.terms:
                 raise ValueError(f"{term} is not a valid term type.")
-            return self._get_prior(self.terms[term])
+            prior = self._get_term(term)
         elif family is not None:
             if family not in self.families:
                 raise ValueError(f"{family} is not a valid family name.")
-            _f = self.families[family]
-            prior = self._get_prior(_f["dist"])
-            return Family(family, prior, _f["link"], _f["parent"])
+            prior = self._get_family(family)
+
+        return prior
+
+
+# When using family, we have a distribution for the response, and another distribution
+# for at least one argument of the resposne.

@@ -1,5 +1,16 @@
 from .priors import Family
 
+FAMILY_LINKS = {
+    "gaussian": ["identity", "log", "inverse"],
+    "gamma": ["identity", "log", "inverse"],
+    "bernoulli": ["identity", "logit", "probit", "cloglog"],
+    "wald": ["inverse", "inverse_squared", "identity", "log"],
+    "negativebinomial": ["identity", "log", "cloglog"],
+    "poisson": ["identity", "log"],
+}
+
+FAMILY_PARAMS = {"gaussian": "sigma", "negativebinomial": "alpha", "gamma": "alpha"}
+
 
 def listify(obj):
     """Wrap all non-list or tuple objects in a list.
@@ -13,28 +24,37 @@ def listify(obj):
 
 
 def extract_family_prior(family, priors):
-    # Given a family and a dictionary of priors, return the prior that could be
-    # passed to update the prior of a parameter in that family.
+    """Extract priors for a given family
 
-    # Only built-in gaussian and negativebinomial have nuisance parameters
-    # i.e, parameters not related to the link-transformed predicted outcome
-    if isinstance(family, str):
-        if family == "gaussian" and "sigma" in priors:
-            return {"sigma": priors["sigma"]}
-        elif family == "negativebinomial" and "alpha" in priors:
-            return {"alpha": priors["alpha"]}
-        elif family == "gamma" and "alpha" in priors:
-            return {"alpha": priors["alpha"]}
+    If a key in the priors dictionary matches the name of a nuisance parameter of the response
+    distribution for the given family, this function extracts and returns the prior for that
+    nuisance parameter. The result of this function can be safely used to update the ``Prior`` of
+    the response term.
+
+    Parameters
+    ----------
+    family: str or ``Family``
+        The name of a built-in family or a ``Family`` instance.
+    priors: dict
+        A dictionary where keys represent parameter/term names and values represent
+        prior distributions.
+    """
+
+    if isinstance(family, str) and family in FAMILY_PARAMS:
+        name = FAMILY_PARAMS[family]
+        prior = priors.pop(name, None)
+        if prior:
+            return {name: prior}
     elif isinstance(family, Family):
         # Only work if there are nuisance parameters in the family, and if any of these nuisance
         # parameters is present in 'priors' dictionary.
         nuisance_params = [k for k in family.prior.args if k not in ["observed", family.parent]]
         if set(nuisance_params).intersection(set(priors)):
-            return {k: priors[k] for k in nuisance_params if k in priors}
+            return {k: priors.pop(k) for k in nuisance_params if k in priors}
     return None
 
 
-def link_match_family(link, family_name):  # pylint: disable= too-many-return-statements
+def link_match_family(link, family_name):
     """Checks whether the a link can be used in a given family.
 
     When this function is used with built-in family names, it tests whether the link name can be
@@ -42,17 +62,8 @@ def link_match_family(link, family_name):  # pylint: disable= too-many-return-st
     the user is working with a custom ``Family`` object.
     Which links can work with which families are taken from statsmodels.
     """
-    if family_name == "gaussian":
-        return link in ["identity", "log", "inverse"]
-    elif family_name == "gamma":
-        return link in ["identity", "log", "inverse"]
-    elif family_name == "bernoulli":
-        return link in ["identity", "logit", "probit", "cloglog"]
-    elif family_name == "wald":
-        return link in ["inverse", "inverse_squared", "identity", "log"]
-    elif family_name == "negativebinomial":
-        return link in ["identity", "log", "cloglog"]
-    elif family_name == "poisson":
-        return link in ["identity", "log"]
-    else:  # Custom family, we don't know what link functions can be used
-        return True
+    if family_name in FAMILY_LINKS:
+        return link in FAMILY_LINKS[family_name]
+
+    # Custom family, we don't know what link functions can be used
+    return True
