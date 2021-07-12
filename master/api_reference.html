@@ -276,7 +276,7 @@ methods in the current release of Bambi.</p>
 <span id="bambi-models"></span><h2><a class="reference internal" href="#module-bambi.models" title="bambi.models"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.models</span></code></a><a class="headerlink" href="#module-bambi.models" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="bambi.models.Model">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bambi.models.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">family</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gaussian'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropna</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_priors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">automatic_priors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noncentered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priors_cor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taylor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bambi.models.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">family</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gaussian'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropna</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">automatic_priors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noncentered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priors_cor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taylor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Specification of model class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -308,10 +308,6 @@ automatically dropped from the dataset in a listwise manner.</p></li>
 <li><p><strong>auto_scale</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), priors are automatically rescaled to the data
 (to be weakly informative) any time default priors are used. Note that any priors
 explicitly set by the user will always take precedence over default priors.</p></li>
-<li><p><strong>default_priors</strong> (<em>dict</em><em> or </em><em>str</em>) – An optional specification of the default priors to use for all model terms. Either a
-dictionary containing named distributions, families, and terms (see the documentation in
-<code class="docutils literal notranslate"><span class="pre">priors.PriorFactory</span></code> for details), or the name of a JSON file containing the same
-information.</p></li>
 <li><p><strong>automatic_priors</strong> (<em>str</em>) – An optional specification to compute/scale automatic priors. <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> means to use
 a method inspired on the R rstanarm library. <code class="docutils literal notranslate"><span class="pre">&quot;mle&quot;</span></code> means to use old default priors in
 Bambi that rely on maximum likelihood estimations obtained via the statsmodels library.</p></li>
@@ -514,17 +510,34 @@ to all terms named in the tuple.</p></li>
 <span id="bambi-priors"></span><h2><a class="reference internal" href="#module-bambi.priors" title="bambi.priors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.priors</span></code></a><a class="headerlink" href="#module-bambi.priors" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="bambi.priors.Family">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">Family</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/priors.html#Family"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.Family" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">Family</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">likelihood</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/family.html#Family"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.Family" title="Permalink to this definition">¶</a></dt>
 <dd><p>A specification of model family.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>) – Family name.</p></li>
-<li><p><strong>prior</strong> (<a class="reference internal" href="#bambi.priors.Prior" title="bambi.priors.Prior"><em>Prior</em></a>) – A <code class="docutils literal notranslate"><span class="pre">Prior</span></code> instance specifying the model likelihood prior.</p></li>
-<li><p><strong>link</strong> (<em>str</em>) – The name of the link function transforming the linear model prediction to a parameter of
-the likelihood.</p></li>
-<li><p><strong>parent</strong> (<em>str</em>) – The name of the prior parameter to set to the link-transformed predicted outcome
-(e.g., <code class="docutils literal notranslate"><span class="pre">'mu'</span></code>, <code class="docutils literal notranslate"><span class="pre">'p'</span></code>, etc.).</p></li>
+<li><p><strong>likelihood</strong> (<a class="reference internal" href="#bambi.priors.Likelihood" title="bambi.priors.Likelihood"><em>Likelihood</em></a>) – A <code class="docutils literal notranslate"><span class="pre">Likelihood</span></code> instace specifying the model likelihood function.</p></li>
+<li><p><strong>link</strong> (<em>str</em><em> or </em><em>function</em>) – The name of the link function, or the function itself, transforming the linear model
+prediction to the mean parameter of the likelihood. If a function, it must be able to
+operate over theano tensors rather than numpy arrays.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bambi.priors.Likelihood">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">Likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/likelihood.html#Likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.Likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Representation of a Likelihood function for a Bambi model.</p>
+<p>‘parent’ must not be in ‘kwargs’. ‘parent’ is inferred from the ‘name’ if it is a known name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the likelihood function. Must be a valid PyMC3 distribution name.</p></li>
+<li><p><strong>parent</strong> (<em>str</em>) – Optional specification of the name of the mean parameter in the likelihood.
+This is the parameter whose transformation is modeled by the linear predictor.</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments that indicate prior distributions for auxiliary parameters in the
+likelihood.</p></li>
 </ul>
 </dd>
 </dl>
@@ -532,82 +545,26 @@ the likelihood.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bambi.priors.Prior">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">Prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/priors.html#Prior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.Prior" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">Prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/prior.html#Prior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.Prior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstract specification of a term prior.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Name of prior distribution (e.g., <code class="docutils literal notranslate"><span class="pre">'Normal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Bernoulli'</span></code>, etc.)</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of prior distribution. Must be the name of a PyMC3 distribution
+(e.g., <code class="docutils literal notranslate"><span class="pre">'Normal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Bernoulli'</span></code>, etc.)</p></li>
+<li><p><strong>auto_scale</strong> (<em>bool</em>) – Whether to adjust the parameters of the prior or use them as passed. Default to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>scale</strong> (<em>num</em><em> or </em><em>str</em>) – </p></li>
 <li><p><strong>kwargs</strong> (<em>dict</em>) – Optional keywords specifying the parameters of the named distribution.</p></li>
 </ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="bambi.priors.Prior.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/priors.html#Prior.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.Prior.update" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/prior.html#Prior.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.Prior.update" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the model arguments with additional arguments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>kwargs</strong> (<em>dict</em>) – Optional keyword arguments to add to prior args.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="bambi.priors.PriorFactory">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">PriorFactory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">defaults</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">families</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/priors.html#PriorFactory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.PriorFactory" title="Permalink to this definition">¶</a></dt>
-<dd><p>An object that supports specification and easy retrieval of default priors.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>defaults</strong> (<em>str</em><em> or </em><em>dict</em>) – Optional base configuration containing default priors for distribution, families, and term
-types. If a string, the name of a JSON file containing the config. If a dict, must contain
-keys for <code class="docutils literal notranslate"><span class="pre">'dists'</span></code>, <code class="docutils literal notranslate"><span class="pre">'terms'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'families'</span></code>; see the built-in JSON configuration
-for an example. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a built-in set of priors will be used as defaults.</p></li>
-<li><p><strong>dists</strong> (<em>dict</em>) – Optional specification of named distributions to use as priors. Each key gives the name of
-a newly defined distribution; values are two-element lists, where the first element is the
-name of the built-in distribution to use (<code class="docutils literal notranslate"><span class="pre">'Normal'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Cauchy',</span></code> etc.), and the second
-element is a dictionary of parameters on that distribution
-(e.g., <code class="docutils literal notranslate"><span class="pre">{'mu':</span> <span class="pre">0,</span> <span class="pre">'sigma':</span> <span class="pre">10}</span></code>). Priors can be nested to arbitrary depths by replacing
-any parameter with another prior specification.</p></li>
-<li><p><strong>terms</strong> (<em>dict</em>) – Optional specification of default priors for different model term types. Valid keys are
-<code class="docutils literal notranslate"><span class="pre">'intercept'</span></code>, <code class="docutils literal notranslate"><span class="pre">'common'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'group_specific'</span></code>. Values are either strings preprended
-by a #, in which case they are interpreted as pointers to distributions named in
-the dists dictionary, or key -&gt; value specifications in the same format as elements in
-the dists dictionary.</p></li>
-<li><p><strong>families</strong> (<em>dict</em>) – Optional specification of default priors for named family objects. Keys are family names,
-and values are dicts containing mandatory keys for <code class="docutils literal notranslate"><span class="pre">'dist'</span></code>, <code class="docutils literal notranslate"><span class="pre">'link'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'parent'</span></code>.</p></li>
-</ul>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dists</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;my_dist&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;Normal&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;mu&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;sigma&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">}]}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pf</span> <span class="o">=</span> <span class="n">PriorFactory</span><span class="p">(</span><span class="n">dists</span><span class="o">=</span><span class="n">dists</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">families</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;normalish&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;dist&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;normal&#39;</span><span class="p">,</span> <span class="p">{</span><span class="n">sigma</span><span class="p">:</span> <span class="s1">&#39;#my_dist&#39;</span><span class="p">}],</span>
-<span class="gp">&gt;&gt;&gt; </span>            <span class="n">link</span><span class="p">:</span><span class="s1">&#39;identity&#39;</span><span class="p">,</span> <span class="n">parent</span><span class="p">:</span> <span class="s1">&#39;mu&#39;</span><span class="p">}}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pf</span> <span class="o">=</span> <span class="n">PriorFactory</span><span class="p">(</span><span class="n">dists</span><span class="o">=</span><span class="n">dists</span><span class="p">,</span> <span class="n">families</span><span class="o">=</span><span class="n">families</span><span class="p">)</span>
-</pre></div>
-</div>
-<dl class="py method">
-<dt class="sig sig-object py" id="bambi.priors.PriorFactory.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">term</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">family</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/priors.html#PriorFactory.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.PriorFactory.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Retrieve default prior for a named distribution, term type, or family.
-Only one of <code class="docutils literal notranslate"><span class="pre">'dist'</span></code>, <code class="docutils literal notranslate"><span class="pre">'term'</span></code> or <code class="docutils literal notranslate"><span class="pre">'family'</span></code> can be passed.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>dist</strong> (<em>str</em>) – Name of desired distribution. Note that the name is the key in the defaults dictionary,
-not the name of the <code class="docutils literal notranslate"><span class="pre">Distribution</span></code> object used to construct the prior.</p></li>
-<li><p><strong>term</strong> (<em>str</em>) – The type of term family to retrieve defaults for. Must be one of <code class="docutils literal notranslate"><span class="pre">'intercept'</span></code>,
-<code class="docutils literal notranslate"><span class="pre">'common'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'group_specific'</span></code>.</p></li>
-<li><p><strong>family</strong> (<em>str</em>) – The name of the <code class="docutils literal notranslate"><span class="pre">Family</span></code> to retrieve. Must be a value defined internally.
-In the default config, this is one of  <code class="docutils literal notranslate"><span class="pre">'gaussian'</span></code>, <code class="docutils literal notranslate"><span class="pre">'bernoulli'</span></code>, <code class="docutils literal notranslate"><span class="pre">'poisson'</span></code>,
-<code class="docutils literal notranslate"><span class="pre">'gama'</span></code>, <code class="docutils literal notranslate"><span class="pre">'wald'</span></code>, or <code class="docutils literal notranslate"><span class="pre">'negativebinomial'</span></code>.</p></li>
-</ul>
 </dd>
 </dl>
 </dd></dl>
