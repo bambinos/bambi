@@ -70,7 +70,8 @@ SETTINGS_FAMILIES = {
         "likelihood": {
             "name": "StudentT",
             "args": {
-                "lam": "HalfCauchy"
+                "lam": "HalfCauchy",
+                "nu": 2
             },
             "parent": "mu"
         },
@@ -90,10 +91,15 @@ SETTINGS_FAMILIES = {
 # fmt: on
 
 
-def generate_prior(name, **kwargs):
-    prior = Prior(name, **SETTINGS_DISTRIBUTIONS[name])
-    if kwargs:
-        prior.update(**{k: generate_prior(v) for k, v in kwargs.items()})
+def generate_prior(dist, **kwargs):
+    if isinstance(dist, str):
+        prior = Prior(dist, **SETTINGS_DISTRIBUTIONS[dist])
+        if kwargs:
+            prior.update(**{k: generate_prior(v) for k, v in kwargs.items()})
+    elif isinstance(dist, (int, float)):
+        prior = dist
+    else:
+        raise ValueError("'dist' must be the name of a distribution or a numeric value.")
     return prior
 
 

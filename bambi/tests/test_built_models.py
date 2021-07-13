@@ -489,6 +489,11 @@ def test_gamma_regression(dm):
     model.fit()
 
 
+def test_t_regression():
+    data = pd.DataFrame({"y": np.random.normal(size=100), "x": np.random.normal(size=100)})
+    Model("y ~ x", data, family="t").fit()
+
+
 def test_plot_priors(crossed_data):
     model = Model("Y ~ 0 + threecats", crossed_data)
     # Priors cannot be plotted until model is built.

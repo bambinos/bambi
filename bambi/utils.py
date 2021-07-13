@@ -1,15 +1,21 @@
 from .priors import Family
 
 FAMILY_LINKS = {
-    "gaussian": ["identity", "log", "inverse"],
-    "gamma": ["identity", "log", "inverse"],
     "bernoulli": ["identity", "logit", "probit", "cloglog"],
-    "wald": ["inverse", "inverse_squared", "identity", "log"],
+    "gamma": ["identity", "log", "inverse"],
+    "gaussian": ["identity", "log", "inverse"],
     "negativebinomial": ["identity", "log", "cloglog"],
     "poisson": ["identity", "log"],
+    "t": ["identity", "log", "inverse"],
+    "wald": ["inverse", "inverse_squared", "identity", "log"],
 }
 
-FAMILY_PARAMS = {"gaussian": "sigma", "negativebinomial": "alpha", "gamma": "alpha"}
+FAMILY_PARAMS = {
+    "gaussian": ("sigma",),
+    "negativebinomial": ("alpha",),
+    "gamma": ("alpha",),
+    "t": ("lam", "nu"),
+}
 
 
 def listify(obj):
@@ -39,12 +45,11 @@ def extract_family_prior(family, priors):
         A dictionary where keys represent parameter/term names and values represent
         prior distributions.
     """
-
     if isinstance(family, str) and family in FAMILY_PARAMS:
-        name = FAMILY_PARAMS[family]
-        prior = priors.pop(name, None)
-        if prior:
-            return {name: prior}
+        names = FAMILY_PARAMS[family]
+        priors = {name: priors.pop(name) for name in names if priors.get(name) is not None}
+        if priors:
+            return priors
     elif isinstance(family, Family):
         # Only work if there are nuisance parameters in the family, and if any of these nuisance
         # parameters is present in 'priors' dictionary.

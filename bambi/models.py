@@ -374,7 +374,8 @@ class Model:
         # Update auxiliary parameters
         if priors:
             for prior in priors.values():
-                prior.auto_scale = False
+                if isinstance(prior, Prior):
+                    prior.auto_scale = False
             family.likelihood.priors.update(priors)
 
         if response.refclass is not None and family.name != "bernoulli":
