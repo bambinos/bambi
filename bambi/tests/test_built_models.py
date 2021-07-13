@@ -498,6 +498,11 @@ def test_beta_regression():
     idata = model.fit(target_accept=0.9)
 
 
+def test_t_regression():
+    data = pd.DataFrame({"y": np.random.normal(size=100), "x": np.random.normal(size=100)})
+    Model("y ~ x", data, family="t").fit()
+
+
 def test_plot_priors(crossed_data):
     model = Model("Y ~ 0 + threecats", crossed_data)
     # Priors cannot be plotted until model is built.
