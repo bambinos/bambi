@@ -38,6 +38,8 @@ suggestion-mode=yes
 # active Python interpreter and may run arbitrary code.
 unsafe-load-any-extension=no
 
+# Scipy.special functions are written in C and not accessible by pylint
+--ignored-modules=scipy.special
 
 [MESSAGES CONTROL]
 

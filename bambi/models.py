@@ -688,6 +688,74 @@ class Model:
         else:
             return idata
 
+    # pylint: disable=protected-access
+    def predict(self, idata, kind="mean", scale="response", data=None):
+        """Predict method for Bambi models
+
+        Obtains in-sample and out-sample predictions from a fitted Bambi model.
+
+
+        Parameters
+        ----------
+        idata : InfereceData
+            ``InfereceData`` with samples from the posterior distribution.
+        kind: str
+            Indicates the type of prediction required. Can be ``"mean"`` or ``"distribution"``. The
+            first returns predictions for the mean, while the latter returns the whole posterior
+            distribution. Defaults to ``"mean"``.
+        scale: str
+            Indicates the scale of the predictions. ``"response"`` indicates the predictions are
+            on the scale of the response variable (e.g. probabilites for ``"bernoulli"`` family)
+            and ``"link"`` means the predictions are on the scale of the linear predictors
+            (e.g. log-odds for ``"bernoulli"`` family).
+        data: pd.DataFrame or None
+            An optional data frame in which to look for variables with which to predict.
+            If omitted, the fitted linear predictors are used.
+
+        Returns
+        -------
+        np.ndarray
+            A NumPy array with predictions. The length of the first dimension is given by the number
+            of observations in the dataset used for the prediction. A second dimension is present
+            when ``kind=="distribution"`` and its lenght is equal to the number of draws from the
+            posterior.
+        """
+
+        if kind not in ["mean", "distribution"]:
+            raise ValueError("'kind' must be one of 'mean' or 'distribution'")
+
+        if scale not in ["response", "link"]:
+            raise ValueError("'scale' must be one of 'response' or 'link'")
+
+        posterior = idata.posterior.stack(sample=["chain", "draw"])
+        linear_predictor = 0
+
+        if self._design.common:
+            if data is None:
+                matrix = self._design.common.design_matrix
+            else:
+                matrix = self._design.common._evaluate_new_data(data).design_matrix
+            beta = np.vstack([np.atleast_2d(posterior[name]) for name in self.common_terms])
+            linear_predictor += np.dot(matrix, beta)
+
+        if self._design.group:
+            if data is None:
+                matrix = self._design.group.design_matrix
+            else:
+                matrix = self._design.group._evaluate_new_data(data).design_matrix
+            beta = np.vstack([np.atleast_2d(posterior[name]) for name in self.group_specific_terms])
+            linear_predictor += np.dot(matrix, beta)
+
+        if scale == "response":
+            predictions = self.family._link(linear_predictor)
+        else:
+            predictions = linear_predictor
+
+        if kind == "mean":
+            predictions = predictions.mean(1)
+
+        return predictions
+
     def graph(self, formatting="plain", name=None, figsize=None, dpi=300, fmt="png"):
         """
         Produce a graphviz Digraph from a Bambi model.

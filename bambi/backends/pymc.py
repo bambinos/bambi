@@ -18,13 +18,13 @@ class PyMC3BackEnd(BackEnd):
 
     # Available link functions
     links = {
+        "cloglog": cloglog,
         "identity": lambda x: x,
+        "inverse_squared": lambda x: tt.inv(tt.sqrt(x)),
+        "inverse": tt.inv,
+        "log": tt.exp,
         "logit": tt.nnet.sigmoid,
         "probit": probit,
-        "cloglog": cloglog,
-        "inverse": tt.inv,
-        "inverse_squared": lambda x: tt.inv(tt.sqrt(x)),
-        "log": tt.exp,
     }
 
     dists = {"HalfFlat": pm.Bound(pm.Flat, lower=0)}

@@ -1,3 +1,6 @@
+import numpy as np
+
+from scipy import special
 from statsmodels.genmod import families as sm_families
 
 STATSMODELS_FAMILIES = {
@@ -20,6 +23,34 @@ STATSMODELS_LINKS = {
 }
 
 
+def cloglog(x):
+    """Cloglog function that ensures result is in (0, 1)"""
+    result = 1 - np.exp(-np.exp(x))
+    result = force_within_unit_interval(result)
+    return result
+
+
+def probit(x):
+    """Probit function that ensures result is in (0, 1)"""
+    result = 0.5 + 0.5 * special.erf(x / 2 ** 0.5)
+    result = force_within_unit_interval(result)
+    return result
+
+
+def expit(x):
+    """Expit function that ensures result is in (0, 1)"""
+    result = special.expit(x)
+    result = force_within_unit_interval(result)
+    return result
+
+
+def force_within_unit_interval(x):
+    eps = np.finfo(float).eps
+    x[x == 0] = eps
+    x[x == 1] = 1 - eps
+    return x
+
+
 class Family:
     """A specification of model family.
 
@@ -35,14 +66,24 @@ class Family:
         operate over theano tensors rather than numpy arrays.
     """
 
-    LINKS = ("identity", "log", "logit", "probit", "cloglog", "inverse", "inverse_squared")
+    LINKS = {
+        "cloglog": cloglog,
+        "identity": lambda x: x,
+        "inverse_squared": lambda x: 1 / np.sqrt(x),
+        "inverse": lambda x: 1 / x,
+        "log": np.exp,
+        "logit": expit,
+        "probit": probit,
+    }
 
     def __init__(self, name, likelihood, link):
         self.smlink = None
+        self.link = None
+        self._link = None
         self.name = name
         self.likelihood = likelihood
-        self.link = link
         self.smfamily = STATSMODELS_FAMILIES.get(name, None)
+        self._set_link(link)
 
     def _set_link(self, link):
         """Set new link function.
@@ -53,6 +94,7 @@ class Family:
         if isinstance(link, str):
             if link in self.LINKS:
                 self.link = link
+                self._link = self.LINKS[link]
                 self.smlink = STATSMODELS_LINKS.get(link, None)
             else:
                 raise ValueError(f"Link name '{link}' is not supported.")
@@ -61,6 +103,7 @@ class Family:
         # 'tt.nnet.sigmoid'. These return False for inspect.isfunction().
         elif callable(link):
             self.link = link
+            self._link = link
         else:
             raise ValueError("'link' must be a string or a function.")
 
