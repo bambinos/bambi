@@ -489,6 +489,15 @@ def test_gamma_regression(dm):
     model.fit()
 
 
+def test_beta_regression():
+    from os.path import dirname, join
+
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "gasoline.csv"))
+    model = Model("yield ~  temp + batch", data, family="beta", categorical="batch")
+    idata = model.fit(target_accept=0.9)
+
+
 def test_t_regression():
     data = pd.DataFrame({"y": np.random.normal(size=100), "x": np.random.normal(size=100)})
     Model("y ~ x", data, family="t").fit()

@@ -19,12 +19,23 @@ SETTINGS_DISTRIBUTIONS = {
 }
 
 # fmt: off
+# Beta: it asks for kappa, then we do alpha = mu*kappa, beta= (1-mu)*kappa
 SETTINGS_FAMILIES = {
     "bernoulli": {
         "likelihood": {
             "name": "Bernoulli",
             "args": {},
             "parent": "p"
+        },
+        "link": "logit"
+    },
+    "beta": {
+        "likelihood": {
+            "name": "Beta",
+            "args": {
+                "kappa": "HalfCauchy"
+            },
+            "parent": "mu"
         },
         "link": "logit"
     },
