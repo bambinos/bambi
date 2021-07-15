@@ -674,6 +674,7 @@ class Model:
 
         if not inplace:
             idata = deepcopy(idata)
+
         if "posterior_predictive" in idata:
             del idata.posterior_predictive
 
@@ -689,7 +690,7 @@ class Model:
             return idata
 
     # pylint: disable=protected-access
-    def predict(self, idata, kind="mean", data=None):
+    def predict(self, idata, kind="mean", data=None, draws=None, inplace=True):
         """Predict method for Bambi models
 
         Obtains in-sample and out-sample predictions from a fitted Bambi model.
@@ -706,6 +707,14 @@ class Model:
         data: pd.DataFrame or None
             An optional data frame in which to look for variables with which to predict.
             If omitted, the fitted linear predictors are used.
+        draws: None
+            The number of random draws. Not recommended unless more than ndraws times nchains
+            posterior predictive samples are needed. Defaults to ``None`` which means ndraws times
+            nchains.
+        inplace: bool
+            If ``True`` it will add a ``posterior_predictive`` group to idata, otherwise it will
+            return a copy of idata with the added group. If ``True`` and idata already have a
+            ``posterior_predictive`` group it will be overwritten.
 
         Returns
         -------
@@ -722,32 +731,66 @@ class Model:
 
         posterior = idata.posterior.stack(sample=["chain", "draw"])
 
+        if draws is None:
+            draws = len(posterior["sample"])
+
+        if not inplace:
+            idata = deepcopy(idata)
+
+        in_sample = data is None
+
+        # Create design matrices
         if self._design.common:
-            if data is None:
+            if in_sample:
                 X = self._design.common.design_matrix
             else:
                 X = self._design.common._evaluate_new_data(data).design_matrix
 
         if self._design.group:
-            if data is None:
+            if in_sample:
                 Z = self._design.group.design_matrix
             else:
                 Z = self._design.group._evaluate_new_data(data).design_matrix
 
-        if kind == "mean":
-            if X is not None:
-                b = np.vstack([np.atleast_2d(posterior[name]) for name in self.common_terms])
-                linear_predictor += np.dot(X, b)
-            if Z is not None:
-                b = np.vstack(
-                    [np.atleast_2d(posterior[name]) for name in self.group_specific_terms]
-                )
-                linear_predictor += np.dot(Z, b)
-            predictions = self.family.link.linkinv(linear_predictor)
-        else:
-            raise ValueError("Not available yet")
+        # Obtain posterior and compute linear predictoi
+        if X is not None:
+            beta_x = np.vstack([np.atleast_2d(posterior[name]) for name in self.common_terms])
+            linear_predictor += np.dot(X, beta_x)
+        if Z is not None:
+            beta_z = np.vstack(
+                [np.atleast_2d(posterior[name]) for name in self.group_specific_terms]
+            )
+            linear_predictor += np.dot(Z, beta_z)
 
-        return predictions
+        # Compute mean prediction
+        # Transposed so it is (chain=1, draws)
+        mu = self.family.link.linkinv(linear_predictor).T
+
+        # Predictions for the mean
+        if kind == "mean":
+            name = self.response.name + "_mean"
+            if "predictions" in idata:
+                del idata.predictions
+
+            # Array of shape (chain, draws, obs), and chain = 1.
+            idata.add_groups({"predictions": {name: mu[np.newaxis]}})
+
+        # Compute posterior predictive distribution
+        else:
+            # Sample mu values and auxiliary params
+            pps = posterior_predictive(self, posterior, mu, draws)
+
+            if "posterior_predictive" in idata:
+                del idata.posterior_predictive
+
+            idata.add_groups({"posterior_predictive": {self.response.name: pps[np.newaxis]}})
+            getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
+            getattr(idata, "posterior_predictive").attrs["modeling_interface_version"] = __version__
+
+        if inplace:
+            return None
+        else:
+            return idata
 
     def graph(self, formatting="plain", name=None, figsize=None, dpi=300, fmt="png"):
         """
@@ -863,3 +906,31 @@ class Model:
     def group_specific_terms(self):
         """Return dict of all and only group specific effects in model."""
         return {k: v for (k, v) in self.terms.items() if v.group_specific}
+
+
+def posterior_predictive(model, posterior, mu, draws):
+    idxs = np.random.randint(low=0, high=draws, size=draws)
+    mu = mu[idxs, :]
+
+    family_name = model.family.name
+    if family_name == "bernoulli":
+        pps = np.random.binomial(n=1, p=mu)
+    elif family_name == "gamma":
+        alpha = posterior[model.response.name + "_alpha"].values[idxs][:, None]
+        beta = alpha / mu
+        pps = np.random.gamma(alpha, 1 / beta)
+    elif family_name == "gaussian":
+        sigma = posterior[model.response.name + "_sigma"].values[idxs][:, None]
+        pps = np.random.normal(mu, sigma)
+    elif family_name == "wald":
+        lam = posterior[model.response.name + "_lam"].values[idxs][:, None]
+        pps = np.random.wald(mean=mu, scale=lam)
+    elif family_name == "negativebinomial":
+        n = posterior[model.response.name + "_alpha"].values[idxs][:, None]
+        p = n / (mu + n)
+        pps = np.random.negative_binomial(n, p)
+    elif family_name == "poisson":
+        pps = np.random.poisson(mu)
+    else:
+        raise ValueError("Oh no! :(")
+    return pps

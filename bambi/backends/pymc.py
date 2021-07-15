@@ -269,9 +269,7 @@ class PyMC3BackEnd(BackEnd):
             if hasattr(pm, dist):
                 dist = getattr(pm, dist)
             else:
-                raise ValueError(
-                    f"The Distribution {dist} was not found in PyMC3 or the PyMC3BackEnd."
-                )
+                raise ValueError(f"The Distribution '{dist}' was not found in PyMC3")
         return dist
 
     def expand_prior_args(self, key, value, label, noncentered, **kwargs):
