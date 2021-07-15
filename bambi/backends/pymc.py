@@ -16,8 +16,8 @@ _log = logging.getLogger("bambi")
 class PyMC3BackEnd(BackEnd):
     """PyMC3 model-fitting backend."""
 
-    # Available link functions
-    links = {
+    # Available inverse link functions
+    INVLINKS = {
         "cloglog": cloglog,
         "identity": lambda x: x,
         "inverse_squared": lambda x: tt.inv(tt.sqrt(x)),
@@ -231,13 +231,15 @@ class PyMC3BackEnd(BackEnd):
         """Build and return a response distribution."""
         data = spec.response.data.squeeze()
         name = spec.response.name
-        link = spec.family.link
-        if isinstance(link, str):
-            link = self.links[link]
+
+        if spec.family.link.name in self.INVLINKS:
+            linkinv = self.INVLINKS[spec.family.link.name]
+        else:
+            linkinv = spec.family.link.linkinv_backend
 
         likelihood = spec.family.likelihood
         dist = self.get_distribution(likelihood.name)
-        kwargs = {likelihood.parent: link(self.mu), "observed": data}
+        kwargs = {likelihood.parent: linkinv(self.mu), "observed": data}
         if likelihood.priors:
             kwargs.update(
                 {

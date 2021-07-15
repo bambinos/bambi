@@ -641,10 +641,10 @@ class Model:
         idata : InfereceData
             ``InfereceData`` with samples from the posterior distribution.
         draws : int
-            Number of draws to sample from the prior predictive distribution. Defaults to 500.
+            Number of draws to sample from the posterior predictive distribution. Defaults to 500.
         var_names : str or list
             A list of names of variables for which to compute the posterior predictive
-            distribution. Defaults to both observed and unobserved RVs.
+            distribution. Defaults to observed RVs.
         inplace : bool
             If ``True`` it will add a ``posterior_predictive`` group to idata, otherwise it will
             return a copy of idata with the added group. If ``True`` and idata already have a
@@ -689,25 +689,20 @@ class Model:
             return idata
 
     # pylint: disable=protected-access
-    def predict(self, idata, kind="mean", scale="response", data=None):
+    def predict(self, idata, kind="mean", data=None):
         """Predict method for Bambi models
 
         Obtains in-sample and out-sample predictions from a fitted Bambi model.
-
 
         Parameters
         ----------
         idata : InfereceData
             ``InfereceData`` with samples from the posterior distribution.
         kind: str
-            Indicates the type of prediction required. Can be ``"mean"`` or ``"distribution"``. The
-            first returns predictions for the mean, while the latter returns the whole posterior
-            distribution. Defaults to ``"mean"``.
-        scale: str
-            Indicates the scale of the predictions. ``"response"`` indicates the predictions are
-            on the scale of the response variable (e.g. probabilites for ``"bernoulli"`` family)
-            and ``"link"`` means the predictions are on the scale of the linear predictors
-            (e.g. log-odds for ``"bernoulli"`` family).
+            Indicates the type of prediction required. Can be ``"mean"`` or ``"pps"``. The
+            first returns posterior distribution of the mean, while the latter returns the posterior
+            predictive distribution (i.e. the posterior probability distribution for a new
+            observation). Defaults to ``"mean"``.
         data: pd.DataFrame or None
             An optional data frame in which to look for variables with which to predict.
             If omitted, the fitted linear predictors are used.
@@ -715,44 +710,42 @@ class Model:
         Returns
         -------
         np.ndarray
-            A NumPy array with predictions. The length of the first dimension is given by the number
-            of observations in the dataset used for the prediction. A second dimension is present
-            when ``kind=="distribution"`` and its lenght is equal to the number of draws from the
-            posterior.
+            A NumPy array with predictions.
         """
 
-        if kind not in ["mean", "distribution"]:
-            raise ValueError("'kind' must be one of 'mean' or 'distribution'")
+        if kind not in ["mean", "pps"]:
+            raise ValueError("'kind' must be one of 'mean' or 'pps'")
 
-        if scale not in ["response", "link"]:
-            raise ValueError("'scale' must be one of 'response' or 'link'")
+        linear_predictor = 0
+        X = None
+        Z = None
 
         posterior = idata.posterior.stack(sample=["chain", "draw"])
-        linear_predictor = 0
 
         if self._design.common:
             if data is None:
-                matrix = self._design.common.design_matrix
+                X = self._design.common.design_matrix
             else:
-                matrix = self._design.common._evaluate_new_data(data).design_matrix
-            beta = np.vstack([np.atleast_2d(posterior[name]) for name in self.common_terms])
-            linear_predictor += np.dot(matrix, beta)
+                X = self._design.common._evaluate_new_data(data).design_matrix
 
         if self._design.group:
             if data is None:
-                matrix = self._design.group.design_matrix
+                Z = self._design.group.design_matrix
             else:
-                matrix = self._design.group._evaluate_new_data(data).design_matrix
-            beta = np.vstack([np.atleast_2d(posterior[name]) for name in self.group_specific_terms])
-            linear_predictor += np.dot(matrix, beta)
-
-        if scale == "response":
-            predictions = self.family._link(linear_predictor)
-        else:
-            predictions = linear_predictor
+                Z = self._design.group._evaluate_new_data(data).design_matrix
 
         if kind == "mean":
-            predictions = predictions.mean(1)
+            if X is not None:
+                b = np.vstack([np.atleast_2d(posterior[name]) for name in self.common_terms])
+                linear_predictor += np.dot(X, b)
+            if Z is not None:
+                b = np.vstack(
+                    [np.atleast_2d(posterior[name]) for name in self.group_specific_terms]
+                )
+                linear_predictor += np.dot(Z, b)
+            predictions = self.family.link.linkinv(linear_predictor)
+        else:
+            raise ValueError("Not available yet")
 
         return predictions
 
@@ -839,7 +832,7 @@ class Model:
         str_list = [
             f"Formula: {self.formula}",
             f"Family name: {self.family.name.capitalize()}",
-            f"Link: {self.family.link}",
+            f"Link: {self.family.link_name}",
             f"Observations: {self.response.data.shape[0]}",
             "Priors:",
             priors,
