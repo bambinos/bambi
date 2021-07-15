@@ -27,8 +27,6 @@ class PyMC3BackEnd(BackEnd):
         "probit": probit,
     }
 
-    dists = {"HalfFlat": pm.Bound(pm.Flat, lower=0)}
-
     def __init__(self):
         self.name = pm.__name__
         self.version = pm.__version__
@@ -270,8 +268,6 @@ class PyMC3BackEnd(BackEnd):
         if isinstance(dist, str):
             if hasattr(pm, dist):
                 dist = getattr(pm, dist)
-            elif dist in self.dists:
-                dist = self.dists[dist]
             else:
                 raise ValueError(
                     f"The Distribution {dist} was not found in PyMC3 or the PyMC3BackEnd."
