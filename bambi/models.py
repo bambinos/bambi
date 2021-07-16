@@ -777,12 +777,12 @@ class Model:
             name = self.response.name + "_mean"
             coord_name = name + "_dim_0"
             idata.posterior[name] = (("chain", "draw", coord_name), mu)
-            idata = idata.posterior.assign_coords({coord_name: list(range(obs_n))})
+            idata.posterior = idata.posterior.assign_coords({coord_name: list(range(obs_n))})
 
         # Compute posterior predictive distribution
         else:
             # Sample mu values and auxiliary params
-            pps = posterior_predictive(self, idata.posterior, mu, draws)
+            pps = self.family.likelihood.pps(self, idata.posterior, mu, draws)
 
             if "posterior_predictive" in idata:
                 del idata.posterior_predictive
@@ -879,7 +879,7 @@ class Model:
         str_list = [
             f"Formula: {self.formula}",
             f"Family name: {self.family.name.capitalize()}",
-            f"Link: {self.family.link_name}",
+            f"Link: {self.family.link.name}",
             f"Observations: {self.response.data.shape[0]}",
             "Priors:",
             priors,
@@ -910,33 +910,3 @@ class Model:
     def group_specific_terms(self):
         """Return dict of all and only group specific effects in model."""
         return {k: v for (k, v) in self.terms.items() if v.group_specific}
-
-
-def posterior_predictive(model, posterior, mu, draws):
-    idxs = np.random.randint(low=0, high=draws, size=draws)
-    mu = mu[:, idxs, :]
-
-    family_name = model.family.name
-    if family_name == "bernoulli":
-        pps = np.random.binomial(n=1, p=mu)
-    elif family_name == "gamma":
-        alpha = posterior[model.response.name + "_alpha"].values[:, idxs, np.newaxis]
-        beta = alpha / mu
-        pps = np.random.gamma(alpha, 1 / beta)
-    elif family_name == "gaussian":
-        sigma = posterior[model.response.name + "_sigma"].values[:, idxs, np.newaxis]
-        pps = np.random.normal(mu, sigma)
-    elif family_name == "wald":
-        lam = posterior[model.response.name + "_lam"].values[:, idxs, np.newaxis]
-        pps = np.random.wald(mean=mu, scale=lam)
-    elif family_name == "negativebinomial":
-        n = posterior[model.response.name + "_alpha"].values[:, idxs, np.newaxis]
-        p = n / (mu + n)
-        print(n.shape)
-        print(p.shape)
-        pps = np.random.negative_binomial(n, p)
-    elif family_name == "poisson":
-        pps = np.random.poisson(mu)
-    else:
-        raise ValueError(f"Posterior predictive not available for family {family_name}")
-    return pps

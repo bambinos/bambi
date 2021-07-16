@@ -70,14 +70,11 @@ class Family:
             raise ValueError("'link' must be a string or a Link instance.")
 
     def __str__(self):
-        if self.link is None:
-            msg = "No family set"
-        else:
-            msg_list = [f"Response distribution: {self.likelihood.name}", f"Link: {self.link.name}"]
-            if self.likelihood.priors:
-                priors_msg = "\n  ".join([f"{k} ~ {v}" for k, v in self.likelihood.priors.items()])
-                msg_list += [f"Priors:\n  {priors_msg}"]
-            msg = "\n".join(msg_list)
+        msg_list = [f"Response distribution: {self.likelihood.name}", f"Link: {self.link.name}"]
+        if self.likelihood.priors:
+            priors_msg = "\n  ".join([f"{k} ~ {v}" for k, v in self.likelihood.priors.items()])
+            msg_list += [f"Priors:\n  {priors_msg}"]
+        msg = "\n".join(msg_list)
         return msg
 
     def __repr__(self):
