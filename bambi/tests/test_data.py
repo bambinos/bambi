@@ -1,5 +1,4 @@
 import os
-from collections import namedtuple
 from urllib.parse import urlunsplit
 
 import pandas as pd
@@ -14,8 +13,8 @@ def no_remote_data(monkeypatch, tmpdir):
     """Run tests without relying on remote data"""
 
     filename = os.path.join(str(tmpdir), os.path.basename("test_remote.csv"))
-    with open(filename, 'w') as fd:
-        fd.write("x,y\n0,1")
+    with open(filename, "w") as fdo:
+        fdo.write("x,y\n0,1")
     url = urlunsplit(("file", "", filename, "", ""))
 
     monkeypatch.setitem(
@@ -46,7 +45,7 @@ def test_clear_data_home():
 
 def test_load_data():
     df = load_data("test_remote")
-    df_ = pd.DataFrame({"x":[0], "y":[1]})
+    df_ = pd.DataFrame({"x": [0], "y": [1]})
     assert df.equals(df_)
 
 
@@ -65,7 +64,5 @@ def test_missing_dataset():
 def test_list_datasets():
     dataset_string = load_data()
     # make sure all the names of the data sets are in the dataset description
-    for key in (
-        "my_data",
-    ):
+    for key in ("my_data",):
         assert key in dataset_string

@@ -113,7 +113,8 @@ def load_data(dataset=None, data_home=None):
             return _list_datasets(home_dir)
         else:
             raise ValueError(
-                f"Dataset {dataset} not found! The following are available:\n{_list_datasets(home_dir)}"
+                f"Dataset {dataset} not found! "
+                f"The following are available:\n{_list_datasets(home_dir)}"
             )
 
 
@@ -123,9 +124,9 @@ def _list_datasets(home_dir):
     for filename, resource in itertools.chain(DATASETS.items()):
         file_path = os.path.join(home_dir, filename)
         if not os.path.exists(file_path):
-            location = f"remote: {resource.url}"
+            location = f"location: {resource.url}"
         else:
-            location = f"local: {file_path}"
+            location = f"location: {file_path}"
         lines.append(f"{filename}\n{'=' * len(filename)}\n{resource.description}\n{location}")
 
     return f"\n\n{10 * '-'}\n\n".join(lines)
