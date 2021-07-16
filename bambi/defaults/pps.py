@@ -5,14 +5,14 @@ import numpy as np
 from scipy import stats
 
 
-def _get_mu_and_idxs(mu, draws): #pylint: disable=unused-argument
+def _get_mu_and_idxs(mu, draws):  # pylint: disable=unused-argument
     # mu has shape (chain, draw, obs)
     idxs = np.random.randint(low=0, high=draws, size=draws)
     mu = mu[:, idxs, :]
     return mu, idxs
 
 
-def pps_bernoulli(model, posterior, mu, draws): #pylint: disable=unused-argument
+def pps_bernoulli(model, posterior, mu, draws):  # pylint: disable=unused-argument
     mu, _ = _get_mu_and_idxs(mu, draws)
     return np.random.binomial(1, mu)
 
@@ -45,7 +45,7 @@ def pps_negativebinomial(model, posterior, mu, draws):
     return np.random.negative_binomial(n, p)
 
 
-def pps_poisson(model, posterior, mu, draws): #pylint: disable=unused-argument
+def pps_poisson(model, posterior, mu, draws):  # pylint: disable=unused-argument
     mu, _ = _get_mu_and_idxs(mu, draws)
     return np.random.poisson(mu)
 

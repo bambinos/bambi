@@ -123,9 +123,9 @@ def generate_prior(dist, **kwargs):
     return prior
 
 
-def generate_likelihood(name, args, parent, pps_):
+def generate_likelihood(name, args, parent, pps):  # pylint: disable=redefined-outer-name
     priors = {k: generate_prior(v) for k, v in args.items()}
-    return Likelihood(name, parent, pps_, **priors)
+    return Likelihood(name, parent, pps, **priors)
 
 
 def generate_family(name, likelihood, link):
