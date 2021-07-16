@@ -638,8 +638,8 @@ class Model:
 
         Parameters
         ----------
-        idata : InfereceData
-            ``InfereceData`` with samples from the posterior distribution.
+        idata : InferenceData
+            ``InferenceData`` with samples from the posterior distribution.
         draws : int
             Number of draws to sample from the posterior predictive distribution. Defaults to 500.
         var_names : str or list
@@ -697,8 +697,8 @@ class Model:
 
         Parameters
         ----------
-        idata : InfereceData
-            ``InfereceData`` with samples from the posterior distribution.
+        idata : InferenceData
+            ``InferenceData`` with samples from the posterior distribution.
         kind: str
             Indicates the type of prediction required. Can be ``"mean"`` or ``"pps"``. The
             first returns posterior distribution of the mean, while the latter returns the posterior
@@ -708,9 +708,9 @@ class Model:
             An optional data frame in which to look for variables with which to predict.
             If omitted, the fitted linear predictors are used.
         draws: None
-            The number of random draws. Not recommended unless more than ndraws times nchains
-            posterior predictive samples are needed. Defaults to ``None`` which means ndraws times
-            nchains.
+            The number of random draws per chain. Only used if ``kind="pps"``. Not recommended
+            unless more than ndraws times nchains posterior predictive samples are needed.
+            Defaults to ``None`` which means ndraws times nchains.
         inplace: bool
             If ``True`` it will add a ``posterior_predictive`` group to idata, otherwise it will
             return a copy of idata with the added group. If ``True`` and idata already have a
@@ -729,10 +729,12 @@ class Model:
         X = None
         Z = None
 
+        chain_n = len(idata.posterior["chain"])
+        draw_n = len(idata.posterior["draw"])
         posterior = idata.posterior.stack(sample=["chain", "draw"])
 
         if draws is None:
-            draws = len(posterior["sample"])
+            draws = draw_n
 
         if not inplace:
             idata = deepcopy(idata)
@@ -752,7 +754,7 @@ class Model:
             else:
                 Z = self._design.group._evaluate_new_data(data).design_matrix
 
-        # Obtain posterior and compute linear predictoi
+        # Obtain posterior and compute linear predictor
         if X is not None:
             beta_x = np.vstack([np.atleast_2d(posterior[name]) for name in self.common_terms])
             linear_predictor += np.dot(X, beta_x)
@@ -763,27 +765,29 @@ class Model:
             linear_predictor += np.dot(Z, beta_z)
 
         # Compute mean prediction
-        # Transposed so it is (chain=1, draws)
+        # Transposed so it is (chain, draws)?
         mu = self.family.link.linkinv(linear_predictor).T
+
+        # Reshape mu
+        obs_n = mu.size // (chain_n * draw_n)
+        mu = mu.reshape((chain_n, draw_n, obs_n))
 
         # Predictions for the mean
         if kind == "mean":
             name = self.response.name + "_mean"
-            if "predictions" in idata:
-                del idata.predictions
-
-            # Array of shape (chain, draws, obs), and chain = 1.
-            idata.add_groups({"predictions": {name: mu[np.newaxis]}})
+            coord_name = name + "_dim_0"
+            idata.posterior[name] = (("chain", "draw", coord_name), mu)
+            idata = idata.posterior.assign_coords({coord_name: list(range(obs_n))})
 
         # Compute posterior predictive distribution
         else:
             # Sample mu values and auxiliary params
-            pps = posterior_predictive(self, posterior, mu, draws)
+            pps = posterior_predictive(self, idata.posterior, mu, draws)
 
             if "posterior_predictive" in idata:
                 del idata.posterior_predictive
 
-            idata.add_groups({"posterior_predictive": {self.response.name: pps[np.newaxis]}})
+            idata.add_groups({"posterior_predictive": {self.response.name: pps}})
             getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
             getattr(idata, "posterior_predictive").attrs["modeling_interface_version"] = __version__
 
@@ -910,27 +914,29 @@ class Model:
 
 def posterior_predictive(model, posterior, mu, draws):
     idxs = np.random.randint(low=0, high=draws, size=draws)
-    mu = mu[idxs, :]
+    mu = mu[:, idxs, :]
 
     family_name = model.family.name
     if family_name == "bernoulli":
         pps = np.random.binomial(n=1, p=mu)
     elif family_name == "gamma":
-        alpha = posterior[model.response.name + "_alpha"].values[idxs][:, None]
+        alpha = posterior[model.response.name + "_alpha"].values[:, idxs, np.newaxis]
         beta = alpha / mu
         pps = np.random.gamma(alpha, 1 / beta)
     elif family_name == "gaussian":
-        sigma = posterior[model.response.name + "_sigma"].values[idxs][:, None]
+        sigma = posterior[model.response.name + "_sigma"].values[:, idxs, np.newaxis]
         pps = np.random.normal(mu, sigma)
     elif family_name == "wald":
-        lam = posterior[model.response.name + "_lam"].values[idxs][:, None]
+        lam = posterior[model.response.name + "_lam"].values[:, idxs, np.newaxis]
         pps = np.random.wald(mean=mu, scale=lam)
     elif family_name == "negativebinomial":
-        n = posterior[model.response.name + "_alpha"].values[idxs][:, None]
+        n = posterior[model.response.name + "_alpha"].values[:, idxs, np.newaxis]
         p = n / (mu + n)
+        print(n.shape)
+        print(p.shape)
         pps = np.random.negative_binomial(n, p)
     elif family_name == "poisson":
         pps = np.random.poisson(mu)
     else:
-        raise ValueError("Oh no! :(")
+        raise ValueError(f"Posterior predictive not available for family {family_name}")
     return pps
