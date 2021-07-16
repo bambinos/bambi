@@ -1,6 +1,7 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
 import logging
+import warnings
 from copy import deepcopy
 
 import numpy as np
@@ -659,6 +660,7 @@ class Model:
             ``None``. Otherwise a copy of idata with a ``posterior_predictive`` group.
 
         """
+
         if var_names is None:
             variables = self.backend.model.observed_RVs
             variables_names = [v.name for v in variables]
@@ -684,6 +686,12 @@ class Model:
 
         getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
         getattr(idata, "posterior_predictive").attrs["modeling_interface_version"] = __version__
+
+        warnings.warn(
+            "Model.posterior_predictive() is deprecated. "
+            "Use Model.predict() with kind='pps' instead.",
+            FutureWarning,
+        )
         if inplace:
             return None
         else:
@@ -776,6 +784,11 @@ class Model:
         if kind == "mean":
             name = self.response.name + "_mean"
             coord_name = name + "_dim_0"
+
+            # Drop var/dim if already present
+            if name in idata.posterior.data_vars:
+                idata.posterior = idata.posterior.drop_vars(name).drop_dims(coord_name)
+
             idata.posterior[name] = (("chain", "draw", coord_name), mu)
             idata.posterior = idata.posterior.assign_coords({coord_name: list(range(obs_n))})
 
