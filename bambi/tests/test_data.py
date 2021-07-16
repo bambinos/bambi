@@ -7,7 +7,6 @@ import pytest
 
 from bambi import clear_data_home, load_data
 from bambi.data.datasets import DATASETS, FileMetadata
-#RemoteFileMetadata
 
 
 @pytest.fixture(autouse=True)
