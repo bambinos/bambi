@@ -11,7 +11,7 @@ import pandas as pd
 
 FileMetadata = namedtuple("FileMetadata", ["filename", "url", "checksum", "description"])
 DATASETS = {
-    "my_data.csv": FileMetadata(
+    "my_data": FileMetadata(
         filename="my_data.csv",
         url="https://ndownloader.figshare.com/files/28850355",
         checksum="1bfcdd10d0848c1811e33e467c92734fb488406ef3f9b9aae16a57b258a30fac",
@@ -19,7 +19,7 @@ DATASETS = {
 Toy dataset with one response variable "y" and two covariates "x" and "z".
 """,
     ),
-    "adults.csv": FileMetadata(
+    "adults": FileMetadata(
         filename="adults.csv",
         url="https://ndownloader.figshare.com/files/28870743",
         checksum="27a5270ba720125dfb24a7708cbee0218b2ead36248ae244813655d03320e43e",
@@ -27,7 +27,17 @@ Toy dataset with one response variable "y" and two covariates "x" and "z".
 A sample with census data from 1994 in United States.
 """,
     ),
-    "ESCS.csv": FileMetadata(
+    "ANES": FileMetadata(
+        filename="ANES_2016_pilot.csv",
+        url="https://ndownloader.figshare.com/files/28870740",
+        checksum="3106beb6ded5a592ea0405d23b868bd8e74c259d7a7f5242c907555692905772",
+        description="""
+The ANES is a nationally representative, cross-sectional survey used extensively in political
+science. This is a dataset from the 2016 pilot study, consisting of responses from 1200 voting-age
+ U.S. citizens.
+""",
+    ),
+    "ESCS": FileMetadata(
         filename="ESCS.csv",
         url="https://ndownloader.figshare.com/files/28870722",
         checksum="0195545797a4258de138a205a013a84022bbe23e7ff47782b179055c706300b6",
@@ -37,7 +47,7 @@ behavioral measures over the course of 15 years. Among the behavioral measures i
 illegal drug use.
 """,
     ),
-    "carclaims.csv": FileMetadata(
+    "carclaims": FileMetadata(
         filename="carclaims.csv",
         url="https://ndownloader.figshare.com/files/28870713",
         checksum="74924bf5f0a6e5aa5453d87845cea05e6b41bb2052cf6f096d7f102235ae5cdf",
