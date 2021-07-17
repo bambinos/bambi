@@ -19,6 +19,32 @@ DATASETS = {
 Toy dataset with one response variable "y" and two covariates "x" and "z".
 """,
     ),
+    "adults.csv": FileMetadata(
+        filename="adults.csv",
+        url="https://ndownloader.figshare.com/files/28870743",
+        checksum="27a5270ba720125dfb24a7708cbee0218b2ead36248ae244813655d03320e43e",
+        description="""
+A sample with census data from 1994 in United States.
+""",
+    ),
+    "ESCS.csv": FileMetadata(
+        filename="ESCS.csv",
+        url="https://ndownloader.figshare.com/files/28870722",
+        checksum="0195545797a4258de138a205a013a84022bbe23e7ff47782b179055c706300b6",
+        description="""
+A longitudinal study of hundreds of adults who completed dozens of different self-report and
+behavioral measures over the course of 15 years. Among the behavioral measures is an index of
+illegal drug use.
+""",
+    ),
+    "carclaims.csv": FileMetadata(
+        filename="carclaims.csv",
+        url="https://ndownloader.figshare.com/files/28870713",
+        checksum="74924bf5f0a6e5aa5453d87845cea05e6b41bb2052cf6f096d7f102235ae5cdf",
+        description="""
+67856 insurance policies and 4624 (6.8%) claims in Australia between 2004 and 2005
+""",
+    ),
 }
 
 
