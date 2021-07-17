@@ -1502,7 +1502,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </pre></div></div>
 </div>
 <p>If no <code class="docutils literal notranslate"><span class="pre">link</span></code> argument is explicitly set (see below), the canonical link function (or an otherwise sensible default) will be used. The following table summarizes the currently available families and their associated links:</p>
-<table class="table">
+<center><table class="table">
 <colgroup>
 <col style="width: 31%" />
 <col style="width: 40%" />
@@ -1519,21 +1519,29 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <td><p>Bernoulli</p></td>
 <td><p>logit</p></td>
 </tr>
-<tr class="row-odd"><td><p>gamma</p></td>
+<tr class="row-odd"><td><p>beta</p></td>
+<td><p>Beta</p></td>
+<td><p>logit</p></td>
+</tr>
+<tr class="row-even"><td><p>gamma</p></td>
 <td><p>Gamma</p></td>
 <td><p>inverse</p></td>
 </tr>
-<tr class="row-even"><td><p>gaussian</p></td>
+<tr class="row-odd"><td><p>gaussian</p></td>
 <td><p>Normal</p></td>
 <td><p>identity</p></td>
 </tr>
-<tr class="row-odd"><td><p>negativebinomial</p></td>
+<tr class="row-even"><td><p>negativebinomial</p></td>
 <td><p>NegativeBinomial</p></td>
 <td><p>log</p></td>
 </tr>
-<tr class="row-even"><td><p>poisson</p></td>
+<tr class="row-odd"><td><p>poisson</p></td>
 <td><p>Poisson</p></td>
 <td><p>log</p></td>
+</tr>
+<tr class="row-even"><td><p>t</p></td>
+<td><p>StudentT</p></td>
+<td><p>identity</p></td>
 </tr>
 <tr class="row-odd"><td><p>wald</p></td>
 <td><p>InverseGaussian</p></td>
@@ -1541,7 +1549,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </tr>
 </tbody>
 </table>
-</div>
+</center></div>
 <div class="section" id="Families">
 <h2>Families<a class="headerlink" href="#Families" title="Permalink to this headline">¶</a></h2>
 <p>Following the convention used in many R packages, the response distribution to use for a GLMM is specified in a <code class="docutils literal notranslate"><span class="pre">Family</span></code> class that indicates how the response variable is distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility. In the following example, we show how the
