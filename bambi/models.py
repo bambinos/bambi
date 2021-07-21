@@ -194,7 +194,9 @@ class Model:
         self._build_priors()
 
     def fit(
-        self, omit_offsets=True, **kwargs,
+        self,
+        omit_offsets=True,
+        **kwargs,
     ):
         """Fit the model using the specified backend.
 

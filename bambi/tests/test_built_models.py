@@ -107,7 +107,10 @@ def test_many_common_many_group_specific(crossed_data):
         dropna=True,
     )
     model0.fit(
-        init=None, tune=10, draws=10, chains=2,
+        init=None,
+        tune=10,
+        draws=10,
+        chains=2,
     )
 
     model1 = Model(
@@ -116,7 +119,9 @@ def test_many_common_many_group_specific(crossed_data):
         dropna=True,
     )
     model1.fit(
-        tune=10, draws=10, chains=2,
+        tune=10,
+        draws=10,
+        chains=2,
     )
     # check that the group specific effects design matrices have the same shape
     X0 = pd.concat([pd.DataFrame(t.data) for t in model0.group_specific_terms.values()], axis=1)
@@ -281,7 +286,10 @@ def test_logistic_regression(crossed_data):
     model0 = Model(
         "threecats['b'] ~ continuous + dummy", crossed_data, family="bernoulli", link="logit"
     )
-    fitted0 = model0.fit(tune=0, draws=1000,)
+    fitted0 = model0.fit(
+        tune=0,
+        draws=1000,
+    )
 
     # build model using fit, pymc3 and theano link function
     model1 = Model(
@@ -290,7 +298,10 @@ def test_logistic_regression(crossed_data):
         family="bernoulli",
         link=tt.nnet.sigmoid,
     )
-    fitted1 = model1.fit(tune=0, draws=1000,)
+    fitted1 = model1.fit(
+        tune=0,
+        draws=1000,
+    )
 
     # check that using a theano link function works
     assert np.allclose(az.summary(fitted0)["mean"], az.summary(fitted1)["mean"], atol=0.2)
@@ -521,7 +532,12 @@ def test_potentials():
     ]
 
     model = Model(
-        "w ~ 1", data, family="bernoulli", link="identity", priors=priors, potentials=potentials,
+        "w ~ 1",
+        data,
+        family="bernoulli",
+        link="identity",
+        priors=priors,
+        potentials=potentials,
     )
     model.build()
     assert len(model.backend.model.potentials) == 2
