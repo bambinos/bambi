@@ -1,5 +1,6 @@
 import logging
 
+from .data import clear_data_home, load_data
 from .models import Model
 from .priors import Prior, Family
 from .backends import PyMC3BackEnd
