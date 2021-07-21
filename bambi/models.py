@@ -95,6 +95,7 @@ class Model:
         noncentered=True,
         priors_cor=None,
         taylor=None,
+        potentials=None,
     ):
         # attributes that are set later
         self.terms = {}
@@ -115,6 +116,7 @@ class Model:
         self.dropna = dropna
         self.taylor = taylor
         self.noncentered = noncentered
+        self.potentials = potentials
 
         # Read and clean data
         if isinstance(data, str):
@@ -184,9 +186,7 @@ class Model:
         self._build_priors()
 
     def fit(
-        self,
-        omit_offsets=True,
-        **kwargs,
+        self, omit_offsets=True, **kwargs,
     ):
         """Fit the model using the specified backend.
 

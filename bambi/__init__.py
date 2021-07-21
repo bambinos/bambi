@@ -1,5 +1,7 @@
 import logging
 
+from pymc3 import math
+
 from .data import clear_data_home, load_data
 from .models import Model
 from .priors import Prior, Family

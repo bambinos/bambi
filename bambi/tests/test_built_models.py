@@ -1,9 +1,11 @@
+import pytest
+
 import arviz as az
 import numpy as np
 import pandas as pd
-import pytest
 import theano.tensor as tt
 
+from bambi import math
 from bambi.models import Model
 from bambi.priors import Prior
 
@@ -105,10 +107,7 @@ def test_many_common_many_group_specific(crossed_data):
         dropna=True,
     )
     model0.fit(
-        init=None,
-        tune=10,
-        draws=10,
-        chains=2,
+        init=None, tune=10, draws=10, chains=2,
     )
 
     model1 = Model(
@@ -117,9 +116,7 @@ def test_many_common_many_group_specific(crossed_data):
         dropna=True,
     )
     model1.fit(
-        tune=10,
-        draws=10,
-        chains=2,
+        tune=10, draws=10, chains=2,
     )
     # check that the group specific effects design matrices have the same shape
     X0 = pd.concat([pd.DataFrame(t.data) for t in model0.group_specific_terms.values()], axis=1)
@@ -284,10 +281,7 @@ def test_logistic_regression(crossed_data):
     model0 = Model(
         "threecats['b'] ~ continuous + dummy", crossed_data, family="bernoulli", link="logit"
     )
-    fitted0 = model0.fit(
-        tune=0,
-        draws=1000,
-    )
+    fitted0 = model0.fit(tune=0, draws=1000,)
 
     # build model using fit, pymc3 and theano link function
     model1 = Model(
@@ -296,10 +290,7 @@ def test_logistic_regression(crossed_data):
         family="bernoulli",
         link=tt.nnet.sigmoid,
     )
-    fitted1 = model1.fit(
-        tune=0,
-        draws=1000,
-    )
+    fitted1 = model1.fit(tune=0, draws=1000,)
 
     # check that using a theano link function works
     assert np.allclose(az.summary(fitted0)["mean"], az.summary(fitted1)["mean"], atol=0.2)
@@ -519,3 +510,29 @@ def test_model_graph(crossed_data):
         model.graph()
     model.build()
     model.graph()
+
+
+def test_potentials():
+    data = pd.DataFrame(np.repeat((0, 1), (18, 20)), columns=["w"])
+    priors = {"Intercept": Prior("Uniform", lower=0, upper=1)}
+    potentials = [
+        (("Intercept", "Intercept"), lambda x, y: math.switch(x < 0.45, y, -np.inf)),
+        ("Intercept", lambda x: math.switch(x > 0.55, 0, -np.inf)),
+    ]
+
+    model = Model(
+        "w ~ 1", data, family="bernoulli", link="identity", priors=priors, potentials=potentials,
+    )
+    model.build()
+    assert len(model.backend.model.potentials) == 2
+
+    pot0 = model.backend.model.potentials[0].get_parents()[0]
+    pot1 = model.backend.model.potentials[1].get_parents()[0]
+    pot0.__str__() == (
+        "Elemwise{switch,no_inplace}(Elemwise{lt,no_inplace}.0, "
+        "Intercept ~ Uniform, TensorConstant{-inf})"
+    )
+    pot1.__str__() == (
+        "Elemwise{switch,no_inplace}(Elemwise{gt,no_inplace}.0, "
+        "TensorConstant{0}, TensorConstant{-inf})"
+    )
