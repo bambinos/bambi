@@ -1041,7 +1041,7 @@ Priors:
 <img alt="../_images/notebooks_logistic_regression_23_0.png" src="../_images/notebooks_logistic_regression_23_0.png" />
 </div>
 </div>
-<p>Now let’s check out the the results! We get traceplots and density estimates for the posteriors with <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> and a summary of the posteriors with <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>.</p>
+<p>Now let’s check out the results! We get traceplots and density estimates for the posteriors with <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> and a summary of the posteriors with <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
@@ -1268,7 +1268,7 @@ Priors:
 <img alt="../_images/notebooks_logistic_regression_33_0.png" src="../_images/notebooks_logistic_regression_33_0.png" />
 </div>
 </div>
-<p>A first look at the khat plot shows that most obervations’ <span class="math notranslate nohighlight">\(\hat \kappa\)</span> values are grouped toghether in a range that goes up to roughly 0.2. Above that value, we observe some dispersion and a few points that stand out by having the highest $:nbsphinx-math:<cite>hat `:nbsphinx-math:</cite>kappa <a href="#id2"><span class="problematic" id="id3">`</span></a>$ values.</p>
+<p>A first look at the khat plot shows that most observations’ <span class="math notranslate nohighlight">\(\hat \kappa\)</span> values are grouped together in a range that goes up to roughly 0.2. Above that value, we observe some dispersion and a few points that stand out by having the highest <span class="math notranslate nohighlight">\(\hat \kappa\)</span> values.</p>
 <p>An observation is influential in the sense that if we refit the data by first removing that observation from the data set, the fitted result will be more different than if we do the same for a non influential observation. Clearly the level of influence of observations can vary continuously. An observation can be influential either because it is an outlier (a measurement error, a data entry error, etc) or because the model is not flexible enough to capture the observation. The approximations used
 to compute LOO are no longer reliable for <span class="math notranslate nohighlight">\(\hat \kappa &gt; 0.7\)</span>.</p>
 <p>Let us first take a look at the observation with the highest <span class="math notranslate nohighlight">\(\hat \kappa\)</span>.</p>
@@ -1702,7 +1702,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </table>
 </div></div>
 </div>
-<p>This assessment helped us to further understand the model and quality of the fit. It also illustratres the intuition that we should be cautious when predicting for under represented age groups and voting behaviours.</p>
+<p>This assessment helped us to further understand the model and quality of the fit. It also illustrates the intuition that we should be cautious when predicting for under represented age groups and voting behaviours.</p>
 </div>
 <div class="section" id="Run-Inference">
 <h2>Run Inference<a class="headerlink" href="#Run-Inference" title="Permalink to this headline">¶</a></h2>
