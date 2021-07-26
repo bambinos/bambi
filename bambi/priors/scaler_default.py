@@ -17,7 +17,7 @@ class PriorScaler:
         self.priors = {}
 
         # Compute mean and std of the response
-        if self.model.family.name == "gaussian":
+        if self.model.family.name in ["gaussian", "t"]:
             self.response_mean = np.mean(model.response.data)
             self.response_std = np.std(self.model.response.data)
         else:

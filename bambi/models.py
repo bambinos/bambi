@@ -1,6 +1,7 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
 import logging
+import warnings
 from copy import deepcopy
 
 import numpy as np
@@ -648,13 +649,13 @@ class Model:
 
         Parameters
         ----------
-        idata : InfereceData
-            ``InfereceData`` with samples from the posterior distribution.
+        idata : InferenceData
+            ``InferenceData`` with samples from the posterior distribution.
         draws : int
-            Number of draws to sample from the prior predictive distribution. Defaults to 500.
+            Number of draws to sample from the posterior predictive distribution. Defaults to 500.
         var_names : str or list
             A list of names of variables for which to compute the posterior predictive
-            distribution. Defaults to both observed and unobserved RVs.
+            distribution. Defaults to observed RVs.
         inplace : bool
             If ``True`` it will add a ``posterior_predictive`` group to idata, otherwise it will
             return a copy of idata with the added group. If ``True`` and idata already have a
@@ -669,6 +670,7 @@ class Model:
             ``None``. Otherwise a copy of idata with a ``posterior_predictive`` group.
 
         """
+
         if var_names is None:
             variables = self.backend.model.observed_RVs
             variables_names = [v.name for v in variables]
@@ -684,6 +686,7 @@ class Model:
 
         if not inplace:
             idata = deepcopy(idata)
+
         if "posterior_predictive" in idata:
             del idata.posterior_predictive
 
@@ -693,6 +696,124 @@ class Model:
 
         getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
         getattr(idata, "posterior_predictive").attrs["modeling_interface_version"] = __version__
+
+        warnings.warn(
+            "Model.posterior_predictive() is deprecated. "
+            "Use Model.predict() with kind='pps' instead.",
+            FutureWarning,
+        )
+        if inplace:
+            return None
+        else:
+            return idata
+
+    # pylint: disable=protected-access
+    def predict(self, idata, kind="mean", data=None, draws=None, inplace=True):
+        """Predict method for Bambi models
+
+        Obtains in-sample and out-sample predictions from a fitted Bambi model.
+
+        Parameters
+        ----------
+        idata : InferenceData
+            ``InferenceData`` with samples from the posterior distribution.
+        kind: str
+            Indicates the type of prediction required. Can be ``"mean"`` or ``"pps"``. The
+            first returns posterior distribution of the mean, while the latter returns the posterior
+            predictive distribution (i.e. the posterior probability distribution for a new
+            observation). Defaults to ``"mean"``.
+        data: pd.DataFrame or None
+            An optional data frame in which to look for variables with which to predict.
+            If omitted, the fitted linear predictors are used.
+        draws: None
+            The number of random draws per chain. Only used if ``kind="pps"``. Not recommended
+            unless more than ndraws times nchains posterior predictive samples are needed.
+            Defaults to ``None`` which means ndraws times nchains.
+        inplace: bool
+            If ``True`` it will add a ``posterior_predictive`` group to idata, otherwise it will
+            return a copy of idata with the added group. If ``True`` and idata already have a
+            ``posterior_predictive`` group it will be overwritten.
+
+        Returns
+        -------
+        np.ndarray
+            A NumPy array with predictions.
+        """
+
+        if kind not in ["mean", "pps"]:
+            raise ValueError("'kind' must be one of 'mean' or 'pps'")
+
+        linear_predictor = 0
+        X = None
+        Z = None
+
+        chain_n = len(idata.posterior["chain"])
+        draw_n = len(idata.posterior["draw"])
+        posterior = idata.posterior.stack(sample=["chain", "draw"])
+
+        if draws is None:
+            draws = draw_n
+
+        if not inplace:
+            idata = deepcopy(idata)
+
+        in_sample = data is None
+
+        # Create design matrices
+        if self._design.common:
+            if in_sample:
+                X = self._design.common.design_matrix
+            else:
+                X = self._design.common._evaluate_new_data(data).design_matrix
+
+        if self._design.group:
+            if in_sample:
+                Z = self._design.group.design_matrix
+            else:
+                Z = self._design.group._evaluate_new_data(data).design_matrix
+
+        # Obtain posterior and compute linear predictor
+        if X is not None:
+            beta_x = np.vstack([np.atleast_2d(posterior[name]) for name in self.common_terms])
+            linear_predictor += np.dot(X, beta_x)
+        if Z is not None:
+            beta_z = np.vstack(
+                [np.atleast_2d(posterior[name]) for name in self.group_specific_terms]
+            )
+            linear_predictor += np.dot(Z, beta_z)
+
+        # Compute mean prediction
+        # Transposed so it is (chain, draws)?
+        mu = self.family.link.linkinv(linear_predictor).T
+
+        # Reshape mu
+        obs_n = mu.size // (chain_n * draw_n)
+        mu = mu.reshape((chain_n, draw_n, obs_n))
+
+        # Predictions for the mean
+        if kind == "mean":
+            name = self.response.name + "_mean"
+            coord_name = name + "_dim_0"
+
+            # Drop var/dim if already present
+            if name in idata.posterior.data_vars:
+                idata.posterior = idata.posterior.drop_vars(name).drop_dims(coord_name)
+
+            idata.posterior[name] = (("chain", "draw", coord_name), mu)
+            idata.posterior = idata.posterior.assign_coords({coord_name: list(range(obs_n))})
+
+        # Compute posterior predictive distribution
+        else:
+            # Sample mu values and auxiliary params
+            pps = self.family.likelihood.pps(self, idata.posterior, mu, draws)
+
+            if "posterior_predictive" in idata:
+                del idata.posterior_predictive
+
+            idata.add_groups({"posterior_predictive": {self.response.name: pps}})
+            getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
+            getattr(idata, "posterior_predictive").attrs["modeling_interface_version"] = __version__
+
         if inplace:
             return None
         else:
@@ -781,7 +902,7 @@ class Model:
         str_list = [
             f"Formula: {self.formula}",
             f"Family name: {self.family.name.capitalize()}",
-            f"Link: {self.family.link}",
+            f"Link: {self.family.link.name}",
             f"Observations: {self.response.data.shape[0]}",
             "Priors:",
             priors,

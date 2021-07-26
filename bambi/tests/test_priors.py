@@ -81,7 +81,7 @@ def test_likelihood_bad_priors():
 def test_family_class():
     cheese = Prior("CheeseWhiz", holes=0, taste=-10)
     likelihood = Likelihood("Cheese", parent="holes", cheese=cheese)
-    family = Family("cheese", likelihood=likelihood, link="ferment")
+    family = Family("cheese", likelihood=likelihood, link="logit")
 
     for name in ["name", "likelihood", "link"]:
         assert hasattr(family, name)
@@ -137,7 +137,7 @@ def test_prior_eq():
 def test_family_link_unsupported():
     cheese = Prior("CheeseWhiz", holes=0, taste=-10)
     likelihood = Likelihood("Cheese", parent="holes", cheese=cheese)
-    family = Family("cheese", likelihood=likelihood, link="ferment")
+    family = Family("cheese", likelihood=likelihood, link="cloglog")
     with pytest.raises(ValueError):
         family._set_link("Empty")
 

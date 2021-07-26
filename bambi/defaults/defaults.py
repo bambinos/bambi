@@ -1,3 +1,4 @@
+from . import pps
 from ..priors import Family, Likelihood, Prior
 
 
@@ -25,7 +26,8 @@ SETTINGS_FAMILIES = {
         "likelihood": {
             "name": "Bernoulli",
             "args": {},
-            "parent": "p"
+            "parent": "p",
+            "pps": pps.pps_bernoulli
         },
         "link": "logit"
     },
@@ -35,7 +37,8 @@ SETTINGS_FAMILIES = {
             "args": {
                 "kappa": "HalfCauchy"
             },
-            "parent": "mu"
+            "parent": "mu",
+            "pps": pps.pps_beta
         },
         "link": "logit"
     },
@@ -45,7 +48,8 @@ SETTINGS_FAMILIES = {
             "args": {
                 "alpha": "HalfCauchy"
             },
-            "parent": "mu"
+            "parent": "mu",
+            "pps": pps.pps_gamma
         },
         "link": "inverse",
     },
@@ -55,7 +59,8 @@ SETTINGS_FAMILIES = {
             "args": {
                 "sigma": "HalfNormal"
             },
-            "parent": "mu"
+            "parent": "mu",
+            "pps": pps.pps_gaussian
         },
         "link": "identity",
     },
@@ -65,7 +70,8 @@ SETTINGS_FAMILIES = {
             "args": {
                 "alpha": "HalfCauchy"
             },
-            "parent": "mu"
+            "parent": "mu",
+            "pps": pps.pps_negativebinomial
         },
         "link": "log",
     },
@@ -73,7 +79,8 @@ SETTINGS_FAMILIES = {
         "likelihood": {
             "name": "Poisson",
             "args": {},
-            "parent": "mu"
+            "parent": "mu",
+            "pps": pps.pps_poisson
         },
         "link": "log"
     },
@@ -84,7 +91,8 @@ SETTINGS_FAMILIES = {
                 "lam": "HalfCauchy",
                 "nu": 2
             },
-            "parent": "mu"
+            "parent": "mu",
+            "pps": pps.pps_t
         },
         "link": "identity",
     },
@@ -94,7 +102,8 @@ SETTINGS_FAMILIES = {
             "args": {
                 "lam": "HalfCauchy"
             },
-            "parent": "mu"
+            "parent": "mu",
+            "pps": pps.pps_wald
         },
         "link": "inverse_squared",
     },
@@ -114,9 +123,9 @@ def generate_prior(dist, **kwargs):
     return prior
 
 
-def generate_likelihood(name, args, parent):
+def generate_likelihood(name, args, parent, pps):  # pylint: disable=redefined-outer-name
     priors = {k: generate_prior(v) for k, v in args.items()}
-    return Likelihood(name, parent, **priors)
+    return Likelihood(name, parent, pps, **priors)
 
 
 def generate_family(name, likelihood, link):
