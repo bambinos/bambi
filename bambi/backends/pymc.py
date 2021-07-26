@@ -1,4 +1,5 @@
 import logging
+import traceback
 
 import numpy as np
 import theano.tensor as tt
@@ -166,14 +167,36 @@ class PyMC3BackEnd(BackEnd):
         if method.lower() == "mcmc":
             draws = kwargs.pop("draws", 1000)
             with model:
-                idata = pm.sample(
-                    draws,
-                    start=start,
-                    init=init,
-                    n_init=n_init,
-                    return_inferencedata=True,
-                    **kwargs,
-                )
+                try:
+                    idata = pm.sample(
+                        draws,
+                        start=start,
+                        init=init,
+                        n_init=n_init,
+                        return_inferencedata=True,
+                        **kwargs,
+                    )
+
+                except RuntimeError:
+                    if "ValueError: Mass matrix contains" in traceback.format_exc() and init in [
+                        "jitter+adapt_diag",
+                        "auto",
+                    ]:
+                        _log.info(
+                            "\nThe default initialization using init=%s has failed, trying to "
+                            "recover by switching to init='adapt_diag'",
+                            init,
+                        )
+                        idata = pm.sample(
+                            draws,
+                            start=start,
+                            init="adapt_diag",
+                            n_init=n_init,
+                            return_inferencedata=True,
+                            **kwargs,
+                        )
+                    else:
+                        raise
 
             if omit_offsets:
                 offset_vars = [var for var in idata.posterior.var() if var.endswith("_offset")]
