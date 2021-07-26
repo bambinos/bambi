@@ -33,6 +33,7 @@ class PyMC3BackEnd(BackEnd):
 
         # Attributes defined elsewhere
         self.model = None
+        self.has_intercept = None  # build()
         self.mu = None  # build()
         self.spec = None  # build()
         self.trace = None  # build()
@@ -53,13 +54,19 @@ class PyMC3BackEnd(BackEnd):
         self.model = pm.Model(coords=coords)
         noncentered = spec.noncentered
 
+        self.has_intercept = any(term.type == "intercept" for term in spec.common_terms.values())
+
         ## Add common effects
         # Common effects have at most ONE coord.
-        # If ndim > 1 we're certain there's more than one column (see squeeze)
         with self.model:
             self.mu = 0.0
+            x_list = []
+            b_list = []
+
             for term in spec.common_terms.values():
-                data = term.data.squeeze()
+                if term.type == "intercept":
+                    continue
+                data = term.data
                 label = term.name
                 dist = term.prior.name
                 args = term.prior.args
@@ -67,13 +74,31 @@ class PyMC3BackEnd(BackEnd):
                     dims = list(term.pymc_coords.keys())
                     coef = self.build_common_distribution(dist, label, dims=dims, **args)
                 else:
-                    shape = () if data.ndim == 1 else data.shape[1]
-                    coef = self.build_common_distribution(dist, label, shape=shape, **args)
+                    coef = self.build_common_distribution(dist, label, shape=data.shape[1], **args)
 
-                if data.ndim == 1:
-                    self.mu += data * coef
+                b_list.append(coef)
+                x_list.append(data)
+
+            if x_list:
+                X = np.hstack(x_list)
+                b = tt.concatenate(b_list)
+
+            if self.has_intercept:
+                term = spec.common_terms["Intercept"]
+                distribution = self.get_distribution(term.prior.name)
+                intercept = distribution("Intercept", shape=1, **term.prior.args)
+
+                # "Intercept__" is the actual intercept, which will be renamed to "Intercept" later.
+                if len(spec.common_terms) > 1:
+                    x_mean = X.mean(0)
+                    x_centered = X - x_mean
+                    pm.Deterministic("Intercept__", intercept - tt.dot(x_mean, b))
+                    self.mu += tt.dot(x_centered, b)
                 else:
-                    self.mu += pm.math.dot(data, coef)
+                    pm.Deterministic("Intercept__", intercept)
+                self.mu += intercept
+            else:
+                self.mu += tt.dot(X, b)
 
         ## Add group-specific effects
         # Group-specific effects always have pymc_coords. At least for the group.
@@ -192,6 +217,10 @@ class PyMC3BackEnd(BackEnd):
 
             # Reorder coords
             # pylint: disable=protected-access
+            coords_to_drop = [dim for dim in idata.posterior.dims if dim.endswith("_dim_0")]
+            idata.posterior = idata.posterior.squeeze(coords_to_drop).reset_coords(
+                coords_to_drop, drop=True
+            )
             coords_original = list(self.spec._get_pymc_coords().keys())
             coords_group = [c for c in coords_original if c.endswith("_coord_group_factor")]
             for coord in coords_group:
@@ -199,6 +228,11 @@ class PyMC3BackEnd(BackEnd):
             coords_new = ["chain", "draw"] + coords_original + coords_group
 
             idata.posterior = idata.posterior.transpose(*coords_new)
+
+            # Keep the actual intercept "Intercept__" as "Intercept"
+            if self.has_intercept:
+                idata.posterior = idata.posterior.drop_vars(["Intercept"])
+                idata.posterior = idata.posterior.rename({"Intercept__": "Intercept"})
 
             self.fit = True
             return idata

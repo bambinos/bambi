@@ -601,12 +601,15 @@ class Model:
         if omit_offsets:
             var_names = [name for name in var_names if not name.endswith("_offset")]
 
+        if "Intercept__" in var_names:
+            var_names.remove("Intercept__")
+
         pps_ = pm.sample_prior_predictive(
             samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
         )
         # pps_ keys are not in the same order as `var_names` because `var_names` is converted
         # to set within pm.sample_prior_predictive()
-        pps = {name: pps_[name] for name in var_names}
+        pps = {name: pps_[name].squeeze() for name in var_names}
         response_name = self.response.name
 
         if response_name in pps:
