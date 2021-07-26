@@ -6,6 +6,28 @@ from scipy import stats
 
 
 def _get_mu_and_idxs(mu, draws):  # pylint: disable=unused-argument
+    """Sample values from the posterior of the mean, return sampled values and their indexes
+
+    This function is used within ``pps_*`` auxiliary functions. Its goal is to simplify how we
+    sample from the posterior trace and the other parameters that may define the conditional
+    distribution of the response.
+
+    Parameters
+    ----------
+    mu: np.array
+        A 3-dimensional numpy array with samples from the posterior distribution of the mean. The
+        first dimension represents the chain, the second represents the draw, and the third the
+        individual.
+    draws: int
+        Number of samples to take.
+
+    Returns
+    -------
+    mu: np.array
+        A 3-dimensional numpy array with the new samples.
+    idxs: np.array
+        The indexes of the samples in the original sample of the posterior.
+    """
     # mu has shape (chain, draw, obs)
     idxs = np.random.randint(low=0, high=draws, size=draws)
     mu = mu[:, idxs, :]
