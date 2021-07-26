@@ -27,6 +27,11 @@ class PriorScaler:
     def get_intercept_stats(self):
         mu = self.response_mean
         sigma = self.STD * self.response_std
+
+        sigmas = np.hstack([prior["sigma"] for prior in self.priors.values()])
+        x_mean = np.hstack([self.model.terms[term].data.mean(axis=0) for term in self.priors])
+        sigma = (sigma ** 2 + np.dot(sigmas ** 2, x_mean ** 2)) ** 0.5
+
         return mu, sigma
 
     def get_slope_sigma(self, x):
@@ -82,12 +87,6 @@ class PriorScaler:
         # Scale response
         self.scale_response()
 
-        # Scale intercept
-        if self.has_intercept:
-            term = [t for t in self.model.common_terms.values() if t.type == "intercept"][0]
-            if term.prior.auto_scale:
-                self.scale_intercept(term)
-
         # Scale common terms
         for term in self.model.common_terms.values():
             # Note: Intercept will be separated from common intercepts in the future.
@@ -95,6 +94,12 @@ class PriorScaler:
                 continue
             if term.prior.auto_scale:
                 self.scale_common(term)
+
+        # Scale intercept
+        if self.has_intercept:
+            term = [t for t in self.model.common_terms.values() if t.type == "intercept"][0]
+            if term.prior.auto_scale:
+                self.scale_intercept(term)
 
         # Scale group-specific terms
         for term in self.model.group_specific_terms.values():
