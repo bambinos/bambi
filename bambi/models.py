@@ -55,6 +55,14 @@ class Model:
         the ``DataFrame`` will be used to infer handling. In cases where numeric columns are
         to be treated as categoricals (e.g., group specific factors coded as numerical IDs),
         explicitly passing variable names via this argument is recommended.
+    potentials : A list of 2-tuples.
+        Optional specification of potentials. A potential is an arbitrary expression added to the
+        likelihood, this is generally useful to add constrains to models, that are difficult to
+        express otherwise. The first term of a 2-tuple is the name of a variable in the model, the
+        second a lambda function expressing the desired constraint.
+        If a constraint involves n variables, you can pass n 2-tuples or pass a tuple which first
+        element is a n-tuple and second element is a lambda function with n arguments. The number
+        and order of the lambda function has to match the number and order of the variables names.
     dropna : bool
         When ``True``, rows with any missing values in either the predictors or outcome are
         automatically dropped from the dataset in a listwise manner.
@@ -89,6 +97,7 @@ class Model:
         priors=None,
         link=None,
         categorical=None,
+        potentials=None,
         dropna=False,
         auto_scale=True,
         automatic_priors="default",
@@ -115,6 +124,7 @@ class Model:
         self.dropna = dropna
         self.taylor = taylor
         self.noncentered = noncentered
+        self.potentials = potentials
 
         # Read and clean data
         if isinstance(data, str):

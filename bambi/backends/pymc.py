@@ -117,6 +117,19 @@ class PyMC3BackEnd(BackEnd):
         with self.model:
             self.build_response(spec)
 
+        # add potentials to the model
+        if spec.potentials is not None:
+            with self.model:
+                count = 0
+                for variable, constraint in spec.potentials:
+                    if isinstance(variable, (list, tuple)):
+                        lambda_args = [self.model[var] for var in variable]
+                        potential = constraint(*lambda_args)
+                    else:
+                        potential = constraint(self.model[variable])
+                    pm.Potential(f"pot_{count}", potential)
+                    count += 1
+
         self.spec = spec
 
     # pylint: disable=arguments-differ, inconsistent-return-statements

@@ -15,6 +15,7 @@
 ### New features
 * It is possible to specify priors for parameters in the response distribution (#335)
 * Add probit and cloglog link functions (#340)
+* Add option to specify potentials (#379)
 
 ### Maintenance and fixes
 * Informative message when default priors fail because of perfect separation. Model can be fit with custom priors (#330)
