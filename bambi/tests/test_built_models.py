@@ -62,6 +62,7 @@ def init_data():
     data = pd.read_csv(join(data_dir, "obs.csv"))
     return data
 
+
 def test_empty_model(crossed_data):
     model0 = Model("Y ~ 0", crossed_data)
     model0.fit(tune=0, draws=1)
