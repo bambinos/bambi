@@ -570,8 +570,6 @@ def test_potentials():
 
 def test_init_fallback(init_data, caplog):
     model = Model("od ~ temp + (1|source) + 0", init_data)
-    with pytest.raises(RuntimeError):
-        results = model.fit(draws=100, init="jitter+adapt_diag")
     with caplog.at_level(logging.INFO):
         results = model.fit(draws=100, init="auto")
         assert "Initializing NUTS using jitter+adapt_diag..." in caplog.text

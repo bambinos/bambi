@@ -192,7 +192,7 @@ class PyMC3BackEnd(BackEnd):
                         **kwargs,
                     )
 
-                except RuntimeError:
+                except (RuntimeError, ValueError):
                     if (
                         "ValueError: Mass matrix contains" in traceback.format_exc()
                         and init == "auto"
