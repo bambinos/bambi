@@ -51,6 +51,17 @@ def dm():
     return data
 
 
+@pytest.fixture(scope="module")
+def init_data():
+    """
+    Data used to test initialization method
+    """
+    from os.path import dirname, join
+
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "obs.csv"))
+    return data
+
 def test_empty_model(crossed_data):
     model0 = Model("Y ~ 0", crossed_data)
     model0.fit(tune=0, draws=1)
@@ -556,9 +567,8 @@ def test_potentials():
     )
 
 
-def test_init_fallback(caplog):
-    data = pd.read_csv("data/obs.csv")
-    model = Model("od ~ temp + (1|source) + 0", data)
+def test_init_fallback(init_data, caplog):
+    model = Model("od ~ temp + (1|source) + 0", init_data)
     with pytest.raises(RuntimeError):
         results = model.fit(draws=100, init="jitter+adapt_diag")
     with caplog.at_level(logging.INFO):
