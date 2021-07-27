@@ -54,7 +54,7 @@ class PyMC3BackEnd(BackEnd):
         self.model = pm.Model(coords=coords)
         noncentered = spec.noncentered
 
-        self.has_intercept = any(term.type == "intercept" for term in spec.common_terms.values())
+        self.has_intercept = spec.intercept_term is not None
 
         ## Add common effects
         # Common effects have at most ONE coord.
@@ -64,8 +64,6 @@ class PyMC3BackEnd(BackEnd):
             b_list = []
 
             for term in spec.common_terms.values():
-                if term.type == "intercept":
-                    continue
                 data = term.data
                 label = term.name
                 dist = term.prior.name
@@ -84,20 +82,20 @@ class PyMC3BackEnd(BackEnd):
                 b = tt.concatenate(b_list)
 
             if self.has_intercept:
-                term = spec.common_terms["Intercept"]
+                term = spec.intercept_term
                 distribution = self.get_distribution(term.prior.name)
                 intercept = distribution("Intercept", shape=1, **term.prior.args)
+                self.mu += intercept
 
-                # "Intercept__" is the actual intercept, which will be renamed to "Intercept" later.
-                if len(spec.common_terms) > 1:
+                # "Intercept" is a temporary intercept for centered predictors.
+                # "Intercept__" is the actual intercept. Will be renamed to "Intercept".
+                if spec.common_terms:
                     x_mean = X.mean(0)
                     x_centered = X - x_mean
-                    pm.Deterministic("Intercept__", intercept - tt.dot(x_mean, b))
                     self.mu += tt.dot(x_centered, b)
-                else:
-                    pm.Deterministic("Intercept__", intercept)
-                self.mu += intercept
-            else:
+                    # Add actual intercept
+                    pm.Deterministic("Intercept__", intercept - tt.dot(x_mean, b))
+            elif x_list:
                 self.mu += tt.dot(X, b)
 
         ## Add group-specific effects
@@ -140,7 +138,7 @@ class PyMC3BackEnd(BackEnd):
         with self.model:
             self.build_response(spec)
 
-        # add potentials to the model
+        # Add potentials to the model
         if spec.potentials is not None:
             with self.model:
                 count = 0
@@ -230,9 +228,15 @@ class PyMC3BackEnd(BackEnd):
             idata.posterior = idata.posterior.transpose(*coords_new)
 
             # Keep the actual intercept "Intercept__" as "Intercept"
-            if self.has_intercept:
+            if self.has_intercept and self.spec.common_terms:
                 idata.posterior = idata.posterior.drop_vars(["Intercept"])
                 idata.posterior = idata.posterior.rename({"Intercept__": "Intercept"})
+
+            # Sort variable names so Intercept is in the beginning
+            var_names = list(idata.posterior.var())
+            if "Intercept" in var_names:
+                var_names.insert(0, var_names.pop(var_names.index("Intercept")))
+                idata.posterior = idata.posterior[var_names]
 
             self.fit = True
             return idata

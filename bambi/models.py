@@ -777,7 +777,10 @@ class Model:
 
         # Obtain posterior and compute linear predictor
         if X is not None:
-            beta_x = np.vstack([np.atleast_2d(posterior[name]) for name in self.common_terms])
+            beta_x_list = [np.atleast_2d(posterior[name]) for name in self.common_terms]
+            if self.intercept_term:
+                beta_x_list = [np.atleast_2d(posterior["Intercept"])] + beta_x_list
+            beta_x = np.vstack(beta_x_list)
             linear_predictor += np.dot(X, beta_x)
         if Z is not None:
             beta_z = np.vstack(
@@ -808,7 +811,7 @@ class Model:
         # Compute posterior predictive distribution
         else:
             # Sample mu values and auxiliary params
-            pps = self.family.likelihood.pps(self, idata.posterior, mu, draws)
+            pps = self.family.likelihood.pps(self, idata.posterior, mu, draws, draw_n)
 
             if "posterior_predictive" in idata:
                 del idata.posterior_predictive
@@ -893,6 +896,9 @@ class Model:
         # Priors for auxiliary parameters, e.g., standard deviation in normal linear model
         priors_aux = [f"    {k} ~ {v}" for k, v in self.family.likelihood.priors.items()]
 
+        if self.intercept_term:
+            t = self.intercept_term
+            priors_common = [f"    {t.name} ~ {t.prior}"] + priors_common
         if priors_common:
             priors += "\n".join(["  Common-level effects", *priors_common]) + "\n\n"
         if priors_group:
@@ -930,9 +936,20 @@ class Model:
     @property
     def common_terms(self):
         """Return dict of all and only common effects in model."""
-        return {k: v for (k, v) in self.terms.items() if not v.group_specific}
+        return {
+            k: v for (k, v) in self.terms.items() if not v.group_specific and v.type != "intercept"
+        }
 
     @property
     def group_specific_terms(self):
         """Return dict of all and only group specific effects in model."""
         return {k: v for (k, v) in self.terms.items() if v.group_specific}
+
+    @property
+    def intercept_term(self):
+        """Return the intercept term"""
+        term = [v for v in self.terms.values() if not v.group_specific and v.type == "intercept"]
+        if term:
+            return term[0]
+        else:
+            return None

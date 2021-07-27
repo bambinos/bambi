@@ -34,7 +34,7 @@ class PriorScalerMLE:
         else:
             self.dm = pd.DataFrame()
 
-        self.has_intercept = any(term.type == "intercept" for term in self.model.terms.values())
+        self.has_intercept = model.intercept_term is not None
 
         self.priors = {}
         self.mle = None
@@ -56,7 +56,7 @@ class PriorScalerMLE:
         sigma = (mod.cov_params()[0] * len(mod.mu)) ** 0.5
 
         # Modify mu and sigma based on means and sigmas of slope priors.
-        if len(self.model.common_terms) > 1 and add_slopes:
+        if self.model.common_terms and add_slopes:
             # prior["mu"] and prior["sigma"] have more than one value when the term is categoric.
             means = np.hstack([prior["mu"] for prior in self.priors.values()])
             sigmas = np.hstack([prior["sigma"] for prior in self.priors.values()])
@@ -213,9 +213,14 @@ class PriorScalerMLE:
 
     def scale(self):
         # Classify all terms
-        intercept = [term for term in self.model.common_terms.values() if term.name == "Intercept"]
-        common = [term for term in self.model.common_terms.values() if term.name != "Intercept"]
+        common = list(self.model.common_terms.values())
         group_specific = list(self.model.group_specific_terms.values())
+
+        if self.has_intercept:
+            intercept = [self.model.intercept_term]
+            print("hey")
+        else:
+            intercept = []
 
         # Arrange them in the order in which they should be initialized
         terms = common + intercept + group_specific
