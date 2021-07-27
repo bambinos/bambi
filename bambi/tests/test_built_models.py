@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 
 import arviz as az
@@ -552,3 +554,15 @@ def test_potentials():
         "Elemwise{switch,no_inplace}(Elemwise{gt,no_inplace}.0, "
         "TensorConstant{0}, TensorConstant{-inf})"
     )
+
+
+def test_init_fallback(caplog):
+    data = pd.read_csv("data/obs.csv")
+    model = Model("od ~ temp + (1|source) + 0", data)
+    with pytest.raises(RuntimeError):
+        results = model.fit(draws=100, init="jitter+adapt_diag")
+    with caplog.at_level(logging.INFO):
+        results = model.fit(draws=100, init="auto")
+        assert "Initializing NUTS using jitter+adapt_diag..." in caplog.text
+        assert "The default initialization" in caplog.text
+        assert "Initializing NUTS using adapt_diag..." in caplog.text
