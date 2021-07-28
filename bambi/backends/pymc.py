@@ -60,9 +60,9 @@ class PyMC3BackEnd(BackEnd):
         # Common effects have at most ONE coord.
         with self.model:
             self.mu = 0.0
-            x_list = []
-            b_list = []
+            coef_list = []
 
+            # Iterate through terms and add their coefficients to coef_list
             for term in spec.common_terms.values():
                 data = term.data
                 label = term.name
@@ -73,30 +73,29 @@ class PyMC3BackEnd(BackEnd):
                     coef = self.build_common_distribution(dist, label, dims=dims, **args)
                 else:
                     coef = self.build_common_distribution(dist, label, shape=data.shape[1], **args)
+                coef_list.append(coef)
 
-                b_list.append(coef)
-                x_list.append(data)
-
-            if x_list:
-                X = np.hstack(x_list)
-                b = tt.concatenate(b_list)
+            # If there are predictors, use design matrix (w/o intercept)
+            if coef_list:
+                coefs = tt.concatenate(coef_list)
+                X = spec._design.common.design_matrix # pylint: disable=protected-access
 
             if self.has_intercept:
                 term = spec.intercept_term
                 distribution = self.get_distribution(term.prior.name)
+                # If there are predictors, "Intercept" is a the intercept for centered predictors
+                # This is intercept is re-scaled later.
                 intercept = distribution("Intercept", shape=1, **term.prior.args)
                 self.mu += intercept
 
-                # "Intercept" is a temporary intercept for centered predictors.
-                # "Intercept__" is the actual intercept. Will be renamed to "Intercept".
                 if spec.common_terms:
-                    x_mean = X.mean(0)
-                    x_centered = X - x_mean
-                    self.mu += tt.dot(x_centered, b)
-                    # Add actual intercept
-                    pm.Deterministic("Intercept__", intercept - tt.dot(x_mean, b))
-            elif x_list:
-                self.mu += tt.dot(X, b)
+                    # Remove intercept from design matrix
+                    # pylint: disable=protected-access
+                    idx = spec._design.common.terms_info["Intercept"]["cols"]
+                    X = np.delete(X, idx, axis=1)
+                    self.mu += tt.dot(X - X.mean(0), coefs)
+            elif coef_list:
+                self.mu += tt.dot(X, coefs)
 
         ## Add group-specific effects
         # Group-specific effects always have pymc_coords. At least for the group.
@@ -227,10 +226,21 @@ class PyMC3BackEnd(BackEnd):
 
             idata.posterior = idata.posterior.transpose(*coords_new)
 
-            # Keep the actual intercept "Intercept__" as "Intercept"
+            # Compute the actual intercept
             if self.has_intercept and self.spec.common_terms:
-                idata.posterior = idata.posterior.drop_vars(["Intercept"])
-                idata.posterior = idata.posterior.rename({"Intercept__": "Intercept"})
+                chain_n = len(idata.posterior["chain"])
+                draw_n = len(idata.posterior["draw"])
+
+                # Design matrix without intercept
+                X = self.spec._design.common.design_matrix
+                idx = self.spec._design.common.terms_info["Intercept"]["cols"]
+                X = np.delete(X, idx, axis=1)
+
+                # Re-scale intercept for centered predictors
+                posterior_ = idata.posterior.stack(sample=["chain", "draw"])
+                coefs_list = [np.atleast_2d(posterior_[name]) for name in self.spec.common_terms]
+                coefs = np.vstack(coefs_list)
+                idata.posterior["Intercept"] -= np.dot(X.mean(0), coefs).reshape((chain_n, draw_n))
 
             # Sort variable names so Intercept is in the beginning
             var_names = list(idata.posterior.var())
