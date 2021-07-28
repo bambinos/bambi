@@ -78,7 +78,7 @@ class PyMC3BackEnd(BackEnd):
             # If there are predictors, use design matrix (w/o intercept)
             if coef_list:
                 coefs = tt.concatenate(coef_list)
-                X = spec._design.common.design_matrix # pylint: disable=protected-access
+                X = spec._design.common.design_matrix  # pylint: disable=protected-access
 
             if self.has_intercept:
                 term = spec.intercept_term
