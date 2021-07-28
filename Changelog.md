@@ -26,6 +26,7 @@
 * Fix Negative binomial family (#340)
 * Add informative message when link function is not available for a given family (#340)
 * Update formulae version to 0.0.10 (#348)
+* Automatic switch initialization method from "jitter-adapt_diag" to "adapt_diag" when sampling fails (#383)
 
 ### Documentation
 * Notebooks are updated to the new API (#336)

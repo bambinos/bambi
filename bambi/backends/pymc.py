@@ -1,4 +1,5 @@
 import logging
+import traceback
 
 import numpy as np
 import theano.tensor as tt
@@ -147,12 +148,27 @@ class PyMC3BackEnd(BackEnd):
             Finally, ``'laplace'``, in which case a laplace approximation is used, ``'laplace'`` is
             not recommended other than for pedagogical use.
         init: str
-            Initialization method (see PyMC3 sampler documentation). Currently, this is
-            ``'jitter+adapt_diag'``, but this can change in the future.
+            Initialization method. Defaults to ``'auto'``. The available methods are:
+            * auto: Use ``'jitter+adapt_diag'`` and if this method fails it uses ``'adapt_diag'``.
+            * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the
+              variance of the tuning samples. All chains use the test value (usually the prior mean)
+              as starting point.
+            * jitter+adapt_diag: Same as ``adapt_diag``, but use test value plus a uniform jitter in
+              [-1, 1] as starting point in each chain.
+            * advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on
+              the sample variance of the tuning samples.
+            * advi+adapt_diag_grad: Run ADVI and then adapt the resulting diagonal mass matrix based
+              on the variance of the gradients during tuning. This is **experimental** and might be
+              removed in a future release.
+            * advi: Run ADVI to estimate posterior mean and diagonal mass matrix.
+            * advi_map: Initialize ADVI with MAP and use MAP as starting point.
+            * map: Use the MAP as starting point. This is strongly discouraged.
+            * adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the
+              test value (usually the prior mean) as starting point.
+            * jitter+adapt_full: Same as ``adapt_full``, but use test value plus a uniform jitter in
+              [-1, 1] as starting point in each chain.
         n_init: int
-            Number of initialization iterations if ``init = 'advi'`` or '``init = 'nuts'``.
-            Default is kind of in PyMC3 for the kinds of models we expect to see run with Bambi,
-            so we lower it considerably.
+            Number of initialization iterations. Only works for 'advi' init methods.
         omit_offsets: bool
             Omits offset terms in the ``InferenceData`` object when the model includes
             group specific effects. Defaults to ``True``.
@@ -166,14 +182,35 @@ class PyMC3BackEnd(BackEnd):
         if method.lower() == "mcmc":
             draws = kwargs.pop("draws", 1000)
             with model:
-                idata = pm.sample(
-                    draws,
-                    start=start,
-                    init=init,
-                    n_init=n_init,
-                    return_inferencedata=True,
-                    **kwargs,
-                )
+                try:
+                    idata = pm.sample(
+                        draws,
+                        start=start,
+                        init=init,
+                        n_init=n_init,
+                        return_inferencedata=True,
+                        **kwargs,
+                    )
+
+                except (RuntimeError, ValueError):
+                    if (
+                        "ValueError: Mass matrix contains" in traceback.format_exc()
+                        and init == "auto"
+                    ):
+                        _log.info(
+                            "\nThe default initialization using init='auto' has failed, trying to "
+                            "recover by switching to init='adapt_diag'",
+                        )
+                        idata = pm.sample(
+                            draws,
+                            start=start,
+                            init="adapt_diag",
+                            n_init=n_init,
+                            return_inferencedata=True,
+                            **kwargs,
+                        )
+                    else:
+                        raise
 
             if omit_offsets:
                 offset_vars = [var for var in idata.posterior.var() if var.endswith("_offset")]
