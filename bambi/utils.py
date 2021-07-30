@@ -3,6 +3,7 @@ from .priors import Family
 FAMILY_LINKS = {
     "bernoulli": ["identity", "logit", "probit", "cloglog"],
     "beta": ["identity", "logit", "probit", "cloglog"],
+    "binomial": ["identity", "logit", "probit", "cloglog"],
     "gamma": ["identity", "log", "inverse"],
     "gaussian": ["identity", "log", "inverse"],
     "negativebinomial": ["identity", "log", "cloglog"],

@@ -17,7 +17,7 @@ class ResponseTerm:
         self.name = term.name
         self.data = term.design_vector
         self.categorical = term.type == "categoric"
-        self.success_event = term.refclass if term.refclass is not None else 1
+        self.success_event = term.success if term.success is not None else 1
         self.constant = np.var(self.data) == 0
         self.family = family
 

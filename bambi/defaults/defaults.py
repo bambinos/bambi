@@ -6,6 +6,7 @@ from ..priors import Family, Likelihood, Prior
 SETTINGS_DISTRIBUTIONS = {
     "Bernoulli": {"p": 0.5},
     "Beta": {"alpha": 1, "beta": 1},
+    "Binomial": {"n": 1, "p": 0.5},
     "Cauchy": {"alpha": 0, "beta": 1},
     "Flat": {},
     "Gamma": {"alpha": 2, "beta": 2},
@@ -39,6 +40,15 @@ SETTINGS_FAMILIES = {
             },
             "parent": "mu",
             "pps": pps.pps_beta
+        },
+        "link": "logit"
+    },
+    "binomial": {
+        "likelihood": {
+            "name": "Binomial",
+            "args": {},
+            "parent": "p",
+            "pps": pps.pps_binomial
         },
         "link": "logit"
     },

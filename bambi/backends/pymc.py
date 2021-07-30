@@ -306,6 +306,17 @@ class PyMC3BackEnd(BackEnd):
                     for (k, v) in likelihood.priors.items()
                 }
             )
+        if spec.family.name == "beta":
+            # Beta distribution is specified using alpha and beta, but we have mu and kappa.
+            # alpha = mu * kappa and beta = (1 - mu) * kappa
+            alpha = kwargs["mu"] * kwargs["kappa"]
+            beta = (1 - kwargs["mu"]) * kwargs["kappa"]
+            return dist(name, alpha=alpha, beta=beta, observed=kwargs["observed"])
+
+        if spec.family.name == "binomial":
+            successes = data[:, 0].squeeze()
+            trials = data[:, 1].squeeze()
+            return dist(name, p=kwargs["p"], observed=successes, n=trials)
 
         if spec.family.name == "gamma":
             # Gamma distribution is specified using mu and sigma, but we request prior for alpha.
@@ -314,13 +325,6 @@ class PyMC3BackEnd(BackEnd):
             beta = kwargs["alpha"] / kwargs["mu"]
             sigma = (kwargs["mu"] / beta) ** 0.5
             return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
-
-        if spec.family.name == "beta":
-            # Beta distribution is specified using alpha and beta, but we have mu and kappa.
-            # alpha = mu * kappa and beta = (1 - mu) * kappa
-            alpha = kwargs["mu"] * kwargs["kappa"]
-            beta = (1 - kwargs["mu"]) * kwargs["kappa"]
-            return dist(name, alpha=alpha, beta=beta, observed=kwargs["observed"])
 
         return dist(name, **kwargs)
 
