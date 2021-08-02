@@ -1,8 +1,12 @@
 from .prior import Prior
 
+from ..utils import multilinify, spacify
+
 DISTRIBUTIONS = {
     "Normal": {"params": ("mu", "sigma"), "parent": "mu", "args": ("sigma",)},
     "Bernoulli": {"params": ("p",), "parent": "p", "args": None},
+    "Beta": {"params": ("mu", "kappa"), "parent": "mu", "args": ("kappa",)},
+    "Binomial": {"params": ("p",), "parent": "p", "args": None},
     "Poisson": {"params": ("mu",), "parent": "mu", "args": None},
     "StudentT": {"params": ("mu", "lam"), "args": ("lam", "nu")},
     "NegativeBinomial": {"params": ("mu", "alpha"), "parent": "mu", "args": ("alpha",)},
@@ -75,6 +79,13 @@ class Likelihood:
             check_all_are_priors(priors)
 
         return priors
+
+    def __str__(self):
+        args = [f"name: {self.name}", f"parent: {self.parent}", f"priors: {self.priors}"]
+        return f"{self.__class__.__name__}({spacify(multilinify(args))}\n)"
+
+    def __repr__(self):
+        return self.__str__()
 
 
 def check_all_are_priors(priors):

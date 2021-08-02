@@ -15,9 +15,9 @@ from formulae import design_matrices
 
 from .backends import PyMC3BackEnd
 from .defaults import get_default_prior, get_builtin_family
-from .priors import Family, Prior, PriorScaler, PriorScalerMLE
+from .priors import Family, Prior, PriorScaler, PriorScalerMLE, extract_family_prior
 from .terms import ResponseTerm, Term, GroupSpecificTerm
-from .utils import listify, extract_family_prior, link_match_family
+from .utils import listify, link_match_family
 from .version import __version__
 
 _log = logging.getLogger("bambi")

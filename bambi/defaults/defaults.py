@@ -158,4 +158,10 @@ def get_default_prior(term_type):
 
 
 def get_builtin_family(name):
+    """Generate a built-in ``Family`` instance
+
+    Given the name of a built-in family, this function returns a ``Family`` instance that is
+    constructed by calling other utility functions that construct the ``Likelihood`` and the
+    ``Prior``s that are needed to build the family.
+    """
     return generate_family(name, **SETTINGS_FAMILIES[name])

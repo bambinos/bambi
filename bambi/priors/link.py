@@ -2,8 +2,11 @@ import numpy as np
 
 from scipy import special
 
+from ..utils import multilinify, spacify
+
 
 def force_within_unit_interval(x):
+    """Make sure data in unit interval is in (0, 1)"""
     eps = np.finfo(float).eps
     x[x == 0] = eps
     x[x == 1] = 1 - eps
@@ -11,6 +14,7 @@ def force_within_unit_interval(x):
 
 
 def force_greater_than_zero(x):
+    """Make sure data in positive reals is in (0, infty)"""
     eps = np.finfo(float).eps
     x[x == 0] = eps
     return x
@@ -90,6 +94,34 @@ LINKS = {
 
 
 class Link:
+    """Representation of link function.
+
+    This object actually contains two main functions. One is the link function itself, the function
+    that maps values in the response scale to the linear predictor, and the other is the inverse
+    of the link function, that maps values of the linear predictor to the response scale.
+
+    The great majority of users will never interact with this class unless they want to create
+    a custom ``Family`` with a custom ``Link``. This is automatically handled for all the built-in
+    families.
+
+    Parameters
+    ----------
+    name: str
+        The name of the link function. If it is a known name, it's not necessary to pass any
+        other arguments because functions are already defined internally. If not known, all of
+        ``link``, ``linkinv`` and ``linkinv_backend`` must be specified.
+    link: function
+        A function that maps the response to the linear predictor. Known as 'g()' in GLM jargon.
+        Does not need to be specified when ``name`` is a known name.
+    linkinv: function
+        A function that maps the linear predictor to the response. Knonwn as 'g()^-1' in GLM jargon.
+        Does not need to be specified when ``name`` is a known name.
+    linkinv_backend: function
+        Same than ``linkinv`` but must be something that works with PyMC3 backend (i.e. it must
+        work with Theano tensors). Does not need to be specified when ``name`` is a known name.
+
+    """
+
     def __init__(self, name, link=None, linkinv=None, linkinv_backend=None):
         self.name = name
         self.link = link
@@ -105,3 +137,10 @@ class Link:
                     f"Link name '{name}' is not supported and at least one of 'link', "
                     "'linkinv' or 'linkinv_backend' are unespecified."
                 )
+
+    def __str__(self):
+        args = [f"name: {self.name}", f"link: {self.link}", f"linkinv: {self.linkinv}"]
+        return f"{self.__class__.__name__}({spacify(multilinify(args))}\n)"
+
+    def __repr__(self):
+        return self.__str__()
