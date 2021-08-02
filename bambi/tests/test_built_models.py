@@ -580,9 +580,9 @@ def test_binomial_regression():
     model = Model("prop(y, n) ~ x", data, family="binomial")
     model.fit()
 
-    # Using a constant instead of a variable DOES NOT WORK YET
-    # model = Model("prop(y, 60) ~ x", data, family="binomial")
-    # model.fit()
+    # Using constant instead of variable in data frame
+    model = Model("prop(y, 62) ~ x", data, family="binomial")
+    model.fit()
 
 
 def test_init_fallback(init_data, caplog):
