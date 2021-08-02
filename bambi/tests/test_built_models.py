@@ -1,3 +1,5 @@
+import logging
+
 import pytest
 
 import arviz as az
@@ -46,6 +48,18 @@ def dm():
 
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "dm.csv"))
+    return data
+
+
+@pytest.fixture(scope="module")
+def init_data():
+    """
+    Data used to test initialization method
+    """
+    from os.path import dirname, join
+
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "obs.csv"))
     return data
 
 
@@ -569,3 +583,12 @@ def test_binomial_regression():
     # Using a constant instead of a variable DOES NOT WORK YET
     # model = Model("prop(y, 60) ~ x", data, family="binomial")
     # model.fit()
+
+
+def test_init_fallback(init_data, caplog):
+    model = Model("od ~ temp + (1|source) + 0", init_data)
+    with caplog.at_level(logging.INFO):
+        results = model.fit(draws=100, init="auto")
+        assert "Initializing NUTS using jitter+adapt_diag..." in caplog.text
+        assert "The default initialization" in caplog.text
+        assert "Initializing NUTS using adapt_diag..." in caplog.text
