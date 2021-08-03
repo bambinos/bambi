@@ -818,7 +818,11 @@ class Model:
         # Compute posterior predictive distribution
         else:
             # Sample mu values and auxiliary params
-            pps = self.family.likelihood.pps(self, idata.posterior, mu, draws, draw_n)
+            if not in_sample and self.family.name == "binomial":
+                n = self._design.response._evaluate_new_data(data)
+                pps = self.family.likelihood.pps(self, idata.posterior, mu, draws, draw_n, trials=n)
+            else:
+                pps = self.family.likelihood.pps(self, idata.posterior, mu, draws, draw_n)
 
             if "posterior_predictive" in idata:
                 del idata.posterior_predictive
