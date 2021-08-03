@@ -185,7 +185,6 @@ def test_set_priors():
 
     # Common
     model.set_priors(common=prior)
-    assert model.terms["Intercept"].prior == prior
     assert model.terms["x"].prior == prior
 
     # Group-specific
@@ -194,8 +193,10 @@ def test_set_priors():
 
     # By name
     model = Model("y ~ x + (1|g)", data)
+    model.set_priors(priors={"Intercept": prior})
     model.set_priors(priors={"x": prior})
     model.set_priors(priors={"1|g": prior})
+    assert model.terms["Intercept"].prior == prior
     assert model.terms["x"].prior == prior
     assert model.terms["1|g"].prior == prior
 
