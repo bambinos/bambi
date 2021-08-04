@@ -17,13 +17,27 @@ class ResponseTerm:
         self.name = term.name
         self.data = term.design_vector
         self.categorical = term.type == "categoric"
-        self.success_event = term.refclass if term.refclass is not None else 1
+        self.success_event = term.success if term.success is not None else 1
         self.constant = np.var(self.data) == 0
         self.family = family
 
         if family.name == "bernoulli":
             if not all(np.isin(self.data, ([0, 1]))):
                 raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
+
+    def __str__(self):
+        args = [
+            f"name: {self.name}",
+            f"family: {self.family.name}",
+            f"shape: {self.data.squeeze().shape}",
+        ]
+        if self.family.name == "bernoulli":
+            args += [f"succes: {self.success_event}"]
+
+        return f"{self.__class__.__name__}({', '.join(args)})"
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class Term:
@@ -84,6 +98,22 @@ class Term:
                 self.pymc_coords[name] = term_dict["levels"]
             else:
                 self.pymc_coords[name] = term_dict["levels"][1:]
+
+    def __str__(self):
+        args = [
+            f"name: {self.name}",
+            f"prior: {self.prior}",
+            f"type: {self.type}",
+            f"shape: {self.data.squeeze().shape}",
+            f"categorical: {self.categorical}",
+        ]
+        if self.categorical:
+            args += [f"levels: {self.levels}"]
+
+        return f"{self.__class__.__name__}({', '.join(args)})"
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class GroupSpecificTerm:
@@ -152,3 +182,20 @@ class GroupSpecificTerm:
         for i in range(1, dummies.shape[1]):
             vec[dummies[:, i] == 1] = i
         return vec
+
+    def __str__(self):
+        args = [
+            f"name: {self.name}",
+            f"prior: {self.prior}",
+            f"groups: {self.groups}",
+            f"type: {self.type}",
+            f"shape: {self.data.squeeze().shape}",
+            f"categorical: {self.categorical}",
+        ]
+        if self.categorical:
+            args += [f"levels: {self.levels}"]
+
+        return f"{self.__class__.__name__}({', '.join(args)})"
+
+    def __repr__(self):
+        return self.__str__()

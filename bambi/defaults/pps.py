@@ -49,6 +49,15 @@ def pps_beta(model, posterior, mu, draws, draw_n):
     return np.random.beta(alpha, beta)
 
 
+def pps_binomial(
+    model, posterior, mu, draws, draw_n, trials=None
+):  # pylint: disable=unused-argument
+    mu, _ = _get_mu_and_idxs(mu, draws, draw_n)
+    if trials is None:
+        trials = model.response.data[:, 1]
+    return np.random.binomial(trials.squeeze(), mu)
+
+
 def pps_gamma(model, posterior, mu, draws, draw_n):
     mu, idxs = _get_mu_and_idxs(mu, draws, draw_n)
     alpha = posterior[model.response.name + "_alpha"].values[:, idxs, np.newaxis]

@@ -15,9 +15,9 @@ from formulae import design_matrices
 
 from .backends import PyMC3BackEnd
 from .defaults import get_default_prior, get_builtin_family
-from .priors import Family, Prior, PriorScaler, PriorScalerMLE
+from .priors import Family, Prior, PriorScaler, PriorScalerMLE, extract_family_prior
 from .terms import ResponseTerm, Term, GroupSpecificTerm
-from .utils import listify, extract_family_prior, link_match_family
+from .utils import listify, link_match_family
 from .version import __version__
 
 _log = logging.getLogger("bambi")
@@ -37,8 +37,8 @@ class Model:
         A specification of the model family (analogous to the family object in R). Either
         a string, or an instance of class ``priors.Family``. If a string is passed, a family
         with the corresponding name must be defined in the defaults loaded at ``Model``
-        initialization.Valid pre-defined families are ``'gaussian'``, ``'bernoulli'``,
-        ``'poisson'``, ``'gamma'``, ``'wald'``, and ``'negativebinomial'``.
+        initialization. Valid pre-defined families are ``'gaussian'``, ``'bernoulli'``, ``'beta'``,
+        ``'binomial'``, ``'poisson'``, ``'gamma'``, ``'wald'``, and ``'negativebinomial'``.
         Defaults to ``'gaussian'``.
     priors : dict
         Optional specification of priors for one or more terms. A dictionary where the keys are
@@ -354,8 +354,9 @@ class Model:
             A specification of the model family (analogous to the family object in R). Either a
             string, or an instance of class ``priors.Family``. If a string is passed, a family with
             the corresponding name must be defined in the defaults loaded at Model initialization.
-            Valid pre-defined families are ``'gaussian'``, ``'bernoulli'``, ``'poisson'``,
-            ``'gamma'``, ``'wald'``, and ``'negativebinomial'``. Defaults to ``'gaussian'``.
+            Valid pre-defined families are ``'gaussian'``, ``'bernoulli'``, ``'beta'``,
+            ``'binomial'``, ``'poisson'``, ``'gamma'``, ``'wald'``, and ``'negativebinomial'``.
+            Defaults to ``'gaussian'``.
         link : str
             The model link function to use. Can be either a string (must be one of the options
             defined in the current backend; typically this will include at least ``'identity'``,
@@ -389,7 +390,7 @@ class Model:
                     prior.auto_scale = False
             family.likelihood.priors.update(priors)
 
-        if response.refclass is not None and family.name != "bernoulli":
+        if response.success is not None and family.name != "bernoulli":
             raise ValueError("Index notation for response is only available for 'bernoulli' family")
 
         self.family = family
@@ -817,7 +818,11 @@ class Model:
         # Compute posterior predictive distribution
         else:
             # Sample mu values and auxiliary params
-            pps = self.family.likelihood.pps(self, idata.posterior, mu, draws, draw_n)
+            if not in_sample and self.family.name == "binomial":
+                n = self._design.response._evaluate_new_data(data)
+                pps = self.family.likelihood.pps(self, idata.posterior, mu, draws, draw_n, trials=n)
+            else:
+                pps = self.family.likelihood.pps(self, idata.posterior, mu, draws, draw_n)
 
             if "posterior_predictive" in idata:
                 del idata.posterior_predictive

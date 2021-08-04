@@ -6,6 +6,7 @@ from ..priors import Family, Likelihood, Prior
 SETTINGS_DISTRIBUTIONS = {
     "Bernoulli": {"p": 0.5},
     "Beta": {"alpha": 1, "beta": 1},
+    "Binomial": {"n": 1, "p": 0.5},
     "Cauchy": {"alpha": 0, "beta": 1},
     "Flat": {},
     "Gamma": {"alpha": 2, "beta": 2},
@@ -39,6 +40,15 @@ SETTINGS_FAMILIES = {
             },
             "parent": "mu",
             "pps": pps.pps_beta
+        },
+        "link": "logit"
+    },
+    "binomial": {
+        "likelihood": {
+            "name": "Binomial",
+            "args": {},
+            "parent": "p",
+            "pps": pps.pps_binomial
         },
         "link": "logit"
     },
@@ -148,4 +158,10 @@ def get_default_prior(term_type):
 
 
 def get_builtin_family(name):
+    """Generate a built-in ``Family`` instance
+
+    Given the name of a built-in family, this function returns a ``Family`` instance that is
+    constructed by calling other utility functions that construct the ``Likelihood`` and the
+    ``Prior``s that are needed to build the family.
+    """
     return generate_family(name, **SETTINGS_FAMILIES[name])

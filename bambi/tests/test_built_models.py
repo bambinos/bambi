@@ -568,6 +568,23 @@ def test_potentials():
     )
 
 
+def test_binomial_regression():
+    data = pd.DataFrame(
+        {
+            "x": np.array([1.6907, 1.7242, 1.7552, 1.7842, 1.8113, 1.8369, 1.8610, 1.8839]),
+            "n": np.array([59, 60, 62, 56, 63, 59, 62, 60]),
+            "y": np.array([6, 13, 18, 28, 52, 53, 61, 60]),
+        }
+    )
+
+    model = Model("prop(y, n) ~ x", data, family="binomial")
+    model.fit()
+
+    # Using constant instead of variable in data frame
+    model = Model("prop(y, 62) ~ x", data, family="binomial")
+    model.fit()
+
+
 def test_init_fallback(init_data, caplog):
     model = Model("od ~ temp + (1|source) + 0", init_data)
     with caplog.at_level(logging.INFO):
