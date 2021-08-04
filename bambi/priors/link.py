@@ -114,7 +114,7 @@ class Link:
         A function that maps the response to the linear predictor. Known as 'g()' in GLM jargon.
         Does not need to be specified when ``name`` is a known name.
     linkinv: function
-        A function that maps the linear predictor to the response. Knonwn as 'g()^-1' in GLM jargon.
+        A function that maps the linear predictor to the response. Known as 'g()^-1' in GLM jargon.
         Does not need to be specified when ``name`` is a known name.
     linkinv_backend: function
         Same than ``linkinv`` but must be something that works with PyMC3 backend (i.e. it must
