@@ -118,7 +118,7 @@ class Link:
         Does not need to be specified when ``name`` is a known name.
     linkinv_backend: function
         Same than ``linkinv`` but must be something that works with PyMC3 backend (i.e. it must
-        work with Theano tensors). Does not need to be specified when ``name`` is a known name.
+        work with Aesara tensors). Does not need to be specified when ``name`` is a known name.
 
     """
 
