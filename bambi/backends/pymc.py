@@ -120,6 +120,11 @@ class PyMC3BackEnd(BackEnd):
 
 
     def add_common_terms(self):
+        # IDEA:
+        # Let's have:
+        # ADD_COMMON_TERMS_UNIVARIATE: When response is univariate --> Everything so far
+        # ADD_COMMON_TERMS_MULTIVARIATE: When response is multivariate --> Multinomial family
+        #
         # Common effects have at most one coord.
         coef_list = []
         terms = self.spec.common_terms
