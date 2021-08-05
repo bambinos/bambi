@@ -57,6 +57,15 @@ def logit(mu):
     return special.logit(mu)  # pylint: disable=no-member
 
 
+def softmax(eta):
+    result = special.softmax(eta)  # pylint: disable=no-member
+    result = force_within_unit_interval(result)
+    return result
+
+def link_not_implemented(*args, **kwargs):
+    raise ValueError("link not implemented")
+
+
 # linkfun: These are g. They map the response to the linear predictor scale.
 # linkinv: These are g^(-1). They map the linear predictor to the response scale.
 # fmt: off
@@ -88,6 +97,10 @@ LINKS = {
     "probit": {
         "link": probit,
         "linkinv": invprobit
+    },
+    "softmax": {
+        "link": link_not_implemented,
+        "linkinv": softmax
     }
 }
 # fmt: on

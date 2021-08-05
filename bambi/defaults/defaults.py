@@ -74,6 +74,15 @@ SETTINGS_FAMILIES = {
         },
         "link": "identity",
     },
+    "multinomial": {
+        "likelihood": {
+            "name": "Categorical",
+            "args": {},
+            "parent": "p",
+            "pps": pps.pps_not_implemented
+        },
+        "link": "softmax"
+    },
     "negativebinomial": {
         "likelihood": {
             "name": "NegativeBinomial",

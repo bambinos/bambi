@@ -216,7 +216,7 @@ class Model:
             _log.info(
                 "Modeling the probability that %s==%s",
                 self.response.name,
-                str(self.response.success_event),
+                str(self.response.success),
             )
 
         return self.backend.run(omit_offsets=omit_offsets, **kwargs)

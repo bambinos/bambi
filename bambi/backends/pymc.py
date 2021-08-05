@@ -52,51 +52,15 @@ class PyMC3BackEnd(BackEnd):
         """
 
         coords = spec._get_pymc_coords()  # pylint: disable=protected-access
+        if spec.family.name == "multinomial":
+            coords[spec.response.name] = spec.response.levels[1:]
         self.model = pm.Model(coords=coords)
-        noncentered = spec.noncentered
-
         self.has_intercept = spec.intercept_term is not None
+        self.spec = spec
 
-        ## Add common effects
-        # Common effects have at most ONE coord.
-        with self.model:
-            self.mu = 0.0
-            coef_list = []
+        # Add common effect
+        self.add_common_terms()
 
-            # Iterate through terms and add their coefficients to coef_list
-            for term in spec.common_terms.values():
-                data = term.data
-                label = term.name
-                dist = term.prior.name
-                args = term.prior.args
-                if term.pymc_coords:
-                    dims = list(term.pymc_coords.keys())
-                    coef = self.build_common_distribution(dist, label, dims=dims, **args)
-                else:
-                    coef = self.build_common_distribution(dist, label, shape=data.shape[1], **args)
-                coef_list.append(coef)
-
-            # If there are predictors, use design matrix (w/o intercept)
-            if coef_list:
-                coefs = tt.concatenate(coef_list)
-                X = spec._design.common.design_matrix  # pylint: disable=protected-access
-
-            if self.has_intercept:
-                term = spec.intercept_term
-                distribution = self.get_distribution(term.prior.name)
-                # If there are predictors, "Intercept" is a the intercept for centered predictors
-                # This is intercept is re-scaled later.
-                intercept = distribution("Intercept", shape=1, **term.prior.args)
-                self.mu += intercept
-
-                if spec.common_terms:
-                    # Remove intercept from design matrix
-                    # pylint: disable=protected-access
-                    idx = spec._design.common.terms_info["Intercept"]["cols"]
-                    X = np.delete(X, idx, axis=1)
-                    self.mu += tt.dot(X - X.mean(0), coefs)
-            elif coef_list:
-                self.mu += tt.dot(X, coefs)
 
         ## Add group-specific effects
         # Group-specific effects always have pymc_coords. At least for the group.
@@ -110,6 +74,7 @@ class PyMC3BackEnd(BackEnd):
                 terms = [spec.terms[name] for name in spec._get_group_specific_groups()[group]]
                 self.mu += add_lkj(terms, eta)
 
+        noncentered = spec.noncentered
         # Add group specific terms that don't have a prior for their correlation matrix
         terms = [
             term
@@ -151,7 +116,60 @@ class PyMC3BackEnd(BackEnd):
                     pm.Potential(f"pot_{count}", potential)
                     count += 1
 
-        self.spec = spec
+        return None
+
+
+    def add_common_terms(self):
+        # Common effects have at most one coord.
+        coef_list = []
+        terms = self.spec.common_terms
+
+        is_multinomial = self.spec.family.name == "multinomial"
+
+        with self.model:
+            self.mu = 0.0
+
+            # Iterate through terms and add their coefficients to coef_list
+            for term in terms.values():
+                if is_multinomial:
+                    response = self.spec.response
+                    term.pymc_coords[self.spec.response.name] =  response.levels[1:] # drop first
+
+                data = term.data
+                label = term.name
+                dist = term.prior.name
+                args = term.prior.args
+                if term.pymc_coords:
+                    dims = list(term.pymc_coords.keys())
+                    # COEF tiene que tener otra dimension
+                    coef = self.build_common_distribution(dist, label, dims=dims, **args)
+                else:
+                    coef = self.build_common_distribution(dist, label, shape=data.shape[1], **args)
+                coef_list.append(coef)
+
+            # If there are predictors, use design matrix (w/o intercept)
+            if coef_list:
+                coefs = tt.concatenate(coef_list)
+                if is_multinomial:
+                    coefs = tt.concatenate([np.zeros((len(coef_list), 1)) , coefs], axis=1)
+                X = self.spec._design.common.design_matrix  # pylint: disable=protected-access
+
+            if self.has_intercept:
+                term = self.spec.intercept_term
+                dist = self.get_distribution(term.prior.name)
+                # Intercept for centered predictors. This is re-scaled in the InferenceData.
+                self.mu += dist("Intercept", shape=1, **term.prior.args)
+
+                if self.spec.common_terms:
+                    # Remove intercept from design matrix
+                    # pylint: disable=protected-access
+                    idx = self.spec._design.common.terms_info["Intercept"]["cols"]
+                    X = np.delete(X, idx, axis=1)
+                    self.mu += tt.dot(X - X.mean(0), coefs)
+            elif coef_list:
+                self.mu += tt.dot(X, coefs)
+
+        return None
 
     # pylint: disable=arguments-differ, inconsistent-return-statements
     def run(

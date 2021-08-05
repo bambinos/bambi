@@ -99,3 +99,6 @@ def pps_wald(model, posterior, mu, draws, draw_n):
     mu, idxs = _get_mu_and_idxs(mu, draws, draw_n)
     lam = posterior[model.response.name + "_lam"].values[:, idxs, np.newaxis]
     return np.random.wald(mu, lam)
+
+def pps_not_implemented(*args, **kwargs):
+    raise ValueError("pps not implemented for this family yet.")
