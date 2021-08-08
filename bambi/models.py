@@ -867,9 +867,9 @@ class Model:
 
         Example
         --------
-        > model = Model('y ~ x + (1|z)')
-        > model.build()
-        > model.graph()
+        >>> model = Model('y ~ x + (1|z)')
+        >>> model.build()
+        >>> model.graph()
 
         """
         if self.backend is None:
