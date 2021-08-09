@@ -218,7 +218,6 @@ class PriorScalerMLE:
 
         if self.has_intercept:
             intercept = [self.model.intercept_term]
-            print("hey")
         else:
             intercept = []
 
