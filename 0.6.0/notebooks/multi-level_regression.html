@@ -1,0 +1,1099 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multi-level Regression &#8212; Bambi 0.6.0 documentation</title>
+    
+  <link href="../_static/css/theme.css" rel="stylesheet" />
+  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "document", "processHtmlClass": "math|output_area"}}</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Bayesian Workflow (Strack RRR Analysis Replication)" href="Strack_RRR_re_analysis.html" />
+    <link rel="prev" title="Logistic Regression" href="logistic_regression.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="en" />
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../index.html">
+<p class="title">Bambi</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="getting_started.html">
+  Getting Started
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="../examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../api_reference.html">
+  API Reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub">
+            <span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bambi/" rel="noopener" target="_blank" title="PyPi">
+            <span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label>
+          </a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+  
+
+  
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Versions navigation">
+    <div class="bd-toc-item active">
+        <ul class="current nav bd-sidenav">
+        <li class="toctree-l1 has-children">
+            <p class="caption"><span class="caption-text">Version</span></p>
+            <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox">
+            <label for="toctree-checkbox-1"> <i class="fas fa-chevron-down"></i></label>
+
+            <ul>
+
+                
+
+                  
+                    <li class="toctree-l2 current active"><a href="multi-level_regression.html">0.6.0 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.5.0/index.html">0.5.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.4.1/index.html">0.4.1</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.4.0/index.html">0.4.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.3.0/index.html">0.3.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.2.0/index.html">0.2.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.1.5/index.html">0.1.5</a></li>
+                  
+
+                
+
+            </ul>
+        </li>
+        </ul>
+    </div>
+  </nav>
+
+
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Load-data">
+   Load data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Model">
+   Model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Estimated-regression-line">
+   Estimated regression line
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt a.copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<div class="section" id="Multi-level-Regression">
+<h1>Multi-level Regression<a class="headerlink" href="#Multi-level-Regression" title="Permalink to this headline">¶</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">12345</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="line-block">
+<div class="line">In this notebook we demo how to perform a Bayesian multi-level regression.</div>
+<div class="line">We’ll use a multi-level dataset included with <code class="docutils literal notranslate"><span class="pre">statsmodels</span></code> containing <a class="reference external" href="https://www.rdocumentation.org/packages/doBy/versions/4.6-2/topics/data-dietox">the growth curve of pigs</a>. Since the weight of each pig is measured multiple times, we’ll estimate a model that allows varying intercepts and slopes for time, for each pig.</div>
+</div>
+<div class="section" id="Load-data">
+<h2>Load data<a class="headerlink" href="#Load-data" title="Permalink to this headline">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Load up data from statsmodels</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">get_rdataset</span><span class="p">(</span><span class="s2">&quot;dietox&quot;</span><span class="p">,</span> <span class="s2">&quot;geepack&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+<span class="n">data</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Pig</th>
+      <th>Litter</th>
+      <th>Start</th>
+      <th>Weight</th>
+      <th>Feed</th>
+      <th>Time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>count</th>
+      <td>861.000000</td>
+      <td>861.000000</td>
+      <td>861.000000</td>
+      <td>861.000000</td>
+      <td>789.000000</td>
+      <td>861.000000</td>
+    </tr>
+    <tr>
+      <th>mean</th>
+      <td>6238.319396</td>
+      <td>12.135889</td>
+      <td>25.672701</td>
+      <td>60.725769</td>
+      <td>80.728645</td>
+      <td>6.480836</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>1323.845928</td>
+      <td>7.427252</td>
+      <td>3.624336</td>
+      <td>24.978881</td>
+      <td>52.877736</td>
+      <td>3.444735</td>
+    </tr>
+    <tr>
+      <th>min</th>
+      <td>4601.000000</td>
+      <td>1.000000</td>
+      <td>15.000000</td>
+      <td>15.000000</td>
+      <td>3.300003</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>25%</th>
+      <td>4857.000000</td>
+      <td>5.000000</td>
+      <td>23.799990</td>
+      <td>38.299990</td>
+      <td>32.800003</td>
+      <td>3.000000</td>
+    </tr>
+    <tr>
+      <th>50%</th>
+      <td>5866.000000</td>
+      <td>11.000000</td>
+      <td>25.700000</td>
+      <td>59.199980</td>
+      <td>74.499996</td>
+      <td>6.000000</td>
+    </tr>
+    <tr>
+      <th>75%</th>
+      <td>8050.000000</td>
+      <td>20.000000</td>
+      <td>27.299990</td>
+      <td>81.199950</td>
+      <td>123.000000</td>
+      <td>9.000000</td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td>8442.000000</td>
+      <td>24.000000</td>
+      <td>35.399990</td>
+      <td>117.000000</td>
+      <td>224.500000</td>
+      <td>12.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</div>
+<div class="section" id="Model">
+<h2>Model<a class="headerlink" href="#Model" title="Permalink to this headline">¶</a></h2>
+<div class="math notranslate nohighlight">
+\[Y_i = \beta_{0, i} + \beta_{1, i} X + \epsilon_i\]</div>
+<p>with</p>
+<div class="line-block">
+<div class="line"><span class="math notranslate nohighlight">\(\beta_{0, i} = \beta_0 + \alpha_{0, i}\)</span></div>
+<div class="line"><span class="math notranslate nohighlight">\(\beta_{1, i} = \beta_1 + \alpha_{1, i}\)</span></div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(\beta_0\)</span> and <span class="math notranslate nohighlight">\(\beta_1\)</span> are usual common intercept and slope you find in a linear regression. <span class="math notranslate nohighlight">\(\alpha_{0, i}\)</span> and <span class="math notranslate nohighlight">\(\alpha_{1, i}\)</span> are the group specific components for the pig <span class="math notranslate nohighlight">\(i\)</span>, influencing the intercept and the slope respectively. Finally <span class="math notranslate nohighlight">\(\epsilon_i\)</span> is the random error we always see in this type of models, assumed to be Gaussian with mean 0. Note that here we use “common” and “group specific” effects to denote what in many fields are known as
+“fixed” and “random” effects, respectively.</p>
+<p>We use the formula syntax to specify the model. Previously, you had to specify common and group specific components separately. Now, thanks to <a class="reference external" href="https://github.com/bambinos/formulae">formulae</a>, you can specify model formulas just as you would do with R packages like <a class="reference external" href="https://CRAN.R-project.org/package=lme4">lme4</a> and <a class="reference external" href="https://CRAN.R-project.org/package=brms">brms</a>. In a nutshell, the term on the left side tells <code class="docutils literal notranslate"><span class="pre">Weight</span></code> is the response variable, <code class="docutils literal notranslate"><span class="pre">Time</span></code> on the right-hand side tells we
+include a main effect for the variable <code class="docutils literal notranslate"><span class="pre">Time</span></code>, and <code class="docutils literal notranslate"><span class="pre">(Time|Pig)</span></code> indicates we want to allow a each pig to have its own slope for <code class="docutils literal notranslate"><span class="pre">Time</span></code> as well as its own intercept (which is implicit). If we only wanted different intercepts, we would have written <code class="docutils literal notranslate"><span class="pre">Weight</span> <span class="pre">~</span> <span class="pre">Time</span> <span class="pre">+</span> <span class="pre">(1</span> <span class="pre">|</span> <span class="pre">Pig)</span></code> and if we wanted slopes specific to each pig without including a pig specific intercept, we would write <code class="docutils literal notranslate"><span class="pre">Weight</span> <span class="pre">~</span> <span class="pre">Time</span> <span class="pre">+</span> <span class="pre">(0</span> <span class="pre">+</span> <span class="pre">Time</span> <span class="pre">|</span> <span class="pre">Pig)</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;Weight ~ Time + (Time|Pig)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [Weight_sigma, Time|Pig_offset, Time|Pig_sigma, 1|Pig_offset, 1|Pig_sigma, Intercept, Time]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+    <style>
+        /* Turns off some styling */
+        progress {
+            /* gets rid of default border in Firefox and Opera. */
+            border: none;
+            /* Needs to be in here for Safari polyfill so background images work as expected. */
+            background-size: auto;
+        }
+        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+            background: #F44336;
+        }
+    </style>
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:17<00:00 Sampling 2 chains, 0 divergences]
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 18 seconds.
+The number of effective samples is smaller than 25% for some parameters.
+</pre></div></div>
+</div>
+<p>We can print the model to have a summary of the details</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">model</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Formula: Weight ~ Time + (Time|Pig)
+Family name: Gaussian
+Link: identity
+Observations: 861
+Priors:
+  Common-level effects
+    Intercept ~ Normal(mu: 60.7258, sigma: 133.0346)
+    Time ~ Normal(mu: 0.0, sigma: 18.1283)
+
+  Group-level effects
+    1|Pig ~ Normal(mu: 0, sigma: HalfNormal(sigma: 133.0346))
+    Time|Pig ~ Normal(mu: 0, sigma: HalfNormal(sigma: 18.1283))
+
+  Auxiliary parameters
+    sigma ~ HalfStudentT(nu: 4, sigma: 24.9644)
+
+
+------
+* To see a plot of the priors call the .plot_priors() method.
+* To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()
+</pre></div></div>
+</div>
+<p>Since we have not specified prior distributions for the parameters in the model, Bambi has chosen sensible defaults for us. We can explore these priors through samples generated from them with a call to <code class="docutils literal notranslate"><span class="pre">Model.plot_priors()</span></code>, which plots a kernel density estimate for each prior.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_multi-level_regression_11_0.png" src="../_images/notebooks_multi-level_regression_11_0.png" />
+</div>
+</div>
+<p>Now we are ready to check the results. Using <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> we get traceplots that show the values sampled from the posteriors and density estimates that gives us an idea of the shape of the posterior distribution of our parameters.</p>
+<p>In this case it is very convenient to use <code class="docutils literal notranslate"><span class="pre">compact=True</span></code>. We tell ArviZ to plot all the group specific posteriors in the same panel which saves space and makes it easier to compare group specific posteriors. Thus, we’ll have a panel with all the group specific intercepts, and another panel with all the group specific slopes. If we used <code class="docutils literal notranslate"><span class="pre">compact=False</span></code>, which is the default, we would end up with a huge number of panels which would make the plot unreadable.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># Plot posteriors</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span>
+    <span class="n">results</span><span class="p">,</span>
+    <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;1|Pig&quot;</span><span class="p">,</span> <span class="s2">&quot;Time|Pig&quot;</span><span class="p">,</span> <span class="s2">&quot;Weight_sigma&quot;</span><span class="p">],</span>
+    <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_multi-level_regression_13_0.png" src="../_images/notebooks_multi-level_regression_13_0.png" />
+</div>
+</div>
+<p>The same plot could have been generated with less typing by calling</p>
+<p><code class="docutils literal notranslate"><span class="pre">az.plot_trace(results,</span> <span class="pre">var_names=[&quot;~1|Pig_sigma&quot;,</span> <span class="pre">&quot;~Time|Pig_sigma&quot;],</span> <span class="pre">compact=True);</span></code></p>
+<div class="line-block">
+<div class="line">which uses an alternative notation to pass <code class="docutils literal notranslate"><span class="pre">var_names</span></code> based on the negation symbol in Python, <code class="docutils literal notranslate"><span class="pre">~</span></code>. There we are telling ArviZ to plot all the variables in the InferenceData object <code class="docutils literal notranslate"><span class="pre">results</span></code>, except from <code class="docutils literal notranslate"><span class="pre">1|Pig_sigma</span></code> and <code class="docutils literal notranslate"><span class="pre">Time|Pig_sigma</span></code>.</div>
+<div class="line">Can’t believe it? Come on, run this notebook on your side and have a try!</div>
+</div>
+<p>The plots generated by <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> are enough to be confident that the sampler did a good job and conclude about plausible values for the distribution of each parameter in the model. But if we want to, and it is a good idea to do it, we can get umerical summaries for the posteriors with <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;1|Pig_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;Time|Pig_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;Weight_sigma&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>sd</th>
+      <th>hdi_3%</th>
+      <th>hdi_97%</th>
+      <th>mcse_mean</th>
+      <th>mcse_sd</th>
+      <th>ess_bulk</th>
+      <th>ess_tail</th>
+      <th>r_hat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>15.777</td>
+      <td>0.590</td>
+      <td>14.607</td>
+      <td>16.887</td>
+      <td>0.030</td>
+      <td>0.021</td>
+      <td>384.0</td>
+      <td>697.0</td>
+      <td>1.01</td>
+    </tr>
+    <tr>
+      <th>Time</th>
+      <td>6.943</td>
+      <td>0.083</td>
+      <td>6.791</td>
+      <td>7.097</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>396.0</td>
+      <td>738.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>1|Pig_sigma</th>
+      <td>4.550</td>
+      <td>0.425</td>
+      <td>3.747</td>
+      <td>5.307</td>
+      <td>0.016</td>
+      <td>0.011</td>
+      <td>774.0</td>
+      <td>1119.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>Time|Pig_sigma</th>
+      <td>0.662</td>
+      <td>0.063</td>
+      <td>0.551</td>
+      <td>0.784</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>602.0</td>
+      <td>1065.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>Weight_sigma</th>
+      <td>2.461</td>
+      <td>0.063</td>
+      <td>2.342</td>
+      <td>2.580</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>2376.0</td>
+      <td>1606.0</td>
+      <td>1.00</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</div>
+<div class="section" id="Estimated-regression-line">
+<h2>Estimated regression line<a class="headerlink" href="#Estimated-regression-line" title="Permalink to this headline">¶</a></h2>
+<p>Here we’ll visualize the regression equations we have sampled for a particular pig and then we’ll compare the mean regression equation for all the 72 pigs in the dataset.</p>
+<p>In the following plot we can see the 2000 linear regressions we have sampled for the pig ‘4601’. The mean regression line is plotted in black and the observed weights for this pig are respresented by the blue dots.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="c1"># The ID of the first pig is &#39;4601&#39;</span>
+<span class="n">data_0</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Pig&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4601</span><span class="p">][[</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Weight&quot;</span><span class="p">]]</span>
+<span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+
+<span class="n">intercept_common</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+<span class="n">slope_common</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+
+<span class="n">intercept_specific_0</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;1|Pig&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">slope_specific_0</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Time|Pig&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercept_common</span> <span class="o">+</span> <span class="n">intercept_specific_0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+<span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">slope_common</span> <span class="o">+</span> <span class="n">slope_specific_0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">time</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data_0</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">],</span> <span class="n">data_0</span><span class="p">[</span><span class="s2">&quot;Weight&quot;</span><span class="p">],</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Weight (kg)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Time (weeks)&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_multi-level_regression_18_0.png" src="../_images/notebooks_multi-level_regression_18_0.png" />
+</div>
+</div>
+<p>Next, we calculate the mean regression line for each pig and show them together in one plot. Here we clearly see each pig has a different pair of intercept and slope.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">intercept_group_specific</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;1|Pig&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+<span class="n">slope_group_specific</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Time|Pig&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+<span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercept_common</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">intercept_group_specific</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">values</span>
+<span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">slope_common</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">slope_group_specific</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">values</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">time</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Weight (kg)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Time (weeks)&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_multi-level_regression_20_0.png" src="../_images/notebooks_multi-level_regression_20_0.png" />
+</div>
+</div>
+<p>We can get credible interval plots with ArviZ. Here the line indicates a 94% credible interval calculated as higher posterior density, the thicker line represents the interquartile range and the dot is the median. We can quickly note two things:</p>
+<ul class="simple">
+<li><p>The uncertainty about the intercept estimate is much higher than the uncertainty about the <code class="docutils literal notranslate"><span class="pre">Time</span></code> slope.</p></li>
+<li><p>The credible interval for <code class="docutils literal notranslate"><span class="pre">Time</span></code> is far away from 0, so we can be confident there’s a positive relationship the <code class="docutils literal notranslate"><span class="pre">Weight</span></code> of the pigs and <code class="docutils literal notranslate"><span class="pre">Time</span></code>.</p></li>
+</ul>
+<p>We’re not making any great discovering by stating that as time passes we expect the pigs to weight more, but this very simple example can be used as a starting point in applications where the relationship between the variables is not that clear beforehand.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_forest</span><span class="p">(</span>
+    <span class="n">results</span><span class="p">,</span>
+    <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;Time&quot;</span><span class="p">],</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_multi-level_regression_22_0.png" src="../_images/notebooks_multi-level_regression_22_0.png" />
+</div>
+</div>
+<p>We can also plot the posterior overlayed with a region of practical equivalence (ROPE). This region indicates a range of parameter values that are considered to be practically equivalent to some reference value of interest to the particular application, for example 0. In the following plot we can see that all our posterior distributions fall outside of this range.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;Time&quot;</span><span class="p">],</span> <span class="n">ref_val</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">rope</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_multi-level_regression_24_0.png" src="../_images/notebooks_multi-level_regression_24_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
+<span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Last updated: Tue Jul 27 2021
+
+Python implementation: CPython
+Python version       : 3.8.5
+IPython version      : 7.18.1
+
+json       : 2.0.9
+statsmodels: 0.12.2
+matplotlib : 3.3.3
+bambi      : 0.5.0
+arviz      : 0.11.2
+numpy      : 1.20.1
+
+Watermark: 2.1.0
+
+</pre></div></div>
+</div>
+</div>
+</div>
+
+
+              </div>
+              
+              
+              <div class='prev-next-bottom'>
+                
+    <a class='left-prev' id="prev-link" href="logistic_regression.html" title="previous page">Logistic Regression</a>
+    <a class='right-next' id="next-link" href="Strack_RRR_re_analysis.html" title="next page">Bayesian Workflow (Strack RRR Analysis Replication)</a>
+
+              </div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
+
+  <footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2021, The developers of Bambi.<br/>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.1.2.<br/>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>
