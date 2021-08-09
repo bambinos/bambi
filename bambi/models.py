@@ -871,9 +871,13 @@ class Model:
         >>> model.build()
         >>> model.graph()
 
+        >>> model = Model('y ~ x + (1|z)')
+        >>> model.fit()
+        >>> model.graph()
+
         """
         if self.backend is None:
-            raise ValueError("The model is empty. Are you forgetting to first call .build() on the Bambi model?")
+            raise ValueError("The model is empty. Are you forgetting to first call .build() or .fit() on the Bambi model?")
 
         graphviz = pm.model_to_graphviz(model=self.backend.model, formatting=formatting)
 
