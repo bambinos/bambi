@@ -132,7 +132,7 @@ class Link:
             self.link = LINKS[name]["link"]
             self.linkinv = LINKS[name]["linkinv"]
         else:
-            if not link or not linkinv or linkinv_backend:
+            if not link or not linkinv or not linkinv_backend:
                 raise ValueError(
                     f"Link name '{name}' is not supported and at least one of 'link', "
                     "'linkinv' or 'linkinv_backend' are unespecified."

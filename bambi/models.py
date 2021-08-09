@@ -558,6 +558,9 @@ class Model:
 
         axes = None
         if var_names:
+            # Sort variable names so Intercept is in the beginning
+            if "Intercept" in var_names:
+                var_names.insert(0, var_names.pop(var_names.index("Intercept")))
             pps = self.prior_predictive(draws=draws, var_names=var_names, random_seed=random_seed)
 
             axes = plot_posterior(
@@ -601,9 +604,6 @@ class Model:
 
         if omit_offsets:
             var_names = [name for name in var_names if not name.endswith("_offset")]
-
-        if "Intercept__" in var_names:
-            var_names.remove("Intercept__")
 
         pps_ = pm.sample_prior_predictive(
             samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
