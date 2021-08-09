@@ -4,6 +4,16 @@
 
 ### New features
 
+### Maintenance and fixes
+
+### Documentation
+
+### Deprecation
+
+### 0.6.0
+
+### New features
+
 - Add alternative default priors (#360)
 - Add StudentT family (#367)
 - Add Beta family (#368)
@@ -15,6 +25,7 @@
 ### Maintenance and fixes
 
 - Automatic switch initialization method from "jitter-adapt_diag" to "adapt_diag" when sampling fails (#383)
+- Predictors are internally centered when there is an intercept. This generally results in improved sampling efficiency (#385)
 - Improve documentation and error message in `Model.graph()` (#390)
 
 ### Documentation
