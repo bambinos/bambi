@@ -134,7 +134,7 @@ html_static_path = ['_static']
 smv_remote_whitelist = r"^origin$"
 
 # Whitelist pattern for branches (set to None to ignore all branches)
-smv_branch_whitelist = r"^master$"
+smv_branch_whitelist = r"^main$"
 
 # Tags are released
 smv_released_pattern = r'^refs/tags/.*$'
