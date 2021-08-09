@@ -219,6 +219,7 @@ def test_one_shot_formula_fit(diabetes_data):
     assert len(set(named_vars.keys()) & set(targets)) == 3
 
 
+@pytest.mark.skip(reason="Waiting for ArviZ release.")
 def test_categorical_term():
     data = pd.DataFrame(
         {
