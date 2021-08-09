@@ -877,7 +877,8 @@ class Model:
 
         """
         if self.backend is None:
-            raise ValueError("The model is empty. "
+            raise ValueError(
+                "The model is empty. "
                 "Are you forgetting to first call .build() or .fit() on the Bambi model?"
             )
 
