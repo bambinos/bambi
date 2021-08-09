@@ -838,7 +838,7 @@ class Model:
 
     def graph(self, formatting="plain", name=None, figsize=None, dpi=300, fmt="png"):
         """
-        Produce a graphviz Digraph from a Bambi model.
+        Produce a graphviz Digraph from a built Bambi model.
 
         Requires graphviz, which may be installed most easily with
             ``conda install -c conda-forge python-graphviz``
@@ -864,9 +864,23 @@ class Model:
         fmt : str
             Format of the figure to save.
             Defaults to ``'png'``. Only works if ``name`` is not None.
+
+        Example
+        --------
+        >>> model = Model('y ~ x + (1|z)')
+        >>> model.build()
+        >>> model.graph()
+
+        >>> model = Model('y ~ x + (1|z)')
+        >>> model.fit()
+        >>> model.graph()
+
         """
         if self.backend is None:
-            raise ValueError("The model is empty, please define a Bambi model")
+            raise ValueError(
+                "The model is empty. "
+                "Are you forgetting to first call .build() or .fit() on the Bambi model?"
+            )
 
         graphviz = pm.model_to_graphviz(model=self.backend.model, formatting=formatting)
 
