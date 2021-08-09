@@ -26,6 +26,7 @@ class PyMC3BackEnd(BackEnd):
         "log": tt.exp,
         "logit": tt.nnet.sigmoid,
         "probit": probit,
+        "softmax": tt.nnet.softmax
     }
 
     def __init__(self):
@@ -52,14 +53,15 @@ class PyMC3BackEnd(BackEnd):
         """
 
         coords = spec._get_pymc_coords()  # pylint: disable=protected-access
-        if spec.family.name == "multinomial":
-            coords[spec.response.name] = spec.response.levels[1:]
         self.model = pm.Model(coords=coords)
         self.has_intercept = spec.intercept_term is not None
         self.spec = spec
 
-        # Add common effect
-        self.add_common_terms()
+        # Add common effects
+        if spec.family.name == "multinomial":
+            self.add_common_terms_multivariate()
+        else:
+            self.add_common_terms_univariate()
 
 
         ## Add group-specific effects
@@ -118,28 +120,18 @@ class PyMC3BackEnd(BackEnd):
 
         return None
 
-
-    def add_common_terms(self):
-        # IDEA:
-        # Let's have:
-        # ADD_COMMON_TERMS_UNIVARIATE: When response is univariate --> Everything so far
-        # ADD_COMMON_TERMS_MULTIVARIATE: When response is multivariate --> Multinomial family
-        #
+    # Let's have:
+    # ADD_COMMON_TERMS_UNIVARIATE: When response is univariate --> Everything so far
+    def add_common_terms_univariate(self):
         # Common effects have at most one coord.
         coef_list = []
         terms = self.spec.common_terms
-
-        is_multinomial = self.spec.family.name == "multinomial"
 
         with self.model:
             self.mu = 0.0
 
             # Iterate through terms and add their coefficients to coef_list
             for term in terms.values():
-                if is_multinomial:
-                    response = self.spec.response
-                    term.pymc_coords[self.spec.response.name] =  response.levels[1:] # drop first
-
                 data = term.data
                 label = term.name
                 dist = term.prior.name
@@ -155,8 +147,6 @@ class PyMC3BackEnd(BackEnd):
             # If there are predictors, use design matrix (w/o intercept)
             if coef_list:
                 coefs = tt.concatenate(coef_list)
-                if is_multinomial:
-                    coefs = tt.concatenate([np.zeros((len(coef_list), 1)) , coefs], axis=1)
                 X = self.spec._design.common.design_matrix  # pylint: disable=protected-access
 
             if self.has_intercept:
@@ -173,6 +163,64 @@ class PyMC3BackEnd(BackEnd):
                     self.mu += tt.dot(X - X.mean(0), coefs)
             elif coef_list:
                 self.mu += tt.dot(X, coefs)
+
+    # ADD_COMMON_TERMS_MULTIVARIATE: When response is multivariate --> Multinomial family
+    def add_common_terms_multivariate(self):
+        # THERE'S A LOT OF REDUNDANCY AND BAD WRITTEN CODE, IM JUST TESTING WHETHER THIS CAN WORK
+
+        # La idea es usar DIMS. En el caso que el vector sea univariado, vamos a tener que
+        # crear una dimension, y despues dropearla cuando usemos  el InferenceData.
+        # Hay que tomar una decision en Bambi:
+        # O usammos 100% los shapes y hacemos el renombre de coordenadas y dimensiones a posteriori
+        # o usamos 100% dims, pero de alguna forma tal que dropear las dimensiones sea prolijo.
+        coef_list = []
+        terms = self.spec.common_terms
+        nlevels = len(self.spec.response.levels)
+        shapes_sum = 0
+
+        self.model.coords[self.spec.response.name] = self.spec.response.levels[1:]
+
+        for term in terms.values():
+            self.model.coords[term.name] = np.arange(term.data.shape[1])
+
+        with self.model:
+            self.mu = 0.0
+            # Iterate through terms and add their coefficients to coef_list
+            for term in terms.values():
+                data = term.data
+                label = term.name
+                dist = term.prior.name
+                args = term.prior.args
+                shape = (data.shape[1], nlevels)
+                shapes_sum += data.shape[1]
+                coef = self.build_common_distribution(dist, label, shape=shape, **args)
+                coef_list.append(coef)
+
+            # If there are predictors, use design matrix (w/o intercept)
+            if coef_list:
+                coefs = tt.concatenate(coef_list)
+                X = self.spec._design.common.design_matrix  # pylint: disable=protected-access
+
+            if self.has_intercept:
+                term = self.spec.intercept_term
+                dist = self.get_distribution(term.prior.name)
+                # Intercept for centered predictors. This is re-scaled in the InferenceData.
+                shape = (1, nlevels)
+                shapes_sum += 1
+                self.mu += dist("Intercept", shape=shape, **term.prior.args)
+
+                # Add vector of zeros
+                coefs = tt.concatenate([np.zeros((shapes_sum, 1)) , coefs], axis=1)
+
+                if self.spec.common_terms:
+                    idx = self.spec._design.common.terms_info["Intercept"]["cols"]
+                    X = np.delete(X, idx, axis=1)
+                    self.mu += tt.dot(X - X.mean(0), coefs)
+            elif coef_list:
+                print(shapes_sum)
+                coefs = tt.concatenate([np.zeros((shapes_sum, 1)) , coefs], axis=1)
+                self.mu += tt.dot(X, coefs)
+
 
         return None
 
