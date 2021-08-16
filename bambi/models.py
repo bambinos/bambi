@@ -1,7 +1,6 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
 import logging
-import warnings
 from copy import deepcopy
 
 import numpy as np
@@ -196,16 +195,79 @@ class Model:
 
     def fit(
         self,
+        draws=1000,
+        tune=1000,
+        discard_tuned_samples=True,
         omit_offsets=True,
+        method="mcmc",
+        init="auto",
+        n_init=50000,
+        chains=None,
+        cores=None,
+        random_seed=None,
         **kwargs,
     ):
-        """Fit the model using the specified backend.
+        """Fit the model using PyMC3.
 
         Parameters
         ----------
+        draws: int
+            The number of samples to draw. Defaults to 1000.
+            The number of tuned samples are discarded by default. See discard_tuned_samples.
+        tune : int
+            Number of iterations to tune, defaults to 1000. Samplers adjust the step sizes,
+            scalings or similar during tuning.
+            Tuning samples will be drawn in addition to the number specified in the draws argument,
+            and will be discarded unless discard_tuned_samples is set to False.
+        discard_tuned_samples : bool
+            Whether to discard posterior samples of the tune interval. Defaults to True.
         omit_offsets: bool
-            Omits offset terms in the ``InferenceData`` object when the model includes group
-            specific effects. Defaults to ``True``.
+            Omits offset terms in the ``InferenceData`` object when the model includes
+            group specific effects. Defaults to ``True``.
+        method: str
+            The method to use for fitting the model. By default, ``'mcmc'``. This will automatically
+            assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
+            variables and Metropolis for non-binary discrete ones. Alternatively, ``'advi'``, in
+            which case the model will be fitted using  automatic differentiation variational
+            inference as implemented in PyMC3.
+            Finally, ``'laplace'``, in which case a Laplace approximation is used, ``'laplace'`` is
+            not recommended other than for pedagogical use.
+        init: str
+            Initialization method. Defaults to ``'auto'``. The available methods are:
+            * auto: Use ``'jitter+adapt_diag'`` and if this method fails it uses ``'adapt_diag'``.
+            * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the
+              variance of the tuning samples. All chains use the test value (usually the prior mean)
+              as starting point.
+            * jitter+adapt_diag: Same as ``adapt_diag``, but use test value plus a uniform jitter in
+              [-1, 1] as starting point in each chain.
+            * advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on
+              the sample variance of the tuning samples.
+            * advi+adapt_diag_grad: Run ADVI and then adapt the resulting diagonal mass matrix based
+              on the variance of the gradients during tuning. This is **experimental** and might be
+              removed in a future release.
+            * advi: Run ADVI to estimate posterior mean and diagonal mass matrix.
+            * advi_map: Initialize ADVI with MAP and use MAP as starting point.
+            * map: Use the MAP as starting point. This is strongly discouraged.
+            * adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the
+              test value (usually the prior mean) as starting point.
+            * jitter+adapt_full: Same as ``adapt_full``, but use test value plus a uniform jitter in
+              [-1, 1] as starting point in each chain.
+        n_init: int
+            Number of initialization iterations. Only works for 'advi' init methods.
+        chains: int
+            The number of chains to sample. Running independent chains is important for some
+            convergence statistics and can also reveal multiple modes in the posterior. If None,
+            then set to either cores or 2, whichever is larger.
+        cores : int
+            The number of chains to run in parallel. If None, set to the number of CPUs in the
+            system, but at most 4.
+        random_seed : int or list of ints
+            A list is accepted if cores is greater than one.
+        kwargs
+            For other kwargs see the documentation for ``pm.sample()``
+        Returns
+        -------
+        An ArviZ ``InferenceData`` instance.
         """
 
         if not self.built:
@@ -219,7 +281,19 @@ class Model:
                 str(self.response.success_event),
             )
 
-        return self.backend.run(omit_offsets=omit_offsets, **kwargs)
+        return self.backend.run(
+            draws=draws,
+            tune=tune,
+            discard_tuned_samples=discard_tuned_samples,
+            omit_offsets=omit_offsets,
+            method=method,
+            init=init,
+            n_init=n_init,
+            chains=chains,
+            cores=cores,
+            random_seed=random_seed,
+            **kwargs,
+        )
 
     def build(self):
         """Set up the model for sampling/fitting.
@@ -650,72 +724,6 @@ class Model:
         )
 
         return idata
-
-    def posterior_predictive(
-        self, idata, draws=500, var_names=None, inplace=True, random_seed=None
-    ):
-        """
-        Generate samples from the posterior predictive distribution.
-
-        Parameters
-        ----------
-        idata : InferenceData
-            ``InferenceData`` with samples from the posterior distribution.
-        draws : int
-            Number of draws to sample from the posterior predictive distribution. Defaults to 500.
-        var_names : str or list
-            A list of names of variables for which to compute the posterior predictive
-            distribution. Defaults to observed RVs.
-        inplace : bool
-            If ``True`` it will add a ``posterior_predictive`` group to idata, otherwise it will
-            return a copy of idata with the added group. If ``True`` and idata already have a
-            ``posterior_predictive`` group it will be overwritten.
-        random_seed : int
-            Seed for the random number generator.
-
-        Returns
-        -------
-        None or InferenceData
-            When ``inplace=True`` add ``posterior_predictive`` group to idata and return
-            ``None``. Otherwise a copy of idata with a ``posterior_predictive`` group.
-
-        """
-
-        if var_names is None:
-            variables = self.backend.model.observed_RVs
-            variables_names = [v.name for v in variables]
-            var_names = pm.util.get_default_varnames(variables_names, include_transformed=False)
-
-        pps = pm.sample_posterior_predictive(
-            trace=idata,
-            samples=draws,
-            var_names=var_names,
-            model=self.backend.model,
-            random_seed=random_seed,
-        )
-
-        if not inplace:
-            idata = deepcopy(idata)
-
-        if "posterior_predictive" in idata:
-            del idata.posterior_predictive
-
-        idata.add_groups(
-            {"posterior_predictive": {k: v.squeeze()[np.newaxis] for k, v in pps.items()}}
-        )
-
-        getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
-        getattr(idata, "posterior_predictive").attrs["modeling_interface_version"] = __version__
-
-        warnings.warn(
-            "Model.posterior_predictive() is deprecated. "
-            "Use Model.predict() with kind='pps' instead.",
-            FutureWarning,
-        )
-        if inplace:
-            return None
-        else:
-            return idata
 
     # pylint: disable=protected-access
     def predict(self, idata, kind="mean", data=None, draws=None, inplace=True):
