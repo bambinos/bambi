@@ -354,12 +354,66 @@ on each term), then calls the backend’s <code class="docutils literal notransl
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bambi.models.Model.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">omit_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.fit" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit the model using the specified backend.</p>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">draws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tune</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discard_tuned_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omit_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mcmc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chains</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the model using PyMC3.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>omit_offsets</strong> (<em>bool</em>) – Omits offset terms in the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object when the model includes group
-specific effects. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>draws</strong> (<em>int</em>) – The number of samples to draw. Defaults to 1000.
+The number of tuned samples are discarded by default. See discard_tuned_samples.</p></li>
+<li><p><strong>tune</strong> (<em>int</em>) – Number of iterations to tune, defaults to 1000. Samplers adjust the step sizes,
+scalings or similar during tuning.
+Tuning samples will be drawn in addition to the number specified in the draws argument,
+and will be discarded unless discard_tuned_samples is set to False.</p></li>
+<li><p><strong>discard_tuned_samples</strong> (<em>bool</em>) – Whether to discard posterior samples of the tune interval. Defaults to True.</p></li>
+<li><p><strong>omit_offsets</strong> (<em>bool</em>) – Omits offset terms in the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object when the model includes
+group specific effects. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – The method to use for fitting the model. By default, <code class="docutils literal notranslate"><span class="pre">'mcmc'</span></code>. This will automatically
+assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
+variables and Metropolis for non-binary discrete ones. Alternatively, <code class="docutils literal notranslate"><span class="pre">'advi'</span></code>, in
+which case the model will be fitted using  automatic differentiation variational
+inference as implemented in PyMC3.
+Finally, <code class="docutils literal notranslate"><span class="pre">'laplace'</span></code>, in which case a Laplace approximation is used, <code class="docutils literal notranslate"><span class="pre">'laplace'</span></code> is
+not recommended other than for pedagogical use.</p></li>
+<li><p><strong>init</strong> (<em>str</em>) – <p>Initialization method. Defaults to <code class="docutils literal notranslate"><span class="pre">'auto'</span></code>. The available methods are:
+* auto: Use <code class="docutils literal notranslate"><span class="pre">'jitter+adapt_diag'</span></code> and if this method fails it uses <code class="docutils literal notranslate"><span class="pre">'adapt_diag'</span></code>.
+* adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the</p>
+<blockquote>
+<div><p>variance of the tuning samples. All chains use the test value (usually the prior mean)
+as starting point.</p>
+</div></blockquote>
+<ul>
+<li><p>jitter+adapt_diag: Same as <code class="docutils literal notranslate"><span class="pre">adapt_diag</span></code>, but use test value plus a uniform jitter in
+[-1, 1] as starting point in each chain.</p></li>
+<li><p>advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on
+the sample variance of the tuning samples.</p></li>
+<li><p>advi+adapt_diag_grad: Run ADVI and then adapt the resulting diagonal mass matrix based
+on the variance of the gradients during tuning. This is <strong>experimental</strong> and might be
+removed in a future release.</p></li>
+<li><p>advi: Run ADVI to estimate posterior mean and diagonal mass matrix.</p></li>
+<li><p>advi_map: Initialize ADVI with MAP and use MAP as starting point.</p></li>
+<li><p>map: Use the MAP as starting point. This is strongly discouraged.</p></li>
+<li><p>adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the
+test value (usually the prior mean) as starting point.</p></li>
+<li><p>jitter+adapt_full: Same as <code class="docutils literal notranslate"><span class="pre">adapt_full</span></code>, but use test value plus a uniform jitter in
+[-1, 1] as starting point in each chain.</p></li>
+</ul>
+</p></li>
+<li><p><strong>n_init</strong> (<em>int</em>) – Number of initialization iterations. Only works for ‘advi’ init methods.</p></li>
+<li><p><strong>chains</strong> (<em>int</em>) – The number of chains to sample. Running independent chains is important for some
+convergence statistics and can also reveal multiple modes in the posterior. If None,
+then set to either cores or 2, whichever is larger.</p></li>
+<li><p><strong>cores</strong> (<em>int</em>) – The number of chains to run in parallel. If None, set to the number of CPUs in the
+system, but at most 4.</p></li>
+<li><p><strong>random_seed</strong> (<em>int</em><em> or </em><em>list of ints</em>) – A list is accepted if cores is greater than one.</p></li>
+<li><p><strong>kwargs</strong> – For other kwargs see the documentation for <code class="docutils literal notranslate"><span class="pre">pm.sample()</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>An ArviZ <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -457,33 +511,6 @@ create its own array of plot areas (and return it).</p></li>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>matplotlib axes or bokeh figures</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bambi.models.Model.posterior_predictive">
-<span class="sig-name descname"><span class="pre">posterior_predictive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.posterior_predictive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.posterior_predictive" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate samples from the posterior predictive distribution.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>idata</strong> (<em>InferenceData</em>) – <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> with samples from the posterior distribution.</p></li>
-<li><p><strong>draws</strong> (<em>int</em>) – Number of draws to sample from the posterior predictive distribution. Defaults to 500.</p></li>
-<li><p><strong>var_names</strong> (<em>str</em><em> or </em><em>list</em>) – A list of names of variables for which to compute the posterior predictive
-distribution. Defaults to observed RVs.</p></li>
-<li><p><strong>inplace</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> it will add a <code class="docutils literal notranslate"><span class="pre">posterior_predictive</span></code> group to idata, otherwise it will
-return a copy of idata with the added group. If <code class="docutils literal notranslate"><span class="pre">True</span></code> and idata already have a
-<code class="docutils literal notranslate"><span class="pre">posterior_predictive</span></code> group it will be overwritten.</p></li>
-<li><p><strong>random_seed</strong> (<em>int</em>) – Seed for the random number generator.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>When <code class="docutils literal notranslate"><span class="pre">inplace=True</span></code> add <code class="docutils literal notranslate"><span class="pre">posterior_predictive</span></code> group to idata and return
-<code class="docutils literal notranslate"><span class="pre">None</span></code>. Otherwise a copy of idata with a <code class="docutils literal notranslate"><span class="pre">posterior_predictive</span></code> group.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>None or InferenceData</p>
 </dd>
 </dl>
 </dd></dl>
