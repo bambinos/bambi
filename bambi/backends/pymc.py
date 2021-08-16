@@ -8,13 +8,12 @@ import pymc3 as pm
 from bambi import version
 from bambi.priors import Prior
 
-from .base import BackEnd
-from .utils import probit, cloglog
+from bambi.backends.utils import probit, cloglog
 
 _log = logging.getLogger("bambi")
 
 
-class PyMC3BackEnd(BackEnd):
+class PyMC3BackEnd:
     """PyMC3 model-fitting backend."""
 
     # Available inverse link functions
@@ -153,63 +152,35 @@ class PyMC3BackEnd(BackEnd):
 
         self.spec = spec
 
-    # pylint: disable=arguments-differ, inconsistent-return-statements
     def run(
-        self, start=None, method="mcmc", init="auto", n_init=50000, omit_offsets=True, **kwargs
+        self,
+        draws=1000,
+        tune=1000,
+        discard_tuned_samples=True,
+        omit_offsets=True,
+        method="mcmc",
+        init="auto",
+        n_init=50000,
+        chains=None,
+        cores=None,
+        random_seed=None,
+        **kwargs,
     ):
-        """Run the PyMC3 MCMC sampler.
-
-        Parameters
-        ----------
-        start: dict, or array of dict
-            Starting parameter values to pass to sampler; see ``pm.sample()`` for details.
-        method: str
-            The method to use for fitting the model. By default, ``'mcmc'``, in which case the
-            PyMC3 sampler will be used. Alternatively, ``'advi'``, in which case the model will be
-            fitted using  automatic differentiation variational inference as implemented in PyMC3.
-            Finally, ``'laplace'``, in which case a laplace approximation is used, ``'laplace'`` is
-            not recommended other than for pedagogical use.
-        init: str
-            Initialization method. Defaults to ``'auto'``. The available methods are:
-            * auto: Use ``'jitter+adapt_diag'`` and if this method fails it uses ``'adapt_diag'``.
-            * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the
-              variance of the tuning samples. All chains use the test value (usually the prior mean)
-              as starting point.
-            * jitter+adapt_diag: Same as ``adapt_diag``, but use test value plus a uniform jitter in
-              [-1, 1] as starting point in each chain.
-            * advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on
-              the sample variance of the tuning samples.
-            * advi+adapt_diag_grad: Run ADVI and then adapt the resulting diagonal mass matrix based
-              on the variance of the gradients during tuning. This is **experimental** and might be
-              removed in a future release.
-            * advi: Run ADVI to estimate posterior mean and diagonal mass matrix.
-            * advi_map: Initialize ADVI with MAP and use MAP as starting point.
-            * map: Use the MAP as starting point. This is strongly discouraged.
-            * adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the
-              test value (usually the prior mean) as starting point.
-            * jitter+adapt_full: Same as ``adapt_full``, but use test value plus a uniform jitter in
-              [-1, 1] as starting point in each chain.
-        n_init: int
-            Number of initialization iterations. Only works for 'advi' init methods.
-        omit_offsets: bool
-            Omits offset terms in the ``InferenceData`` object when the model includes
-            group specific effects. Defaults to ``True``.
-
-        Returns
-        -------
-        An ArviZ ``InferenceData`` instance.
-        """
+        """Run PyMC3 sampler."""
         model = self.model
 
         if method.lower() == "mcmc":
-            draws = kwargs.pop("draws", 1000)
             with model:
                 try:
                     idata = pm.sample(
-                        draws,
-                        start=start,
+                        draws=draws,
+                        tune=tune,
+                        discard_tuned_samples=discard_tuned_samples,
                         init=init,
                         n_init=n_init,
+                        chains=chains,
+                        cores=cores,
+                        random_seed=random_seed,
                         return_inferencedata=True,
                         **kwargs,
                     )
@@ -224,10 +195,14 @@ class PyMC3BackEnd(BackEnd):
                             "recover by switching to init='adapt_diag'",
                         )
                         idata = pm.sample(
-                            draws,
-                            start=start,
+                            draws=draws,
+                            tune=tune,
+                            discard_tuned_samples=discard_tuned_samples,
                             init="adapt_diag",
                             n_init=n_init,
+                            chains=chains,
+                            cores=cores,
+                            random_seed=random_seed,
                             return_inferencedata=True,
                             **kwargs,
                         )
@@ -290,11 +265,11 @@ class PyMC3BackEnd(BackEnd):
 
         elif method.lower() == "advi":
             with model:
-                self.advi_params = pm.variational.ADVI(start, **kwargs)
+                self.advi_params = pm.variational.ADVI(**kwargs)
             # this should return an InferenceData object (once arviz adds support for VI)
             return self.advi_params
 
-        elif method.lower() == "laplace":
+        else:
             return _laplace(model)
 
     def build_common_distribution(self, dist, label, **kwargs):
