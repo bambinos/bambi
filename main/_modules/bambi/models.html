@@ -22,16 +22,19 @@
       
 
     
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/basic.css" />
+    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
   <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
 
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -83,6 +86,12 @@
  </a>
 </li>
 
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../faq.html">
+  Frequently Asked Questions
+ </a>
+</li>
+
     
 </ul>
       </div>
@@ -124,7 +133,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -240,7 +249,6 @@
 <span></span><span class="c1"># pylint: disable=no-name-in-module</span>
 <span class="c1"># pylint: disable=too-many-lines</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -435,16 +443,79 @@
 
 <div class="viewcode-block" id="Model.fit"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+        <span class="n">tune</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+        <span class="n">discard_tuned_samples</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">omit_offsets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">method</span><span class="o">=</span><span class="s2">&quot;mcmc&quot;</span><span class="p">,</span>
+        <span class="n">init</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+        <span class="n">n_init</span><span class="o">=</span><span class="mi">50000</span><span class="p">,</span>
+        <span class="n">chains</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Fit the model using the specified backend.</span>
+        <span class="sd">&quot;&quot;&quot;Fit the model using PyMC3.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
+<span class="sd">        draws: int</span>
+<span class="sd">            The number of samples to draw. Defaults to 1000.</span>
+<span class="sd">            The number of tuned samples are discarded by default. See discard_tuned_samples.</span>
+<span class="sd">        tune : int</span>
+<span class="sd">            Number of iterations to tune, defaults to 1000. Samplers adjust the step sizes,</span>
+<span class="sd">            scalings or similar during tuning.</span>
+<span class="sd">            Tuning samples will be drawn in addition to the number specified in the draws argument,</span>
+<span class="sd">            and will be discarded unless discard_tuned_samples is set to False.</span>
+<span class="sd">        discard_tuned_samples : bool</span>
+<span class="sd">            Whether to discard posterior samples of the tune interval. Defaults to True.</span>
 <span class="sd">        omit_offsets: bool</span>
-<span class="sd">            Omits offset terms in the ``InferenceData`` object when the model includes group</span>
-<span class="sd">            specific effects. Defaults to ``True``.</span>
+<span class="sd">            Omits offset terms in the ``InferenceData`` object when the model includes</span>
+<span class="sd">            group specific effects. Defaults to ``True``.</span>
+<span class="sd">        method: str</span>
+<span class="sd">            The method to use for fitting the model. By default, ``&#39;mcmc&#39;``. This will automatically</span>
+<span class="sd">            assigns a MCMC method best suited for each kind of variables, like NUTS for continuous</span>
+<span class="sd">            variables and Metropolis for non-binary discrete ones. Alternatively, ``&#39;advi&#39;``, in</span>
+<span class="sd">            which case the model will be fitted using  automatic differentiation variational</span>
+<span class="sd">            inference as implemented in PyMC3.</span>
+<span class="sd">            Finally, ``&#39;laplace&#39;``, in which case a Laplace approximation is used, ``&#39;laplace&#39;`` is</span>
+<span class="sd">            not recommended other than for pedagogical use.</span>
+<span class="sd">        init: str</span>
+<span class="sd">            Initialization method. Defaults to ``&#39;auto&#39;``. The available methods are:</span>
+<span class="sd">            * auto: Use ``&#39;jitter+adapt_diag&#39;`` and if this method fails it uses ``&#39;adapt_diag&#39;``.</span>
+<span class="sd">            * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the</span>
+<span class="sd">              variance of the tuning samples. All chains use the test value (usually the prior mean)</span>
+<span class="sd">              as starting point.</span>
+<span class="sd">            * jitter+adapt_diag: Same as ``adapt_diag``, but use test value plus a uniform jitter in</span>
+<span class="sd">              [-1, 1] as starting point in each chain.</span>
+<span class="sd">            * advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on</span>
+<span class="sd">              the sample variance of the tuning samples.</span>
+<span class="sd">            * advi+adapt_diag_grad: Run ADVI and then adapt the resulting diagonal mass matrix based</span>
+<span class="sd">              on the variance of the gradients during tuning. This is **experimental** and might be</span>
+<span class="sd">              removed in a future release.</span>
+<span class="sd">            * advi: Run ADVI to estimate posterior mean and diagonal mass matrix.</span>
+<span class="sd">            * advi_map: Initialize ADVI with MAP and use MAP as starting point.</span>
+<span class="sd">            * map: Use the MAP as starting point. This is strongly discouraged.</span>
+<span class="sd">            * adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the</span>
+<span class="sd">              test value (usually the prior mean) as starting point.</span>
+<span class="sd">            * jitter+adapt_full: Same as ``adapt_full``, but use test value plus a uniform jitter in</span>
+<span class="sd">              [-1, 1] as starting point in each chain.</span>
+<span class="sd">        n_init: int</span>
+<span class="sd">            Number of initialization iterations. Only works for &#39;advi&#39; init methods.</span>
+<span class="sd">        chains: int</span>
+<span class="sd">            The number of chains to sample. Running independent chains is important for some</span>
+<span class="sd">            convergence statistics and can also reveal multiple modes in the posterior. If None,</span>
+<span class="sd">            then set to either cores or 2, whichever is larger.</span>
+<span class="sd">        cores : int</span>
+<span class="sd">            The number of chains to run in parallel. If None, set to the number of CPUs in the</span>
+<span class="sd">            system, but at most 4.</span>
+<span class="sd">        random_seed : int or list of ints</span>
+<span class="sd">            A list is accepted if cores is greater than one.</span>
+<span class="sd">        kwargs</span>
+<span class="sd">            For other kwargs see the documentation for ``pm.sample()``</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        An ArviZ ``InferenceData`` instance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
@@ -458,7 +529,19 @@
                 <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">success_event</span><span class="p">),</span>
             <span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">omit_offsets</span><span class="o">=</span><span class="n">omit_offsets</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">draws</span><span class="o">=</span><span class="n">draws</span><span class="p">,</span>
+            <span class="n">tune</span><span class="o">=</span><span class="n">tune</span><span class="p">,</span>
+            <span class="n">discard_tuned_samples</span><span class="o">=</span><span class="n">discard_tuned_samples</span><span class="p">,</span>
+            <span class="n">omit_offsets</span><span class="o">=</span><span class="n">omit_offsets</span><span class="p">,</span>
+            <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+            <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+            <span class="n">n_init</span><span class="o">=</span><span class="n">n_init</span><span class="p">,</span>
+            <span class="n">chains</span><span class="o">=</span><span class="n">chains</span><span class="p">,</span>
+            <span class="n">cores</span><span class="o">=</span><span class="n">cores</span><span class="p">,</span>
+            <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div>
 
 <div class="viewcode-block" id="Model.build"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set up the model for sampling/fitting.</span>
@@ -890,72 +973,6 @@
 
         <span class="k">return</span> <span class="n">idata</span></div>
 
-<div class="viewcode-block" id="Model.posterior_predictive"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.posterior_predictive">[docs]</a>    <span class="k">def</span> <span class="nf">posterior_predictive</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span>
-    <span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Generate samples from the posterior predictive distribution.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        idata : InferenceData</span>
-<span class="sd">            ``InferenceData`` with samples from the posterior distribution.</span>
-<span class="sd">        draws : int</span>
-<span class="sd">            Number of draws to sample from the posterior predictive distribution. Defaults to 500.</span>
-<span class="sd">        var_names : str or list</span>
-<span class="sd">            A list of names of variables for which to compute the posterior predictive</span>
-<span class="sd">            distribution. Defaults to observed RVs.</span>
-<span class="sd">        inplace : bool</span>
-<span class="sd">            If ``True`` it will add a ``posterior_predictive`` group to idata, otherwise it will</span>
-<span class="sd">            return a copy of idata with the added group. If ``True`` and idata already have a</span>
-<span class="sd">            ``posterior_predictive`` group it will be overwritten.</span>
-<span class="sd">        random_seed : int</span>
-<span class="sd">            Seed for the random number generator.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        None or InferenceData</span>
-<span class="sd">            When ``inplace=True`` add ``posterior_predictive`` group to idata and return</span>
-<span class="sd">            ``None``. Otherwise a copy of idata with a ``posterior_predictive`` group.</span>
-
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="n">var_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">observed_RVs</span>
-            <span class="n">variables_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">]</span>
-            <span class="n">var_names</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">get_default_varnames</span><span class="p">(</span><span class="n">variables_names</span><span class="p">,</span> <span class="n">include_transformed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-        <span class="n">pps</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_posterior_predictive</span><span class="p">(</span>
-            <span class="n">trace</span><span class="o">=</span><span class="n">idata</span><span class="p">,</span>
-            <span class="n">samples</span><span class="o">=</span><span class="n">draws</span><span class="p">,</span>
-            <span class="n">var_names</span><span class="o">=</span><span class="n">var_names</span><span class="p">,</span>
-            <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
-            <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">inplace</span><span class="p">:</span>
-            <span class="n">idata</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">idata</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="s2">&quot;posterior_predictive&quot;</span> <span class="ow">in</span> <span class="n">idata</span><span class="p">:</span>
-            <span class="k">del</span> <span class="n">idata</span><span class="o">.</span><span class="n">posterior_predictive</span>
-
-        <span class="n">idata</span><span class="o">.</span><span class="n">add_groups</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;posterior_predictive&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">pps</span><span class="o">.</span><span class="n">items</span><span class="p">()}}</span>
-        <span class="p">)</span>
-
-        <span class="nb">getattr</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;posterior_predictive&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;modeling_interface&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bambi&quot;</span>
-        <span class="nb">getattr</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;posterior_predictive&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;modeling_interface_version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">__version__</span>
-
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;Model.posterior_predictive() is deprecated. &quot;</span>
-            <span class="s2">&quot;Use Model.predict() with kind=&#39;pps&#39; instead.&quot;</span><span class="p">,</span>
-            <span class="ne">FutureWarning</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">idata</span></div>
-
     <span class="c1"># pylint: disable=protected-access</span>
 <div class="viewcode-block" id="Model.predict"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Predict method for Bambi models</span>
@@ -1246,7 +1263,7 @@
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.1.2.<br/>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.2.1.<br/>
 </p>
     </div>
     
