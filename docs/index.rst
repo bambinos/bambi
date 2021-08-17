@@ -108,6 +108,7 @@ Contents
    notebooks/getting_started
    examples
    api_reference
+   faq
 
 Indices
 =======
