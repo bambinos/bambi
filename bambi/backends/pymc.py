@@ -8,7 +8,7 @@ import pymc3 as pm
 from bambi import version
 from bambi.priors import Prior
 
-from bambi.backends.utils import probit, cloglog
+from bambi.backends.utils import probit, cloglog, has_hyperprior, get_pymc_distribution
 
 _log = logging.getLogger("bambi")
 
@@ -82,7 +82,7 @@ class PyMC3BackEnd:
 
             if self.has_intercept:
                 term = spec.intercept_term
-                distribution = self.get_distribution(term.prior.name)
+                distribution = get_pymc_distribution(term.prior.name)
                 # If there are predictors, "Intercept" is a the intercept for centered predictors
                 # This is intercept is re-scaled later.
                 intercept = distribution("Intercept", shape=1, **term.prior.args)
@@ -275,12 +275,14 @@ class PyMC3BackEnd:
     def build_common_distribution(self, dist, label, **kwargs):
         """Build and return a PyMC3 Distribution for a common term."""
         # We are sure prior arguments aren't hyperpriors because it is already checked in the model
-        distribution = self.get_distribution(dist)
+        distribution = get_pymc_distribution(dist)
         return distribution(label, **kwargs)
 
     def build_group_specific_distribution(self, dist, label, noncentered, **kwargs):
         """Build and return a PyMC3 Distribution for a group specific term."""
-        dist = self.get_distribution(dist)
+
+        dist = get_pymc_distribution(dist)
+
         if "dims" in kwargs:
             group_dim = [dim for dim in kwargs["dims"] if dim.endswith("_group_expr")]
             kwargs = {
@@ -291,11 +293,12 @@ class PyMC3BackEnd:
             kwargs = {
                 k: self.expand_prior_args(k, v, label, noncentered) for (k, v) in kwargs.items()
             }
+
         # Non-centered parameterization for hyperpriors
         if noncentered and has_hyperprior(kwargs):
-            old_sigma = kwargs["sigma"]
-            _offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=kwargs["dims"])
-            return pm.Deterministic(label, _offset * old_sigma, dims=kwargs["dims"])
+            sigma = kwargs["sigma"]
+            offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=kwargs["dims"])
+            return pm.Deterministic(label, offset * sigma, dims=kwargs["dims"])
         return dist(label, **kwargs)
 
     def build_response(self, spec):
@@ -340,14 +343,7 @@ class PyMC3BackEnd:
 
         return dist(name, **kwargs)
 
-    def get_distribution(self, dist):
-        """Return a PyMC3 distribution."""
-        if isinstance(dist, str):
-            if hasattr(pm, dist):
-                dist = getattr(pm, dist)
-            else:
-                raise ValueError(f"The Distribution '{dist}' was not found in PyMC3")
-        return dist
+
 
     def expand_prior_args(self, key, value, label, noncentered, **kwargs):
         # Inspect all args in case we have hyperparameters.
@@ -393,15 +389,6 @@ def _laplace(model):
     return dict(zip(names, zip(modes, stds_reshaped)))
 
 
-def has_hyperprior(kwargs):
-    """Determines if a Prior has an hyperprior"""
-    return (
-        "sigma" in kwargs
-        and "observed" not in kwargs
-        and isinstance(kwargs["sigma"], pm.model.TransformedRV)
-    )
-
-
 def add_lkj(terms, eta=1):
     """Add correlated prior for group-specific effects.
 
@@ -424,7 +411,7 @@ def add_lkj(terms, eta=1):
     """
 
     # Parameters
-    # grouper: The name of the grouper.
+    # grouper: The name of the grouper.build_group_specific_distribution
     # rows: Sum of the number of columns in all the "Xi" matrices for a given grouper.
     #       Same than the order of L
     # cols: Number of groups in the grouper variable
