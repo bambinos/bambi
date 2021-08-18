@@ -694,7 +694,7 @@ class Model:
 
         response_name = self.response.name
         if response_name in pps:
-            prior_predictive = {response_name: pps.pop(response_name)}
+            prior_predictive = {response_name: pps.pop(response_name)[np.newaxis]}
             observed_data = {response_name: self.response.data.squeeze()}
         else:
             prior_predictive = {}
