@@ -52,50 +52,12 @@ class PyMC3BackEnd:
 
         coords = spec._get_pymc_coords()  # pylint: disable=protected-access
         self.model = pm.Model(coords=coords)
-        noncentered = spec.noncentered
-
         self.has_intercept = spec.intercept_term is not None
+        self.mu = 0.0
 
         ## Add common effects
-        # Common effects have at most ONE coord.
         with self.model:
-            self.mu = 0.0
-            coef_list = []
-
-            # Iterate through terms and add their coefficients to coef_list
-            for term in spec.common_terms.values():
-                data = term.data
-                label = term.name
-                dist = term.prior.name
-                args = term.prior.args
-                if term.pymc_coords:
-                    dims = list(term.pymc_coords.keys())
-                    coef = self.build_common_distribution(dist, label, dims=dims, **args)
-                else:
-                    coef = self.build_common_distribution(dist, label, shape=data.shape[1], **args)
-                coef_list.append(coef)
-
-            # If there are predictors, use design matrix (w/o intercept)
-            if coef_list:
-                coefs = tt.concatenate(coef_list)
-                X = spec._design.common.design_matrix  # pylint: disable=protected-access
-
-            if self.has_intercept:
-                term = spec.intercept_term
-                distribution = get_pymc_distribution(term.prior.name)
-                # If there are predictors, "Intercept" is a the intercept for centered predictors
-                # This is intercept is re-scaled later.
-                intercept = distribution("Intercept", shape=1, **term.prior.args)
-                self.mu += intercept
-
-                if spec.common_terms:
-                    # Remove intercept from design matrix
-                    # pylint: disable=protected-access
-                    idx = spec._design.common.terms_info["Intercept"]["cols"]
-                    X = np.delete(X, idx, axis=1)
-                    self.mu += tt.dot(X - X.mean(0), coefs)
-            elif coef_list:
-                self.mu += tt.dot(X, coefs)
+            self.mu += Common(spec.intercept_term, spec.common_terms).build()
 
         ## Add group-specific effects
         # Group-specific effects always have pymc_coords. At least for the group.
@@ -116,22 +78,7 @@ class PyMC3BackEnd:
             if term.name.split("|")[1] not in spec.priors_cor
         ]
         with self.model:
-            for term in terms:
-                label = term.name
-                dist = term.prior.name
-                args = term.prior.args
-                predictor = term.predictor.squeeze()
-                dims = list(term.pymc_coords.keys())
-                coef = self.build_group_specific_distribution(
-                    dist, label, noncentered, dims=dims, **args
-                )
-                coef = coef[term.group_index]
-
-                if predictor.ndim > 1:
-                    for col in range(predictor.shape[1]):
-                        self.mu += coef[:, col] * predictor[:, col]
-                else:
-                    self.mu += coef * predictor
+            self.mu += GroupSpecific(terms, spec.noncentered).build()
 
         # Build response distribution
         with self.model:
@@ -272,35 +219,6 @@ class PyMC3BackEnd:
         else:
             return _laplace(model)
 
-    def build_common_distribution(self, dist, label, **kwargs):
-        """Build and return a PyMC3 Distribution for a common term."""
-        # We are sure prior arguments aren't hyperpriors because it is already checked in the model
-        distribution = get_pymc_distribution(dist)
-        return distribution(label, **kwargs)
-
-    def build_group_specific_distribution(self, dist, label, noncentered, **kwargs):
-        """Build and return a PyMC3 Distribution for a group specific term."""
-
-        dist = get_pymc_distribution(dist)
-
-        if "dims" in kwargs:
-            group_dim = [dim for dim in kwargs["dims"] if dim.endswith("_group_expr")]
-            kwargs = {
-                k: self.expand_prior_args(k, v, label, noncentered, dims=group_dim)
-                for (k, v) in kwargs.items()
-            }
-        else:
-            kwargs = {
-                k: self.expand_prior_args(k, v, label, noncentered) for (k, v) in kwargs.items()
-            }
-
-        # Non-centered parameterization for hyperpriors
-        if noncentered and has_hyperprior(kwargs):
-            sigma = kwargs["sigma"]
-            offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=kwargs["dims"])
-            return pm.Deterministic(label, offset * sigma, dims=kwargs["dims"])
-        return dist(label, **kwargs)
-
     def build_response(self, spec):
         """Build and return a response distribution."""
         data = spec.response.data.squeeze()
@@ -312,7 +230,7 @@ class PyMC3BackEnd:
             linkinv = spec.family.link.linkinv_backend
 
         likelihood = spec.family.likelihood
-        dist = self.get_distribution(likelihood.name)
+        dist = get_pymc_distribution(likelihood.name)
         kwargs = {likelihood.parent: linkinv(self.mu), "observed": data}
         if likelihood.priors:
             kwargs.update(
@@ -344,15 +262,129 @@ class PyMC3BackEnd:
         return dist(name, **kwargs)
 
 
+class Common:
+    def __init__(self, intercept, terms):
+        self.intercept = intercept
+        self.terms = terms
 
-    def expand_prior_args(self, key, value, label, noncentered, **kwargs):
+    def build(self):
+        """
+        intercept: Intercept term or None.
+        terms: A dictionary with common terms from the Bambi model.
+        model: A PyMC3 model.
+        """
+        mu = 0.0
+        if self.intercept and self.terms:
+            # Add intercept for centered predictors.
+            # This is intercept is re-scaled later.
+            mu += self.build_intercept()
+
+            # Add centered predictors
+            coefs, data = self.build_terms()
+            data = data - data.mean(0)
+            mu += tt.dot(data, coefs)
+        elif self.intercept:
+            # Add intercept
+            mu += self.build_intercept()
+        elif self.terms:
+            # Add non-centered predictors
+            coefs, data = self.build_terms()
+            mu += tt.dot(data, coefs)
+        return mu
+
+    def build_term(self, term):
+        """Build and return a PyMC3 Distribution for a common term."""
+        data = term.data
+        label = term.name
+        dist = term.prior.name
+        args = term.prior.args
+        distribution = get_pymc_distribution(dist)
+        if term.pymc_coords:
+            dims = list(term.pymc_coords.keys())
+            coef = distribution(label, dims=dims, **args)
+        else:
+            coef = distribution(label, shape=data.shape[1], **args)
+        return coef
+
+    def build_terms(self):
+        """Build a dictionary of common terms"""
+        coefs = []
+        columns = []
+        for term in self.terms.values():
+            columns.append(term.data)
+            coefs.append(self.build_term(term))
+
+        # Column vector of coefficients
+        coefs = tt.concatenate(coefs)
+
+        # Design matrix
+        data = np.hstack(columns)
+        return coefs, data
+
+    def build_intercept(self):
+        distribution = get_pymc_distribution(self.intercept.prior.name)
+        return distribution("Intercept", shape=1, **self.intercept.prior.args)
+
+
+class GroupSpecific:
+    def __init__(self, terms, noncentered):
+        self.terms = terms
+        self.noncentered = noncentered
+
+    def build(self):
+        mu = 0
+        for term in self.terms:
+            coef, predictor = self.build_term(term)
+            if predictor.ndim > 1:
+                for col in range(predictor.shape[1]):
+                    mu += coef[:, col] * predictor[:, col]
+            else:
+                mu += coef * predictor
+        return mu
+
+
+    def build_term(self, term):
+        label = term.name
+        dist = term.prior.name
+        args = term.prior.args
+        predictor = term.predictor.squeeze()
+        dims = list(term.pymc_coords.keys())
+        coef = self.build_distribution(dist, label, dims=dims, **args)
+        coef = coef[term.group_index]
+
+        return coef, predictor
+
+    def build_distribution(self, dist, label, **kwargs):
+        """Build and return a PyMC3 Distribution for a group specific term."""
+
+        dist = get_pymc_distribution(dist)
+
+        if "dims" in kwargs:
+            group_dim = [dim for dim in kwargs["dims"] if dim.endswith("_group_expr")]
+            kwargs = {
+                k: self.expand_prior_args(k, v, label, dims=group_dim) for (k, v) in kwargs.items()
+            }
+        else:
+            kwargs = {k: self.expand_prior_args(k, v, label) for (k, v) in kwargs.items()}
+
+        # Non-centered parameterization for hyperpriors
+        if self.noncentered and has_hyperprior(kwargs):
+            sigma = kwargs["sigma"]
+            offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=kwargs["dims"])
+            return pm.Deterministic(label, offset * sigma, dims=kwargs["dims"])
+        return dist(label, **kwargs)
+
+    def expand_prior_args(self, key, value, label, **kwargs):
         # Inspect all args in case we have hyperparameters.
         # kwargs are used to pass 'dims' for group specific terms.
         if isinstance(value, Prior):
-            return self.build_group_specific_distribution(
-                value.name, f"{label}_{key}", noncentered, **value.args, **kwargs
-            )
+            return self.build_distribution(value.name, f"{label}_{key}", **value.args, **kwargs)
         return value
+
+
+class Response:
+    def __init__(self):
+        return None
 
 
 def _laplace(model):
