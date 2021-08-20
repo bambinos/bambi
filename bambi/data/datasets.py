@@ -55,6 +55,15 @@ illegal drug use.
 67856 insurance policies and 4624 (6.8%) claims in Australia between 2004 and 2005
 """,
     ),
+    "batting": FileMetadata(
+        filename="Batting.csv",
+        url="https://ndownloader.figshare.com/files/29749140",
+        checksum="bbbc9459632c738a07bbe0877970a7bbd1f4c2448193979337fe5bc3a4ab0228",
+        description="""
+Baseball Databank is a compilation of historical baseball data in a convenient, tidy format,
+distributed under Open Data terms by the Baseball Data Bank.
+""",
+    ),
 }
 
 
