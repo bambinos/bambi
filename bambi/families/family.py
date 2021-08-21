@@ -1,6 +1,6 @@
 from statsmodels.genmod import families as sm_families
 
-from .link import Link
+from bambi.families.link import Link
 
 STATSMODELS_FAMILIES = {
     "bernoulli": sm_families.Binomial,
@@ -28,13 +28,31 @@ class Family:
     Parameters
     ----------
     name : str
-        Family name.
+        The name of the family. It can be any string.
     likelihood: Likelihood
-        A ``Likelihood`` instace specifying the model likelihood function.
+        A ``bambi.families.Likelihood`` instace specifying the model likelihood function.
     link : str or Link
-        The name of the link function, or the function itself, transforming the linear model
-        prediction to the mean parameter of the likelihood. If a function, it must be able to
-        operate over theano tensors rather than numpy arrays.
+        The name of the link function or a ``bambi.families.Link`` instance. The link function
+        transforms the linear model prediction to the mean parameter of the likelihood funtion.
+
+    Examples
+    --------
+    Some imports
+
+    >>> from bambi import Family, Likelihood, Prior
+
+    Replicate the Gaussian built-in family.
+
+    >>> sigma_prior = Prior("HalfNormal", sigma=1)
+    >>> likelihood = Likelihood("Gaussian", parent="mu", sigma=sigma_prior)
+    >>> family = Family("gaussian", likelihood, "identity")
+    >>> # Then you can do
+    >>> # Model("y ~ x", data, family=family)
+
+    Replicate the Bernoulli built-in family.
+
+    >>> likelihood = Likelihood("Bernoulli", parent="p")
+    >>> family = Family("bernoulli", likelihood, "logit")
     """
 
     def __init__(self, name, likelihood, link):
@@ -48,13 +66,13 @@ class Family:
     def _set_link(self, link):
         """Set new link function.
 
-        If ``link`` is a ``str``, this method updates passes tries to create a ``Link`` instance
-        using the name in ``link``. If it is a recognized name, a builtin ``Link`` will be used.
-        Otherwise, ``Link`` instantiation will raise an error.
+        If ``link`` is of type ``str``, this method attempts to create a ``bambi.families.Link``
+        from the name passed. If it is a recognized name, a builtin ``bambi.families.Link`` will be
+        used. Otherwise, ``bambi.families.Link`` instantiation will raise an error.
 
         Parameters
         ----------
-        link: str or Link
+        link: str or bambi.families.Link
             If a string, it must the name of a link function recognized by Bambi.
 
         Returns
@@ -92,7 +110,7 @@ FAMILY_PARAMS = {
 }
 
 
-def extract_family_prior(family, priors):
+def _extract_family_prior(family, priors):
     """Extract priors for a given family
 
     If a key in the priors dictionary matches the name of a nuisance parameter of the response
@@ -102,8 +120,8 @@ def extract_family_prior(family, priors):
 
     Parameters
     ----------
-    family: str or ``Family``
-        The name of a built-in family or a ``Family`` instance.
+    family: str or ``bambi.families.Family``
+        The family for which we want to extract priors.
     priors: dict
         A dictionary where keys represent parameter/term names and values represent
         prior distributions.
@@ -114,8 +132,8 @@ def extract_family_prior(family, priors):
         if priors:
             return priors
     elif isinstance(family, Family):
-        # Only work if there are nuisance parameters in the family, and if any of these nuisance
-        # parameters is present in 'priors' dictionary.
+        # Only work if there are auxiliary parameters in the family, and if any of these are
+        # present in 'priors' dictionary.
         nuisance_params = list(family.likelihood.priors)
         if set(nuisance_params).intersection(set(priors)):
             return {k: priors.pop(k) for k in nuisance_params if k in priors}
