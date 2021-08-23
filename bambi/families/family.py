@@ -37,22 +37,21 @@ class Family:
 
     Examples
     --------
-    Some imports
 
-    >>> from bambi import Family, Likelihood, Prior
+    >>> import bambi as bmb
 
     Replicate the Gaussian built-in family.
 
-    >>> sigma_prior = Prior("HalfNormal", sigma=1)
-    >>> likelihood = Likelihood("Gaussian", parent="mu", sigma=sigma_prior)
-    >>> family = Family("gaussian", likelihood, "identity")
+    >>> sigma_prior = bmb.Prior("HalfNormal", sigma=1)
+    >>> likelihood = bmb.Likelihood("Gaussian", parent="mu", sigma=sigma_prior)
+    >>> family = bmb.Family("my_gaussian", likelihood, "identity")
     >>> # Then you can do
-    >>> # Model("y ~ x", data, family=family)
+    >>> # bmb.Model("y ~ x", data, family=family)
 
     Replicate the Bernoulli built-in family.
 
-    >>> likelihood = Likelihood("Bernoulli", parent="p")
-    >>> family = Family("bernoulli", likelihood, "logit")
+    >>> likelihood = bmb.Likelihood("Bernoulli", parent="p")
+    >>> family = bmb.Family("bernoulli2", likelihood, "logit")
     """
 
     def __init__(self, name, likelihood, link):
