@@ -39,6 +39,7 @@ class PriorScalerMLE:
         self.priors = {}
         self.mle = None
         self.taylor = taylor
+        # pylint: disable=unspecified-encoding
         with open(join(dirname(__file__), "config", "derivs.txt"), "r") as file:
             self.deriv = [next(file).strip("\n") for x in range(taylor + 1)]
 
