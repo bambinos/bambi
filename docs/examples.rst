@@ -12,5 +12,6 @@ Examples
   notebooks/wald_gamma_glm
   notebooks/negative_binomial
   notebooks/alternative_links_binary
+  notebooks/hierarchical_binomial_bambi.ipynb
   notebooks/model_comparison
       notebooks/shooter_crossed_random_ANOVA
