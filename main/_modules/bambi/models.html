@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>bambi.models &#8212; Bambi 0.6.0 documentation</title>
+    <title>bambi.models &#8212; Bambi 0.6.1 documentation</title>
     
   <link href="../../_static/css/theme.css" rel="stylesheet" />
   <link href="../../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -22,19 +22,16 @@
       
 
     
-    <link rel="stylesheet" href="../../_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css" />
     
   <link rel="preload" as="script" href="../../_static/js/index.1c5a1a01449ed65a7b51.js">
 
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -133,7 +130,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -146,7 +143,7 @@
   <p style="margin-top: 1em; margin-bottom: 0;">
   <strong>
     You're reading the documentation for a development version (main).<br>
-    For the latest released version, please have a look at <a href="../../../0.6.0/index.html">latest</a>.
+    For the latest released version, please have a look at <a href="../../../0.6.1/index.html">latest</a>.
   </strong>
   </p>
   
@@ -167,7 +164,15 @@
                 
 
                   
-                    <li><a href="../../../0.6.0/index.html">0.6.0 (latest)</a></li>
+                    <li><a href="../../../0.6.1/index.html">0.6.1 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.6.0/index.html">0.6.0</a></li>
                   
 
                 
@@ -262,7 +267,8 @@
 
 <span class="kn">from</span> <span class="nn">.backends</span> <span class="kn">import</span> <span class="n">PyMC3BackEnd</span>
 <span class="kn">from</span> <span class="nn">.defaults</span> <span class="kn">import</span> <span class="n">get_default_prior</span><span class="p">,</span> <span class="n">get_builtin_family</span>
-<span class="kn">from</span> <span class="nn">.priors</span> <span class="kn">import</span> <span class="n">Family</span><span class="p">,</span> <span class="n">Prior</span><span class="p">,</span> <span class="n">PriorScaler</span><span class="p">,</span> <span class="n">PriorScalerMLE</span><span class="p">,</span> <span class="n">extract_family_prior</span>
+<span class="kn">from</span> <span class="nn">.families</span> <span class="kn">import</span> <span class="n">Family</span><span class="p">,</span> <span class="n">_extract_family_prior</span>
+<span class="kn">from</span> <span class="nn">.priors</span> <span class="kn">import</span> <span class="n">Prior</span><span class="p">,</span> <span class="n">PriorScaler</span><span class="p">,</span> <span class="n">PriorScalerMLE</span>
 <span class="kn">from</span> <span class="nn">.terms</span> <span class="kn">import</span> <span class="n">ResponseTerm</span><span class="p">,</span> <span class="n">Term</span><span class="p">,</span> <span class="n">GroupSpecificTerm</span>
 <span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">listify</span><span class="p">,</span> <span class="n">link_match_family</span>
 <span class="kn">from</span> <span class="nn">.version</span> <span class="kn">import</span> <span class="n">__version__</span>
@@ -276,31 +282,30 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    formula : str</span>
-<span class="sd">        A model description written in model formula language.</span>
-<span class="sd">    data : DataFrame or str</span>
+<span class="sd">        A model description written using the formula syntax from the ``formulae`` library.</span>
+<span class="sd">    data : pandas.DataFrame or str</span>
 <span class="sd">        The dataset to use. Either a pandas ``DataFrame``, or the name of the file containing</span>
 <span class="sd">        the data, which will be passed to ``pd.read_csv()``.</span>
-<span class="sd">    family : str or Family</span>
+<span class="sd">    family : str or bambi.families.Family</span>
 <span class="sd">        A specification of the model family (analogous to the family object in R). Either</span>
-<span class="sd">        a string, or an instance of class ``priors.Family``. If a string is passed, a family</span>
-<span class="sd">        with the corresponding name must be defined in the defaults loaded at ``Model``</span>
-<span class="sd">        initialization. Valid pre-defined families are ``&#39;gaussian&#39;``, ``&#39;bernoulli&#39;``, ``&#39;beta&#39;``,</span>
-<span class="sd">        ``&#39;binomial&#39;``, ``&#39;poisson&#39;``, ``&#39;gamma&#39;``, ``&#39;wald&#39;``, and ``&#39;negativebinomial&#39;``.</span>
-<span class="sd">        Defaults to ``&#39;gaussian&#39;``.</span>
+<span class="sd">        a string, or an instance of class ``bambi.families.Family``. If a string is passed, a</span>
+<span class="sd">        family with the corresponding name must be defined in the defaults loaded at ``Model``</span>
+<span class="sd">        initialization. Valid pre-defined families are ``&quot;bernoulli&quot;``, ``&quot;beta&quot;``,</span>
+<span class="sd">        ``&quot;binomial&quot;``, ``&quot;gamma&quot;``, ``&quot;gaussian&quot;``, ``&quot;negativebinomial&quot;``, ``&quot;poisson&quot;``, ``&quot;t&quot;``,</span>
+<span class="sd">        and ``&quot;wald&quot;``. Defaults to ``&quot;gaussian&quot;``.</span>
 <span class="sd">    priors : dict</span>
 <span class="sd">        Optional specification of priors for one or more terms. A dictionary where the keys are</span>
-<span class="sd">        the names of terms in the model, &#39;common&#39; or &#39;group_specific&#39; and the values are either</span>
-<span class="sd">        instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the</span>
-<span class="sd">        width of the priors on a standardized scale.</span>
+<span class="sd">        the names of terms in the model, &quot;common&quot; or &quot;group_specific&quot; and the values are</span>
+<span class="sd">        instances of class ``Prior`` when ``automatic_priors`` is ``&quot;default&quot;``, or either</span>
+<span class="sd">        ``Prior``, ``int``, ``float``, or ``str`` when ``automatic_priors`` is ``&quot;mle&quot;``.</span>
 <span class="sd">    link : str</span>
-<span class="sd">        The model link function to use. Can be either a string (must be one of the options</span>
-<span class="sd">        defined in the current backend; typically this will include at least ``&#39;identity&#39;``,</span>
-<span class="sd">        ``&#39;logit&#39;``, ``&#39;inverse&#39;``, and ``&#39;log&#39;``), or a callable that takes a 1D ndarray or</span>
-<span class="sd">        theano tensor as the sole argument and returns one with the same shape.</span>
+<span class="sd">        The name of the link function to use. Valid names are ``&quot;cloglog&quot;``, ``&quot;identity&quot;``,</span>
+<span class="sd">        ``&quot;inverse_squared&quot;``, ``&quot;inverse&quot;``, ``&quot;log&quot;``, ``&quot;logit&quot;``, and ``&quot;probit&quot;``. Not all</span>
+<span class="sd">        the link functions can be used with all the families. See TODO.</span>
 <span class="sd">    categorical : str or list</span>
 <span class="sd">        The names of any variables to treat as categorical. Can be either a single variable</span>
 <span class="sd">        name, or a list of names. If categorical is ``None``, the data type of the columns in</span>
-<span class="sd">        the ``DataFrame`` will be used to infer handling. In cases where numeric columns are</span>
+<span class="sd">        the ``data`` will be used to infer handling. In cases where numeric columns are</span>
 <span class="sd">        to be treated as categoricals (e.g., group specific factors coded as numerical IDs),</span>
 <span class="sd">        explicitly passing variable names via this argument is recommended.</span>
 <span class="sd">    potentials : A list of 2-tuples.</span>
@@ -325,15 +330,18 @@
 <span class="sd">    noncentered : bool</span>
 <span class="sd">        If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on</span>
 <span class="sd">        grouped parameters. If ``False``, naive (centered) parameterization is used.</span>
-<span class="sd">    priors_cor = dict</span>
-<span class="sd">        The value of eta in the prior for the correlation matrix of group-specific terms.</span>
-<span class="sd">        Keys in the dictionary indicate the groups, and values indicate the value of eta.</span>
+<span class="sd">    priors_cor : dict</span>
+<span class="sd">        An optional value for eta in the LKJ prior for the correlation matrix of group-specific</span>
+<span class="sd">        terms. Keys in the dictionary indicate the groups, and values indicate the value of eta.</span>
+<span class="sd">        This is a very experimental feature. Defaults to ``None``, which means priors for the</span>
+<span class="sd">        group-specific terms are independent.</span>
 <span class="sd">    taylor : int</span>
 <span class="sd">        Order of Taylor expansion to use in approximate variance when constructing the default</span>
-<span class="sd">        priors. Should be between 1 and 13. Lower values are less accurate, tending to undershoot</span>
-<span class="sd">        the correct prior width, but are faster to compute and more stable. Odd-numbered values</span>
-<span class="sd">        tend to work better. Defaults to 5 for Normal models and 1 for non-Normal models. Values</span>
-<span class="sd">        higher than the defaults are generally not recommended as they can be unstable.</span>
+<span class="sd">        priors when ``automatic_priors`` is ``&quot;mle&quot;``. Should be between 1 and 13. Lower values are</span>
+<span class="sd">        less accurate, tending to undershoot the correct prior width, but are faster to compute and</span>
+<span class="sd">        more stable. Odd-numbered values tend to work better. Defaults to 5 for Normal models and</span>
+<span class="sd">        1 for non-Normal models. Values higher than the defaults are generally not recommended as</span>
+<span class="sd">        they can be unstable.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1"># pylint: disable=too-many-instance-attributes</span>
@@ -378,7 +386,7 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">)</span>
         <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;data must be a string with a path to a .csv or a pandas DataFrame.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;data&#39; must be a string with a path to a .csv or a pandas DataFrame.&quot;</span><span class="p">)</span>
 
         <span class="c1"># To avoid SettingWithCopyWarning when converting object columns to category</span>
         <span class="n">data</span><span class="o">.</span><span class="n">_is_copy</span> <span class="o">=</span> <span class="kc">False</span>
@@ -405,29 +413,27 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">automatic_priors</span> <span class="o">=</span> <span class="n">automatic_priors</span>
 
         <span class="c1"># Obtain design matrices and related objects.</span>
-        <span class="n">na_action</span> <span class="o">=</span> <span class="s2">&quot;drop&quot;</span> <span class="k">if</span> <span class="n">dropna</span> <span class="k">else</span> <span class="s2">&quot;error&quot;</span>
-        <span class="k">if</span> <span class="n">formula</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">formula</span> <span class="o">=</span> <span class="n">formula</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_design</span> <span class="o">=</span> <span class="n">design_matrices</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">na_action</span><span class="p">,</span> <span class="n">eval_env</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">formula</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can&#39;t instantiate a model without a model formula.&quot;</span><span class="p">)</span>
+        <span class="n">na_action</span> <span class="o">=</span> <span class="s2">&quot;drop&quot;</span> <span class="k">if</span> <span class="n">dropna</span> <span class="k">else</span> <span class="s2">&quot;error&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formula</span> <span class="o">=</span> <span class="n">formula</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_design</span> <span class="o">=</span> <span class="n">design_matrices</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">na_action</span><span class="p">,</span> <span class="n">eval_env</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">response</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">family_prior</span> <span class="o">=</span> <span class="n">extract_family_prior</span><span class="p">(</span><span class="n">family</span><span class="p">,</span> <span class="n">priors</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">family_prior</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="p">:</span>
-                <span class="n">conflict</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">family_prior</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">terms_info</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">conflict</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;The prior name for </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">conflict</span><span class="p">)</span><span class="si">}</span><span class="s2"> conflicts with the name of a &quot;</span>
-                        <span class="s2">&quot;parameter in the response distribution.</span><span class="se">\n</span><span class="s2">&quot;</span>
-                        <span class="s2">&quot;Please rename the term(s) to prevent an unexpected behaviour.&quot;</span>
-                    <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_add_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">response</span><span class="p">,</span> <span class="n">family</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">family_prior</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">response</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;No outcome variable is set! &quot;</span>
                 <span class="s2">&quot;Please specify an outcome variable using the formula interface.&quot;</span>
             <span class="p">)</span>
+        <span class="n">family_prior</span> <span class="o">=</span> <span class="n">_extract_family_prior</span><span class="p">(</span><span class="n">family</span><span class="p">,</span> <span class="n">priors</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">family_prior</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="p">:</span>
+            <span class="n">conflicts</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">family_prior</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">terms_info</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The prior name for </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">conflicts</span><span class="p">)</span><span class="si">}</span><span class="s2"> conflicts with the name of a &quot;</span>
+                    <span class="s2">&quot;parameter in the response distribution.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;Please rename the term(s) to prevent an unexpected behaviour.&quot;</span>
+                <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">response</span><span class="p">,</span> <span class="n">family</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">family_prior</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_add_common</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="p">,</span> <span class="n">priors</span><span class="p">)</span>
@@ -460,59 +466,58 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        draws: int</span>
-<span class="sd">            The number of samples to draw. Defaults to 1000.</span>
-<span class="sd">            The number of tuned samples are discarded by default. See discard_tuned_samples.</span>
+<span class="sd">            The number of samples to draw from the posterior distribution. Defaults to 1000.</span>
 <span class="sd">        tune : int</span>
-<span class="sd">            Number of iterations to tune, defaults to 1000. Samplers adjust the step sizes,</span>
-<span class="sd">            scalings or similar during tuning.</span>
-<span class="sd">            Tuning samples will be drawn in addition to the number specified in the draws argument,</span>
-<span class="sd">            and will be discarded unless discard_tuned_samples is set to False.</span>
+<span class="sd">            Number of iterations to tune. Defaults to 1000. Samplers adjust the step sizes,</span>
+<span class="sd">            scalings or similar during tuning. These tuning samples are be drawn in addition to the</span>
+<span class="sd">            number specified in the ``draws`` argument, and will be discarded unless</span>
+<span class="sd">            ``discard_tuned_samples`` is set to ``False``.</span>
 <span class="sd">        discard_tuned_samples : bool</span>
-<span class="sd">            Whether to discard posterior samples of the tune interval. Defaults to True.</span>
+<span class="sd">            Whether to discard posterior samples of the tune interval. Defaults to ``True``.</span>
 <span class="sd">        omit_offsets: bool</span>
 <span class="sd">            Omits offset terms in the ``InferenceData`` object when the model includes</span>
 <span class="sd">            group specific effects. Defaults to ``True``.</span>
 <span class="sd">        method: str</span>
-<span class="sd">            The method to use for fitting the model. By default, ``&#39;mcmc&#39;``. This will automatically</span>
+<span class="sd">            The method to use for fitting the model. By default, ``&quot;mcmc&quot;``. This automatically</span>
 <span class="sd">            assigns a MCMC method best suited for each kind of variables, like NUTS for continuous</span>
-<span class="sd">            variables and Metropolis for non-binary discrete ones. Alternatively, ``&#39;advi&#39;``, in</span>
+<span class="sd">            variables and Metropolis for non-binary discrete ones. Alternatively, ``&quot;advi&quot;``, in</span>
 <span class="sd">            which case the model will be fitted using  automatic differentiation variational</span>
 <span class="sd">            inference as implemented in PyMC3.</span>
-<span class="sd">            Finally, ``&#39;laplace&#39;``, in which case a Laplace approximation is used, ``&#39;laplace&#39;`` is</span>
-<span class="sd">            not recommended other than for pedagogical use.</span>
+<span class="sd">            Finally, ``&quot;laplace&quot;``, in which case a Laplace approximation is used and is not</span>
+<span class="sd">            recommended other than for pedagogical use.</span>
 <span class="sd">        init: str</span>
-<span class="sd">            Initialization method. Defaults to ``&#39;auto&#39;``. The available methods are:</span>
-<span class="sd">            * auto: Use ``&#39;jitter+adapt_diag&#39;`` and if this method fails it uses ``&#39;adapt_diag&#39;``.</span>
+<span class="sd">            Initialization method. Defaults to ``&quot;auto&quot;``. The available methods are:</span>
+<span class="sd">            * auto: Use ``&quot;jitter+adapt_diag&quot;`` and if this method fails it uses ``&quot;adapt_diag&quot;``.</span>
 <span class="sd">            * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the</span>
-<span class="sd">              variance of the tuning samples. All chains use the test value (usually the prior mean)</span>
-<span class="sd">              as starting point.</span>
-<span class="sd">            * jitter+adapt_diag: Same as ``adapt_diag``, but use test value plus a uniform jitter in</span>
-<span class="sd">              [-1, 1] as starting point in each chain.</span>
+<span class="sd">            variance of the tuning samples. All chains use the test value (usually the prior mean)</span>
+<span class="sd">            as starting point.</span>
+<span class="sd">            * jitter+adapt_diag: Same as ``&quot;adapt_diag&quot;``, but use test value plus a uniform jitter</span>
+<span class="sd">            in [-1, 1] as starting point in each chain.</span>
 <span class="sd">            * advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on</span>
-<span class="sd">              the sample variance of the tuning samples.</span>
+<span class="sd">            the sample variance of the tuning samples.</span>
 <span class="sd">            * advi+adapt_diag_grad: Run ADVI and then adapt the resulting diagonal mass matrix based</span>
-<span class="sd">              on the variance of the gradients during tuning. This is **experimental** and might be</span>
-<span class="sd">              removed in a future release.</span>
+<span class="sd">            on the variance of the gradients during tuning. This is **experimental** and might be</span>
+<span class="sd">            removed in a future release.</span>
 <span class="sd">            * advi: Run ADVI to estimate posterior mean and diagonal mass matrix.</span>
 <span class="sd">            * advi_map: Initialize ADVI with MAP and use MAP as starting point.</span>
 <span class="sd">            * map: Use the MAP as starting point. This is strongly discouraged.</span>
 <span class="sd">            * adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the</span>
-<span class="sd">              test value (usually the prior mean) as starting point.</span>
-<span class="sd">            * jitter+adapt_full: Same as ``adapt_full``, but use test value plus a uniform jitter in</span>
-<span class="sd">              [-1, 1] as starting point in each chain.</span>
+<span class="sd">            test value (usually the prior mean) as starting point.</span>
+<span class="sd">            * jitter+adapt_full: Same as ``&quot;adapt_full&quot;``, but use test value plus a uniform jitter</span>
+<span class="sd">            in [-1, 1] as starting point in each chain.</span>
 <span class="sd">        n_init: int</span>
-<span class="sd">            Number of initialization iterations. Only works for &#39;advi&#39; init methods.</span>
+<span class="sd">            Number of initialization iterations. Only works for ``&quot;advi&quot;`` init methods.</span>
 <span class="sd">        chains: int</span>
 <span class="sd">            The number of chains to sample. Running independent chains is important for some</span>
-<span class="sd">            convergence statistics and can also reveal multiple modes in the posterior. If None,</span>
-<span class="sd">            then set to either cores or 2, whichever is larger.</span>
+<span class="sd">            convergence statistics and can also reveal multiple modes in the posterior. If ``None``,</span>
+<span class="sd">            then set to either ``cores`` or 2, whichever is larger.</span>
 <span class="sd">        cores : int</span>
-<span class="sd">            The number of chains to run in parallel. If None, set to the number of CPUs in the</span>
-<span class="sd">            system, but at most 4.</span>
+<span class="sd">            The number of chains to run in parallel. If ``None``, it is equal to the number of CPUs</span>
+<span class="sd">            in the system unless there are more than 4 CPUs, in which case it is set to 4.</span>
 <span class="sd">        random_seed : int or list of ints</span>
 <span class="sd">            A list is accepted if cores is greater than one.</span>
-<span class="sd">        kwargs</span>
-<span class="sd">            For other kwargs see the documentation for ``pm.sample()``</span>
+<span class="sd">        **kwargs:</span>
+<span class="sd">            For other kwargs see the documentation for ``pymc3.sample()``.</span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        An ArviZ ``InferenceData`` instance.</span>
@@ -626,7 +631,7 @@
 
         <span class="k">if</span> <span class="n">priors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Prepare priors for response auxiliary parameters</span>
-            <span class="n">family_prior</span> <span class="o">=</span> <span class="n">extract_family_prior</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="n">priors</span><span class="p">)</span>
+            <span class="n">family_prior</span> <span class="o">=</span> <span class="n">_extract_family_prior</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="n">priors</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">family_prior</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">prior</span> <span class="ow">in</span> <span class="n">family_prior</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                     <span class="n">prior</span><span class="o">.</span><span class="n">auto_scale</span> <span class="o">=</span> <span class="kc">False</span>
@@ -651,7 +656,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        prior : Prior, float, or None.</span>
 <span class="sd">        type_ : string</span>
-<span class="sd">            Accepted values are: ``&#39;intercept&#39;``, ``&#39;common&#39;``, or ``&#39;group_specific&#39;``.</span>
+<span class="sd">            Accepted values are: ``&quot;intercept&quot;``, ``&quot;common&quot;``, or ``&quot;group_specific&quot;``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">prior</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_scale</span><span class="p">:</span>
@@ -672,26 +677,26 @@
 <span class="sd">        response : formulae.ResponseVector</span>
 <span class="sd">            An instance of ``formulae.ResponseVector`` as returned by</span>
 <span class="sd">            ``formulae.design_matrices()``.</span>
-<span class="sd">        family : str or Family</span>
+<span class="sd">        family : str or bambi.families.Family</span>
 <span class="sd">            A specification of the model family (analogous to the family object in R). Either a</span>
-<span class="sd">            string, or an instance of class ``priors.Family``. If a string is passed, a family with</span>
-<span class="sd">            the corresponding name must be defined in the defaults loaded at Model initialization.</span>
-<span class="sd">            Valid pre-defined families are ``&#39;gaussian&#39;``, ``&#39;bernoulli&#39;``, ``&#39;beta&#39;``,</span>
-<span class="sd">            ``&#39;binomial&#39;``, ``&#39;poisson&#39;``, ``&#39;gamma&#39;``, ``&#39;wald&#39;``, and ``&#39;negativebinomial&#39;``.</span>
-<span class="sd">            Defaults to ``&#39;gaussian&#39;``.</span>
+<span class="sd">            string, or an instance of class ``families.Family``. If a string is passed, a family</span>
+<span class="sd">            with the corresponding name must be defined in the defaults loaded at model</span>
+<span class="sd">            initialization. Valid pre-defined families are ``&quot;bernoulli&quot;``, ``&quot;beta&quot;``,</span>
+<span class="sd">            ``&quot;binomial&quot;``, ``&quot;gamma&quot;``, ``&quot;gaussian&quot;``, ``&quot;negativebinomial&quot;``, ``&quot;poisson&quot;``,</span>
+<span class="sd">            ``&quot;t&quot;``, and ``&quot;wald&quot;``. Defaults to ``&quot;gaussian&quot;``.</span>
 <span class="sd">        link : str</span>
-<span class="sd">            The model link function to use. Can be either a string (must be one of the options</span>
-<span class="sd">            defined in the current backend; typically this will include at least ``&#39;identity&#39;``,</span>
-<span class="sd">            ``&#39;logit&#39;``, ``&#39;inverse&#39;``, and ``&#39;log&#39;``), or a callable that takes a 1D ndarray or</span>
-<span class="sd">            theano tensor as the sole argument and returns one with the same shape.</span>
+<span class="sd">            The name of the link function to use. Valid names are ``&quot;cloglog&quot;``, ``&quot;identity&quot;``,</span>
+<span class="sd">            ``&quot;inverse_squared&quot;``, ``&quot;inverse&quot;``, ``&quot;log&quot;``, ``&quot;logit&quot;``, and ``&quot;probit&quot;``. Not all</span>
+<span class="sd">            the link functions can be used with all the families. See TODO.</span>
 <span class="sd">        priors : dict</span>
 <span class="sd">            Optional dictionary with specification of priors for the parameters in the family of</span>
 <span class="sd">            the response. Keys are names of other parameters than the mean in the family</span>
-<span class="sd">            (i.e. they cannot be equal to family.parent) and values can be an instance of class</span>
+<span class="sd">            (i.e. they cannot be equal to ``family.parent``) and values can be an instance of class</span>
 <span class="sd">            ``Prior``, a numeric value, or a string describing the width. In the numeric case,</span>
 <span class="sd">            the distribution specified in the defaults will be used, and the passed value will be</span>
-<span class="sd">            used to scale the appropriate variance parameter. For strings (e.g., ``&#39;wide&#39;``,</span>
-<span class="sd">            ``&#39;narrow&#39;``, ``&#39;medium&#39;``, or ``&#39;superwide&#39;``), predefined values will be used.</span>
+<span class="sd">            used to scale the appropriate variance parameter. Strings, which are only available when</span>
+<span class="sd">            ``automatic_priors`` is ``&quot;mle&quot;``and can be one of ``&quot;wide&quot;``, ``&quot;narrow&quot;``,</span>
+<span class="sd">            ``&quot;medium&quot;``, or ``&quot;superwide&quot;``), predefined values will be used.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">family</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">family</span> <span class="o">=</span> <span class="n">get_builtin_family</span><span class="p">(</span><span class="n">family</span><span class="p">)</span>
@@ -720,7 +725,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="nf">_add_common</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">common</span><span class="p">,</span> <span class="n">priors</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Add common (or fixed) terms to the model.</span>
+        <span class="sd">&quot;&quot;&quot;Add common (a.k.a. fixed) terms to the model.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -730,9 +735,9 @@
 <span class="sd">            term in the model.</span>
 <span class="sd">        priors : dict</span>
 <span class="sd">            Optional specification of priors for one or more terms. A dictionary where the keys are</span>
-<span class="sd">            any of the names of the common terms in the model or &#39;common&#39; and the values are either</span>
-<span class="sd">            instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the width</span>
-<span class="sd">            of the priors on a standardized scale.</span>
+<span class="sd">            any of the names of the common terms in the model or ``&quot;common&quot;`` and the values are</span>
+<span class="sd">            either instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the</span>
+<span class="sd">            width of the priors on a standardized scale.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">matrix_rank</span><span class="p">(</span><span class="n">common</span><span class="o">.</span><span class="n">design_matrix</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">common</span><span class="o">.</span><span class="n">design_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -763,8 +768,8 @@
 <span class="sd">            associated with each group-specific term in the model.</span>
 <span class="sd">        priors : dict</span>
 <span class="sd">            Optional specification of priors for one or more terms. A dictionary where the keys are</span>
-<span class="sd">            any of the names of the group-specific terms in the model or &#39;group_specific&#39; and the</span>
-<span class="sd">            values are either instances of class ``Prior`` or ``int``, ``float``, or ``str``</span>
+<span class="sd">            any of the names of the group-specific terms in the model or ``&quot;group_specific&quot;`` and</span>
+<span class="sd">            the values are either instances of class ``Prior`` or ``int``, ``float``, or ``str``</span>
 <span class="sd">            that specify the width of the priors on a standardized scale.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">terms_info</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -806,7 +811,8 @@
 <span class="sd">            Number of draws to sample from the prior predictive distribution. Defaults to 5000.</span>
 <span class="sd">        var_names : str or list</span>
 <span class="sd">            A list of names of variables for which to compute the posterior predictive</span>
-<span class="sd">            distribution. Defaults to both observed and unobserved RVs.</span>
+<span class="sd">            distribution. Defaults to ``None`` which means to include both observed and</span>
+<span class="sd">            unobserved RVs.</span>
 <span class="sd">        random_seed : int</span>
 <span class="sd">            Seed for the random number generator.</span>
 <span class="sd">        figsize: tuple</span>
@@ -814,22 +820,22 @@
 <span class="sd">        textsize: float</span>
 <span class="sd">            Text size scaling factor for labels, titles and lines. If ``None`` it will be</span>
 <span class="sd">            autoscaled based on ``figsize``.</span>
-<span class="sd">        hdi_prob: float</span>
+<span class="sd">        hdi_prob: float or str</span>
 <span class="sd">            Plots highest density interval for chosen percentage of density.</span>
-<span class="sd">            Use ``&#39;hide&#39;`` to hide the highest density interval. Defaults to 0.94.</span>
+<span class="sd">            Use ``&quot;hide&quot;`` to hide the highest density interval. Defaults to 0.94.</span>
 <span class="sd">        round_to: int</span>
 <span class="sd">            Controls formatting of floats. Defaults to 2 or the integer part, whichever is bigger.</span>
 <span class="sd">        point_estimate: str</span>
-<span class="sd">            Plot point estimate per variable. Values should be ``&#39;mean&#39;``, ``&#39;median&#39;``, ``&#39;mode&#39;``</span>
-<span class="sd">             or ``None``. Defaults to ``&#39;auto&#39;`` i.e. it falls back to default set in</span>
-<span class="sd">             ArviZ&#39;s rcParams.</span>
+<span class="sd">            Plot point estimate per variable. Values should be ``&quot;mean&quot;``, ``&quot;median&quot;``, ``&quot;mode&quot;``</span>
+<span class="sd">            or ``None``. Defaults to ``&quot;auto&quot;`` i.e. it falls back to default set in</span>
+<span class="sd">            ArviZ&#39;s rcParams.</span>
 <span class="sd">        kind: str</span>
-<span class="sd">            Type of plot to display (``&#39;kde&#39;`` or ``&#39;hist&#39;``) For discrete variables this argument</span>
+<span class="sd">            Type of plot to display (``&quot;kde&quot;`` or ``&quot;hist&quot;``) For discrete variables this argument</span>
 <span class="sd">            is ignored and a histogram is always used.</span>
-<span class="sd">        bins: integer or sequence or &#39;auto&#39;</span>
-<span class="sd">            Controls the number of bins, accepts the same keywords ``matplotlib.hist()`` does.</span>
-<span class="sd">            Only works if ``kind == hist``. If ``None`` (default) it will use ``auto`` for</span>
-<span class="sd">            continuous variables and ``range(xmin, xmax + 1)`` for discrete variables.</span>
+<span class="sd">        bins: integer or sequence or &quot;auto&quot;</span>
+<span class="sd">            Controls the number of bins, accepts the same keywords ``matplotlib.pyplot.hist()``</span>
+<span class="sd">            does. Only works if ``kind == &quot;hist&quot;``. If ``None`` (default) it will use ``&quot;auto&quot;``</span>
+<span class="sd">            for continuous variables and ``range(xmin, xmax + 1)`` for discrete variables.</span>
 <span class="sd">        omit_offsets: bool</span>
 <span class="sd">            Whether to omit offset terms in the plot. Defaults to ``True``.</span>
 <span class="sd">        omit_group_specific: bool</span>
@@ -838,12 +844,12 @@
 <span class="sd">            A 2D array of locations into which to plot the densities. If not supplied, ArviZ will</span>
 <span class="sd">            create its own array of plot areas (and return it).</span>
 <span class="sd">        **kwargs</span>
-<span class="sd">            Passed as-is to ``plt.hist()`` or ``plt.plot()`` function depending on the value of</span>
-<span class="sd">            ``kind``.</span>
+<span class="sd">            Passed as-is to ``matplotlib.pyplot.hist()`` or ``matplotlib.pyplot.plot()`` function</span>
+<span class="sd">            depending on the value of ``kind``.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        axes: matplotlib axes or bokeh figures</span>
+<span class="sd">        axes: matplotlib axes</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -908,15 +914,15 @@
 <span class="sd">        draws : int</span>
 <span class="sd">            Number of draws to sample from the prior predictive distribution. Defaults to 500.</span>
 <span class="sd">        var_names : str or list</span>
-<span class="sd">            A list of names of variables for which to compute the posterior predictive</span>
-<span class="sd">            distribution. Defaults to both observed and unobserved RVs.</span>
+<span class="sd">            A list of names of variables for which to compute the prior predictive distribution.</span>
+<span class="sd">            Defaults to ``None`` which means both observed and unobserved RVs.</span>
 <span class="sd">        random_seed : int</span>
 <span class="sd">            Seed for the random number generator.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        InferenceData</span>
-<span class="sd">            ``InferenceData`` object with the groups `prior`, ``prior_predictive`` and</span>
+<span class="sd">            ``InferenceData`` object with the groups ``prior``, ``prior_predictive`` and</span>
 <span class="sd">            ``observed_data``.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">var_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -942,7 +948,7 @@
 
         <span class="n">response_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">name</span>
         <span class="k">if</span> <span class="n">response_name</span> <span class="ow">in</span> <span class="n">pps</span><span class="p">:</span>
-            <span class="n">prior_predictive</span> <span class="o">=</span> <span class="p">{</span><span class="n">response_name</span><span class="p">:</span> <span class="n">pps</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">response_name</span><span class="p">)}</span>
+            <span class="n">prior_predictive</span> <span class="o">=</span> <span class="p">{</span><span class="n">response_name</span><span class="p">:</span> <span class="n">pps</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">response_name</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]}</span>
             <span class="n">observed_data</span> <span class="o">=</span> <span class="p">{</span><span class="n">response_name</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">prior_predictive</span> <span class="o">=</span> <span class="p">{}</span>
@@ -977,33 +983,35 @@
 <div class="viewcode-block" id="Model.predict"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Predict method for Bambi models</span>
 
-<span class="sd">        Obtains in-sample and out-sample predictions from a fitted Bambi model.</span>
+<span class="sd">        Obtains in-sample and out-of-sample predictions from a fitted Bambi model.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        idata : InferenceData</span>
-<span class="sd">            ``InferenceData`` with samples from the posterior distribution.</span>
+<span class="sd">            The ``InferenceData`` instance returned by ``.fit()``.</span>
 <span class="sd">        kind: str</span>
 <span class="sd">            Indicates the type of prediction required. Can be ``&quot;mean&quot;`` or ``&quot;pps&quot;``. The</span>
-<span class="sd">            first returns posterior distribution of the mean, while the latter returns the posterior</span>
-<span class="sd">            predictive distribution (i.e. the posterior probability distribution for a new</span>
-<span class="sd">            observation). Defaults to ``&quot;mean&quot;``.</span>
-<span class="sd">        data: pd.DataFrame or None</span>
-<span class="sd">            An optional data frame in which to look for variables with which to predict.</span>
-<span class="sd">            If omitted, the fitted linear predictors are used.</span>
+<span class="sd">            first returns draws from the posterior distribution of the mean, while the latter</span>
+<span class="sd">            returns the draws from the posterior predictive distribution</span>
+<span class="sd">            (i.e. the posterior probability distribution for a new observation).</span>
+<span class="sd">            Defaults to ``&quot;mean&quot;``.</span>
+<span class="sd">        data: pandas.DataFrame or None</span>
+<span class="sd">            An optional data frame with values for the predictors that are used to obtain</span>
+<span class="sd">            out-of-sample predictions. If omitted, the original dataset is used.</span>
 <span class="sd">        draws: None</span>
 <span class="sd">            The number of random draws per chain. Only used if ``kind=&quot;pps&quot;``. Not recommended</span>
 <span class="sd">            unless more than ndraws times nchains posterior predictive samples are needed.</span>
-<span class="sd">            Defaults to ``None`` which means ndraws times nchains.</span>
+<span class="sd">            Defaults to ``None`` which means ndraws times nchains draws are obtained.</span>
 <span class="sd">        inplace: bool</span>
-<span class="sd">            If ``True`` it will add a ``posterior_predictive`` group to idata, otherwise it will</span>
-<span class="sd">            return a copy of idata with the added group. If ``True`` and idata already have a</span>
-<span class="sd">            ``posterior_predictive`` group it will be overwritten.</span>
+<span class="sd">            If ``True`` it will modify ``idata`` in-place. Otherwise, it will return a copy of</span>
+<span class="sd">            ``idata`` with the predictions added. If ``kind=&quot;mean&quot;``, a new variable ending in</span>
+<span class="sd">            ``&quot;_mean&quot;`` is added to the ``posterior`` group. If ``kind=&quot;pps&quot;``, it appends a</span>
+<span class="sd">            ``posterior_predictive`` group to ``idata``. If any of these already exist, it will be</span>
+<span class="sd">            overwritten.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        np.ndarray</span>
-<span class="sd">            A NumPy array with predictions.</span>
+<span class="sd">        InferenceData or None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;pps&quot;</span><span class="p">]:</span>
@@ -1106,28 +1114,28 @@
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        formatting : str</span>
-<span class="sd">            One of ``&#39;plain&#39;`` or ``&#39;plain_with_params&#39;``. Defaults to ``&#39;plain&#39;``.</span>
+<span class="sd">            One of ``&quot;plain&quot;`` or ``&quot;plain_with_params&quot;``. Defaults to ``&quot;plain&quot;``.</span>
 <span class="sd">        name : str</span>
-<span class="sd">            Name of the figure to save. Defaults to None, no figure is saved.</span>
+<span class="sd">            Name of the figure to save. Defaults to ``None``, no figure is saved.</span>
 <span class="sd">        figsize : tuple</span>
-<span class="sd">            Maximum width and height of figure in inches. Defaults to None, the figure size is set</span>
-<span class="sd">            automatically. If defined and the drawing is larger than the given size, the drawing is</span>
-<span class="sd">            uniformly scaled down so that it fits within the given size.  Only works if ``name``</span>
-<span class="sd">            is not None.</span>
+<span class="sd">            Maximum width and height of figure in inches. Defaults to ``None``, the figure size is</span>
+<span class="sd">            set automatically. If defined and the drawing is larger than the given size, the drawing</span>
+<span class="sd">            is uniformly scaled down so that it fits within the given size.  Only works if ``name``</span>
+<span class="sd">            is not ``None``.</span>
 <span class="sd">        dpi : int</span>
 <span class="sd">            Point per inch of the figure to save.</span>
-<span class="sd">            Defaults to 300. Only works if ``name`` is not None.</span>
+<span class="sd">            Defaults to 300. Only works if ``name`` is not ``None``.</span>
 <span class="sd">        fmt : str</span>
 <span class="sd">            Format of the figure to save.</span>
-<span class="sd">            Defaults to ``&#39;png&#39;``. Only works if ``name`` is not None.</span>
+<span class="sd">            Defaults to ``&quot;png&quot;``. Only works if ``name`` is not ``None``.</span>
 
 <span class="sd">        Example</span>
 <span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; model = Model(&#39;y ~ x + (1|z)&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; model = Model(&quot;y ~ x + (1|z)&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; model.build()</span>
 <span class="sd">        &gt;&gt;&gt; model.graph()</span>
 
-<span class="sd">        &gt;&gt;&gt; model = Model(&#39;y ~ x + (1|z)&#39;)</span>
+<span class="sd">        &gt;&gt;&gt; model = Model(&quot;y ~ x + (1|z)&quot;)</span>
 <span class="sd">        &gt;&gt;&gt; model.fit()</span>
 <span class="sd">        &gt;&gt;&gt; model.graph()</span>
 
@@ -1263,7 +1271,7 @@
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.2.1.<br/>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.1.2.<br/>
 </p>
     </div>
     

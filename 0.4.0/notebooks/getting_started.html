@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Getting Started &#8212; Bambi 0.6.0 documentation</title>
+    <title>Getting Started &#8212; Bambi 0.6.1 documentation</title>
     
   <link href="../_static/css/theme.css" rel="stylesheet" />
   <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
@@ -22,19 +22,18 @@
       
 
     
-    <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css" />
     
   <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
 
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Examples" href="../examples.html" />
@@ -129,7 +128,7 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -140,7 +139,7 @@
   <p style="margin-top: 1em; margin-bottom: 0;">
     <strong>
     You're reading an old version of this documentation (v. 0.4.0).<br>
-    If you want up-to-date information, please have a look at <a href="../../0.6.0/index.html">latest</a>.
+    If you want up-to-date information, please have a look at <a href="../../0.6.1/index.html">latest</a>.
   </strong>
   </p>
   
@@ -163,7 +162,15 @@
                 
 
                   
-                    <li><a href="../../0.6.0/index.html">0.6.0 (latest)</a></li>
+                    <li><a href="../../0.6.1/index.html">0.6.1 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.0/index.html">0.6.0</a></li>
                   
 
                 
@@ -338,11 +345,11 @@
 <h1>Getting Started<a class="headerlink" href="#Getting-Started" title="Permalink to this headline">¶</a></h1>
 <p>Bambi requires a working Python interpreter (3.7+). We recommend installing Python and key numerical libraries using the <a class="reference external" href="https://www.anaconda.com/products/individual">Anaconda Distribution</a>, which has one-click installers available on all major platforms.</p>
 <p>Assuming a standard Python environment is installed on your machine (including pip), Bambi itself can be installed in one line using pip:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">bambi</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pip install bambi
 </pre></div>
 </div>
 <p>Alternatively, if you want the bleeding edge version of the package, you can install from GitHub:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">git</span><span class="o">+</span><span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">bambinos</span><span class="o">/</span><span class="n">bambi</span><span class="o">.</span><span class="n">git</span>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pip install git+https://github.com/bambinos/bambi.git
 </pre></div>
 </div>
 <div class="section" id="Quickstart">
@@ -673,7 +680,7 @@ built-in ‘bernoulli’ family could be constructed on-the-fly:</p>
 </pre></div>
 </div>
 <p>This produces a plot like the following:</p>
-<p><img alt="3229e9c221d0490e968dd05def61322a" src="../_images/drugs_posterior.png" /></p>
+<p><img alt="6b2760ca84b44d1f85e92dc60bbbe225" src="../_images/drugs_posterior.png" /></p>
 <p>More details on this plot are available in the <a class="reference external" href="https://arviz-devs.github.io/arviz/_modules/arviz/plots/traceplot.html">ArviZ documentation</a>.</p>
 </div>
 <div class="section" id="Summarizing">
@@ -834,7 +841,7 @@ built-in ‘bernoulli’ family could be constructed on-the-fly:</p>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.2.1.<br/>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.1.2.<br/>
 </p>
     </div>
     
