@@ -1,7 +1,8 @@
-from . import pps
-from ..priors import Family, Likelihood, Prior
+from bambi.defaults import pps
+from bambi.families import Family, Likelihood
+from bambi.priors import Prior
 
-
+## NOTE: Check docs/api_reference.rst links the right lines from this document
 # Default parameters for PyMC3 distributions
 SETTINGS_DISTRIBUTIONS = {
     "Bernoulli": {"p": 0.5},
@@ -158,10 +159,11 @@ def get_default_prior(term_type):
 
 
 def get_builtin_family(name):
-    """Generate a built-in ``Family`` instance
+    """Generate a built-in ``bambi.families.Family`` instance
 
-    Given the name of a built-in family, this function returns a ``Family`` instance that is
-    constructed by calling other utility functions that construct the ``Likelihood`` and the
-    ``Prior``s that are needed to build the family.
+    Given the name of a built-in family, this function returns a ``bambi.families.Family`` instance
+    that is constructed by calling other utility functions that construct the
+    ``bambi.families.Likelihood`` and the ``bambi.priors.Prior`` instances that are needed to build
+    the family.
     """
     return generate_family(name, **SETTINGS_FAMILIES[name])

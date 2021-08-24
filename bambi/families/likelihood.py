@@ -1,6 +1,5 @@
-from .prior import Prior
-
-from ..utils import multilinify, spacify
+from bambi.priors import Prior
+from bambi.utils import multilinify, spacify
 
 DISTRIBUTIONS = {
     "Normal": {"params": ("mu", "sigma"), "parent": "mu", "args": ("sigma",)},
@@ -18,7 +17,9 @@ DISTRIBUTIONS = {
 class Likelihood:
     """Representation of a Likelihood function for a Bambi model.
 
-    'parent' must not be in 'kwargs'. 'parent' is inferred from the 'name' if it is a known name
+    Notes:
+    * ``parent`` must not be in ``kwargs``.
+    * ``parent`` is inferred from the ``name`` if it is a known name
 
     Parameters
     ----------
@@ -27,7 +28,7 @@ class Likelihood:
     parent: str
         Optional specification of the name of the mean parameter in the likelihood.
         This is the parameter whose transformation is modeled by the linear predictor.
-    kwargs
+    kwargs:
         Keyword arguments that indicate prior distributions for auxiliary parameters in the
         likelihood.
     """
