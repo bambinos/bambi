@@ -6,8 +6,9 @@ import pytest
 
 from statsmodels.tools.sm_exceptions import PerfectSeparationError
 
+from bambi.families import Family, Likelihood
 from bambi.models import Model
-from bambi.priors import Family, Likelihood, Prior
+from bambi.priors import Prior
 
 
 @pytest.fixture(scope="module")
@@ -81,7 +82,7 @@ def test_likelihood_bad_priors():
 def test_family_class():
     cheese = Prior("CheeseWhiz", holes=0, taste=-10)
     likelihood = Likelihood("Cheese", parent="holes", cheese=cheese)
-    family = Family("cheese", likelihood=likelihood, link="ferment")
+    family = Family("cheese", likelihood=likelihood, link="logit")
 
     for name in ["name", "likelihood", "link"]:
         assert hasattr(family, name)
@@ -137,7 +138,7 @@ def test_prior_eq():
 def test_family_link_unsupported():
     cheese = Prior("CheeseWhiz", holes=0, taste=-10)
     likelihood = Likelihood("Cheese", parent="holes", cheese=cheese)
-    family = Family("cheese", likelihood=likelihood, link="ferment")
+    family = Family("cheese", likelihood=likelihood, link="cloglog")
     with pytest.raises(ValueError):
         family._set_link("Empty")
 
@@ -155,6 +156,7 @@ def test_family_bad_type():
         Model("y ~ x", data, family={"family": "gaussian"})
 
 
+@pytest.mark.skip(reason="This case is actually handled by formulae")
 def test_family_unsupported_index_notation():
     data = pd.DataFrame({"x": [1], "y": [1]})
     with pytest.raises(ValueError):
@@ -185,7 +187,6 @@ def test_set_priors():
 
     # Common
     model.set_priors(common=prior)
-    assert model.terms["Intercept"].prior == prior
     assert model.terms["x"].prior == prior
 
     # Group-specific
@@ -194,8 +195,10 @@ def test_set_priors():
 
     # By name
     model = Model("y ~ x + (1|g)", data)
+    model.set_priors(priors={"Intercept": prior})
     model.set_priors(priors={"x": prior})
     model.set_priors(priors={"1|g": prior})
+    assert model.terms["Intercept"].prior == prior
     assert model.terms["x"].prior == prior
     assert model.terms["1|g"].prior == prior
 

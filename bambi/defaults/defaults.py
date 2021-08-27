@@ -1,10 +1,13 @@
-from ..priors import Family, Likelihood, Prior
+from bambi.defaults import pps
+from bambi.families import Family, Likelihood
+from bambi.priors import Prior
 
-
+## NOTE: Check docs/api_reference.rst links the right lines from this document
 # Default parameters for PyMC3 distributions
 SETTINGS_DISTRIBUTIONS = {
     "Bernoulli": {"p": 0.5},
     "Beta": {"alpha": 1, "beta": 1},
+    "Binomial": {"n": 1, "p": 0.5},
     "Cauchy": {"alpha": 0, "beta": 1},
     "Flat": {},
     "Gamma": {"alpha": 2, "beta": 2},
@@ -25,7 +28,8 @@ SETTINGS_FAMILIES = {
         "likelihood": {
             "name": "Bernoulli",
             "args": {},
-            "parent": "p"
+            "parent": "p",
+            "pps": pps.pps_bernoulli
         },
         "link": "logit"
     },
@@ -35,7 +39,17 @@ SETTINGS_FAMILIES = {
             "args": {
                 "kappa": "HalfCauchy"
             },
-            "parent": "mu"
+            "parent": "mu",
+            "pps": pps.pps_beta
+        },
+        "link": "logit"
+    },
+    "binomial": {
+        "likelihood": {
+            "name": "Binomial",
+            "args": {},
+            "parent": "p",
+            "pps": pps.pps_binomial
         },
         "link": "logit"
     },
@@ -45,7 +59,8 @@ SETTINGS_FAMILIES = {
             "args": {
                 "alpha": "HalfCauchy"
             },
-            "parent": "mu"
+            "parent": "mu",
+            "pps": pps.pps_gamma
         },
         "link": "inverse",
     },
@@ -55,7 +70,8 @@ SETTINGS_FAMILIES = {
             "args": {
                 "sigma": "HalfNormal"
             },
-            "parent": "mu"
+            "parent": "mu",
+            "pps": pps.pps_gaussian
         },
         "link": "identity",
     },
@@ -65,7 +81,8 @@ SETTINGS_FAMILIES = {
             "args": {
                 "alpha": "HalfCauchy"
             },
-            "parent": "mu"
+            "parent": "mu",
+            "pps": pps.pps_negativebinomial
         },
         "link": "log",
     },
@@ -73,7 +90,8 @@ SETTINGS_FAMILIES = {
         "likelihood": {
             "name": "Poisson",
             "args": {},
-            "parent": "mu"
+            "parent": "mu",
+            "pps": pps.pps_poisson
         },
         "link": "log"
     },
@@ -84,7 +102,8 @@ SETTINGS_FAMILIES = {
                 "lam": "HalfCauchy",
                 "nu": 2
             },
-            "parent": "mu"
+            "parent": "mu",
+            "pps": pps.pps_t
         },
         "link": "identity",
     },
@@ -94,7 +113,8 @@ SETTINGS_FAMILIES = {
             "args": {
                 "lam": "HalfCauchy"
             },
-            "parent": "mu"
+            "parent": "mu",
+            "pps": pps.pps_wald
         },
         "link": "inverse_squared",
     },
@@ -114,9 +134,9 @@ def generate_prior(dist, **kwargs):
     return prior
 
 
-def generate_likelihood(name, args, parent):
+def generate_likelihood(name, args, parent, pps):  # pylint: disable=redefined-outer-name
     priors = {k: generate_prior(v) for k, v in args.items()}
-    return Likelihood(name, parent, **priors)
+    return Likelihood(name, parent, pps, **priors)
 
 
 def generate_family(name, likelihood, link):
@@ -139,4 +159,11 @@ def get_default_prior(term_type):
 
 
 def get_builtin_family(name):
+    """Generate a built-in ``bambi.families.Family`` instance
+
+    Given the name of a built-in family, this function returns a ``bambi.families.Family`` instance
+    that is constructed by calling other utility functions that construct the
+    ``bambi.families.Likelihood`` and the ``bambi.priors.Prior`` instances that are needed to build
+    the family.
+    """
     return generate_family(name, **SETTINGS_FAMILIES[name])

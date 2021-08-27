@@ -14,9 +14,10 @@ from formulae import design_matrices
 
 from .backends import PyMC3BackEnd
 from .defaults import get_default_prior, get_builtin_family
-from .priors import Family, Prior, PriorScaler, PriorScalerMLE
+from .families import Family, _extract_family_prior
+from .priors import Prior, PriorScaler, PriorScalerMLE
 from .terms import ResponseTerm, Term, GroupSpecificTerm
-from .utils import listify, extract_family_prior, link_match_family
+from .utils import listify, link_match_family
 from .version import __version__
 
 _log = logging.getLogger("bambi")
@@ -28,33 +29,40 @@ class Model:
     Parameters
     ----------
     formula : str
-        A model description written in model formula language.
-    data : DataFrame or str
+        A model description written using the formula syntax from the ``formulae`` library.
+    data : pandas.DataFrame or str
         The dataset to use. Either a pandas ``DataFrame``, or the name of the file containing
         the data, which will be passed to ``pd.read_csv()``.
-    family : str or Family
+    family : str or bambi.families.Family
         A specification of the model family (analogous to the family object in R). Either
-        a string, or an instance of class ``priors.Family``. If a string is passed, a family
-        with the corresponding name must be defined in the defaults loaded at ``Model``
-        initialization.Valid pre-defined families are ``'gaussian'``, ``'bernoulli'``,
-        ``'poisson'``, ``'gamma'``, ``'wald'``, and ``'negativebinomial'``.
-        Defaults to ``'gaussian'``.
+        a string, or an instance of class ``bambi.families.Family``. If a string is passed, a
+        family with the corresponding name must be defined in the defaults loaded at ``Model``
+        initialization. Valid pre-defined families are ``"bernoulli"``, ``"beta"``,
+        ``"binomial"``, ``"gamma"``, ``"gaussian"``, ``"negativebinomial"``, ``"poisson"``, ``"t"``,
+        and ``"wald"``. Defaults to ``"gaussian"``.
     priors : dict
         Optional specification of priors for one or more terms. A dictionary where the keys are
-        the names of terms in the model, 'common' or 'group_specific' and the values are either
-        instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the
-        width of the priors on a standardized scale.
+        the names of terms in the model, "common" or "group_specific" and the values are
+        instances of class ``Prior`` when ``automatic_priors`` is ``"default"``, or either
+        ``Prior``, ``int``, ``float``, or ``str`` when ``automatic_priors`` is ``"mle"``.
     link : str
-        The model link function to use. Can be either a string (must be one of the options
-        defined in the current backend; typically this will include at least ``'identity'``,
-        ``'logit'``, ``'inverse'``, and ``'log'``), or a callable that takes a 1D ndarray or
-        theano tensor as the sole argument and returns one with the same shape.
+        The name of the link function to use. Valid names are ``"cloglog"``, ``"identity"``,
+        ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, and ``"probit"``. Not all
+        the link functions can be used with all the families. See TODO.
     categorical : str or list
         The names of any variables to treat as categorical. Can be either a single variable
         name, or a list of names. If categorical is ``None``, the data type of the columns in
-        the ``DataFrame`` will be used to infer handling. In cases where numeric columns are
+        the ``data`` will be used to infer handling. In cases where numeric columns are
         to be treated as categoricals (e.g., group specific factors coded as numerical IDs),
         explicitly passing variable names via this argument is recommended.
+    potentials : A list of 2-tuples.
+        Optional specification of potentials. A potential is an arbitrary expression added to the
+        likelihood, this is generally useful to add constrains to models, that are difficult to
+        express otherwise. The first term of a 2-tuple is the name of a variable in the model, the
+        second a lambda function expressing the desired constraint.
+        If a constraint involves n variables, you can pass n 2-tuples or pass a tuple which first
+        element is a n-tuple and second element is a lambda function with n arguments. The number
+        and order of the lambda function has to match the number and order of the variables names.
     dropna : bool
         When ``True``, rows with any missing values in either the predictors or outcome are
         automatically dropped from the dataset in a listwise manner.
@@ -69,15 +77,18 @@ class Model:
     noncentered : bool
         If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on
         grouped parameters. If ``False``, naive (centered) parameterization is used.
-    priors_cor = dict
-        The value of eta in the prior for the correlation matrix of group-specific terms.
-        Keys in the dictionary indicate the groups, and values indicate the value of eta.
+    priors_cor : dict
+        An optional value for eta in the LKJ prior for the correlation matrix of group-specific
+        terms. Keys in the dictionary indicate the groups, and values indicate the value of eta.
+        This is a very experimental feature. Defaults to ``None``, which means priors for the
+        group-specific terms are independent.
     taylor : int
         Order of Taylor expansion to use in approximate variance when constructing the default
-        priors. Should be between 1 and 13. Lower values are less accurate, tending to undershoot
-        the correct prior width, but are faster to compute and more stable. Odd-numbered values
-        tend to work better. Defaults to 5 for Normal models and 1 for non-Normal models. Values
-        higher than the defaults are generally not recommended as they can be unstable.
+        priors when ``automatic_priors`` is ``"mle"``. Should be between 1 and 13. Lower values are
+        less accurate, tending to undershoot the correct prior width, but are faster to compute and
+        more stable. Odd-numbered values tend to work better. Defaults to 5 for Normal models and
+        1 for non-Normal models. Values higher than the defaults are generally not recommended as
+        they can be unstable.
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -89,6 +100,7 @@ class Model:
         priors=None,
         link=None,
         categorical=None,
+        potentials=None,
         dropna=False,
         auto_scale=True,
         automatic_priors="default",
@@ -115,12 +127,13 @@ class Model:
         self.dropna = dropna
         self.taylor = taylor
         self.noncentered = noncentered
+        self.potentials = potentials
 
         # Read and clean data
         if isinstance(data, str):
             data = pd.read_csv(data, sep=None, engine="python")
         elif not isinstance(data, pd.DataFrame):
-            raise ValueError("data must be a string with a path to a .csv or a pandas DataFrame.")
+            raise ValueError("'data' must be a string with a path to a .csv or a pandas DataFrame.")
 
         # To avoid SettingWithCopyWarning when converting object columns to category
         data._is_copy = False
@@ -147,29 +160,27 @@ class Model:
         self.automatic_priors = automatic_priors
 
         # Obtain design matrices and related objects.
-        na_action = "drop" if dropna else "error"
-        if formula is not None:
-            self.formula = formula
-            self._design = design_matrices(formula, data, na_action, eval_env=1)
-        else:
+        if formula is None:
             raise ValueError("Can't instantiate a model without a model formula.")
+        na_action = "drop" if dropna else "error"
+        self.formula = formula
+        self._design = design_matrices(formula, data, na_action, eval_env=1)
 
-        if self._design.response is not None:
-            family_prior = extract_family_prior(family, priors)
-            if family_prior and self._design.common:
-                conflict = [name for name in family_prior if name in self._design.common.terms_info]
-                if conflict:
-                    raise ValueError(
-                        f"The prior name for {', '.join(conflict)} conflicts with the name of a "
-                        "parameter in the response distribution.\n"
-                        "Please rename the term(s) to prevent an unexpected behaviour."
-                    )
-            self._add_response(self._design.response, family, link, family_prior)
-        else:
+        if self._design.response is None:
             raise ValueError(
                 "No outcome variable is set! "
                 "Please specify an outcome variable using the formula interface."
             )
+        family_prior = _extract_family_prior(family, priors)
+        if family_prior and self._design.common:
+            conflicts = [name for name in family_prior if name in self._design.common.terms_info]
+            if conflicts:
+                raise ValueError(
+                    f"The prior name for {', '.join(conflicts)} conflicts with the name of a "
+                    "parameter in the response distribution.\n"
+                    "Please rename the term(s) to prevent an unexpected behaviour."
+                )
+        self._add_response(self._design.response, family, link, family_prior)
 
         if self._design.common:
             self._add_common(self._design.common, priors)
@@ -185,16 +196,78 @@ class Model:
 
     def fit(
         self,
+        draws=1000,
+        tune=1000,
+        discard_tuned_samples=True,
         omit_offsets=True,
+        method="mcmc",
+        init="auto",
+        n_init=50000,
+        chains=None,
+        cores=None,
+        random_seed=None,
         **kwargs,
     ):
-        """Fit the model using the specified backend.
+        """Fit the model using PyMC3.
 
         Parameters
         ----------
+        draws: int
+            The number of samples to draw from the posterior distribution. Defaults to 1000.
+        tune : int
+            Number of iterations to tune. Defaults to 1000. Samplers adjust the step sizes,
+            scalings or similar during tuning. These tuning samples are be drawn in addition to the
+            number specified in the ``draws`` argument, and will be discarded unless
+            ``discard_tuned_samples`` is set to ``False``.
+        discard_tuned_samples : bool
+            Whether to discard posterior samples of the tune interval. Defaults to ``True``.
         omit_offsets: bool
-            Omits offset terms in the ``InferenceData`` object when the model includes group
-            specific effects. Defaults to ``True``.
+            Omits offset terms in the ``InferenceData`` object when the model includes
+            group specific effects. Defaults to ``True``.
+        method: str
+            The method to use for fitting the model. By default, ``"mcmc"``. This automatically
+            assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
+            variables and Metropolis for non-binary discrete ones. Alternatively, ``"advi"``, in
+            which case the model will be fitted using  automatic differentiation variational
+            inference as implemented in PyMC3.
+            Finally, ``"laplace"``, in which case a Laplace approximation is used and is not
+            recommended other than for pedagogical use.
+        init: str
+            Initialization method. Defaults to ``"auto"``. The available methods are:
+            * auto: Use ``"jitter+adapt_diag"`` and if this method fails it uses ``"adapt_diag"``.
+            * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the
+            variance of the tuning samples. All chains use the test value (usually the prior mean)
+            as starting point.
+            * jitter+adapt_diag: Same as ``"adapt_diag"``, but use test value plus a uniform jitter
+            in [-1, 1] as starting point in each chain.
+            * advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on
+            the sample variance of the tuning samples.
+            * advi+adapt_diag_grad: Run ADVI and then adapt the resulting diagonal mass matrix based
+            on the variance of the gradients during tuning. This is **experimental** and might be
+            removed in a future release.
+            * advi: Run ADVI to estimate posterior mean and diagonal mass matrix.
+            * advi_map: Initialize ADVI with MAP and use MAP as starting point.
+            * map: Use the MAP as starting point. This is strongly discouraged.
+            * adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the
+            test value (usually the prior mean) as starting point.
+            * jitter+adapt_full: Same as ``"adapt_full"``, but use test value plus a uniform jitter
+            in [-1, 1] as starting point in each chain.
+        n_init: int
+            Number of initialization iterations. Only works for ``"advi"`` init methods.
+        chains: int
+            The number of chains to sample. Running independent chains is important for some
+            convergence statistics and can also reveal multiple modes in the posterior. If ``None``,
+            then set to either ``cores`` or 2, whichever is larger.
+        cores : int
+            The number of chains to run in parallel. If ``None``, it is equal to the number of CPUs
+            in the system unless there are more than 4 CPUs, in which case it is set to 4.
+        random_seed : int or list of ints
+            A list is accepted if cores is greater than one.
+        **kwargs:
+            For other kwargs see the documentation for ``pymc3.sample()``.
+        Returns
+        -------
+        An ArviZ ``InferenceData`` instance.
         """
 
         if not self.built:
@@ -208,7 +281,19 @@ class Model:
                 str(self.response.success_event),
             )
 
-        return self.backend.run(omit_offsets=omit_offsets, **kwargs)
+        return self.backend.run(
+            draws=draws,
+            tune=tune,
+            discard_tuned_samples=discard_tuned_samples,
+            omit_offsets=omit_offsets,
+            method=method,
+            init=init,
+            n_init=n_init,
+            chains=chains,
+            cores=cores,
+            random_seed=random_seed,
+            **kwargs,
+        )
 
     def build(self):
         """Set up the model for sampling/fitting.
@@ -293,7 +378,7 @@ class Model:
 
         if priors is not None:
             # Prepare priors for response auxiliary parameters
-            family_prior = extract_family_prior(self.family, priors)
+            family_prior = _extract_family_prior(self.family, priors)
             if family_prior:
                 for prior in family_prior.values():
                     prior.auto_scale = False
@@ -318,7 +403,7 @@ class Model:
         ----------
         prior : Prior, float, or None.
         type_ : string
-            Accepted values are: ``'intercept'``, ``'common'``, or ``'group_specific'``.
+            Accepted values are: ``"intercept"``, ``"common"``, or ``"group_specific"``.
         """
 
         if prior is None and not self.auto_scale:
@@ -339,25 +424,26 @@ class Model:
         response : formulae.ResponseVector
             An instance of ``formulae.ResponseVector`` as returned by
             ``formulae.design_matrices()``.
-        family : str or Family
+        family : str or bambi.families.Family
             A specification of the model family (analogous to the family object in R). Either a
-            string, or an instance of class ``priors.Family``. If a string is passed, a family with
-            the corresponding name must be defined in the defaults loaded at Model initialization.
-            Valid pre-defined families are ``'gaussian'``, ``'bernoulli'``, ``'poisson'``,
-            ``'gamma'``, ``'wald'``, and ``'negativebinomial'``. Defaults to ``'gaussian'``.
+            string, or an instance of class ``families.Family``. If a string is passed, a family
+            with the corresponding name must be defined in the defaults loaded at model
+            initialization. Valid pre-defined families are ``"bernoulli"``, ``"beta"``,
+            ``"binomial"``, ``"gamma"``, ``"gaussian"``, ``"negativebinomial"``, ``"poisson"``,
+            ``"t"``, and ``"wald"``. Defaults to ``"gaussian"``.
         link : str
-            The model link function to use. Can be either a string (must be one of the options
-            defined in the current backend; typically this will include at least ``'identity'``,
-            ``'logit'``, ``'inverse'``, and ``'log'``), or a callable that takes a 1D ndarray or
-            theano tensor as the sole argument and returns one with the same shape.
+            The name of the link function to use. Valid names are ``"cloglog"``, ``"identity"``,
+            ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, and ``"probit"``. Not all
+            the link functions can be used with all the families. See TODO.
         priors : dict
             Optional dictionary with specification of priors for the parameters in the family of
             the response. Keys are names of other parameters than the mean in the family
-            (i.e. they cannot be equal to family.parent) and values can be an instance of class
+            (i.e. they cannot be equal to ``family.parent``) and values can be an instance of class
             ``Prior``, a numeric value, or a string describing the width. In the numeric case,
             the distribution specified in the defaults will be used, and the passed value will be
-            used to scale the appropriate variance parameter. For strings (e.g., ``'wide'``,
-            ``'narrow'``, ``'medium'``, or ``'superwide'``), predefined values will be used.
+            used to scale the appropriate variance parameter. Strings, which are only available when
+            ``automatic_priors`` is ``"mle"``and can be one of ``"wide"``, ``"narrow"``,
+            ``"medium"``, or ``"superwide"``), predefined values will be used.
         """
         if isinstance(family, str):
             family = get_builtin_family(family)
@@ -378,7 +464,7 @@ class Model:
                     prior.auto_scale = False
             family.likelihood.priors.update(priors)
 
-        if response.refclass is not None and family.name != "bernoulli":
+        if response.success is not None and family.name != "bernoulli":
             raise ValueError("Index notation for response is only available for 'bernoulli' family")
 
         self.family = family
@@ -386,7 +472,7 @@ class Model:
         self.built = False
 
     def _add_common(self, common, priors):
-        """Add common (or fixed) terms to the model.
+        """Add common (a.k.a. fixed) terms to the model.
 
         Parameters
         ----------
@@ -396,9 +482,9 @@ class Model:
             term in the model.
         priors : dict
             Optional specification of priors for one or more terms. A dictionary where the keys are
-            any of the names of the common terms in the model or 'common' and the values are either
-            instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the width
-            of the priors on a standardized scale.
+            any of the names of the common terms in the model or ``"common"`` and the values are
+            either instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the
+            width of the priors on a standardized scale.
         """
         if matrix_rank(common.design_matrix) < common.design_matrix.shape[1]:
             raise ValueError(
@@ -429,8 +515,8 @@ class Model:
             associated with each group-specific term in the model.
         priors : dict
             Optional specification of priors for one or more terms. A dictionary where the keys are
-            any of the names of the group-specific terms in the model or 'group_specific' and the
-            values are either instances of class ``Prior`` or ``int``, ``float``, or ``str``
+            any of the names of the group-specific terms in the model or ``"group_specific"`` and
+            the values are either instances of class ``Prior`` or ``int``, ``float``, or ``str``
             that specify the width of the priors on a standardized scale.
         """
         for name, term in group.terms_info.items():
@@ -472,7 +558,8 @@ class Model:
             Number of draws to sample from the prior predictive distribution. Defaults to 5000.
         var_names : str or list
             A list of names of variables for which to compute the posterior predictive
-            distribution. Defaults to both observed and unobserved RVs.
+            distribution. Defaults to ``None`` which means to include both observed and
+            unobserved RVs.
         random_seed : int
             Seed for the random number generator.
         figsize: tuple
@@ -480,22 +567,22 @@ class Model:
         textsize: float
             Text size scaling factor for labels, titles and lines. If ``None`` it will be
             autoscaled based on ``figsize``.
-        hdi_prob: float
+        hdi_prob: float or str
             Plots highest density interval for chosen percentage of density.
-            Use ``'hide'`` to hide the highest density interval. Defaults to 0.94.
+            Use ``"hide"`` to hide the highest density interval. Defaults to 0.94.
         round_to: int
             Controls formatting of floats. Defaults to 2 or the integer part, whichever is bigger.
         point_estimate: str
-            Plot point estimate per variable. Values should be ``'mean'``, ``'median'``, ``'mode'``
-             or ``None``. Defaults to ``'auto'`` i.e. it falls back to default set in
-             ArviZ's rcParams.
+            Plot point estimate per variable. Values should be ``"mean"``, ``"median"``, ``"mode"``
+            or ``None``. Defaults to ``"auto"`` i.e. it falls back to default set in
+            ArviZ's rcParams.
         kind: str
-            Type of plot to display (``'kde'`` or ``'hist'``) For discrete variables this argument
+            Type of plot to display (``"kde"`` or ``"hist"``) For discrete variables this argument
             is ignored and a histogram is always used.
-        bins: integer or sequence or 'auto'
-            Controls the number of bins, accepts the same keywords ``matplotlib.hist()`` does.
-            Only works if ``kind == hist``. If ``None`` (default) it will use ``auto`` for
-            continuous variables and ``range(xmin, xmax + 1)`` for discrete variables.
+        bins: integer or sequence or "auto"
+            Controls the number of bins, accepts the same keywords ``matplotlib.pyplot.hist()``
+            does. Only works if ``kind == "hist"``. If ``None`` (default) it will use ``"auto"``
+            for continuous variables and ``range(xmin, xmax + 1)`` for discrete variables.
         omit_offsets: bool
             Whether to omit offset terms in the plot. Defaults to ``True``.
         omit_group_specific: bool
@@ -504,12 +591,12 @@ class Model:
             A 2D array of locations into which to plot the densities. If not supplied, ArviZ will
             create its own array of plot areas (and return it).
         **kwargs
-            Passed as-is to ``plt.hist()`` or ``plt.plot()`` function depending on the value of
-            ``kind``.
+            Passed as-is to ``matplotlib.pyplot.hist()`` or ``matplotlib.pyplot.plot()`` function
+            depending on the value of ``kind``.
 
         Returns
         -------
-        axes: matplotlib axes or bokeh figures
+        axes: matplotlib axes
         """
         if not self.built:
             raise ValueError(
@@ -546,6 +633,9 @@ class Model:
 
         axes = None
         if var_names:
+            # Sort variable names so Intercept is in the beginning
+            if "Intercept" in var_names:
+                var_names.insert(0, var_names.pop(var_names.index("Intercept")))
             pps = self.prior_predictive(draws=draws, var_names=var_names, random_seed=random_seed)
 
             axes = plot_posterior(
@@ -571,15 +661,15 @@ class Model:
         draws : int
             Number of draws to sample from the prior predictive distribution. Defaults to 500.
         var_names : str or list
-            A list of names of variables for which to compute the posterior predictive
-            distribution. Defaults to both observed and unobserved RVs.
+            A list of names of variables for which to compute the prior predictive distribution.
+            Defaults to ``None`` which means both observed and unobserved RVs.
         random_seed : int
             Seed for the random number generator.
 
         Returns
         -------
         InferenceData
-            ``InferenceData`` object with the groups `prior`, ``prior_predictive`` and
+            ``InferenceData`` object with the groups ``prior``, ``prior_predictive`` and
             ``observed_data``.
         """
         if var_names is None:
@@ -595,11 +685,17 @@ class Model:
         )
         # pps_ keys are not in the same order as `var_names` because `var_names` is converted
         # to set within pm.sample_prior_predictive()
-        pps = {name: pps_[name] for name in var_names}
-        response_name = self.response.name
 
+        pps = {}
+        for name in var_names:
+            if name in self.terms and self.terms[name].categorical:
+                pps[name] = pps_[name]
+            else:
+                pps[name] = pps_[name].squeeze()
+
+        response_name = self.response.name
         if response_name in pps:
-            prior_predictive = {response_name: pps.pop(response_name)}
+            prior_predictive = {response_name: pps.pop(response_name)[np.newaxis]}
             observed_data = {response_name: self.response.data.squeeze()}
         else:
             prior_predictive = {}
@@ -630,59 +726,122 @@ class Model:
 
         return idata
 
-    def posterior_predictive(
-        self, idata, draws=500, var_names=None, inplace=True, random_seed=None
-    ):
-        """
-        Generate samples from the posterior predictive distribution.
+    # pylint: disable=protected-access
+    def predict(self, idata, kind="mean", data=None, draws=None, inplace=True):
+        """Predict method for Bambi models
+
+        Obtains in-sample and out-of-sample predictions from a fitted Bambi model.
 
         Parameters
         ----------
-        idata : InfereceData
-            ``InfereceData`` with samples from the posterior distribution.
-        draws : int
-            Number of draws to sample from the prior predictive distribution. Defaults to 500.
-        var_names : str or list
-            A list of names of variables for which to compute the posterior predictive
-            distribution. Defaults to both observed and unobserved RVs.
-        inplace : bool
-            If ``True`` it will add a ``posterior_predictive`` group to idata, otherwise it will
-            return a copy of idata with the added group. If ``True`` and idata already have a
-            ``posterior_predictive`` group it will be overwritten.
-        random_seed : int
-            Seed for the random number generator.
+        idata : InferenceData
+            The ``InferenceData`` instance returned by ``.fit()``.
+        kind: str
+            Indicates the type of prediction required. Can be ``"mean"`` or ``"pps"``. The
+            first returns draws from the posterior distribution of the mean, while the latter
+            returns the draws from the posterior predictive distribution
+            (i.e. the posterior probability distribution for a new observation).
+            Defaults to ``"mean"``.
+        data: pandas.DataFrame or None
+            An optional data frame with values for the predictors that are used to obtain
+            out-of-sample predictions. If omitted, the original dataset is used.
+        draws: None
+            The number of random draws per chain. Only used if ``kind="pps"``. Not recommended
+            unless more than ndraws times nchains posterior predictive samples are needed.
+            Defaults to ``None`` which means ndraws times nchains draws are obtained.
+        inplace: bool
+            If ``True`` it will modify ``idata`` in-place. Otherwise, it will return a copy of
+            ``idata`` with the predictions added. If ``kind="mean"``, a new variable ending in
+            ``"_mean"`` is added to the ``posterior`` group. If ``kind="pps"``, it appends a
+            ``posterior_predictive`` group to ``idata``. If any of these already exist, it will be
+            overwritten.
 
         Returns
         -------
-        None or InferenceData
-            When ``inplace=True`` add ``posterior_predictive`` group to idata and return
-            ``None``. Otherwise a copy of idata with a ``posterior_predictive`` group.
-
+        InferenceData or None
         """
-        if var_names is None:
-            variables = self.backend.model.observed_RVs
-            variables_names = [v.name for v in variables]
-            var_names = pm.util.get_default_varnames(variables_names, include_transformed=False)
 
-        pps = pm.sample_posterior_predictive(
-            trace=idata,
-            samples=draws,
-            var_names=var_names,
-            model=self.backend.model,
-            random_seed=random_seed,
-        )
+        if kind not in ["mean", "pps"]:
+            raise ValueError("'kind' must be one of 'mean' or 'pps'")
+
+        linear_predictor = 0
+        X = None
+        Z = None
+
+        chain_n = len(idata.posterior["chain"])
+        draw_n = len(idata.posterior["draw"])
+        posterior = idata.posterior.stack(sample=["chain", "draw"])
+
+        if draws is None:
+            draws = draw_n
 
         if not inplace:
             idata = deepcopy(idata)
-        if "posterior_predictive" in idata:
-            del idata.posterior_predictive
 
-        idata.add_groups(
-            {"posterior_predictive": {k: v.squeeze()[np.newaxis] for k, v in pps.items()}}
-        )
+        in_sample = data is None
 
-        getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
-        getattr(idata, "posterior_predictive").attrs["modeling_interface_version"] = __version__
+        # Create design matrices
+        if self._design.common:
+            if in_sample:
+                X = self._design.common.design_matrix
+            else:
+                X = self._design.common._evaluate_new_data(data).design_matrix
+
+        if self._design.group:
+            if in_sample:
+                Z = self._design.group.design_matrix
+            else:
+                Z = self._design.group._evaluate_new_data(data).design_matrix
+
+        # Obtain posterior and compute linear predictor
+        if X is not None:
+            beta_x_list = [np.atleast_2d(posterior[name]) for name in self.common_terms]
+            if self.intercept_term:
+                beta_x_list = [np.atleast_2d(posterior["Intercept"])] + beta_x_list
+            beta_x = np.vstack(beta_x_list)
+            linear_predictor += np.dot(X, beta_x)
+        if Z is not None:
+            beta_z = np.vstack(
+                [np.atleast_2d(posterior[name]) for name in self.group_specific_terms]
+            )
+            linear_predictor += np.dot(Z, beta_z)
+
+        # Compute mean prediction
+        # Transposed so it is (chain, draws)?
+        mu = self.family.link.linkinv(linear_predictor).T
+
+        # Reshape mu
+        obs_n = mu.size // (chain_n * draw_n)
+        mu = mu.reshape((chain_n, draw_n, obs_n))
+
+        # Predictions for the mean
+        if kind == "mean":
+            name = self.response.name + "_mean"
+            coord_name = name + "_dim_0"
+
+            # Drop var/dim if already present
+            if name in idata.posterior.data_vars:
+                idata.posterior = idata.posterior.drop_vars(name).drop_dims(coord_name)
+
+            idata.posterior[name] = (("chain", "draw", coord_name), mu)
+            idata.posterior = idata.posterior.assign_coords({coord_name: list(range(obs_n))})
+
+        # Compute posterior predictive distribution
+        else:
+            # Sample mu values and auxiliary params
+            if not in_sample and self.family.name == "binomial":
+                n = self._design.response._evaluate_new_data(data)
+                pps = self.family.likelihood.pps(self, idata.posterior, mu, draws, draw_n, trials=n)
+            else:
+                pps = self.family.likelihood.pps(self, idata.posterior, mu, draws, draw_n)
+
+            if "posterior_predictive" in idata:
+                del idata.posterior_predictive
+
+            idata.add_groups({"posterior_predictive": {self.response.name: pps}})
+            getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
+            getattr(idata, "posterior_predictive").attrs["modeling_interface_version"] = __version__
+
         if inplace:
             return None
         else:
@@ -690,7 +849,7 @@ class Model:
 
     def graph(self, formatting="plain", name=None, figsize=None, dpi=300, fmt="png"):
         """
-        Produce a graphviz Digraph from a Bambi model.
+        Produce a graphviz Digraph from a built Bambi model.
 
         Requires graphviz, which may be installed most easily with
             ``conda install -c conda-forge python-graphviz``
@@ -702,23 +861,37 @@ class Model:
         Parameters
         ----------
         formatting : str
-            One of ``'plain'`` or ``'plain_with_params'``. Defaults to ``'plain'``.
+            One of ``"plain"`` or ``"plain_with_params"``. Defaults to ``"plain"``.
         name : str
-            Name of the figure to save. Defaults to None, no figure is saved.
+            Name of the figure to save. Defaults to ``None``, no figure is saved.
         figsize : tuple
-            Maximum width and height of figure in inches. Defaults to None, the figure size is set
-            automatically. If defined and the drawing is larger than the given size, the drawing is
-            uniformly scaled down so that it fits within the given size.  Only works if ``name``
-            is not None.
+            Maximum width and height of figure in inches. Defaults to ``None``, the figure size is
+            set automatically. If defined and the drawing is larger than the given size, the drawing
+            is uniformly scaled down so that it fits within the given size.  Only works if ``name``
+            is not ``None``.
         dpi : int
             Point per inch of the figure to save.
-            Defaults to 300. Only works if ``name`` is not None.
+            Defaults to 300. Only works if ``name`` is not ``None``.
         fmt : str
             Format of the figure to save.
-            Defaults to ``'png'``. Only works if ``name`` is not None.
+            Defaults to ``"png"``. Only works if ``name`` is not ``None``.
+
+        Example
+        --------
+        >>> model = Model("y ~ x + (1|z)")
+        >>> model.build()
+        >>> model.graph()
+
+        >>> model = Model("y ~ x + (1|z)")
+        >>> model.fit()
+        >>> model.graph()
+
         """
         if self.backend is None:
-            raise ValueError("The model is empty, please define a Bambi model")
+            raise ValueError(
+                "The model is empty. "
+                "Are you forgetting to first call .build() or .fit() on the Bambi model?"
+            )
 
         graphviz = pm.model_to_graphviz(model=self.backend.model, formatting=formatting)
 
@@ -759,6 +932,9 @@ class Model:
         # Priors for auxiliary parameters, e.g., standard deviation in normal linear model
         priors_aux = [f"    {k} ~ {v}" for k, v in self.family.likelihood.priors.items()]
 
+        if self.intercept_term:
+            t = self.intercept_term
+            priors_common = [f"    {t.name} ~ {t.prior}"] + priors_common
         if priors_common:
             priors += "\n".join(["  Common-level effects", *priors_common]) + "\n\n"
         if priors_group:
@@ -771,7 +947,7 @@ class Model:
         str_list = [
             f"Formula: {self.formula}",
             f"Family name: {self.family.name.capitalize()}",
-            f"Link: {self.family.link}",
+            f"Link: {self.family.link.name}",
             f"Observations: {self.response.data.shape[0]}",
             "Priors:",
             priors,
@@ -796,9 +972,20 @@ class Model:
     @property
     def common_terms(self):
         """Return dict of all and only common effects in model."""
-        return {k: v for (k, v) in self.terms.items() if not v.group_specific}
+        return {
+            k: v for (k, v) in self.terms.items() if not v.group_specific and v.type != "intercept"
+        }
 
     @property
     def group_specific_terms(self):
         """Return dict of all and only group specific effects in model."""
         return {k: v for (k, v) in self.terms.items() if v.group_specific}
+
+    @property
+    def intercept_term(self):
+        """Return the intercept term"""
+        term = [v for v in self.terms.values() if not v.group_specific and v.type == "intercept"]
+        if term:
+            return term[0]
+        else:
+            return None

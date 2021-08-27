@@ -1,8 +1,11 @@
-from .prior import Prior
+from bambi.priors import Prior
+from bambi.utils import multilinify, spacify
 
 DISTRIBUTIONS = {
     "Normal": {"params": ("mu", "sigma"), "parent": "mu", "args": ("sigma",)},
     "Bernoulli": {"params": ("p",), "parent": "p", "args": None},
+    "Beta": {"params": ("mu", "kappa"), "parent": "mu", "args": ("kappa",)},
+    "Binomial": {"params": ("p",), "parent": "p", "args": None},
     "Poisson": {"params": ("mu",), "parent": "mu", "args": None},
     "StudentT": {"params": ("mu", "lam"), "args": ("lam", "nu")},
     "NegativeBinomial": {"params": ("mu", "alpha"), "parent": "mu", "args": ("alpha",)},
@@ -14,7 +17,9 @@ DISTRIBUTIONS = {
 class Likelihood:
     """Representation of a Likelihood function for a Bambi model.
 
-    'parent' must not be in 'kwargs'. 'parent' is inferred from the 'name' if it is a known name
+    Notes:
+    * ``parent`` must not be in ``kwargs``.
+    * ``parent`` is inferred from the ``name`` if it is a known name
 
     Parameters
     ----------
@@ -23,18 +28,19 @@ class Likelihood:
     parent: str
         Optional specification of the name of the mean parameter in the likelihood.
         This is the parameter whose transformation is modeled by the linear predictor.
-    kwargs
+    kwargs:
         Keyword arguments that indicate prior distributions for auxiliary parameters in the
         likelihood.
     """
 
     DISTRIBUTIONS = DISTRIBUTIONS
 
-    def __init__(self, name, parent=None, **kwargs):
+    def __init__(self, name, parent=None, pps=None, **kwargs):
         if name in self.DISTRIBUTIONS:
             self.name = name
             self.parent = self._get_parent(parent)
             self.priors = self._check_priors(kwargs)
+            self.pps = pps
         else:
             # On your own risk
             self.name = name
@@ -42,6 +48,7 @@ class Likelihood:
             check_all_are_priors(kwargs)
             self.priors = kwargs
             self.parent = parent
+            self.pps = pps
 
     def _get_parent(self, parent):
         if parent is None:
@@ -73,6 +80,13 @@ class Likelihood:
             check_all_are_priors(priors)
 
         return priors
+
+    def __str__(self):
+        args = [f"name: {self.name}", f"parent: {self.parent}", f"priors: {self.priors}"]
+        return f"{self.__class__.__name__}({spacify(multilinify(args))}\n)"
+
+    def __repr__(self):
+        return self.__str__()
 
 
 def check_all_are_priors(priors):

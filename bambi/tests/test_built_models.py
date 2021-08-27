@@ -1,9 +1,13 @@
+import logging
+
+import pytest
+
 import arviz as az
 import numpy as np
 import pandas as pd
-import pytest
 import theano.tensor as tt
 
+from bambi import math
 from bambi.models import Model
 from bambi.priors import Prior
 
@@ -44,6 +48,18 @@ def dm():
 
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "dm.csv"))
+    return data
+
+
+@pytest.fixture(scope="module")
+def init_data():
+    """
+    Data used to test initialization method
+    """
+    from os.path import dirname, join
+
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "obs.csv"))
     return data
 
 
@@ -444,7 +460,7 @@ def test_prior_predictive(crossed_data):
     for key, shape in zip(keys, shapes):
         assert pps.prior[key].shape == shape
 
-    assert pps.prior_predictive["count"].shape == (500, 120)
+    assert pps.prior_predictive["count"].shape == (1, 500, 120)
     assert pps.observed_data["count"].shape == (120,)
 
     pps = model.prior_predictive(draws=500, var_names=["count"])
@@ -457,15 +473,15 @@ def test_prior_predictive(crossed_data):
 def test_posterior_predictive(crossed_data):
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
     model = Model("count ~ threecats + continuous + dummy", crossed_data, family="poisson")
-    fitted = model.fit(tune=0, draws=2)
-    pps = model.posterior_predictive(fitted, draws=500, inplace=False)
+    fitted = model.fit(tune=0, draws=10, chains=2)
+    pps = model.predict(fitted, kind="pps", draws=500, inplace=False)
 
-    assert pps.posterior_predictive["count"].shape == (1, 500, 120)
+    assert pps.posterior_predictive["count"].shape == (2, 500, 120)
 
-    pps = model.posterior_predictive(fitted, draws=500, inplace=True)
+    pps = model.predict(fitted, kind="pps", draws=500, inplace=True)
 
     assert pps is None
-    assert fitted.posterior_predictive["count"].shape == (1, 500, 120)
+    assert fitted.posterior_predictive["count"].shape == (2, 500, 120)
 
 
 def test_gamma_regression(dm):
@@ -519,3 +535,60 @@ def test_model_graph(crossed_data):
         model.graph()
     model.build()
     model.graph()
+
+
+def test_potentials():
+    data = pd.DataFrame(np.repeat((0, 1), (18, 20)), columns=["w"])
+    priors = {"Intercept": Prior("Uniform", lower=0, upper=1)}
+    potentials = [
+        (("Intercept", "Intercept"), lambda x, y: math.switch(x < 0.45, y, -np.inf)),
+        ("Intercept", lambda x: math.switch(x > 0.55, 0, -np.inf)),
+    ]
+
+    model = Model(
+        "w ~ 1",
+        data,
+        family="bernoulli",
+        link="identity",
+        priors=priors,
+        potentials=potentials,
+    )
+    model.build()
+    assert len(model.backend.model.potentials) == 2
+
+    pot0 = model.backend.model.potentials[0].get_parents()[0]
+    pot1 = model.backend.model.potentials[1].get_parents()[0]
+    pot0.__str__() == (
+        "Elemwise{switch,no_inplace}(Elemwise{lt,no_inplace}.0, "
+        "Intercept ~ Uniform, TensorConstant{-inf})"
+    )
+    pot1.__str__() == (
+        "Elemwise{switch,no_inplace}(Elemwise{gt,no_inplace}.0, "
+        "TensorConstant{0}, TensorConstant{-inf})"
+    )
+
+
+def test_binomial_regression():
+    data = pd.DataFrame(
+        {
+            "x": np.array([1.6907, 1.7242, 1.7552, 1.7842, 1.8113, 1.8369, 1.8610, 1.8839]),
+            "n": np.array([59, 60, 62, 56, 63, 59, 62, 60]),
+            "y": np.array([6, 13, 18, 28, 52, 53, 61, 60]),
+        }
+    )
+
+    model = Model("prop(y, n) ~ x", data, family="binomial")
+    model.fit()
+
+    # Using constant instead of variable in data frame
+    model = Model("prop(y, 62) ~ x", data, family="binomial")
+    model.fit()
+
+
+def test_init_fallback(init_data, caplog):
+    model = Model("od ~ temp + (1|source) + 0", init_data)
+    with caplog.at_level(logging.INFO):
+        results = model.fit(draws=100, init="auto")
+        assert "Initializing NUTS using jitter+adapt_diag..." in caplog.text
+        assert "The default initialization" in caplog.text
+        assert "Initializing NUTS using adapt_diag..." in caplog.text

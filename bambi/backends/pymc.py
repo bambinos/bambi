@@ -1,4 +1,5 @@
 import logging
+import traceback
 
 import numpy as np
 import theano.tensor as tt
@@ -7,27 +8,24 @@ import pymc3 as pm
 from bambi import version
 from bambi.priors import Prior
 
-from .base import BackEnd
-from .utils import probit, cloglog
+from bambi.backends.utils import probit, cloglog
 
 _log = logging.getLogger("bambi")
 
 
-class PyMC3BackEnd(BackEnd):
+class PyMC3BackEnd:
     """PyMC3 model-fitting backend."""
 
-    # Available link functions
-    links = {
+    # Available inverse link functions
+    INVLINKS = {
+        "cloglog": cloglog,
         "identity": lambda x: x,
+        "inverse_squared": lambda x: tt.inv(tt.sqrt(x)),
+        "inverse": tt.inv,
+        "log": tt.exp,
         "logit": tt.nnet.sigmoid,
         "probit": probit,
-        "cloglog": cloglog,
-        "inverse": tt.inv,
-        "inverse_squared": lambda x: tt.inv(tt.sqrt(x)),
-        "log": tt.exp,
     }
-
-    dists = {"HalfFlat": pm.Bound(pm.Flat, lower=0)}
 
     def __init__(self):
         self.name = pm.__name__
@@ -35,6 +33,7 @@ class PyMC3BackEnd(BackEnd):
 
         # Attributes defined elsewhere
         self.model = None
+        self.has_intercept = None  # build()
         self.mu = None  # build()
         self.spec = None  # build()
         self.trace = None  # build()
@@ -55,13 +54,17 @@ class PyMC3BackEnd(BackEnd):
         self.model = pm.Model(coords=coords)
         noncentered = spec.noncentered
 
+        self.has_intercept = spec.intercept_term is not None
+
         ## Add common effects
         # Common effects have at most ONE coord.
-        # If ndim > 1 we're certain there's more than one column (see squeeze)
         with self.model:
             self.mu = 0.0
+            coef_list = []
+
+            # Iterate through terms and add their coefficients to coef_list
             for term in spec.common_terms.values():
-                data = term.data.squeeze()
+                data = term.data
                 label = term.name
                 dist = term.prior.name
                 args = term.prior.args
@@ -69,13 +72,30 @@ class PyMC3BackEnd(BackEnd):
                     dims = list(term.pymc_coords.keys())
                     coef = self.build_common_distribution(dist, label, dims=dims, **args)
                 else:
-                    shape = () if data.ndim == 1 else data.shape[1]
-                    coef = self.build_common_distribution(dist, label, shape=shape, **args)
+                    coef = self.build_common_distribution(dist, label, shape=data.shape[1], **args)
+                coef_list.append(coef)
 
-                if data.ndim == 1:
-                    self.mu += data * coef
-                else:
-                    self.mu += pm.math.dot(data, coef)
+            # If there are predictors, use design matrix (w/o intercept)
+            if coef_list:
+                coefs = tt.concatenate(coef_list)
+                X = spec._design.common.design_matrix  # pylint: disable=protected-access
+
+            if self.has_intercept:
+                term = spec.intercept_term
+                distribution = self.get_distribution(term.prior.name)
+                # If there are predictors, "Intercept" is a the intercept for centered predictors
+                # This is intercept is re-scaled later.
+                intercept = distribution("Intercept", shape=1, **term.prior.args)
+                self.mu += intercept
+
+                if spec.common_terms:
+                    # Remove intercept from design matrix
+                    # pylint: disable=protected-access
+                    idx = spec._design.common.terms_info["Intercept"]["cols"]
+                    X = np.delete(X, idx, axis=1)
+                    self.mu += tt.dot(X - X.mean(0), coefs)
+            elif coef_list:
+                self.mu += tt.dot(X, coefs)
 
         ## Add group-specific effects
         # Group-specific effects always have pymc_coords. At least for the group.
@@ -117,52 +137,77 @@ class PyMC3BackEnd(BackEnd):
         with self.model:
             self.build_response(spec)
 
+        # Add potentials to the model
+        if spec.potentials is not None:
+            with self.model:
+                count = 0
+                for variable, constraint in spec.potentials:
+                    if isinstance(variable, (list, tuple)):
+                        lambda_args = [self.model[var] for var in variable]
+                        potential = constraint(*lambda_args)
+                    else:
+                        potential = constraint(self.model[variable])
+                    pm.Potential(f"pot_{count}", potential)
+                    count += 1
+
         self.spec = spec
 
-    # pylint: disable=arguments-differ, inconsistent-return-statements
     def run(
-        self, start=None, method="mcmc", init="auto", n_init=50000, omit_offsets=True, **kwargs
+        self,
+        draws=1000,
+        tune=1000,
+        discard_tuned_samples=True,
+        omit_offsets=True,
+        method="mcmc",
+        init="auto",
+        n_init=50000,
+        chains=None,
+        cores=None,
+        random_seed=None,
+        **kwargs,
     ):
-        """Run the PyMC3 MCMC sampler.
-
-        Parameters
-        ----------
-        start: dict, or array of dict
-            Starting parameter values to pass to sampler; see ``pm.sample()`` for details.
-        method: str
-            The method to use for fitting the model. By default, ``'mcmc'``, in which case the
-            PyMC3 sampler will be used. Alternatively, ``'advi'``, in which case the model will be
-            fitted using  automatic differentiation variational inference as implemented in PyMC3.
-            Finally, ``'laplace'``, in which case a laplace approximation is used, ``'laplace'`` is
-            not recommended other than for pedagogical use.
-        init: str
-            Initialization method (see PyMC3 sampler documentation). Currently, this is
-            ``'jitter+adapt_diag'``, but this can change in the future.
-        n_init: int
-            Number of initialization iterations if ``init = 'advi'`` or '``init = 'nuts'``.
-            Default is kind of in PyMC3 for the kinds of models we expect to see run with Bambi,
-            so we lower it considerably.
-        omit_offsets: bool
-            Omits offset terms in the ``InferenceData`` object when the model includes
-            group specific effects. Defaults to ``True``.
-
-        Returns
-        -------
-        An ArviZ ``InferenceData`` instance.
-        """
+        """Run PyMC3 sampler."""
         model = self.model
 
         if method.lower() == "mcmc":
-            draws = kwargs.pop("draws", 1000)
             with model:
-                idata = pm.sample(
-                    draws,
-                    start=start,
-                    init=init,
-                    n_init=n_init,
-                    return_inferencedata=True,
-                    **kwargs,
-                )
+                try:
+                    idata = pm.sample(
+                        draws=draws,
+                        tune=tune,
+                        discard_tuned_samples=discard_tuned_samples,
+                        init=init,
+                        n_init=n_init,
+                        chains=chains,
+                        cores=cores,
+                        random_seed=random_seed,
+                        return_inferencedata=True,
+                        **kwargs,
+                    )
+
+                except (RuntimeError, ValueError):
+                    if (
+                        "ValueError: Mass matrix contains" in traceback.format_exc()
+                        and init == "auto"
+                    ):
+                        _log.info(
+                            "\nThe default initialization using init='auto' has failed, trying to "
+                            "recover by switching to init='adapt_diag'",
+                        )
+                        idata = pm.sample(
+                            draws=draws,
+                            tune=tune,
+                            discard_tuned_samples=discard_tuned_samples,
+                            init="adapt_diag",
+                            n_init=n_init,
+                            chains=chains,
+                            cores=cores,
+                            random_seed=random_seed,
+                            return_inferencedata=True,
+                            **kwargs,
+                        )
+                    else:
+                        raise
 
             if omit_offsets:
                 offset_vars = [var for var in idata.posterior.var() if var.endswith("_offset")]
@@ -181,6 +226,10 @@ class PyMC3BackEnd(BackEnd):
 
             # Reorder coords
             # pylint: disable=protected-access
+            coords_to_drop = [dim for dim in idata.posterior.dims if dim.endswith("_dim_0")]
+            idata.posterior = idata.posterior.squeeze(coords_to_drop).reset_coords(
+                coords_to_drop, drop=True
+            )
             coords_original = list(self.spec._get_pymc_coords().keys())
             coords_group = [c for c in coords_original if c.endswith("_coord_group_factor")]
             for coord in coords_group:
@@ -189,16 +238,38 @@ class PyMC3BackEnd(BackEnd):
 
             idata.posterior = idata.posterior.transpose(*coords_new)
 
+            # Compute the actual intercept
+            if self.has_intercept and self.spec.common_terms:
+                chain_n = len(idata.posterior["chain"])
+                draw_n = len(idata.posterior["draw"])
+
+                # Design matrix without intercept
+                X = self.spec._design.common.design_matrix
+                idx = self.spec._design.common.terms_info["Intercept"]["cols"]
+                X = np.delete(X, idx, axis=1)
+
+                # Re-scale intercept for centered predictors
+                posterior_ = idata.posterior.stack(sample=["chain", "draw"])
+                coefs_list = [np.atleast_2d(posterior_[name]) for name in self.spec.common_terms]
+                coefs = np.vstack(coefs_list)
+                idata.posterior["Intercept"] -= np.dot(X.mean(0), coefs).reshape((chain_n, draw_n))
+
+            # Sort variable names so Intercept is in the beginning
+            var_names = list(idata.posterior.var())
+            if "Intercept" in var_names:
+                var_names.insert(0, var_names.pop(var_names.index("Intercept")))
+                idata.posterior = idata.posterior[var_names]
+
             self.fit = True
             return idata
 
         elif method.lower() == "advi":
             with model:
-                self.advi_params = pm.variational.ADVI(start, **kwargs)
+                self.advi_params = pm.variational.ADVI(**kwargs)
             # this should return an InferenceData object (once arviz adds support for VI)
             return self.advi_params
 
-        elif method.lower() == "laplace":
+        else:
             return _laplace(model)
 
     def build_common_distribution(self, dist, label, **kwargs):
@@ -231,13 +302,15 @@ class PyMC3BackEnd(BackEnd):
         """Build and return a response distribution."""
         data = spec.response.data.squeeze()
         name = spec.response.name
-        link = spec.family.link
-        if isinstance(link, str):
-            link = self.links[link]
+
+        if spec.family.link.name in self.INVLINKS:
+            linkinv = self.INVLINKS[spec.family.link.name]
+        else:
+            linkinv = spec.family.link.linkinv_backend
 
         likelihood = spec.family.likelihood
         dist = self.get_distribution(likelihood.name)
-        kwargs = {likelihood.parent: link(self.mu), "observed": data}
+        kwargs = {likelihood.parent: linkinv(self.mu), "observed": data}
         if likelihood.priors:
             kwargs.update(
                 {
@@ -245,6 +318,17 @@ class PyMC3BackEnd(BackEnd):
                     for (k, v) in likelihood.priors.items()
                 }
             )
+        if spec.family.name == "beta":
+            # Beta distribution is specified using alpha and beta, but we have mu and kappa.
+            # alpha = mu * kappa and beta = (1 - mu) * kappa
+            alpha = kwargs["mu"] * kwargs["kappa"]
+            beta = (1 - kwargs["mu"]) * kwargs["kappa"]
+            return dist(name, alpha=alpha, beta=beta, observed=kwargs["observed"])
+
+        if spec.family.name == "binomial":
+            successes = data[:, 0].squeeze()
+            trials = data[:, 1].squeeze()
+            return dist(name, p=kwargs["p"], observed=successes, n=trials)
 
         if spec.family.name == "gamma":
             # Gamma distribution is specified using mu and sigma, but we request prior for alpha.
@@ -254,13 +338,6 @@ class PyMC3BackEnd(BackEnd):
             sigma = (kwargs["mu"] / beta) ** 0.5
             return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
 
-        if spec.family.name == "beta":
-            # Beta distribution is specified using alpha and beta, but we have mu and kappa.
-            # alpha = mu * kappa and beta = (1 - mu) * kappa
-            alpha = kwargs["mu"] * kwargs["kappa"]
-            beta = (1 - kwargs["mu"]) * kwargs["kappa"]
-            return dist(name, alpha=alpha, beta=beta, observed=kwargs["observed"])
-
         return dist(name, **kwargs)
 
     def get_distribution(self, dist):
@@ -268,12 +345,8 @@ class PyMC3BackEnd(BackEnd):
         if isinstance(dist, str):
             if hasattr(pm, dist):
                 dist = getattr(pm, dist)
-            elif dist in self.dists:
-                dist = self.dists[dist]
             else:
-                raise ValueError(
-                    f"The Distribution {dist} was not found in PyMC3 or the PyMC3BackEnd."
-                )
+                raise ValueError(f"The Distribution '{dist}' was not found in PyMC3")
         return dist
 
     def expand_prior_args(self, key, value, label, noncentered, **kwargs):

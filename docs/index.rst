@@ -12,7 +12,7 @@ BAyesian Model-Building Interface (Bambi) in Python
 .. |Tests| image:: https://github.com/bambinos/bambi/actions/workflows/test.yml/badge.svg
     :target: https://github.com/bambinos/bambi
 
-.. |Coverage| image:: https://codecov.io/gh/bambinos/bambi/branch/master/graph/badge.svg?token=ZqH0KCLKAE
+.. |Coverage| image:: https://codecov.io/gh/bambinos/bambi/branch/main/graph/badge.svg?token=ZqH0KCLKAE
     :target: https://codecov.io/gh/bambinos/bambi
 
 .. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
@@ -25,7 +25,7 @@ Bambi is a high-level Bayesian model-building interface written in Python. It wo
 
 Dependencies
 ============
-Bambi is tested on Python 3.7+ and depends on ArviZ, formulae, NumPy, pandas, PyMC3 and statsmodels (see `requirements.txt <https://github.com/bambinos/bambi/blob/master/requirements.txt>`_ for version information).
+Bambi is tested on Python 3.7+ and depends on ArviZ, formulae, NumPy, pandas, PyMC3 and statsmodels (see `requirements.txt <https://github.com/bambinos/bambi/blob/main/requirements.txt>`_ for version information).
 
 Installation
 ============
@@ -93,7 +93,7 @@ Here is the citation in BibTeX format
 
 Contributing
 ============
-We welcome contributions from interested individuals or groups! For information about contributing to Bambi, check out our instructions, policies, and guidelines `here <https://github.com/bambinos/bambi/blob/master/CONTRIBUTING.md>`_.
+We welcome contributions from interested individuals or groups! For information about contributing to Bambi, check out our instructions, policies, and guidelines `here <https://github.com/bambinos/bambi/blob/main/CONTRIBUTING.md>`_.
 
 Contributors
 ============
@@ -108,6 +108,7 @@ Contents
    notebooks/getting_started
    examples
    api_reference
+   faq
 
 Indices
 =======
