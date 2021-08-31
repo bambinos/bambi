@@ -7,7 +7,7 @@ DISTRIBUTIONS = {
     "Beta": {"params": ("mu", "kappa"), "parent": "mu", "args": ("kappa",)},
     "Binomial": {"params": ("p",), "parent": "p", "args": None},
     "Poisson": {"params": ("mu",), "parent": "mu", "args": None},
-    "StudentT": {"params": ("mu", "lam"), "args": ("lam", "nu")},
+    "StudentT": {"params": ("mu", "sigma"), "args": ("sigma", "nu")},
     "NegativeBinomial": {"params": ("mu", "alpha"), "parent": "mu", "args": ("alpha",)},
     "Gamma": {"params": ("mu", "alpha"), "parent": "mu", "args": ("alpha",)},
     "Wald": {"params": ("mu", "lam"), "parent": "mu", "args": ("lam",)},

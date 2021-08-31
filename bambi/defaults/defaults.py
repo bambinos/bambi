@@ -99,8 +99,8 @@ SETTINGS_FAMILIES = {
         "likelihood": {
             "name": "StudentT",
             "args": {
-                "lam": "HalfCauchy",
-                "nu": 2
+                "sigma": "HalfNormal",
+                "nu": "Gamma"
             },
             "parent": "mu",
             "pps": pps.pps_t

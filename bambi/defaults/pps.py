@@ -90,8 +90,7 @@ def pps_t(model, posterior, mu, draws, draw_n):
     else:
         nu = posterior[model.response.name + "_nu"].values[:, idxs, np.newaxis]
 
-    lam = posterior[model.response.name + "_lam"].values[:, idxs, np.newaxis]
-    sigma = lam ** -0.5
+    sigma = posterior[model.response.name + "_sigma"].values[:, idxs, np.newaxis]
     return stats.t.rvs(nu, mu, sigma)
 
 

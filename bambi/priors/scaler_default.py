@@ -39,7 +39,7 @@ class PriorScaler:
     def scale_response(self):
         # Add cases for other families
         priors = self.model.response.family.likelihood.priors
-        if self.model.family.name == "gaussian":
+        if self.model.family.name in ["gaussian", "t"]:
             if priors["sigma"].auto_scale:
                 priors["sigma"] = Prior("HalfStudentT", nu=4, sigma=self.response_std)
 
