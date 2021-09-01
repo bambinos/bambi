@@ -10,7 +10,7 @@ SETTINGS_DISTRIBUTIONS = {
     "Binomial": {"n": 1, "p": 0.5},
     "Cauchy": {"alpha": 0, "beta": 1},
     "Flat": {},
-    "Gamma": {"alpha": 2, "beta": 2},
+    "Gamma": {"alpha": 2, "beta": 0.1},
     "HalfCauchy": {"beta": 1},
     "HalfFlat": {},
     "HalfNormal": {"sigma": 1},
