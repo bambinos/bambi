@@ -104,7 +104,7 @@ FAMILY_PARAMS = {
     "gamma": ("alpha",),
     "gaussian": ("sigma",),
     "negativebinomial": ("alpha",),
-    "t": ("lam", "nu"),
+    "t": ("sigma", "nu"),
     "wald": ("lam",),
 }
 

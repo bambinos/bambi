@@ -10,7 +10,7 @@ SETTINGS_DISTRIBUTIONS = {
     "Binomial": {"n": 1, "p": 0.5},
     "Cauchy": {"alpha": 0, "beta": 1},
     "Flat": {},
-    "Gamma": {"alpha": 2, "beta": 2},
+    "Gamma": {"alpha": 2, "beta": 0.1},
     "HalfCauchy": {"beta": 1},
     "HalfFlat": {},
     "HalfNormal": {"sigma": 1},
@@ -99,8 +99,8 @@ SETTINGS_FAMILIES = {
         "likelihood": {
             "name": "StudentT",
             "args": {
-                "lam": "HalfCauchy",
-                "nu": 2
+                "sigma": "HalfNormal",
+                "nu": "Gamma"
             },
             "parent": "mu",
             "pps": pps.pps_t
