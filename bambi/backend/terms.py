@@ -132,7 +132,7 @@ class ResponseTerm:
         dist = get_distribution(likelihood.name)
         kwargs = {likelihood.parent: linkinv(nu), "observed": data}
         if likelihood.priors:
-            for key, value in likelihood.priors.iterms():
+            for key, value in likelihood.priors.items():
                 if isinstance(value, Prior):
                     _dist = get_distribution(value.name)
                     kwargs[key] = _dist(f"{name}_{key}", **value.args)

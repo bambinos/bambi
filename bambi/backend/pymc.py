@@ -2,8 +2,9 @@ import logging
 import traceback
 
 import numpy as np
-import theano.tensor as tt
 import pymc3 as pm
+
+import theano.tensor as tt
 
 from bambi import version
 
@@ -26,18 +27,19 @@ class PyMC3Model:
         "probit": probit,
     }
 
-    def __init__(self):
+    def __init__(self):  # pylint: disable=too-many-instance-attributes
         self.name = pm.__name__
         self.version = pm.__version__
 
         # Attributes defined elsewhere
-        self.model = None
+        self._design_matrix_without_intercept = None
+        self.advi_params = None  # build()
+        self.coords = {}
+        self.fit = False  # run()
         self.has_intercept = False  # build()
+        self.model = None
         self.mu = None  # build()
         self.spec = None  # build()
-        self.trace = None  # build()
-        self.advi_params = None  # build()
-        self.fit = False  # run()
 
     def build(self, spec):
         """Compile the PyMC3 model from an abstract model specification.
@@ -106,26 +108,32 @@ class PyMC3Model:
 
     def _build_common_terms(self, spec):
         if spec.common_terms:
-            coords = {}
             coefs = []
             columns = []
             for term in spec.common_terms.values():
                 common_term = CommonTerm(term)
+                # Add coords
+                # NOTE: At the moment, there's a bug in PyMC3 so we need to check if coordinate is
+                # present in the model before attempting to add it.
+                for name, values in common_term.coords.items():
+                    if name not in self.model.coords:
+                        self.model.add_coords({name: values})
+                self.coords.update(**common_term.coords)
+
+                # Build
                 coef, data = common_term.build()
                 coefs.append(coef)
                 columns.append(data)
-                coords.update(**common_term.coords)
 
-            # Column vector of coefficients and Design matrix
+            # Column vector of coefficients and design matrix
             coefs = tt.concatenate(coefs)
             data = np.hstack(columns)
 
             # If there's an intercept, center the data
+            # Also store the design matrix without the intercept to uncenter the intercept later
             if self.has_intercept:
+                self._design_matrix_without_intercept = data
                 data = data - data.mean(0)
-
-            # Add coords
-            self.model.add_coords(coords)
 
             # Add term to linear predictor
             self.mu += tt.dot(data, coefs)
@@ -144,10 +152,17 @@ class PyMC3Model:
         ]
         for term in terms:
             group_specific_term = GroupSpecificTerm(term, spec.noncentered)
-            coef, predictor = group_specific_term.build()
 
             # Add coords
-            self.model.add_coords(group_specific_term.coords)
+            # NOTE: At the moment, there's a bug in PyMC3 so we need to check if coordinate is
+            # present in the model before attempting to add it.
+            for name, values in group_specific_term.coords.items():
+                if name not in self.model.coords:
+                    self.model.add_coords({name: values})
+            self.coords.update(**group_specific_term.coords)
+
+            # Build
+            coef, predictor = group_specific_term.build()
 
             # Add to the linear predictor
             # The loop through predictor columns is not the most beautiful alternative.
@@ -240,19 +255,26 @@ class PyMC3Model:
         idata.posterior = idata.posterior.drop_vars(vars_to_drop)
         idata.posterior = idata.posterior.drop_dims(dims_to_drop)
 
-        # Reorder coords
+        # Drop and reorder coords
         # pylint: disable=protected-access
-        # WHY DO WE DO THIS? I DON'T REMEMBER
+        # About coordinates ending with "_dim_0"
+        # Coordinates that end with "_dim_0" are added automatically.
+        # These represents unidimensional coordinates that are added for numerical variables.
+        # These variables have a shape of 1 so we can concatenate the coefficients and multiply
+        # the resulting vector withe the design matrix.
+        # But having a unidimiensional coordinate for a numeric variable does not make sense.
+        # So we drop them.
         coords_to_drop = [dim for dim in idata.posterior.dims if dim.endswith("_dim_0")]
         idata.posterior = idata.posterior.squeeze(coords_to_drop).reset_coords(
             coords_to_drop, drop=True
         )
-        coords_original = list(self.spec._get_pymc_coords().keys())
-        coords_group = [c for c in coords_original if c.endswith("_coord_group_factor")]
-        for coord in coords_group:
-            coords_original.remove(coord)
-        coords_new = ["chain", "draw"] + coords_original + coords_group
 
+        # This does not add any new coordinate, it just changes the order so the ones
+        # ending in "_coord_group_factor" are located later.
+        coords_original = list(self.coords.keys())
+        coords_group = [c for c in coords_original if c.endswith("_coord_group_factor")]
+        coords_original = list(set(coords_original) - set(coords_group))
+        coords_new = ["chain", "draw"] + coords_original + coords_group
         idata.posterior = idata.posterior.transpose(*coords_new)
 
         # Compute the actual intercept
@@ -261,9 +283,7 @@ class PyMC3Model:
             draw_n = len(idata.posterior["draw"])
 
             # Design matrix without intercept
-            X = self.spec._design.common.design_matrix
-            idx = self.spec._design.common.terms_info["Intercept"]["cols"]
-            X = np.delete(X, idx, axis=1)
+            X = self._design_matrix_without_intercept
 
             # Re-scale intercept for centered predictors
             posterior = idata.posterior.stack(sample=["chain", "draw"])

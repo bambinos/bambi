@@ -902,12 +902,6 @@ class Model:
 
         return graphviz
 
-    def _get_pymc_coords(self):
-        coords = {}
-        for term in self.terms.values():
-            coords.update(**term.pymc_coords)
-        return coords
-
     def _get_group_specific_groups(self):
         groups = {}
         for term_name in self.group_specific_terms:
