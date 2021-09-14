@@ -29,6 +29,12 @@ Bambi is tested on Python 3.7+ and depends on ArviZ, formulae, NumPy, pandas, Py
 
 Installation
 ============
+
+Bambi is available from the Python Package Index at `<https://pypi.org/project/bambi/>`_, alternatively it can be installed using Conda.
+
+PyPI
+----
+
 The latest release of Bambi can be installed using pip:
 
 .. code-block:: bash
@@ -41,20 +47,32 @@ Alternatively, if you want the bleeding edge version of the package, you can ins
 
    pip install git+https://github.com/bambinos/bambi.git
 
+
+Conda
+-----
+
+If you use Conda, you can also install the latest release of Bambi  with the following command:
+
+.. code-block:: bash
+
+   conda install -c conda-forge bambi
+
+
 Usage
 =====
 A simple fixed effects model is shown below as example.
 
 .. code-block:: python
 
-    from bambi import Model
+    import arviz as az
+    import bambi as bmb
     import pandas as pd
 
     # Read in a tab-delimited file containing our data
     data = pd.read_table('my_data.txt', sep='\t')
 
     # Initialize the fixed effects only model
-    model = Model('DV ~ IV1 + IV2', data)
+    model = bmb.Model('DV ~ IV1 + IV2', data)
 
     # Fit the model using 1000 on each of 4 chains
     results = model.fit(draws=1000, chains=4)
@@ -64,9 +82,6 @@ A simple fixed effects model is shown below as example.
 
     # Key summary and diagnostic info on the model parameters
     az.summary(results)
-
-    # Drop the first 100 draws (burn-in)
-    results_bi = results.sel(draw=slice(100, None))
 
 For a more in-depth introduction to Bambi see our `Quickstart <https://github.com/bambinos/bambi#quickstart>`_ or our set of example notebooks.
 

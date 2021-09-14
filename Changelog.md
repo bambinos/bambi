@@ -10,6 +10,20 @@
 
 ### Deprecation
 
+### 0.6.1
+
+### Maintenance and fixes
+
+- Documentation for all versions is built from scratch when there's a release. This ensures older versions link to the current stable release. (#396)
+- Add new axis to prior predictive samples to represent 1 chain in the InferenceData object we return (#397)
+- Move Family, Likelihood and Link to the families submodule and improved some docstrings (#399)
+
+### Documentation
+
+- Add example with hierarchical binomial model (#398)
+
+### Deprecation
+
 ### 0.6.0
 
 ### New features

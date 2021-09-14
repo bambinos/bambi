@@ -10,14 +10,27 @@ methods in the current release of Bambi.
 
 
 :mod:`bambi.models`
-===========================
+===================
 
 .. automodule:: bambi.models
-   :members:
+   :members: Model
 
 
 :mod:`bambi.priors`
-===========================
+===================
 
 .. automodule:: bambi.priors
+    :members:
+
+
+:mod:`bambi.families`
+=====================
+
+.. automodule:: bambi.families
+    :members:
+
+:mod:`bambi.data`
+=====================
+
+.. automodule:: bambi.data
     :members:

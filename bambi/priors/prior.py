@@ -8,10 +8,13 @@ class Prior:
     ----------
     name : str
         Name of prior distribution. Must be the name of a PyMC3 distribution
-        (e.g., ``'Normal'``, ``'Bernoulli'``, etc.)
+        (e.g., ``"Normal"``, ``"Bernoulli"``, etc.)
     auto_scale: bool
         Whether to adjust the parameters of the prior or use them as passed. Default to ``True``.
     scale: num or str
+        How to scale the prior. If a number, must be within 0 and 1. If a string, must be one of
+        ``"narrow"``, ``"medium"``, ``"wide"``, or ``"superwide"``. Only used when the model was
+        created with ``automatic_priors="mle"``.
     kwargs : dict
         Optional keywords specifying the parameters of the named distribution.
     """
@@ -24,7 +27,7 @@ class Prior:
         self.update(**kwargs)
 
     def update(self, **kwargs):
-        """Update the model arguments with additional arguments.
+        """Update the arguments of the prior with additional arguments.
 
         Parameters
         ----------
