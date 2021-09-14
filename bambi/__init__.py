@@ -5,7 +5,7 @@ from pymc3 import math
 from .data import clear_data_home, load_data
 from .families import Family, Likelihood, Link
 from .models import Model
-from .priors import Prior, Family, Likelihood, Link
+from .priors import Prior
 from .backend import PyMC3Model
 from .version import __version__
 
