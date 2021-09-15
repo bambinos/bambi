@@ -37,6 +37,11 @@ class CommonTerm:
                 coords[name] = levels
             else:
                 coords[name] = levels[1:]
+        else:
+            # Not categorical but multi-column, like when we use splines
+            if self.term.data.shape[1] > 1:
+                name = self.term.name + "_coord"
+                coords[name] = list(range(self.term.data.shape[1]))
         return coords
 
 
