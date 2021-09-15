@@ -8,7 +8,7 @@ import theano.tensor as tt
 
 from bambi import version
 
-from bambi.backend.links import cloglog, identity, inverse_squared, probit
+from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit
 from bambi.backend.terms import CommonTerm, GroupSpecificTerm, InterceptTerm, ResponseTerm
 
 _log = logging.getLogger("bambi")
@@ -23,23 +23,23 @@ class PyMC3Model:
         "inverse_squared": inverse_squared,
         "inverse": tt.inv,
         "log": tt.exp,
-        "logit": tt.nnet.sigmoid,
+        "logit": logit,
         "probit": probit,
     }
 
-    def __init__(self):  # pylint: disable=too-many-instance-attributes
+    def __init__(self):
         self.name = pm.__name__
         self.version = pm.__version__
 
         # Attributes defined elsewhere
         self._design_matrix_without_intercept = None
-        self.advi_params = None  # build()
+        self.advi_params = None
         self.coords = {}
-        self.fit = False  # run()
-        self.has_intercept = False  # build()
+        self.fit = False
+        self.has_intercept = False
         self.model = None
-        self.mu = None  # build()
-        self.spec = None  # build()
+        self.mu = None
+        self.spec = None
 
     def build(self, spec):
         """Compile the PyMC3 model from an abstract model specification.
