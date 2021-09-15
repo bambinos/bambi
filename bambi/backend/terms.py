@@ -5,8 +5,16 @@ from bambi.priors import Prior
 
 
 class CommonTerm:
-    """
+    """Represetation of a common effects term in PyMC3
+
+    An object that builds the PyMC3 distribution for a common effects term. It also contains the
+    coordinates that we then add to the model.
+
+
+    Parameters
+    ----------
     term: bambi.terms.Term
+        An object representing a common effects term.
     """
 
     def __init__(self, term):
@@ -46,8 +54,15 @@ class CommonTerm:
 
 
 class GroupSpecificTerm:
-    """
+    """Represetation of a group specific effects term in PyMC3
+
+    Creates an object that builds the PyMC3 distribution for a group specific effect. It also
+    contains the coordinates that we then add to the model.
+
+    Parameters
+    ----------
     term: bambi.terms.GroupSpecificTerm
+        An object representing a group specific effects term.
     """
 
     def __init__(self, term, noncentered):
@@ -84,7 +99,7 @@ class GroupSpecificTerm:
         return coords
 
     def build_distribution(self, dist, label, **kwargs):
-        """Build and return a PyMC3 Distribution for a group specific term."""
+        """Build and return a PyMC3 Distribution."""
         dist = get_distribution(dist)
 
         if "dims" in kwargs:
@@ -109,6 +124,14 @@ class GroupSpecificTerm:
 
 
 class InterceptTerm:
+    """Representation of an intercept term in a PyMC3 model.
+
+    Parameters
+    ----------
+    term: bambi.terms.Term
+        An object representing the intercept. This has ``.type == "intercept"``
+    """
+
     def __init__(self, term):
         self.term = term
 
@@ -118,13 +141,29 @@ class InterceptTerm:
 
 
 class ResponseTerm:
+    """Representation of a response term in a PyMC3 model.
+
+    Parameters
+    ----------
+    term: bambi.terms.ResponseTerm
+        The response term as represented in Bambi.
+    family: bambi.famlies.Family
+        The model family.
+    """
+
     def __init__(self, term, family):
         self.term = term
         self.family = family
 
     def build(self, nu, invlinks):
-        # nu is the linear predictor
-        # invlinks is a dictionary with inverse link functions
+        """Create and return the response distribution for the PyMC3 model.
+
+        nu: theano.tensor.var.TensorVariable
+            The linear predictor in the PyMC3 model.
+        invlinks: dict
+            A dictionary where names are names of inverse link functions and values are functions
+            that can operate with Theano tensors.
+        """
         data = self.term.data.squeeze()
         name = self.term.name
 

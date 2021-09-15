@@ -46,7 +46,7 @@ class PyMC3Model:
 
         Parameters
         ----------
-        spec : Bambi model
+        spec: bambi.Model
             A Bambi ``Model`` instance containing the abstract specification of the model
             to compile.
         """
@@ -77,10 +77,9 @@ class PyMC3Model:
         **kwargs,
     ):
         """Run PyMC3 sampler."""
-        model = self.model
-
+        # NOTE: Methods return different types of objects (idata, advi_params, and dictionary)
         if method.lower() == "mcmc":
-            idata = self._run_mcmc(
+            result = self._run_mcmc(
                 draws,
                 tune,
                 discard_tuned_samples,
@@ -92,15 +91,13 @@ class PyMC3Model:
                 random_seed,
                 **kwargs,
             )
-            self.fit = True
-            return idata
         elif method.lower() == "advi":
-            # This should return an InferenceData object (once arviz adds support for VI)
-            with model:
-                self.advi_params = pm.variational.ADVI(**kwargs)
-            return self.advi_params
+            result = self._run_advi(**kwargs)
         else:
-            return _laplace(model)
+            result = self._run_laplace()
+
+        self.fit = True
+        return result
 
     def _build_intercept(self, spec):
         if self.has_intercept:
@@ -292,39 +289,46 @@ class PyMC3Model:
 
         return idata
 
+    def _run_advi(self, **kwargs):
+        # This should return an InferenceData object (once arviz adds support for VI)
+        with self.model:
+            self.advi_params = pm.variational.ADVI(**kwargs)
+        return self.advi_params
 
-def _laplace(model):
-    """Fit a model using a Laplace approximation.
+    def _run_laplace(self):
+        """Fit a model using a Laplace approximation.
 
-    Mainly for pedagogical use. ``mcmc`` and ``advi`` are better approximations.
+        Mainly for pedagogical use. ``mcmc`` and ``advi`` are better approximations.
 
-    Parameters
-    ----------
-    model: PyMC3 model
+        Parameters
+        ----------
+        model: PyMC3 model
 
-    Returns
-    -------
-    Dictionary, the keys are the names of the variables and the values tuples of modes and standard
-    deviations.
-    """
-    with model:
-        varis = [v for v in model.unobserved_RVs if not pm.util.is_transformed_name(v.name)]
-        maps = pm.find_MAP(start=model.test_point, vars=varis)
-        hessian = pm.find_hessian(maps, vars=varis)
-        if np.linalg.det(hessian) == 0:
-            raise np.linalg.LinAlgError("Singular matrix. Use mcmc or advi method")
-        stds = np.diag(np.linalg.inv(hessian) ** 0.5)
-        maps = [v for (k, v) in maps.items() if not pm.util.is_transformed_name(k)]
-        modes = [v.item() if v.size == 1 else v for v in maps]
-        names = [v.name for v in varis]
-        shapes = [np.atleast_1d(mode).shape for mode in modes]
-        stds_reshaped = []
-        idx0 = 0
-        for shape in shapes:
-            idx1 = idx0 + sum(shape)
-            stds_reshaped.append(np.reshape(stds[idx0:idx1], shape))
-            idx0 = idx1
-    return dict(zip(names, zip(modes, stds_reshaped)))
+        Returns
+        -------
+        Dictionary, the keys are the names of the variables and the values tuples of modes and
+        standard deviations.
+        """
+        unobserved_rvs = self.model.unobserved_RVs
+        test_point = self.model.test_point
+        with self.model:
+            varis = [v for v in unobserved_rvs if not pm.util.is_transformed_name(v.name)]
+            maps = pm.find_MAP(start=test_point, vars=varis)
+            hessian = pm.find_hessian(maps, vars=varis)
+            if np.linalg.det(hessian) == 0:
+                raise np.linalg.LinAlgError("Singular matrix. Use mcmc or advi method")
+            stds = np.diag(np.linalg.inv(hessian) ** 0.5)
+            maps = [v for (k, v) in maps.items() if not pm.util.is_transformed_name(k)]
+            modes = [v.item() if v.size == 1 else v for v in maps]
+            names = [v.name for v in varis]
+            shapes = [np.atleast_1d(mode).shape for mode in modes]
+            stds_reshaped = []
+            idx0 = 0
+            for shape in shapes:
+                idx1 = idx0 + sum(shape)
+                stds_reshaped.append(np.reshape(stds[idx0:idx1], shape))
+                idx0 = idx1
+        return dict(zip(names, zip(modes, stds_reshaped)))
 
 
 def add_lkj(terms, eta=1):
