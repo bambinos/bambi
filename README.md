@@ -98,6 +98,10 @@ Bambi is a community project and welcomes contributions. Additional information 
 
 For a list of contributors see the [GitHub contributor](https://github.com/bambinos/bambi/graphs/contributors) page
 
+## Donations
+
+If you want to support Bambi financially, you can [make a donation](https://numfocus.org/donate-to-pymc3) to our sister project PyMC3.
+
 ## Code of Conduct
 
 Bambi wishes to maintain a positive community. Additional details can be found in the [Code of Conduct](https://github.com/bambinos/bambi/blob/master/CODE_OF_CONDUCT.md)
