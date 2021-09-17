@@ -4,6 +4,21 @@
 
 ### New features
 
+- Use formulae 0.2.0 (#411)
+
+### Maintenance and fixes
+
+### Documentation
+
+### Deprecation
+
+
+### 0.6.3
+
+### New features
+
+- Use formulae 0.2.0 (#411)
+
 ### Maintenance and fixes
 
 ### Documentation
