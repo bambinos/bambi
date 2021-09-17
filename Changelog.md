@@ -10,6 +10,24 @@
 
 ### Deprecation
 
+
+### 0.6.2
+
+### New features
+
+### Maintenance and fixes
+
+- Change default priors for the 't' family (#403)
+
+### Documentation
+
+- Add installation instructions with conda (#406)
+- Corrected a typo: pary_id -> party_id (#402)
+- Add donation information (#409)
+
+### Deprecation
+
+
 ### 0.6.1
 
 ### Maintenance and fixes
