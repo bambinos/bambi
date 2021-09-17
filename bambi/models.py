@@ -164,7 +164,7 @@ class Model:
             raise ValueError("Can't instantiate a model without a model formula.")
         na_action = "drop" if dropna else "error"
         self.formula = formula
-        self._design = design_matrices(formula, data, na_action, eval_env=1)
+        self._design = design_matrices(formula, data, na_action, env=1)
 
         if self._design.response is None:
             raise ValueError(
