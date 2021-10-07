@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Hierarchical Logistic regression with Binomial family &#8212; Bambi 0.6.3 documentation</title>
     
-  <link href="../_static/css/theme.css" rel="stylesheet" />
-  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../_static/css/theme.css" rel="stylesheet">
+  <link href="../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,9 +24,9 @@
 
     
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/basic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/blank.css" />
     
-  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
@@ -39,7 +40,10 @@
     <link rel="next" title="Logistic Regression and Model Comparison with Bambi and ArviZ" href="model_comparison.html" />
     <link rel="prev" title="Binary response: Alternative link functions" href="alternative_links_binary.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="en" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
@@ -572,18 +576,18 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Hierarchical-Logistic-regression-with-Binomial-family">
+<section id="Hierarchical-Logistic-regression-with-Binomial-family">
 <h1>Hierarchical Logistic regression with Binomial family<a class="headerlink" href="#Hierarchical-Logistic-regression-with-Binomial-family" title="Permalink to this headline">¶</a></h1>
 <p>This notebook shows how to build a hierarchical logistic regression model with the Binomial family in Bambi.</p>
 <p>This example is based on the <a class="reference external" href="https://ericmjl.github.io/bayesian-analysis-recipes/notebooks/hierarchical-baseball/">Hierarchical baseball</a> article in <a class="reference external" href="https://ericmjl.github.io/bayesian-analysis-recipes/">Bayesian Analysis Recipes</a>, a collection of articles on how to do Bayesian data analysis with PyMC3 made by <a class="reference external" href="https://ericmjl.github.io/">Eric Ma</a>.</p>
-<div class="section" id="Problem-description">
+<section id="Problem-description">
 <h2>Problem description<a class="headerlink" href="#Problem-description" title="Permalink to this headline">¶</a></h2>
 <p>Extracted from the original work:</p>
 <blockquote>
 <div><p>Baseball players have many metrics measured for them. Let’s say we are on a baseball team, and would like to quantify player performance, one metric being their batting average (defined by how many times a batter hit a pitched ball, divided by the number of times they were up for batting (“at bat”)). How would you go about this task?</p>
 </div></blockquote>
-</div>
-<div class="section" id="Load-libraries-and-data">
+</section>
+<section id="Load-libraries-and-data">
 <h2>Load libraries and data<a class="headerlink" href="#Load-libraries-and-data" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -810,8 +814,8 @@ div.rendered_html tbody tr:hover {
 <li><p><code class="docutils literal notranslate"><span class="pre">H</span></code>: Number of times the player hit the ball while batting.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">batting_avg</span></code>: Simply ratio between <code class="docutils literal notranslate"><span class="pre">H</span></code> and <code class="docutils literal notranslate"><span class="pre">AB</span></code>.</p></li>
 </ul>
-</div>
-<div class="section" id="Explore-our-data">
+</section>
+<section id="Explore-our-data">
 <h2>Explore our data<a class="headerlink" href="#Explore-our-data" title="Permalink to this headline">¶</a></h2>
 <p>It’s always good to explore the data before starting to write down our models. This is very useful to gain a good understanding of the distribution of the variables and their relationships, and even anticipate some problems that may occur during the sampling process.</p>
 <p>The following graph summarizes the percentage of hits, as well as the number of times the players were up for batting and the number of times they hit the ball.</p>
@@ -902,8 +906,8 @@ div.rendered_html tbody tr:hover {
 <p>There are two players, <strong>alberma01</strong> and <strong>abadfe01</strong>, who had only one chance to bat. The first one hit the ball, while the latter missed. That’s why <strong>alberma01</strong> as a 100% hit percentage, while <strong>abadfe01</strong> has 0%. There’s another player, <strong>aguilje01</strong>, who has a success record of 0% because he missed all the few opportunities he had to bat. These extreme situations, where the empirical estimation lives in the boundary of the parameter space, are associated with estimation problems when using
 a maximum-likelihood estimation approach. Nonetheless, they can also impact the sampling process, especially when using wide priors.</p>
 <p>As a final note, <strong>abreujo02</strong>, has been there for batting 624 times, and thus the grey dot representing this number does not appear in the plot.</p>
-</div>
-<div class="section" id="Non-hierarchical-model">
+</section>
+<section id="Non-hierarchical-model">
 <h2>Non-hierarchical model<a class="headerlink" href="#Non-hierarchical-model" title="Permalink to this headline">¶</a></h2>
 <p>Let’s get started with a simple cell-means logistic regression for <span class="math notranslate nohighlight">\(p_i\)</span>, the probability of hitting the ball for the player <span class="math notranslate nohighlight">\(i\)</span></p>
 <div class="math notranslate nohighlight">
@@ -1012,8 +1016,8 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <p>So far so good! The traceplots indicate the sampler worked well.</p>
 <p>Now, let’s keep this posterior aside for later use and let’s fit the hierarchical version.</p>
-</div>
-<div class="section" id="Hierarchical-model">
+</section>
+<section id="Hierarchical-model">
 <h2>Hierarchical model<a class="headerlink" href="#Hierarchical-model" title="Permalink to this headline">¶</a></h2>
 <p>This model incorporates a group-specific intercept for each player:</p>
 <div class="math notranslate nohighlight">
@@ -1387,8 +1391,8 @@ The number of effective samples is smaller than 25% for some parameters.
 </div>
 <p>Fortunately, the sampler seems to have worked well this time.</p>
 <p>Let’s jump onto the next section where we plot and compare the probability of hit for the players using both models.</p>
-</div>
-<div class="section" id="Compare-predictions">
+</section>
+<section id="Compare-predictions">
 <h2>Compare predictions<a class="headerlink" href="#Compare-predictions" title="Permalink to this headline">¶</a></h2>
 <p>Now we’re going to plot the distribution of the probability of hit for each player, using both models.</p>
 <p>But before doing that, we need to obtain the posterior in that scale. We could manually take the posterior of the coefficients, compute the linear predictor, and transform that to the probability scale. But that’s a lot of work!</p>
@@ -1484,26 +1488,37 @@ Watermark: 2.1.0
 
 </pre></div></div>
 </div>
-</div>
-<div class="section" id="Footnotes">
+</section>
+<section id="Footnotes">
 <h2>Footnotes<a class="headerlink" href="#Footnotes" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
 <li><p>By default, the <code class="docutils literal notranslate"><span class="pre">.predict()</span></code> method obtains the posterior for the mean of the likelihood distribution. This mean would be <span class="math notranslate nohighlight">\(np\)</span> for the Binomial family. However, since <span class="math notranslate nohighlight">\(n\)</span> varies from observation to observation, it returns the value of <span class="math notranslate nohighlight">\(p\)</span>, as if it was a Bernoulli family.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">.predict()</span></code>just appends <code class="docutils literal notranslate"><span class="pre">_mean</span></code> to the name of the response to indicate it is the posterior of the mean.</p></li>
 </ol>
-</div>
-</div>
+</section>
+</section>
 
 
               </div>
               
               
-              <div class='prev-next-bottom'>
-                
-    <a class='left-prev' id="prev-link" href="alternative_links_binary.html" title="previous page">Binary response: Alternative link functions</a>
-    <a class='right-next' id="next-link" href="model_comparison.html" title="next page">Logistic Regression and Model Comparison with Bambi and ArviZ</a>
-
-              </div>
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="alternative_links_binary.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Binary response: Alternative link functions</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="model_comparison.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Logistic Regression and Model Comparison with Bambi and ArviZ</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
               
           </main>
           
@@ -1511,20 +1526,19 @@ Watermark: 2.1.0
       </div>
     </div>
   
-  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
-
-  <footer class="footer mt-5 mt-md-0">
+  <script src="../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+<footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2021, The developers of Bambi.<br/>
+    &copy; Copyright 2021, The developers of Bambi.<br>
 </p>
     </div>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br>
 </p>
     </div>
     

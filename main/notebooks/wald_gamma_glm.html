@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Wald and Gamma Regression (Australian insurance claims 2004-2005) &#8212; Bambi 0.6.3 documentation</title>
     
-  <link href="../_static/css/theme.css" rel="stylesheet" />
-  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../_static/css/theme.css" rel="stylesheet">
+  <link href="../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,9 +24,9 @@
 
     
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/basic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/blank.css" />
     
-  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
@@ -39,7 +40,10 @@
     <link rel="next" title="Negative Binomial Regression" href="negative_binomial.html" />
     <link rel="prev" title="Bayesian Workflow (Strack RRR Analysis Replication)" href="Strack_RRR_re_analysis.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="en" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
@@ -574,7 +578,7 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Wald-and-Gamma-Regression-(Australian-insurance-claims-2004-2005)">
+<section id="Wald-and-Gamma-Regression-(Australian-insurance-claims-2004-2005)">
 <h1>Wald and Gamma Regression (Australian insurance claims 2004-2005)<a class="headerlink" href="#Wald-and-Gamma-Regression-(Australian-insurance-claims-2004-2005)" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -598,7 +602,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<div class="section" id="Load-and-examine-Vehicle-insurance-data">
+<section id="Load-and-examine-Vehicle-insurance-data">
 <h2>Load and examine Vehicle insurance data<a class="headerlink" href="#Load-and-examine-Vehicle-insurance-data" title="Permalink to this headline">¶</a></h2>
 <p>In this notebook we use a data set consisting of 67856 insurance policies and 4624 (6.8%) claims in Australia between 2004 and 2005. The original source of this dataset is the book <a class="reference external" href="http://www.businessandeconomics.mq.edu.au/our_departments/Applied_Finance_and_Actuarial_Studies/research/books/GLMsforInsuranceData">Generalized Linear Models for Insurance Data</a> by Piet de Jong and Gillian Z. Heller.</p>
 <div class="nbinput docutils container">
@@ -778,8 +782,8 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>And this is when you say: “Oh, there really are ugly right-skewed distributions out there!”. Well, yes, we’ve all been there :)</p>
 <p>In this case we are going to fit GLMs with a right-skewed distribution for the random component. This time we will be using Wald and Gamma distributions. One of their differences is that the variance is proportional to the cubic mean in the case of the Wald distribution, and proportional to the squared mean in the case of the Gamma distribution.</p>
-</div>
-<div class="section" id="Wald-family">
+</section>
+<section id="Wald-family">
 <h2>Wald family<a class="headerlink" href="#Wald-family" title="Permalink to this headline">¶</a></h2>
 <p>The Wald family (a.k.a inverse Gaussian model) states that</p>
 <div class="math notranslate nohighlight">
@@ -791,8 +795,8 @@ y_i \sim \text{Wald}(\mu_i, \lambda) &amp; g(\mu_i) = \mathbf{x}_i^T\beta
 \[f(x|\mu, \lambda) =
 \left(\frac{\lambda}{2\pi}\right)^{1/2}x^{-3/2}\exp\left\{ -\frac{\lambda}{2x} \left(\frac{x - \mu}{\mu} \right)^2 \right\}\]</div>
 <p>for <span class="math notranslate nohighlight">\(x &gt; 0\)</span>, mean <span class="math notranslate nohighlight">\(\mu &gt; 0\)</span> and <span class="math notranslate nohighlight">\(\lambda &gt; 0\)</span> is the shape parameter. The variance is given by <span class="math notranslate nohighlight">\(\sigma^2 = \mu^3/\lambda\)</span>. The canonical link is <span class="math notranslate nohighlight">\(g(\mu_i) = \mu_i^{-2}\)</span>, but <span class="math notranslate nohighlight">\(g(\mu_i) = \log(\mu_i)\)</span> is usually preferred, and it is what we use here.</p>
-</div>
-<div class="section" id="Gamma-family">
+</section>
+<section id="Gamma-family">
 <h2>Gamma family<a class="headerlink" href="#Gamma-family" title="Permalink to this headline">¶</a></h2>
 <p>The default parametrization of the Gamma density function is</p>
 <div class="math notranslate nohighlight">
@@ -809,14 +813,14 @@ y_i \sim \text{Wald}(\mu_i, \lambda) &amp; g(\mu_i) = \mathbf{x}_i^T\beta
 y_i \sim \text{Gamma}(\mu_i, \sigma_i), &amp; g(\mu_i) = \mathbf{x}_i^T\beta, &amp; \text{and} &amp; \sigma_i = \mu_i^2/\alpha
 \end{array}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\alpha\)</span> is the shape parameter in the original parametrization of the gamma pdf. The canonical link is <span class="math notranslate nohighlight">\(g(\mu_i) = \mu_i^{-1}\)</span>, but here we use <span class="math notranslate nohighlight">\(g(\mu_i) = \log(\mu_i)\)</span> again.</p>
-</div>
-<div class="section" id="Model-fit">
+</section>
+<section id="Model-fit">
 <h2>Model fit<a class="headerlink" href="#Model-fit" title="Permalink to this headline">¶</a></h2>
 <p>In this example we are going to use the binned age, the gender, and the area of residence to predict the amount of the claim, conditional on the existence of the claim because we are only working with observations where there is a claim.</p>
 <p><code class="docutils literal notranslate"><span class="pre">&quot;agecat&quot;</span></code> is interpreted as a numeric variable in our data frame, but we know it is categorical, and we wouldn’t be happy if our model takes it as if it was numeric, would we?</p>
 <p>We have two alternatives to tell Bambi that this numeric variable must be treated as categorical. The first one is to wrap the name of the variable with <code class="docutils literal notranslate"><span class="pre">C()</span></code>, and the other is to pass the same name to the categorical argument when we create the model. We are going to use the first approach with the Wald family and the second with the Gamma.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">C()</span></code> notation is taken from <a class="reference external" href="https://patsy.readthedocs.io/en/latest/index.html">Patsy</a> and is encouraged when you want to explicitly pass the order of the levels of the variables. If you are happy with the default order, better pass the name to <code class="docutils literal notranslate"><span class="pre">categorical</span></code> so tables and plots have prettier labels :)</p>
-<div class="section" id="Wald">
+<section id="Wald">
 <h3>Wald<a class="headerlink" href="#Wald" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -1091,8 +1095,8 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 <p>If we look at the <code class="docutils literal notranslate"><span class="pre">agecat</span></code> variable, we can see the log mean of the claim amount tends to decrease when the age of the person increases, with the exception of the last category where we can see a slight increase in the mean of the coefficient (-0.307 vs -0.365 of the previous category). However, these differences only represent a slight tendency because of the large overlap between the marginal posteriors for these coefficients (see overlayed density plots for <code class="docutils literal notranslate"><span class="pre">C(agecat)</span></code>.</p>
 <p>The posterior for <code class="docutils literal notranslate"><span class="pre">gender</span></code> tells us that the claim amount tends to be larger for males than for females, with the mean being 0.153 and the credible interval ranging from 0.054 to 0.246.</p>
 <p>Finally, from the marginal posteriors for the areas, we can see that F is the only area that clearly stands out, with a higher mean claim amount than in the rest. Area E may also have a higher claim amount, but this difference with the other areas is not as evident as it happens with F.</p>
-</div>
-<div class="section" id="Gamma">
+</section>
+<section id="Gamma">
 <h3>Gamma<a class="headerlink" href="#Gamma" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
@@ -1371,9 +1375,9 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 </div></div>
 </div>
 <p>The interpretation of the parameter posteriors is very similar to what we’ve done for the Wald family. The only difference is that some differences, such as the ones for the area posteriors, are a little more exacerbated here.</p>
-</div>
-</div>
-<div class="section" id="Model-comparison">
+</section>
+</section>
+<section id="Model-comparison">
 <h2>Model comparison<a class="headerlink" href="#Model-comparison" title="Permalink to this headline">¶</a></h2>
 <p>We can perform a Bayesian model comparison very easily with <code class="docutils literal notranslate"><span class="pre">az.compare()</span></code>. Here we pass a dictionary with the InferenceData objects that <code class="docutils literal notranslate"><span class="pre">Model.fit()</span></code> returned and <code class="docutils literal notranslate"><span class="pre">az.compare()</span></code> returns a data frame that is ordered from best to worst according to the criteria used.</p>
 <div class="nbinput docutils container">
@@ -1507,19 +1511,30 @@ Watermark: 2.1.0
 
 </pre></div></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
               </div>
               
               
-              <div class='prev-next-bottom'>
-                
-    <a class='left-prev' id="prev-link" href="Strack_RRR_re_analysis.html" title="previous page">Bayesian Workflow (Strack RRR Analysis Replication)</a>
-    <a class='right-next' id="next-link" href="negative_binomial.html" title="next page">Negative Binomial Regression</a>
-
-              </div>
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="Strack_RRR_re_analysis.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Bayesian Workflow (Strack RRR Analysis Replication)</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="negative_binomial.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Negative Binomial Regression</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
               
           </main>
           
@@ -1527,20 +1542,19 @@ Watermark: 2.1.0
       </div>
     </div>
   
-  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
-
-  <footer class="footer mt-5 mt-md-0">
+  <script src="../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+<footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2021, The developers of Bambi.<br/>
+    &copy; Copyright 2021, The developers of Bambi.<br>
 </p>
     </div>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br>
 </p>
     </div>
     
