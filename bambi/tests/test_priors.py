@@ -10,6 +10,8 @@ from bambi.families import Family, Likelihood
 from bambi.models import Model
 from bambi.priors import Prior
 
+from formulae.parser import ParseError
+
 
 @pytest.fixture(scope="module")
 def diabetes_data():
@@ -159,7 +161,7 @@ def test_family_bad_type():
 @pytest.mark.skip(reason="This case is actually handled by formulae")
 def test_family_unsupported_index_notation():
     data = pd.DataFrame({"x": [1], "y": [1]})
-    with pytest.raises(ValueError):
+    with pytest.raises(ParseError):
         Model("y[1] ~ x", data, family="gaussian")
 
 

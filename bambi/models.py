@@ -12,7 +12,7 @@ from arviz.data import from_dict
 from numpy.linalg import matrix_rank
 from formulae import design_matrices
 
-from .backends import PyMC3BackEnd
+from .backend import PyMC3Model
 from .defaults import get_default_prior, get_builtin_family
 from .families import Family, _extract_family_prior
 from .priors import Prior, PriorScaler, PriorScalerMLE
@@ -301,7 +301,7 @@ class Model:
         Performs any steps that require access to all model terms (e.g., scaling priors
         on each term), then calls the backend's ``build()`` method.
         """
-        self.backend = PyMC3BackEnd()
+        self.backend = PyMC3Model()
         self.backend.build(self)
         self.built = True
 
@@ -904,12 +904,6 @@ class Model:
             graphviz_.render(filename=name, format=fmt, cleanup=True)
 
         return graphviz
-
-    def _get_pymc_coords(self):
-        coords = {}
-        for term in self.terms.values():
-            coords.update(**term.pymc_coords)
-        return coords
 
     def _get_group_specific_groups(self):
         groups = {}
