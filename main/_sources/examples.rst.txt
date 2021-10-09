@@ -6,6 +6,7 @@ Examples
 
   notebooks/t-test
   notebooks/ESCS_multiple_regression
+  notebooks/t_regression
   notebooks/logistic_regression
   notebooks/multi-level_regression
   notebooks/Strack_RRR_re_analysis
