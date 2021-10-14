@@ -76,9 +76,6 @@ the `rethinking` library in R.
 }
 
 
-
-
-
 def get_data_home(data_home=None):
     """Return the path of the Bambi data dir.
 
