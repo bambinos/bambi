@@ -184,7 +184,7 @@ class Model:
 
         if self._design.common:
             if self.automatic_priors == "mle":
-                check_full_rank(self._design.common)
+                check_full_rank(self._design.common.design_matrix)
             self._add_common(self._design.common, priors)
 
         if self._design.group:

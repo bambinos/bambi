@@ -320,7 +320,7 @@ def test_sparse_fails():
         }
     )
     with pytest.raises(ValueError):
-        Model("y ~ x1 + x2 + x3 + x4", data)
+        Model("y ~ x1 + x2 + x3 + x4", data, automatic_priors="mle")
 
     data = pd.DataFrame(
         {
@@ -330,7 +330,7 @@ def test_sparse_fails():
         }
     )
     with pytest.raises(ValueError):
-        Model("y ~ g1 + g2", data)
+        Model("y ~ g1 + g2", data, automatic_priors="mle")
 
 
 @pytest.mark.parametrize(
