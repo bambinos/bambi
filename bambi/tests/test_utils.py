@@ -1,7 +1,7 @@
 import numpy as np
 
 from bambi.utils import listify
-from bambi.backends.pymc import probit, cloglog
+from bambi.backend.pymc import probit, cloglog
 
 
 def test_listify():

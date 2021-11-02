@@ -2,7 +2,7 @@ import numpy as np
 
 from scipy import special
 
-from ..utils import multilinify, spacify
+from bambi.utils import multilinify, spacify
 
 
 def force_within_unit_interval(x):
@@ -109,7 +109,7 @@ LINKS = {
 class Link:
     """Representation of link function.
 
-    This object actually contains two main functions. One is the link function itself, the function
+    This object contains two main functions. One is the link function itself, the function
     that maps values in the response scale to the linear predictor, and the other is the inverse
     of the link function, that maps values of the linear predictor to the response scale.
 
@@ -124,14 +124,15 @@ class Link:
         other arguments because functions are already defined internally. If not known, all of
         ``link``, ``linkinv`` and ``linkinv_backend`` must be specified.
     link: function
-        A function that maps the response to the linear predictor. Known as 'g()' in GLM jargon.
-        Does not need to be specified when ``name`` is a known name.
+        A function that maps the response to the linear predictor. Known as the :math:`g` function
+        in GLM jargon. Does not need to be specified when ``name`` is a known name.
     linkinv: function
-        A function that maps the linear predictor to the response. Known as 'g()^-1' in GLM jargon.
-        Does not need to be specified when ``name`` is a known name.
+        A function that maps the linear predictor to the response. Known as the :math:`g^{-1}`
+        function in GLM jargon. Does not need to be specified when ``name`` is a known name.
     linkinv_backend: function
         Same than ``linkinv`` but must be something that works with PyMC3 backend (i.e. it must
-        work with Aesara tensors). Does not need to be specified when ``name`` is a known name.
+        work with Theano tensors). Does not need to be specified when ``name`` is a known
+        name.
 
     """
 
@@ -145,7 +146,7 @@ class Link:
             self.link = LINKS[name]["link"]
             self.linkinv = LINKS[name]["linkinv"]
         else:
-            if not link or not linkinv or linkinv_backend:
+            if not link or not linkinv or not linkinv_backend:
                 raise ValueError(
                     f"Link name '{name}' is not supported and at least one of 'link', "
                     "'linkinv' or 'linkinv_backend' are unespecified."

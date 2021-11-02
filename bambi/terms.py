@@ -82,6 +82,7 @@ class Term:
         self.type = term_dict["type"]
         self.levels = term_dict["full_names"]
         self.categorical = False
+        self.term_dict = term_dict
 
         # If the term has one component, it's categorical if the component is categorical.
         # If the term has more than one component (i.e. it is an interaction), it's categorical if
@@ -163,6 +164,7 @@ class GroupSpecificTerm:
         self.predictor = term["Xi"]
         self.group_index = self.invert_dummies(self.grouper)
         self.categorical = False
+        self.term = term
 
         # Determine if the expression is categorical
         if self.type == "interaction":
@@ -192,7 +194,7 @@ class GroupSpecificTerm:
     def invert_dummies(self, dummies):
         """
         For the sake of computational efficiency (i.e., to avoid lots of large matrix
-        multiplications in the backends), invert the dummy-coding process and represent full-rank
+        multiplications in the backend), invert the dummy-coding process and represent full-rank
         dummies as a vector of indices into the coefficients.
         """
         vec = np.zeros(len(dummies), dtype=int)
