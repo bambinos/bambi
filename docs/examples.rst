@@ -14,5 +14,6 @@ Examples
   notebooks/negative_binomial
   notebooks/alternative_links_binary
   notebooks/hierarchical_binomial_bambi.ipynb
+  notebooks/splines_cherry_blossoms.ipynb
   notebooks/model_comparison
       notebooks/shooter_crossed_random_ANOVA
