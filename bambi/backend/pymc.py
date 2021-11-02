@@ -25,6 +25,7 @@ class PyMC3Model:
         "log": tt.exp,
         "logit": logit,
         "probit": probit,
+        "softmax": tt.nnet.softmax
     }
 
     def __init__(self):
