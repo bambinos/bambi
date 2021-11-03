@@ -162,6 +162,7 @@ class Model:
         # Obtain design matrices and related objects.
         if formula is None:
             raise ValueError("Can't instantiate a model without a model formula.")
+
         na_action = "drop" if dropna else "error"
         self.formula = formula
         self._design = design_matrices(formula, data, na_action, env=1)
@@ -171,6 +172,7 @@ class Model:
                 "No outcome variable is set! "
                 "Please specify an outcome variable using the formula interface."
             )
+
         family_prior = _extract_family_prior(family, priors)
         if family_prior and self._design.common:
             conflicts = [name for name in family_prior if name in self._design.common.terms_info]
@@ -180,6 +182,7 @@ class Model:
                     "parameter in the response distribution.\n"
                     "Please rename the term(s) to prevent an unexpected behaviour."
                 )
+
         self._add_response(self._design.response, family, link, family_prior)
 
         if self._design.common:

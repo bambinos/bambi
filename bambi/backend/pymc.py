@@ -25,7 +25,7 @@ class PyMC3Model:
         "log": tt.exp,
         "logit": logit,
         "probit": probit,
-        "softmax": tt.nnet.softmax
+        "softmax": tt.nnet.softmax,
     }
 
     def __init__(self):
@@ -54,6 +54,12 @@ class PyMC3Model:
         self.model = pm.Model()
         self.has_intercept = spec.intercept_term is not None
         self.mu = 0.0
+
+        response_coords = spec.response.pymc_coords
+        for name, values in response_coords.items():
+            if name not in self.model.coords:
+                self.model.add_coords({name: values})
+        self.coords.update(**response_coords)
 
         with self.model:
             self._build_intercept(spec)
@@ -102,7 +108,7 @@ class PyMC3Model:
 
     def _build_intercept(self, spec):
         if self.has_intercept:
-            self.mu += InterceptTerm(spec.intercept_term).build()
+            self.mu += InterceptTerm(spec.intercept_term).build(spec)
 
     def _build_common_terms(self, spec):
         if spec.common_terms:
@@ -119,7 +125,7 @@ class PyMC3Model:
                 self.coords.update(**common_term.coords)
 
                 # Build
-                coef, data = common_term.build()
+                coef, data = common_term.build(spec)
                 coefs.append(coef)
                 columns.append(data)
 
@@ -279,14 +285,21 @@ class PyMC3Model:
         if self.has_intercept and self.spec.common_terms:
             chain_n = len(idata.posterior["chain"])
             draw_n = len(idata.posterior["draw"])
+            shape = (chain_n, draw_n)
 
             # Design matrix without intercept
             X = self._design_matrix_without_intercept
 
             # Re-scale intercept for centered predictors
-            posterior = idata.posterior.stack(sample=["chain", "draw"])
-            coefs = np.vstack([np.atleast_2d(posterior[name]) for name in self.spec.common_terms])
-            idata.posterior["Intercept"] -= np.dot(X.mean(0), coefs).reshape((chain_n, draw_n))
+            common_terms_names = list(self.spec.common_terms)
+            coords = ["chain", "draw"]
+
+            if self.spec.response.pymc_coords:
+                shape += (len(self.spec.response.levels) - 1,)
+                coords += list(self.spec.response.pymc_coords)
+
+            coefs = idata.posterior[common_terms_names].to_array().stack(sample=coords)
+            idata.posterior["Intercept"] -= np.dot(X.mean(0), coefs).reshape(shape)
 
         return idata
 

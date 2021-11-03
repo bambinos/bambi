@@ -1,4 +1,6 @@
+import numpy as np
 import pymc3 as pm
+import theano.tensor as tt
 
 from bambi.backend.utils import has_hyperprior, get_distribution
 from bambi.priors import Prior
@@ -21,17 +23,26 @@ class CommonTerm:
         self.term = term
         self.coords = self.get_coords()
 
-    def build(self):
+    def build(self, spec):
         data = self.term.data
         label = self.term.name
         dist = self.term.prior.name
         args = self.term.prior.args
         distribution = get_distribution(dist)
-        if self.coords:
-            dims = list(self.coords.keys())
+
+        response_dims = []
+        if spec.response.categorical and not spec.response.binary:
+            response_dims = list(spec.response.pymc_coords.keys())
+
+        dims = list(self.coords.keys()) + response_dims
+        if dims:
             coef = distribution(label, dims=dims, **args)
         else:
             coef = distribution(label, shape=data.shape[1], **args)
+
+        # Pre-pends one dimension if response is multi-categorical
+        if response_dims:
+            coef = coef[None, :]
         return coef, data
 
     def get_coords(self):
@@ -135,9 +146,15 @@ class InterceptTerm:
     def __init__(self, term):
         self.term = term
 
-    def build(self):
+    def build(self, spec):
         dist = get_distribution(self.term.prior.name)
-        return dist(self.term.name, shape=1, **self.term.prior.args)
+        if spec.response.categorical and not spec.response.binary:
+            dims = list(spec.response.pymc_coords.keys())
+            # Pre-pends one dimension if response is multi-categorical
+            dist = dist(self.term.name, dims=dims, **self.term.prior.args)[None, :]
+        else:
+            dist = dist(self.term.name, shape=1, **self.term.prior.args)
+        return dist
 
 
 class ResponseTerm:
@@ -172,6 +189,9 @@ class ResponseTerm:
         else:
             linkinv = self.family.link.linkinv_backend
 
+        if self.family.name == "multinomial":
+            nu = tt.concatenate([np.zeros((data.shape[0], 1)), nu], axis=1)
+
         likelihood = self.family.likelihood
         dist = get_distribution(likelihood.name)
         kwargs = {likelihood.parent: linkinv(nu), "observed": data}
@@ -201,5 +221,8 @@ class ResponseTerm:
             # We build sigma from mu and alpha.
             sigma = kwargs["mu"] / (kwargs["alpha"] ** 0.5)
             return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
+
+        if self.family.name == "multinomial":
+            return dist(name, p=kwargs["p"], observed=kwargs["observed"])
 
         return dist(name, **kwargs)

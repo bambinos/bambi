@@ -62,6 +62,7 @@ def softmax(eta):
     result = force_within_unit_interval(result)
     return result
 
+
 def link_not_implemented(*args, **kwargs):
     raise ValueError("link not implemented")
 

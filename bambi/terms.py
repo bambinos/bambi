@@ -17,16 +17,16 @@ class ResponseTerm:
         self.name = term.name
         self.family = family
         self.data = term.design_vector
-        self.constant = np.var(self.data) == 0
+        self.constant = np.var(self.data) == 0  # NOTE: ATM we're not using this one
 
         self.categorical = term.type == "categoric"
         self.baseline = None  # Not None for non-binary categorical variables
-        self.success = term.success if term.success is not None else 1 # not None for binary vars
+        self.success = term.success if term.success is not None else 1  # not None for binary vars
         self.levels = None  # Not None for categorical variables
         self.binary = None  # Not None for categorical variables (either True or False)
 
         if self.categorical:
-            self.binary = len(np.unique(self.data)) == 2
+            self.binary = term.binary
             self.levels = term.levels
             if self.binary:
                 self.success = term.success
@@ -36,6 +36,14 @@ class ResponseTerm:
         if family.name == "bernoulli":
             if not all(np.isin(self.data, ([0, 1]))):
                 raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
+
+        # We use pymc coords.When the response is multi-categorical.
+        # These help to give the appropriate shape to coefficients and make the resulting
+        # InferenceData object much cleaner
+        self.pymc_coords = {}
+        if self.categorical and not self.binary:
+            name = self.name + "_coord"
+            self.pymc_coords[name] = term.levels[1:]
 
     def __str__(self):
         args = [
