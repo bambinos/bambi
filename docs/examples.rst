@@ -9,6 +9,7 @@ Examples
   notebooks/t_regression
   notebooks/logistic_regression
   notebooks/multi-level_regression
+  notebooks/sleepstudy
   notebooks/Strack_RRR_re_analysis
   notebooks/wald_gamma_glm
   notebooks/negative_binomial
