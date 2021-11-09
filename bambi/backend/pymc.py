@@ -291,14 +291,17 @@ class PyMC3Model:
             X = self._design_matrix_without_intercept
 
             # Re-scale intercept for centered predictors
-            common_terms_names = list(self.spec.common_terms)
+            common_terms = list(self.spec.common_terms)
             coords = ["chain", "draw"]
 
             if self.spec.response.pymc_coords:
                 shape += (len(self.spec.response.levels) - 1,)
                 coords += list(self.spec.response.pymc_coords)
 
-            coefs = idata.posterior[common_terms_names].to_array().stack(sample=coords)
+            posterior = idata.posterior.stack(samples=coords)
+            coefs = np.vstack([np.atleast_2d(posterior[name].values) for name in common_terms])
+
+            # coefs = idata.posterior[common_terms_names].to_array().stack(sample=coords)
             idata.posterior["Intercept"] -= np.dot(X.mean(0), coefs).reshape(shape)
 
         return idata
