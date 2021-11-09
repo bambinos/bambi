@@ -64,6 +64,15 @@ Baseball Databank is a compilation of historical baseball data in a convenient, 
 distributed under Open Data terms by the Baseball Data Bank.
 """,
     ),
+    "cherry_blossoms": FileMetadata(
+        filename="cherry_blossoms.csv",
+        url="https://figshare.com/ndownloader/files/31072807",
+        checksum="b859dd4f64c231c76ecb80b78f26da71e2f92698c50e0ceb93be0399dee24f51",
+        description="""
+Historical Series of Phenological data for Cherry Tree Flowering at Kyoto City. Extracted from
+the `rethinking` library in R.
+""",
+    ),
     "sleepstudy": FileMetadata(
         filename="sleepstudy.csv",
         url="https://figshare.com/ndownloader/files/31181002",
