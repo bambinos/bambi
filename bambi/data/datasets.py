@@ -71,6 +71,23 @@ distributed under Open Data terms by the Baseball Data Bank.
         description="""
 Historical Series of Phenological data for Cherry Tree Flowering at Kyoto City. Extracted from
 the `rethinking` library in R.
+    "sleepstudy": FileMetadata(
+        filename="sleepstudy.csv",
+        url="https://figshare.com/ndownloader/files/31181002",
+        checksum="0a002bec8be2fa9d40dbbf3d5038e614d113a4fd5bf8813f6f4271c3d6294675",
+        description="""
+The average reaction time per day (in milliseconds) for subjects in a sleep deprivation study.
+Days 0-1 were adaptation and training (T1/T2), day 2 was baseline (B); sleep deprivation started
+after day 2.
+
+Reaction
+    Average reaction time (ms)
+
+Days
+    Number of days of sleep deprivation
+
+Subject
+    Subject number on which the observation was made
 """,
     ),
 }
