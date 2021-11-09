@@ -71,6 +71,8 @@ distributed under Open Data terms by the Baseball Data Bank.
         description="""
 Historical Series of Phenological data for Cherry Tree Flowering at Kyoto City. Extracted from
 the `rethinking` library in R.
+""",
+    ),
     "sleepstudy": FileMetadata(
         filename="sleepstudy.csv",
         url="https://figshare.com/ndownloader/files/31181002",
