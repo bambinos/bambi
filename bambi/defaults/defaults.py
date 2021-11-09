@@ -75,7 +75,7 @@ SETTINGS_FAMILIES = {
         },
         "link": "identity",
     },
-    "multinomial": {
+    "categorical": {
         "likelihood": {
             "name": "Categorical",
             "args": {},

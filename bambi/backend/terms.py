@@ -189,7 +189,8 @@ class ResponseTerm:
         else:
             linkinv = self.family.link.linkinv_backend
 
-        if self.family.name == "multinomial":
+        # Add column of zeros, for the reference level, which is the first one.
+        if self.family.name == "categorical":
             nu = tt.concatenate([np.zeros((data.shape[0], 1)), nu], axis=1)
 
         likelihood = self.family.likelihood
@@ -222,7 +223,7 @@ class ResponseTerm:
             sigma = kwargs["mu"] / (kwargs["alpha"] ** 0.5)
             return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
 
-        if self.family.name == "multinomial":
+        if self.family.name == "categorical":
             return dist(name, p=kwargs["p"], observed=kwargs["observed"])
 
         return dist(name, **kwargs)

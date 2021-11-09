@@ -20,6 +20,10 @@ def force_greater_than_zero(x):
     return x
 
 
+def identity(x):
+    return x
+
+
 def cloglog(mu):
     """Cloglog function that ensures the input is greater than 0."""
     mu = force_greater_than_zero(mu)
@@ -63,8 +67,16 @@ def softmax(eta):
     return result
 
 
+def inverse_squared(mu):
+    return 1 / mu ** 2
+
+
+def inv_inverse_squared(eta):
+    return 1 / np.sqrt(eta)
+
+
 def link_not_implemented(*args, **kwargs):
-    raise ValueError("link not implemented")
+    raise NotImplementedError("link not implemented")
 
 
 # linkfun: These are g. They map the response to the linear predictor scale.
@@ -76,12 +88,12 @@ LINKS = {
         "linkinv": invcloglog
     },
     "identity": {
-        "link": lambda mu: mu,
-        "linkinv": lambda eta: eta
+        "link": identity,
+        "linkinv": identity
     },
     "inverse_squared": {
-        "link": lambda mu: 1 / mu ** 2,
-        "linkinv": lambda eta: 1 / np.sqrt(eta)
+        "link": inverse_squared,
+        "linkinv": inv_inverse_squared
     },
     "inverse": {
         "link": cloglog,

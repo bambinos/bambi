@@ -101,4 +101,4 @@ def pps_wald(model, posterior, mu, draws, draw_n):
 
 
 def pps_not_implemented(*args, **kwargs):
-    raise ValueError("pps not implemented for this family yet.")
+    raise NotImplementedError("pps not implemented for this family yet.")
