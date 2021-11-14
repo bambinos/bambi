@@ -773,7 +773,15 @@ class Model:
 
         chain_n = len(idata.posterior["chain"])
         draw_n = len(idata.posterior["draw"])
-        posterior = idata.posterior.stack(sample=["chain", "draw"])
+
+        sample_shape = (chain_n, draw_n)
+        sample_coords = ["chain", "draw"]
+
+        if self.family.name == "categorical":
+            sample_shape += (len(self.response.levels) - 1, )
+            sample_coords += list(self.response.pymc_coords)
+
+        posterior = idata.posterior.stack(sample=sample_coords)
 
         if draws is None:
             draws = draw_n
@@ -800,9 +808,10 @@ class Model:
         if X is not None:
             beta_x_list = [np.atleast_2d(posterior[name]) for name in self.common_terms]
             if self.intercept_term:
-                beta_x_list = [np.atleast_2d(posterior["Intercept"])] + beta_x_list
+                beta_x_list.insert(0, np.atleast_2d(posterior["Intercept"]))
             beta_x = np.vstack(beta_x_list)
             linear_predictor += np.dot(X, beta_x)
+
         if Z is not None:
             beta_z = np.vstack(
                 [np.atleast_2d(posterior[name]) for name in self.group_specific_terms]
@@ -810,12 +819,19 @@ class Model:
             linear_predictor += np.dot(Z, beta_z)
 
         # Compute mean prediction
-        # Transposed so it is (chain, draws)?
-        mu = self.family.link.linkinv(linear_predictor).T
-
-        # Reshape mu
-        obs_n = mu.size // (chain_n * draw_n)
-        mu = mu.reshape((chain_n, draw_n, obs_n))
+        if self.family.name == "categorical":
+            import matplotlib.pyplot as plt
+            print("asdasdasd")
+            obs_n = self.response.data.shape[0]
+            linear_predictor = linear_predictor.T.reshape(sample_shape + (obs_n, ))
+            # This is 'softmax'. Second axis is the one where the response coord is inserted
+            mu = self.family.link.linkinv(linear_predictor, axis=2)
+            plt.hist(mu.flatten(), density=True)
+        else:
+            mu = self.family.link.linkinv(linear_predictor).T
+            # Reshape mu
+            obs_n = mu.size // np.prod(sample_shape)
+            mu = mu.reshape(sample_shape + (obs_n, ))
 
         # Predictions for the mean
         if kind == "mean":
@@ -826,7 +842,12 @@ class Model:
             if name in idata.posterior.data_vars:
                 idata.posterior = idata.posterior.drop_vars(name).drop_dims(coord_name)
 
-            idata.posterior[name] = (("chain", "draw", coord_name), mu)
+            coords = ("chain", "draw")
+
+            if self.response.pymc_coords:
+                coords += (list(self.response.pymc_coords)[0], )
+
+            idata.posterior[name] = (coords + (coord_name, ), mu)
             idata.posterior = idata.posterior.assign_coords({coord_name: list(range(obs_n))})
 
         # Compute posterior predictive distribution

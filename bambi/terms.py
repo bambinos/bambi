@@ -37,7 +37,7 @@ class ResponseTerm:
             if not all(np.isin(self.data, ([0, 1]))):
                 raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
 
-        # We use pymc coords.When the response is multi-categorical.
+        # We use pymc coords when the response is multi-categorical.
         # These help to give the appropriate shape to coefficients and make the resulting
         # InferenceData object much cleaner
         self.pymc_coords = {}

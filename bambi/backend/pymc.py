@@ -300,8 +300,6 @@ class PyMC3Model:
 
             posterior = idata.posterior.stack(samples=coords)
             coefs = np.vstack([np.atleast_2d(posterior[name].values) for name in common_terms])
-
-            # coefs = idata.posterior[common_terms_names].to_array().stack(sample=coords)
             idata.posterior["Intercept"] -= np.dot(X.mean(0), coefs).reshape(shape)
 
         return idata
