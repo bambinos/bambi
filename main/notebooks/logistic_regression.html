@@ -33,7 +33,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -620,24 +620,15 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+<span class="n">SEED</span> <span class="o">=</span> <span class="mi">7355608</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Generator(PCG64) at 0x7F97601E1040
-</pre></div></div>
 </div>
 <section id="Load-and-examine-American-National-Election-Studies-(ANES)-data">
 <h2>Load and examine American National Election Studies (ANES) data<a class="headerlink" href="#Load-and-examine-American-National-Election-Studies-(ANES)-data" title="Permalink to this headline">¶</a></h2>
@@ -988,7 +979,7 @@ pick one of the events to model, but will inform you which one it picked when yo
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">clinton_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;vote[&#39;clinton&#39;] ~ party_id + party_id:age&quot;</span><span class="p">,</span> <span class="n">clinton_data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">)</span>
-<span class="n">clinton_fitted</span> <span class="o">=</span> <span class="n">clinton_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
+<span class="n">clinton_fitted</span> <span class="o">=</span> <span class="n">clinton_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1001,7 +992,7 @@ Modeling the probability that vote==clinton
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [Intercept, party_id:age, party_id]
+NUTS: [party_id:age, party_id, Intercept]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1147,74 +1138,74 @@ Priors:
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>1.683</td>
-      <td>0.703</td>
-      <td>0.364</td>
-      <td>2.973</td>
-      <td>0.016</td>
+      <td>1.668</td>
+      <td>0.726</td>
+      <td>0.308</td>
+      <td>3.056</td>
+      <td>0.015</td>
       <td>0.011</td>
-      <td>1946.0</td>
-      <td>2239.0</td>
+      <td>2261.0</td>
+      <td>2154.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[independent]</th>
-      <td>-0.282</td>
-      <td>0.931</td>
-      <td>-1.948</td>
-      <td>1.526</td>
-      <td>0.021</td>
-      <td>0.015</td>
-      <td>1878.0</td>
-      <td>2285.0</td>
+      <td>-0.260</td>
+      <td>0.972</td>
+      <td>-2.036</td>
+      <td>1.598</td>
+      <td>0.022</td>
+      <td>0.017</td>
+      <td>1926.0</td>
+      <td>1969.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[republican]</th>
-      <td>-1.206</td>
-      <td>1.614</td>
-      <td>-4.201</td>
-      <td>1.830</td>
-      <td>0.037</td>
-      <td>0.026</td>
-      <td>1866.0</td>
-      <td>2248.0</td>
+      <td>-1.163</td>
+      <td>1.602</td>
+      <td>-4.085</td>
+      <td>1.955</td>
+      <td>0.034</td>
+      <td>0.025</td>
+      <td>2218.0</td>
+      <td>2102.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[democrat]</th>
       <td>0.013</td>
       <td>0.015</td>
-      <td>-0.015</td>
-      <td>0.040</td>
+      <td>-0.016</td>
+      <td>0.041</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>1887.0</td>
-      <td>2135.0</td>
+      <td>2176.0</td>
+      <td>2281.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[independent]</th>
-      <td>-0.033</td>
+      <td>-0.034</td>
       <td>0.012</td>
-      <td>-0.056</td>
+      <td>-0.057</td>
       <td>-0.012</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>3011.0</td>
-      <td>2577.0</td>
+      <td>2767.0</td>
+      <td>2477.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[republican]</th>
-      <td>-0.078</td>
-      <td>0.038</td>
-      <td>-0.153</td>
-      <td>-0.011</td>
+      <td>-0.079</td>
+      <td>0.037</td>
+      <td>-0.152</td>
+      <td>-0.015</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>2020.0</td>
-      <td>2381.0</td>
+      <td>2333.0</td>
+      <td>1977.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1236,9 +1227,7 @@ Priors:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">chains</span> <span class="o">=</span> <span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">draws</span> <span class="o">=</span> <span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">clinton_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">clinton_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
+<span></span><span class="n">clinton_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">clinton_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1309,8 +1298,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 
 <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">influential_observations</span><span class="p">:</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">loo</span><span class="o">.</span><span class="n">pareto_k</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
-    <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;baseline&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1326,7 +1314,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">clinton_data</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[</span><span class="n">loo</span><span class="o">.</span><span class="n">pareto_k</span><span class="o">.</span><span class="n">values</span><span class="o">&gt;=</span><span class="n">threshold</span><span class="p">]</span>
+<span></span><span class="n">clinton_data</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[</span><span class="n">loo</span><span class="o">.</span><span class="n">pareto_k</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -1361,18 +1349,18 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
   </thead>
   <tbody>
     <tr>
-      <th>365</th>
-      <td>410</td>
-      <td>clinton</td>
-      <td>55</td>
+      <th>191</th>
+      <td>215</td>
+      <td>trump</td>
+      <td>95</td>
       <td>republican</td>
     </tr>
   </tbody>
 </table>
 </div></div>
 </div>
-<p>This observation corresponds to a 55 year old Republican party member that voted for Clinton. If this observation doesn’t appear unusual to you right now, the model’s difficulty in prediciting with that observation will definetly make sense in the next section.</p>
-<p>Let us take a look at six observations with the highest <span class="math notranslate nohighlight">\(\hat \kappa\)</span> values.</p>
+<p>This observation corresponds to a 95 year old Republican party member that voted for Trump.</p>
+<!-- If this observation doesn't appear unusual to you right now, the model's difficulty in prediciting with that observation will definetly make sense in the next section. --><p>Let us take a look at six observations with the highest <span class="math notranslate nohighlight">\(\hat \kappa\)</span> values.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
@@ -1459,17 +1447,17 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
       <td>republican</td>
     </tr>
     <tr>
-      <th>112</th>
-      <td>122</td>
-      <td>trump</td>
-      <td>24</td>
-      <td>democrat</td>
-    </tr>
-    <tr>
       <th>191</th>
       <td>215</td>
       <td>trump</td>
       <td>95</td>
+      <td>republican</td>
+    </tr>
+    <tr>
+      <th>320</th>
+      <td>359</td>
+      <td>clinton</td>
+      <td>22</td>
       <td>republican</td>
     </tr>
     <tr>
@@ -1483,13 +1471,13 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </table>
 </div></div>
 </div>
-<p>Observations number 62 and 191 both correspond to individuals in under represented age groups in the data set, the rest correspond to Republican party members that voted for Clinton. Let us check how many observations we have of individuals older than 90 years old.</p>
+<p>Observations number 34, 58, 62, and 191 correspond to individuals in under represented age groups in the data set. The rest correspond to Republican party members that voted for Clinton. Let us check how many observations we have of individuals older than 80 years old.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">clinton_data</span><span class="p">[</span><span class="n">clinton_data</span><span class="o">.</span><span class="n">age</span><span class="o">&gt;</span><span class="mi">90</span><span class="p">]</span>
+<span></span><span class="n">clinton_data</span><span class="p">[</span><span class="n">clinton_data</span><span class="o">.</span><span class="n">age</span><span class="o">&gt;</span><span class="mi">80</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -1523,16 +1511,46 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
   </thead>
   <tbody>
     <tr>
+      <th>34</th>
+      <td>trump</td>
+      <td>83</td>
+      <td>republican</td>
+    </tr>
+    <tr>
+      <th>64</th>
+      <td>trump</td>
+      <td>84</td>
+      <td>republican</td>
+    </tr>
+    <tr>
       <th>68</th>
       <td>trump</td>
       <td>91</td>
       <td>republican</td>
     </tr>
     <tr>
+      <th>97</th>
+      <td>clinton</td>
+      <td>83</td>
+      <td>democrat</td>
+    </tr>
+    <tr>
       <th>215</th>
       <td>trump</td>
       <td>95</td>
       <td>republican</td>
+    </tr>
+    <tr>
+      <th>246</th>
+      <td>clinton</td>
+      <td>82</td>
+      <td>democrat</td>
+    </tr>
+    <tr>
+      <th>403</th>
+      <td>clinton</td>
+      <td>81</td>
+      <td>democrat</td>
     </tr>
   </tbody>
 </table>
@@ -1611,7 +1629,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </table>
 </div></div>
 </div>
-<p>There are only two observations for individuals older than 90 years old and five observations for individuals of the Republican party that vote for Clinton. The fact that the model finds it difficult to predict for these observations is related to model uncertainty, due to a scarce number of observations that exhibit these characteristics.</p>
+<p>There are only two observations for individuals older than 80 years old and five observations for individuals of the Republican party that vote for Clinton. The fact that the model finds it difficult to predict for these observations is related to model uncertainty, due to a scarce number of observations that exhibit these characteristics.</p>
 <p>Let us repeat the separation plot, this time marking the observations we have analyzed. This plot will show us how the model predicted these particular observations.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
@@ -1629,8 +1647,8 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
     <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">clinton_data</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
-        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span><span class="n">pe</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)],</span>
-        <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+        <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span><span class="n">pe</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)]</span>
     <span class="p">)</span>
 </pre></div>
 </div>
@@ -1703,17 +1721,17 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
       <td>republican</td>
     </tr>
     <tr>
-      <th>112</th>
-      <td>122</td>
-      <td>trump</td>
-      <td>24</td>
-      <td>democrat</td>
-    </tr>
-    <tr>
       <th>191</th>
       <td>215</td>
       <td>trump</td>
       <td>95</td>
+      <td>republican</td>
+    </tr>
+    <tr>
+      <th>320</th>
+      <td>359</td>
+      <td>clinton</td>
+      <td>22</td>
       <td>republican</td>
     </tr>
     <tr>
@@ -1781,7 +1799,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.99475
+0.996
 </pre></div></div>
 </div>
 <p>Probability that the Democrat slope is greater than the Independent slope?</p>
@@ -1800,7 +1818,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.99275
+0.99225
 </pre></div></div>
 </div>
 <p>Probability that the Independent slope is greater than the Republican slope?</p>
@@ -1819,7 +1837,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.88475
+0.88375
 </pre></div></div>
 </div>
 <p>Probability that the Democrat slope is greater than 0?</p>
@@ -1838,7 +1856,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.81875
+0.81275
 </pre></div></div>
 </div>
 <p>Probability that the Republican slope is less than 0?</p>
@@ -1857,7 +1875,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.99375
+0.99225
 </pre></div></div>
 </div>
 <p>Probability that the Independent slope is less than 0?</p>
@@ -1876,7 +1894,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.999
+0.997
 </pre></div></div>
 </div>
 <p>If we look at the plot of the marginal posteriors, we may be suspicious that, for example, the probability that Democrat slope is greater than the Republican slope is 0.998 (almost 1!), given the overlap between the blue and green density functions. However, we can’t answer such a question using the marginal posteriors only, as shown in the plot. Since Democrat and Republican slopes (<span class="math notranslate nohighlight">\(\beta_3\)</span> and <span class="math notranslate nohighlight">\(\beta_5\)</span>, respectively) are random variables, we need to use their joint distribution
@@ -2003,11 +2021,12 @@ to answer probability questions that involve both of them. The fact that logical
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Compute mean across chains</span>
-<span class="n">posterior_mean</span> <span class="o">=</span> <span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;vote_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span></span><span class="c1"># Select posterior values for the mean probability of voting for Clinton</span>
+<span class="c1"># Note we stack chains and draws, then vote_posterior has a shape of (n_chains * n_draws, n_obs)</span>
+<span class="n">vote_posterior</span> <span class="o">=</span> <span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;vote_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">values</span>
 
-<span class="c1"># Select 1000 draws</span>
-<span class="n">posterior_mean</span> <span class="o">=</span> <span class="n">posterior_mean</span><span class="p">[:</span><span class="mi">1000</span><span class="p">,</span> <span class="p">:]</span>
+<span class="c1"># Select 25% of the values in the posterior, making sure we take values from both chains.</span>
+<span class="n">vote_posterior</span> <span class="o">=</span> <span class="n">vote_posterior</span><span class="p">[:,</span> <span class="p">::</span><span class="mi">4</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -2022,7 +2041,7 @@ to answer probability questions that involve both of them. The fact that logical
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">party</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s2">&quot;democrat&quot;</span><span class="p">,</span> <span class="s2">&quot;republican&quot;</span><span class="p">,</span> <span class="s2">&quot;independent&quot;</span><span class="p">]):</span>
     <span class="c1"># Which rows in new_data correspond to party?</span>
     <span class="n">idx</span> <span class="o">=</span> <span class="n">new_data</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">new_data</span><span class="p">[</span><span class="s2">&quot;party_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">party</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">age</span><span class="p">,</span> <span class="n">posterior_mean</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">age</span><span class="p">,</span> <span class="n">vote_posterior</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;P(vote=&#39;clinton&#39; | age)&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Age&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
@@ -2057,18 +2076,19 @@ to answer probability questions that involve both of them. The fact that logical
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Mon Aug 09 2021
+Last updated: Sun Nov 14 2021
 
 Python implementation: CPython
 Python version       : 3.8.5
 IPython version      : 7.18.1
 
+numpy     : 1.21.2
+sys       : 3.8.5 (default, Sep  4 2020, 07:30:14)
+[GCC 7.3.0]
+bambi     : 0.6.3
+arviz     : 0.11.4
+matplotlib: 3.4.3
 pandas    : 1.3.1
-numpy     : 1.21.1
-matplotlib: 3.3.3
-arviz     : 0.11.2
-json      : 2.0.9
-bambi     : 0.5.0
 
 Watermark: 2.1.0
 
@@ -2117,7 +2137,7 @@ Watermark: 2.1.0
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.0.<br>
 </p>
     </div>
     

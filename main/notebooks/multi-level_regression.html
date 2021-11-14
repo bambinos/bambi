@@ -33,7 +33,7 @@
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -559,7 +559,7 @@ div.rendered_html tbody tr:hover {
 <section id="Multi-level-Regression">
 <h1>Multi-level Regression<a class="headerlink" href="#Multi-level-Regression" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -572,12 +572,12 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">12345</span><span class="p">)</span>
+<span class="n">SEED</span> <span class="o">=</span> <span class="mi">7355608</span>
 </pre></div>
 </div>
 </div>
@@ -588,7 +588,7 @@ div.rendered_html tbody tr:hover {
 <section id="Load-data">
 <h2>Load data<a class="headerlink" href="#Load-data" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -599,7 +599,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -721,7 +721,7 @@ div.rendered_html tbody tr:hover {
 <p>We use the formula syntax to specify the model. Previously, you had to specify common and group specific components separately. Now, thanks to <a class="reference external" href="https://github.com/bambinos/formulae">formulae</a>, you can specify model formulas just as you would do with R packages like <a class="reference external" href="https://CRAN.R-project.org/package=lme4">lme4</a> and <a class="reference external" href="https://CRAN.R-project.org/package=brms">brms</a>. In a nutshell, the term on the left side tells <code class="docutils literal notranslate"><span class="pre">Weight</span></code> is the response variable, <code class="docutils literal notranslate"><span class="pre">Time</span></code> on the right-hand side tells we
 include a main effect for the variable <code class="docutils literal notranslate"><span class="pre">Time</span></code>, and <code class="docutils literal notranslate"><span class="pre">(Time|Pig)</span></code> indicates we want to allow a each pig to have its own slope for <code class="docutils literal notranslate"><span class="pre">Time</span></code> as well as its own intercept (which is implicit). If we only wanted different intercepts, we would have written <code class="docutils literal notranslate"><span class="pre">Weight</span> <span class="pre">~</span> <span class="pre">Time</span> <span class="pre">+</span> <span class="pre">(1</span> <span class="pre">|</span> <span class="pre">Pig)</span></code> and if we wanted slopes specific to each pig without including a pig specific intercept, we would write <code class="docutils literal notranslate"><span class="pre">Weight</span> <span class="pre">~</span> <span class="pre">Time</span> <span class="pre">+</span> <span class="pre">(0</span> <span class="pre">+</span> <span class="pre">Time</span> <span class="pre">|</span> <span class="pre">Pig)</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -738,7 +738,7 @@ include a main effect for the variable <code class="docutils literal notranslate
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [Weight_sigma, Time|Pig_offset, Time|Pig_sigma, 1|Pig_offset, 1|Pig_sigma, Intercept, Time]
+NUTS: [Weight_sigma, Time|Pig_offset, Time|Pig_sigma, 1|Pig_offset, 1|Pig_sigma, Time, Intercept]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -759,7 +759,7 @@ NUTS: [Weight_sigma, Time|Pig_offset, Time|Pig_sigma, 1|Pig_offset, 1|Pig_sigma,
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:17<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:19<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -767,13 +767,13 @@ NUTS: [Weight_sigma, Time|Pig_offset, Time|Pig_sigma, 1|Pig_offset, 1|Pig_sigma,
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 18 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 20 seconds.
 The number of effective samples is smaller than 25% for some parameters.
 </pre></div></div>
 </div>
 <p>We can print the model to have a summary of the details</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -782,7 +782,7 @@ The number of effective samples is smaller than 25% for some parameters.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -811,7 +811,7 @@ Priors:
 </div>
 <p>Since we have not specified prior distributions for the parameters in the model, Bambi has chosen sensible defaults for us. We can explore these priors through samples generated from them with a call to <code class="docutils literal notranslate"><span class="pre">Model.plot_priors()</span></code>, which plots a kernel density estimate for each prior.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -829,7 +829,7 @@ Priors:
 <p>Now we are ready to check the results. Using <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> we get traceplots that show the values sampled from the posteriors and density estimates that gives us an idea of the shape of the posterior distribution of our parameters.</p>
 <p>In this case it is very convenient to use <code class="docutils literal notranslate"><span class="pre">compact=True</span></code>. We tell ArviZ to plot all the group specific posteriors in the same panel which saves space and makes it easier to compare group specific posteriors. Thus, we’ll have a panel with all the group specific intercepts, and another panel with all the group specific slopes. If we used <code class="docutils literal notranslate"><span class="pre">compact=False</span></code>, which is the default, we would end up with a huge number of panels which would make the plot unreadable.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -857,7 +857,7 @@ Priors:
 </div>
 <p>The plots generated by <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> are enough to be confident that the sampler did a good job and conclude about plausible values for the distribution of each parameter in the model. But if we want to, and it is a good idea to do it, we can get umerical summaries for the posteriors with <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
@@ -866,7 +866,7 @@ Priors:
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -902,62 +902,62 @@ Priors:
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>15.777</td>
-      <td>0.590</td>
-      <td>14.607</td>
-      <td>16.887</td>
-      <td>0.030</td>
-      <td>0.021</td>
-      <td>384.0</td>
-      <td>697.0</td>
-      <td>1.01</td>
-    </tr>
-    <tr>
-      <th>Time</th>
-      <td>6.943</td>
-      <td>0.083</td>
-      <td>6.791</td>
-      <td>7.097</td>
-      <td>0.004</td>
-      <td>0.003</td>
-      <td>396.0</td>
-      <td>738.0</td>
+      <td>15.745</td>
+      <td>0.557</td>
+      <td>14.673</td>
+      <td>16.746</td>
+      <td>0.024</td>
+      <td>0.017</td>
+      <td>525.0</td>
+      <td>823.0</td>
       <td>1.00</td>
     </tr>
     <tr>
+      <th>Time</th>
+      <td>6.942</td>
+      <td>0.084</td>
+      <td>6.779</td>
+      <td>7.093</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>417.0</td>
+      <td>821.0</td>
+      <td>1.01</td>
+    </tr>
+    <tr>
       <th>1|Pig_sigma</th>
-      <td>4.550</td>
-      <td>0.425</td>
-      <td>3.747</td>
-      <td>5.307</td>
-      <td>0.016</td>
-      <td>0.011</td>
-      <td>774.0</td>
-      <td>1119.0</td>
+      <td>4.519</td>
+      <td>0.428</td>
+      <td>3.701</td>
+      <td>5.317</td>
+      <td>0.017</td>
+      <td>0.012</td>
+      <td>681.0</td>
+      <td>907.0</td>
       <td>1.00</td>
     </tr>
     <tr>
       <th>Time|Pig_sigma</th>
       <td>0.662</td>
-      <td>0.063</td>
-      <td>0.551</td>
-      <td>0.784</td>
-      <td>0.003</td>
+      <td>0.062</td>
+      <td>0.545</td>
+      <td>0.774</td>
       <td>0.002</td>
-      <td>602.0</td>
-      <td>1065.0</td>
+      <td>0.002</td>
+      <td>696.0</td>
+      <td>887.0</td>
       <td>1.00</td>
     </tr>
     <tr>
       <th>Weight_sigma</th>
       <td>2.461</td>
-      <td>0.063</td>
-      <td>2.342</td>
-      <td>2.580</td>
+      <td>0.065</td>
+      <td>2.339</td>
+      <td>2.581</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>2376.0</td>
-      <td>1606.0</td>
+      <td>2613.0</td>
+      <td>1572.0</td>
       <td>1.00</td>
     </tr>
   </tbody>
@@ -1143,7 +1143,7 @@ Watermark: 2.1.0
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.0.<br>
 </p>
     </div>
     
