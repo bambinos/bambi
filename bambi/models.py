@@ -20,10 +20,6 @@ from .terms import ResponseTerm, Term, GroupSpecificTerm
 from .utils import listify, link_match_family
 from .version import __version__
 
-#from bambi.families import univariate
-
-# import bambi.families.univariate as univariate
-
 _log = logging.getLogger("bambi")
 
 
