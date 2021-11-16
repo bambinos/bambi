@@ -35,12 +35,11 @@ class Likelihood:
 
     DISTRIBUTIONS = DISTRIBUTIONS
 
-    def __init__(self, name, parent=None, pps=None, **kwargs):
+    def __init__(self, name, parent=None, **kwargs):
         if name in self.DISTRIBUTIONS:
             self.name = name
             self.parent = self._get_parent(parent)
             self.priors = self._check_priors(kwargs)
-            self.pps = pps
         else:
             # On your own risk
             self.name = name
@@ -48,7 +47,6 @@ class Likelihood:
             check_all_are_priors(kwargs)
             self.priors = kwargs
             self.parent = parent
-            self.pps = pps
 
     def _get_parent(self, parent):
         if parent is None:

@@ -20,6 +20,8 @@ from .terms import ResponseTerm, Term, GroupSpecificTerm
 from .utils import listify, link_match_family
 from .version import __version__
 
+import bambi.families.univariate as univariate
+
 _log = logging.getLogger("bambi")
 
 
@@ -277,7 +279,7 @@ class Model:
             self.build()
 
         # Tell user which event is being modeled
-        if self.family.name == "bernoulli":
+        if isinstance(self.family, univariate.Bernoulli):
             _log.info(
                 "Modeling the probability that %s==%s",
                 self.response.name,
@@ -355,7 +357,7 @@ class Model:
                 if self.taylor is not None:
                     taylor = self.taylor
                 else:
-                    taylor = 5 if self.family.name == "gaussian" else 1
+                    taylor = 5 if isinstance(self.family, univariate.Gaussian) else 1
                 scaler = PriorScalerMLE(self, taylor=taylor)
             else:
                 raise ValueError(
@@ -467,7 +469,7 @@ class Model:
                     prior.auto_scale = False
             family.likelihood.priors.update(priors)
 
-        if response.success is not None and family.name != "bernoulli":
+        if response.success is not None and not isinstance(family, univariate.Bernoulli):
             raise ValueError("Index notation for response is only available for 'bernoulli' family")
 
         self.family = family
@@ -751,7 +753,7 @@ class Model:
         draws: None
             The number of random draws per chain. Only used if ``kind="pps"``. Not recommended
             unless more than ndraws times nchains posterior predictive samples are needed.
-            Defaults to ``None`` which means ndraws times nchains draws are obtained.
+            Defaults to ``None`` which means ndraws draws are obtained.
         inplace: bool
             If ``True`` it will modify ``idata`` in-place. Otherwise, it will return a copy of
             ``idata`` with the predictions added. If ``kind="mean"``, a new variable ending in
@@ -771,25 +773,14 @@ class Model:
         X = None
         Z = None
 
-        chain_n = len(idata.posterior["chain"])
-        draw_n = len(idata.posterior["draw"])
-
-        sample_shape = (chain_n, draw_n)
-        sample_coords = ["chain", "draw"]
-
-        if self.family.name == "categorical":
-            sample_shape += (len(self.response.levels) - 1, )
-            sample_coords += list(self.response.pymc_coords)
-
-        posterior = idata.posterior.stack(sample=sample_coords)
-
-        if draws is None:
-            draws = draw_n
+        chain_n = len(idata.posterior.coords.get("chain"))
+        draw_n = len(idata.posterior.coords.get("draw"))
+        posterior = idata.posterior
+        draws = draw_n if draws is None else draws
+        in_sample = data is None
 
         if not inplace:
             idata = deepcopy(idata)
-
-        in_sample = data is None
 
         # Create design matrices
         if self._design.common:
@@ -804,64 +795,101 @@ class Model:
             else:
                 Z = self._design.group._evaluate_new_data(data).design_matrix
 
-        # Obtain posterior and compute linear predictor
+        # Contribution due to common terms
         if X is not None:
-            beta_x_list = [np.atleast_2d(posterior[name]) for name in self.common_terms]
+            beta_x_list = []
+            term_names = list(self.common_terms)
             if self.intercept_term:
-                beta_x_list.insert(0, np.atleast_2d(posterior["Intercept"]))
-            beta_x = np.vstack(beta_x_list)
-            linear_predictor += np.dot(X, beta_x)
+                term_names.insert(0, "Intercept")
 
-        if Z is not None:
-            beta_z = np.vstack(
-                [np.atleast_2d(posterior[name]) for name in self.group_specific_terms]
-            )
-            linear_predictor += np.dot(Z, beta_z)
+            for name in term_names:
+                values = posterior[name].values
+                shape = values.shape
+                # 1-dimensional predictors (the great majority: a single slope or intercept)
+                if len(shape) == 2:
+                    shape = (shape[0] * shape[1], 1)
+                # 2-dimensional predictors (e.g. spline basis and multivariate models)
+                else:
+                    shape = (shape[0] * shape[1],) + shape[2:]
+                beta_x_list.append(values.reshape(shape))
 
-        # Compute mean prediction
-        if self.family.name == "categorical":
-            import matplotlib.pyplot as plt
-            print("asdasdasd")
-            obs_n = self.response.data.shape[0]
-            linear_predictor = linear_predictor.T.reshape(sample_shape + (obs_n, ))
-            # This is 'softmax'. Second axis is the one where the response coord is inserted
-            mu = self.family.link.linkinv(linear_predictor, axis=2)
-            plt.hist(mu.flatten(), density=True)
-        else:
-            mu = self.family.link.linkinv(linear_predictor).T
-            # Reshape mu
-            obs_n = mu.size // np.prod(sample_shape)
-            mu = mu.reshape(sample_shape + (obs_n, ))
+            # Reshape ensures 'contribution' is of shape
+            # * (chain_n, draw_n, obs_n) for univariate models
+            # * (chain_n, draw_n, response_n, obs_n) for multivariate models
+            # 'response_n' is the dimensionality of the space where the response lives
+            beta_x = np.hstack(beta_x_list)
 
-        # Predictions for the mean
-        if kind == "mean":
-            name = self.response.name + "_mean"
-            coord_name = name + "_dim_0"
+            # This dot product works both for 2d and 3d 'beta_x'.
+            # 'beta_x' is of shape:
+            # * (chain_n * draw_n, p) for univariate
+            # * (chain_n * draw_n, p, response_n) for multivariate models
+            contribution = np.dot(X, beta_x.T).T
 
-            # Drop var/dim if already present
-            if name in idata.posterior.data_vars:
-                idata.posterior = idata.posterior.drop_vars(name).drop_dims(coord_name)
-
-            coords = ("chain", "draw")
-
-            if self.response.pymc_coords:
-                coords += (list(self.response.pymc_coords)[0], )
-
-            idata.posterior[name] = (coords + (coord_name, ), mu)
-            idata.posterior = idata.posterior.assign_coords({coord_name: list(range(obs_n))})
-
-        # Compute posterior predictive distribution
-        else:
-            # Sample mu values and auxiliary params
-            if not in_sample and self.family.name == "binomial":
-                n = self._design.response._evaluate_new_data(data)
-                pps = self.family.likelihood.pps(self, idata.posterior, mu, draws, draw_n, trials=n)
+            # Univariate models
+            if len(contribution.shape) == 2:
+                shape = (chain_n, draw_n) + (contribution.shape[-1],)
+            # Multivariate models
             else:
-                pps = self.family.likelihood.pps(self, idata.posterior, mu, draws, draw_n)
+                shape = (chain_n, draw_n) + (contribution.shape[2:],)
+
+            contribution = contribution.reshape(shape)
+            linear_predictor += contribution
+
+        # Contribution due to group-specific terms
+        if Z is not None:
+            beta_z_list = []
+            term_names = list(self.group_specific_terms)
+
+            for name in term_names:
+                values = posterior[name].values
+                shape = values.shape
+                if len(shape) == 2:
+                    shape = (shape[0] * shape[1], 1)
+                else:
+                    shape = (shape[0] * shape[1],) + shape[2:]
+                beta_z_list.append(values.reshape(shape))
+
+            beta_z = np.hstack(beta_z_list)
+            contribution = np.dot(Z, beta_z.T).T
+
+            if len(contribution.shape) == 2:
+                shape = (chain_n, draw_n) + (contribution.shape[-1],)
+            else:
+                shape = (chain_n, draw_n) + (contribution.shape[2:],)
+
+            contribution = contribution.reshape(shape)
+            linear_predictor += contribution
+
+        # 'linear_predictor' is of shape
+        # * (chain_n, draw_n, obs_n) for univariate models
+        # * (chain_n, draw_n, response_n, obs_n) for multivariate models
+
+        # if self.family.name == "categorical":
+        #    obs_n = self.response.data.shape[0]
+        #    linear_predictor = linear_predictor.T.reshape(sample_shape + (obs_n,))
+        #    # This is 'softmax'. Second axis is the one where the response coord is inserted
+        #    mu = self.family.link.linkinv(linear_predictor, axis=2)
+        # if self.response.pymc_coords:
+        #    coords += (list(self.response.pymc_coords)[0],)
+
+        if kind == "mean":
+            idata.posterior = self.family.predict(self, posterior, linear_predictor)
+        else:
+            pps_kwargs = {
+                "model": self,
+                "posterior": posterior,
+                "linear_predictor": linear_predictor,
+                "draws": draws,
+                "draw_n": draw_n,
+            }
+
+            if not in_sample and isinstance(self.family, univariate.Binomial):
+                pps_kwargs["trials"] = self._design.response._evaluate_new_data(data)
+
+            pps = self.family.posterior_predictive(**pps_kwargs)
 
             if "posterior_predictive" in idata:
                 del idata.posterior_predictive
-
             idata.add_groups({"posterior_predictive": {self.response.name: pps}})
             getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
             getattr(idata, "posterior_predictive").attrs["modeling_interface_version"] = __version__

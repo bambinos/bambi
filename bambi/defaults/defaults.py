@@ -1,6 +1,17 @@
-from bambi.defaults import pps
-from bambi.families import Family, Likelihood
+from bambi.families import Likelihood
 from bambi.priors import Prior
+
+from bambi.families.univariate import (
+    Bernoulli,
+    Beta,
+    Binomial,
+    Gamma,
+    Gaussian,
+    NegativeBinomial,
+    Poisson,
+    StudentT,
+    Wald,
+)
 
 ## NOTE: Check docs/api_reference.rst links the right lines from this document
 # Default parameters for PyMC3 distributions
@@ -23,15 +34,16 @@ SETTINGS_DISTRIBUTIONS = {
 
 # fmt: off
 # Beta: it asks for kappa, then we do alpha = mu*kappa, beta= (1-mu)*kappa
+# XTODO: Convert these entries to namedtuples
 SETTINGS_FAMILIES = {
     "bernoulli": {
         "likelihood": {
             "name": "Bernoulli",
             "args": {},
             "parent": "p",
-            "pps": pps.pps_bernoulli
         },
-        "link": "logit"
+        "link": "logit",
+        "family": Bernoulli,
     },
     "beta": {
         "likelihood": {
@@ -40,18 +52,18 @@ SETTINGS_FAMILIES = {
                 "kappa": "HalfCauchy"
             },
             "parent": "mu",
-            "pps": pps.pps_beta
         },
-        "link": "logit"
+        "link": "logit",
+        "family": Beta,
     },
     "binomial": {
         "likelihood": {
             "name": "Binomial",
             "args": {},
             "parent": "p",
-            "pps": pps.pps_binomial
         },
-        "link": "logit"
+        "link": "logit",
+        "family": Binomial,
     },
     "gamma": {
         "likelihood": {
@@ -60,9 +72,9 @@ SETTINGS_FAMILIES = {
                 "alpha": "HalfCauchy"
             },
             "parent": "mu",
-            "pps": pps.pps_gamma
         },
         "link": "inverse",
+        "family": Gamma,
     },
     "gaussian": {
         "likelihood": {
@@ -71,16 +83,15 @@ SETTINGS_FAMILIES = {
                 "sigma": "HalfNormal"
             },
             "parent": "mu",
-            "pps": pps.pps_gaussian
         },
         "link": "identity",
+        "family": Gaussian,
     },
     "categorical": {
         "likelihood": {
             "name": "Categorical",
             "args": {},
             "parent": "p",
-            "pps": pps.pps_not_implemented
         },
         "link": "softmax"
     },
@@ -91,18 +102,18 @@ SETTINGS_FAMILIES = {
                 "alpha": "HalfCauchy"
             },
             "parent": "mu",
-            "pps": pps.pps_negativebinomial
         },
         "link": "log",
+        "family": NegativeBinomial,
     },
     "poisson": {
         "likelihood": {
             "name": "Poisson",
             "args": {},
             "parent": "mu",
-            "pps": pps.pps_poisson
         },
-        "link": "log"
+        "link": "log",
+        "family": Poisson,
     },
     "t": {
         "likelihood": {
@@ -112,9 +123,9 @@ SETTINGS_FAMILIES = {
                 "nu": "Gamma"
             },
             "parent": "mu",
-            "pps": pps.pps_t
         },
         "link": "identity",
+        "family": StudentT,
     },
     "wald": {
         "likelihood": {
@@ -123,9 +134,9 @@ SETTINGS_FAMILIES = {
                 "lam": "HalfCauchy"
             },
             "parent": "mu",
-            "pps": pps.pps_wald
         },
         "link": "inverse_squared",
+        "family": Wald,
     },
 }
 # fmt: on
@@ -143,14 +154,14 @@ def generate_prior(dist, **kwargs):
     return prior
 
 
-def generate_likelihood(name, args, parent, pps):  # pylint: disable=redefined-outer-name
+def generate_likelihood(name, args, parent):  # pylint: disable=redefined-outer-name
     priors = {k: generate_prior(v) for k, v in args.items()}
-    return Likelihood(name, parent, pps, **priors)
+    return Likelihood(name, parent, **priors)
 
 
-def generate_family(name, likelihood, link):
+def generate_family(name, likelihood, link, family):
     likelihood = generate_likelihood(**likelihood)
-    return Family(name, likelihood, link)
+    return family(name, likelihood, link)
 
 
 def get_default_prior(term_type):
@@ -175,4 +186,5 @@ def get_builtin_family(name):
     ``bambi.families.Likelihood`` and the ``bambi.priors.Prior`` instances that are needed to build
     the family.
     """
+    print("aaaaaaaaaaaaasd")
     return generate_family(name, **SETTINGS_FAMILIES[name])

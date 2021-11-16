@@ -219,7 +219,6 @@ def test_one_shot_formula_fit(diabetes_data):
     assert len(set(named_vars.keys()) & set(targets)) == 3
 
 
-@pytest.mark.skip(reason="Waiting for ArviZ release.")
 def test_categorical_term():
     data = pd.DataFrame(
         {
@@ -309,6 +308,7 @@ def test_empty_formula_assertion():
         Model(data=data)
 
 
+@pytest.mark.skip(reason="Default priors don't fail when sparse now.")
 def test_sparse_fails():
     data = pd.DataFrame(
         {
@@ -341,7 +341,8 @@ def test_sparse_fails():
         "bernoulli",
         "poisson",
         "gamma",
-        pytest.param("wald", marks=pytest.mark.xfail),
+        # pytest.param("wald", marks=pytest.mark.xfail),
+        "wald",
     ],
 )
 def test_automatic_priors(family):

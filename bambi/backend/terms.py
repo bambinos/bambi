@@ -224,7 +224,7 @@ class ResponseTerm:
             return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
 
         if self.family.name == "categorical":
-            #pm.Deterministic("p", kwargs["p"], dims=[""])
+            # pm.Deterministic("p", kwargs["p"], dims=[""])
             return dist(name, p=kwargs["p"], observed=kwargs["observed"])
 
         return dist(name, **kwargs)
