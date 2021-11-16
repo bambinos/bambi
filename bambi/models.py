@@ -14,13 +14,15 @@ from formulae import design_matrices
 
 from .backend import PyMC3Model
 from .defaults import get_default_prior, get_builtin_family
-from .families import Family, _extract_family_prior
+from .families import Family, _extract_family_prior, univariate
 from .priors import Prior, PriorScaler, PriorScalerMLE
 from .terms import ResponseTerm, Term, GroupSpecificTerm
 from .utils import listify, link_match_family
 from .version import __version__
 
-import bambi.families.univariate as univariate
+#from bambi.families import univariate
+
+# import bambi.families.univariate as univariate
 
 _log = logging.getLogger("bambi")
 
