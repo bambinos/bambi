@@ -186,6 +186,8 @@ class Model:
         self._add_response(self._design.response, family, link, family_prior)
 
         if self._design.common:
+            if self.automatic_priors == "mle":
+                check_full_rank(self._design.common.design_matrix)
             self._add_common(self._design.common, priors)
 
         if self._design.group:
@@ -489,12 +491,6 @@ class Model:
             either instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the
             width of the priors on a standardized scale.
         """
-        if matrix_rank(common.design_matrix) < common.design_matrix.shape[1]:
-            raise ValueError(
-                "Design matrix for common effects is not full-rank. "
-                "Bambi does not support sparse settings yet."
-            )
-
         for name, term in common.terms_info.items():
             data = common[name]
             prior = priors.pop(name, priors.get("common", None))
@@ -1031,3 +1027,11 @@ class Model:
             return term[0]
         else:
             return None
+
+
+def check_full_rank(matrix):
+    if matrix_rank(matrix) < matrix.shape[1]:
+        raise ValueError(
+            "Design matrix for common effects is not full-rank. "
+            "Bambi does not support sparse settings yet."
+        )

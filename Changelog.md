@@ -4,13 +4,16 @@
 
 ### New features
 
-
 ### Maintenance and fixes
+
+- Codebase for the PyMC backend has been refactored (#408)
 
 ### Documentation
 
-### Deprecation
+- Add T regression example, thanks to @tjburch (#414)
+- Add hirarchical linear regression example with sleepstudy dataset (#424)
 
+### Deprecation
 
 ### 0.6.3
 
@@ -23,7 +26,6 @@
 ### Documentation
 
 ### Deprecation
-
 
 ### 0.6.2
 
@@ -40,7 +42,6 @@
 - Add donation information (#409)
 
 ### Deprecation
-
 
 ### 0.6.1
 
