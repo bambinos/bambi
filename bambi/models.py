@@ -1033,5 +1033,5 @@ def check_full_rank(matrix):
     if matrix_rank(matrix) < matrix.shape[1]:
         raise ValueError(
             "Design matrix for common effects is not full-rank. "
-            "Bambi does not support sparse settings yet."
+            "Bambi does not support sparse settings when automatic priors are obtained via MLE."
         )
