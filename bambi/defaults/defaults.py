@@ -13,6 +13,8 @@ from bambi.families.univariate import (
     Wald,
 )
 
+from bambi.families.multivariate import Categorical
+
 ## NOTE: Check docs/api_reference.rst links the right lines from this document
 # Default parameters for PyMC3 distributions
 SETTINGS_DISTRIBUTIONS = {
@@ -93,7 +95,8 @@ SETTINGS_FAMILIES = {
             "args": {},
             "parent": "p",
         },
-        "link": "softmax"
+        "link": "softmax",
+        "family": Categorical,
     },
     "negativebinomial": {
         "likelihood": {

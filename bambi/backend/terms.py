@@ -3,6 +3,8 @@ import pymc3 as pm
 import theano.tensor as tt
 
 from bambi.backend.utils import has_hyperprior, get_distribution
+from bambi.families.multivariate import Categorical
+from bambi.families.univariate import Beta, Binomial, Gamma
 from bambi.priors import Prior
 
 
@@ -190,21 +192,24 @@ class ResponseTerm:
             linkinv = self.family.link.linkinv_backend
 
         # Add column of zeros, for the reference level, which is the first one.
-        if self.family.name == "categorical":
+        if isinstance(self.family, Categorical):
             nu = tt.concatenate([np.zeros((data.shape[0], 1)), nu], axis=1)
 
+        # Build priors for the auxiliary parameters in the likelihood (e.g. sigma in Gaussian)
         likelihood = self.family.likelihood
-        dist = get_distribution(likelihood.name)
         kwargs = {likelihood.parent: linkinv(nu), "observed": data}
         if likelihood.priors:
             for key, value in likelihood.priors.items():
                 if isinstance(value, Prior):
-                    _dist = get_distribution(value.name)
-                    kwargs[key] = _dist(f"{name}_{key}", **value.args)
+                    dist = get_distribution(value.name)
+                    kwargs[key] = dist(f"{name}_{key}", **value.args)
                 else:
                     kwargs[key] = value
 
-        if self.family.name == "beta":
+        # Get likelihood distribution
+        dist = get_distribution(likelihood.name)
+
+        if isinstance(self.family, Beta):
             # Beta distribution is specified using alpha and beta, but we have mu and kappa.
             # alpha = mu * kappa
             # beta = (1 - mu) * kappa
@@ -212,19 +217,15 @@ class ResponseTerm:
             beta = (1 - kwargs["mu"]) * kwargs["kappa"]
             return dist(name, alpha=alpha, beta=beta, observed=kwargs["observed"])
 
-        if self.family.name == "binomial":
+        if isinstance(self.family, Binomial):
             successes = data[:, 0].squeeze()
             trials = data[:, 1].squeeze()
             return dist(name, p=kwargs["p"], observed=successes, n=trials)
 
-        if self.family.name == "gamma":
+        if isinstance(self.family, Gamma):
             # Gamma distribution is specified using mu and sigma, but we request prior for alpha.
             # We build sigma from mu and alpha.
             sigma = kwargs["mu"] / (kwargs["alpha"] ** 0.5)
             return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
-
-        if self.family.name == "categorical":
-            # pm.Deterministic("p", kwargs["p"], dims=[""])
-            return dist(name, p=kwargs["p"], observed=kwargs["observed"])
 
         return dist(name, **kwargs)

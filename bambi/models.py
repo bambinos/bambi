@@ -808,7 +808,13 @@ class Model:
                     shape = (shape[0] * shape[1], 1)
                 # 2-dimensional predictors (e.g. spline basis and multivariate models)
                 else:
-                    shape = (shape[0] * shape[1],) + shape[2:]
+                    if self.family.name == "categorical":
+                        # Basis splines, categorical predictors, etc. may have more than one column.
+                        response_n = len(self.response.levels) - 1
+                        p = np.prod(shape[2:]) // response_n
+                        shape = (shape[0] * shape[1], p, response_n)
+                    else:
+                        shape = (shape[0] * shape[1], shape[2])
                 beta_x_list.append(values.reshape(shape))
 
             # Reshape ensures 'contribution' is of shape
@@ -828,12 +834,12 @@ class Model:
                 shape = (chain_n, draw_n) + (contribution.shape[-1],)
             # Multivariate models
             else:
-                shape = (chain_n, draw_n) + (contribution.shape[2:],)
+                shape = (chain_n, draw_n) + contribution.shape[1:]
 
             contribution = contribution.reshape(shape)
             linear_predictor += contribution
 
-        # Contribution due to group-specific terms
+        # Contribution due to group-specific terms. Same comments than for beta_x apply here.
         if Z is not None:
             beta_z_list = []
             term_names = list(self.group_specific_terms)
@@ -861,14 +867,6 @@ class Model:
         # 'linear_predictor' is of shape
         # * (chain_n, draw_n, obs_n) for univariate models
         # * (chain_n, draw_n, response_n, obs_n) for multivariate models
-
-        # if self.family.name == "categorical":
-        #    obs_n = self.response.data.shape[0]
-        #    linear_predictor = linear_predictor.T.reshape(sample_shape + (obs_n,))
-        #    # This is 'softmax'. Second axis is the one where the response coord is inserted
-        #    mu = self.family.link.linkinv(linear_predictor, axis=2)
-        # if self.response.pymc_coords:
-        #    coords += (list(self.response.pymc_coords)[0],)
 
         if kind == "mean":
             idata.posterior = self.family.predict(self, posterior, linear_predictor)

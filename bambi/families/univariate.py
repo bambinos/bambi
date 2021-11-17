@@ -11,7 +11,7 @@ class UnivariateFamily(Family):
         mean = self.link.linkinv(linear_predictor)
         obs_n = mean.shape[-1]
         name = model.response.name + "_mean"
-        coord_name = name + "_dim_0"
+        coord_name = name + "_obs"
 
         # Drop var/dim if already present
         if name in posterior.data_vars:
