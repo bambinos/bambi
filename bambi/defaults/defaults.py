@@ -186,5 +186,4 @@ def get_builtin_family(name):
     ``bambi.families.Likelihood`` and the ``bambi.priors.Prior`` instances that are needed to build
     the family.
     """
-    print("aaaaaaaaaaaaasd")
     return generate_family(name, **SETTINGS_FAMILIES[name])

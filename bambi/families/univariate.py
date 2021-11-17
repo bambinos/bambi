@@ -106,7 +106,7 @@ class Poisson(UnivariateFamily):
 class StudentT(UnivariateFamily):
     def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
         mean = self.link.linkinv(linear_predictor)
-        sigma = posterior[model.response.name + "_sigma"]
+        sigma = posterior[model.response.name + "_sigma"].values
 
         idxs = np.random.randint(low=0, high=draw_n, size=draws)
         if isinstance(self.likelihood.priors["nu"], (int, float)):

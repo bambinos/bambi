@@ -294,69 +294,6 @@ def test_group_specific_categorical_interaction(crossed_data):
     model.fit(tune=10, draws=10)
 
 
-@pytest.mark.skip(reason="We are correctly handling string links only, not functions.")
-def test_logistic_regression(crossed_data):
-    # Tests passing link="logit" is equivalent to using tt.nnet.sigmoid
-    model0 = Model(
-        "threecats['b'] ~ continuous + dummy", crossed_data, family="bernoulli", link="logit"
-    )
-    fitted0 = model0.fit(
-        tune=0,
-        draws=1000,
-    )
-
-    # build model using fit, pymc3 and theano link function
-    model1 = Model(
-        "threecats['b'] ~ continuous + dummy",
-        crossed_data,
-        family="bernoulli",
-        link=tt.nnet.sigmoid,
-    )
-    fitted1 = model1.fit(
-        tune=0,
-        draws=1000,
-    )
-
-    # check that using a theano link function works
-    assert np.allclose(az.summary(fitted0)["mean"], az.summary(fitted1)["mean"], atol=0.2)
-
-    # check that term names agree
-    assert set(model0.term_names) == set(model1.term_names)
-
-    # check that common effect design matrices are the same,
-    # even if term names / level names / order of columns is different
-    X0 = set(
-        [
-            tuple(t.data[:, lev])
-            for t in model0.common_terms.values()
-            for lev in range(len(t.levels))
-        ]
-    )
-    X1 = set(
-        [
-            tuple(t.data[:, lev])
-            for t in model1.common_terms.values()
-            for lev in range(len(t.levels))
-        ]
-    )
-
-    assert X0 == X1
-
-    # check that models have same priors for common effects
-    priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
-    priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
-    # check dictionary keys
-    assert set(priors0) == set(priors1)
-    # check dictionary values
-    def dicts_close(a, b):
-        if set(a) != set(b):
-            return False
-        else:
-            return [np.allclose(a[x], b[x], atol=0, rtol=0.01) for x in a.keys()]
-
-    assert all([dicts_close(priors0[x], priors1[x]) for x in priors0.keys()])
-
-
 def test_logistic_regression_empty_index():
     data = pd.DataFrame({"y": np.random.choice(["a", "b"], 50), "x": np.random.normal(size=50)})
     model = Model("y ~ x", data, family="bernoulli")

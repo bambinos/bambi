@@ -308,7 +308,7 @@ def test_empty_formula_assertion():
         Model(data=data)
 
 
-@pytest.mark.skip(reason="Default priors don't fail when sparse now.")
+# @pytest.mark.skip(reason="Default priors don't fail when sparse now.")
 def test_sparse_fails():
     data = pd.DataFrame(
         {
@@ -319,7 +319,7 @@ def test_sparse_fails():
             "x4": np.random.normal(size=4),
         }
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Design matrix for common effects is not full-rank"):
         Model("y ~ x1 + x2 + x3 + x4", data)
 
     data = pd.DataFrame(
@@ -329,7 +329,7 @@ def test_sparse_fails():
             "g2": ["a", "b", "c", "d"],
         }
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Design matrix for common effects is not full-rank"):
         Model("y ~ g1 + g2", data)
 
 
