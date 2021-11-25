@@ -843,7 +843,6 @@ class Model:
             for name in term_names:
                 values = posterior[name].values
                 shape = values.shape
-                print(f"{name}: {shape}")
                 if len(shape) == 2:
                     shape = (shape[0] * shape[1], 1)
                 else:
@@ -851,7 +850,6 @@ class Model:
                         response_n = len(self.response.levels) - 1
                         p = np.prod(shape[2:]) // response_n
                         shape = (shape[0] * shape[1], p, response_n)
-                        print(f"New shape: {shape}")
                     else:
                         shape = (shape[0] * shape[1], shape[2])
                 beta_z_list.append(values.reshape(shape))
