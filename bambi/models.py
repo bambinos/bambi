@@ -843,10 +843,17 @@ class Model:
             for name in term_names:
                 values = posterior[name].values
                 shape = values.shape
+                print(f"{name}: {shape}")
                 if len(shape) == 2:
                     shape = (shape[0] * shape[1], 1)
                 else:
-                    shape = (shape[0] * shape[1],) + shape[2:]
+                    if self.family.name == "categorical":
+                        response_n = len(self.response.levels) - 1
+                        p = np.prod(shape[2:]) // response_n
+                        shape = (shape[0] * shape[1], p, response_n)
+                        print(f"New shape: {shape}")
+                    else:
+                        shape = (shape[0] * shape[1], shape[2])
                 beta_z_list.append(values.reshape(shape))
 
             beta_z = np.hstack(beta_z_list)
@@ -855,7 +862,7 @@ class Model:
             if len(contribution.shape) == 2:
                 shape = (chain_n, draw_n) + (contribution.shape[-1],)
             else:
-                shape = (chain_n, draw_n) + (contribution.shape[2:],)
+                shape = (chain_n, draw_n) + contribution.shape[1:]
 
             contribution = contribution.reshape(shape)
             linear_predictor += contribution

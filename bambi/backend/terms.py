@@ -32,11 +32,12 @@ class CommonTerm:
         args = self.term.prior.args
         distribution = get_distribution(dist)
 
+        # Dims of the response variable (e.g. categorical family)
         response_dims = []
         if spec.response.categorical and not spec.response.binary:
-            response_dims = list(spec.response.pymc_coords.keys())
+            response_dims = list(spec.response.pymc_coords)
 
-        dims = list(self.coords.keys()) + response_dims
+        dims = list(self.coords) + response_dims
         if dims:
             coef = distribution(label, dims=dims, **args)
         else:
@@ -44,7 +45,9 @@ class CommonTerm:
 
         # Pre-pends one dimension if response is multi-categorical
         if response_dims:
-            coef = coef[None, :]
+            # If response is multivariate and predictor is univariate (not categorical/basis)
+            if len(dims) == 1:
+                coef = coef[np.newaxis, :]
         return coef, data
 
     def get_coords(self):
@@ -83,12 +86,19 @@ class GroupSpecificTerm:
         self.noncentered = noncentered
         self.coords = self.get_coords()
 
-    def build(self):
+    def build(self, spec):
         label = self.term.name
         dist = self.term.prior.name
         kwargs = self.term.prior.args
         predictor = self.term.predictor.squeeze()
-        dims = list(self.coords.keys())
+
+        # Dims of the response variable (e.g. categorical family)
+        response_dims = []
+        if spec.response.categorical and not spec.response.binary:
+            response_dims = list(spec.response.pymc_coords)
+
+        dims = list(self.coords) + response_dims
+        # dims = list(self.coords)
         coef = self.build_distribution(dist, label, dims=dims, **kwargs)
         coef = coef[self.term.group_index]
 
@@ -150,10 +160,10 @@ class InterceptTerm:
 
     def build(self, spec):
         dist = get_distribution(self.term.prior.name)
+        # Pre-pends one dimension if response is multi-categorical
         if spec.response.categorical and not spec.response.binary:
-            dims = list(spec.response.pymc_coords.keys())
-            # Pre-pends one dimension if response is multi-categorical
-            dist = dist(self.term.name, dims=dims, **self.term.prior.args)[None, :]
+            dims = list(spec.response.pymc_coords)
+            dist = dist(self.term.name, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:
             dist = dist(self.term.name, shape=1, **self.term.prior.args)
         return dist

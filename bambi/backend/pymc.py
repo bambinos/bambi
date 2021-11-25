@@ -166,7 +166,7 @@ class PyMC3Model:
             self.coords.update(**group_specific_term.coords)
 
             # Build
-            coef, predictor = group_specific_term.build()
+            coef, predictor = group_specific_term.build(spec)
 
             # Add to the linear predictor
             # The loop through predictor columns is not the most beautiful alternative.
@@ -175,7 +175,11 @@ class PyMC3Model:
                 for col in range(predictor.shape[1]):
                     self.mu += coef[:, col] * predictor[:, col]
             else:
-                self.mu += coef * predictor
+                # For categorical family
+                if spec.response.categorical and not spec.response.binary:
+                    self.mu += coef * predictor[:, np.newaxis]
+                else:
+                    self.mu += coef * predictor
 
     def _build_response(self, spec):
         ResponseTerm(spec.response, spec.family).build(self.mu, self.INVLINKS)
