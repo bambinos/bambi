@@ -397,9 +397,10 @@ def test_bad_links():
         for link in links:
             with pytest.raises(ValueError):
                 if family == "bernoulli":
-                    Model("g ~ x", data, family=family, link=link)
+                    formula = "g ~ x"
                 else:
-                    Model("y ~ x", data, family=family, link=link)
+                    formula = "y ~ x"
+                Model(formula, data, family=family, link=link)
 
 
 def test_constant_terms():

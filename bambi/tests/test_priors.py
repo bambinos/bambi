@@ -142,7 +142,7 @@ def test_family_link_unsupported():
     likelihood = Likelihood("Cheese", parent="holes", cheese=cheese)
     family = Family("cheese", likelihood=likelihood, link="cloglog")
     with pytest.raises(ValueError):
-        family._set_link("Empty")
+        family.link = "Empty"
 
 
 def test_family_bad_type():

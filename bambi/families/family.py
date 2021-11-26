@@ -78,6 +78,7 @@ class Family:
     @link.setter
     def link(self, x):
         if isinstance(x, str):
+            self.check_string_link(x)
             self._link = Link(x)
             self.smlink = STATSMODELS_LINKS.get(x, None)
         elif isinstance(x, Link):

@@ -35,8 +35,6 @@ SETTINGS_DISTRIBUTIONS = {
 }
 
 # fmt: off
-# Beta: it asks for kappa, then we do alpha = mu*kappa, beta= (1-mu)*kappa
-# XTODO: Convert these entries to namedtuples
 SETTINGS_FAMILIES = {
     "bernoulli": {
         "likelihood": {
