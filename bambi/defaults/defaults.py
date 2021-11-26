@@ -67,6 +67,15 @@ SETTINGS_FAMILIES = {
         "link": "logit",
         "family": Binomial,
     },
+    "categorical": {
+        "likelihood": {
+            "name": "Categorical",
+            "args": {},
+            "parent": "p",
+        },
+        "link": "softmax",
+        "family": Categorical,
+    },
     "gamma": {
         "likelihood": {
             "name": "Gamma",
@@ -88,15 +97,6 @@ SETTINGS_FAMILIES = {
         },
         "link": "identity",
         "family": Gaussian,
-    },
-    "categorical": {
-        "likelihood": {
-            "name": "Categorical",
-            "args": {},
-            "parent": "p",
-        },
-        "link": "softmax",
-        "family": Categorical,
     },
     "negativebinomial": {
         "likelihood": {

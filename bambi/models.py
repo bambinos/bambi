@@ -17,7 +17,7 @@ from .defaults import get_default_prior, get_builtin_family
 from .families import Family, _extract_family_prior, univariate
 from .priors import Prior, PriorScaler, PriorScalerMLE
 from .terms import ResponseTerm, Term, GroupSpecificTerm
-from .utils import listify, link_match_family
+from .utils import listify
 from .version import __version__
 
 _log = logging.getLogger("bambi")
@@ -454,10 +454,7 @@ class Model:
 
         # Override family's link if another is explicitly passed
         if link is not None:
-            if link_match_family(link, family.name):
-                family._set_link(link)  # pylint: disable=protected-access
-            else:
-                raise ValueError(f"Link '{link}' cannot be used with family '{family.name}'")
+            family.link = link
 
         # Update auxiliary parameters
         if priors:

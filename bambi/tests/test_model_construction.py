@@ -12,7 +12,6 @@ from formulae import design_matrices
 from bambi.models import Model
 from bambi.terms import Term, GroupSpecificTerm
 from bambi.priors import Prior
-from bambi.utils import link_match_family
 
 
 @pytest.fixture(scope="module")
@@ -401,41 +400,6 @@ def test_bad_links():
                     Model("g ~ x", data, family=family, link=link)
                 else:
                     Model("y ~ x", data, family=family, link=link)
-
-
-def test_link_match_family():
-    accepted = {
-        "bernoulli": ["identity", "logit", "probit", "cloglog"],
-        "beta": ["identity", "logit", "probit", "cloglog"],
-        "gamma": ["identity", "log", "inverse"],
-        "gaussian": ["identity", "log", "inverse"],
-        "negativebinomial": ["identity", "log", "cloglog"],
-        "poisson": ["identity", "log"],
-        "wald": ["inverse", "inverse_squared", "identity", "log"],
-    }
-
-    unaccepted = {
-        "bernoulli": ["inverse", "inverse_squared", "log"],
-        "beta": ["inverse", "inverse_squared", "log"],
-        "gamma": ["logit", "probit", "cloglog"],
-        "gaussian": ["logit", "probit", "cloglog"],
-        "negativebinomial": ["logit", "probit", "inverse", "inverse_squared"],
-        "poisson": ["logit", "probit", "cloglog", "inverse", "inverse_squared"],
-        "wald": ["logit", "probit", "cloglog"],
-    }
-
-    custom_families = ["hi", "dear", "friend"]
-
-    for family, links in accepted.items():
-        for link in links:
-            assert link_match_family(link, family)
-
-    for family, links in unaccepted.items():
-        for link in links:
-            assert not link_match_family(link, family)
-
-    for family in custom_families:
-        assert link_match_family("anything", family)
 
 
 def test_constant_terms():
