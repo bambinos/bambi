@@ -55,7 +55,7 @@ class CommonTerm:
         if self.term.categorical:
             name = self.term.name + "_coord"
             levels = self.term.term_dict["levels"]
-            if self.term.type == "interaction":
+            if self.term.kind == "interaction":
                 coords[name] = levels
             elif self.term.term_dict["encoding"] == "full":
                 coords[name] = levels
@@ -113,7 +113,7 @@ class GroupSpecificTerm:
         if self.term.categorical:
             name = expr + "_coord_group_expr"
             levels = self.term.term["levels"]
-            if self.term.type == "interaction":
+            if self.term.kind == "interaction":
                 coords[name] = levels
             elif self.term.term["encoding"] == "full":
                 coords[name] = levels
@@ -152,7 +152,7 @@ class InterceptTerm:
     Parameters
     ----------
     term: bambi.terms.Term
-        An object representing the intercept. This has ``.type == "intercept"``
+        An object representing the intercept. This has ``.kind == "intercept"``
     """
 
     def __init__(self, term):

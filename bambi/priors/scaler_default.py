@@ -74,7 +74,7 @@ class PriorScaler:
         data_as_common = term.predictor
 
         # Handle intercepts
-        if term.type == "intercept":
+        if term.kind == "intercept":
             _, sigma = self.get_intercept_stats()
         # Handle slopes
         else:

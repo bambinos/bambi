@@ -18,7 +18,6 @@ class ResponseTerm:
         self.family = family
         self.data = term.design_vector
         self.constant = np.var(self.data) == 0  # NOTE: ATM we're not using this one
-
         self.categorical = term.type == "categoric"
         self.baseline = None  # Not None for non-binary categorical variables
         self.success = term.success if term.success is not None else 1  # not None for binary vars
@@ -87,7 +86,7 @@ class Term:
         self.name = name
         self.data = data
         self.prior = prior
-        self.type = term_dict["type"]
+        self.kind = term_dict["type"]
         self.levels = term_dict["full_names"]
         self.categorical = False
         self.term_dict = term_dict
@@ -95,21 +94,21 @@ class Term:
         # If the term has one component, it's categorical if the component is categorical.
         # If the term has more than one component (i.e. it is an interaction), it's categorical if
         # at least one of the components is categorical.
-        if self.type == "interaction":
+        if self.kind == "interaction":
             if any((term["type"] == "categoric" for term in term_dict["terms"].values())):
                 self.categorical = True
         else:
-            self.categorical = self.type == "categoric"
+            self.categorical = self.kind == "categoric"
 
         # Flag constant terms
         if self.categorical and len(term_dict["levels"]) == 1 and (data == data[0]).all():
             raise ValueError(f"The term '{name}' has only 1 category!")
 
-        if not self.categorical and self.type != "intercept" and np.all(data == data[0]):
+        if not self.categorical and self.kind != "intercept" and np.all(data == data[0]):
             raise ValueError(f"The term '{name}' is constant!")
 
         # Flag cell-means terms (i.e., full-rank coding), which receive special priors
-        # To flag intercepts we use `self.type`
+        # To flag intercepts we use `self.kind`
         self.is_cell_means = self.categorical and (self.data.sum(1) == 1).all()
 
         # Obtain pymc coordinates, only for categorical components of a term.
@@ -118,7 +117,7 @@ class Term:
         self.pymc_coords = {}
         if self.categorical:
             name = self.name + "_coord"
-            if self.type == "interaction":
+            if self.kind == "interaction":
                 self.pymc_coords[name] = term_dict["levels"]
             elif term_dict["encoding"] == "full":
                 self.pymc_coords[name] = term_dict["levels"]
@@ -129,7 +128,7 @@ class Term:
         args = [
             f"name: {self.name}",
             f"prior: {self.prior}",
-            f"type: {self.type}",
+            f"kind: {self.kind}",
             f"shape: {self.data.squeeze().shape}",
             f"categorical: {self.categorical}",
         ]
@@ -165,7 +164,7 @@ class GroupSpecificTerm:
         self.name = name
         self.data = data
         self.prior = prior
-        self.type = term["type"]
+        self.kind = term["type"]
         self.groups = term["groups"]
         self.levels = term["full_names"]
         self.grouper = term["Ji"]
@@ -175,11 +174,11 @@ class GroupSpecificTerm:
         self.term = term
 
         # Determine if the expression is categorical
-        if self.type == "interaction":
+        if self.kind == "interaction":
             if any((t["type"] == "categoric" for t in term["terms"].values())):
                 self.categorical = True
         else:
-            self.categorical = self.type == "categoric"
+            self.categorical = self.kind == "categoric"
 
         # Determine if the term represents cell-means encoding.
         self.is_cell_means = self.categorical and (self.data.sum(1) == 1).all()
@@ -192,7 +191,7 @@ class GroupSpecificTerm:
 
         if self.categorical:
             name = expr + "_coord_group_expr"
-            if self.type == "interaction":
+            if self.kind == "interaction":
                 self.pymc_coords[name] = term["levels"]
             elif term["encoding"] == "full":
                 self.pymc_coords[name] = term["levels"]
@@ -215,7 +214,7 @@ class GroupSpecificTerm:
             f"name: {self.name}",
             f"prior: {self.prior}",
             f"groups: {self.groups}",
-            f"type: {self.type}",
+            f"type: {self.kind}",
             f"shape: {self.data.squeeze().shape}",
             f"categorical: {self.categorical}",
         ]

@@ -339,7 +339,7 @@ class Model:
         for term in self.terms.values():
             if term.group_specific:
                 kind = "group_specific"
-            elif term.type == "intercept":
+            elif term.kind == "intercept":
                 kind = "intercept"
             else:
                 kind = "common"
@@ -1009,7 +1009,7 @@ class Model:
     def common_terms(self):
         """Return dict of all and only common effects in model."""
         return {
-            k: v for (k, v) in self.terms.items() if not v.group_specific and v.type != "intercept"
+            k: v for (k, v) in self.terms.items() if not v.group_specific and v.kind != "intercept"
         }
 
     @property
@@ -1020,7 +1020,7 @@ class Model:
     @property
     def intercept_term(self):
         """Return the intercept term"""
-        term = [v for v in self.terms.values() if not v.group_specific and v.type == "intercept"]
+        term = [v for v in self.terms.values() if not v.group_specific and v.kind == "intercept"]
         if term:
             return term[0]
         else:
