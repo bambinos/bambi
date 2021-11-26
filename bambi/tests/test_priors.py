@@ -320,3 +320,29 @@ def test_prior_shape():
 
     assert model.terms["q:s"].prior.args["mu"].shape == (12,)
     assert model.terms["q:s"].prior.args["sigma"].shape == (12,)
+
+
+def test_set_priors_but_intercept():
+    df = pd.DataFrame(
+        {
+            "y": [0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
+            "z": np.random.normal(size=10),
+            "x1": np.random.uniform(size=10),
+            "x2": np.random.uniform(size=10),
+            "g": ["A"] * 5 + ["B"] * 5,
+        }
+    )
+
+    priors = {
+        "x1": Prior("TruncatedNormal", sigma=1, mu=0, lower=0),
+        "x2": Prior("TruncatedNormal", sigma=1, mu=0, upper=0),
+    }
+
+    Model("y ~ x1 + x2", df, family="bernoulli", priors=priors)
+
+    priors = {
+        "x1": Prior("StudentT", mu=0, nu=4, lam=1),
+        "x2": Prior("StudentT", mu=0, nu=8, lam=2),
+    }
+
+    Model("z ~ x1 + x2 + (1|g)", df, priors=priors)

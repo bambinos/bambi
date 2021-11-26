@@ -26,7 +26,8 @@ class PriorScaler:
         mu = self.response_mean
         sigma = self.STD * self.response_std
 
-        if self.model.common_terms:
+        # Only adjust mu and sigma if there is at least one Normal prior for a common term.
+        if self.priors:
             sigmas = np.hstack([prior["sigma"] for prior in self.priors.values()])
             x_mean = np.hstack([self.model.terms[term].data.mean(axis=0) for term in self.priors])
             sigma = (sigma ** 2 + np.dot(sigmas ** 2, x_mean ** 2)) ** 0.5
