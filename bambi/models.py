@@ -326,7 +326,6 @@ class Model:
         kwargs = dict(zip(["priors", "common", "group_specific"], [priors, common, group_specific]))
         self._added_priors.update(kwargs)
         # After updating, we need to rebuild priors.
-        # There is redundancy here, so there's place for performance improvements.
         self._build_priors()
         self.built = False
 
@@ -343,7 +342,7 @@ class Model:
                 kind = "intercept"
             else:
                 kind = "common"
-            term.prior = self._prepare_prior(term.prior, kind)
+            term.prior = prepare_prior(term.prior, kind, self.auto_scale)
 
         # Scale priors if there is at least one term in the model and auto_scale is True
         if self.terms and self.auto_scale:
@@ -397,26 +396,6 @@ class Model:
         # Set priors for explanatory terms.
         for name, prior in targets.items():
             self.terms[name].prior = prior
-
-    def _prepare_prior(self, prior, kind):
-        """Helper function to correctly set default priors, auto scaling, etc.
-
-        Parameters
-        ----------
-        prior : Prior, float, or None.
-        kind : string
-            Accepted values are: ``"intercept"``, ``"common"``, or ``"group_specific"``.
-        """
-        # NOTE: Does it make sense to have this function in the Model class?
-        if prior is None and not self.auto_scale:
-            prior = get_default_prior(kind + "_flat")
-        if isinstance(prior, Prior):
-            prior.auto_scale = False
-        else:
-            _scale = prior
-            prior = get_default_prior(kind)
-            prior.scale = _scale
-        return prior
 
     def _add_response(self, response, family="gaussian", link=None, priors=None):
         """Add a response (or outcome/dependent) variable to the model.
@@ -1044,3 +1023,23 @@ def check_full_rank(matrix):
             "Design matrix for common effects is not full-rank. "
             "Bambi does not support sparse settings when automatic priors are obtained via MLE."
         )
+
+
+def prepare_prior(prior, kind, auto_scale):
+    """Helper function to correctly set default priors, auto scaling, etc.
+
+    Parameters
+    ----------
+    prior : Prior, float, or None.
+    kind : string
+        Accepted values are: ``"intercept"``, ``"common"``, or ``"group_specific"``.
+    """
+    if prior is None and not auto_scale:
+        prior = get_default_prior(kind + "_flat")
+    if isinstance(prior, Prior):
+        prior.auto_scale = False
+    else:
+        scale = prior
+        prior = get_default_prior(kind)
+        prior.scale = scale
+    return prior
