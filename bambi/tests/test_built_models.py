@@ -2,10 +2,8 @@ import logging
 
 import pytest
 
-import arviz as az
 import numpy as np
 import pandas as pd
-import theano.tensor as tt
 
 from bambi import math
 from bambi.models import Model
@@ -60,6 +58,16 @@ def init_data():
 
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "obs.csv"))
+    return data
+
+
+@pytest.fixture(scope="module")
+def inhaler():
+    from os.path import dirname, join
+
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "inhaler.csv"))
+    data["rating"] = pd.Categorical(data["rating"], categories=[1, 2, 3, 4])
     return data
 
 
@@ -448,7 +456,7 @@ def test_beta_regression():
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "gasoline.csv"))
     model = Model("yield ~  temp + batch", data, family="beta", categorical="batch")
-    idata = model.fit(target_accept=0.9)
+    model.fit(target_accept=0.9)
 
 
 def test_t_regression():
@@ -529,3 +537,13 @@ def test_init_fallback(init_data, caplog):
         assert "Initializing NUTS using jitter+adapt_diag..." in caplog.text
         assert "The default initialization" in caplog.text
         assert "Initializing NUTS using adapt_diag..." in caplog.text
+
+
+def test_categorical_family(inhaler):
+    model = Model("rating ~ period + carry + treat", inhaler, family="categorical")
+    model.fit()
+
+
+def test_categorical_family_varying_intercept(inhaler):
+    model = Model("rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical")
+    model.fit()
