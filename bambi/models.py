@@ -38,8 +38,8 @@ class Model:
         a string, or an instance of class ``bambi.families.Family``. If a string is passed, a
         family with the corresponding name must be defined in the defaults loaded at ``Model``
         initialization. Valid pre-defined families are ``"bernoulli"``, ``"beta"``,
-        ``"binomial"``, ``"gamma"``, ``"gaussian"``, ``"negativebinomial"``, ``"poisson"``, ``"t"``,
-        and ``"wald"``. Defaults to ``"gaussian"``.
+        ``"binomial"``, ``"categorical"``, ``"gamma"``, ``"gaussian"``, ``"negativebinomial"``,
+        ``"poisson"``, ``"t"``, and ``"wald"``. Defaults to ``"gaussian"``.
     priors : dict
         Optional specification of priors for one or more terms. A dictionary where the keys are
         the names of terms in the model, "common" or "group_specific" and the values are
@@ -47,8 +47,8 @@ class Model:
         ``Prior``, ``int``, ``float``, or ``str`` when ``automatic_priors`` is ``"mle"``.
     link : str
         The name of the link function to use. Valid names are ``"cloglog"``, ``"identity"``,
-        ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, and ``"probit"``. Not all
-        the link functions can be used with all the families. See TODO.
+        ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, ``"probit"``, and
+        ``"softmax"``. Not all the link functions can be used with all the families.
     categorical : str or list
         The names of any variables to treat as categorical. Can be either a single variable
         name, or a list of names. If categorical is ``None``, the data type of the columns in
@@ -134,9 +134,6 @@ class Model:
             data = pd.read_csv(data, sep=None, engine="python")
         elif not isinstance(data, pd.DataFrame):
             raise ValueError("'data' must be a string with a path to a .csv or a pandas DataFrame.")
-
-        # To avoid SettingWithCopyWarning when converting object columns to category
-        data._is_copy = False
 
         # Object columns converted to category by default.
         obj_cols = data.select_dtypes(["object"]).columns
@@ -227,7 +224,7 @@ class Model:
         discard_tuned_samples : bool
             Whether to discard posterior samples of the tune interval. Defaults to ``True``.
         omit_offsets: bool
-            Omits offset terms in the ``InferenceData`` object when the model includes
+            Omits offset terms in the ``InferenceData`` object returned when the model includes
             group specific effects. Defaults to ``True``.
         method: str
             The method to use for fitting the model. By default, ``"mcmc"``. This automatically
@@ -303,8 +300,8 @@ class Model:
     def build(self):
         """Set up the model for sampling/fitting.
 
-        Performs any steps that require access to all model terms (e.g., scaling priors
-        on each term), then calls the backend's ``build()`` method.
+        Performs any steps that require access to all model terms (e.g., scaling priors on each
+        term), then calls the backend's ``.build()`` method.
         """
         self.backend = PyMC3Model()
         self.backend.build(self)
@@ -341,12 +338,12 @@ class Model:
         # Prepare all priors
         for term in self.terms.values():
             if term.group_specific:
-                type_ = "group_specific"
+                kind = "group_specific"
             elif term.type == "intercept":
-                type_ = "intercept"
+                kind = "intercept"
             else:
-                type_ = "common"
-            term.prior = self._prepare_prior(term.prior, type_)
+                kind = "common"
+            term.prior = self._prepare_prior(term.prior, kind)
 
         # Scale priors if there is at least one term in the model and auto_scale is True
         if self.terms and self.auto_scale:
@@ -361,7 +358,7 @@ class Model:
                 scaler = PriorScalerMLE(self, taylor=taylor)
             else:
                 raise ValueError(
-                    f"{method} is not a valid method for default priors." "Use 'default' or 'mle'."
+                    f"{method} is not a valid method for default priors. Use 'default' or 'mle'."
                 )
             self.scaler = scaler
             self.scaler.scale()
@@ -401,23 +398,23 @@ class Model:
         for name, prior in targets.items():
             self.terms[name].prior = prior
 
-    def _prepare_prior(self, prior, type_):
+    def _prepare_prior(self, prior, kind):
         """Helper function to correctly set default priors, auto scaling, etc.
 
         Parameters
         ----------
         prior : Prior, float, or None.
-        type_ : string
+        kind : string
             Accepted values are: ``"intercept"``, ``"common"``, or ``"group_specific"``.
         """
-
+        # NOTE: Does it make sense to have this function in the Model class?
         if prior is None and not self.auto_scale:
-            prior = get_default_prior(type_ + "_flat")
+            prior = get_default_prior(kind + "_flat")
         if isinstance(prior, Prior):
             prior.auto_scale = False
         else:
             _scale = prior
-            prior = get_default_prior(type_)
+            prior = get_default_prior(kind)
             prior.scale = _scale
         return prior
 
@@ -434,12 +431,12 @@ class Model:
             string, or an instance of class ``families.Family``. If a string is passed, a family
             with the corresponding name must be defined in the defaults loaded at model
             initialization. Valid pre-defined families are ``"bernoulli"``, ``"beta"``,
-            ``"binomial"``, ``"gamma"``, ``"gaussian"``, ``"negativebinomial"``, ``"poisson"``,
-            ``"t"``, and ``"wald"``. Defaults to ``"gaussian"``.
+            ``"binomial"``, ``"categorical"``, ``"gamma"``, ``"gaussian"``, ``"negativebinomial"``,
+            ``"poisson"``, ``"t"``, and ``"wald"``. Defaults to ``"gaussian"``.
         link : str
             The name of the link function to use. Valid names are ``"cloglog"``, ``"identity"``,
-            ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, and ``"probit"``. Not all
-            the link functions can be used with all the families. See TODO.
+            ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, ``"probit"``, and
+            ``"softmax"``. Not all the link functions can be used with all the families.
         priors : dict
             Optional dictionary with specification of priors for the parameters in the family of
             the response. Keys are names of other parameters than the mean in the family
@@ -453,14 +450,14 @@ class Model:
         if isinstance(family, str):
             family = get_builtin_family(family)
         elif not isinstance(family, Family):
-            raise ValueError("family must be a string or a Family object.")
+            raise ValueError("'family' must be a string or a Family object.")
 
         # Override family's link if another is explicitly passed
         if link is not None:
             if link_match_family(link, family.name):
                 family._set_link(link)  # pylint: disable=protected-access
             else:
-                raise ValueError(f"Link '{link}'' cannot be used with family '{family.name}'")
+                raise ValueError(f"Link '{link}' cannot be used with family '{family.name}'")
 
         # Update auxiliary parameters
         if priors:
@@ -504,7 +501,7 @@ class Model:
             self.terms[name] = Term(name, term, data, prior)
 
     def _add_group_specific(self, group, priors):
-        """Add group-specific (or random) terms to the model.
+        """Add group-specific (a.k.a. random) terms to the model.
 
         Parameters
         ----------
@@ -813,22 +810,19 @@ class Model:
                         shape = (shape[0] * shape[1], shape[2])
                 beta_x_list.append(values.reshape(shape))
 
-            # Reshape ensures 'contribution' is of shape
-            # * (chain_n, draw_n, obs_n) for univariate models
-            # * (chain_n, draw_n, response_n, obs_n) for multivariate models
-            # 'response_n' is the dimensionality of the space where the response lives
-            beta_x = np.hstack(beta_x_list)
-
-            # This dot product works both for 2d and 3d 'beta_x'.
             # 'beta_x' is of shape:
             # * (chain_n * draw_n, p) for univariate
             # * (chain_n * draw_n, p, response_n) for multivariate models
+            beta_x = np.hstack(beta_x_list)
+
+            # This dot product works both for 2d and 3d 'beta_x'.
             contribution = np.dot(X, beta_x.T).T
 
-            # Univariate models
+            # 'response_n' is the dimensionality of the space where the response lives
+            # *  Univariate models: (chain_n, draw_n, obs_n)
             if len(contribution.shape) == 2:
                 shape = (chain_n, draw_n) + (contribution.shape[-1],)
-            # Multivariate models
+            # Multivariate models: (chain_n, draw_n, response_n, obs_n)
             else:
                 shape = (chain_n, draw_n) + contribution.shape[1:]
 
@@ -979,13 +973,13 @@ class Model:
             t = self.intercept_term
             priors_common = [f"    {t.name} ~ {t.prior}"] + priors_common
         if priors_common:
-            priors += "\n".join(["  Common-level effects", *priors_common]) + "\n\n"
+            priors += "\n".join(["  Common-level effects", *priors_common])
         if priors_group:
-            priors += "\n".join(["  Group-level effects", *priors_group]) + "\n\n"
+            priors += "\n\n" + "\n".join(["  Group-level effects", *priors_group])
         if priors_cor:
-            priors += "\n".join(["  Group-level correlation", *priors_cor]) + "\n\n"
+            priors += "\n\n" + "\n".join(["  Group-level correlation", *priors_cor])
         if priors_aux:
-            priors += "\n".join(["  Auxiliary parameters", *priors_aux]) + "\n\n"
+            priors += "\n\n" + "\n".join(["  Auxiliary parameters", *priors_aux])
 
         str_list = [
             f"Formula: {self.formula}",
@@ -996,10 +990,12 @@ class Model:
             priors,
         ]
         if self.backend and self.backend.fit:
-            extra_foot = "------\n"
-            extra_foot += "* To see a plot of the priors call the .plot_priors() method.\n"
-            extra_foot += "* To see a summary or plot of the posterior pass the object returned"
-            extra_foot += " by .fit() to az.summary() or az.plot_trace()\n"
+            extra_foot = (
+                "------\n"
+                "* To see a plot of the priors call the .plot_priors() method.\n"
+                "* To see a summary or plot of the posterior pass the object returned "
+                "by .fit() to az.summary() or az.plot_trace()\n"
+            )
             str_list += [extra_foot]
 
         return "\n".join(str_list)
@@ -1010,7 +1006,7 @@ class Model:
     @property
     def term_names(self):
         """Return names of all terms in order of addition to model."""
-        return list(self.terms.keys())
+        return list(self.terms)
 
     @property
     def common_terms(self):
@@ -1035,6 +1031,17 @@ class Model:
 
 
 def check_full_rank(matrix):
+    """Checks if a matrix is full rank
+
+    Parameters
+    ----------
+    matrix: numpy.array
+        A 2-dimensional NumPy array that represents a design matrix
+
+    Returns
+    -------
+    None
+    """
     if matrix_rank(matrix) < matrix.shape[1]:
         raise ValueError(
             "Design matrix for common effects is not full-rank. "
