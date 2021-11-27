@@ -466,7 +466,7 @@ class Model:
             raise ValueError("Index notation for response is only available for 'bernoulli' family")
 
         if isinstance(self.family, univariate.Bernoulli):
-            if not all(np.isin(response.design_vector, ([0, 1]))):
+            if not all(np.isin(response.design_vector, [0, 1])):
                 raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
 
         self.response = ResponseTerm(response)

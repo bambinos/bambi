@@ -44,14 +44,14 @@ class Family:
 
     >>> sigma_prior = bmb.Prior("HalfNormal", sigma=1)
     >>> likelihood = bmb.Likelihood("Gaussian", parent="mu", sigma=sigma_prior)
-    >>> family = bmb.Family("my_gaussian", likelihood, "identity")
+    >>> family = bmb.Family("gaussian", likelihood, "identity")
     >>> # Then you can do
     >>> # bmb.Model("y ~ x", data, family=family)
 
     Replicate the Bernoulli built-in family.
 
     >>> likelihood = bmb.Likelihood("Bernoulli", parent="p")
-    >>> family = bmb.Family("bernoulli2", likelihood, "logit")
+    >>> family = bmb.Family("bernoulli", likelihood, "logit")
     """
 
     SUPPORTED_LINKS = [

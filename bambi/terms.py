@@ -89,7 +89,7 @@ class Term:
         # If the term has more than one component (i.e. it is an interaction), it's categorical if
         # at least one of the components is categorical.
         if self.kind == "interaction":
-            if any((term["type"] == "categoric" for term in term_dict["terms"].values())):
+            if any(term["type"] == "categoric" for term in term_dict["terms"].values()):
                 self.categorical = True
         else:
             self.categorical = self.kind == "categoric"
@@ -169,7 +169,7 @@ class GroupSpecificTerm:
 
         # Determine if the expression is categorical
         if self.kind == "interaction":
-            if any((t["type"] == "categoric" for t in term["terms"].values())):
+            if any(t["type"] == "categoric" for t in term["terms"].values()):
                 self.categorical = True
         else:
             self.categorical = self.kind == "categoric"
