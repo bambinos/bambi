@@ -13,9 +13,8 @@ class ResponseTerm:
         An ``Family`` object.
     """
 
-    def __init__(self, term, family):
+    def __init__(self, term):
         self.name = term.name
-        self.family = family
         self.data = term.design_vector
         self.constant = np.var(self.data) == 0  # NOTE: ATM we're not using this one
         self.categorical = term.type == "categoric"
@@ -32,10 +31,6 @@ class ResponseTerm:
             else:
                 self.baseline = term.baseline
 
-        if family.name == "bernoulli":
-            if not all(np.isin(self.data, ([0, 1]))):
-                raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
-
         # We use pymc coords when the response is multi-categorical.
         # These help to give the appropriate shape to coefficients and make the resulting
         # InferenceData object much cleaner
@@ -47,7 +42,6 @@ class ResponseTerm:
     def __str__(self):
         args = [
             f"name: {self.name}",
-            f"family: {self.family.name}",
             f"shape: {self.data.squeeze().shape}",
         ]
 

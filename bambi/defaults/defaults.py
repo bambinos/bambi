@@ -187,4 +187,6 @@ def get_builtin_family(name):
     ``bambi.families.Likelihood`` and the ``bambi.priors.Prior`` instances that are needed to build
     the family.
     """
-    return generate_family(name, **SETTINGS_FAMILIES[name])
+    if name in SETTINGS_FAMILIES:
+        return generate_family(name, **SETTINGS_FAMILIES[name])
+    raise ValueError("f'{name}' is not a valid built-in family name")

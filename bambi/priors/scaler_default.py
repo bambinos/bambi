@@ -1,5 +1,7 @@
 import numpy as np
 
+from bambi.families.univariate import Gaussian, StudentT
+
 from .prior import Prior
 
 
@@ -15,7 +17,7 @@ class PriorScaler:
         self.priors = {}
 
         # Compute mean and std of the response
-        if self.model.family.name in ["gaussian", "t"]:
+        if isinstance(self.model.family, (Gaussian, StudentT)):
             self.response_mean = np.mean(model.response.data)
             self.response_std = np.std(self.model.response.data)
         else:
@@ -39,8 +41,8 @@ class PriorScaler:
 
     def scale_response(self):
         # Add cases for other families
-        priors = self.model.response.family.likelihood.priors
-        if self.model.family.name in ["gaussian", "t"]:
+        priors = self.model.family.likelihood.priors
+        if isinstance(self.model.family, (Gaussian, StudentT)):
             if priors["sigma"].auto_scale:
                 priors["sigma"] = Prior("HalfStudentT", nu=4, sigma=self.response_std)
 

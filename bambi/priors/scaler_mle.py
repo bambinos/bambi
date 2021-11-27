@@ -10,6 +10,8 @@ from scipy.special import hyp2f1
 from statsmodels.genmod.generalized_linear_model import GLM
 from statsmodels.tools.sm_exceptions import PerfectSeparationError
 
+from bambi.families.univariate import Gaussian, StudentT
+
 from .prior import Prior
 
 
@@ -114,8 +116,8 @@ class PriorScalerMLE:
 
     def scale_response(self):
         # Add cases for other families
-        priors = self.model.response.family.likelihood.priors
-        if self.model.family.name == "gaussian":
+        priors = self.model.family.likelihood.priors
+        if isinstance(self.model.family, (Gaussian, StudentT)):
             if priors["sigma"].auto_scale:
                 sigma = np.std(self.model.response.data)
                 priors["sigma"] = Prior("HalfStudentT", nu=4, sigma=sigma)

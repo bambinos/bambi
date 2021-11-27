@@ -210,6 +210,8 @@ def test_set_prior_with_tuple():
     model = Model("y ~ x + z", data)
     model.set_priors(priors={("x", "z"): prior})
 
+    # Prior is set to auto_scale=False when it set in the model
+    prior.auto_scale = False
     assert model.terms["x"].prior == prior
     assert model.terms["z"].prior == prior
 
