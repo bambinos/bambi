@@ -300,13 +300,6 @@ def test_hyperprior_on_common_effect():
         Model("y ~ x1 + (x1|g1)", data, priors=priors)
 
 
-def test_empty_formula_assertion():
-    data = pd.DataFrame({"y": [1]})
-    # ValueError when attempt to fit a model without having passed a formula
-    with pytest.raises(ValueError):
-        Model(data=data)
-
-
 def test_sparse_fails():
     data = pd.DataFrame(
         {

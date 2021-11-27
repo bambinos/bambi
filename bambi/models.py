@@ -16,7 +16,7 @@ from .backend import PyMC3Model
 from .defaults import get_default_prior, get_builtin_family
 from .families import Family, univariate, multivariate
 from .priors import Prior, PriorScaler, PriorScalerMLE
-from .terms import ResponseTerm, Term, GroupSpecificTerm
+from .terms import GroupSpecificTerm, ResponseTerm, Term
 from .utils import listify
 from .version import __version__
 
@@ -94,8 +94,8 @@ class Model:
     # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
-        formula=None,
-        data=None,
+        formula,
+        data,
         family="gaussian",
         priors=None,
         link=None,
@@ -157,9 +157,6 @@ class Model:
         self.automatic_priors = automatic_priors
 
         # Obtain design matrices and related objects.
-        if formula is None:
-            raise ValueError("Can't instantiate a model without a model formula.")
-
         na_action = "drop" if dropna else "error"
         self.formula = formula
         self._design = design_matrices(formula, data, na_action, env=1)
