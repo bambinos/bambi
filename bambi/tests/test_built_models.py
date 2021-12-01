@@ -2,10 +2,8 @@ import logging
 
 import pytest
 
-import arviz as az
 import numpy as np
 import pandas as pd
-import theano.tensor as tt
 
 from bambi import math
 from bambi.models import Model
@@ -60,6 +58,16 @@ def init_data():
 
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "obs.csv"))
+    return data
+
+
+@pytest.fixture(scope="module")
+def inhaler():
+    from os.path import dirname, join
+
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "inhaler.csv"))
+    data["rating"] = pd.Categorical(data["rating"], categories=[1, 2, 3, 4])
     return data
 
 
@@ -294,69 +302,6 @@ def test_group_specific_categorical_interaction(crossed_data):
     model.fit(tune=10, draws=10)
 
 
-@pytest.mark.skip(reason="We are correctly handling string links only, not functions.")
-def test_logistic_regression(crossed_data):
-    # Tests passing link="logit" is equivalent to using tt.nnet.sigmoid
-    model0 = Model(
-        "threecats['b'] ~ continuous + dummy", crossed_data, family="bernoulli", link="logit"
-    )
-    fitted0 = model0.fit(
-        tune=0,
-        draws=1000,
-    )
-
-    # build model using fit, pymc3 and theano link function
-    model1 = Model(
-        "threecats['b'] ~ continuous + dummy",
-        crossed_data,
-        family="bernoulli",
-        link=tt.nnet.sigmoid,
-    )
-    fitted1 = model1.fit(
-        tune=0,
-        draws=1000,
-    )
-
-    # check that using a theano link function works
-    assert np.allclose(az.summary(fitted0)["mean"], az.summary(fitted1)["mean"], atol=0.2)
-
-    # check that term names agree
-    assert set(model0.term_names) == set(model1.term_names)
-
-    # check that common effect design matrices are the same,
-    # even if term names / level names / order of columns is different
-    X0 = set(
-        [
-            tuple(t.data[:, lev])
-            for t in model0.common_terms.values()
-            for lev in range(len(t.levels))
-        ]
-    )
-    X1 = set(
-        [
-            tuple(t.data[:, lev])
-            for t in model1.common_terms.values()
-            for lev in range(len(t.levels))
-        ]
-    )
-
-    assert X0 == X1
-
-    # check that models have same priors for common effects
-    priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
-    priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
-    # check dictionary keys
-    assert set(priors0) == set(priors1)
-    # check dictionary values
-    def dicts_close(a, b):
-        if set(a) != set(b):
-            return False
-        else:
-            return [np.allclose(a[x], b[x], atol=0, rtol=0.01) for x in a.keys()]
-
-    assert all([dicts_close(priors0[x], priors1[x]) for x in priors0.keys()])
-
-
 def test_logistic_regression_empty_index():
     data = pd.DataFrame({"y": np.random.choice(["a", "b"], 50), "x": np.random.normal(size=50)})
     model = Model("y ~ x", data, family="bernoulli")
@@ -511,7 +456,7 @@ def test_beta_regression():
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "gasoline.csv"))
     model = Model("yield ~  temp + batch", data, family="beta", categorical="batch")
-    idata = model.fit(target_accept=0.9)
+    model.fit(target_accept=0.9)
 
 
 def test_t_regression():
@@ -592,3 +537,13 @@ def test_init_fallback(init_data, caplog):
         assert "Initializing NUTS using jitter+adapt_diag..." in caplog.text
         assert "The default initialization" in caplog.text
         assert "Initializing NUTS using adapt_diag..." in caplog.text
+
+
+def test_categorical_family(inhaler):
+    model = Model("rating ~ period + carry + treat", inhaler, family="categorical")
+    model.fit()
+
+
+def test_categorical_family_varying_intercept(inhaler):
+    model = Model("rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical")
+    model.fit()

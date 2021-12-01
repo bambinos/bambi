@@ -15,15 +15,35 @@ class ResponseTerm:
 
     def __init__(self, term, family):
         self.name = term.name
-        self.data = term.design_vector
-        self.categorical = term.type == "categoric"
-        self.success_event = term.success if term.success is not None else 1
-        self.constant = np.var(self.data) == 0
         self.family = family
+        self.data = term.design_vector
+        self.constant = np.var(self.data) == 0  # NOTE: ATM we're not using this one
+
+        self.categorical = term.type == "categoric"
+        self.baseline = None  # Not None for non-binary categorical variables
+        self.success = term.success if term.success is not None else 1  # not None for binary vars
+        self.levels = None  # Not None for categorical variables
+        self.binary = None  # Not None for categorical variables (either True or False)
+
+        if self.categorical:
+            self.binary = term.binary
+            self.levels = term.levels
+            if self.binary:
+                self.success = term.success
+            else:
+                self.baseline = term.baseline
 
         if family.name == "bernoulli":
             if not all(np.isin(self.data, ([0, 1]))):
                 raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
+
+        # We use pymc coords when the response is multi-categorical.
+        # These help to give the appropriate shape to coefficients and make the resulting
+        # InferenceData object much cleaner
+        self.pymc_coords = {}
+        if self.categorical and not self.binary:
+            name = self.name + "_coord"
+            self.pymc_coords[name] = term.levels[1:]
 
     def __str__(self):
         args = [
@@ -31,8 +51,13 @@ class ResponseTerm:
             f"family: {self.family.name}",
             f"shape: {self.data.squeeze().shape}",
         ]
-        if self.family.name == "bernoulli":
-            args += [f"succes: {self.success_event}"]
+
+        if self.categorical:
+            args += [f"levels: {self.levels}"]
+            if self.binary:
+                args += [f"success: {self.success}"]
+            else:
+                args += [f"baseline: {self.baseline}"]
 
         return f"{self.__class__.__name__}({', '.join(args)})"
 

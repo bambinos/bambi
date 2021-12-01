@@ -219,7 +219,6 @@ def test_one_shot_formula_fit(diabetes_data):
     assert len(set(named_vars.keys()) & set(targets)) == 3
 
 
-@pytest.mark.skip(reason="Waiting for ArviZ release.")
 def test_categorical_term():
     data = pd.DataFrame(
         {
@@ -319,7 +318,7 @@ def test_sparse_fails():
             "x4": np.random.normal(size=4),
         }
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Design matrix for common effects is not full-rank"):
         Model("y ~ x1 + x2 + x3 + x4", data, automatic_priors="mle")
 
     data = pd.DataFrame(
@@ -329,7 +328,7 @@ def test_sparse_fails():
             "g2": ["a", "b", "c", "d"],
         }
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Design matrix for common effects is not full-rank"):
         Model("y ~ g1 + g2", data, automatic_priors="mle")
 
 
@@ -341,7 +340,7 @@ def test_sparse_fails():
         "bernoulli",
         "poisson",
         "gamma",
-        pytest.param("wald", marks=pytest.mark.xfail),
+        "wald",
     ],
 )
 def test_automatic_priors(family):

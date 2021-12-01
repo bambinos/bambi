@@ -158,13 +158,6 @@ def test_family_bad_type():
         Model("y ~ x", data, family={"family": "gaussian"})
 
 
-@pytest.mark.skip(reason="This case is actually handled by formulae")
-def test_family_unsupported_index_notation():
-    data = pd.DataFrame({"x": [1], "y": [1]})
-    with pytest.raises(ParseError):
-        Model("y[1] ~ x", data, family="gaussian")
-
-
 def test_complete_separation():
     data = pd.DataFrame({"y": [0] * 5 + [1] * 5, "g": ["a"] * 5 + ["b"] * 5})
 
