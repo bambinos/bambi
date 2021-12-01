@@ -15,6 +15,7 @@ class ResponseTerm:
 
     def __init__(self, term):
         self.name = term.name
+        self.family = family
         self.data = term.design_vector
         self.constant = np.var(self.data) == 0  # NOTE: ATM we're not using this one
         self.categorical = term.type == "categoric"
@@ -30,6 +31,22 @@ class ResponseTerm:
                 self.success = term.success
             else:
                 self.baseline = term.baseline
+
+        if self.categorical:
+            self.binary = term.binary
+            self.levels = term.levels
+            if self.binary:
+                self.success = term.success
+            else:
+                self.baseline = term.baseline
+
+        # We use pymc coords when the response is multi-categorical.
+        # These help to give the appropriate shape to coefficients and make the resulting
+        # InferenceData object much cleaner
+        self.pymc_coords = {}
+        if self.categorical and not self.binary:
+            name = self.name + "_coord"
+            self.pymc_coords[name] = term.levels[1:]
 
         # We use pymc coords when the response is multi-categorical.
         # These help to give the appropriate shape to coefficients and make the resulting
