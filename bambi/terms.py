@@ -9,13 +9,10 @@ class ResponseTerm:
     term: formulae.ResponseVector
         An object describing the response of the model,
         as returned by ``formulae.design_matrices().response``
-    family : Family
-        An ``Family`` object.
     """
 
     def __init__(self, term):
         self.name = term.name
-        self.family = family
         self.data = term.design_vector
         self.constant = np.var(self.data) == 0  # NOTE: ATM we're not using this one
         self.categorical = term.type == "categoric"

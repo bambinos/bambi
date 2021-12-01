@@ -25,6 +25,7 @@ class UnivariateFamily(Family):
 
 class Bernoulli(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "logit", "probit", "cloglog"]
+
     def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
         "Sample from posterior predictive distribution"
         mean = self.link.linkinv(linear_predictor)
@@ -35,6 +36,7 @@ class Bernoulli(UnivariateFamily):
 
 class Beta(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "logit", "probit", "cloglog"]
+
     def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
         mean = self.link.linkinv(linear_predictor)
         kappa = posterior[model.response.name + "_kappa"].values
@@ -50,6 +52,7 @@ class Beta(UnivariateFamily):
 
 class Binomial(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "logit", "probit", "cloglog"]
+
     def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n, trials=None):
         if trials is None:
             trials = model.response.data[:, 1]
@@ -62,6 +65,7 @@ class Binomial(UnivariateFamily):
 
 class Gamma(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "log", "inverse"]
+
     def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
         mean = self.link.linkinv(linear_predictor)
         alpha = posterior[model.response.name + "_alpha"].values
@@ -75,6 +79,7 @@ class Gamma(UnivariateFamily):
 
 class Gaussian(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "log", "inverse"]
+
     def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
         "Sample from posterior predictive distribution"
         mean = self.link.linkinv(linear_predictor)
@@ -89,6 +94,7 @@ class Gaussian(UnivariateFamily):
 
 class NegativeBinomial(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "log", "cloglog"]
+
     def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
         mean = self.link.linkinv(linear_predictor)
         n = posterior[model.response.name + "_alpha"].values
@@ -103,6 +109,7 @@ class NegativeBinomial(UnivariateFamily):
 
 class Poisson(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "log"]
+
     def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
         mean = self.link.linkinv(linear_predictor)
         idxs = np.random.randint(low=0, high=draw_n, size=draws)
@@ -112,6 +119,7 @@ class Poisson(UnivariateFamily):
 
 class StudentT(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "log", "inverse"]
+
     def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
         mean = self.link.linkinv(linear_predictor)
         sigma = posterior[model.response.name + "_sigma"].values
@@ -130,6 +138,7 @@ class StudentT(UnivariateFamily):
 
 class Wald(UnivariateFamily):
     SUPPORTED_LINKS = ["inverse", "inverse_squared", "identity", "log"]
+
     def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
         mean = self.link.linkinv(linear_predictor)
         lam = posterior[model.response.name + "_lam"].values
