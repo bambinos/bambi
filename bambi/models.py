@@ -14,10 +14,10 @@ from formulae import design_matrices
 
 from .backend import PyMC3Model
 from .defaults import get_default_prior, get_builtin_family
-from .families import Family, _extract_family_prior, univariate
+from .families import Family, univariate, multivariate
 from .priors import Prior, PriorScaler, PriorScalerMLE
-from .terms import ResponseTerm, Term, GroupSpecificTerm
-from .utils import listify, link_match_family
+from .terms import GroupSpecificTerm, ResponseTerm, Term
+from .utils import listify
 from .version import __version__
 
 _log = logging.getLogger("bambi")
@@ -94,8 +94,8 @@ class Model:
     # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
-        formula=None,
-        data=None,
+        formula,
+        data,
         family="gaussian",
         priors=None,
         link=None,
@@ -157,9 +157,6 @@ class Model:
         self.automatic_priors = automatic_priors
 
         # Obtain design matrices and related objects.
-        if formula is None:
-            raise ValueError("Can't instantiate a model without a model formula.")
-
         na_action = "drop" if dropna else "error"
         self.formula = formula
         self._design = design_matrices(formula, data, na_action, env=1)
@@ -170,17 +167,9 @@ class Model:
                 "Please specify an outcome variable using the formula interface."
             )
 
-        family_prior = _extract_family_prior(family, priors)
-        if family_prior and self._design.common:
-            conflicts = [name for name in family_prior if name in self._design.common.terms_info]
-            if conflicts:
-                raise ValueError(
-                    f"The prior name for {', '.join(conflicts)} conflicts with the name of a "
-                    "parameter in the response distribution.\n"
-                    "Please rename the term(s) to prevent an unexpected behaviour."
-                )
+        self._set_family(family, link, priors)
 
-        self._add_response(self._design.response, family, link, family_prior)
+        self._add_response(self._design.response)
 
         if self._design.common:
             if self.automatic_priors == "mle":
@@ -326,7 +315,6 @@ class Model:
         kwargs = dict(zip(["priors", "common", "group_specific"], [priors, common, group_specific]))
         self._added_priors.update(kwargs)
         # After updating, we need to rebuild priors.
-        # There is redundancy here, so there's place for performance improvements.
         self._build_priors()
         self.built = False
 
@@ -339,11 +327,11 @@ class Model:
         for term in self.terms.values():
             if term.group_specific:
                 kind = "group_specific"
-            elif term.type == "intercept":
+            elif term.kind == "intercept":
                 kind = "intercept"
             else:
                 kind = "common"
-            term.prior = self._prepare_prior(term.prior, kind)
+            term.prior = prepare_prior(term.prior, kind, self.auto_scale)
 
         # Scale priors if there is at least one term in the model and auto_scale is True
         if self.terms and self.auto_scale:
@@ -373,14 +361,17 @@ class Model:
         targets = {}
 
         if common is not None:
-            targets.update({name: common for name in self.common_terms.keys()})
+            targets.update({name: common for name in self.common_terms})
 
         if group_specific is not None:
-            targets.update({name: group_specific for name in self.group_specific_terms.keys()})
+            targets.update({name: group_specific for name in self.group_specific_terms})
 
         if priors is not None:
-            # Prepare priors for response auxiliary parameters
-            family_prior = _extract_family_prior(self.family, priors)
+            priors = deepcopy(priors)
+            # Prepare priors for auxiliary parameters of the response
+            family_prior = {
+                name: priors.pop(name) for name in self.family.likelihood.priors if name in priors
+            }
             if family_prior:
                 for prior in family_prior.values():
                     prior.auto_scale = False
@@ -390,55 +381,30 @@ class Model:
             for names, prior in priors.items():
                 # In case we have tuple-keys, we loop throuh each of them.
                 for name in listify(names):
-                    if name not in list(self.terms.keys()):
-                        raise ValueError(f"No terms in model match {name}.")
+                    if name not in self.terms:
+                        raise ValueError(f"No terms in model match '{name}'.")
                     targets[name] = prior
 
         # Set priors for explanatory terms.
         for name, prior in targets.items():
             self.terms[name].prior = prior
 
-    def _prepare_prior(self, prior, kind):
-        """Helper function to correctly set default priors, auto scaling, etc.
+    def _set_family(self, family, link, priors):
+        """Set the Family of the model.
 
         Parameters
         ----------
-        prior : Prior, float, or None.
-        kind : string
-            Accepted values are: ``"intercept"``, ``"common"``, or ``"group_specific"``.
-        """
-        # NOTE: Does it make sense to have this function in the Model class?
-        if prior is None and not self.auto_scale:
-            prior = get_default_prior(kind + "_flat")
-        if isinstance(prior, Prior):
-            prior.auto_scale = False
-        else:
-            _scale = prior
-            prior = get_default_prior(kind)
-            prior.scale = _scale
-        return prior
-
-    def _add_response(self, response, family="gaussian", link=None, priors=None):
-        """Add a response (or outcome/dependent) variable to the model.
-
-        Parameters
-        ----------
-        response : formulae.ResponseVector
-            An instance of ``formulae.ResponseVector`` as returned by
-            ``formulae.design_matrices()``.
         family : str or bambi.families.Family
             A specification of the model family (analogous to the family object in R). Either a
             string, or an instance of class ``families.Family``. If a string is passed, a family
             with the corresponding name must be defined in the defaults loaded at model
-            initialization. Valid pre-defined families are ``"bernoulli"``, ``"beta"``,
-            ``"binomial"``, ``"categorical"``, ``"gamma"``, ``"gaussian"``, ``"negativebinomial"``,
-            ``"poisson"``, ``"t"``, and ``"wald"``. Defaults to ``"gaussian"``.
+            initialization.
         link : str
             The name of the link function to use. Valid names are ``"cloglog"``, ``"identity"``,
             ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, ``"probit"``, and
             ``"softmax"``. Not all the link functions can be used with all the families.
         priors : dict
-            Optional dictionary with specification of priors for the parameters in the family of
+            A dictionary with specification of priors for the parameters in the family of
             the response. Keys are names of other parameters than the mean in the family
             (i.e. they cannot be equal to ``family.parent``) and values can be an instance of class
             ``Prior``, a numeric value, or a string describing the width. In the numeric case,
@@ -447,17 +413,31 @@ class Model:
             ``automatic_priors`` is ``"mle"``and can be one of ``"wide"``, ``"narrow"``,
             ``"medium"``, or ``"superwide"``), predefined values will be used.
         """
+
+        # If string, get builtin family
         if isinstance(family, str):
             family = get_builtin_family(family)
-        elif not isinstance(family, Family):
+
+        # Always ensure family is indeed instance of Family
+        if not isinstance(family, Family):
             raise ValueError("'family' must be a string or a Family object.")
 
-        # Override family's link if another is explicitly passed
-        if link is not None:
-            if link_match_family(link, family.name):
-                family._set_link(link)  # pylint: disable=protected-access
-            else:
-                raise ValueError(f"Link '{link}' cannot be used with family '{family.name}'")
+        # Get the names of the auxiliary parameters in the family
+        aux_params = list(family.likelihood.priors)
+
+        # Check if any of the names of the auxiliary params match the names of terms in the model
+        # If that happens, raise an error.
+        if aux_params and self._design.common:
+            conflicts = [name for name in aux_params if name in self._design.common.terms_info]
+            if conflicts:
+                raise ValueError(
+                    f"The prior name for {', '.join(conflicts)} conflicts with the name of a "
+                    "parameter in the response distribution.\n"
+                    "Please rename the term(s) to prevent an unexpected behaviour."
+                )
+
+        # Extract priors for auxiliary params
+        priors = {k: v for k, v in priors.items() if k in aux_params}
 
         # Update auxiliary parameters
         if priors:
@@ -466,11 +446,30 @@ class Model:
                     prior.auto_scale = False
             family.likelihood.priors.update(priors)
 
-        if response.success is not None and not isinstance(family, univariate.Bernoulli):
-            raise ValueError("Index notation for response is only available for 'bernoulli' family")
+        # Override family's link if another is explicitly passed
+        if link is not None:
+            family.link = link
 
         self.family = family
-        self.response = ResponseTerm(response, family)
+
+    def _add_response(self, response):
+        """Add a response (or outcome/dependent) variable to the model.
+
+        Parameters
+        ----------
+        response : formulae.ResponseVector
+            An instance of ``formulae.ResponseVector`` as returned by
+            ``formulae.design_matrices()``.
+        """
+
+        if response.success is not None and not isinstance(self.family, univariate.Bernoulli):
+            raise ValueError("Index notation for response is only available for 'bernoulli' family")
+
+        if isinstance(self.family, univariate.Bernoulli):
+            if not all(np.isin(response.design_vector, [0, 1])):
+                raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
+
+        self.response = ResponseTerm(response)
         self.built = False
 
     def _add_common(self, common, priors):
@@ -801,7 +800,7 @@ class Model:
                     shape = (shape[0] * shape[1], 1)
                 # 2-dimensional predictors (e.g. spline basis and multivariate models)
                 else:
-                    if self.family.name == "categorical":
+                    if isinstance(self.family, multivariate.Categorical):
                         # Basis splines, categorical predictors, etc. may have more than one column.
                         response_n = len(self.response.levels) - 1
                         p = np.prod(shape[2:]) // response_n
@@ -840,7 +839,7 @@ class Model:
                 if len(shape) == 2:
                     shape = (shape[0] * shape[1], 1)
                 else:
-                    if self.family.name == "categorical":
+                    if isinstance(self.family, multivariate.Categorical):
                         response_n = len(self.response.levels) - 1
                         p = np.prod(shape[2:]) // response_n
                         shape = (shape[0] * shape[1], p, response_n)
@@ -1012,7 +1011,7 @@ class Model:
     def common_terms(self):
         """Return dict of all and only common effects in model."""
         return {
-            k: v for (k, v) in self.terms.items() if not v.group_specific and v.type != "intercept"
+            k: v for (k, v) in self.terms.items() if not v.group_specific and v.kind != "intercept"
         }
 
     @property
@@ -1023,7 +1022,7 @@ class Model:
     @property
     def intercept_term(self):
         """Return the intercept term"""
-        term = [v for v in self.terms.values() if not v.group_specific and v.type == "intercept"]
+        term = [v for v in self.terms.values() if not v.group_specific and v.kind == "intercept"]
         if term:
             return term[0]
         else:
@@ -1047,3 +1046,23 @@ def check_full_rank(matrix):
             "Design matrix for common effects is not full-rank. "
             "Bambi does not support sparse settings when automatic priors are obtained via MLE."
         )
+
+
+def prepare_prior(prior, kind, auto_scale):
+    """Helper function to correctly set default priors, auto scaling, etc.
+
+    Parameters
+    ----------
+    prior : Prior, float, or None.
+    kind : string
+        Accepted values are: ``"intercept"``, ``"common"``, or ``"group_specific"``.
+    """
+    if prior is None and not auto_scale:
+        prior = get_default_prior(kind + "_flat")
+    if isinstance(prior, Prior):
+        prior.auto_scale = False
+    else:
+        scale = prior
+        prior = get_default_prior(kind)
+        prior.scale = scale
+    return prior

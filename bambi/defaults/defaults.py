@@ -35,8 +35,6 @@ SETTINGS_DISTRIBUTIONS = {
 }
 
 # fmt: off
-# Beta: it asks for kappa, then we do alpha = mu*kappa, beta= (1-mu)*kappa
-# XTODO: Convert these entries to namedtuples
 SETTINGS_FAMILIES = {
     "bernoulli": {
         "likelihood": {
@@ -67,6 +65,15 @@ SETTINGS_FAMILIES = {
         "link": "logit",
         "family": Binomial,
     },
+    "categorical": {
+        "likelihood": {
+            "name": "Categorical",
+            "args": {},
+            "parent": "p",
+        },
+        "link": "softmax",
+        "family": Categorical,
+    },
     "gamma": {
         "likelihood": {
             "name": "Gamma",
@@ -88,15 +95,6 @@ SETTINGS_FAMILIES = {
         },
         "link": "identity",
         "family": Gaussian,
-    },
-    "categorical": {
-        "likelihood": {
-            "name": "Categorical",
-            "args": {},
-            "parent": "p",
-        },
-        "link": "softmax",
-        "family": Categorical,
     },
     "negativebinomial": {
         "likelihood": {
@@ -189,4 +187,6 @@ def get_builtin_family(name):
     ``bambi.families.Likelihood`` and the ``bambi.priors.Prior`` instances that are needed to build
     the family.
     """
-    return generate_family(name, **SETTINGS_FAMILIES[name])
+    if name in SETTINGS_FAMILIES:
+        return generate_family(name, **SETTINGS_FAMILIES[name])
+    raise ValueError("f'{name}' is not a valid built-in family name")

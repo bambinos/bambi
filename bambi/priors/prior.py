@@ -53,7 +53,7 @@ class Prior:
     def __str__(self):
         args = ", ".join(
             [
-                f"{k}: {np.round_(v, 4)}" if not isinstance(v, Prior) else f"{k}: {v}"
+                f"{k}: {np.round_(v, 4)}" if not isinstance(v, type(self)) else f"{k}: {v}"
                 for k, v in self.args.items()
             ]
         )
