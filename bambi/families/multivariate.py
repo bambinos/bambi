@@ -24,7 +24,6 @@ class MultivariateFamily(Family):
 
 class Categorical(MultivariateFamily):
     SUPPORTED_LINKS = ["softmax"]
-
     def predict(self, model, posterior, linear_predictor):
         # This is only 'softmax' for now.
         # Second axis is the one where the response coord is inserted
