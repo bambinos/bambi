@@ -12,7 +12,6 @@
 - Fixed examples that averaged posterior values across chains (#429)
 - Fixed issue #427 with automatic priors for the intercept term (#430)
 
-
 ### Documentation
 
 - Add StudentT regression example, thanks to @tjburch (#414)
