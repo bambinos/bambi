@@ -1,6 +1,10 @@
+import numpy as np
 import pymc3 as pm
+import theano.tensor as tt
 
 from bambi.backend.utils import has_hyperprior, get_distribution
+from bambi.families.multivariate import Categorical
+from bambi.families.univariate import Beta, Binomial, Gamma
 from bambi.priors import Prior
 
 
@@ -21,17 +25,29 @@ class CommonTerm:
         self.term = term
         self.coords = self.get_coords()
 
-    def build(self):
+    def build(self, spec):
         data = self.term.data
         label = self.term.name
         dist = self.term.prior.name
         args = self.term.prior.args
         distribution = get_distribution(dist)
-        if self.coords:
-            dims = list(self.coords.keys())
+
+        # Dims of the response variable (e.g. categorical family)
+        response_dims = []
+        if spec.response.categorical and not spec.response.binary:
+            response_dims = list(spec.response.pymc_coords)
+
+        dims = list(self.coords) + response_dims
+        if dims:
             coef = distribution(label, dims=dims, **args)
         else:
             coef = distribution(label, shape=data.shape[1], **args)
+
+        # Pre-pends one dimension if response is multi-categorical
+        if response_dims:
+            # If response is multivariate and predictor is univariate (not categorical/basis)
+            if len(dims) == 1:
+                coef = coef[np.newaxis, :]
         return coef, data
 
     def get_coords(self):
@@ -39,7 +55,7 @@ class CommonTerm:
         if self.term.categorical:
             name = self.term.name + "_coord"
             levels = self.term.term_dict["levels"]
-            if self.term.type == "interaction":
+            if self.term.kind == "interaction":
                 coords[name] = levels
             elif self.term.term_dict["encoding"] == "full":
                 coords[name] = levels
@@ -70,12 +86,19 @@ class GroupSpecificTerm:
         self.noncentered = noncentered
         self.coords = self.get_coords()
 
-    def build(self):
+    def build(self, spec):
         label = self.term.name
         dist = self.term.prior.name
         kwargs = self.term.prior.args
         predictor = self.term.predictor.squeeze()
-        dims = list(self.coords.keys())
+
+        # Dims of the response variable (e.g. categorical family)
+        response_dims = []
+        if spec.response.categorical and not spec.response.binary:
+            response_dims = list(spec.response.pymc_coords)
+
+        dims = list(self.coords) + response_dims
+        # dims = list(self.coords)
         coef = self.build_distribution(dist, label, dims=dims, **kwargs)
         coef = coef[self.term.group_index]
 
@@ -90,7 +113,7 @@ class GroupSpecificTerm:
         if self.term.categorical:
             name = expr + "_coord_group_expr"
             levels = self.term.term["levels"]
-            if self.term.type == "interaction":
+            if self.term.kind == "interaction":
                 coords[name] = levels
             elif self.term.term["encoding"] == "full":
                 coords[name] = levels
@@ -129,15 +152,21 @@ class InterceptTerm:
     Parameters
     ----------
     term: bambi.terms.Term
-        An object representing the intercept. This has ``.type == "intercept"``
+        An object representing the intercept. This has ``.kind == "intercept"``
     """
 
     def __init__(self, term):
         self.term = term
 
-    def build(self):
+    def build(self, spec):
         dist = get_distribution(self.term.prior.name)
-        return dist(self.term.name, shape=1, **self.term.prior.args)
+        # Pre-pends one dimension if response is multi-categorical
+        if spec.response.categorical and not spec.response.binary:
+            dims = list(spec.response.pymc_coords)
+            dist = dist(self.term.name, dims=dims, **self.term.prior.args)[np.newaxis, :]
+        else:
+            dist = dist(self.term.name, shape=1, **self.term.prior.args)
+        return dist
 
 
 class ResponseTerm:
@@ -172,18 +201,25 @@ class ResponseTerm:
         else:
             linkinv = self.family.link.linkinv_backend
 
+        # Add column of zeros, for the reference level, which is the first one.
+        if isinstance(self.family, Categorical):
+            nu = tt.concatenate([np.zeros((data.shape[0], 1)), nu], axis=1)
+
+        # Build priors for the auxiliary parameters in the likelihood (e.g. sigma in Gaussian)
         likelihood = self.family.likelihood
-        dist = get_distribution(likelihood.name)
         kwargs = {likelihood.parent: linkinv(nu), "observed": data}
         if likelihood.priors:
             for key, value in likelihood.priors.items():
                 if isinstance(value, Prior):
-                    _dist = get_distribution(value.name)
-                    kwargs[key] = _dist(f"{name}_{key}", **value.args)
+                    dist = get_distribution(value.name)
+                    kwargs[key] = dist(f"{name}_{key}", **value.args)
                 else:
                     kwargs[key] = value
 
-        if self.family.name == "beta":
+        # Get likelihood distribution
+        dist = get_distribution(likelihood.name)
+
+        if isinstance(self.family, Beta):
             # Beta distribution is specified using alpha and beta, but we have mu and kappa.
             # alpha = mu * kappa
             # beta = (1 - mu) * kappa
@@ -191,12 +227,12 @@ class ResponseTerm:
             beta = (1 - kwargs["mu"]) * kwargs["kappa"]
             return dist(name, alpha=alpha, beta=beta, observed=kwargs["observed"])
 
-        if self.family.name == "binomial":
+        if isinstance(self.family, Binomial):
             successes = data[:, 0].squeeze()
             trials = data[:, 1].squeeze()
             return dist(name, p=kwargs["p"], observed=successes, n=trials)
 
-        if self.family.name == "gamma":
+        if isinstance(self.family, Gamma):
             # Gamma distribution is specified using mu and sigma, but we request prior for alpha.
             # We build sigma from mu and alpha.
             sigma = kwargs["mu"] / (kwargs["alpha"] ** 0.5)

@@ -9,30 +9,62 @@ class ResponseTerm:
     term: formulae.ResponseVector
         An object describing the response of the model,
         as returned by ``formulae.design_matrices().response``
-    family : Family
-        An ``Family`` object.
     """
 
-    def __init__(self, term, family):
+    def __init__(self, term):
         self.name = term.name
         self.data = term.design_vector
+        self.constant = np.var(self.data) == 0  # NOTE: ATM we're not using this one
         self.categorical = term.type == "categoric"
-        self.success_event = term.success if term.success is not None else 1
-        self.constant = np.var(self.data) == 0
-        self.family = family
+        self.baseline = None  # Not None for non-binary categorical variables
+        self.success = term.success if term.success is not None else 1  # not None for binary vars
+        self.levels = None  # Not None for categorical variables
+        self.binary = None  # Not None for categorical variables (either True or False)
 
-        if family.name == "bernoulli":
-            if not all(np.isin(self.data, ([0, 1]))):
-                raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
+        if self.categorical:
+            self.binary = term.binary
+            self.levels = term.levels
+            if self.binary:
+                self.success = term.success
+            else:
+                self.baseline = term.baseline
+
+        if self.categorical:
+            self.binary = term.binary
+            self.levels = term.levels
+            if self.binary:
+                self.success = term.success
+            else:
+                self.baseline = term.baseline
+
+        # We use pymc coords when the response is multi-categorical.
+        # These help to give the appropriate shape to coefficients and make the resulting
+        # InferenceData object much cleaner
+        self.pymc_coords = {}
+        if self.categorical and not self.binary:
+            name = self.name + "_coord"
+            self.pymc_coords[name] = term.levels[1:]
+
+        # We use pymc coords when the response is multi-categorical.
+        # These help to give the appropriate shape to coefficients and make the resulting
+        # InferenceData object much cleaner
+        self.pymc_coords = {}
+        if self.categorical and not self.binary:
+            name = self.name + "_coord"
+            self.pymc_coords[name] = term.levels[1:]
 
     def __str__(self):
         args = [
             f"name: {self.name}",
-            f"family: {self.family.name}",
             f"shape: {self.data.squeeze().shape}",
         ]
-        if self.family.name == "bernoulli":
-            args += [f"succes: {self.success_event}"]
+
+        if self.categorical:
+            args += [f"levels: {self.levels}"]
+            if self.binary:
+                args += [f"success: {self.success}"]
+            else:
+                args += [f"baseline: {self.baseline}"]
 
         return f"{self.__class__.__name__}({', '.join(args)})"
 
@@ -62,7 +94,7 @@ class Term:
         self.name = name
         self.data = data
         self.prior = prior
-        self.type = term_dict["type"]
+        self.kind = term_dict["type"]
         self.levels = term_dict["full_names"]
         self.categorical = False
         self.term_dict = term_dict
@@ -70,21 +102,21 @@ class Term:
         # If the term has one component, it's categorical if the component is categorical.
         # If the term has more than one component (i.e. it is an interaction), it's categorical if
         # at least one of the components is categorical.
-        if self.type == "interaction":
-            if any((term["type"] == "categoric" for term in term_dict["terms"].values())):
+        if self.kind == "interaction":
+            if any(term["type"] == "categoric" for term in term_dict["terms"].values()):
                 self.categorical = True
         else:
-            self.categorical = self.type == "categoric"
+            self.categorical = self.kind == "categoric"
 
         # Flag constant terms
         if self.categorical and len(term_dict["levels"]) == 1 and (data == data[0]).all():
             raise ValueError(f"The term '{name}' has only 1 category!")
 
-        if not self.categorical and self.type != "intercept" and np.all(data == data[0]):
+        if not self.categorical and self.kind != "intercept" and np.all(data == data[0]):
             raise ValueError(f"The term '{name}' is constant!")
 
         # Flag cell-means terms (i.e., full-rank coding), which receive special priors
-        # To flag intercepts we use `self.type`
+        # To flag intercepts we use `self.kind`
         self.is_cell_means = self.categorical and (self.data.sum(1) == 1).all()
 
         # Obtain pymc coordinates, only for categorical components of a term.
@@ -93,7 +125,7 @@ class Term:
         self.pymc_coords = {}
         if self.categorical:
             name = self.name + "_coord"
-            if self.type == "interaction":
+            if self.kind == "interaction":
                 self.pymc_coords[name] = term_dict["levels"]
             elif term_dict["encoding"] == "full":
                 self.pymc_coords[name] = term_dict["levels"]
@@ -104,7 +136,7 @@ class Term:
         args = [
             f"name: {self.name}",
             f"prior: {self.prior}",
-            f"type: {self.type}",
+            f"kind: {self.kind}",
             f"shape: {self.data.squeeze().shape}",
             f"categorical: {self.categorical}",
         ]
@@ -140,7 +172,7 @@ class GroupSpecificTerm:
         self.name = name
         self.data = data
         self.prior = prior
-        self.type = term["type"]
+        self.kind = term["type"]
         self.groups = term["groups"]
         self.levels = term["full_names"]
         self.grouper = term["Ji"]
@@ -150,11 +182,11 @@ class GroupSpecificTerm:
         self.term = term
 
         # Determine if the expression is categorical
-        if self.type == "interaction":
-            if any((t["type"] == "categoric" for t in term["terms"].values())):
+        if self.kind == "interaction":
+            if any(t["type"] == "categoric" for t in term["terms"].values()):
                 self.categorical = True
         else:
-            self.categorical = self.type == "categoric"
+            self.categorical = self.kind == "categoric"
 
         # Determine if the term represents cell-means encoding.
         self.is_cell_means = self.categorical and (self.data.sum(1) == 1).all()
@@ -167,7 +199,7 @@ class GroupSpecificTerm:
 
         if self.categorical:
             name = expr + "_coord_group_expr"
-            if self.type == "interaction":
+            if self.kind == "interaction":
                 self.pymc_coords[name] = term["levels"]
             elif term["encoding"] == "full":
                 self.pymc_coords[name] = term["levels"]
@@ -190,7 +222,7 @@ class GroupSpecificTerm:
             f"name: {self.name}",
             f"prior: {self.prior}",
             f"groups: {self.groups}",
-            f"type: {self.type}",
+            f"type: {self.kind}",
             f"shape: {self.data.squeeze().shape}",
             f"categorical: {self.categorical}",
         ]

@@ -57,6 +57,16 @@ def data_count():
     return data
 
 
+@pytest.fixture(scope="module")
+def inhaler():
+    from os.path import dirname, join
+
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "inhaler.csv"))
+    data["rating"] = pd.Categorical(data["rating"], categories=[1, 2, 3, 4])
+    return data
+
+
 def test_predict_bernoulli(data_bernoulli):
     data = data_bernoulli
     model = Model("y ~ x1*x2", data, family="bernoulli")
@@ -196,3 +206,17 @@ def test_predict_wald(data_gamma):
 
     assert (0 < idata.posterior["y_mean"]).all()
     assert (0 < idata.posterior_predictive["y"]).all()
+
+
+def test_predict_categorical(inhaler):
+    model = Model("rating ~ period + carry + treat", inhaler, family="categorical")
+    idata = model.fit()
+
+    model.predict(idata)
+    model.predict(idata, data=inhaler.iloc[:20, :])
+
+    model = Model("rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical")
+    idata = model.fit()
+
+    model.predict(idata)
+    model.predict(idata, data=inhaler.iloc[:20, :])

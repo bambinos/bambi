@@ -2,14 +2,15 @@ from bambi.priors import Prior
 from bambi.utils import multilinify, spacify
 
 DISTRIBUTIONS = {
-    "Normal": {"params": ("mu", "sigma"), "parent": "mu", "args": ("sigma",)},
     "Bernoulli": {"params": ("p",), "parent": "p", "args": None},
     "Beta": {"params": ("mu", "kappa"), "parent": "mu", "args": ("kappa",)},
     "Binomial": {"params": ("p",), "parent": "p", "args": None},
+    "Categorical": {"params": ("p",), "parent": "p", "args": None},
+    "Gamma": {"params": ("mu", "alpha"), "parent": "mu", "args": ("alpha",)},
+    "Normal": {"params": ("mu", "sigma"), "parent": "mu", "args": ("sigma",)},
+    "NegativeBinomial": {"params": ("mu", "alpha"), "parent": "mu", "args": ("alpha",)},
     "Poisson": {"params": ("mu",), "parent": "mu", "args": None},
     "StudentT": {"params": ("mu", "sigma"), "args": ("sigma", "nu")},
-    "NegativeBinomial": {"params": ("mu", "alpha"), "parent": "mu", "args": ("alpha",)},
-    "Gamma": {"params": ("mu", "alpha"), "parent": "mu", "args": ("alpha",)},
     "Wald": {"params": ("mu", "lam"), "parent": "mu", "args": ("lam",)},
 }
 
@@ -35,12 +36,11 @@ class Likelihood:
 
     DISTRIBUTIONS = DISTRIBUTIONS
 
-    def __init__(self, name, parent=None, pps=None, **kwargs):
+    def __init__(self, name, parent=None, **kwargs):
         if name in self.DISTRIBUTIONS:
             self.name = name
-            self.parent = self._get_parent(parent)
+            self.parent = parent
             self.priors = self._check_priors(kwargs)
-            self.pps = pps
         else:
             # On your own risk
             self.name = name
@@ -48,16 +48,21 @@ class Likelihood:
             check_all_are_priors(kwargs)
             self.priors = kwargs
             self.parent = parent
-            self.pps = pps
 
-    def _get_parent(self, parent):
-        if parent is None:
-            parent = self.DISTRIBUTIONS[self.name]["parent"]
-        elif parent not in self.DISTRIBUTIONS[self.name]["params"]:
-            raise ValueError(
-                f"'{parent}' is not a valid parameter for the likelihood '{self.name}'"
-            )
-        return parent
+    @property
+    def parent(self):
+        return self._parent
+
+    @parent.setter
+    def parent(self, x):
+        # Checks are made when using a known distribution
+        if self.name in self.DISTRIBUTIONS:
+            if x is None:
+                x = self.DISTRIBUTIONS[self.name]["parent"]
+            elif x not in self.DISTRIBUTIONS[self.name]["params"]:
+                raise ValueError(f"'{x}' is not a valid parameter for the likelihood '{self.name}'")
+        # Otherwise, no check is done. At your own risk!
+        self._parent = x
 
     def _check_priors(self, priors):
         args = self.DISTRIBUTIONS[self.name]["args"]
@@ -90,5 +95,16 @@ class Likelihood:
 
 
 def check_all_are_priors(priors):
+    """Checks if values in the supplied dictionary are all valid prior objects
+
+    An object is a valid prior if
+    * It is an instance of bambi.priors.Prior
+    * It is a number
+
+    Parameters
+    ----------
+    priors: dict
+        A dictionary whose values are tested to be valid priors
+    """
     if any(not isinstance(prior, (Prior, int, float)) for prior in priors.values()):
         raise ValueError("Prior distributions must be a 'Prior' instance or a numeric value")

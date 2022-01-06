@@ -12,7 +12,6 @@ from formulae import design_matrices
 from bambi.models import Model
 from bambi.terms import Term, GroupSpecificTerm
 from bambi.priors import Prior
-from bambi.utils import link_match_family
 
 
 @pytest.fixture(scope="module")
@@ -219,7 +218,6 @@ def test_one_shot_formula_fit(diabetes_data):
     assert len(set(named_vars.keys()) & set(targets)) == 3
 
 
-@pytest.mark.skip(reason="Waiting for ArviZ release.")
 def test_categorical_term():
     data = pd.DataFrame(
         {
@@ -302,13 +300,6 @@ def test_hyperprior_on_common_effect():
         Model("y ~ x1 + (x1|g1)", data, priors=priors)
 
 
-def test_empty_formula_assertion():
-    data = pd.DataFrame({"y": [1]})
-    # ValueError when attempt to fit a model without having passed a formula
-    with pytest.raises(ValueError):
-        Model(data=data)
-
-
 def test_sparse_fails():
     data = pd.DataFrame(
         {
@@ -319,7 +310,7 @@ def test_sparse_fails():
             "x4": np.random.normal(size=4),
         }
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Design matrix for common effects is not full-rank"):
         Model("y ~ x1 + x2 + x3 + x4", data, automatic_priors="mle")
 
     data = pd.DataFrame(
@@ -329,7 +320,7 @@ def test_sparse_fails():
             "g2": ["a", "b", "c", "d"],
         }
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Design matrix for common effects is not full-rank"):
         Model("y ~ g1 + g2", data, automatic_priors="mle")
 
 
@@ -341,7 +332,7 @@ def test_sparse_fails():
         "bernoulli",
         "poisson",
         "gamma",
-        pytest.param("wald", marks=pytest.mark.xfail),
+        "wald",
     ],
 )
 def test_automatic_priors(family):
@@ -399,44 +390,10 @@ def test_bad_links():
         for link in links:
             with pytest.raises(ValueError):
                 if family == "bernoulli":
-                    Model("g ~ x", data, family=family, link=link)
+                    formula = "g ~ x"
                 else:
-                    Model("y ~ x", data, family=family, link=link)
-
-
-def test_link_match_family():
-    accepted = {
-        "bernoulli": ["identity", "logit", "probit", "cloglog"],
-        "beta": ["identity", "logit", "probit", "cloglog"],
-        "gamma": ["identity", "log", "inverse"],
-        "gaussian": ["identity", "log", "inverse"],
-        "negativebinomial": ["identity", "log", "cloglog"],
-        "poisson": ["identity", "log"],
-        "wald": ["inverse", "inverse_squared", "identity", "log"],
-    }
-
-    unaccepted = {
-        "bernoulli": ["inverse", "inverse_squared", "log"],
-        "beta": ["inverse", "inverse_squared", "log"],
-        "gamma": ["logit", "probit", "cloglog"],
-        "gaussian": ["logit", "probit", "cloglog"],
-        "negativebinomial": ["logit", "probit", "inverse", "inverse_squared"],
-        "poisson": ["logit", "probit", "cloglog", "inverse", "inverse_squared"],
-        "wald": ["logit", "probit", "cloglog"],
-    }
-
-    custom_families = ["hi", "dear", "friend"]
-
-    for family, links in accepted.items():
-        for link in links:
-            assert link_match_family(link, family)
-
-    for family, links in unaccepted.items():
-        for link in links:
-            assert not link_match_family(link, family)
-
-    for family in custom_families:
-        assert link_match_family("anything", family)
+                    formula = "y ~ x"
+                Model(formula, data, family=family, link=link)
 
 
 def test_constant_terms():

@@ -142,7 +142,7 @@ def test_family_link_unsupported():
     likelihood = Likelihood("Cheese", parent="holes", cheese=cheese)
     family = Family("cheese", likelihood=likelihood, link="cloglog")
     with pytest.raises(ValueError):
-        family._set_link("Empty")
+        family.link = "Empty"
 
 
 def test_family_bad_type():
@@ -156,13 +156,6 @@ def test_family_bad_type():
 
     with pytest.raises(ValueError):
         Model("y ~ x", data, family={"family": "gaussian"})
-
-
-@pytest.mark.skip(reason="This case is actually handled by formulae")
-def test_family_unsupported_index_notation():
-    data = pd.DataFrame({"x": [1], "y": [1]})
-    with pytest.raises(ParseError):
-        Model("y[1] ~ x", data, family="gaussian")
 
 
 def test_complete_separation():
@@ -217,6 +210,8 @@ def test_set_prior_with_tuple():
     model = Model("y ~ x + z", data)
     model.set_priors(priors={("x", "z"): prior})
 
+    # Prior is set to auto_scale=False when it set in the model
+    prior.auto_scale = False
     assert model.terms["x"].prior == prior
     assert model.terms["z"].prior == prior
 
@@ -327,3 +322,29 @@ def test_prior_shape():
 
     assert model.terms["q:s"].prior.args["mu"].shape == (12,)
     assert model.terms["q:s"].prior.args["sigma"].shape == (12,)
+
+
+def test_set_priors_but_intercept():
+    df = pd.DataFrame(
+        {
+            "y": [0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
+            "z": np.random.normal(size=10),
+            "x1": np.random.uniform(size=10),
+            "x2": np.random.uniform(size=10),
+            "g": ["A"] * 5 + ["B"] * 5,
+        }
+    )
+
+    priors = {
+        "x1": Prior("TruncatedNormal", sigma=1, mu=0, lower=0),
+        "x2": Prior("TruncatedNormal", sigma=1, mu=0, upper=0),
+    }
+
+    Model("y ~ x1 + x2", df, family="bernoulli", priors=priors)
+
+    priors = {
+        "x1": Prior("StudentT", mu=0, nu=4, lam=1),
+        "x2": Prior("StudentT", mu=0, nu=8, lam=2),
+    }
+
+    Model("z ~ x1 + x2 + (1|g)", df, priors=priors)

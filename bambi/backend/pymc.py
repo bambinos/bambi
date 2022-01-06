@@ -25,6 +25,7 @@ class PyMC3Model:
         "log": tt.exp,
         "logit": logit,
         "probit": probit,
+        "softmax": tt.nnet.softmax,
     }
 
     def __init__(self):
@@ -53,6 +54,12 @@ class PyMC3Model:
         self.model = pm.Model()
         self.has_intercept = spec.intercept_term is not None
         self.mu = 0.0
+
+        response_coords = spec.response.pymc_coords
+        for name, values in response_coords.items():
+            if name not in self.model.coords:
+                self.model.add_coords({name: values})
+        self.coords.update(**response_coords)
 
         with self.model:
             self._build_intercept(spec)
@@ -101,7 +108,7 @@ class PyMC3Model:
 
     def _build_intercept(self, spec):
         if self.has_intercept:
-            self.mu += InterceptTerm(spec.intercept_term).build()
+            self.mu += InterceptTerm(spec.intercept_term).build(spec)
 
     def _build_common_terms(self, spec):
         if spec.common_terms:
@@ -118,7 +125,7 @@ class PyMC3Model:
                 self.coords.update(**common_term.coords)
 
                 # Build
-                coef, data = common_term.build()
+                coef, data = common_term.build(spec)
                 coefs.append(coef)
                 columns.append(data)
 
@@ -159,7 +166,7 @@ class PyMC3Model:
             self.coords.update(**group_specific_term.coords)
 
             # Build
-            coef, predictor = group_specific_term.build()
+            coef, predictor = group_specific_term.build(spec)
 
             # Add to the linear predictor
             # The loop through predictor columns is not the most beautiful alternative.
@@ -168,7 +175,11 @@ class PyMC3Model:
                 for col in range(predictor.shape[1]):
                     self.mu += coef[:, col] * predictor[:, col]
             else:
-                self.mu += coef * predictor
+                # For categorical family
+                if spec.response.categorical and not spec.response.binary:
+                    self.mu += coef * predictor[:, np.newaxis]
+                else:
+                    self.mu += coef * predictor
 
     def _build_response(self, spec):
         ResponseTerm(spec.response, spec.family).build(self.mu, self.INVLINKS)
@@ -278,14 +289,22 @@ class PyMC3Model:
         if self.has_intercept and self.spec.common_terms:
             chain_n = len(idata.posterior["chain"])
             draw_n = len(idata.posterior["draw"])
+            shape = (chain_n, draw_n)
 
             # Design matrix without intercept
             X = self._design_matrix_without_intercept
 
             # Re-scale intercept for centered predictors
-            posterior = idata.posterior.stack(sample=["chain", "draw"])
-            coefs = np.vstack([np.atleast_2d(posterior[name]) for name in self.spec.common_terms])
-            idata.posterior["Intercept"] -= np.dot(X.mean(0), coefs).reshape((chain_n, draw_n))
+            common_terms = list(self.spec.common_terms)
+            coords = ["chain", "draw"]
+
+            if self.spec.response.pymc_coords:
+                shape += (len(self.spec.response.levels) - 1,)
+                coords += list(self.spec.response.pymc_coords)
+
+            posterior = idata.posterior.stack(samples=coords)
+            coefs = np.vstack([np.atleast_2d(posterior[name].values) for name in common_terms])
+            idata.posterior["Intercept"] -= np.dot(X.mean(0), coefs).reshape(shape)
 
         return idata
 

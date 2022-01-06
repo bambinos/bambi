@@ -1,5 +1,7 @@
 import numpy as np
 
+from bambi.families.univariate import Gaussian, StudentT
+
 from .prior import Prior
 
 
@@ -15,7 +17,7 @@ class PriorScaler:
         self.priors = {}
 
         # Compute mean and std of the response
-        if self.model.family.name in ["gaussian", "t"]:
+        if isinstance(self.model.family, (Gaussian, StudentT)):
             self.response_mean = np.mean(model.response.data)
             self.response_std = np.std(self.model.response.data)
         else:
@@ -26,7 +28,8 @@ class PriorScaler:
         mu = self.response_mean
         sigma = self.STD * self.response_std
 
-        if self.model.common_terms:
+        # Only adjust mu and sigma if there is at least one Normal prior for a common term.
+        if self.priors:
             sigmas = np.hstack([prior["sigma"] for prior in self.priors.values()])
             x_mean = np.hstack([self.model.terms[term].data.mean(axis=0) for term in self.priors])
             sigma = (sigma ** 2 + np.dot(sigmas ** 2, x_mean ** 2)) ** 0.5
@@ -38,8 +41,8 @@ class PriorScaler:
 
     def scale_response(self):
         # Add cases for other families
-        priors = self.model.response.family.likelihood.priors
-        if self.model.family.name in ["gaussian", "t"]:
+        priors = self.model.family.likelihood.priors
+        if isinstance(self.model.family, (Gaussian, StudentT)):
             if priors["sigma"].auto_scale:
                 priors["sigma"] = Prior("HalfStudentT", nu=4, sigma=self.response_std)
 
@@ -73,7 +76,7 @@ class PriorScaler:
         data_as_common = term.predictor
 
         # Handle intercepts
-        if term.type == "intercept":
+        if term.kind == "intercept":
             _, sigma = self.get_intercept_stats()
         # Handle slopes
         else:
