@@ -4,13 +4,19 @@
 
 ### New features
 
+- Added the new "categorical" built-in family (#426)
+
 ### Maintenance and fixes
 
 - Codebase for the PyMC backend has been refactored (#408)
+- Fixed examples that averaged posterior values across chains (#429)
+- Fixed issue #427 with automatic priors for the intercept term (#430)
+
 
 ### Documentation
 
-- Add T regression example, thanks to @tjburch (#414)
+- Add StudentT regression example, thanks to @tjburch (#414)
+- Added a B-Spline regression example with the cherry blossoms dataset (#416)
 - Add hirarchical linear regression example with sleepstudy dataset (#424)
 
 ### Deprecation
