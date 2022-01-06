@@ -533,7 +533,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -577,8 +577,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">basename</span>
 
 <span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
@@ -592,8 +591,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">12345</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">12345</span><span class="p">)</span>
 <span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -612,8 +610,7 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">DL_PATH</span> <span class="o">=</span> <span class="s1">&#39;data/facial_feedback/*csv&#39;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">DL_PATH</span> <span class="o">=</span> <span class="s1">&#39;data/facial_feedback/*csv&#39;</span>
 
 <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;cond_id&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;correct_c1&#39;</span><span class="p">,</span> <span class="s1">&#39;correct_c2&#39;</span><span class="p">,</span> <span class="s1">&#39;correct_c3&#39;</span><span class="p">,</span> <span class="s1">&#39;correct_c4&#39;</span><span class="p">,</span>
@@ -641,8 +638,7 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -826,8 +822,7 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Keep only subjects who (i) respond appropriately on all trials,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Keep only subjects who (i) respond appropriately on all trials,</span>
 <span class="c1"># (ii) understand the cartoons, and (iii) don&#39;t report any awareness</span>
 <span class="c1"># of the hypothesis or underlying theory.</span>
 <span class="n">valid</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;correct_total==4 and comprehension==1 and awareness==0&#39;</span><span class="p">)</span>
@@ -851,8 +846,7 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Initialize the model, passing in the dataset we want to use.</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize the model, passing in the dataset we want to use.</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + (1|uid)&quot;</span><span class="p">,</span> <span class="n">long</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Set a custom prior on group specific factor variances—just for illustration</span>
@@ -917,8 +911,7 @@ run on newer machines.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -934,8 +927,7 @@ run on newer machines.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span>
     <span class="n">results</span><span class="p">,</span>
     <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;condition&quot;</span><span class="p">,</span> <span class="s2">&quot;value_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;1|uid_sigma&quot;</span><span class="p">],</span>
     <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -955,8 +947,7 @@ run on newer machines.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;1|uid_sigma&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;1|uid_sigma&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -1063,8 +1054,7 @@ with this by adding specific intercepts for the 4 stimuli. We’ll model the sti
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
     <span class="s2">&quot;value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)&quot;</span><span class="p">,</span>
     <span class="n">long</span><span class="p">,</span>
     <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1125,8 +1115,7 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
               <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sigma&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;1|study&#39;</span><span class="p">,</span> <span class="s1">&#39;1|stimulus&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|study&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|stimulus&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;1|study_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;1|stimulus_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|study_sigma&#39;</span><span class="p">,</span>
@@ -1152,8 +1141,7 @@ sample, the gender of the experimenter, or any of the hundreds of others of betw
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
 <span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
 </pre></div>
 </div>
@@ -1222,7 +1210,7 @@ Watermark: 2.1.0
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.0.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br>
 </p>
     </div>
     

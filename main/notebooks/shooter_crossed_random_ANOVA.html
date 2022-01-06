@@ -528,7 +528,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -572,8 +572,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
 <span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -585,8 +584,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;arviz-darkgrid&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;arviz-darkgrid&#39;</span><span class="p">)</span>
 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
 <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">chained_assignment</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
@@ -602,8 +600,7 @@ Subjects receive points for correct and timely responses in each trial; subjects
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">shooter</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/shooter.csv&#39;</span><span class="p">,</span> <span class="n">na_values</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shooter</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/shooter.csv&#39;</span><span class="p">,</span> <span class="n">na_values</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
 <span class="n">shooter</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -750,8 +747,7 @@ Subjects receive points for correct and timely responses in each trial; subjects
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="p">[</span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">],</span> <span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;object&#39;</span><span class="p">]])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="p">[</span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">],</span> <span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;object&#39;</span><span class="p">]])</span>
 </pre></div>
 </div>
 </div>
@@ -1719,8 +1715,7 @@ more convenient for us by allowing us to use some fairly standard distributional
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1000.0</span> <span class="o">/</span> <span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1000.0</span> <span class="o">/</span> <span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -1728,8 +1723,7 @@ more convenient for us by allowing us to use some fairly standard distributional
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">());</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">());</span>
 </pre></div>
 </div>
 </div>
@@ -1751,8 +1745,7 @@ that we use to parse formulae. This instructs Bambi to use contrast codes of -1 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">subj_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">shooter</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subj_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">shooter</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">subj_fitted</span> <span class="o">=</span> <span class="n">subj_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;rate ~ C(race, Sum)*C(object, Sum)&#39;</span><span class="p">,</span>
                              <span class="n">group_specific</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;C(race, Sum)*C(object, Sum)|subject&#39;</span><span class="p">],</span>
                              <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -1804,8 +1797,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">subj_model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subj_model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -1823,8 +1815,7 @@ corresponding common effect priors (see <a class="reference external" href="http
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">subj_fitted</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">subj_fitted</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1840,8 +1831,7 @@ corresponding common effect priors (see <a class="reference external" href="http
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># by default the variables plotted by subj_model.plot() are different than those from:</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># by default the variables plotted by subj_model.plot() are different than those from:</span>
 <span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">subj_fitted</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum):C(object, Sum)&#39;</span><span class="p">,</span>
                                  <span class="s1">&#39;1|subject&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum)[S.black]|subject&#39;</span><span class="p">,</span>
                                   <span class="s1">&#39;C(object, Sum)[S.gun]|subject&#39;</span><span class="p">,</span>
@@ -2061,8 +2051,7 @@ are interested in talking about, and that we could have just as easily and justi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">stim_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">shooter</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stim_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">shooter</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">stim_fitted</span> <span class="o">=</span> <span class="n">stim_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;rate ~ C(race, Sum)*C(object, Sum)&#39;</span><span class="p">,</span>
                              <span class="n">group_specific</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;C(race, Sum)*C(object, Sum)|subject&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)|target&#39;</span><span class="p">],</span>
                              <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
@@ -2116,8 +2105,7 @@ The estimated number of effective samples is smaller than 200 for some parameter
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">stim_fitted</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">stim_fitted</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -2132,8 +2120,7 @@ The estimated number of effective samples is smaller than 200 for some parameter
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">stim_fitted</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum):C(object, Sum)&#39;</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">stim_fitted</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum):C(object, Sum)&#39;</span><span class="p">,</span>
                                   <span class="s1">&#39;1|subject&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)[S.gun]|subject&#39;</span><span class="p">,</span>
                                   <span class="s1">&#39;C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject&#39;</span><span class="p">,</span>
                                   <span class="s1">&#39;rate_sigma&#39;</span><span class="p">])</span>
@@ -2341,8 +2328,7 @@ The estimated number of effective samples is smaller than 200 for some parameter
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="p">(</span><span class="n">stim_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;C(race, Sum):C(object, Sum)&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">stim_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;C(race, Sum):C(object, Sum)&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -2716,8 +2702,7 @@ objects, such as a black cell phone, are possibly easier to confuse with a gun, 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;shoot_or_not&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;shoot_or_not&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
 
 <span class="c1"># armed targets</span>
 <span class="n">new_vals</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;correct&#39;</span><span class="p">:</span> <span class="s1">&#39;shoot&#39;</span><span class="p">,</span> <span class="s1">&#39;incorrect&#39;</span><span class="p">:</span><span class="s1">&#39;dontshoot&#39;</span><span class="p">,</span> <span class="s1">&#39;timeout&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">}</span>
@@ -3017,8 +3002,7 @@ objects, such as a black cell phone, are possibly easier to confuse with a gun, 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">stim_response_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">shooter</span><span class="o">.</span><span class="n">dropna</span><span class="p">())</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stim_response_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">shooter</span><span class="o">.</span><span class="n">dropna</span><span class="p">())</span>
 <span class="c1"># Note we increased target_accept from default 0.8 to 0.9 because there were divergences</span>
 <span class="n">stim_response_fitted</span> <span class="o">=</span> <span class="n">stim_response_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="s1">&#39;shoot_or_not[shoot] ~ C(race, Sum)*C(object, Sum)&#39;</span><span class="p">,</span>
@@ -3074,8 +3058,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">stim_response_fitted</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">stim_response_fitted</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -3091,8 +3074,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">stim_response_fitted</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">stim_response_fitted</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -3297,8 +3279,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="p">(</span><span class="n">stim_response_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;C(race, Sum)&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">stim_response_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;C(race, Sum)&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -3664,8 +3645,7 @@ array(0.07066667)</pre><div class='xr-wrap' hidden><div class='xr-header'><div c
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
 <span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
 </pre></div>
 </div>
@@ -3715,7 +3695,7 @@ watermark 2.0.2
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.0.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br>
 </p>
     </div>
     
