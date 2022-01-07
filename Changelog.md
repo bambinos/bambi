@@ -5,6 +5,7 @@
 ### New features
 
 - Added the new "categorical" built-in family (#426)
+- Added the `include_mean` argument to the method `Model.fit()` (#434)
 
 ### Maintenance and fixes
 
