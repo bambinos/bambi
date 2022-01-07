@@ -75,6 +75,7 @@ class PyMC3Model:
         tune=1000,
         discard_tuned_samples=True,
         omit_offsets=True,
+        include_mean=False,
         method="mcmc",
         init="auto",
         n_init=50000,
@@ -91,6 +92,7 @@ class PyMC3Model:
                 tune,
                 discard_tuned_samples,
                 omit_offsets,
+                include_mean,
                 init,
                 n_init,
                 chains,
@@ -202,6 +204,7 @@ class PyMC3Model:
         tune=1000,
         discard_tuned_samples=True,
         omit_offsets=True,
+        include_mean=False,
         init="auto",
         n_init=50000,
         chains=None,
@@ -244,10 +247,10 @@ class PyMC3Model:
                 else:
                     raise
 
-        idata = self._clean_mcmc_results(idata, omit_offsets)
+        idata = self._clean_mcmc_results(idata, omit_offsets, include_mean)
         return idata
 
-    def _clean_mcmc_results(self, idata, omit_offsets):
+    def _clean_mcmc_results(self, idata, omit_offsets, include_mean):
         for group in idata.groups():
             getattr(idata, group).attrs["modeling_interface"] = "bambi"
             getattr(idata, group).attrs["modeling_interface_version"] = version.__version__
@@ -264,7 +267,6 @@ class PyMC3Model:
         idata.posterior = idata.posterior.drop_dims(dims_to_drop)
 
         # Drop and reorder coords
-        # pylint: disable=protected-access
         # About coordinates ending with "_dim_0"
         # Coordinates that end with "_dim_0" are added automatically.
         # These represents unidimensional coordinates that are added for numerical variables.
@@ -305,6 +307,9 @@ class PyMC3Model:
             posterior = idata.posterior.stack(samples=coords)
             coefs = np.vstack([np.atleast_2d(posterior[name].values) for name in common_terms])
             idata.posterior["Intercept"] -= np.dot(X.mean(0), coefs).reshape(shape)
+
+        if include_mean:
+            self.spec.predict(idata)
 
         return idata
 
