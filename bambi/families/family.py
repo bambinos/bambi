@@ -70,6 +70,7 @@ class Family:
         self.likelihood = likelihood
         self.link = link
         self.smfamily = STATSMODELS_FAMILIES.get(name, None)
+        self.aliases = {}
 
     @property
     def link(self):
@@ -89,6 +90,18 @@ class Family:
     def check_string_link(self, link):
         if not link in self.SUPPORTED_LINKS:
             raise ValueError(f"Link '{link}' cannot be used with family '{self.name}'")
+
+    def set_alias(self, name, alias):
+        """Set alias for an auxiliary variable of the family
+
+        Parameters
+        ----------
+        name: str
+            The name of the variable
+        alias: str
+            The new name for the variable
+        """
+        self.aliases.update({name: alias})
 
     def __str__(self):
         msg_list = [f"Response distribution: {self.likelihood.name}", f"Link: {self.link.name}"]

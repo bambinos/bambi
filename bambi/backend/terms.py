@@ -27,7 +27,7 @@ class CommonTerm:
 
     def build(self, spec):
         data = self.term.data
-        label = self.term.name
+        label = self.name
         dist = self.term.prior.name
         args = self.term.prior.args
         distribution = get_distribution(dist)
@@ -53,7 +53,7 @@ class CommonTerm:
     def get_coords(self):
         coords = {}
         if self.term.categorical:
-            name = self.term.name + "_coord"
+            name = self.name + "_coord"
             levels = self.term.term_dict["levels"]
             if self.term.kind == "interaction":
                 coords[name] = levels
@@ -61,12 +61,17 @@ class CommonTerm:
                 coords[name] = levels
             else:
                 coords[name] = levels[1:]
-        else:
+        elif self.term.data.shape[1] > 1:
             # Not categorical but multi-column, like when we use splines
-            if self.term.data.shape[1] > 1:
-                name = self.term.name + "_coord"
-                coords[name] = list(range(self.term.data.shape[1]))
+            name = self.name + "_coord"
+            coords[name] = list(range(self.term.data.shape[1]))
         return coords
+
+    @property
+    def name(self):
+        if self.term.alias:
+            return self.term.alias
+        return self.term.name
 
 
 class GroupSpecificTerm:
@@ -87,7 +92,7 @@ class GroupSpecificTerm:
         self.coords = self.get_coords()
 
     def build(self, spec):
-        label = self.term.name
+        label = self.name
         dist = self.term.prior.name
         kwargs = self.term.prior.args
         predictor = self.term.predictor.squeeze()
@@ -98,7 +103,6 @@ class GroupSpecificTerm:
             response_dims = list(spec.response.pymc_coords)
 
         dims = list(self.coords) + response_dims
-        # dims = list(self.coords)
         coef = self.build_distribution(dist, label, dims=dims, **kwargs)
         coef = coef[self.term.group_index]
 
@@ -106,8 +110,14 @@ class GroupSpecificTerm:
 
     def get_coords(self):
         coords = {}
+
+        # Use the name of the alias if there's an alias
+        if self.term.alias:
+            expr, factor = self.term.alias, self.term.alias
+        else:
+            expr, factor = self.term.name.split("|")
+
         # The group is always a coordinate we add to the model.
-        expr, factor = self.term.name.split("|")
         coords[factor + "_coord_group_factor"] = self.term.groups
 
         if self.term.categorical:
@@ -145,6 +155,12 @@ class GroupSpecificTerm:
             return self.build_distribution(value.name, f"{label}_{key}", **value.args, **kwargs)
         return value
 
+    @property
+    def name(self):
+        if self.term.alias:
+            return self.term.alias
+        return self.term.name
+
 
 class InterceptTerm:
     """Representation of an intercept term in a PyMC3 model.
@@ -160,13 +176,20 @@ class InterceptTerm:
 
     def build(self, spec):
         dist = get_distribution(self.term.prior.name)
+        label = self.name
         # Pre-pends one dimension if response is multi-categorical
         if spec.response.categorical and not spec.response.binary:
             dims = list(spec.response.pymc_coords)
-            dist = dist(self.term.name, dims=dims, **self.term.prior.args)[np.newaxis, :]
+            dist = dist(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:
-            dist = dist(self.term.name, shape=1, **self.term.prior.args)
+            dist = dist(label, shape=1, **self.term.prior.args)
         return dist
+
+    @property
+    def name(self):
+        if self.term.alias:
+            return self.term.alias
+        return self.term.name
 
 
 class ResponseTerm:
@@ -194,7 +217,7 @@ class ResponseTerm:
             that can operate with Theano tensors.
         """
         data = self.term.data.squeeze()
-        name = self.term.name
+        name = self.name
 
         if self.family.link.name in invlinks:
             linkinv = invlinks[self.family.link.name]
@@ -210,9 +233,16 @@ class ResponseTerm:
         kwargs = {likelihood.parent: linkinv(nu), "observed": data}
         if likelihood.priors:
             for key, value in likelihood.priors.items():
+
+                # Use the alias if there's one
+                if key in self.family.aliases:
+                    label = self.family.aliases[key]
+                else:
+                    label = f"{name}_{key}"
+
                 if isinstance(value, Prior):
                     dist = get_distribution(value.name)
-                    kwargs[key] = dist(f"{name}_{key}", **value.args)
+                    kwargs[key] = dist(label, **value.args)
                 else:
                     kwargs[key] = value
 
@@ -239,3 +269,9 @@ class ResponseTerm:
             return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
 
         return dist(name, **kwargs)
+
+    @property
+    def name(self):
+        if self.term.alias:
+            return self.term.alias
+        return self.term.name

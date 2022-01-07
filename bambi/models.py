@@ -9,7 +9,7 @@ import pymc3 as pm
 
 from arviz.plots import plot_posterior
 from arviz.data import from_dict
-from numpy.linalg import matrix_rank
+
 from formulae import design_matrices
 
 from .backend import PyMC3Model
@@ -17,7 +17,7 @@ from .defaults import get_default_prior, get_builtin_family
 from .families import Family, univariate, multivariate
 from .priors import Prior, PriorScaler, PriorScalerMLE
 from .terms import GroupSpecificTerm, ResponseTerm, Term
-from .utils import listify
+from .utils import check_full_rank, listify
 from .version import __version__
 
 _log = logging.getLogger("bambi")
@@ -168,7 +168,6 @@ class Model:
             )
 
         self._set_family(family, link, priors)
-
         self._add_response(self._design.response)
 
         if self._design.common:
@@ -451,6 +450,28 @@ class Model:
             family.link = link
 
         self.family = family
+
+    def set_alias(self, aliases):
+        """Set aliases for the terms and auxiliary parameters in the model
+
+        Parameters
+        ----------
+        aliases: dict
+            A dictionary where key represents the original term name and the value is the alias.
+        """
+        if not isinstance(aliases, dict):
+            raise ValueError(f"'aliases' must be a dictionary, not a {type(aliases)}.")
+
+        for name, alias in aliases.items():
+            if name in self.terms:
+                self.terms[name].set_alias(alias)
+            if name in self.family.likelihood.priors:
+                self.family.set_alias(name, alias)
+            if name == self.response.name:
+                self.response.set_alias(alias)
+
+        # Model needs to be rebuilt after modifying aliases
+        self.built = False
 
     def _add_response(self, response):
         """Add a response (or outcome/dependent) variable to the model.
@@ -1027,25 +1048,6 @@ class Model:
             return term[0]
         else:
             return None
-
-
-def check_full_rank(matrix):
-    """Checks if a matrix is full rank
-
-    Parameters
-    ----------
-    matrix: numpy.array
-        A 2-dimensional NumPy array that represents a design matrix
-
-    Returns
-    -------
-    None
-    """
-    if matrix_rank(matrix) < matrix.shape[1]:
-        raise ValueError(
-            "Design matrix for common effects is not full-rank. "
-            "Bambi does not support sparse settings when automatic priors are obtained via MLE."
-        )
 
 
 def prepare_prior(prior, kind, auto_scale):
