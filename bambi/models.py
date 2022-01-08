@@ -470,6 +470,11 @@ class Model:
             if name == self.response.name:
                 self.response.set_alias(alias)
 
+            # Now add aliases for hyperpriors in group specific terms
+            for term in self.group_specific_terms.values():
+                if name in term.prior.args:
+                    term.set_hyperprior_alias(name, alias)
+
         # Model needs to be rebuilt after modifying aliases
         self.built = False
 

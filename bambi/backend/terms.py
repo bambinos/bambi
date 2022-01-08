@@ -14,7 +14,6 @@ class CommonTerm:
     An object that builds the PyMC3 distribution for a common effects term. It also contains the
     coordinates that we then add to the model.
 
-
     Parameters
     ----------
     term: bambi.terms.Term
@@ -84,6 +83,8 @@ class GroupSpecificTerm:
     ----------
     term: bambi.terms.GroupSpecificTerm
         An object representing a group specific effects term.
+    noncentered: bool
+        Specifies if we use non-centered parametrization of group-specific effects.
     """
 
     def __init__(self, term, noncentered):
@@ -152,6 +153,8 @@ class GroupSpecificTerm:
     def expand_prior_args(self, key, value, label, **kwargs):
         # kwargs are used to pass 'dims' for group specific terms.
         if isinstance(value, Prior):
+            # If there's an alias for the hyperprior, use it.
+            key = self.term.hyperprior_alias.get(key, key)
             return self.build_distribution(value.name, f"{label}_{key}", **value.args, **kwargs)
         return value
 
@@ -217,58 +220,71 @@ class ResponseTerm:
             that can operate with Theano tensors.
         """
         data = self.term.data.squeeze()
-        name = self.name
 
+        # Take the inverse link function that maps from linear predictor to the mean of likelihood
         if self.family.link.name in invlinks:
             linkinv = invlinks[self.family.link.name]
         else:
             linkinv = self.family.link.linkinv_backend
 
-        # Add column of zeros, for the reference level, which is the first one.
+        # Add column of zeros to the linear predictor for the reference level (the first one)
         if isinstance(self.family, Categorical):
             nu = tt.concatenate([np.zeros((data.shape[0], 1)), nu], axis=1)
 
+        # Add mean parameter and observed data
+        kwargs = {self.family.likelihood.parent: linkinv(nu), "observed": data}
+
+        # Add auxiliary parameters
+        kwargs = self.build_auxiliary_parameters(kwargs)
+
+        # Build the response distribution
+        dist = self.build_response_distribution(kwargs)
+
+        return dist
+
+    def build_auxiliary_parameters(self, kwargs):
         # Build priors for the auxiliary parameters in the likelihood (e.g. sigma in Gaussian)
-        likelihood = self.family.likelihood
-        kwargs = {likelihood.parent: linkinv(nu), "observed": data}
-        if likelihood.priors:
-            for key, value in likelihood.priors.items():
+        if self.family.likelihood.priors:
+            for key, value in self.family.likelihood.priors.items():
 
                 # Use the alias if there's one
                 if key in self.family.aliases:
                     label = self.family.aliases[key]
                 else:
-                    label = f"{name}_{key}"
+                    label = f"{self.name}_{key}"
 
                 if isinstance(value, Prior):
                     dist = get_distribution(value.name)
                     kwargs[key] = dist(label, **value.args)
                 else:
                     kwargs[key] = value
+        return kwargs
 
+    def build_response_distribution(self, kwargs):
         # Get likelihood distribution
-        dist = get_distribution(likelihood.name)
+        dist = get_distribution(self.family.likelihood.name)
 
+        # Handle some special cases
         if isinstance(self.family, Beta):
-            # Beta distribution is specified using alpha and beta, but we have mu and kappa.
+            # Beta distribution in PyMC uses alpha and beta, but we have mu and kappa.
             # alpha = mu * kappa
             # beta = (1 - mu) * kappa
             alpha = kwargs["mu"] * kwargs["kappa"]
             beta = (1 - kwargs["mu"]) * kwargs["kappa"]
-            return dist(name, alpha=alpha, beta=beta, observed=kwargs["observed"])
+            return dist(self.name, alpha=alpha, beta=beta, observed=kwargs["observed"])
 
         if isinstance(self.family, Binomial):
-            successes = data[:, 0].squeeze()
-            trials = data[:, 1].squeeze()
-            return dist(name, p=kwargs["p"], observed=successes, n=trials)
+            successes = kwargs["observed"][:, 0].squeeze()
+            trials = kwargs["observed"][:, 1].squeeze()
+            return dist(self.name, p=kwargs["p"], observed=successes, n=trials)
 
         if isinstance(self.family, Gamma):
             # Gamma distribution is specified using mu and sigma, but we request prior for alpha.
             # We build sigma from mu and alpha.
             sigma = kwargs["mu"] / (kwargs["alpha"] ** 0.5)
-            return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
+            return dist(self.name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
 
-        return dist(name, **kwargs)
+        return dist(self.name, **kwargs)
 
     @property
     def name(self):

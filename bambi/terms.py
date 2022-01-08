@@ -196,6 +196,7 @@ class GroupSpecificTerm:
         self.categorical = False
         self.term = term
         self.alias = None
+        self.hyperprior_alias = {}
 
         # Determine if the expression is categorical
         if self.kind == "interaction":
@@ -235,6 +236,9 @@ class GroupSpecificTerm:
 
     def set_alias(self, value):
         self.alias = value
+
+    def set_hyperprior_alias(self, name, value):
+        self.hyperprior_alias.update({name: value})
 
     def __str__(self):
         args = [
