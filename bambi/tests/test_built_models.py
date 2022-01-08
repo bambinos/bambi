@@ -547,3 +547,25 @@ def test_categorical_family(inhaler):
 def test_categorical_family_varying_intercept(inhaler):
     model = Model("rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical")
     model.fit()
+
+
+def test_set_alias():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "predictor": np.random.normal(size=100),
+            "group": np.random.choice(["A", "B", "C", "D"], size=100),
+        }
+    )
+    model = Model("y ~ predictor + (predictor|group)", data)
+    aliases = {
+        "Intercept": "α",
+        "predictor": "β",
+        "1|group": "α_group",
+        "predictor|group": "β_group",
+        "sigma": "σ",
+    }
+    model.set_alias(aliases)
+    model.build()
+    new_names = set(["α", "β", "α_group", "α_group_σ", "β_group", "β_group_σ", "σ"])
+    assert new_names.issubset(set(model.backend.model.named_vars))
