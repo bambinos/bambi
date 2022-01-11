@@ -411,7 +411,7 @@ term), then calls the backend’s <code class="docutils literal notranslate"><sp
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bambi.models.Model.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">draws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tune</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discard_tuned_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omit_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mcmc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chains</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.fit" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">draws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tune</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discard_tuned_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omit_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mcmc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chains</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.fit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit the model using PyMC3.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -424,6 +424,7 @@ number specified in the <code class="docutils literal notranslate"><span class="
 <li><p><strong>discard_tuned_samples</strong> (<em>bool</em>) – Whether to discard posterior samples of the tune interval. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 <li><p><strong>omit_offsets</strong> (<em>bool</em>) – Omits offset terms in the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object returned when the model includes
 group specific effects. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>include_mean</strong> (<em>bool</em>) – Compute the posterior of the mean response. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>method</strong> (<em>str</em>) – The method to use for fitting the model. By default, <code class="docutils literal notranslate"><span class="pre">&quot;mcmc&quot;</span></code>. This automatically
 assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
 variables and Metropolis for non-binary discrete ones. Alternatively, <code class="docutils literal notranslate"><span class="pre">&quot;advi&quot;</span></code>, in
@@ -623,6 +624,17 @@ Defaults to <code class="docutils literal notranslate"><span class="pre">None</s
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="bambi.models.Model.set_alias">
+<span class="sig-name descname"><span class="pre">set_alias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aliases</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.set_alias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.set_alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set aliases for the terms and auxiliary parameters in the model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>aliases</strong> (<em>dict</em>) – A dictionary where key represents the original term name and the value is the alias.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="bambi.models.Model.set_priors">
 <span class="sig-name descname"><span class="pre">set_priors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">priors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">common</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_specific</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.set_priors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.set_priors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set priors for one or more existing terms.</p>
@@ -760,6 +772,20 @@ transforms the linear model prediction to the mean parameter of the likelihood f
 <span class="gp">&gt;&gt;&gt; </span><span class="n">family</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Family</span><span class="p">(</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">,</span> <span class="s2">&quot;logit&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
+<dl class="py method">
+<dt class="sig sig-object py" id="bambi.families.Family.set_alias">
+<span class="sig-name descname"><span class="pre">set_alias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alias</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/families/family.html#Family.set_alias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.families.Family.set_alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set alias for an auxiliary variable of the family</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the variable</p></li>
+<li><p><strong>alias</strong> (<em>str</em>) – The new name for the variable</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
