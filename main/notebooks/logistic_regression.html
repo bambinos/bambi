@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Logistic Regression &#8212; Bambi 0.6.3 documentation</title>
+    <title>Logistic Regression (Vote intention with ANES data) &#8212; Bambi 0.6.3 documentation</title>
     
   <link href="../_static/css/theme.css" rel="stylesheet">
   <link href="../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -37,7 +37,7 @@
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Multi-level Regression" href="multi-level_regression.html" />
+    <link rel="next" title="Logistic Regression and Model Comparison with Bambi and ArviZ" href="model_comparison.html" />
     <link rel="prev" title="Robust Linear Regression" href="t_regression.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
@@ -272,69 +272,62 @@
 
 <nav id="bd-toc-nav">
     <ul class="visible nav section-nav flex-column">
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#">
-   Logistic Regression
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Load-and-examine-American-National-Election-Studies-(ANES)-data">
+   Load and examine American National Election Studies (ANES) data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Build-clinton_model">
+   Build
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     clinton_model
+    </span>
+   </code>
   </a>
   <ul class="visible nav section-nav flex-column">
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Load-and-examine-American-National-Election-Studies-(ANES)-data">
-     Load and examine American National Election Studies (ANES) data
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Logistic-regression">
+     Logistic regression
     </a>
    </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Build-clinton_model">
-     Build
-     <code class="docutils literal notranslate">
-      <span class="pre">
-       clinton_model
-      </span>
-     </code>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#Specify-and-fit-model-in-Bambi">
+     Specify and fit model in Bambi
     </a>
-    <ul class="visible nav section-nav flex-column">
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#Logistic-regression">
-       Logistic regression
-      </a>
-     </li>
-     <li class="toc-h3 nav-item toc-entry">
-      <a class="reference internal nav-link" href="#Specify-and-fit-model-in-Bambi">
-       Specify and fit model in Bambi
-      </a>
-     </li>
-    </ul>
    </li>
   </ul>
  </li>
- <li class="toc-h1 nav-item toc-entry">
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#Model-assessment">
    Model assessment
   </a>
   <ul class="visible nav section-nav flex-column">
-   <li class="toc-h2 nav-item toc-entry">
+   <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#Separation-plot">
      Separation plot
     </a>
    </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#\hat-\kappa-parameter">
-     <span class="math notranslate nohighlight">
-      \(\hat \kappa\)
-     </span>
-     parameter
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Run-Inference">
-     Run Inference
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Spaghetti-plot-of-model-predictions">
-     Spaghetti plot of model predictions
-    </a>
-   </li>
   </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#\hat-\kappa-parameter">
+   <span class="math notranslate nohighlight">
+    \(\hat \kappa\)
+   </span>
+   parameter
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Run-Inference">
+   Run Inference
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Spaghetti-plot-of-model-predictions">
+   Spaghetti plot of model predictions
+  </a>
  </li>
 </ul>
 
@@ -605,8 +598,8 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<section id="Logistic-Regression">
-<h1>Logistic Regression<a class="headerlink" href="#Logistic-Regression" title="Permalink to this headline">¶</a></h1>
+<section id="Logistic-Regression-(Vote-intention-with-ANES-data)">
+<h1>Logistic Regression (Vote intention with ANES data)<a class="headerlink" href="#Logistic-Regression-(Vote-intention-with-ANES-data)" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -1201,12 +1194,11 @@ Priors:
 </div>
 </section>
 </section>
-</section>
 <section id="Model-assessment">
-<h1>Model assessment<a class="headerlink" href="#Model-assessment" title="Permalink to this headline">¶</a></h1>
+<h2>Model assessment<a class="headerlink" href="#Model-assessment" title="Permalink to this headline">¶</a></h2>
 <p>Before moving forward to inference, we can evaluate the quality of the model’s fit. We will take a look at two different ways of assessing how good is the model’s fit using its predictions.</p>
 <section id="Separation-plot">
-<h2>Separation plot<a class="headerlink" href="#Separation-plot" title="Permalink to this headline">¶</a></h2>
+<h3>Separation plot<a class="headerlink" href="#Separation-plot" title="Permalink to this headline">¶</a></h3>
 <p>There is a way of assessing the performance of a model with binary outcomes (such as logistic regression) in a visual way called <a class="reference external" href="https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-5907.2011.00525.x">separation plot</a>. In a separation plot, the model’s predictions are averaged, ordered and represented as consecutive vertical lines. These vertical lines are colored according to the class indicated by their corresponding observed value, in this case light blue indicates class 0
 (<code class="docutils literal notranslate"><span class="pre">vote</span> <span class="pre">==</span> <span class="pre">'Trump'</span></code>) and blue represents class 1 (<code class="docutils literal notranslate"><span class="pre">vote</span> <span class="pre">=='Clinton'</span></code>). We can use the ArviZ’ implementation of the separation plot, but first we have to obtain the model’s predictions.</p>
 <div class="nbinput nblast docutils container">
@@ -1233,6 +1225,7 @@ Priors:
 </div>
 </div>
 <p>In this separation plot we can see that some observations are misspredicted, specially in the right hand side of the plot where the model predicts Trump votes when there were really Clinton ones. We can further investigate this using another of ArviZ model evaluation tool.</p>
+</section>
 </section>
 <section id="\hat-\kappa-parameter">
 <h2><span class="math notranslate nohighlight">\(\hat \kappa\)</span> parameter<a class="headerlink" href="#\hat-\kappa-parameter" title="Permalink to this headline">¶</a></h2>
@@ -2072,10 +2065,10 @@ Watermark: 2.1.0
             <p class="prev-next-title">Robust Linear Regression</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="multi-level_regression.html" title="next page">
+    <a class='right-next' id="next-link" href="model_comparison.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Multi-level Regression</p>
+        <p class="prev-next-title">Logistic Regression and Model Comparison with Bambi and ArviZ</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>

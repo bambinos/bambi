@@ -6,15 +6,15 @@ Examples
 
   notebooks/t-test
   notebooks/ESCS_multiple_regression
-  notebooks/t_regression
-  notebooks/logistic_regression
+  notebooks/splines_cherry_blossoms.ipynb
   notebooks/multi-level_regression
   notebooks/sleepstudy
   notebooks/Strack_RRR_re_analysis
+  notebooks/t_regression
+  notebooks/logistic_regression
+  notebooks/model_comparison
+  notebooks/hierarchical_binomial_bambi.ipynb
+  notebooks/alternative_links_binary
   notebooks/wald_gamma_glm
   notebooks/negative_binomial
-  notebooks/alternative_links_binary
-  notebooks/hierarchical_binomial_bambi.ipynb
-  notebooks/splines_cherry_blossoms.ipynb
-  notebooks/model_comparison
       notebooks/shooter_crossed_random_ANOVA

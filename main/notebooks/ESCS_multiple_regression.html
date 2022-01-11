@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Multiple Regression &#8212; Bambi 0.6.3 documentation</title>
+    <title>Multiple linear regression &#8212; Bambi 0.6.3 documentation</title>
     
   <link href="../_static/css/theme.css" rel="stylesheet">
   <link href="../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
@@ -37,8 +37,8 @@
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Robust Linear Regression" href="t_regression.html" />
-    <link rel="prev" title="T-test" href="t-test.html" />
+    <link rel="next" title="Regression splines (Cherry blossom example)" href="splines_cherry_blossoms.html" />
+    <link rel="prev" title="Comparison of two means (T-test)" href="t-test.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -272,39 +272,32 @@
 
 <nav id="bd-toc-nav">
     <ul class="visible nav section-nav flex-column">
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#">
-   Multiple Regression
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Load-and-examine-Eugene-Springfield-community-sample-data">
+   Load and examine Eugene-Springfield community sample data
   </a>
-  <ul class="visible nav section-nav flex-column">
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Load-and-examine-Eugene-Springfield-community-sample-data">
-     Load and examine Eugene-Springfield community sample data
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Specify-model-and-examine-priors">
-     Specify model and examine priors
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Examine-the-model-results">
-     Examine the model results
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Summarize-effects-on-partial-correlation-scale">
-     Summarize effects on partial correlation scale
-    </a>
-   </li>
-   <li class="toc-h2 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#Relative-importance:-Which-predictors-have-the-strongest-effects-(defined-in-terms-of-squared-partial-correlation?">
-     Relative importance: Which predictors have the strongest effects (defined in terms of squared partial correlation?
-    </a>
-   </li>
-  </ul>
  </li>
- <li class="toc-h1 nav-item toc-entry">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Specify-model-and-examine-priors">
+   Specify model and examine priors
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Examine-the-model-results">
+   Examine the model results
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Summarize-effects-on-partial-correlation-scale">
+   Summarize effects on partial correlation scale
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Relative-importance:-Which-predictors-have-the-strongest-effects-(defined-in-terms-of-squared-partial-correlation?">
+   Relative importance: Which predictors have the strongest effects (defined in terms of squared partial correlation?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#Posterior-Predictive">
    Posterior Predictive
   </a>
@@ -578,8 +571,8 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<section id="Multiple-Regression">
-<h1>Multiple Regression<a class="headerlink" href="#Multiple-Regression" title="Permalink to this headline">¶</a></h1>
+<section id="Multiple-linear-regression">
+<h1>Multiple linear regression<a class="headerlink" href="#Multiple-linear-regression" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -2438,9 +2431,8 @@ dl.xr-attrs {
 array(0.7405)</pre><div class='xr-wrap' hidden><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'a'</div></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-24fe168a-db48-4d34-95c7-49089dcca85f' class='xr-array-in' type='checkbox' checked><label for='section-24fe168a-db48-4d34-95c7-49089dcca85f' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>0.7405</span></div><div class='xr-array-data'><pre>array(0.7405)</pre></div></div></li><li class='xr-section-item'><input id='section-123515bd-db6d-4e2a-bce3-85afc5b28273' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-123515bd-db6d-4e2a-bce3-85afc5b28273' class='xr-section-summary'  title='Expand/collapse section'>Coordinates: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'></ul></div></li><li class='xr-section-item'><input id='section-0c200660-0fa4-42d7-9106-5f034ccfdb24' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-0c200660-0fa4-42d7-9106-5f034ccfdb24' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
 </div>
 </section>
-</section>
 <section id="Posterior-Predictive">
-<h1>Posterior Predictive<a class="headerlink" href="#Posterior-Predictive" title="Permalink to this headline">¶</a></h1>
+<h2>Posterior Predictive<a class="headerlink" href="#Posterior-Predictive" title="Permalink to this headline">¶</a></h2>
 <p>Once we have computed the posterior distribution, we can use it to compute the posterior predictive distribution. As the name implies, these are predictions assuming the model’s parameter are distributed as the posterior. Thus, the posterior predictive includes the uncertainty about the parameters.</p>
 <p>With bambi we can use the model’s <code class="docutils literal notranslate"><span class="pre">predict()</span></code> method with the fitted az.InferenceData to generate a posterior predictive samples, which are then automatically added to the az.InferenceData object</p>
 <div class="nbinput docutils container">
@@ -4898,6 +4890,7 @@ Watermark: 2.1.0
 </pre></div></div>
 </div>
 </section>
+</section>
 
 
               </div>
@@ -4909,13 +4902,13 @@ Watermark: 2.1.0
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">T-test</p>
+            <p class="prev-next-title">Comparison of two means (T-test)</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="t_regression.html" title="next page">
+    <a class='right-next' id="next-link" href="splines_cherry_blossoms.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Robust Linear Regression</p>
+        <p class="prev-next-title">Regression splines (Cherry blossom example)</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>
