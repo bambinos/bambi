@@ -4,19 +4,19 @@
 
 ### New features
 
-- Added the new "categorical" built-in family (#426)
-- Added the `include_mean` argument to the method `Model.fit()` (#434)
+- Add "categorical" built-in family (#426)
+- Add `include_mean` argument to the method `Model.fit()` (#434)
 
 ### Maintenance and fixes
 
 - Codebase for the PyMC backend has been refactored (#408)
-- Fixed examples that averaged posterior values across chains (#429)
-- Fixed issue #427 with automatic priors for the intercept term (#430)
+- Fix examples that averaged posterior values across chains (#429)
+- Fix issue #427 with automatic priors for the intercept term (#430)
 
 ### Documentation
 
 - Add StudentT regression example, thanks to @tjburch (#414)
-- Added a B-Spline regression example with the cherry blossoms dataset (#416)
+- Add B-Spline regression example with cherry blossoms dataset (#416)
 - Add hirarchical linear regression example with sleepstudy dataset (#424)
 
 ### Deprecation
