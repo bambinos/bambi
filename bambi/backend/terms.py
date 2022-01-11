@@ -14,7 +14,6 @@ class CommonTerm:
     An object that builds the PyMC3 distribution for a common effects term. It also contains the
     coordinates that we then add to the model.
 
-
     Parameters
     ----------
     term: bambi.terms.Term
@@ -27,7 +26,7 @@ class CommonTerm:
 
     def build(self, spec):
         data = self.term.data
-        label = self.term.name
+        label = self.name
         dist = self.term.prior.name
         args = self.term.prior.args
         distribution = get_distribution(dist)
@@ -53,7 +52,7 @@ class CommonTerm:
     def get_coords(self):
         coords = {}
         if self.term.categorical:
-            name = self.term.name + "_coord"
+            name = self.name + "_coord"
             levels = self.term.term_dict["levels"]
             if self.term.kind == "interaction":
                 coords[name] = levels
@@ -61,12 +60,17 @@ class CommonTerm:
                 coords[name] = levels
             else:
                 coords[name] = levels[1:]
-        else:
+        elif self.term.data.shape[1] > 1:
             # Not categorical but multi-column, like when we use splines
-            if self.term.data.shape[1] > 1:
-                name = self.term.name + "_coord"
-                coords[name] = list(range(self.term.data.shape[1]))
+            name = self.name + "_coord"
+            coords[name] = list(range(self.term.data.shape[1]))
         return coords
+
+    @property
+    def name(self):
+        if self.term.alias:
+            return self.term.alias
+        return self.term.name
 
 
 class GroupSpecificTerm:
@@ -79,6 +83,8 @@ class GroupSpecificTerm:
     ----------
     term: bambi.terms.GroupSpecificTerm
         An object representing a group specific effects term.
+    noncentered: bool
+        Specifies if we use non-centered parametrization of group-specific effects.
     """
 
     def __init__(self, term, noncentered):
@@ -87,7 +93,7 @@ class GroupSpecificTerm:
         self.coords = self.get_coords()
 
     def build(self, spec):
-        label = self.term.name
+        label = self.name
         dist = self.term.prior.name
         kwargs = self.term.prior.args
         predictor = self.term.predictor.squeeze()
@@ -98,7 +104,6 @@ class GroupSpecificTerm:
             response_dims = list(spec.response.pymc_coords)
 
         dims = list(self.coords) + response_dims
-        # dims = list(self.coords)
         coef = self.build_distribution(dist, label, dims=dims, **kwargs)
         coef = coef[self.term.group_index]
 
@@ -106,8 +111,14 @@ class GroupSpecificTerm:
 
     def get_coords(self):
         coords = {}
+
+        # Use the name of the alias if there's an alias
+        if self.term.alias:
+            expr, factor = self.term.alias, self.term.alias
+        else:
+            expr, factor = self.term.name.split("|")
+
         # The group is always a coordinate we add to the model.
-        expr, factor = self.term.name.split("|")
         coords[factor + "_coord_group_factor"] = self.term.groups
 
         if self.term.categorical:
@@ -142,8 +153,16 @@ class GroupSpecificTerm:
     def expand_prior_args(self, key, value, label, **kwargs):
         # kwargs are used to pass 'dims' for group specific terms.
         if isinstance(value, Prior):
+            # If there's an alias for the hyperprior, use it.
+            key = self.term.hyperprior_alias.get(key, key)
             return self.build_distribution(value.name, f"{label}_{key}", **value.args, **kwargs)
         return value
+
+    @property
+    def name(self):
+        if self.term.alias:
+            return self.term.alias
+        return self.term.name
 
 
 class InterceptTerm:
@@ -160,13 +179,20 @@ class InterceptTerm:
 
     def build(self, spec):
         dist = get_distribution(self.term.prior.name)
+        label = self.name
         # Pre-pends one dimension if response is multi-categorical
         if spec.response.categorical and not spec.response.binary:
             dims = list(spec.response.pymc_coords)
-            dist = dist(self.term.name, dims=dims, **self.term.prior.args)[np.newaxis, :]
+            dist = dist(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:
-            dist = dist(self.term.name, shape=1, **self.term.prior.args)
+            dist = dist(label, shape=1, **self.term.prior.args)
         return dist
+
+    @property
+    def name(self):
+        if self.term.alias:
+            return self.term.alias
+        return self.term.name
 
 
 class ResponseTerm:
@@ -194,48 +220,74 @@ class ResponseTerm:
             that can operate with Theano tensors.
         """
         data = self.term.data.squeeze()
-        name = self.term.name
 
+        # Take the inverse link function that maps from linear predictor to the mean of likelihood
         if self.family.link.name in invlinks:
             linkinv = invlinks[self.family.link.name]
         else:
             linkinv = self.family.link.linkinv_backend
 
-        # Add column of zeros, for the reference level, which is the first one.
+        # Add column of zeros to the linear predictor for the reference level (the first one)
         if isinstance(self.family, Categorical):
             nu = tt.concatenate([np.zeros((data.shape[0], 1)), nu], axis=1)
 
+        # Add mean parameter and observed data
+        kwargs = {self.family.likelihood.parent: linkinv(nu), "observed": data}
+
+        # Add auxiliary parameters
+        kwargs = self.build_auxiliary_parameters(kwargs)
+
+        # Build the response distribution
+        dist = self.build_response_distribution(kwargs)
+
+        return dist
+
+    def build_auxiliary_parameters(self, kwargs):
         # Build priors for the auxiliary parameters in the likelihood (e.g. sigma in Gaussian)
-        likelihood = self.family.likelihood
-        kwargs = {likelihood.parent: linkinv(nu), "observed": data}
-        if likelihood.priors:
-            for key, value in likelihood.priors.items():
+        if self.family.likelihood.priors:
+            for key, value in self.family.likelihood.priors.items():
+
+                # Use the alias if there's one
+                if key in self.family.aliases:
+                    label = self.family.aliases[key]
+                else:
+                    label = f"{self.name}_{key}"
+
                 if isinstance(value, Prior):
                     dist = get_distribution(value.name)
-                    kwargs[key] = dist(f"{name}_{key}", **value.args)
+                    kwargs[key] = dist(label, **value.args)
                 else:
                     kwargs[key] = value
+        return kwargs
 
+    def build_response_distribution(self, kwargs):
         # Get likelihood distribution
-        dist = get_distribution(likelihood.name)
+        dist = get_distribution(self.family.likelihood.name)
 
+        # Handle some special cases
         if isinstance(self.family, Beta):
-            # Beta distribution is specified using alpha and beta, but we have mu and kappa.
+            # Beta distribution in PyMC uses alpha and beta, but we have mu and kappa.
             # alpha = mu * kappa
             # beta = (1 - mu) * kappa
             alpha = kwargs["mu"] * kwargs["kappa"]
             beta = (1 - kwargs["mu"]) * kwargs["kappa"]
-            return dist(name, alpha=alpha, beta=beta, observed=kwargs["observed"])
+            return dist(self.name, alpha=alpha, beta=beta, observed=kwargs["observed"])
 
         if isinstance(self.family, Binomial):
-            successes = data[:, 0].squeeze()
-            trials = data[:, 1].squeeze()
-            return dist(name, p=kwargs["p"], observed=successes, n=trials)
+            successes = kwargs["observed"][:, 0].squeeze()
+            trials = kwargs["observed"][:, 1].squeeze()
+            return dist(self.name, p=kwargs["p"], observed=successes, n=trials)
 
         if isinstance(self.family, Gamma):
             # Gamma distribution is specified using mu and sigma, but we request prior for alpha.
             # We build sigma from mu and alpha.
             sigma = kwargs["mu"] / (kwargs["alpha"] ** 0.5)
-            return dist(name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
+            return dist(self.name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
 
-        return dist(name, **kwargs)
+        return dist(self.name, **kwargs)
+
+    @property
+    def name(self):
+        if self.term.alias:
+            return self.term.alias
+        return self.term.name

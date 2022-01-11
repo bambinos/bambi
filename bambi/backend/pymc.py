@@ -280,7 +280,7 @@ class PyMC3Model:
         )
 
         # This does not add any new coordinate, it just changes the order so the ones
-        # ending in "_coord_group_factor" are located later.
+        # ending in "_coord_group_factor" are placed after the others.
         coords_original = list(self.coords.keys())
         coords_group = [c for c in coords_original if c.endswith("_coord_group_factor")]
         coords_original = list(set(coords_original) - set(coords_group))
@@ -292,21 +292,30 @@ class PyMC3Model:
             chain_n = len(idata.posterior["chain"])
             draw_n = len(idata.posterior["draw"])
             shape = (chain_n, draw_n)
+            coords = ["chain", "draw"]
 
             # Design matrix without intercept
             X = self._design_matrix_without_intercept
 
             # Re-scale intercept for centered predictors
-            common_terms = list(self.spec.common_terms)
-            coords = ["chain", "draw"]
-
+            common_terms = []
+            for term in self.spec.common_terms.values():
+                if term.alias:
+                    common_terms += [term.alias]
+                else:
+                    common_terms += [term.name]
             if self.spec.response.pymc_coords:
                 shape += (len(self.spec.response.levels) - 1,)
                 coords += list(self.spec.response.pymc_coords)
 
             posterior = idata.posterior.stack(samples=coords)
             coefs = np.vstack([np.atleast_2d(posterior[name].values) for name in common_terms])
-            idata.posterior["Intercept"] -= np.dot(X.mean(0), coefs).reshape(shape)
+
+            if self.spec.intercept_term.alias:
+                intercept_name = self.spec.intercept_term.alias
+            else:
+                intercept_name = self.spec.intercept_term.name
+            idata.posterior[intercept_name] -= np.dot(X.mean(0), coefs).reshape(shape)
 
         if include_mean:
             self.spec.predict(idata)

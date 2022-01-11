@@ -20,6 +20,7 @@ class ResponseTerm:
         self.success = term.success if term.success is not None else 1  # not None for binary vars
         self.levels = None  # Not None for categorical variables
         self.binary = None  # Not None for categorical variables (either True or False)
+        self.alias = None
 
         if self.categorical:
             self.binary = term.binary
@@ -52,12 +53,18 @@ class ResponseTerm:
         if self.categorical and not self.binary:
             name = self.name + "_coord"
             self.pymc_coords[name] = term.levels[1:]
+
+    def set_alias(self, value):
+        self.alias = value
 
     def __str__(self):
         args = [
             f"name: {self.name}",
             f"shape: {self.data.squeeze().shape}",
         ]
+
+        if self.alias:
+            args[0] = f"{args[0]} (alias: {self.alias})"
 
         if self.categorical:
             args += [f"levels: {self.levels}"]
@@ -98,6 +105,7 @@ class Term:
         self.levels = term_dict["full_names"]
         self.categorical = False
         self.term_dict = term_dict
+        self.alias = None
 
         # If the term has one component, it's categorical if the component is categorical.
         # If the term has more than one component (i.e. it is an interaction), it's categorical if
@@ -132,6 +140,9 @@ class Term:
             else:
                 self.pymc_coords[name] = term_dict["levels"][1:]
 
+    def set_alias(self, value):
+        self.alias = value
+
     def __str__(self):
         args = [
             f"name: {self.name}",
@@ -140,6 +151,10 @@ class Term:
             f"shape: {self.data.squeeze().shape}",
             f"categorical: {self.categorical}",
         ]
+
+        if self.alias:
+            args[0] = f"{args[0]} (alias: {self.alias})"
+
         if self.categorical:
             args += [f"levels: {self.levels}"]
 
@@ -180,6 +195,8 @@ class GroupSpecificTerm:
         self.group_index = self.invert_dummies(self.grouper)
         self.categorical = False
         self.term = term
+        self.alias = None
+        self.hyperprior_alias = {}
 
         # Determine if the expression is categorical
         if self.kind == "interaction":
@@ -217,6 +234,12 @@ class GroupSpecificTerm:
             vec[dummies[:, i] == 1] = i
         return vec
 
+    def set_alias(self, value):
+        self.alias = value
+
+    def set_hyperprior_alias(self, name, value):
+        self.hyperprior_alias.update({name: value})
+
     def __str__(self):
         args = [
             f"name: {self.name}",
@@ -226,6 +249,10 @@ class GroupSpecificTerm:
             f"shape: {self.data.squeeze().shape}",
             f"categorical: {self.categorical}",
         ]
+
+        if self.alias:
+            args[0] = f"{args[0]} (alias: {self.alias})"
+
         if self.categorical:
             args += [f"levels: {self.levels}"]
 
