@@ -4,8 +4,19 @@
 
 ### New features
 
+### Maintenance and fixes
+
+### Documentation
+
+### Deprecation
+
+### 0.7.0
+
+### New features
+
 - Add "categorical" built-in family (#426)
 - Add `include_mean` argument to the method `Model.fit()` (#434)
+- Add `.set_alias()` method to `Model` (#435)
 
 ### Maintenance and fixes
 
@@ -18,8 +29,6 @@
 - Add StudentT regression example, thanks to @tjburch (#414)
 - Add B-Spline regression example with cherry blossoms dataset (#416)
 - Add hirarchical linear regression example with sleepstudy dataset (#424)
-
-### Deprecation
 
 ### 0.6.3
 
