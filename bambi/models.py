@@ -190,6 +190,7 @@ class Model:
         tune=1000,
         discard_tuned_samples=True,
         omit_offsets=True,
+        include_mean=False,
         method="mcmc",
         init="auto",
         n_init=50000,
@@ -214,6 +215,8 @@ class Model:
         omit_offsets: bool
             Omits offset terms in the ``InferenceData`` object returned when the model includes
             group specific effects. Defaults to ``True``.
+        include_mean: bool
+            Compute the posterior of the mean response. Defaults to ``False``.
         method: str
             The method to use for fitting the model. By default, ``"mcmc"``. This automatically
             assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
@@ -255,6 +258,7 @@ class Model:
             A list is accepted if cores is greater than one.
         **kwargs:
             For other kwargs see the documentation for ``pymc3.sample()``.
+
         Returns
         -------
         An ArviZ ``InferenceData`` instance.
@@ -276,6 +280,7 @@ class Model:
             tune=tune,
             discard_tuned_samples=discard_tuned_samples,
             omit_offsets=omit_offsets,
+            include_mean=include_mean,
             method=method,
             init=init,
             n_init=n_init,

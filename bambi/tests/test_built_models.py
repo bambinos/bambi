@@ -533,7 +533,7 @@ def test_binomial_regression():
 def test_init_fallback(init_data, caplog):
     model = Model("od ~ temp + (1|source) + 0", init_data)
     with caplog.at_level(logging.INFO):
-        results = model.fit(draws=100, init="auto")
+        model.fit(draws=100, init="auto")
         assert "Initializing NUTS using jitter+adapt_diag..." in caplog.text
         assert "The default initialization" in caplog.text
         assert "Initializing NUTS using adapt_diag..." in caplog.text
@@ -569,3 +569,17 @@ def test_set_alias():
     model.build()
     new_names = set(["α", "β", "α_group", "α_group_σ", "β_group", "β_group_σ", "σ"])
     assert new_names.issubset(set(model.backend.model.named_vars))
+
+
+def test_fit_include_mean(crossed_data):
+    model = Model("Y ~ continuous*threecats", crossed_data)
+    idata = model.fit(tune=400, draws=400, include_mean=True)
+    assert idata.posterior["Y_mean"].shape[1:] == (400, 120)
+
+    # Compare with the mean obtained with `model.predict()`
+    mean = idata.posterior["Y_mean"].stack(sample=("chain", "draw")).values.mean(1)
+
+    model.predict(idata)
+    predicted_mean = idata.posterior["Y_mean"].stack(sample=("chain", "draw")).values.mean(1)
+
+    assert np.array_equal(mean, predicted_mean)
