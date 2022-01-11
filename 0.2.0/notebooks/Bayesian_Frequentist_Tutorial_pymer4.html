@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bayesian/Frequentist Tutorial &#8212; Bambi 0.6.3 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Bayesian/Frequentist Tutorial &#8212; Bambi 0.7.0 documentation</title>
     
-  <link href="../_static/css/theme.css" rel="stylesheet" />
-  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../_static/css/theme.css" rel="stylesheet">
+  <link href="../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,23 +24,26 @@
 
     
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/basic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/blank.css" />
     
-  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Bayesian Multiple Regression Example" href="ESCS_multiple_regression.html" />
     <link rel="prev" title="Bayesian Logistic Regression Example" href="ANES_logistic_regression.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="en" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
@@ -139,7 +143,7 @@
   <p style="margin-top: 1em; margin-bottom: 0;">
     <strong>
     You're reading an old version of this documentation (v. 0.2.0).<br>
-    If you want up-to-date information, please have a look at <a href="../../0.6.3/index.html">latest</a>.
+    If you want up-to-date information, please have a look at <a href="../../0.7.0/index.html">latest</a>.
   </strong>
   </p>
   
@@ -162,7 +166,15 @@
                 
 
                   
-                    <li><a href="../../0.6.3/index.html">0.6.3 (latest)</a></li>
+                    <li><a href="../../0.7.0/index.html">0.7.0 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.3/index.html">0.6.3</a></li>
                   
 
                 
@@ -527,7 +539,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -565,14 +577,13 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Bayesian/Frequentist-Tutorial">
+<section id="Bayesian/Frequentist-Tutorial">
 <h1>Bayesian/Frequentist Tutorial<a class="headerlink" href="#Bayesian/Frequentist-Tutorial" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
 <span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
@@ -600,8 +611,7 @@ INFO:numexpr.utils:NumExpr defaulting to 4 threads.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;arviz-darkgrid&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;arviz-darkgrid&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -612,14 +622,13 @@ INFO:numexpr.utils:NumExpr defaulting to 4 threads.
 <div class="line">2) Multi-level multivariate regression model (with two predictors)</div>
 <div class="line">We’ll estimate the frequentist statistics using <a class="reference external" href="http://eshinjolly.com/pymer4/">pymer4</a>.</div>
 </div>
-<div class="section" id="Generate-t-test-data">
+<section id="Generate-t-test-data">
 <h2>Generate t-test data<a class="headerlink" href="#Generate-t-test-data" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
 <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mf">2.5</span><span class="p">,</span><span class="mi">1000</span><span class="p">)</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;Group&#39;</span><span class="p">:[</span><span class="s1">&#39;a&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">1000</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;b&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">1000</span><span class="p">,</span><span class="s1">&#39;Val&#39;</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">])})</span>
 </pre></div>
@@ -629,8 +638,7 @@ INFO:numexpr.utils:NumExpr defaulting to 4 threads.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Group&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;Group&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -717,8 +725,7 @@ INFO:numexpr.utils:NumExpr defaulting to 4 threads.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">);</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">.5</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">);</span>
 </pre></div>
@@ -731,15 +738,14 @@ INFO:numexpr.utils:NumExpr defaulting to 4 threads.
 <img alt="../_images/notebooks_Bayesian_Frequentist_Tutorial_pymer4_7_0.png" src="../_images/notebooks_Bayesian_Frequentist_Tutorial_pymer4_7_0.png" />
 </div>
 </div>
-<div class="section" id="Frequentist">
+<section id="Frequentist">
 <h3>Frequentist<a class="headerlink" href="#Frequentist" title="Permalink to this headline">¶</a></h3>
 <p>Since this analysis is relateively straightforward we can perform a between groups t-test using scipy</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ttest_ind</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="n">a</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -757,8 +763,7 @@ Ttest_indResult(statistic=30.477105041971846, pvalue=7.2541984106044045e-168)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Using the pymer4 package, but we could have used statsmodels instead</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using the pymer4 package, but we could have used statsmodels instead</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">Lm</span><span class="p">(</span><span class="s1">&#39;Val ~ Group&#39;</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
@@ -843,16 +848,15 @@ Fixed effects:
 </table>
 </div></div>
 </div>
-</div>
-<div class="section" id="Bayesian">
+</section>
+<section id="Bayesian">
 <h3>Bayesian<a class="headerlink" href="#Bayesian" title="Permalink to this headline">¶</a></h3>
 <p>We can compute the equivalent dummy-coded regression model to estimate with bambi and the pymc3 backend</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">b_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">b_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 <span class="n">res_b</span> <span class="o">=</span> <span class="n">b_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;Val ~ Group&#39;</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">tune</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -897,8 +901,7 @@ INFO:pymc3:NUTS: [Val_sd, Group, Intercept]
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Model priors</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Model priors</span>
 <span class="n">b_model</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
 </pre></div>
 </div>
@@ -914,8 +917,7 @@ INFO:pymc3:NUTS: [Val_sd, Group, Intercept]
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">res_b</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">res_b</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -930,8 +932,7 @@ INFO:pymc3:NUTS: [Val_sd, Group, Intercept]
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">res_b</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">res_b</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1022,8 +1023,7 @@ INFO:pymc3:NUTS: [Val_sd, Group, Intercept]
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Grab just the posterior of the term of interest (group)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Grab just the posterior of the term of interest (group)</span>
 <span class="n">group_posterior</span> <span class="o">=</span> <span class="n">res_b</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;Group&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 <span class="n">ax</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">group_posterior</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">);</span>
@@ -1041,8 +1041,7 @@ INFO:pymc3:NUTS: [Val_sd, Group, Intercept]
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1">#Probabiliy that posterior is &gt; 0</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Probabiliy that posterior is &gt; 0</span>
 <span class="p">(</span><span class="n">group_posterior</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1056,17 +1055,16 @@ INFO:pymc3:NUTS: [Val_sd, Group, Intercept]
 1.0
 </pre></div></div>
 </div>
-</div>
-</div>
-<div class="section" id="Generate-multi-level-regression-data">
+</section>
+</section>
+<section id="Generate-multi-level-regression-data">
 <h2>Generate multi-level regression data<a class="headerlink" href="#Generate-multi-level-regression-data" title="Permalink to this headline">¶</a></h2>
 <p>Generate data for a multivariate regression model with random intercepts and slope effect for each group</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Simulate some multi-level data with pymer4</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Simulate some multi-level data with pymer4</span>
 <span class="n">df</span><span class="p">,</span> <span class="n">blups</span><span class="p">,</span> <span class="n">coefs</span> <span class="o">=</span> <span class="n">simulate_lmm</span><span class="p">(</span><span class="n">num_obs</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">num_coef</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">num_grps</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">coef_vals</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 <span class="n">blups</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
@@ -1136,14 +1134,13 @@ INFO:pymc3:NUTS: [Val_sd, Group, Intercept]
 </table>
 </div></div>
 </div>
-<div class="section" id="Frequentist-multi-level-model">
+<section id="Frequentist-multi-level-model">
 <h3>Frequentist multi-level model<a class="headerlink" href="#Frequentist-multi-level-model" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Fit multi-level model using pymer4 (lmer in R)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fit multi-level model using pymer4 (lmer in R)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">Lmer</span><span class="p">(</span><span class="s1">&#39;DV ~ IV1 + IV2 + (IV1 + IV2|Group)&#39;</span><span class="p">,</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
@@ -1256,8 +1253,7 @@ Fixed effects:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Plot coefficients and the group BLUPs as well</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot coefficients and the group BLUPs as well</span>
 <span class="n">model</span><span class="o">.</span><span class="n">plot_summary</span><span class="p">();</span>
 </pre></div>
 </div>
@@ -1273,8 +1269,7 @@ Fixed effects:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Alternatively visualize coefficients as regression lines with BLUPs overlaid</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Alternatively visualize coefficients as regression lines with BLUPs overlaid</span>
 <span class="n">_</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
 <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;IV1&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">],)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;IV2&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
@@ -1288,15 +1283,14 @@ Fixed effects:
 <img alt="../_images/notebooks_Bayesian_Frequentist_Tutorial_pymer4_25_0.png" src="../_images/notebooks_Bayesian_Frequentist_Tutorial_pymer4_25_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Bayesian-multi-level-model">
+</section>
+<section id="Bayesian-multi-level-model">
 <h3>Bayesian multi-level model<a class="headerlink" href="#Bayesian-multi-level-model" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">b_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">b_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">b_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;DV ~ IV1 + IV2&#39;</span><span class="p">,</span><span class="n">random</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;IV1+IV2|Group&#39;</span><span class="p">],</span> <span class="n">samples</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">tune</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1350,8 +1344,7 @@ ERROR:pymc3:The estimated number of effective samples is smaller than 200 for so
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Plot priors</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot priors</span>
 <span class="n">b_model</span><span class="o">.</span><span class="n">plot</span><span class="p">();</span>
 </pre></div>
 </div>
@@ -1367,8 +1360,7 @@ ERROR:pymc3:The estimated number of effective samples is smaller than 200 for so
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1">#Plot posteriors</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Plot posteriors</span>
 <span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -1384,8 +1376,7 @@ ERROR:pymc3:The estimated number of effective samples is smaller than 200 for so
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
           <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;IV1&#39;</span><span class="p">,</span> <span class="s1">&#39;IV2&#39;</span><span class="p">,</span> <span class="s1">&#39;1|Group_sd&#39;</span><span class="p">,</span> <span class="s1">&#39;IV1|Group_sd&#39;</span><span class="p">,</span> <span class="s1">&#39;IV2|Group_sd&#39;</span><span class="p">,</span> <span class="s1">&#39;DV_sd&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
@@ -1533,8 +1524,7 @@ ERROR:pymc3:The estimated number of effective samples is smaller than 200 for so
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;IV1&#39;</span><span class="p">],</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;C0&#39;</span><span class="p">},</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;IV1&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;IV1&#39;</span><span class="p">],</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;C0&#39;</span><span class="p">},</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;IV1&#39;</span><span class="p">)</span>
 <span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;IV2&#39;</span><span class="p">],</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;C1&#39;</span><span class="p">},</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;IV2&#39;</span><span class="p">)</span>
 <span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">],</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;C2&#39;</span><span class="p">},</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Intercept&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
@@ -1554,8 +1544,7 @@ ERROR:pymc3:The estimated number of effective samples is smaller than 200 for so
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Credible interval plot using pymc3</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Credible interval plot using pymc3</span>
 <span class="c1"># Line is 94% credible interval calculated as higher posterior density</span>
 <span class="c1"># Inter quartile range is thicker line</span>
 <span class="c1"># Dot is median</span>
@@ -1583,8 +1572,7 @@ INFO:numba.transforms:finding looplift candidates
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Show credible interval cutoffs, and also overlay region of practical equivalence (arbitrary, in this case close enough to 0 to not matter)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Show credible interval cutoffs, and also overlay region of practical equivalence (arbitrary, in this case close enough to 0 to not matter)</span>
 <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">b_model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">trace</span><span class="p">,</span>
                   <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;IV1&#39;</span><span class="p">,</span> <span class="s1">&#39;IV2&#39;</span><span class="p">,</span> <span class="s1">&#39;1|Group_sd&#39;</span><span class="p">],</span>
@@ -1601,20 +1589,31 @@ INFO:numba.transforms:finding looplift candidates
 <img alt="../_images/notebooks_Bayesian_Frequentist_Tutorial_pymer4_35_0.png" src="../_images/notebooks_Bayesian_Frequentist_Tutorial_pymer4_35_0.png" />
 </div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
               </div>
               
               
-              <div class='prev-next-bottom'>
-                
-    <a class='left-prev' id="prev-link" href="ANES_logistic_regression.html" title="previous page">Bayesian Logistic Regression Example</a>
-    <a class='right-next' id="next-link" href="ESCS_multiple_regression.html" title="next page">Bayesian Multiple Regression Example</a>
-
-              </div>
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="ANES_logistic_regression.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Bayesian Logistic Regression Example</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="ESCS_multiple_regression.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Bayesian Multiple Regression Example</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
               
           </main>
           
@@ -1622,20 +1621,19 @@ INFO:numba.transforms:finding looplift candidates
       </div>
     </div>
   
-  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
-
-  <footer class="footer mt-5 mt-md-0">
+  <script src="../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+<footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2021, The developers of Bambi.<br/>
+    &copy; Copyright 2021, The developers of Bambi.<br>
 </p>
     </div>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br>
 </p>
     </div>
     

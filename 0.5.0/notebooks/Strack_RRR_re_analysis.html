@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bayesian Workflow (Strack RRR Analysis Replication) &#8212; Bambi 0.6.3 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Bayesian Workflow (Strack RRR Analysis Replication) &#8212; Bambi 0.7.0 documentation</title>
     
-  <link href="../_static/css/theme.css" rel="stylesheet" />
-  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../_static/css/theme.css" rel="stylesheet">
+  <link href="../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,23 +24,26 @@
 
     
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/basic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/blank.css" />
     
-  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Wald and Gamma Regression (Australian insurance claims 2004-2005)" href="wald_gamma_glm.html" />
     <link rel="prev" title="Multi-level Regression" href="multi-level_regression.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="en" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
@@ -139,7 +143,7 @@
   <p style="margin-top: 1em; margin-bottom: 0;">
     <strong>
     You're reading an old version of this documentation (v. 0.5.0).<br>
-    If you want up-to-date information, please have a look at <a href="../../0.6.3/index.html">latest</a>.
+    If you want up-to-date information, please have a look at <a href="../../0.7.0/index.html">latest</a>.
   </strong>
   </p>
   
@@ -162,7 +166,15 @@
                 
 
                   
-                    <li><a href="../../0.6.3/index.html">0.6.3 (latest)</a></li>
+                    <li><a href="../../0.7.0/index.html">0.7.0 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.3/index.html">0.6.3</a></li>
                   
 
                 
@@ -523,7 +535,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -561,14 +573,13 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Bayesian-Workflow-(Strack-RRR-Analysis-Replication)">
+<section id="Bayesian-Workflow-(Strack-RRR-Analysis-Replication)">
 <h1>Bayesian Workflow (Strack RRR Analysis Replication)<a class="headerlink" href="#Bayesian-Workflow-(Strack-RRR-Analysis-Replication)" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">basename</span>
 
 <span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
@@ -582,8 +593,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">12345</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">12345</span><span class="p">)</span>
 <span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -593,7 +603,7 @@ participants rated cartoons as more funny when the participants held a pen in th
 2016, a Registered Replication Report led by Wagenmakers and colleagues attempted to replicate Study 1 from Strack, Martin, &amp; Stepper (1988) in 17 independent experiments comprising over 2,500 participants. The RRR reported no evidence in support of the effect.</p>
 <p>Here we use the <a class="reference external" href="http://github.com/bambinos/bambi">Bambi</a> model-building interface (itself just a wrapper for <a class="reference external" href="http://github.com/pymc-devs/pymc3">PyMC3</a>) to quickly re-analyze the RRR data using a Bayesian approach. Because the emphasis here is on fitting models in Bambi, we spend very little time on quality control and data exploration; our goal is simply to show how one can replicate and extend the primary analysis reported in the RRR in a few lines of Bambi code.</p>
 <p>We begin by importing all of the modules we’ll need, and enabling inline plotting with matplotlib.</p>
-<div class="section" id="Reading-in-the-data">
+<section id="Reading-in-the-data">
 <h2>Reading in the data<a class="headerlink" href="#Reading-in-the-data" title="Permalink to this headline">¶</a></h2>
 <p>The data for the RRR of Strack, Martin, &amp; Stepper (henceforth <em>SMS</em>) is available as a set of CSV files from the project’s repository on the Open Science Framework. For the sake of completeness, we’ll show how to go from the raw CSV to the “long” data format that Bambi can use (and that’s required by most other mixed-effects modeling packages).</p>
 <p>One slightly annoying thing about these 17 CSV files–each of which represents a different replication site–is that they don’t all contain exactly the same columns. Some labs added a column or two at the end (mostly for notes). To keep things simple, we’ll just truncate each dataset to only the first 22 columns. Because the variable names are structured in a bit of a confusing way, we’ll also just drop the first two rows in each file, and manually set the column names for all 22 variables. Once
@@ -602,8 +612,7 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">DL_PATH</span> <span class="o">=</span> <span class="s1">&#39;data/facial_feedback/*csv&#39;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">DL_PATH</span> <span class="o">=</span> <span class="s1">&#39;data/facial_feedback/*csv&#39;</span>
 
 <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;cond_id&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;correct_c1&#39;</span><span class="p">,</span> <span class="s1">&#39;correct_c2&#39;</span><span class="p">,</span> <span class="s1">&#39;correct_c3&#39;</span><span class="p">,</span> <span class="s1">&#39;correct_c4&#39;</span><span class="p">,</span>
@@ -631,8 +640,7 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -808,16 +816,15 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <p>5 rows × 24 columns</p>
 </div></div>
 </div>
-</div>
-<div class="section" id="Reshaping-the-data">
+</section>
+<section id="Reshaping-the-data">
 <h2>Reshaping the data<a class="headerlink" href="#Reshaping-the-data" title="Permalink to this headline">¶</a></h2>
 <p>At this point we have our data in a pandas DataFrame with shape of (2612, 24). Unfortunately, we can’t use the data in this form. We’ll need to (a) conduct some basic quality control, and (b) “melt” the dataset–currently in so-called “wide” format, with each subject in a separate row–into long format, where each row is a single trial. Fortunately, we can do this easily in pandas:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Keep only subjects who (i) respond appropriately on all trials,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Keep only subjects who (i) respond appropriately on all trials,</span>
 <span class="c1"># (ii) understand the cartoons, and (iii) don&#39;t report any awareness</span>
 <span class="c1"># of the hypothesis or underlying theory.</span>
 <span class="n">valid</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;correct_total==4 and comprehension==1 and awareness==0&#39;</span><span class="p">)</span>
@@ -827,8 +834,8 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 </div>
 </div>
 <p>Notice that in the <code class="docutils literal notranslate"><span class="pre">melt()</span></code> call above, we’re treating not only the unique subject ID (uid) as an identifying variable, but also gender, experimental condition, age, and study name. Since these are all between-subject variables, these columns are all completely redundant with <code class="docutils literal notranslate"><span class="pre">uid</span></code>, and adding them does nothing to change the structure of our data. The point of explicitly listing them is just to keep them around in the dataset, so that we can easily add them to our models.</p>
-</div>
-<div class="section" id="Fitting-the-model">
+</section>
+<section id="Fitting-the-model">
 <h2>Fitting the model<a class="headerlink" href="#Fitting-the-model" title="Permalink to this headline">¶</a></h2>
 <p>Now that we’re all done with our (minimal) preprocessing, it’s time to fit the model! This turns out to be a snap in Bambi. We’ll begin with a very naive (and, as we’ll see later, incorrect) model that includes only the following terms:</p>
 <ul class="simple">
@@ -841,8 +848,7 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># Initialize the model, passing in the dataset we want to use.</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize the model, passing in the dataset we want to use.</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + (1|uid)&quot;</span><span class="p">,</span> <span class="n">long</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Set a custom prior on group specific factor variances—just for illustration</span>
@@ -899,16 +905,15 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <p>Notice that, in Bambi, the common and group specific effects are specified in the same formula just as you would do in <a class="reference external" href="https://CRAN.R-project.org/package=brms">brms</a> because Bambi relies on <a class="reference external" href="https://github.com/bambinos/formulae">formulae</a> to parse model formulas.</p>
 <p>When we run the above code, nothing much will happen for a while. The process of compiling the model in Theano (the numerical library that PyMC3–and hence, Bambi–relies on) can take a few minutes. Once sampling starts, we get a nice progress bar (courtesy of PyMC3) that keeps us updated on the sampler’s progress. Our model is fairly large, in that it includes nearly 1800 parameters (most of which are the group specific subject intercepts); even so, it should take only a few minutes or less to
 run on newer machines.</p>
-</div>
-<div class="section" id="Inspecting-results">
+</section>
+<section id="Inspecting-results">
 <h2>Inspecting results<a class="headerlink" href="#Inspecting-results" title="Permalink to this headline">¶</a></h2>
 <p>We can plot the prior distributions for all parameters with a call to the <code class="docutils literal notranslate"><span class="pre">plot_priors()</span></code> method.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -924,8 +929,7 @@ run on newer machines.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span>
     <span class="n">results</span><span class="p">,</span>
     <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;condition&quot;</span><span class="p">,</span> <span class="s2">&quot;value_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;1|uid_sigma&quot;</span><span class="p">],</span>
     <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -945,8 +949,7 @@ run on newer machines.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;1|uid_sigma&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;1|uid_sigma&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -1037,8 +1040,8 @@ run on newer machines.</p>
 </table>
 </div></div>
 </div>
-</div>
-<div class="section" id="Expanding-the-model">
+</section>
+<section id="Expanding-the-model">
 <h2>Expanding the model<a class="headerlink" href="#Expanding-the-model" title="Permalink to this headline">¶</a></h2>
 <p>Looking at the parameter estimates produced by our model, it seems pretty clear that there’s no meaningful effect of condition. The posterior distribution is centered almost exactly on 0, with most of the probability mass on very small values. The 94% HDI spans from -0.144 to 0.078–in other words, the plausible effect of the experimental manipulation is, at best, to produce a change of &lt; 0.2 on cartoon ratings made on a 10-point scale. For perspective, the variation between subjects is enormous
 in comparison–the standard deviation for group specific effects <code class="docutils literal notranslate"><span class="pre">1|uid_sigma</span></code> is around 0.3. We can also see that the model is behaving well, and the sampler seems to have converged nicely (the traces for all parameters look stationary).</p>
@@ -1053,8 +1056,7 @@ with this by adding specific intercepts for the 4 stimuli. We’ll model the sti
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
     <span class="s2">&quot;value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)&quot;</span><span class="p">,</span>
     <span class="n">long</span><span class="p">,</span>
     <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1115,8 +1117,7 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
               <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sigma&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;1|study&#39;</span><span class="p">,</span> <span class="s1">&#39;1|stimulus&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|study&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|stimulus&#39;</span><span class="p">,</span>
                         <span class="s1">&#39;1|study_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;1|stimulus_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|study_sigma&#39;</span><span class="p">,</span>
@@ -1132,8 +1133,8 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 <img alt="../_images/notebooks_Strack_RRR_re_analysis_20_0.png" src="../_images/notebooks_Strack_RRR_re_analysis_20_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="And-the-answer-is…">
+</section>
+<section id="And-the-answer-is…">
 <h2>And the answer is…<a class="headerlink" href="#And-the-answer-is…" title="Permalink to this headline">¶</a></h2>
 <p>No. There’s still no discernible effect. Modeling the data using a mixed-effects model does highlight a number of other interesting features, however: * The stimulus-level standard deviation <code class="docutils literal notranslate"><span class="pre">1|stimulus_sigma</span></code> is quite large compared to the other factors. This is potentially problematic, because it suggests that a more conventional analysis that left individual stimulus effects out of the model could potentially run a high false positive rate. Note that this is a problem that affects both the
 RRR and the original Strack study equally; the moral of the story is <a class="reference external" href="http://jakewestfall.org/publications/crossed_power_JEPG.pdf">to deliberately sample large numbers of stimuli and explicitly model their influence</a>. * Older people seem to rate cartoons as being (a little bit) funnier. * The variation across sites is surprisingly small–in terms of both the group specific intercepts (<code class="docutils literal notranslate"><span class="pre">1|study</span></code>) and the group specific slopes (<code class="docutils literal notranslate"><span class="pre">condition|study</span></code>). In other words, the constitution of the
@@ -1142,8 +1143,7 @@ sample, the gender of the experimenter, or any of the hundreds of others of betw
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
 <span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
 </pre></div>
 </div>
@@ -1169,19 +1169,30 @@ Watermark: 2.1.0
 
 </pre></div></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
               </div>
               
               
-              <div class='prev-next-bottom'>
-                
-    <a class='left-prev' id="prev-link" href="multi-level_regression.html" title="previous page">Multi-level Regression</a>
-    <a class='right-next' id="next-link" href="wald_gamma_glm.html" title="next page">Wald and Gamma Regression (Australian insurance claims 2004-2005)</a>
-
-              </div>
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="multi-level_regression.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Multi-level Regression</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="wald_gamma_glm.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Wald and Gamma Regression (Australian insurance claims 2004-2005)</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
               
           </main>
           
@@ -1189,20 +1200,19 @@ Watermark: 2.1.0
       </div>
     </div>
   
-  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
-
-  <footer class="footer mt-5 mt-md-0">
+  <script src="../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+<footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2021, The developers of Bambi.<br/>
+    &copy; Copyright 2021, The developers of Bambi.<br>
 </p>
     </div>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br>
 </p>
     </div>
     

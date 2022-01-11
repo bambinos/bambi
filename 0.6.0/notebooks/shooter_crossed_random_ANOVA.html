@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bayesian Workflow (Police Officer’s Dilemma) &#8212; Bambi 0.6.3 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Bayesian Workflow (Police Officer’s Dilemma) &#8212; Bambi 0.7.0 documentation</title>
     
-  <link href="../_static/css/theme.css" rel="stylesheet" />
-  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../_static/css/theme.css" rel="stylesheet">
+  <link href="../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,21 +24,24 @@
 
     
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/basic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/blank.css" />
     
-  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="en" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
@@ -137,7 +141,7 @@
   <p style="margin-top: 1em; margin-bottom: 0;">
     <strong>
     You're reading an old version of this documentation (v. 0.6.0).<br>
-    If you want up-to-date information, please have a look at <a href="../../0.6.3/index.html">latest</a>.
+    If you want up-to-date information, please have a look at <a href="../../0.7.0/index.html">latest</a>.
   </strong>
   </p>
   
@@ -160,7 +164,15 @@
                 
 
                   
-                    <li><a href="../../0.6.3/index.html">0.6.3 (latest)</a></li>
+                    <li><a href="../../0.7.0/index.html">0.7.0 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.3/index.html">0.6.3</a></li>
                   
 
                 
@@ -518,7 +530,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -556,14 +568,13 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Bayesian-Workflow-(Police-Officer’s-Dilemma)">
+<section id="Bayesian-Workflow-(Police-Officer’s-Dilemma)">
 <h1>Bayesian Workflow (Police Officer’s Dilemma)<a class="headerlink" href="#Bayesian-Workflow-(Police-Officer’s-Dilemma)" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
 <span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -575,8 +586,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;arviz-darkgrid&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;arviz-darkgrid&#39;</span><span class="p">)</span>
 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
 <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">chained_assignment</span> <span class="o">=</span> <span class="kc">None</span>
 </pre></div>
@@ -586,14 +596,13 @@ div.rendered_html tbody tr:hover {
 and in each round or “trial” a person or “target” appears on the screen after some random interval. This person is either Black or White (with 50% probability), and they are holding some object that is either a gun or some other object like a phone or wallet (with 50% probability). When a target appears, the subject has a very brief response window – 0.85 seconds in this particular experiment – within which to press one of two keyboard buttons indicating a “shoot” or “don’t shoot” response.
 Subjects receive points for correct and timely responses in each trial; subjects’ scores are penalized for incorrect reponses (i.e., shooting an unarmed person or failing to shoot an armed person) or if they don’t respond within the 0.85 response window. The goal of the task, from the subject’s perspective, is to maximize their score.</p>
 <p>The typical findings in the shooter task are that (a) subjects are quicker to respond to armed targets than to unarmed targets, but are <em>especially</em> quick toward armed black targets and especially slow toward unarmed black targets, and (b) subjects are more likely to shoot black targets than white targets, whether they are armed or not.</p>
-<div class="section" id="Load-and-examine-data">
+<section id="Load-and-examine-data">
 <h2>Load and examine data<a class="headerlink" href="#Load-and-examine-data" title="Permalink to this headline">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">shooter</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/shooter.csv&#39;</span><span class="p">,</span> <span class="n">na_values</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shooter</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/shooter.csv&#39;</span><span class="p">,</span> <span class="n">na_values</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
 <span class="n">shooter</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -740,8 +749,7 @@ Subjects receive points for correct and timely responses in each trial; subjects
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="p">[</span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">],</span> <span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;object&#39;</span><span class="p">]])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">],</span> <span class="p">[</span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">],</span> <span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;object&#39;</span><span class="p">]])</span>
 </pre></div>
 </div>
 </div>
@@ -1709,8 +1717,7 @@ more convenient for us by allowing us to use some fairly standard distributional
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1000.0</span> <span class="o">/</span> <span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1000.0</span> <span class="o">/</span> <span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -1718,8 +1725,7 @@ more convenient for us by allowing us to use some fairly standard distributional
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">());</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">());</span>
 </pre></div>
 </div>
 </div>
@@ -1730,10 +1736,10 @@ more convenient for us by allowing us to use some fairly standard distributional
 <img alt="../_images/notebooks_shooter_crossed_random_ANOVA_11_0.png" src="../_images/notebooks_shooter_crossed_random_ANOVA_11_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Fit-response-rate-models">
+</section>
+<section id="Fit-response-rate-models">
 <h2>Fit response rate models<a class="headerlink" href="#Fit-response-rate-models" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="Subject-specific-effects-only">
+<section id="Subject-specific-effects-only">
 <h3>Subject specific effects only<a class="headerlink" href="#Subject-specific-effects-only" title="Permalink to this headline">¶</a></h3>
 <p>Our first model is analogous to how the data from the shooter task are usually analyzed: incorporating all subject-level sources of variability, but ignoring the sampling variability due to the sample of 50 targets. This is a Bayesian generalized linear mixed model (GLMM) with a Normal response and with intercepts and slopes that vary randomly across subjects. Of note here is the <code class="docutils literal notranslate"><span class="pre">C(x,</span> <span class="pre">Sum)</span></code> syntax, which is from the <a class="reference external" href="http://statsmodels.sourceforge.net/stable/contrasts.html">Patsy library</a>
 that we use to parse formulae. This instructs Bambi to use contrast codes of -1 and +1 for the two levels of each of the common factors of <code class="docutils literal notranslate"><span class="pre">race</span></code> (black vs. white) and <code class="docutils literal notranslate"><span class="pre">object</span></code> (gun vs. no gun), so that the <code class="docutils literal notranslate"><span class="pre">race</span></code> and <code class="docutils literal notranslate"><span class="pre">object</span></code> coefficients can be interpreted as simple effects on average across the levels of the other factor (directly analogous, but not quite equivalent, to the main effects). This is the standard coding used in ANOVA.</p>
@@ -1741,8 +1747,7 @@ that we use to parse formulae. This instructs Bambi to use contrast codes of -1 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">subj_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">shooter</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subj_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">shooter</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">subj_fitted</span> <span class="o">=</span> <span class="n">subj_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;rate ~ C(race, Sum)*C(object, Sum)&#39;</span><span class="p">,</span>
                              <span class="n">group_specific</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;C(race, Sum)*C(object, Sum)|subject&#39;</span><span class="p">],</span>
                              <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -1794,8 +1799,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">subj_model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subj_model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -1813,8 +1817,7 @@ corresponding common effect priors (see <a class="reference external" href="http
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">subj_fitted</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">subj_fitted</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1830,8 +1833,7 @@ corresponding common effect priors (see <a class="reference external" href="http
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="c1"># by default the variables plotted by subj_model.plot() are different than those from:</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># by default the variables plotted by subj_model.plot() are different than those from:</span>
 <span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">subj_fitted</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum):C(object, Sum)&#39;</span><span class="p">,</span>
                                  <span class="s1">&#39;1|subject&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum)[S.black]|subject&#39;</span><span class="p">,</span>
                                   <span class="s1">&#39;C(object, Sum)[S.gun]|subject&#39;</span><span class="p">,</span>
@@ -2041,8 +2043,8 @@ corresponding common effect priors (see <a class="reference external" href="http
 
 We see this in the fact that the marginal posterior for the `C(race, Sum)[S.black]:C(object, Sum)[S.gun]` interaction coefficient is concentrated strongly away from 0.
 
-But that coefficient is not written like that in the output of `az.plot_trace()`. --></div>
-<div class="section" id="Stimulus-specific-effects">
+But that coefficient is not written like that in the output of `az.plot_trace()`. --></section>
+<section id="Stimulus-specific-effects">
 <h3>Stimulus specific effects<a class="headerlink" href="#Stimulus-specific-effects" title="Permalink to this headline">¶</a></h3>
 <p>A major flaw in the analysis above is that stimulus specific effects are ignored. The model does include group specific effects for subjects, reflecting the fact that the subjects we observed are but a sample from the broader population of subjects we are interested in and that potentially could have appeared in our study. But the targets we observed – the 50 photographs of white and black men that subjets responded to – are also but a sample from the broader theoretical population of targets we
 are interested in talking about, and that we could have just as easily and justifiably used as the experimental stimuli in the study. Since the stimuli comprise a random sample, they are subject to sampling variability, and this sampling variability should be accounted in the analysis by including stimulus specific effects. For some more information on this, <a class="reference external" href="http://jakewestfall.org/publications/JWK.pdf">see here, particularly pages 62-63</a>.</p>
@@ -2051,8 +2053,7 @@ are interested in talking about, and that we could have just as easily and justi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">stim_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">shooter</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stim_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">shooter</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">stim_fitted</span> <span class="o">=</span> <span class="n">stim_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="s1">&#39;rate ~ C(race, Sum)*C(object, Sum)&#39;</span><span class="p">,</span>
                              <span class="n">group_specific</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;C(race, Sum)*C(object, Sum)|subject&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)|target&#39;</span><span class="p">],</span>
                              <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
@@ -2106,8 +2107,7 @@ The estimated number of effective samples is smaller than 200 for some parameter
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">stim_fitted</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">stim_fitted</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -2122,8 +2122,7 @@ The estimated number of effective samples is smaller than 200 for some parameter
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">stim_fitted</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum):C(object, Sum)&#39;</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">stim_fitted</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)&#39;</span><span class="p">,</span> <span class="s1">&#39;C(race, Sum):C(object, Sum)&#39;</span><span class="p">,</span>
                                   <span class="s1">&#39;1|subject&#39;</span><span class="p">,</span> <span class="s1">&#39;C(object, Sum)[S.gun]|subject&#39;</span><span class="p">,</span>
                                   <span class="s1">&#39;C(race, Sum)[S.black]:C(object, Sum)[S.gun]|subject&#39;</span><span class="p">,</span>
                                   <span class="s1">&#39;rate_sigma&#39;</span><span class="p">])</span>
@@ -2331,8 +2330,7 @@ The estimated number of effective samples is smaller than 200 for some parameter
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="p">(</span><span class="n">stim_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;C(race, Sum):C(object, Sum)&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">stim_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;C(race, Sum):C(object, Sum)&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -2697,17 +2695,16 @@ array(0.0365)</pre><div class='xr-wrap' hidden><div class='xr-header'><div class
 <p>The second interesting thing is that the two new variance components in the model, those associated with the stimulus specific effects, are actually rather large. This actually largely explains the first fact above, since if these where estimated to be close to 0 anyway, the model estimates wouldn’t be much different than they were in the <code class="docutils literal notranslate"><span class="pre">subj_model</span></code>. It makes sense that there is a strong tendency for different targets to elicit difference reaction times on average, which leads to a large
 estimate of <code class="docutils literal notranslate"><span class="pre">1|target_sigma</span></code>. Less obviously, the large estimate of <code class="docutils literal notranslate"><span class="pre">C(object,</span> <span class="pre">Sum)[S.gun]|target_sigma</span></code> (targets tend to vary a lot in their response rate differences when they have a gun vs. some other object) also makes sense, because in this experiment, different targets were pictured with different non-gun objects. Some of these objects, such as a bright red can of Coca-Cola, are not easily confused with a gun, so subjects are able to quickly decide on the correct response. Other
 objects, such as a black cell phone, are possibly easier to confuse with a gun, so subjects take longer to decide on the correct response when confronted with this object. Since each target is yoked to a particular non-gun object, there is good reason to expect large target-to-target variability in the <code class="docutils literal notranslate"><span class="pre">object</span></code> effect, which is indeed what we see in the model estimates.</p>
-</div>
-</div>
-<div class="section" id="Fit-response-models">
+</section>
+</section>
+<section id="Fit-response-models">
 <h2>Fit response models<a class="headerlink" href="#Fit-response-models" title="Permalink to this headline">¶</a></h2>
 <p>Here we seek evidence of the second traditional finding, that subjects are more likely to response ‘shoot’ toward black targets than toward white targets, regardless of whether they are armed or not. Currently the dataset just records whether the given response was correct or not, so first we transformed this into whether the response was ‘shoot’ or ‘dontshoot’.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;shoot_or_not&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;shoot_or_not&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shooter</span><span class="p">[</span><span class="s1">&#39;response&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
 
 <span class="c1"># armed targets</span>
 <span class="n">new_vals</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;correct&#39;</span><span class="p">:</span> <span class="s1">&#39;shoot&#39;</span><span class="p">,</span> <span class="s1">&#39;incorrect&#39;</span><span class="p">:</span><span class="s1">&#39;dontshoot&#39;</span><span class="p">,</span> <span class="s1">&#39;timeout&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">}</span>
@@ -3007,8 +3004,7 @@ objects, such as a black cell phone, are possibly easier to confuse with a gun, 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">stim_response_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">shooter</span><span class="o">.</span><span class="n">dropna</span><span class="p">())</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stim_response_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">shooter</span><span class="o">.</span><span class="n">dropna</span><span class="p">())</span>
 <span class="c1"># Note we increased target_accept from default 0.8 to 0.9 because there were divergences</span>
 <span class="n">stim_response_fitted</span> <span class="o">=</span> <span class="n">stim_response_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="s1">&#39;shoot_or_not[shoot] ~ C(race, Sum)*C(object, Sum)&#39;</span><span class="p">,</span>
@@ -3064,8 +3060,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">stim_response_fitted</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">stim_response_fitted</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -3081,8 +3076,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">stim_response_fitted</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">stim_response_fitted</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -3287,8 +3281,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="p">(</span><span class="n">stim_response_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;C(race, Sum)&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">stim_response_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;C(race, Sum)&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -3654,8 +3647,7 @@ array(0.07066667)</pre><div class='xr-wrap' hidden><div class='xr-header'><div c
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
 <span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
 </pre></div>
 </div>
@@ -3676,17 +3668,16 @@ IPython 7.18.1
 watermark 2.0.2
 </pre></div></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
               </div>
               
               
-              <div class='prev-next-bottom'>
-                
-
-              </div>
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
               
           </main>
           
@@ -3694,20 +3685,19 @@ watermark 2.0.2
       </div>
     </div>
   
-  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
-
-  <footer class="footer mt-5 mt-md-0">
+  <script src="../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+<footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2021, The developers of Bambi.<br/>
+    &copy; Copyright 2021, The developers of Bambi.<br>
 </p>
     </div>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br>
 </p>
     </div>
     

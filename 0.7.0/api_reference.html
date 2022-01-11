@@ -1,0 +1,930 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>API Reference &#8212; Bambi 0.7.0 documentation</title>
+    
+  <link href="_static/css/theme.css" rel="stylesheet">
+  <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/blank.css" />
+    
+  <link rel="preload" as="script" href="_static/js/index.be7d3bbb2ef33a8344ce.js">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Frequently Asked Questions" href="faq.html" />
+    <link rel="prev" title="Negative Binomial Regression (Students absence example)" href="notebooks/negative_binomial.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="index.html">
+<p class="title">Bambi</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="notebooks/getting_started.html">
+  Getting Started
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="current reference internal nav-link" href="#">
+  API Reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="faq.html">
+  Frequently Asked Questions
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub">
+            <span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bambi/" rel="noopener" target="_blank" title="PyPi">
+            <span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label>
+          </a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+  
+
+  
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Versions navigation">
+    <div class="bd-toc-item active">
+        <ul class="current nav bd-sidenav">
+        <li class="toctree-l1 has-children">
+            <p class="caption"><span class="caption-text">Version</span></p>
+            <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox">
+            <label for="toctree-checkbox-1"> <i class="fas fa-chevron-down"></i></label>
+
+            <ul>
+                  
+                  <li><a href="../main/api_reference.html"> Development </a></li>
+                  
+
+                
+
+                  
+                    <li class="toctree-l2 current active"><a href="api_reference.html">0.7.0 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../0.6.3/api_reference.html">0.6.3</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../0.6.2/api_reference.html">0.6.2</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../0.6.1/api_reference.html">0.6.1</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../0.6.0/api_reference.html">0.6.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../0.5.0/api_reference.html">0.5.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../0.4.1/api_reference.html">0.4.1</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../0.4.0/api_reference.html">0.4.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../0.3.0/api_reference.html">0.3.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../0.2.0/api_reference.html">0.2.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../0.1.5/api_reference.html">0.1.5</a></li>
+                  
+
+                
+
+            </ul>
+        </li>
+        </ul>
+    </div>
+  </nav>
+
+
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-bambi.models">
+   <code class="xref py py-mod docutils literal notranslate">
+    <span class="pre">
+     bambi.models
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-bambi.priors">
+   <code class="xref py py-mod docutils literal notranslate">
+    <span class="pre">
+     bambi.priors
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-bambi.families">
+   <code class="xref py py-mod docutils literal notranslate">
+    <span class="pre">
+     bambi.families
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-bambi.data">
+   <code class="xref py py-mod docutils literal notranslate">
+    <span class="pre">
+     bambi.data
+    </span>
+   </code>
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<p>This reference provides detailed documentation for all modules, classes, and
+methods in the current release of Bambi.</p>
+<div class="toctree-wrapper compound">
+</div>
+<section id="module-bambi.models">
+<span id="bambi-models"></span><h2><a class="reference internal" href="#module-bambi.models" title="bambi.models"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.models</span></code></a><a class="headerlink" href="#module-bambi.models" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="bambi.models.Model">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.models.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">family</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gaussian'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potentials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropna</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">automatic_priors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noncentered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priors_cor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taylor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specification of model class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>formula</strong> (<em>str</em>) – A model description written using the formula syntax from the <code class="docutils literal notranslate"><span class="pre">formulae</span></code> library.</p></li>
+<li><p><strong>data</strong> (<em>pandas.DataFrame</em><em> or </em><em>str</em>) – The dataset to use. Either a pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>, or the name of the file containing
+the data, which will be passed to <code class="docutils literal notranslate"><span class="pre">pd.read_csv()</span></code>.</p></li>
+<li><p><strong>family</strong> (<em>str</em><em> or </em><a class="reference internal" href="#bambi.families.Family" title="bambi.families.Family"><em>bambi.families.Family</em></a>) – A specification of the model family (analogous to the family object in R). Either
+a string, or an instance of class <code class="docutils literal notranslate"><span class="pre">bambi.families.Family</span></code>. If a string is passed, a
+family with the corresponding name must be defined in the defaults loaded at <code class="docutils literal notranslate"><span class="pre">Model</span></code>
+initialization. Valid pre-defined families are <code class="docutils literal notranslate"><span class="pre">&quot;bernoulli&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;beta&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;binomial&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;categorical&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;gamma&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;gaussian&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;negativebinomial&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;poisson&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;t&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;wald&quot;</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;gaussian&quot;</span></code>.</p></li>
+<li><p><strong>priors</strong> (<em>dict</em>) – Optional specification of priors for one or more terms. A dictionary where the keys are
+the names of terms in the model, “common” or “group_specific” and the values are
+instances of class <code class="docutils literal notranslate"><span class="pre">Prior</span></code> when <code class="docutils literal notranslate"><span class="pre">automatic_priors</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code>, or either
+<code class="docutils literal notranslate"><span class="pre">Prior</span></code>, <code class="docutils literal notranslate"><span class="pre">int</span></code>, <code class="docutils literal notranslate"><span class="pre">float</span></code>, or <code class="docutils literal notranslate"><span class="pre">str</span></code> when <code class="docutils literal notranslate"><span class="pre">automatic_priors</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;mle&quot;</span></code>.</p></li>
+<li><p><strong>link</strong> (<em>str</em>) – The name of the link function to use. Valid names are <code class="docutils literal notranslate"><span class="pre">&quot;cloglog&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;identity&quot;</span></code>,
+<code class="docutils literal notranslate"><span class="pre">&quot;inverse_squared&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;inverse&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;log&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;logit&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;probit&quot;</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">&quot;softmax&quot;</span></code>. Not all the link functions can be used with all the families.</p></li>
+<li><p><strong>categorical</strong> (<em>str</em><em> or </em><em>list</em>) – The names of any variables to treat as categorical. Can be either a single variable
+name, or a list of names. If categorical is <code class="docutils literal notranslate"><span class="pre">None</span></code>, the data type of the columns in
+the <code class="docutils literal notranslate"><span class="pre">data</span></code> will be used to infer handling. In cases where numeric columns are
+to be treated as categoricals (e.g., group specific factors coded as numerical IDs),
+explicitly passing variable names via this argument is recommended.</p></li>
+<li><p><strong>potentials</strong> (<em>A list of 2-tuples.</em>) – Optional specification of potentials. A potential is an arbitrary expression added to the
+likelihood, this is generally useful to add constrains to models, that are difficult to
+express otherwise. The first term of a 2-tuple is the name of a variable in the model, the
+second a lambda function expressing the desired constraint.
+If a constraint involves n variables, you can pass n 2-tuples or pass a tuple which first
+element is a n-tuple and second element is a lambda function with n arguments. The number
+and order of the lambda function has to match the number and order of the variables names.</p></li>
+<li><p><strong>dropna</strong> (<em>bool</em>) – When <code class="docutils literal notranslate"><span class="pre">True</span></code>, rows with any missing values in either the predictors or outcome are
+automatically dropped from the dataset in a listwise manner.</p></li>
+<li><p><strong>auto_scale</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), priors are automatically rescaled to the data
+(to be weakly informative) any time default priors are used. Note that any priors
+explicitly set by the user will always take precedence over default priors.</p></li>
+<li><p><strong>automatic_priors</strong> (<em>str</em>) – An optional specification to compute/scale automatic priors. <code class="docutils literal notranslate"><span class="pre">&quot;default&quot;</span></code> means to use
+a method inspired on the R rstanarm library. <code class="docutils literal notranslate"><span class="pre">&quot;mle&quot;</span></code> means to use old default priors in
+Bambi that rely on maximum likelihood estimations obtained via the statsmodels library.</p></li>
+<li><p><strong>noncentered</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> (default), uses a non-centered parameterization for normal hyperpriors on
+grouped parameters. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, naive (centered) parameterization is used.</p></li>
+<li><p><strong>priors_cor</strong> (<em>dict</em>) – An optional value for eta in the LKJ prior for the correlation matrix of group-specific
+terms. Keys in the dictionary indicate the groups, and values indicate the value of eta.
+This is a very experimental feature. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>, which means priors for the
+group-specific terms are independent.</p></li>
+<li><p><strong>taylor</strong> (<em>int</em>) – Order of Taylor expansion to use in approximate variance when constructing the default
+priors when <code class="docutils literal notranslate"><span class="pre">automatic_priors</span></code> is <code class="docutils literal notranslate"><span class="pre">&quot;mle&quot;</span></code>. Should be between 1 and 13. Lower values are
+less accurate, tending to undershoot the correct prior width, but are faster to compute and
+more stable. Odd-numbered values tend to work better. Defaults to 5 for Normal models and
+1 for non-Normal models. Values higher than the defaults are generally not recommended as
+they can be unstable.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bambi.models.Model.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.build"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.build" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set up the model for sampling/fitting.</p>
+<p>Performs any steps that require access to all model terms (e.g., scaling priors on each
+term), then calls the backend’s <code class="docutils literal notranslate"><span class="pre">.build()</span></code> method.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bambi.models.Model.common_terms">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">common_terms</span></span><a class="headerlink" href="#bambi.models.Model.common_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dict of all and only common effects in model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bambi.models.Model.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">draws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tune</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discard_tuned_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omit_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mcmc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chains</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.fit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the model using PyMC3.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>draws</strong> (<em>int</em>) – The number of samples to draw from the posterior distribution. Defaults to 1000.</p></li>
+<li><p><strong>tune</strong> (<em>int</em>) – Number of iterations to tune. Defaults to 1000. Samplers adjust the step sizes,
+scalings or similar during tuning. These tuning samples are be drawn in addition to the
+number specified in the <code class="docutils literal notranslate"><span class="pre">draws</span></code> argument, and will be discarded unless
+<code class="docutils literal notranslate"><span class="pre">discard_tuned_samples</span></code> is set to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>discard_tuned_samples</strong> (<em>bool</em>) – Whether to discard posterior samples of the tune interval. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>omit_offsets</strong> (<em>bool</em>) – Omits offset terms in the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object returned when the model includes
+group specific effects. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>include_mean</strong> (<em>bool</em>) – Compute the posterior of the mean response. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>method</strong> (<em>str</em>) – The method to use for fitting the model. By default, <code class="docutils literal notranslate"><span class="pre">&quot;mcmc&quot;</span></code>. This automatically
+assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
+variables and Metropolis for non-binary discrete ones. Alternatively, <code class="docutils literal notranslate"><span class="pre">&quot;advi&quot;</span></code>, in
+which case the model will be fitted using  automatic differentiation variational
+inference as implemented in PyMC3.
+Finally, <code class="docutils literal notranslate"><span class="pre">&quot;laplace&quot;</span></code>, in which case a Laplace approximation is used and is not
+recommended other than for pedagogical use.</p></li>
+<li><p><strong>init</strong> (<em>str</em>) – Initialization method. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>. The available methods are:
+* auto: Use <code class="docutils literal notranslate"><span class="pre">&quot;jitter+adapt_diag&quot;</span></code> and if this method fails it uses <code class="docutils literal notranslate"><span class="pre">&quot;adapt_diag&quot;</span></code>.
+* adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the
+variance of the tuning samples. All chains use the test value (usually the prior mean)
+as starting point.
+* jitter+adapt_diag: Same as <code class="docutils literal notranslate"><span class="pre">&quot;adapt_diag&quot;</span></code>, but use test value plus a uniform jitter
+in [-1, 1] as starting point in each chain.
+* advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on
+the sample variance of the tuning samples.
+* advi+adapt_diag_grad: Run ADVI and then adapt the resulting diagonal mass matrix based
+on the variance of the gradients during tuning. This is <strong>experimental</strong> and might be
+removed in a future release.
+* advi: Run ADVI to estimate posterior mean and diagonal mass matrix.
+* advi_map: Initialize ADVI with MAP and use MAP as starting point.
+* map: Use the MAP as starting point. This is strongly discouraged.
+* adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the
+test value (usually the prior mean) as starting point.
+* jitter+adapt_full: Same as <code class="docutils literal notranslate"><span class="pre">&quot;adapt_full&quot;</span></code>, but use test value plus a uniform jitter
+in [-1, 1] as starting point in each chain.</p></li>
+<li><p><strong>n_init</strong> (<em>int</em>) – Number of initialization iterations. Only works for <code class="docutils literal notranslate"><span class="pre">&quot;advi&quot;</span></code> init methods.</p></li>
+<li><p><strong>chains</strong> (<em>int</em>) – The number of chains to sample. Running independent chains is important for some
+convergence statistics and can also reveal multiple modes in the posterior. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+then set to either <code class="docutils literal notranslate"><span class="pre">cores</span></code> or 2, whichever is larger.</p></li>
+<li><p><strong>cores</strong> (<em>int</em>) – The number of chains to run in parallel. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, it is equal to the number of CPUs
+in the system unless there are more than 4 CPUs, in which case it is set to 4.</p></li>
+<li><p><strong>random_seed</strong> (<em>int</em><em> or </em><em>list of ints</em>) – A list is accepted if cores is greater than one.</p></li>
+<li><p><strong>**kwargs</strong> – For other kwargs see the documentation for <code class="docutils literal notranslate"><span class="pre">pymc3.sample()</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>An ArviZ <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bambi.models.Model.graph">
+<span class="sig-name descname"><span class="pre">graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formatting</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'plain'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">300</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Produce a graphviz Digraph from a built Bambi model.</p>
+<dl class="simple">
+<dt>Requires graphviz, which may be installed most easily with</dt><dd><p><code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">conda-forge</span> <span class="pre">python-graphviz</span></code></p>
+</dd>
+</dl>
+<p>Alternatively, you may install the <code class="docutils literal notranslate"><span class="pre">graphviz</span></code> binaries yourself, and then
+<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">graphviz</span></code> to get the python bindings.
+See <a class="reference external" href="http://graphviz.readthedocs.io/en/stable/manual.html">http://graphviz.readthedocs.io/en/stable/manual.html</a> for more information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>formatting</strong> (<em>str</em>) – One of <code class="docutils literal notranslate"><span class="pre">&quot;plain&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;plain_with_params&quot;</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;plain&quot;</span></code>.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the figure to save. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>, no figure is saved.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em>) – Maximum width and height of figure in inches. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>, the figure size is
+set automatically. If defined and the drawing is larger than the given size, the drawing
+is uniformly scaled down so that it fits within the given size.  Only works if <code class="docutils literal notranslate"><span class="pre">name</span></code>
+is not <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>dpi</strong> (<em>int</em>) – Point per inch of the figure to save.
+Defaults to 300. Only works if <code class="docutils literal notranslate"><span class="pre">name</span></code> is not <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>fmt</strong> (<em>str</em>) – Format of the figure to save.
+Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;png&quot;</span></code>. Only works if <code class="docutils literal notranslate"><span class="pre">name</span></code> is not <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">&quot;y ~ x + (1|z)&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">&quot;y ~ x + (1|z)&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bambi.models.Model.group_specific_terms">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_specific_terms</span></span><a class="headerlink" href="#bambi.models.Model.group_specific_terms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dict of all and only group specific effects in model.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bambi.models.Model.intercept_term">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">intercept_term</span></span><a class="headerlink" href="#bambi.models.Model.intercept_term" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the intercept term</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bambi.models.Model.plot_priors">
+<span class="sig-name descname"><span class="pre">plot_priors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">draws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">textsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdi_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round_to</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">point_estimate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'kde'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omit_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omit_group_specific</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.plot_priors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.plot_priors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples from the prior distribution and plots its marginals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>draws</strong> (<em>int</em>) – Number of draws to sample from the prior predictive distribution. Defaults to 5000.</p></li>
+<li><p><strong>var_names</strong> (<em>str</em><em> or </em><em>list</em>) – A list of names of variables for which to compute the posterior predictive
+distribution. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> which means to include both observed and
+unobserved RVs.</p></li>
+<li><p><strong>random_seed</strong> (<em>int</em>) – Seed for the random number generator.</p></li>
+<li><p><strong>figsize</strong> (<em>tuple</em>) – Figure size. If <code class="docutils literal notranslate"><span class="pre">None</span></code> it will be defined automatically.</p></li>
+<li><p><strong>textsize</strong> (<em>float</em>) – Text size scaling factor for labels, titles and lines. If <code class="docutils literal notranslate"><span class="pre">None</span></code> it will be
+autoscaled based on <code class="docutils literal notranslate"><span class="pre">figsize</span></code>.</p></li>
+<li><p><strong>hdi_prob</strong> (<em>float</em><em> or </em><em>str</em>) – Plots highest density interval for chosen percentage of density.
+Use <code class="docutils literal notranslate"><span class="pre">&quot;hide&quot;</span></code> to hide the highest density interval. Defaults to 0.94.</p></li>
+<li><p><strong>round_to</strong> (<em>int</em>) – Controls formatting of floats. Defaults to 2 or the integer part, whichever is bigger.</p></li>
+<li><p><strong>point_estimate</strong> (<em>str</em>) – Plot point estimate per variable. Values should be <code class="docutils literal notranslate"><span class="pre">&quot;mean&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;median&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;mode&quot;</span></code>
+or <code class="docutils literal notranslate"><span class="pre">None</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code> i.e. it falls back to default set in
+ArviZ’s rcParams.</p></li>
+<li><p><strong>kind</strong> (<em>str</em>) – Type of plot to display (<code class="docutils literal notranslate"><span class="pre">&quot;kde&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;hist&quot;</span></code>) For discrete variables this argument
+is ignored and a histogram is always used.</p></li>
+<li><p><strong>bins</strong> (<em>integer</em><em> or </em><em>sequence</em><em> or </em><em>&quot;auto&quot;</em>) – Controls the number of bins, accepts the same keywords <code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.hist()</span></code>
+does. Only works if <code class="docutils literal notranslate"><span class="pre">kind</span> <span class="pre">==</span> <span class="pre">&quot;hist&quot;</span></code>. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default) it will use <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>
+for continuous variables and <code class="docutils literal notranslate"><span class="pre">range(xmin,</span> <span class="pre">xmax</span> <span class="pre">+</span> <span class="pre">1)</span></code> for discrete variables.</p></li>
+<li><p><strong>omit_offsets</strong> (<em>bool</em>) – Whether to omit offset terms in the plot. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>omit_group_specific</strong> (<em>bool</em>) – Whether to omit group specific effects in the plot. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>ax</strong> (<em>numpy array-like of matplotlib axes</em><em> or </em><em>bokeh figures</em>) – A 2D array of locations into which to plot the densities. If not supplied, ArviZ will
+create its own array of plot areas (and return it).</p></li>
+<li><p><strong>**kwargs</strong> – Passed as-is to <code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.hist()</span></code> or <code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.plot()</span></code> function
+depending on the value of <code class="docutils literal notranslate"><span class="pre">kind</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>axes</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>matplotlib axes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bambi.models.Model.predict">
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict method for Bambi models</p>
+<p>Obtains in-sample and out-of-sample predictions from a fitted Bambi model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idata</strong> (<em>InferenceData</em>) – The <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance returned by <code class="docutils literal notranslate"><span class="pre">.fit()</span></code>.</p></li>
+<li><p><strong>kind</strong> (<em>str</em>) – Indicates the type of prediction required. Can be <code class="docutils literal notranslate"><span class="pre">&quot;mean&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;pps&quot;</span></code>. The
+first returns draws from the posterior distribution of the mean, while the latter
+returns the draws from the posterior predictive distribution
+(i.e. the posterior probability distribution for a new observation).
+Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;mean&quot;</span></code>.</p></li>
+<li><p><strong>data</strong> (<em>pandas.DataFrame</em><em> or </em><em>None</em>) – An optional data frame with values for the predictors that are used to obtain
+out-of-sample predictions. If omitted, the original dataset is used.</p></li>
+<li><p><strong>draws</strong> (<em>None</em>) – The number of random draws per chain. Only used if <code class="docutils literal notranslate"><span class="pre">kind=&quot;pps&quot;</span></code>. Not recommended
+unless more than ndraws times nchains posterior predictive samples are needed.
+Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> which means ndraws draws are obtained.</p></li>
+<li><p><strong>inplace</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> it will modify <code class="docutils literal notranslate"><span class="pre">idata</span></code> in-place. Otherwise, it will return a copy of
+<code class="docutils literal notranslate"><span class="pre">idata</span></code> with the predictions added. If <code class="docutils literal notranslate"><span class="pre">kind=&quot;mean&quot;</span></code>, a new variable ending in
+<code class="docutils literal notranslate"><span class="pre">&quot;_mean&quot;</span></code> is added to the <code class="docutils literal notranslate"><span class="pre">posterior</span></code> group. If <code class="docutils literal notranslate"><span class="pre">kind=&quot;pps&quot;</span></code>, it appends a
+<code class="docutils literal notranslate"><span class="pre">posterior_predictive</span></code> group to <code class="docutils literal notranslate"><span class="pre">idata</span></code>. If any of these already exist, it will be
+overwritten.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>InferenceData or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bambi.models.Model.prior_predictive">
+<span class="sig-name descname"><span class="pre">prior_predictive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">draws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">500</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omit_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.prior_predictive"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.prior_predictive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate samples from the prior predictive distribution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>draws</strong> (<em>int</em>) – Number of draws to sample from the prior predictive distribution. Defaults to 500.</p></li>
+<li><p><strong>var_names</strong> (<em>str</em><em> or </em><em>list</em>) – A list of names of variables for which to compute the prior predictive distribution.
+Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> which means both observed and unobserved RVs.</p></li>
+<li><p><strong>random_seed</strong> (<em>int</em>) – Seed for the random number generator.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object with the groups <code class="docutils literal notranslate"><span class="pre">prior</span></code>, <code class="docutils literal notranslate"><span class="pre">prior_predictive</span></code> and
+<code class="docutils literal notranslate"><span class="pre">observed_data</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>InferenceData</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bambi.models.Model.set_alias">
+<span class="sig-name descname"><span class="pre">set_alias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">aliases</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.set_alias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.set_alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set aliases for the terms and auxiliary parameters in the model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>aliases</strong> (<em>dict</em>) – A dictionary where key represents the original term name and the value is the alias.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bambi.models.Model.set_priors">
+<span class="sig-name descname"><span class="pre">set_priors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">priors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">common</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group_specific</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.set_priors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.set_priors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set priors for one or more existing terms.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>priors</strong> (<em>dict</em>) – Dictionary of priors to update. Keys are names of terms to update; values are the new
+priors (either a <code class="docutils literal notranslate"><span class="pre">Prior</span></code> instance, or an int or float that scales the default priors).
+Note that a tuple can be passed as the key, in which case the same prior will be applied
+to all terms named in the tuple.</p></li>
+<li><p><strong>common</strong> (<a class="reference internal" href="#bambi.priors.Prior" title="bambi.priors.Prior"><em>Prior</em></a><em>, </em><em>int</em><em>, </em><em>float</em><em> or </em><em>str</em>) – A prior specification to apply to all common terms included in the model.</p></li>
+<li><p><strong>group_specific</strong> (<a class="reference internal" href="#bambi.priors.Prior" title="bambi.priors.Prior"><em>Prior</em></a><em>, </em><em>int</em><em>, </em><em>float</em><em> or </em><em>str</em>) – A prior specification to apply to all group specific terms included in the model.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="bambi.models.Model.term_names">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">term_names</span></span><a class="headerlink" href="#bambi.models.Model.term_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return names of all terms in order of addition to model.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bambi.priors">
+<span id="bambi-priors"></span><h2><a class="reference internal" href="#module-bambi.priors" title="bambi.priors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.priors</span></code></a><a class="headerlink" href="#module-bambi.priors" title="Permalink to this headline">¶</a></h2>
+<p>Classes to represent prior distributions and methods to set automatic priors</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bambi.priors.Prior">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">Prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/prior.html#Prior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.Prior" title="Permalink to this definition">¶</a></dt>
+<dd><p>Abstract specification of a term prior.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of prior distribution. Must be the name of a PyMC3 distribution
+(e.g., <code class="docutils literal notranslate"><span class="pre">&quot;Normal&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;Bernoulli&quot;</span></code>, etc.)</p></li>
+<li><p><strong>auto_scale</strong> (<em>bool</em>) – Whether to adjust the parameters of the prior or use them as passed. Default to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>scale</strong> (<em>num</em><em> or </em><em>str</em>) – How to scale the prior. If a number, must be within 0 and 1. If a string, must be one of
+<code class="docutils literal notranslate"><span class="pre">&quot;narrow&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;medium&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;wide&quot;</span></code>, or <code class="docutils literal notranslate"><span class="pre">&quot;superwide&quot;</span></code>. Only used when the model was
+created with <code class="docutils literal notranslate"><span class="pre">automatic_priors=&quot;mle&quot;</span></code>.</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – Optional keywords specifying the parameters of the named distribution.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="bambi.priors.Prior.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/prior.html#Prior.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.Prior.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the arguments of the prior with additional arguments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>dict</em>) – Optional keyword arguments to add to prior args.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bambi.priors.PriorScaler">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">PriorScaler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/scaler_default.html#PriorScaler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.PriorScaler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scale prior distributions parameters.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bambi.priors.PriorScalerMLE">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">PriorScalerMLE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taylor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/scaler_mle.html#PriorScalerMLE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.PriorScalerMLE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scale prior distributions parameters.</p>
+<p>Used internally. Based on <a class="reference external" href="https://arxiv.org/abs/1702.01201">https://arxiv.org/abs/1702.01201</a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="bambi.priors.PriorScalerMLE.fit_mle">
+<span class="sig-name descname"><span class="pre">fit_mle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/scaler_mle.html#PriorScalerMLE.fit_mle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.PriorScalerMLE.fit_mle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fits MLE of the common part of the model.</p>
+<p>This used to be called in the class instantiation, but there is no need to fit the GLM when
+there are no automatic priors. So this method is only called when needed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bambi.priors.PriorScalerMLE.get_slope_stats">
+<span class="sig-name descname"><span class="pre">get_slope_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exog</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_corr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">full_model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/scaler_mle.html#PriorScalerMLE.get_slope_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.PriorScalerMLE.get_slope_stats" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the term</p></li>
+<li><p><strong>values</strong> (<em>np.array</em>) – Values of the term</p></li>
+<li><p><strong>full_model</strong> (<em>statsmodels.genmod.generalized_linear_model.GLM</em>) – Statsmodels GLM to replace MLE model. For when <code class="docutils literal notranslate"><span class="pre">'predictor'</span></code> is not in the common
+part of the model.</p></li>
+<li><p><strong>points</strong> (<em>int</em>) – Number of points to use for LL approximation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bambi.priors.PriorScalerMLE.scale_common">
+<span class="sig-name descname"><span class="pre">scale_common</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">term</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/scaler_mle.html#PriorScalerMLE.scale_common"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.PriorScalerMLE.scale_common" title="Permalink to this definition">¶</a></dt>
+<dd><p>Scale common terms, excluding intercepts.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-bambi.families">
+<span id="bambi-families"></span><h2><a class="reference internal" href="#module-bambi.families" title="bambi.families"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.families</span></code></a><a class="headerlink" href="#module-bambi.families" title="Permalink to this headline">¶</a></h2>
+<p>Classes to construct model families.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="bambi.families.Family">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.families.</span></span><span class="sig-name descname"><span class="pre">Family</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">likelihood</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/families/family.html#Family"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.families.Family" title="Permalink to this definition">¶</a></dt>
+<dd><p>A specification of model family.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the family. It can be any string.</p></li>
+<li><p><strong>likelihood</strong> (<a class="reference internal" href="#bambi.families.Likelihood" title="bambi.families.Likelihood"><em>Likelihood</em></a>) – A <code class="docutils literal notranslate"><span class="pre">bambi.families.Likelihood</span></code> instace specifying the model likelihood function.</p></li>
+<li><p><strong>link</strong> (<em>str</em><em> or </em><a class="reference internal" href="#bambi.families.Link" title="bambi.families.Link"><em>Link</em></a>) – The name of the link function or a <code class="docutils literal notranslate"><span class="pre">bambi.families.Link</span></code> instance. The link function
+transforms the linear model prediction to the mean parameter of the likelihood funtion.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
+</pre></div>
+</div>
+<p>Replicate the Gaussian built-in family.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sigma_prior</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;HalfNormal&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">likelihood</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Likelihood</span><span class="p">(</span><span class="s2">&quot;Gaussian&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma_prior</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">family</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Family</span><span class="p">(</span><span class="s2">&quot;gaussian&quot;</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">,</span> <span class="s2">&quot;identity&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># Then you can do</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># bmb.Model(&quot;y ~ x&quot;, data, family=family)</span>
+</pre></div>
+</div>
+<p>Replicate the Bernoulli built-in family.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">likelihood</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Likelihood</span><span class="p">(</span><span class="s2">&quot;Bernoulli&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="s2">&quot;p&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">family</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Family</span><span class="p">(</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">,</span> <span class="s2">&quot;logit&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="bambi.families.Family.set_alias">
+<span class="sig-name descname"><span class="pre">set_alias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alias</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/families/family.html#Family.set_alias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.families.Family.set_alias" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set alias for an auxiliary variable of the family</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the variable</p></li>
+<li><p><strong>alias</strong> (<em>str</em>) – The new name for the variable</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bambi.families.Likelihood">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.families.</span></span><span class="sig-name descname"><span class="pre">Likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/families/likelihood.html#Likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.families.Likelihood" title="Permalink to this definition">¶</a></dt>
+<dd><p>Representation of a Likelihood function for a Bambi model.</p>
+<p>Notes:
+* <code class="docutils literal notranslate"><span class="pre">parent</span></code> must not be in <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>.
+* <code class="docutils literal notranslate"><span class="pre">parent</span></code> is inferred from the <code class="docutils literal notranslate"><span class="pre">name</span></code> if it is a known name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the likelihood function. Must be a valid PyMC3 distribution name.</p></li>
+<li><p><strong>parent</strong> (<em>str</em>) – Optional specification of the name of the mean parameter in the likelihood.
+This is the parameter whose transformation is modeled by the linear predictor.</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments that indicate prior distributions for auxiliary parameters in the
+likelihood.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="bambi.families.Link">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.families.</span></span><span class="sig-name descname"><span class="pre">Link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linkinv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linkinv_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/families/link.html#Link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.families.Link" title="Permalink to this definition">¶</a></dt>
+<dd><p>Representation of link function.</p>
+<p>This object contains two main functions. One is the link function itself, the function
+that maps values in the response scale to the linear predictor, and the other is the inverse
+of the link function, that maps values of the linear predictor to the response scale.</p>
+<p>The great majority of users will never interact with this class unless they want to create
+a custom <code class="docutils literal notranslate"><span class="pre">Family</span></code> with a custom <code class="docutils literal notranslate"><span class="pre">Link</span></code>. This is automatically handled for all the built-in
+families.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – The name of the link function. If it is a known name, it’s not necessary to pass any
+other arguments because functions are already defined internally. If not known, all of
+<code class="docutils literal notranslate"><span class="pre">link</span></code>, <code class="docutils literal notranslate"><span class="pre">linkinv</span></code> and <code class="docutils literal notranslate"><span class="pre">linkinv_backend</span></code> must be specified.</p></li>
+<li><p><strong>link</strong> (<em>function</em>) – A function that maps the response to the linear predictor. Known as the <span class="math notranslate nohighlight">\(g\)</span> function
+in GLM jargon. Does not need to be specified when <code class="docutils literal notranslate"><span class="pre">name</span></code> is a known name.</p></li>
+<li><p><strong>linkinv</strong> (<em>function</em>) – A function that maps the linear predictor to the response. Known as the <span class="math notranslate nohighlight">\(g^{-1}\)</span>
+function in GLM jargon. Does not need to be specified when <code class="docutils literal notranslate"><span class="pre">name</span></code> is a known name.</p></li>
+<li><p><strong>linkinv_backend</strong> (<em>function</em>) – Same than <code class="docutils literal notranslate"><span class="pre">linkinv</span></code> but must be something that works with PyMC3 backend (i.e. it must
+work with Theano tensors). Does not need to be specified when <code class="docutils literal notranslate"><span class="pre">name</span></code> is a known
+name.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-bambi.data">
+<span id="bambi-data"></span><h2><a class="reference internal" href="#module-bambi.data" title="bambi.data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.data</span></code></a><a class="headerlink" href="#module-bambi.data" title="Permalink to this headline">¶</a></h2>
+<p>Code for loading datasets.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="bambi.data.clear_data_home">
+<span class="sig-prename descclassname"><span class="pre">bambi.data.</span></span><span class="sig-name descname"><span class="pre">clear_data_home</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_home</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/data/datasets.html#clear_data_home"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.data.clear_data_home" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete all the content of the data home cache.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>data_home</strong> (<em>str</em>) – The path to Bambi data dir. By default a folder named <code class="docutils literal notranslate"><span class="pre">&quot;bambi_data&quot;</span></code> in the user home
+folder.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bambi.data.load_data">
+<span class="sig-prename descclassname"><span class="pre">bambi.data.</span></span><span class="sig-name descname"><span class="pre">load_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_home</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/data/datasets.html#load_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.data.load_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a dataset.</p>
+<p>Run with no parameters to get a list of all available data sets.</p>
+<p>The directory to save can also be set with the environment variable <code class="docutils literal notranslate"><span class="pre">BAMBI_HOME</span></code>.
+The checksum of the dataset is checked against a hardcoded value to watch for data corruption.
+Run <code class="docutils literal notranslate"><span class="pre">bmb.clear_data_home()</span></code> to clear the data directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<em>str</em>) – Name of dataset to load.</p></li>
+<li><p><strong>data_home</strong> (<em>str</em><em>, </em><em>optional</em>) – Where to save remote datasets</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Pandas DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="notebooks/negative_binomial.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Negative Binomial Regression (Students absence example)</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="faq.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Frequently Asked Questions</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <script src="_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2021, The developers of Bambi.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

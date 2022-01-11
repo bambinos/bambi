@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wald and Gamma Regression (Australian insurance claims 2004-2005) &#8212; Bambi 0.6.3 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Wald and Gamma Regression (Australian insurance claims 2004-2005) &#8212; Bambi 0.7.0 documentation</title>
     
-  <link href="../_static/css/theme.css" rel="stylesheet" />
-  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../_static/css/theme.css" rel="stylesheet">
+  <link href="../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,23 +24,26 @@
 
     
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/basic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/blank.css" />
     
-  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Negative Binomial Regression" href="negative_binomial.html" />
     <link rel="prev" title="Bayesian Workflow (Strack RRR Analysis Replication)" href="Strack_RRR_re_analysis.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="en" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
@@ -145,7 +149,7 @@
   <p style="margin-top: 1em; margin-bottom: 0;">
     <strong>
     You're reading an old version of this documentation (v. 0.6.1).<br>
-    If you want up-to-date information, please have a look at <a href="../../0.6.3/index.html">latest</a>.
+    If you want up-to-date information, please have a look at <a href="../../0.7.0/index.html">latest</a>.
   </strong>
   </p>
   
@@ -168,7 +172,15 @@
                 
 
                   
-                    <li><a href="../../0.6.3/index.html">0.6.3 (latest)</a></li>
+                    <li><a href="../../0.7.0/index.html">0.7.0 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.3/index.html">0.6.3</a></li>
                   
 
                 
@@ -536,7 +548,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -574,14 +586,13 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Wald-and-Gamma-Regression-(Australian-insurance-claims-2004-2005)">
+<section id="Wald-and-Gamma-Regression-(Australian-insurance-claims-2004-2005)">
 <h1>Wald and Gamma Regression (Australian insurance claims 2004-2005)<a class="headerlink" href="#Wald-and-Gamma-Regression-(Australian-insurance-claims-2004-2005)" title="Permalink to this headline">¶</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
 <span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -592,21 +603,19 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="Load-and-examine-Vehicle-insurance-data">
+<section id="Load-and-examine-Vehicle-insurance-data">
 <h2>Load and examine Vehicle insurance data<a class="headerlink" href="#Load-and-examine-Vehicle-insurance-data" title="Permalink to this headline">¶</a></h2>
 <p>In this notebook we use a data set consisting of 67856 insurance policies and 4624 (6.8%) claims in Australia between 2004 and 2005. The original source of this dataset is the book <a class="reference external" href="http://www.businessandeconomics.mq.edu.au/our_departments/Applied_Finance_and_Actuarial_Studies/research/books/GLMsforInsuranceData">Generalized Linear Models for Insurance Data</a> by Piet de Jong and Gillian Z. Heller.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;carclaims&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;carclaims&quot;</span><span class="p">)</span>
 <span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -734,8 +743,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -744,8 +752,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">15000</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">15000</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -762,8 +769,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">15000</span><span class="p">][</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">15000</span><span class="p">][</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Distribution of claim amount&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Claim amount ($)&quot;</span><span class="p">);</span>
 </pre></div>
@@ -778,8 +784,8 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>And this is when you say: “Oh, there really are ugly right-skewed distributions out there!”. Well, yes, we’ve all been there :)</p>
 <p>In this case we are going to fit GLMs with a right-skewed distribution for the random component. This time we will be using Wald and Gamma distributions. One of their differences is that the variance is proportional to the cubic mean in the case of the Wald distribution, and proportional to the squared mean in the case of the Gamma distribution.</p>
-</div>
-<div class="section" id="Wald-family">
+</section>
+<section id="Wald-family">
 <h2>Wald family<a class="headerlink" href="#Wald-family" title="Permalink to this headline">¶</a></h2>
 <p>The Wald family (a.k.a inverse Gaussian model) states that</p>
 <div class="math notranslate nohighlight">
@@ -791,8 +797,8 @@ y_i \sim \text{Wald}(\mu_i, \lambda) &amp; g(\mu_i) = \mathbf{x}_i^T\beta
 \[f(x|\mu, \lambda) =
 \left(\frac{\lambda}{2\pi}\right)^{1/2}x^{-3/2}\exp\left\{ -\frac{\lambda}{2x} \left(\frac{x - \mu}{\mu} \right)^2 \right\}\]</div>
 <p>for <span class="math notranslate nohighlight">\(x &gt; 0\)</span>, mean <span class="math notranslate nohighlight">\(\mu &gt; 0\)</span> and <span class="math notranslate nohighlight">\(\lambda &gt; 0\)</span> is the shape parameter. The variance is given by <span class="math notranslate nohighlight">\(\sigma^2 = \mu^3/\lambda\)</span>. The canonical link is <span class="math notranslate nohighlight">\(g(\mu_i) = \mu_i^{-2}\)</span>, but <span class="math notranslate nohighlight">\(g(\mu_i) = \log(\mu_i)\)</span> is usually preferred, and it is what we use here.</p>
-</div>
-<div class="section" id="Gamma-family">
+</section>
+<section id="Gamma-family">
 <h2>Gamma family<a class="headerlink" href="#Gamma-family" title="Permalink to this headline">¶</a></h2>
 <p>The default parametrization of the Gamma density function is</p>
 <div class="math notranslate nohighlight">
@@ -809,21 +815,20 @@ y_i \sim \text{Wald}(\mu_i, \lambda) &amp; g(\mu_i) = \mathbf{x}_i^T\beta
 y_i \sim \text{Gamma}(\mu_i, \sigma_i), &amp; g(\mu_i) = \mathbf{x}_i^T\beta, &amp; \text{and} &amp; \sigma_i = \mu_i^2/\alpha
 \end{array}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\alpha\)</span> is the shape parameter in the original parametrization of the gamma pdf. The canonical link is <span class="math notranslate nohighlight">\(g(\mu_i) = \mu_i^{-1}\)</span>, but here we use <span class="math notranslate nohighlight">\(g(\mu_i) = \log(\mu_i)\)</span> again.</p>
-</div>
-<div class="section" id="Model-fit">
+</section>
+<section id="Model-fit">
 <h2>Model fit<a class="headerlink" href="#Model-fit" title="Permalink to this headline">¶</a></h2>
 <p>In this example we are going to use the binned age, the gender, and the area of residence to predict the amount of the claim, conditional on the existence of the claim because we are only working with observations where there is a claim.</p>
 <p><code class="docutils literal notranslate"><span class="pre">&quot;agecat&quot;</span></code> is interpreted as a numeric variable in our data frame, but we know it is categorical, and we wouldn’t be happy if our model takes it as if it was numeric, would we?</p>
 <p>We have two alternatives to tell Bambi that this numeric variable must be treated as categorical. The first one is to wrap the name of the variable with <code class="docutils literal notranslate"><span class="pre">C()</span></code>, and the other is to pass the same name to the categorical argument when we create the model. We are going to use the first approach with the Wald family and the second with the Gamma.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">C()</span></code> notation is taken from <a class="reference external" href="https://patsy.readthedocs.io/en/latest/index.html">Patsy</a> and is encouraged when you want to explicitly pass the order of the levels of the variables. If you are happy with the default order, better pass the name to <code class="docutils literal notranslate"><span class="pre">categorical</span></code> so tables and plots have prettier labels :)</p>
-<div class="section" id="Wald">
+<section id="Wald">
 <h3>Wald<a class="headerlink" href="#Wald" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">model_wald</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;claimcst0 ~ C(agecat) + gender + area&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s2">&quot;wald&quot;</span><span class="p">,</span> <span class="n">link</span> <span class="o">=</span> <span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_wald</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;claimcst0 ~ C(agecat) + gender + area&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s2">&quot;wald&quot;</span><span class="p">,</span> <span class="n">link</span> <span class="o">=</span> <span class="s2">&quot;log&quot;</span><span class="p">)</span>
 <span class="n">fitted_wald</span> <span class="o">=</span> <span class="n">model_wald</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -872,8 +877,7 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">fitted_wald</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">fitted_wald</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -888,8 +892,7 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">fitted_wald</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">fitted_wald</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1091,15 +1094,14 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 <p>If we look at the <code class="docutils literal notranslate"><span class="pre">agecat</span></code> variable, we can see the log mean of the claim amount tends to decrease when the age of the person increases, with the exception of the last category where we can see a slight increase in the mean of the coefficient (-0.307 vs -0.365 of the previous category). However, these differences only represent a slight tendency because of the large overlap between the marginal posteriors for these coefficients (see overlayed density plots for <code class="docutils literal notranslate"><span class="pre">C(agecat)</span></code>.</p>
 <p>The posterior for <code class="docutils literal notranslate"><span class="pre">gender</span></code> tells us that the claim amount tends to be larger for males than for females, with the mean being 0.153 and the credible interval ranging from 0.054 to 0.246.</p>
 <p>Finally, from the marginal posteriors for the areas, we can see that F is the only area that clearly stands out, with a higher mean claim amount than in the rest. Area E may also have a higher claim amount, but this difference with the other areas is not as evident as it happens with F.</p>
-</div>
-<div class="section" id="Gamma">
+</section>
+<section id="Gamma">
 <h3>Gamma<a class="headerlink" href="#Gamma" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">model_gamma</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_gamma</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
     <span class="s2">&quot;claimcst0 ~ agecat + gender + area&quot;</span><span class="p">,</span>
     <span class="n">data</span><span class="p">,</span>
     <span class="n">family</span><span class="o">=</span><span class="s2">&quot;gamma&quot;</span><span class="p">,</span>
@@ -1154,8 +1156,7 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">fitted_gamma</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">fitted_gamma</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1170,8 +1171,7 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">fitted_gamma</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">fitted_gamma</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1371,17 +1371,16 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 </div></div>
 </div>
 <p>The interpretation of the parameter posteriors is very similar to what we’ve done for the Wald family. The only difference is that some differences, such as the ones for the area posteriors, are a little more exacerbated here.</p>
-</div>
-</div>
-<div class="section" id="Model-comparison">
+</section>
+</section>
+<section id="Model-comparison">
 <h2>Model comparison<a class="headerlink" href="#Model-comparison" title="Permalink to this headline">¶</a></h2>
 <p>We can perform a Bayesian model comparison very easily with <code class="docutils literal notranslate"><span class="pre">az.compare()</span></code>. Here we pass a dictionary with the InferenceData objects that <code class="docutils literal notranslate"><span class="pre">Model.fit()</span></code> returned and <code class="docutils literal notranslate"><span class="pre">az.compare()</span></code> returns a data frame that is ordered from best to worst according to the criteria used.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">models</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;wald&quot;</span><span class="p">:</span> <span class="n">fitted_wald</span><span class="p">,</span> <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="n">fitted_gamma</span><span class="p">}</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">models</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;wald&quot;</span><span class="p">:</span> <span class="n">fitted_wald</span><span class="p">,</span> <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="n">fitted_gamma</span><span class="p">}</span>
 <span class="n">df_compare</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
 <span class="n">df_compare</span>
 </pre></div>
@@ -1463,8 +1462,7 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_compare</span><span class="p">(</span><span class="n">df_compare</span><span class="p">,</span> <span class="n">insample_dev</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_compare</span><span class="p">(</span><span class="n">df_compare</span><span class="p">,</span> <span class="n">insample_dev</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1480,8 +1478,7 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
 <span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
 </pre></div>
 </div>
@@ -1507,19 +1504,30 @@ Watermark: 2.1.0
 
 </pre></div></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
               </div>
               
               
-              <div class='prev-next-bottom'>
-                
-    <a class='left-prev' id="prev-link" href="Strack_RRR_re_analysis.html" title="previous page">Bayesian Workflow (Strack RRR Analysis Replication)</a>
-    <a class='right-next' id="next-link" href="negative_binomial.html" title="next page">Negative Binomial Regression</a>
-
-              </div>
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="Strack_RRR_re_analysis.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Bayesian Workflow (Strack RRR Analysis Replication)</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="negative_binomial.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Negative Binomial Regression</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
               
           </main>
           
@@ -1527,20 +1535,19 @@ Watermark: 2.1.0
       </div>
     </div>
   
-  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
-
-  <footer class="footer mt-5 mt-md-0">
+  <script src="../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+<footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2021, The developers of Bambi.<br/>
+    &copy; Copyright 2021, The developers of Bambi.<br>
 </p>
     </div>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br>
 </p>
     </div>
     

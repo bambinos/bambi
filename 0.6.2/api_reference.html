@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API Reference &#8212; Bambi 0.6.3 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>API Reference &#8212; Bambi 0.7.0 documentation</title>
     
-  <link href="_static/css/theme.css" rel="stylesheet" />
-  <link href="_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="_static/css/theme.css" rel="stylesheet">
+  <link href="_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,23 +24,26 @@
 
     
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/basic.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/blank.css" />
     
-  <link rel="preload" as="script" href="_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="_static/js/index.be7d3bbb2ef33a8344ce.js">
 
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Frequently Asked Questions" href="faq.html" />
     <link rel="prev" title="Logistic Regression and Model Comparison with Bambi and ArviZ" href="notebooks/model_comparison.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="en" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
@@ -145,7 +149,7 @@
   <p style="margin-top: 1em; margin-bottom: 0;">
     <strong>
     You're reading an old version of this documentation (v. 0.6.2).<br>
-    If you want up-to-date information, please have a look at <a href="../0.6.3/api_reference.html">latest</a>.
+    If you want up-to-date information, please have a look at <a href="../0.7.0/api_reference.html">latest</a>.
   </strong>
   </p>
   
@@ -168,7 +172,15 @@
                 
 
                   
-                    <li><a href="../0.6.3/api_reference.html">0.6.3 (latest)</a></li>
+                    <li><a href="../0.7.0/api_reference.html">0.7.0 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../0.6.3/api_reference.html">0.6.3</a></li>
                   
 
                 
@@ -325,17 +337,17 @@
               
               <div>
                 
-  <div class="section" id="api-reference">
+  <section id="api-reference">
 <h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
 <p>This reference provides detailed documentation for all modules, classes, and
 methods in the current release of Bambi.</p>
 <div class="toctree-wrapper compound">
 </div>
-<div class="section" id="module-bambi.models">
+<section id="module-bambi.models">
 <span id="bambi-models"></span><h2><a class="reference internal" href="#module-bambi.models" title="bambi.models"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.models</span></code></a><a class="headerlink" href="#module-bambi.models" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="bambi.models.Model">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bambi.models.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">family</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gaussian'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potentials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropna</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">automatic_priors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noncentered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priors_cor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taylor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.models.</span></span><span class="sig-name descname"><span class="pre">Model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">formula</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">family</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gaussian'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">categorical</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">potentials</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropna</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">automatic_priors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noncentered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">priors_cor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taylor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Specification of model class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -401,7 +413,7 @@ on each term), then calls the backend’s <code class="docutils literal notransl
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bambi.models.Model.common_terms">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">common_terms</span></span><a class="headerlink" href="#bambi.models.Model.common_terms" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">common_terms</span></span><a class="headerlink" href="#bambi.models.Model.common_terms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return dict of all and only common effects in model.</p>
 </dd></dl>
 
@@ -507,13 +519,13 @@ Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;p
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bambi.models.Model.group_specific_terms">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">group_specific_terms</span></span><a class="headerlink" href="#bambi.models.Model.group_specific_terms" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">group_specific_terms</span></span><a class="headerlink" href="#bambi.models.Model.group_specific_terms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return dict of all and only group specific effects in model.</p>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bambi.models.Model.intercept_term">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">intercept_term</span></span><a class="headerlink" href="#bambi.models.Model.intercept_term" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">intercept_term</span></span><a class="headerlink" href="#bambi.models.Model.intercept_term" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the intercept term</p>
 </dd></dl>
 
@@ -638,19 +650,19 @@ to all terms named in the tuple.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="bambi.models.Model.term_names">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">term_names</span></span><a class="headerlink" href="#bambi.models.Model.term_names" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">term_names</span></span><a class="headerlink" href="#bambi.models.Model.term_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return names of all terms in order of addition to model.</p>
 </dd></dl>
 
 </dd></dl>
 
-</div>
-<div class="section" id="module-bambi.priors">
+</section>
+<section id="module-bambi.priors">
 <span id="bambi-priors"></span><h2><a class="reference internal" href="#module-bambi.priors" title="bambi.priors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.priors</span></code></a><a class="headerlink" href="#module-bambi.priors" title="Permalink to this headline">¶</a></h2>
 <p>Classes to represent prior distributions and methods to set automatic priors</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bambi.priors.Prior">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">Prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/prior.html#Prior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.Prior" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">Prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/prior.html#Prior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.Prior" title="Permalink to this definition">¶</a></dt>
 <dd><p>Abstract specification of a term prior.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -680,13 +692,13 @@ created with <code class="docutils literal notranslate"><span class="pre">automa
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bambi.priors.PriorScaler">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">PriorScaler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/scaler_default.html#PriorScaler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.PriorScaler" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">PriorScaler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/scaler_default.html#PriorScaler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.PriorScaler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scale prior distributions parameters.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bambi.priors.PriorScalerMLE">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">PriorScalerMLE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taylor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/scaler_mle.html#PriorScalerMLE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.PriorScalerMLE" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">PriorScalerMLE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taylor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/scaler_mle.html#PriorScalerMLE"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.PriorScalerMLE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Scale prior distributions parameters.</p>
 <p>Used internally. Based on <a class="reference external" href="https://arxiv.org/abs/1702.01201">https://arxiv.org/abs/1702.01201</a></p>
 <dl class="py method">
@@ -721,13 +733,13 @@ part of the model.</p></li>
 
 </dd></dl>
 
-</div>
-<div class="section" id="module-bambi.families">
+</section>
+<section id="module-bambi.families">
 <span id="bambi-families"></span><h2><a class="reference internal" href="#module-bambi.families" title="bambi.families"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.families</span></code></a><a class="headerlink" href="#module-bambi.families" title="Permalink to this headline">¶</a></h2>
 <p>Classes to construct model families.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bambi.families.Family">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bambi.families.</span></span><span class="sig-name descname"><span class="pre">Family</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">likelihood</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/families/family.html#Family"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.families.Family" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.families.</span></span><span class="sig-name descname"><span class="pre">Family</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">likelihood</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/families/family.html#Family"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.families.Family" title="Permalink to this definition">¶</a></dt>
 <dd><p>A specification of model family.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -760,7 +772,7 @@ transforms the linear model prediction to the mean parameter of the likelihood f
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bambi.families.Likelihood">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bambi.families.</span></span><span class="sig-name descname"><span class="pre">Likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/families/likelihood.html#Likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.families.Likelihood" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.families.</span></span><span class="sig-name descname"><span class="pre">Likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/families/likelihood.html#Likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.families.Likelihood" title="Permalink to this definition">¶</a></dt>
 <dd><p>Representation of a Likelihood function for a Bambi model.</p>
 <p>Notes:
 * <code class="docutils literal notranslate"><span class="pre">parent</span></code> must not be in <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>.
@@ -780,7 +792,7 @@ likelihood.</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bambi.families.Link">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">bambi.families.</span></span><span class="sig-name descname"><span class="pre">Link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linkinv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linkinv_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/families/link.html#Link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.families.Link" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.families.</span></span><span class="sig-name descname"><span class="pre">Link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">link</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linkinv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linkinv_backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/families/link.html#Link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.families.Link" title="Permalink to this definition">¶</a></dt>
 <dd><p>Representation of link function.</p>
 <p>This object contains two main functions. One is the link function itself, the function
 that maps values in the response scale to the linear predictor, and the other is the inverse
@@ -806,8 +818,8 @@ name.</p></li>
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="module-bambi.data">
+</section>
+<section id="module-bambi.data">
 <span id="bambi-data"></span><h2><a class="reference internal" href="#module-bambi.data" title="bambi.data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.data</span></code></a><a class="headerlink" href="#module-bambi.data" title="Permalink to this headline">¶</a></h2>
 <p>Code for loading datasets.</p>
 <dl class="py function">
@@ -846,19 +858,30 @@ Run <code class="docutils literal notranslate"><span class="pre">bmb.clear_data_
 </dl>
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
               </div>
               
               
-              <div class='prev-next-bottom'>
-                
-    <a class='left-prev' id="prev-link" href="notebooks/model_comparison.html" title="previous page">Logistic Regression and Model Comparison with Bambi and ArviZ</a>
-    <a class='right-next' id="next-link" href="faq.html" title="next page">Frequently Asked Questions</a>
-
-              </div>
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="notebooks/model_comparison.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Logistic Regression and Model Comparison with Bambi and ArviZ</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="faq.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Frequently Asked Questions</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
               
           </main>
           
@@ -866,20 +889,19 @@ Run <code class="docutils literal notranslate"><span class="pre">bmb.clear_data_
       </div>
     </div>
   
-  <script src="_static/js/index.1c5a1a01449ed65a7b51.js"></script>
-
-  <footer class="footer mt-5 mt-md-0">
+  <script src="_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+<footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2021, The developers of Bambi.<br/>
+    &copy; Copyright 2021, The developers of Bambi.<br>
 </p>
     </div>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br>
 </p>
     </div>
     

@@ -4,11 +4,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Negative Binomial Regression &#8212; Bambi 0.6.3 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Negative Binomial Regression &#8212; Bambi 0.7.0 documentation</title>
     
-  <link href="../_static/css/theme.css" rel="stylesheet" />
-  <link href="../_static/css/index.c5995385ac14fb8791e8eb36b4908be2.css" rel="stylesheet" />
+  <link href="../_static/css/theme.css" rel="stylesheet">
+  <link href="../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -23,23 +24,26 @@
 
     
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/basic.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/blank.css" />
     
-  <link rel="preload" as="script" href="../_static/js/index.1c5a1a01449ed65a7b51.js">
+  <link rel="preload" as="script" href="../_static/js/index.be7d3bbb2ef33a8344ce.js">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Binary response: Alternative link functions" href="alternative_links_binary.html" />
     <link rel="prev" title="Wald and Gamma Regression (Australian insurance claims 2004-2005)" href="wald_gamma_glm.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="en" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
     
   </head>
   <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
@@ -139,7 +143,7 @@
   <p style="margin-top: 1em; margin-bottom: 0;">
     <strong>
     You're reading an old version of this documentation (v. 0.6.0).<br>
-    If you want up-to-date information, please have a look at <a href="../../0.6.3/index.html">latest</a>.
+    If you want up-to-date information, please have a look at <a href="../../0.7.0/index.html">latest</a>.
   </strong>
   </p>
   
@@ -162,7 +166,15 @@
                 
 
                   
-                    <li><a href="../../0.6.3/index.html">0.6.3 (latest)</a></li>
+                    <li><a href="../../0.7.0/index.html">0.7.0 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.3/index.html">0.6.3</a></li>
                   
 
                 
@@ -552,7 +564,7 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
@@ -590,9 +602,9 @@ div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
 </style>
-<div class="section" id="Negative-Binomial-Regression">
+<section id="Negative-Binomial-Regression">
 <h1>Negative Binomial Regression<a class="headerlink" href="#Negative-Binomial-Regression" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="Negative-binomial-distribution-review">
+<section id="Negative-binomial-distribution-review">
 <h2>Negative binomial distribution review<a class="headerlink" href="#Negative-binomial-distribution-review" title="Permalink to this headline">¶</a></h2>
 <p>I always experience some kind of confusion when looking at the negative binomial distribution after a while of not working with it. There are so many different definitions that I usually need to read everything more than once. The definition I’ve first learned, and the one I like the most, says as follows: The negative binomial distribution is the distribution of a random variable that is defined as the number of independent Bernoulli trials until the k-th “success”. In short, we repeat a
 Bernoulli experiment until we observe k successes and record the number of trials it required.</p>
@@ -613,8 +625,7 @@ distribution. Or in other words, conditional on a gamma-distributed variable <sp
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
 <span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -628,8 +639,7 @@ distribution. Or in other words, conditional on a gamma-distributed variable <sp
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -637,8 +647,7 @@ distribution. Or in other words, conditional on a gamma-distributed variable <sp
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">warnings</span>
 <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -648,8 +657,7 @@ distribution. Or in other words, conditional on a gamma-distributed variable <sp
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
 <span class="n">k</span> <span class="o">=</span> <span class="mi">3</span>
 <span class="n">p1</span> <span class="o">=</span> <span class="mf">0.5</span>
 <span class="n">p2</span> <span class="o">=</span> <span class="mf">0.3</span>
@@ -660,8 +668,7 @@ distribution. Or in other words, conditional on a gamma-distributed variable <sp
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">nbinom</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">p1</span><span class="p">))</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">11</span><span class="p">))</span>
@@ -687,8 +694,7 @@ distribution. Or in other words, conditional on a gamma-distributed variable <sp
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="nb">print</span><span class="p">(</span><span class="n">nbinom</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">p1</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">nbinom</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">p1</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">nbinom</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">p1</span><span class="p">)[</span><span class="mi">3</span><span class="p">])</span>
 </pre></div>
 </div>
@@ -707,8 +713,7 @@ distribution. Or in other words, conditional on a gamma-distributed variable <sp
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">y</span> <span class="o">+</span> <span class="n">k</span><span class="p">,</span> <span class="n">nbinom</span><span class="o">.</span><span class="n">pmf</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">p1</span><span class="p">))</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
@@ -729,15 +734,15 @@ distribution. Or in other words, conditional on a gamma-distributed variable <sp
 <img alt="../_images/notebooks_negative_binomial_13_0.png" src="../_images/notebooks_negative_binomial_13_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Negative-binomial-in-GLM">
+</section>
+<section id="Negative-binomial-in-GLM">
 <h2>Negative binomial in GLM<a class="headerlink" href="#Negative-binomial-in-GLM" title="Permalink to this headline">¶</a></h2>
 <p>The negative binomial distribution belongs to the exponential family, and the canonical link function is</p>
 <div class="math notranslate nohighlight">
 \[g(\mu_i) = \log\left(\frac{\mu_i}{k + \mu_i}\right) = \log\left(\frac{k}{\mu_i} + 1\right)\]</div>
 <p>but it is difficult to interpret. The log link is usually preferred because of the analogy with Poisson model, and it also tends to give better results.</p>
-</div>
-<div class="section" id="Load-and-explore-Students-data">
+</section>
+<section id="Load-and-explore-Students-data">
 <h2>Load and explore Students data<a class="headerlink" href="#Load-and-explore-Students-data" title="Permalink to this headline">¶</a></h2>
 <p>This example is based on this <a class="reference external" href="https://stats.idre.ucla.edu/r/dae/negative-binomial-regression/">UCLA example</a>.</p>
 <p>School administrators study the attendance behavior of high school juniors at two schools. Predictors of the <strong>number of days of absence</strong> include the <strong>type of program</strong> in which the student is enrolled and a <strong>standardized test in math</strong>. We have attendance data on 314 high school juniors.</p>
@@ -751,8 +756,7 @@ distribution. Or in other words, conditional on a gamma-distributed variable <sp
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_stata</span><span class="p">(</span><span class="s2">&quot;https://stats.idre.ucla.edu/stat/stata/dae/nb_data.dta&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_stata</span><span class="p">(</span><span class="s2">&quot;https://stats.idre.ucla.edu/stat/stata/dae/nb_data.dta&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -760,8 +764,7 @@ distribution. Or in other words, conditional on a gamma-distributed variable <sp
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -845,8 +848,7 @@ distribution. Or in other words, conditional on a gamma-distributed variable <sp
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;prog&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;prog&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;General&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;Academic&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;Vocational&quot;</span><span class="p">})</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;prog&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;prog&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;General&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;Academic&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;Vocational&quot;</span><span class="p">})</span>
 <span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -931,8 +933,7 @@ distribution. Or in other words, conditional on a gamma-distributed variable <sp
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;prog&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;prog&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -953,8 +954,7 @@ Name: prog, dtype: int64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="s2">&quot;col&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="s2">&quot;col&quot;</span><span class="p">)</span>
 <span class="n">programs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;prog&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
 <span class="n">programs</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
 
@@ -990,8 +990,8 @@ Name: prog, dtype: int64
 </div>
 <p>The first impression we have is that the distribution of math scores is not equal for any of the programs. It looks right-skewed for students under the Academic program, left-skewed for students under the Vocational program, and roughly uniform for students in the General program (although there’s a drop in the highest values). Clearly those in the Vocational program has the highest mean for the math score.</p>
 <p>On the other hand, the distribution of the days of absence is right-skewed in all cases. Students in the General program present the highest absence mean while the Vocational group is the one who misses fewer classes on average.</p>
-</div>
-<div class="section" id="Models">
+</section>
+<section id="Models">
 <h2>Models<a class="headerlink" href="#Models" title="Permalink to this headline">¶</a></h2>
 <p>We are interested in measuring the association between the type of the program and the math score with the days of absence. It’s also of interest to see if the association between math score and days of absence is different in each type of program.</p>
 <p>In order to answer our questions, we are going to fit and compare two models. The first model uses the type of the program and the math score as predictors. The second model also includes the interaction between these two variables. The score in the math test is going to be standardized in both cases to make things easier for the sampler and save some seconds. A good idea to follow along is to run these models without scaling <code class="docutils literal notranslate"><span class="pre">math</span></code> and comparing how long it took to fit.</p>
@@ -1003,12 +1003,12 @@ Name: prog, dtype: int64
 <p>We also know that when <span class="math notranslate nohighlight">\(n\)</span> is large and <span class="math notranslate nohighlight">\(p\)</span> is small, the Binomial distribution can be approximated with a Poisson distribution with <span class="math notranslate nohighlight">\(\lambda = n * p\)</span>. We don’t know exactly <span class="math notranslate nohighlight">\(n\)</span> in this scenario, but we know it is around 180, and we do know that <span class="math notranslate nohighlight">\(p\)</span> is small because you can’t skip classes all the time. So both modeling approaches should give similar results.</p>
 <p>But then, why negative binomial? Can’t we just use a Poisson likelihood?</p>
 <p>Yes, we can. However, using a Poisson likelihood implies that the mean is equal to the variance, and that is usually an unrealistic assumption. If it turns out the variance is either substantially smaller or greater than the mean, the Poisson regression model results in a poor fit. Alternatively, if we use a negative binomial likelihood, the variance is not forced to be equal to the mean, and there’s more flexibility to handle a given dataset, and consequently, the fit tends to better.</p>
-<div class="section" id="Model-1">
+<section id="Model-1">
 <h3>Model 1<a class="headerlink" href="#Model-1" title="Permalink to this headline">¶</a></h3>
 <div class="math notranslate nohighlight">
 \[\log{Y_i} = \beta_1 \text{Academic}_i + \beta_2 \text{General}_i + \beta_3 \text{Vocational}_i + \beta_4 \text{Math_std}_i\]</div>
-</div>
-<div class="section" id="Model-2">
+</section>
+<section id="Model-2">
 <h3>Model 2<a class="headerlink" href="#Model-2" title="Permalink to this headline">¶</a></h3>
 <div class="math notranslate nohighlight">
 \[\log{Y_i} = \beta_1 \text{Academic}_i + \beta_2 \text{General}_i + \beta_3 \text{Vocational}_i + \beta_4 \text{Math_std}_i
@@ -1043,19 +1043,18 @@ Name: prog, dtype: int64
 <div class="math notranslate nohighlight">
 \[\log{Y_i} = \beta_3 + \beta_4 \text{Math_std}_i\]</div>
 <p>And one last thing to note is we’ve decided not to inclide an intercept term, that’s why you don’t see any <span class="math notranslate nohighlight">\(\beta_0\)</span> above. This choice allows us to represent the effect of each program directly with <span class="math notranslate nohighlight">\(\beta_1\)</span>, <span class="math notranslate nohighlight">\(\beta_2\)</span>, and <span class="math notranslate nohighlight">\(\beta_3\)</span>.</p>
-</div>
-</div>
-<div class="section" id="Model-fit">
+</section>
+</section>
+<section id="Model-fit">
 <h2>Model fit<a class="headerlink" href="#Model-fit" title="Permalink to this headline">¶</a></h2>
 <p>It’s very easy to fit these models with Bambi. We just pass a formula describing the terms in the model and Bambi will know how to handle each of them correctly. The <code class="docutils literal notranslate"><span class="pre">0</span></code> on the right hand side of <code class="docutils literal notranslate"><span class="pre">~</span></code> simply means we don’t want to have the intercept term that is added by default. <code class="docutils literal notranslate"><span class="pre">scale(math)</span></code> tells Bambi we want to use standardize <code class="docutils literal notranslate"><span class="pre">math</span></code> before being included in the model. By default, Bambi uses a log link for negative binomial GLMs. We’ll stick to this default here.</p>
-<div class="section" id="id1">
+<section id="id1">
 <h3>Model 1<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">model_additive</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;daysabs ~ 0 + prog + scale(math)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;negativebinomial&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_additive</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;daysabs ~ 0 + prog + scale(math)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;negativebinomial&quot;</span><span class="p">)</span>
 <span class="n">idata_additive</span> <span class="o">=</span> <span class="n">model_additive</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1100,16 +1099,15 @@ NUTS: [daysabs_alpha, scale(math), prog]
 Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
 </pre></div></div>
 </div>
-</div>
-<div class="section" id="id2">
+</section>
+<section id="id2">
 <h3>Model 2<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <p>For this second model we just add <code class="docutils literal notranslate"><span class="pre">prog:scale(math)</span></code> to indicate the interaction. A shorthand would be to use <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">~</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">prog*scale(math)</span></code>, which uses the <strong>full interaction</strong> operator. In other words, it just means we want to include the interaction between <code class="docutils literal notranslate"><span class="pre">prog</span></code> and <code class="docutils literal notranslate"><span class="pre">scale(math)</span></code> as well as their main effects.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">model_interaction</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;daysabs ~ 0 + prog + scale(math) + prog:scale(math)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;negativebinomial&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_interaction</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;daysabs ~ 0 + prog + scale(math) + prog:scale(math)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;negativebinomial&quot;</span><span class="p">)</span>
 <span class="n">idata_interaction</span> <span class="o">=</span> <span class="n">model_interaction</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1154,17 +1152,16 @@ NUTS: [daysabs_alpha, prog:scale(math), scale(math), prog]
 Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
 </pre></div></div>
 </div>
-</div>
-</div>
-<div class="section" id="Explore-models">
+</section>
+</section>
+<section id="Explore-models">
 <h2>Explore models<a class="headerlink" href="#Explore-models" title="Permalink to this headline">¶</a></h2>
 <p>The first thing we do is calling <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>. Here we pass the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object the <code class="docutils literal notranslate"><span class="pre">.fit()</span></code> returned. This prints information about the marginal posteriors for each parameter in the model as well as convergence diagnostics.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata_additive</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata_additive</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1271,8 +1268,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata_interaction</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata_interaction</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1404,8 +1400,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_forest</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_forest</span><span class="p">(</span>
     <span class="p">[</span><span class="n">idata_additive</span><span class="p">,</span> <span class="n">idata_interaction</span><span class="p">],</span>
     <span class="n">model_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Additive&quot;</span><span class="p">,</span> <span class="s2">&quot;Interaction&quot;</span><span class="p">],</span>
     <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;prog&quot;</span><span class="p">,</span> <span class="s2">&quot;scale(math)&quot;</span><span class="p">],</span>
@@ -1429,8 +1424,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_forest</span><span class="p">(</span><span class="n">idata_interaction</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;prog:scale(math)&quot;</span><span class="p">],</span> <span class="n">combined</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_forest</span><span class="p">(</span><span class="n">idata_interaction</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;prog:scale(math)&quot;</span><span class="p">],</span> <span class="n">combined</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -1442,16 +1436,15 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <img alt="../_images/notebooks_negative_binomial_39_0.png" src="../_images/notebooks_negative_binomial_39_0.png" />
 </div>
 </div>
-</div>
-<div class="section" id="Plot-predicted-mean-response">
+</section>
+<section id="Plot-predicted-mean-response">
 <h2>Plot predicted mean response<a class="headerlink" href="#Plot-predicted-mean-response" title="Permalink to this headline">¶</a></h2>
 <p>We finish this example showing how we can get predictions for new data and plot the mean response for each program together with confidence intervals.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">math_score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">math_score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
 
 <span class="c1"># This function takes a model and an InferenceData object.</span>
 <span class="c1"># It returns of length 3 with predictions for each type of program.</span>
@@ -1475,8 +1468,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">prediction_additive</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="n">model_additive</span><span class="p">,</span> <span class="n">idata_additive</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prediction_additive</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="n">model_additive</span><span class="p">,</span> <span class="n">idata_additive</span><span class="p">)</span>
 <span class="n">prediction_interaction</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="n">model_interaction</span><span class="p">,</span> <span class="n">idata_interaction</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1485,8 +1477,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">mu_additive</span> <span class="o">=</span> <span class="p">[</span><span class="n">prediction</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="n">prediction_additive</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mu_additive</span> <span class="o">=</span> <span class="p">[</span><span class="n">prediction</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="n">prediction_additive</span><span class="p">]</span>
 <span class="n">mu_interaction</span> <span class="o">=</span> <span class="p">[</span><span class="n">prediction</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="n">prediction_interaction</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -1495,8 +1486,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 
 <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">program</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">programs</span><span class="p">):</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">math_score</span><span class="p">,</span> <span class="n">mu_additive</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">program</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
@@ -1528,8 +1518,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
 <span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
 </pre></div>
 </div>
@@ -1556,19 +1545,30 @@ Watermark: 2.1.0
 
 </pre></div></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
               </div>
               
               
-              <div class='prev-next-bottom'>
-                
-    <a class='left-prev' id="prev-link" href="wald_gamma_glm.html" title="previous page">Wald and Gamma Regression (Australian insurance claims 2004-2005)</a>
-    <a class='right-next' id="next-link" href="alternative_links_binary.html" title="next page">Binary response: Alternative link functions</a>
-
-              </div>
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="wald_gamma_glm.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Wald and Gamma Regression (Australian insurance claims 2004-2005)</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="alternative_links_binary.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Binary response: Alternative link functions</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
               
           </main>
           
@@ -1576,20 +1576,19 @@ Watermark: 2.1.0
       </div>
     </div>
   
-  <script src="../_static/js/index.1c5a1a01449ed65a7b51.js"></script>
-
-  <footer class="footer mt-5 mt-md-0">
+  <script src="../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+<footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2021, The developers of Bambi.<br/>
+    &copy; Copyright 2021, The developers of Bambi.<br>
 </p>
     </div>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.2.0.<br/>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br>
 </p>
     </div>
     
