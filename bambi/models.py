@@ -217,7 +217,7 @@ class Model:
             Omits offset terms in the ``InferenceData`` object returned when the model includes
             group specific effects. Defaults to ``True``.
         include_mean: bool
-            Compute the posterior of the mean response? Defaults to ``False``.
+            Compute the posterior of the mean response. Defaults to ``False``.
         method: str
             The method to use for fitting the model. By default, ``"mcmc"``. This automatically
             assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
