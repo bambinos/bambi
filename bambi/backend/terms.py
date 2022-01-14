@@ -104,7 +104,9 @@ class GroupSpecificTerm:
             response_dims = list(spec.response.pymc_coords)
 
         dims = list(self.coords) + response_dims
-        coef = self.build_distribution(dist, label, dims=dims, **kwargs)
+        # Squeeze ensures we don't have a shape of (n, 1) when we mean (n, )
+        # This happens with categorical predictors with two levels and intercept.
+        coef = self.build_distribution(dist, label, dims=dims, **kwargs).squeeze()
         coef = coef[self.term.group_index]
 
         return coef, predictor
