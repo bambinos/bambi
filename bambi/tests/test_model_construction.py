@@ -410,3 +410,20 @@ def test_constant_terms():
 
     with pytest.raises(ValueError):
         Model("y ~ 0 + z", data)
+
+
+def test_1d_group_specific():
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=40),
+            "x": np.random.choice(["A", "B"], size=40),
+            "g": ["A", "B", "C", "D"] * 10,
+        }
+    )
+    # Since there's 1|g, there's only one column for x|g
+    # We need to ensure x|g is of shape (40,) and not of shape (40, 1)
+    # We do so by checking the mean is (40, ) because shape of x|g still returns (40, 1)
+    # The difference is that we do .squeeze() on it after creation.
+    model = Model("y ~ (x|g)", data)
+    model.build()
+    assert model.backend.mu.tag.test_value.shape == (40,)
