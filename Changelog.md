@@ -14,7 +14,7 @@
 
 ### Maintenance and fixes
 
-- Fixed related to the shape of 2 level categorical group-specific effects (#441)
+- Fixed bug related to the shape of 2 level categorical group-specific effects (#441)
 
 ### 0.7.0
 
