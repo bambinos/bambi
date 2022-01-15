@@ -1,0 +1,2043 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Regression splines (Cherry blossom example) &#8212; Bambi 0.7.1 documentation</title>
+    
+  <link href="../_static/css/theme.css" rel="stylesheet">
+  <link href="../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    
+      
+
+    
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/blank.css" />
+    
+  <link rel="preload" as="script" href="../_static/js/index.be7d3bbb2ef33a8344ce.js">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Hierarchical Linear Regression (Pigs dataset)" href="multi-level_regression.html" />
+    <link rel="prev" title="Multiple linear regression" href="ESCS_multiple_regression.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+<a class="navbar-brand" href="../index.html">
+<p class="title">Bambi</p>
+</a>
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="getting_started.html">
+  Getting Started
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="../examples.html">
+  Examples
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../api_reference.html">
+  API Reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../faq.html">
+  Frequently Asked Questions
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub">
+            <span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://pypi.org/project/bambi/" rel="noopener" target="_blank" title="PyPi">
+            <span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label>
+          </a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+  
+
+  
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Versions navigation">
+    <div class="bd-toc-item active">
+        <ul class="current nav bd-sidenav">
+        <li class="toctree-l1 has-children">
+            <p class="caption"><span class="caption-text">Version</span></p>
+            <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox">
+            <label for="toctree-checkbox-1"> <i class="fas fa-chevron-down"></i></label>
+
+            <ul>
+                  
+                  <li><a href="../../main/index.html"> Development </a></li>
+                  
+
+                
+
+                  
+                    <li class="toctree-l2 current active"><a href="splines_cherry_blossoms.html">0.7.1 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.7.0/index.html">0.7.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.3/index.html">0.6.3</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.2/index.html">0.6.2</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.1/index.html">0.6.1</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.0/index.html">0.6.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.5.0/index.html">0.5.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.4.1/index.html">0.4.1</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.4.0/index.html">0.4.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.3.0/index.html">0.3.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.2.0/index.html">0.2.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.1.5/index.html">0.1.5</a></li>
+                  
+
+                
+
+            </ul>
+        </li>
+        </ul>
+    </div>
+  </nav>
+
+
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage pt-5 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Load-Cherry-Blossom-data">
+   Load Cherry Blossom data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Explore-the-data">
+   Explore the data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Determine-knots">
+   Determine knots
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#The-model">
+   The model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Fit-model">
+   Fit model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Analisys-of-the-results">
+   Analisys of the results
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Plot-predictions-and-credible-bands">
+   Plot predictions and credible bands
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Advanced:-Watch-out-the-underlying-design-matrix">
+   Advanced: Watch out the underlying design matrix
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Final-comments">
+   Final comments
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Regression-splines-(Cherry-blossom-example)">
+<h1>Regression splines (Cherry blossom example)<a class="headerlink" href="#Regression-splines-(Cherry-blossom-example)" title="Permalink to this headline">¶</a></h1>
+<p>This example shows how to specify and fit a spline regression in Bambi. This example is based on <a class="reference external" href="https://github.com/pymc-devs/pymc-examples/blob/main/examples/splines/spline.ipynb">this example</a> from the PyMC docs.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+<span class="n">SEED</span> <span class="o">=</span> <span class="mi">7355608</span>
+</pre></div>
+</div>
+</div>
+<section id="Load-Cherry-Blossom-data">
+<h2>Load Cherry Blossom data<a class="headerlink" href="#Load-Cherry-Blossom-data" title="Permalink to this headline">¶</a></h2>
+<p>Richard McElreath popularized the Cherry Blossom dataset in the second edition of his excellent book Statistical Rethinking. This data represents the day in the year when the first bloom is observed for Japanese cherry blossoms between years 801 and 2015. In his book, Richard McElreath uses this dataset to introduce Basis Splines, or B-Splines in short.</p>
+<p>Here we use Bambi to fit a linear model using B-Splines with the Cherry Blossom data. This dataset can be loaded with Bambi as follows:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;cherry_blossoms&quot;</span><span class="p">)</span>
+<span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>year</th>
+      <th>doy</th>
+      <th>temp</th>
+      <th>temp_upper</th>
+      <th>temp_lower</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>801</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>802</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>803</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>804</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>805</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1210</th>
+      <td>2011</td>
+      <td>99.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1211</th>
+      <td>2012</td>
+      <td>101.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1212</th>
+      <td>2013</td>
+      <td>93.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1213</th>
+      <td>2014</td>
+      <td>94.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1214</th>
+      <td>2015</td>
+      <td>93.0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<p>1215 rows × 5 columns</p>
+</div></div>
+</div>
+<p>The variable we are interested in modeling is <code class="docutils literal notranslate"><span class="pre">&quot;doy&quot;</span></code>, which stands for Day of Year. Also notice this variable contains several missing value which are discarded next.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;doy&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(827, 5)
+</pre></div></div>
+</div>
+</section>
+<section id="Explore-the-data">
+<h2>Explore the data<a class="headerlink" href="#Explore-the-data" title="Permalink to this headline">¶</a></h2>
+<p>Let’s get started by creating a scatterplot to explore the values of <code class="docutils literal notranslate"><span class="pre">&quot;doy&quot;</span></code> for each year in the dataset.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># We create a function because this plot is going to be used again later</span>
+<span class="k">def</span> <span class="nf">plot_scatter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">)):</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;doy&quot;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Day of the first bloom per year&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Year&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Days of the first bloom&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_scatter</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_splines_cherry_blossoms_9_0.png" src="../_images/notebooks_splines_cherry_blossoms_9_0.png" />
+</div>
+</div>
+<p>We can observe the day of the first bloom ranges between 85 and 125 approximately, which correspond to late March and early May respectively. On average, the first bloom occurs on the 105th day of the year, which is middle April.</p>
+</section>
+<section id="Determine-knots">
+<h2>Determine knots<a class="headerlink" href="#Determine-knots" title="Permalink to this headline">¶</a></h2>
+<p>The spline will have 15 knots. These knots are the boundaries of the basis functions. These knots split the range of the <code class="docutils literal notranslate"><span class="pre">&quot;year&quot;</span></code> variable into 16 contiguous sections. The basis functions make up a piecewise continuous polynomial, and so they are enforced to meet at the knots. We use the default degree for each piecewise polynomial, which is 3. The result is known as a <strong>cubic spline</strong>.</p>
+<p>Because of using quantiles and not having observations for all the years in the time window under study, the knots are distributed unevenly over the range of <code class="docutils literal notranslate"><span class="pre">&quot;year&quot;</span></code> in such a way that the same proportion of values fall between each section.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_knots</span> <span class="o">=</span> <span class="mi">15</span>
+<span class="n">knots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_knots</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_knots</span><span class="p">(</span><span class="n">knots</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">knot</span> <span class="ow">in</span> <span class="n">knots</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">knot</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;0.1&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">plot_scatter</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="n">plot_knots</span><span class="p">(</span><span class="n">knots</span><span class="p">,</span> <span class="n">ax</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_splines_cherry_blossoms_14_0.png" src="../_images/notebooks_splines_cherry_blossoms_14_0.png" />
+</div>
+</div>
+<p>The previous chart makes it easy to see the knots, represented by the vertical lines, are spaced unevenly over the years.</p>
+</section>
+<section id="The-model">
+<h2>The model<a class="headerlink" href="#The-model" title="Permalink to this headline">¶</a></h2>
+<p>The B-spline model we are about to create is simply a linear regression model with synthetic predictor variables. These predictors are the basis functions that are derived from the original <code class="docutils literal notranslate"><span class="pre">year</span></code> predictor.</p>
+<p>In math notation, we usa a <span class="math notranslate nohighlight">\(\text{Normal}\)</span> distribution for the conditional distribution of <span class="math notranslate nohighlight">\(Y\)</span> when <span class="math notranslate nohighlight">\(X = x_i\)</span>, i.e. <span class="math notranslate nohighlight">\(Y_i\)</span>, the distribution of the day of the first bloom in a given year.</p>
+<div class="math notranslate nohighlight">
+\[Y_i \sim \text{Normal}(\mu_i, \sigma)\]</div>
+<p>So far, this looks like a regular linear regression model. The next line is where the spline comes into play:</p>
+<div class="math notranslate nohighlight">
+\[\mu_i = \alpha + \sum_{k=1}^K{w_kB_{k, i}}\]</div>
+<p>The line above tells that for each observation <span class="math notranslate nohighlight">\(i\)</span>, the mean is influenced by all the basis functions (going from <span class="math notranslate nohighlight">\(k=1\)</span> to <span class="math notranslate nohighlight">\(k=K\)</span>), plus an intercept <span class="math notranslate nohighlight">\(\alpha\)</span>. The <span class="math notranslate nohighlight">\(w_k\)</span> values in the summation are the regression coefficients of each of the basis functions, and the <span class="math notranslate nohighlight">\(B_k\)</span> are the values of the basis functions.</p>
+<p>Finally, we will be using the following priors</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\alpha &amp; \sim \text{Normal}(100, 10) \\
+w_j &amp; \sim \text{Normal}(0, 10)\\
+\sigma &amp; \sim \text{Exponential(1)}
+\end{aligned}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(j\)</span> indexes each of the contiguous sections given by the knots</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># We only pass the internal knots to the `bs()` function.</span>
+<span class="n">iknots</span> <span class="o">=</span> <span class="n">knots</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="c1"># Define dictionary of priors</span>
+<span class="n">priors</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Intercept&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="s2">&quot;common&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Exponential&quot;</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1"># Define model</span>
+<span class="c1"># The intercept=True means the basis also spans the intercept, as originally done in the book example.</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;doy ~ bs(year, knots=iknots, intercept=True)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">)</span>
+<span class="n">model</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Formula: doy ~ bs(year, knots=iknots, intercept=True)
+Family name: Gaussian
+Link: identity
+Observations: 827
+Priors:
+  Common-level effects
+    Intercept ~ Normal(mu: 100, sigma: 10)
+    bs(year, knots = iknots, intercept = True) ~ Normal(mu: 0, sigma: 10)
+
+  Auxiliary parameters
+    sigma ~ Exponential(lam: 1)
+
+</pre></div></div>
+</div>
+<p>Let’s create a function to plot each of the basis functions in the model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_spline_basis</span><span class="p">(</span><span class="n">basis</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">)):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">basis</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="n">var_name</span><span class="o">=</span><span class="s2">&quot;basis_idx&quot;</span><span class="p">,</span> <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">basis_idx</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">basis_idx</span> <span class="o">==</span> <span class="n">idx</span><span class="p">]</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">ax</span>
+</pre></div>
+</div>
+</div>
+<p>Below, we create a chart to visualize the b-spline basis. The overlap between the functions means that, at any given point in time, the regression function is influenced by more than one basis function. For example, if we look at the year 1200, we can see the regression line is going to be influenced mostly by the violet and brown functions, and to a lesser extent by the green and cyan ones. In summary, this is what enables us to capture local patterns in a smooth fashion.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">B</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="p">[</span><span class="s2">&quot;bs(year, knots = iknots, intercept = True)&quot;</span><span class="p">]</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plot_spline_basis</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="n">plot_knots</span><span class="p">(</span><span class="n">knots</span><span class="p">,</span> <span class="n">ax</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_splines_cherry_blossoms_21_0.png" src="../_images/notebooks_splines_cherry_blossoms_21_0.png" />
+</div>
+</div>
+</section>
+<section id="Fit-model">
+<h2>Fit model<a class="headerlink" href="#Fit-model" title="Permalink to this headline">¶</a></h2>
+<p>Now we fit the model. In Bambi, it is as easy as calling the <code class="docutils literal notranslate"><span class="pre">.fit()</span></code> method on the <code class="docutils literal notranslate"><span class="pre">Model</span></code> instance.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The seed is to make results reproducible</span>
+<span class="n">idata</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [doy_sigma, bs(year, knots = iknots, intercept = True), Intercept]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+    <style>
+        /* Turns off some styling */
+        progress {
+            /* gets rid of default border in Firefox and Opera. */
+            border: none;
+            /* Needs to be in here for Safari polyfill so background images work as expected. */
+            background-size: auto;
+        }
+        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+            background: #F44336;
+        }
+    </style>
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:05<00:00 Sampling 2 chains, 0 divergences]
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
+The number of effective samples is smaller than 25% for some parameters.
+</pre></div></div>
+</div>
+</section>
+<section id="Analisys-of-the-results">
+<h2>Analisys of the results<a class="headerlink" href="#Analisys-of-the-results" title="Permalink to this headline">¶</a></h2>
+<p>It is always good to use <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code> to verify parameter estimates as well as effective sample sizes and R hat values. In this case, the main goal is not to interpret the coefficients of the basis spline, but analyze the <code class="docutils literal notranslate"><span class="pre">ess</span></code> and <code class="docutils literal notranslate"><span class="pre">r_hat</span></code> diagnostics. In first place, effective sample sizes don’t look impressively high. Most of them are between 300 and 700, which is low compared to the 2000 draws obtained. The only exception is the residual standard deviation <code class="docutils literal notranslate"><span class="pre">sigma</span></code>. Finally, the
+<code class="docutils literal notranslate"><span class="pre">r_hat</span></code> diagnostic is not always 1 for all the parameters, indicating there may be some issues with the mix of the chains.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>sd</th>
+      <th>hdi_3%</th>
+      <th>hdi_97%</th>
+      <th>mcse_mean</th>
+      <th>mcse_sd</th>
+      <th>ess_bulk</th>
+      <th>ess_tail</th>
+      <th>r_hat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>103.282</td>
+      <td>2.683</td>
+      <td>98.563</td>
+      <td>108.517</td>
+      <td>0.155</td>
+      <td>0.110</td>
+      <td>301.0</td>
+      <td>396.0</td>
+      <td>1.01</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[0]</th>
+      <td>-2.915</td>
+      <td>3.979</td>
+      <td>-10.357</td>
+      <td>4.490</td>
+      <td>0.150</td>
+      <td>0.106</td>
+      <td>705.0</td>
+      <td>1318.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[1]</th>
+      <td>-0.691</td>
+      <td>4.179</td>
+      <td>-8.630</td>
+      <td>6.762</td>
+      <td>0.177</td>
+      <td>0.126</td>
+      <td>556.0</td>
+      <td>1040.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[2]</th>
+      <td>-1.042</td>
+      <td>3.816</td>
+      <td>-7.930</td>
+      <td>6.594</td>
+      <td>0.157</td>
+      <td>0.111</td>
+      <td>592.0</td>
+      <td>1098.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[3]</th>
+      <td>4.955</td>
+      <td>3.224</td>
+      <td>-1.356</td>
+      <td>10.471</td>
+      <td>0.157</td>
+      <td>0.111</td>
+      <td>420.0</td>
+      <td>739.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[4]</th>
+      <td>-0.813</td>
+      <td>3.104</td>
+      <td>-6.947</td>
+      <td>4.704</td>
+      <td>0.154</td>
+      <td>0.109</td>
+      <td>410.0</td>
+      <td>740.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[5]</th>
+      <td>4.417</td>
+      <td>3.244</td>
+      <td>-1.769</td>
+      <td>10.277</td>
+      <td>0.158</td>
+      <td>0.112</td>
+      <td>420.0</td>
+      <td>648.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[6]</th>
+      <td>-5.270</td>
+      <td>3.071</td>
+      <td>-10.686</td>
+      <td>0.691</td>
+      <td>0.157</td>
+      <td>0.111</td>
+      <td>383.0</td>
+      <td>733.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[7]</th>
+      <td>7.901</td>
+      <td>3.121</td>
+      <td>1.994</td>
+      <td>13.688</td>
+      <td>0.160</td>
+      <td>0.113</td>
+      <td>379.0</td>
+      <td>757.0</td>
+      <td>1.01</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[8]</th>
+      <td>-0.947</td>
+      <td>3.149</td>
+      <td>-7.128</td>
+      <td>4.572</td>
+      <td>0.159</td>
+      <td>0.113</td>
+      <td>394.0</td>
+      <td>732.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[9]</th>
+      <td>3.115</td>
+      <td>3.175</td>
+      <td>-3.170</td>
+      <td>8.936</td>
+      <td>0.159</td>
+      <td>0.112</td>
+      <td>400.0</td>
+      <td>833.0</td>
+      <td>1.01</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[10]</th>
+      <td>4.749</td>
+      <td>3.196</td>
+      <td>-0.664</td>
+      <td>11.388</td>
+      <td>0.162</td>
+      <td>0.115</td>
+      <td>390.0</td>
+      <td>766.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[11]</th>
+      <td>-0.049</td>
+      <td>3.129</td>
+      <td>-5.615</td>
+      <td>5.873</td>
+      <td>0.157</td>
+      <td>0.111</td>
+      <td>398.0</td>
+      <td>844.0</td>
+      <td>1.01</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[12]</th>
+      <td>5.564</td>
+      <td>3.129</td>
+      <td>-0.425</td>
+      <td>11.330</td>
+      <td>0.156</td>
+      <td>0.111</td>
+      <td>403.0</td>
+      <td>629.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[13]</th>
+      <td>0.818</td>
+      <td>3.248</td>
+      <td>-5.549</td>
+      <td>6.543</td>
+      <td>0.163</td>
+      <td>0.115</td>
+      <td>398.0</td>
+      <td>841.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[14]</th>
+      <td>-0.733</td>
+      <td>3.559</td>
+      <td>-7.719</td>
+      <td>5.777</td>
+      <td>0.157</td>
+      <td>0.111</td>
+      <td>515.0</td>
+      <td>795.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[15]</th>
+      <td>-6.851</td>
+      <td>3.593</td>
+      <td>-13.625</td>
+      <td>-0.195</td>
+      <td>0.162</td>
+      <td>0.118</td>
+      <td>488.0</td>
+      <td>812.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots, intercept = True)[16]</th>
+      <td>-7.532</td>
+      <td>3.495</td>
+      <td>-13.780</td>
+      <td>-0.806</td>
+      <td>0.157</td>
+      <td>0.111</td>
+      <td>498.0</td>
+      <td>987.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>doy_sigma</th>
+      <td>5.945</td>
+      <td>0.143</td>
+      <td>5.668</td>
+      <td>6.201</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>2169.0</td>
+      <td>1420.0</td>
+      <td>1.00</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>We can also use <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> to visualize the marginal posteriors and the sampling paths. These traces show a stationary random pattern. If these paths were not random stationary, we would be concerned about the convergence of the chains.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">idata</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_splines_cherry_blossoms_29_0.png" src="../_images/notebooks_splines_cherry_blossoms_29_0.png" />
+</div>
+</div>
+<p>Now we can visualize the fitted basis functions. In addition, we include a thicker black line that represents the dot product between <span class="math notranslate nohighlight">\(B\)</span> and <span class="math notranslate nohighlight">\(w\)</span>. This is the contribution of the b-spline to the linear predictor in the model.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">posterior_stacked</span> <span class="o">=</span> <span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">])</span>
+<span class="n">wp</span> <span class="o">=</span> <span class="n">posterior_stacked</span><span class="p">[</span><span class="s2">&quot;bs(year, knots = iknots, intercept = True)&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plot_spline_basis</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">wp</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">wp</span><span class="o">.</span><span class="n">T</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">plot_knots</span><span class="p">(</span><span class="n">knots</span><span class="p">,</span> <span class="n">ax</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_splines_cherry_blossoms_31_0.png" src="../_images/notebooks_splines_cherry_blossoms_31_0.png" />
+</div>
+</div>
+</section>
+<section id="Plot-predictions-and-credible-bands">
+<h2>Plot predictions and credible bands<a class="headerlink" href="#Plot-predictions-and-credible-bands" title="Permalink to this headline">¶</a></h2>
+<p>Let’s create a function to plot the predicted mean value as well as credible bands for it.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_predictions</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+    <span class="c1"># Create a test dataset with observations spanning the whole range of year</span>
+    <span class="n">new_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">data</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">num</span><span class="o">=</span><span class="mi">500</span><span class="p">)})</span>
+
+    <span class="c1"># Predict the day of first blossom</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">new_data</span><span class="p">)</span>
+
+    <span class="n">posterior_stacked</span> <span class="o">=</span> <span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">])</span>
+    <span class="c1"># Extract these predictions</span>
+    <span class="n">y_hat</span> <span class="o">=</span> <span class="n">posterior_stacked</span><span class="p">[</span><span class="s2">&quot;doy_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="c1"># Compute the mean of the predictions, plotted as a single line.</span>
+    <span class="n">y_hat_mean</span> <span class="o">=</span> <span class="n">y_hat</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Compute 94% credible intervals for the predictions, plotted as bands</span>
+    <span class="n">hdi_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">y_hat</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.97</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Plot obserevd data</span>
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_scatter</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="c1"># Plot predicted line</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">new_data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span> <span class="n">y_hat_mean</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;firebrick&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Plot credibility bands</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">new_data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span> <span class="n">hdi_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hdi_data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;firebrick&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Add knots</span>
+    <span class="n">plot_knots</span><span class="p">(</span><span class="n">knots</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ax</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_predictions</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="n">model</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_splines_cherry_blossoms_34_0.png" src="../_images/notebooks_splines_cherry_blossoms_34_0.png" />
+</div>
+</div>
+</section>
+<section id="Advanced:-Watch-out-the-underlying-design-matrix">
+<h2>Advanced: Watch out the underlying design matrix<a class="headerlink" href="#Advanced:-Watch-out-the-underlying-design-matrix" title="Permalink to this headline">¶</a></h2>
+<p>We can write linear regression models in matrix form as</p>
+<div class="math notranslate nohighlight">
+\[\mathbf{y} = \mathbf{X}\boldsymbol{\beta}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\mathbf{y}\)</span> is the response column vector of shape <span class="math notranslate nohighlight">\((n, 1)\)</span>. <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> is the <strong>design matrix</strong> that contains the values of the predictors for all the observations, of shape <span class="math notranslate nohighlight">\((n, p)\)</span>. And <span class="math notranslate nohighlight">\(\boldsymbol{\beta}\)</span> is the column vector of regression coefficients of shape <span class="math notranslate nohighlight">\((n, 1)\)</span>.</p>
+<p>Because it’s not something that you’re supposed to consult regularly, Bambi does not expose the design matrix. However, with a some knowledge of the internals, it is possible to have access to it:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">design_matrix</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+array([[1.   , 1.   , 0.   , ..., 0.   , 0.   , 0.   ],
+       [1.   , 0.96 , 0.039, ..., 0.   , 0.   , 0.   ],
+       [1.   , 0.767, 0.221, ..., 0.   , 0.   , 0.   ],
+       ...,
+       [1.   , 0.   , 0.   , ..., 0.002, 0.097, 0.902],
+       [1.   , 0.   , 0.   , ..., 0.   , 0.05 , 0.95 ],
+       [1.   , 0.   , 0.   , ..., 0.   , 0.   , 1.   ]])
+</pre></div></div>
+</div>
+<p>Let’s have a look at its shape:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">design_matrix</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(827, 18)
+</pre></div></div>
+</div>
+<p>827 is the number of years we have data for, and 18 is the number of predictors/coefficients in the model. We have the first column of ones due to the <code class="docutils literal notranslate"><span class="pre">Intercept</span></code> term. Then, there are sixteen columns associated with the the basis functions. And finally, one extra column because we used <code class="docutils literal notranslate"><span class="pre">span_intercept=True</span></code> when calling the function <code class="docutils literal notranslate"><span class="pre">bs()</span></code> in the model formula.</p>
+<p>Now we could compute the rank of the design matrix to check whether all the columns are linearly independent.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">design_matrix</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+17
+</pre></div></div>
+</div>
+<p>Since <span class="math notranslate nohighlight">\(\text{rank}(\mathbf{X})\)</span> is smaller than the number of columns, we conclude the columns in <span class="math notranslate nohighlight">\(\mathbf{X}\)</span> are not linearly independent.</p>
+<p>If we have a second look at our code, we are going to figure out we’re spanning the intercept <strong>twice</strong>. The first time with the intercept term itself, and the second time in the spline basis.</p>
+<p>This would have been a huge problem in a maximum likelihod estimation approach – we would have obtained an error instead of some parameter estimates. However, since we are doing Bayesian modeling, our priors ensured we obtain our regularized parameter estimates and everything seemed to work pretty well.</p>
+<p>Nevertheless, we can still do better. Why would we want to span the intercept twice? Let’s create and fit the model again, this time without spanning the intercept in the spline basis.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note we use the same priors</span>
+<span class="n">model_new</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;doy ~ bs(year, knots=iknots)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">)</span>
+<span class="n">idata_new</span> <span class="o">=</span> <span class="n">model_new</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="mi">7355608</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [doy_sigma, bs(year, knots = iknots), Intercept]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+    <style>
+        /* Turns off some styling */
+        progress {
+            /* gets rid of default border in Firefox and Opera. */
+            border: none;
+            /* Needs to be in here for Safari polyfill so background images work as expected. */
+            background-size: auto;
+        }
+        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+            background: #F44336;
+        }
+    </style>
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:06<00:00 Sampling 2 chains, 0 divergences]
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
+</pre></div></div>
+</div>
+<p>And let’s have a look at the summary</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata_new</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>sd</th>
+      <th>hdi_3%</th>
+      <th>hdi_97%</th>
+      <th>mcse_mean</th>
+      <th>mcse_sd</th>
+      <th>ess_bulk</th>
+      <th>ess_tail</th>
+      <th>r_hat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>102.442</td>
+      <td>1.973</td>
+      <td>98.592</td>
+      <td>105.918</td>
+      <td>0.094</td>
+      <td>0.066</td>
+      <td>444.0</td>
+      <td>670.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[0]</th>
+      <td>-0.970</td>
+      <td>3.974</td>
+      <td>-7.562</td>
+      <td>7.715</td>
+      <td>0.155</td>
+      <td>0.110</td>
+      <td>658.0</td>
+      <td>1029.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[1]</th>
+      <td>0.371</td>
+      <td>3.064</td>
+      <td>-5.483</td>
+      <td>5.827</td>
+      <td>0.094</td>
+      <td>0.067</td>
+      <td>1056.0</td>
+      <td>1435.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[2]</th>
+      <td>5.607</td>
+      <td>2.700</td>
+      <td>0.809</td>
+      <td>10.887</td>
+      <td>0.109</td>
+      <td>0.077</td>
+      <td>612.0</td>
+      <td>1203.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[3]</th>
+      <td>0.195</td>
+      <td>2.513</td>
+      <td>-4.433</td>
+      <td>4.984</td>
+      <td>0.095</td>
+      <td>0.067</td>
+      <td>705.0</td>
+      <td>1151.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[4]</th>
+      <td>5.121</td>
+      <td>2.680</td>
+      <td>0.084</td>
+      <td>9.966</td>
+      <td>0.097</td>
+      <td>0.068</td>
+      <td>763.0</td>
+      <td>1329.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[5]</th>
+      <td>-4.383</td>
+      <td>2.506</td>
+      <td>-9.044</td>
+      <td>0.295</td>
+      <td>0.099</td>
+      <td>0.070</td>
+      <td>647.0</td>
+      <td>1229.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[6]</th>
+      <td>8.731</td>
+      <td>2.473</td>
+      <td>4.677</td>
+      <td>13.969</td>
+      <td>0.098</td>
+      <td>0.070</td>
+      <td>630.0</td>
+      <td>1149.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[7]</th>
+      <td>-0.125</td>
+      <td>2.588</td>
+      <td>-4.902</td>
+      <td>4.540</td>
+      <td>0.099</td>
+      <td>0.070</td>
+      <td>683.0</td>
+      <td>1148.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[8]</th>
+      <td>3.930</td>
+      <td>2.517</td>
+      <td>-0.855</td>
+      <td>8.462</td>
+      <td>0.100</td>
+      <td>0.071</td>
+      <td>634.0</td>
+      <td>920.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[9]</th>
+      <td>5.555</td>
+      <td>2.600</td>
+      <td>0.908</td>
+      <td>10.283</td>
+      <td>0.102</td>
+      <td>0.074</td>
+      <td>654.0</td>
+      <td>990.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[10]</th>
+      <td>0.761</td>
+      <td>2.533</td>
+      <td>-3.814</td>
+      <td>5.670</td>
+      <td>0.100</td>
+      <td>0.071</td>
+      <td>645.0</td>
+      <td>1156.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[11]</th>
+      <td>6.430</td>
+      <td>2.626</td>
+      <td>1.552</td>
+      <td>11.423</td>
+      <td>0.103</td>
+      <td>0.073</td>
+      <td>661.0</td>
+      <td>1063.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[12]</th>
+      <td>1.657</td>
+      <td>2.744</td>
+      <td>-3.323</td>
+      <td>7.065</td>
+      <td>0.103</td>
+      <td>0.073</td>
+      <td>716.0</td>
+      <td>809.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[13]</th>
+      <td>0.012</td>
+      <td>3.101</td>
+      <td>-5.818</td>
+      <td>5.744</td>
+      <td>0.114</td>
+      <td>0.081</td>
+      <td>740.0</td>
+      <td>1479.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[14]</th>
+      <td>-6.015</td>
+      <td>3.163</td>
+      <td>-11.873</td>
+      <td>-0.135</td>
+      <td>0.113</td>
+      <td>0.080</td>
+      <td>791.0</td>
+      <td>934.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>bs(year, knots = iknots)[15]</th>
+      <td>-6.854</td>
+      <td>3.025</td>
+      <td>-12.477</td>
+      <td>-1.243</td>
+      <td>0.106</td>
+      <td>0.075</td>
+      <td>803.0</td>
+      <td>1235.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>doy_sigma</th>
+      <td>5.946</td>
+      <td>0.144</td>
+      <td>5.686</td>
+      <td>6.213</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>2215.0</td>
+      <td>1552.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>There are a couple of things to remark here</p>
+<ul class="simple">
+<li><p>There are 16 coefficients associated with the b-spline now because we’re not spanning the intercept.</p></li>
+<li><p>The ESS numbers have improved in all cases. Notice the sampler isn’t raising any warning about low ESS.</p></li>
+<li><p>r_hat coefficeints are still 1.</p></li>
+</ul>
+<p>We can also compare the sampling times:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">sampling_time</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+6.127075433731079
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_new</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">sampling_time</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+6.369754076004028
+</pre></div></div>
+</div>
+<p>Sampling times are the same in this particular example. But in general, we expect the sampler to run faster when there aren’t structural dependencies in the design matrix.</p>
+<p>And what about predictions?</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_predictions</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">idata_new</span><span class="p">,</span> <span class="n">model_new</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_splines_cherry_blossoms_53_0.png" src="../_images/notebooks_splines_cherry_blossoms_53_0.png" />
+</div>
+</div>
+<p>And model comparison?</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">models_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Original&quot;</span><span class="p">:</span> <span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;New&quot;</span><span class="p">:</span> <span class="n">idata_new</span><span class="p">}</span>
+<span class="n">df_compare</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">models_dict</span><span class="p">)</span>
+<span class="n">df_compare</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>rank</th>
+      <th>loo</th>
+      <th>p_loo</th>
+      <th>d_loo</th>
+      <th>weight</th>
+      <th>se</th>
+      <th>dse</th>
+      <th>warning</th>
+      <th>loo_scale</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>New</th>
+      <td>0</td>
+      <td>-2657.807115</td>
+      <td>15.893960</td>
+      <td>0.000000</td>
+      <td>1.000000e+00</td>
+      <td>21.152109</td>
+      <td>0.000000</td>
+      <td>False</td>
+      <td>log</td>
+    </tr>
+    <tr>
+      <th>Original</th>
+      <td>1</td>
+      <td>-2658.292451</td>
+      <td>16.598777</td>
+      <td>0.485336</td>
+      <td>3.330669e-16</td>
+      <td>21.180075</td>
+      <td>0.584776</td>
+      <td>False</td>
+      <td>log</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_compare</span><span class="p">(</span><span class="n">df_compare</span><span class="p">,</span> <span class="n">insample_dev</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_splines_cherry_blossoms_56_0.png" src="../_images/notebooks_splines_cherry_blossoms_56_0.png" />
+</div>
+</div>
+<p>Finally let’s check influential points according to the k-hat value</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute pointwise LOO</span>
+<span class="n">loo_1</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">pointwise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">loo_2</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_new</span><span class="p">,</span> <span class="n">pointwise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># plot kappa values</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_khat</span><span class="p">(</span><span class="n">loo_1</span><span class="o">.</span><span class="n">pareto_k</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_splines_cherry_blossoms_59_0.png" src="../_images/notebooks_splines_cherry_blossoms_59_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_khat</span><span class="p">(</span><span class="n">loo_2</span><span class="o">.</span><span class="n">pareto_k</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_splines_cherry_blossoms_60_0.png" src="../_images/notebooks_splines_cherry_blossoms_60_0.png" />
+</div>
+</div>
+</section>
+<section id="Final-comments">
+<h2>Final comments<a class="headerlink" href="#Final-comments" title="Permalink to this headline">¶</a></h2>
+<p>Another option could have been to use stronger priors on the coefficients associated with the spline functions. For example, the example written in PyMC uses <span class="math notranslate nohighlight">\(\text{Normal}(0, 3)\)</span> priors on them instead of <span class="math notranslate nohighlight">\(\text{Normal}(0, 10)\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Last updated: Sun Nov 14 2021
+
+Python implementation: CPython
+Python version       : 3.8.5
+IPython version      : 7.18.1
+
+matplotlib: 3.4.3
+pandas    : 1.3.1
+sys       : 3.8.5 (default, Sep  4 2020, 07:30:14)
+[GCC 7.3.0]
+numpy     : 1.21.2
+bambi     : 0.6.3
+arviz     : 0.11.4
+
+Watermark: 2.1.0
+
+</pre></div></div>
+</div>
+</section>
+</section>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'> 
+    <a class='left-prev' id="prev-link" href="ESCS_multiple_regression.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Multiple linear regression</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="multi-level_regression.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Hierarchical Linear Regression (Pigs dataset)</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <script src="../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2021, The developers of Bambi.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>
