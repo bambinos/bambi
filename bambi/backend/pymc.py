@@ -281,9 +281,12 @@ class PyMC3Model:
 
         # This does not add any new coordinate, it just changes the order so the ones
         # ending in "_coord_group_factor" are placed after the others.
-        coords_original = list(self.coords.keys())
+        coords_original = list(self.coords)
         coords_group = [c for c in coords_original if c.endswith("_coord_group_factor")]
-        coords_original = list(set(coords_original) - set(coords_group))
+
+        # Keep the original order in coords_original
+        coords_original_set = set(coords_original) - set(coords_group)
+        coords_original = [c for c in coords_original if c in coords_original_set]
         coords_new = ["chain", "draw"] + coords_original + coords_group
         idata.posterior = idata.posterior.transpose(*coords_new)
 

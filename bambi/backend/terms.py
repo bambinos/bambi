@@ -35,6 +35,14 @@ class CommonTerm:
         response_dims = []
         if spec.response.categorical and not spec.response.binary:
             response_dims = list(spec.response.pymc_coords)
+            response_dims_n = len(spec.response.pymc_coords[response_dims[0]])
+
+            # Arguments may be of shape (a,) but we need them to be of shape (a, b)
+            # a: length of predictor coordinates
+            # b: length of response coordinates
+            for key, value in args.items():
+                if value.ndim == 1:
+                    args[key] = np.hstack([value[:, np.newaxis]] * response_dims_n)
 
         dims = list(self.coords) + response_dims
         if dims:
