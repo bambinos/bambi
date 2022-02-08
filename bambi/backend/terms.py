@@ -50,11 +50,10 @@ class CommonTerm:
         else:
             coef = distribution(label, shape=data.shape[1], **args)
 
-        # Pre-pends one dimension if response is multi-categorical
-        if response_dims:
-            # If response is multivariate and predictor is univariate (not categorical/basis)
-            if len(dims) == 1:
-                coef = coef[np.newaxis, :]
+        # Pre-pends one dimension if response is multi-categorical and predictor is one dimensional
+        if response_dims and len(dims) == 1:
+            coef = coef[np.newaxis, :]
+
         return coef, data
 
     def get_coords(self):
