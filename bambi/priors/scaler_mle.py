@@ -23,7 +23,7 @@ class PriorScalerMLE:
 
     # Default is 'wide'. The wide prior sigma is sqrt(1/3) = .577 on the partial
     # corr scale, which is the sigma of a flat prior over [-1,1].
-    names = {"narrow": 0.2, "medium": 0.4, "wide": 3 ** -0.5, "superwide": 0.8}
+    names = {"narrow": 0.2, "medium": 0.4, "wide": 3**-0.5, "superwide": 0.8}
 
     def __init__(self, model, taylor):
         self.model = model
@@ -66,7 +66,7 @@ class PriorScalerMLE:
             x_mean = np.hstack([self.model.terms[term].data.mean(axis=0) for term in self.priors])
 
             mu -= np.dot(means, x_mean)
-            sigma = (sigma ** 2 + np.dot(sigmas ** 2, x_mean ** 2)) ** 0.5
+            sigma = (sigma**2 + np.dot(sigmas**2, x_mean**2)) ** 0.5
         return mu, sigma
 
     def get_slope_stats(self, exog, name, values, sigma_corr, points=4, full_model=None):
@@ -352,7 +352,7 @@ def shape_params(sigma_corr, mean=0.5):
     # m, v: mean and variance of beta distribution of correlations
     # p, q: corresponding shape parameters of beta distribution
     mean = 0.5
-    variance = sigma_corr ** 2 / 4
+    variance = sigma_corr**2 / 4
     p = mean * (mean * (1 - mean) / variance - 1)
     q = (1 - mean) * (mean * (1 - mean) / variance - 1)
     return p, q
