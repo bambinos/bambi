@@ -220,3 +220,27 @@ def test_predict_categorical(inhaler):
 
     model.predict(idata)
     model.predict(idata, data=inhaler.iloc[:20, :])
+
+
+def test_predict_categorical_group_specific():
+    # see https://github.com/bambinos/bambi/issues/447
+    rng = np.random.default_rng(1234)
+    size = 100
+
+    data = pd.DataFrame(
+        {
+            "y": rng.choice([0, 1], size=size),
+            "x1": rng.choice(list("abcd"), size=size),
+            "x2": rng.choice(list("XY"), size=size),
+            "x3": rng.normal(size=size),
+        }
+    )
+
+    model = Model("y ~ x1 + (0 + x2|x1) + (0 + x3|x1 + x2)", data, family="bernoulli")
+
+    idata = model.fit(tune=100, draws=100, chains=2)
+
+    model.predict(idata, data=data)
+
+    assert idata.posterior.y_mean.values.shape == (2, 100, 100)
+    assert (idata.posterior.y_mean.values > 0).all() and (idata.posterior.y_mean.values < 1).all()
