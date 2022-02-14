@@ -35,6 +35,14 @@ class CommonTerm:
         response_dims = []
         if spec.response.categorical and not spec.response.binary:
             response_dims = list(spec.response.pymc_coords)
+            response_dims_n = len(spec.response.pymc_coords[response_dims[0]])
+
+            # Arguments may be of shape (a,) but we need them to be of shape (a, b)
+            # a: length of predictor coordinates
+            # b: length of response coordinates
+            for key, value in args.items():
+                if value.ndim == 1:
+                    args[key] = np.hstack([value[:, np.newaxis]] * response_dims_n)
 
         dims = list(self.coords) + response_dims
         if dims:
@@ -42,11 +50,10 @@ class CommonTerm:
         else:
             coef = distribution(label, shape=data.shape[1], **args)
 
-        # Pre-pends one dimension if response is multi-categorical
-        if response_dims:
-            # If response is multivariate and predictor is univariate (not categorical/basis)
-            if len(dims) == 1:
-                coef = coef[np.newaxis, :]
+        # Pre-pends one dimension if response is multi-categorical and predictor is one dimensional
+        if response_dims and len(dims) == 1:
+            coef = coef[np.newaxis, :]
+
         return coef, data
 
     def get_coords(self):

@@ -71,6 +71,15 @@ def inhaler():
     return data
 
 
+@pytest.fixture(scope="module")
+def categorical_family_categorical_predictor():
+    from os.path import dirname, join
+
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "categorical_family_categorical_predictor.csv"))
+    return data
+
+
 def test_empty_model(crossed_data):
     model0 = Model("Y ~ 0", crossed_data)
     model0.fit(tune=0, draws=1)
@@ -442,12 +451,12 @@ def test_gamma_regression(dm):
     y = np.random.gamma(shape_true, y_true / shape_true, N)
     data = pd.DataFrame({"x": x, "y": y})
     model = Model("y ~ x", data, family="gamma", link="log")
-    model.fit()
+    model.fit(draws=10, tune=10)
 
     # Real data, categorical predictor.
     data = dm[["order", "ind_mg_dry"]]
     model = Model("ind_mg_dry ~ order", data, family="gamma", link="log")
-    model.fit()
+    model.fit(draws=10, tune=10)
 
 
 def test_beta_regression():
@@ -456,12 +465,12 @@ def test_beta_regression():
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "gasoline.csv"))
     model = Model("yield ~  temp + batch", data, family="beta", categorical="batch")
-    model.fit(target_accept=0.9)
+    model.fit(draws=10, tune=10, target_accept=0.9)
 
 
 def test_t_regression():
     data = pd.DataFrame({"y": np.random.normal(size=100), "x": np.random.normal(size=100)})
-    Model("y ~ x", data, family="t").fit()
+    Model("y ~ x", data, family="t").fit(draws=10, tune=10)
 
 
 def test_plot_priors(crossed_data):
@@ -523,11 +532,11 @@ def test_binomial_regression():
     )
 
     model = Model("prop(y, n) ~ x", data, family="binomial")
-    model.fit()
+    model.fit(draws=10, tune=10)
 
     # Using constant instead of variable in data frame
     model = Model("prop(y, 62) ~ x", data, family="binomial")
-    model.fit()
+    model.fit(draws=10, tune=10)
 
 
 def test_init_fallback(init_data, caplog):
@@ -541,12 +550,19 @@ def test_init_fallback(init_data, caplog):
 
 def test_categorical_family(inhaler):
     model = Model("rating ~ period + carry + treat", inhaler, family="categorical")
-    model.fit()
+    model.fit(draws=10, tune=10)
 
 
 def test_categorical_family_varying_intercept(inhaler):
     model = Model("rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical")
-    model.fit()
+    model.fit(draws=10, tune=10)
+
+
+def test_categorical_family_categorical_predictors(categorical_family_categorical_predictor):
+    model = Model(
+        "response ~ group + city", categorical_family_categorical_predictor, family="categorical"
+    )
+    model.fit(draws=10, tune=10)
 
 
 def test_set_alias():
