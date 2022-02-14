@@ -9,6 +9,7 @@ Examples
   notebooks/splines_cherry_blossoms.ipynb
   notebooks/multi-level_regression
   notebooks/sleepstudy
+  notebooks/radon_example
   notebooks/Strack_RRR_re_analysis
   notebooks/t_regression
   notebooks/logistic_regression

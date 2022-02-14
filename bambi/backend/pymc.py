@@ -149,7 +149,7 @@ class PyMC3Model:
         for group, eta in spec.priors_cor.items():
             # pylint: disable=protected-access
             terms = [spec.terms[name] for name in spec._get_group_specific_groups()[group]]
-            self.mu += add_lkj(terms, eta)
+            self.mu += add_lkj(self, terms, eta)
 
         terms = [
             term
@@ -367,7 +367,7 @@ class PyMC3Model:
         return dict(zip(names, zip(modes, stds_reshaped)))
 
 
-def add_lkj(terms, eta=1):
+def add_lkj(backend, terms, eta=1):
     """Add correlated prior for group-specific effects.
 
     This function receives a list of group-specific terms that share their `grouper`, constructs
@@ -422,7 +422,14 @@ def add_lkj(terms, eta=1):
     start = 0
     for term in terms:
         label = term.name
-        dims = list(term.pymc_coords.keys())
+        dims = list(term.pymc_coords)
+
+        # Add coordinates to the model, only if they are not added yet.
+        for name, values in term.pymc_coords.items():
+            if name not in backend.model.coords:
+                backend.model.add_coords({name: values})
+        backend.coords.update(**term.pymc_coords)
+
         predictor = term.predictor.squeeze()
         delta = term.predictor.shape[1]
 
