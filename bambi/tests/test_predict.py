@@ -59,8 +59,6 @@ def data_count():
 
 @pytest.fixture(scope="module")
 def inhaler():
-    from os.path import dirname, join
-
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "inhaler.csv"))
     data["rating"] = pd.Categorical(data["rating"], categories=[1, 2, 3, 4])
