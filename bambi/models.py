@@ -1,8 +1,6 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
-import functools
 import logging
-import operator
 
 from copy import deepcopy
 
