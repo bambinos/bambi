@@ -1,6 +1,9 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
+import functools
 import logging
+import operator
+
 from copy import deepcopy
 
 import numpy as np
@@ -875,7 +878,8 @@ class Model:
                         p = np.prod(shape[2:]) // response_n
                         shape = (shape[0] * shape[1], p, response_n)
                     else:
-                        shape = (shape[0] * shape[1], shape[2])
+                        # NOTE: This was (shape[0] * shape[1], shape[2])
+                        shape = (shape[0] * shape[1], functools.reduce(operator.mul, shape[2:]))
                 beta_z_list.append(values.reshape(shape))
 
             beta_z = np.hstack(beta_z_list)
