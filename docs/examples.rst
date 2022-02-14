@@ -17,4 +17,5 @@ Examples
   notebooks/alternative_links_binary
   notebooks/wald_gamma_glm
   notebooks/negative_binomial
+  notebooks/beta_regression
       notebooks/shooter_crossed_random_ANOVA
