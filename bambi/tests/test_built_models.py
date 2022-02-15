@@ -1,3 +1,5 @@
+from os.path import dirname, join
+
 import logging
 
 import pytest
@@ -29,7 +31,6 @@ def crossed_data():
     dummies)
     Sites crossed with threecats
     """
-    from os.path import dirname, join
 
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "crossed_random.csv"))
@@ -39,11 +40,9 @@ def crossed_data():
 @pytest.fixture(scope="module")
 def dm():
     """
-    Data obtained from from https://github.com/jswesner/nps_emergence/tree/v2_nps_emerge
+    Data obtained from https://github.com/jswesner/nps_emergence/tree/v2_nps_emerge
     and used in Gamma GLM
     """
-    from os.path import dirname, join
-
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "dm.csv"))
     return data
@@ -54,8 +53,6 @@ def init_data():
     """
     Data used to test initialization method
     """
-    from os.path import dirname, join
-
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "obs.csv"))
     return data
@@ -63,8 +60,6 @@ def init_data():
 
 @pytest.fixture(scope="module")
 def inhaler():
-    from os.path import dirname, join
-
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "inhaler.csv"))
     data["rating"] = pd.Categorical(data["rating"], categories=[1, 2, 3, 4])
@@ -73,8 +68,6 @@ def inhaler():
 
 @pytest.fixture(scope="module")
 def categorical_family_categorical_predictor():
-    from os.path import dirname, join
-
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "categorical_family_categorical_predictor.csv"))
     return data
@@ -460,8 +453,6 @@ def test_gamma_regression(dm):
 
 
 def test_beta_regression():
-    from os.path import dirname, join
-
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "gasoline.csv"))
     model = Model("yield ~  temp + batch", data, family="beta", categorical="batch")

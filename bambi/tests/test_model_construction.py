@@ -54,8 +54,6 @@ def crossed_data():
     dummies)
     Sites crossed with threecats
     """
-    from os.path import dirname, join
-
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "crossed_random.csv"))
     return data
@@ -102,8 +100,6 @@ def test_distribute_group_specific_effect_over(diabetes_data):
 
 
 def test_model_init_from_filename():
-    from os.path import dirname, join
-
     data_dir = join(dirname(__file__), "data")
     filename = join(data_dir, "diabetes.txt")
     model = Model("BP ~ BMI", filename)
