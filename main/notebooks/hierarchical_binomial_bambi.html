@@ -613,7 +613,6 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">from</span> <span class="nn">matplotlib.lines</span> <span class="kn">import</span> <span class="n">Line2D</span>
 <span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Patch</span>
@@ -625,8 +624,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.constrained_layout.use&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">random_seed</span> <span class="o">=</span> <span class="mi">1234</span>
 </pre></div>
 </div>
 </div>
@@ -836,10 +834,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#f6d2a9,#f5b78e,#f19c7c,#ea8171,#dd686c,#ca5268,#b13f64</span>
-<span class="c1">#d1eeea,#a8dbd9,#85c4c9,#68abb8,#4f90a6,#3b738f,#2a5674</span>
-
-<span class="n">BLUE</span> <span class="o">=</span> <span class="s2">&quot;#2a5674&quot;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">BLUE</span> <span class="o">=</span> <span class="s2">&quot;#2a5674&quot;</span>
 <span class="n">RED</span> <span class="o">=</span> <span class="s2">&quot;#b13f64&quot;</span>
 </pre></div>
 </div>
@@ -861,7 +856,6 @@ div.rendered_html tbody tr:hover {
 <span class="c1"># Also a line connecting them</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)),</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;AB&quot;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#b3b3b3&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
-
 <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.4</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#a3a3a3&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)),</span> <span class="o">-</span><span class="mi">110</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#b3b3b3&quot;</span><span class="p">,</span> <span class="n">capstyle</span><span class="o">=</span><span class="s2">&quot;round&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="mi">60</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;batting_avg&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">110</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)),</span> <span class="n">s</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">RED</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -871,12 +865,10 @@ div.rendered_html tbody tr:hover {
     <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;batting_avg&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s2">%&quot;</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#333&quot;</span><span class="p">)</span>
 
-
 <span class="c1"># Customize tick positions and labels</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)))</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;playerID&quot;</span><span class="p">])</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
-
 
 <span class="c1"># Create handles for the legend (just dots and labels)</span>
 <span class="n">handles</span> <span class="o">=</span> <span class="p">[</span>
@@ -956,14 +948,13 @@ Priors:
   Common-level effects
     playerID ~ Normal(mu: [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.], sigma: [10.0223 10.0223 10.0223 10.0223 10.0223 10.0223 10.0223 10.0223 10.0223
  10.0223 10.0223 10.0223 10.0223 10.0223 10.0223])
-
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_non_hierarchical</span> <span class="o">=</span> <span class="n">model_non_hierarchical</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_non_hierarchical</span> <span class="o">=</span> <span class="n">model_non_hierarchical</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -996,7 +987,7 @@ NUTS: [playerID]
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:02<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:03<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1004,9 +995,10 @@ NUTS: [playerID]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.
 </pre></div></div>
 </div>
+<p>Next we observe the posterior of the coefficient for each player. The <code class="docutils literal notranslate"><span class="pre">compact=False</span></code> argument means we want separated panels for each player.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
@@ -1019,7 +1011,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_hierarchical_binomial_bambi_16_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_16_0.png" />
+<img alt="../_images/notebooks_hierarchical_binomial_bambi_17_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_17_0.png" />
 </div>
 </div>
 <p>So far so good! The traceplots indicate the sampler worked well.</p>
@@ -1030,22 +1022,21 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <p>This model incorporates a group-specific intercept for each player:</p>
 <div class="math notranslate nohighlight">
 \[\begin{array}{lr}
-    \displaystyle \text{logit}(p_i) = \beta_i + \gamma_i &amp; \text{with } i = 0, \cdots, 14
+    \displaystyle \text{logit}(p_i) = \alpha + \gamma_i &amp; \text{with } i = 0, \cdots, 14
 \end{array}\]</div>
 <p>where</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{array}{c}
-    \beta_i \sim \text{Normal}(0, \ \sigma_{\beta}) \\
+    \alpha \sim \text{Normal}(0, \ \sigma_{\alpha}) \\
     \gamma_i \sim \text{Normal}(0, \ \sigma_{\gamma}) \\
     \sigma_{\gamma} \sim \text{HalfNormal}(\tau_{\gamma})
 \end{array}\end{split}\]</div>
-<p>and both <span class="math notranslate nohighlight">\(\sigma_{\beta}\)</span> and <span class="math notranslate nohighlight">\(\tau_{\gamma}\)</span> are common constants for all the players.</p>
 <p>The group-specific terms are indicated with the <code class="docutils literal notranslate"><span class="pre">|</span></code> operator in the formula. In this case, since there is an intercept for each player, we write <code class="docutils literal notranslate"><span class="pre">1|playerID</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_hierarchical</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;p(H, AB) ~ 0 + playerID + (1|playerID)&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;binomial&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_hierarchical</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;p(H, AB) ~ 1 + (1|playerID)&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;binomial&quot;</span><span class="p">)</span>
 <span class="n">model_hierarchical</span>
 </pre></div>
 </div>
@@ -1056,25 +1047,23 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: p(H, AB) ~ 0 + playerID + (1|playerID)
+Formula: p(H, AB) ~ 1 + (1|playerID)
 Family name: Binomial
 Link: logit
 Observations: 15
 Priors:
   Common-level effects
-    playerID ~ Normal(mu: [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.], sigma: [10.0223 10.0223 10.0223 10.0223 10.0223 10.0223 10.0223 10.0223 10.0223
- 10.0223 10.0223 10.0223 10.0223 10.0223 10.0223])
+    Intercept ~ Normal(mu: 0, sigma: 2.5)
 
   Group-level effects
-    1|playerID ~ Normal(mu: 0, sigma: HalfNormal(sigma: 3.5981))
-
+    1|playerID ~ Normal(mu: 0, sigma: HalfNormal(sigma: 2.5))
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_hierarchical</span> <span class="o">=</span> <span class="n">model_hierarchical</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_hierarchical</span> <span class="o">=</span> <span class="n">model_hierarchical</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1086,7 +1075,7 @@ Priors:
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [1|playerID_offset, 1|playerID_sigma, playerID]
+NUTS: [1|playerID_offset, 1|playerID_sigma, Intercept]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1107,7 +1096,7 @@ NUTS: [1|playerID_offset, 1|playerID_sigma, playerID]
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:07<00:00 Sampling 2 chains, 488 divergences]
+  100.00% [4000/4000 00:04<00:00 Sampling 2 chains, 23 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1115,16 +1104,13 @@ NUTS: [1|playerID_offset, 1|playerID_sigma, playerID]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 8 seconds.
-There were 320 divergences after tuning. Increase `target_accept` or reparameterize.
-The acceptance probability does not match the target. It is 0.42657437446293106, but should be close to 0.8. Try to increase the number of tuning steps.
-There were 168 divergences after tuning. Increase `target_accept` or reparameterize.
-The acceptance probability does not match the target. It is 0.6555170012946976, but should be close to 0.8. Try to increase the number of tuning steps.
-The rhat statistic is larger than 1.05 for some parameters. This indicates slight problems during sampling.
-The estimated number of effective samples is smaller than 200 for some parameters.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
+There were 21 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 2 divergences after tuning. Increase `target_accept` or reparameterize.
+The number of effective samples is smaller than 25% for some parameters.
 </pre></div></div>
 </div>
-<p>And there we got a ton of divergences… What can we do?</p>
+<p>And there we got several divergences… What can we do?</p>
 <p>One thing we could try is to increase <code class="docutils literal notranslate"><span class="pre">target_accept</span></code> as suggested in the message above, but there are so many divergences that instead we are going to first take a look at the prior predictive distribution to check whether our priors are too informative or too wide.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">Model</span></code> instance has a method called <code class="docutils literal notranslate"><span class="pre">prior_predictive()</span></code> that generates samples from the prior predictive distribution. It returns an <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object that contains the values of the prior predictive distribution.</p>
 <div class="nbinput nblast docutils container">
@@ -1152,13 +1138,13 @@ The estimated number of effective samples is smaller than 200 for some parameter
 <div class="output_area docutils container">
 <div class="highlight"><pre>
 (500, 15)
-[[  0   0   0 ...   1   0   0]
- [  0   0   0 ...  16 182  28]
- [  1 613   4 ...   0  87 112]
+[[  0 262  39 ...   7 162  98]
+ [  1 599  46 ...  11 127  44]
+ [  0 205  60 ...   6 182 112]
  ...
- [  0 540   2 ...  16 176  29]
- [  1 624   0 ...   0 182   0]
- [  0 624  54 ...   7   1 112]]
+ [  1 619  56 ...  15 182 109]
+ [  0 124   0 ...   8   1  75]
+ [  1 617  35 ...   6 172   0]]
 </pre></div></div>
 </div>
 <p>Let’s plot these distributions together with the observed proportion of hits for every player here.</p>
@@ -1206,11 +1192,20 @@ The estimated number of effective samples is smaller than 200 for some parameter
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_10811/4093018835.py:17: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
+  fig.subplots_adjust(left=0.025, right=0.975, hspace=0.05, wspace=0.05, bottom=0.125)
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_hierarchical_binomial_bambi_29_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_29_0.png" />
+<img alt="../_images/notebooks_hierarchical_binomial_bambi_30_1.png" src="../_images/notebooks_hierarchical_binomial_bambi_30_1.png" />
 </div>
 </div>
 <p>Indeed, priors are too wide! Let’s use tighter priors and see what’s the result</p>
@@ -1219,10 +1214,10 @@ The estimated number of effective samples is smaller than 200 for some parameter
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">priors</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;playerID&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="s2">&quot;Intercept&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
     <span class="s2">&quot;1|playerID&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;HalfNormal&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
 <span class="p">}</span>
-<span class="n">model_hierarchical</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;p(H, AB) ~ 0 + playerID + (1|playerID)&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;binomial&quot;</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">)</span>
+<span class="n">model_hierarchical</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;p(H, AB) ~ 1 + (1|playerID)&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;binomial&quot;</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">)</span>
 <span class="n">model_hierarchical</span>
 </pre></div>
 </div>
@@ -1233,17 +1228,16 @@ The estimated number of effective samples is smaller than 200 for some parameter
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: p(H, AB) ~ 0 + playerID + (1|playerID)
+Formula: p(H, AB) ~ 1 + (1|playerID)
 Family name: Binomial
 Link: logit
 Observations: 15
 Priors:
   Common-level effects
-    playerID ~ Normal(mu: 0, sigma: 1)
+    Intercept ~ Normal(mu: 0, sigma: 1)
 
   Group-level effects
     1|playerID ~ Normal(mu: 0, sigma: HalfNormal(sigma: 1))
-
 </pre></div></div>
 </div>
 <p>Now let’s check the prior predictive distribution for these new priors.</p>
@@ -1258,11 +1252,20 @@ Priors:
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_10811/4093018835.py:17: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
+  fig.subplots_adjust(left=0.025, right=0.975, hspace=0.05, wspace=0.05, bottom=0.125)
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_hierarchical_binomial_bambi_33_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_33_0.png" />
+<img alt="../_images/notebooks_hierarchical_binomial_bambi_34_1.png" src="../_images/notebooks_hierarchical_binomial_bambi_34_1.png" />
 </div>
 </div>
 <p>Definetely it looks much better. Now the priors tend to have a symmetric shape with a mode at 0.5, with substantial probability on the whole domain.</p>
@@ -1270,7 +1273,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_hierarchical</span> <span class="o">=</span> <span class="n">model_hierarchical</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_hierarchical</span> <span class="o">=</span> <span class="n">model_hierarchical</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1282,7 +1285,7 @@ Priors:
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [1|playerID_offset, 1|playerID_sigma, playerID]
+NUTS: [1|playerID_offset, 1|playerID_sigma, Intercept]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1303,7 +1306,7 @@ NUTS: [1|playerID_offset, 1|playerID_sigma, playerID]
         }
     </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:09<00:00 Sampling 2 chains, 275 divergences]
+  100.00% [4000/4000 00:03<00:00 Sampling 2 chains, 38 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1311,22 +1314,19 @@ NUTS: [1|playerID_offset, 1|playerID_sigma, playerID]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 9 seconds.
-There were 51 divergences after tuning. Increase `target_accept` or reparameterize.
-The acceptance probability does not match the target. It is 0.7180932912015021, but should be close to 0.8. Try to increase the number of tuning steps.
-There were 224 divergences after tuning. Increase `target_accept` or reparameterize.
-The acceptance probability does not match the target. It is 0.5048336539811049, but should be close to 0.8. Try to increase the number of tuning steps.
-The rhat statistic is larger than 1.2 for some parameters.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.
+There were 3 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 35 divergences after tuning. Increase `target_accept` or reparameterize.
+The acceptance probability does not match the target. It is 0.7033138328272285, but should be close to 0.8. Try to increase the number of tuning steps.
 The estimated number of effective samples is smaller than 200 for some parameters.
 </pre></div></div>
 </div>
-<p>And there we got a ton of divergences again! What a shame!</p>
-<p>Let’s try with increasing <code class="docutils literal notranslate"><span class="pre">target_accept</span></code>.</p>
+<p>Let’s try with increasing <code class="docutils literal notranslate"><span class="pre">target_accept</span></code> and the number of <code class="docutils literal notranslate"><span class="pre">tune</span></code> samples.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_hierarchical</span> <span class="o">=</span> <span class="n">model_hierarchical</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">target_accept</span><span class="o">=</span><span class="mf">0.96</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_hierarchical</span> <span class="o">=</span> <span class="n">model_hierarchical</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1338,7 +1338,7 @@ The estimated number of effective samples is smaller than 200 for some parameter
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [1|playerID_offset, 1|playerID_sigma, playerID]
+NUTS: [1|playerID_offset, 1|playerID_sigma, Intercept]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1358,8 +1358,8 @@ NUTS: [1|playerID_offset, 1|playerID_sigma, playerID]
             background: #F44336;
         }
     </style>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:26<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:09<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1367,15 +1367,15 @@ NUTS: [1|playerID_offset, 1|playerID_sigma, playerID]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 26 seconds.
-The number of effective samples is smaller than 25% for some parameters.
+Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws total) took 10 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">idata_hierarchical</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;1|playerID&quot;</span><span class="p">,</span> <span class="s2">&quot;1|playerID_sigma&quot;</span><span class="p">]</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">idata_hierarchical</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="n">var_names</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1383,10 +1383,9 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_hierarchical_binomial_bambi_38_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_38_0.png" />
+<img alt="../_images/notebooks_hierarchical_binomial_bambi_39_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_39_0.png" />
 </div>
 </div>
-<p>Fortunately, the sampler seems to have worked well this time.</p>
 <p>Let’s jump onto the next section where we plot and compare the probability of hit for the players using both models.</p>
 </section>
 <section id="Compare-predictions">
@@ -1405,10 +1404,13 @@ The number of effective samples is smaller than 25% for some parameters.
 </div>
 <p>Let’s create a forestplot using the posteriors obtained with both models so we can compare them very easily .</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+
+<span class="c1"># Add vertical line for the global probability of hitting</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;AB&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 
 <span class="c1"># Create forestplot with ArviZ, only for the mean.</span>
 <span class="n">az</span><span class="o">.</span><span class="n">plot_forest</span><span class="p">(</span>
@@ -1426,15 +1428,13 @@ The number of effective samples is smaller than 25% for some parameters.
 <span class="n">ylabels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">ylabels</span><span class="p">))</span>
 
 <span class="c1"># Put the labels for the y axis in the mid of the original location of the tick marks.</span>
-<span class="n">yloc</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">get_ticklocs</span><span class="p">()</span>
-<span class="n">yloc</span> <span class="o">=</span> <span class="p">(</span><span class="n">yloc</span><span class="p">[::</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">yloc</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="n">yloc</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">ylabels</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
 
 <span class="c1"># Create legend</span>
 <span class="n">handles</span> <span class="o">=</span> <span class="p">[</span>
     <span class="n">Patch</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Non-hierarchical&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;#666666&quot;</span><span class="p">),</span>
-    <span class="n">Patch</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hierarchical&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">RED</span><span class="p">)</span>
+    <span class="n">Patch</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hierarchical&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">RED</span><span class="p">),</span>
+    <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Mean probability&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 <span class="p">]</span>
 
 <span class="n">legend</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">);</span>
@@ -1445,11 +1445,11 @@ The number of effective samples is smaller than 25% for some parameters.
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_hierarchical_binomial_bambi_44_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_44_0.png" />
+<img alt="../_images/notebooks_hierarchical_binomial_bambi_45_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_45_0.png" />
 </div>
 </div>
 <p>One of the first things one can see is that not only the center of the distributions varies but also their dispersion. Those posteriors that are very wide are associated with players who have batted only once or few times, while tighter posteriors correspond to players who batted several times.</p>
-<p>Players who have extreme empirical proportions have similar extreme posteriors under the non-hierarchical model. However, under the hierarchical model, these distributions are now <strong>shrunk</strong> towards the global mean. Extreme values are still plausible, with very low probability.</p>
+<p>Players who have extreme empirical proportions have similar extreme posteriors under the non-hierarchical model. However, under the hierarchical model, these distributions are now <strong>shrunk towards the global mean</strong>. Extreme values are very unlikely under the hierarchical model.</p>
 <p>And finally, paraphrasing Eric, there’s nothing ineherently right or wrong about shrinkage and hierarchical models. Whether this is reasonable or not depends on our prior knowledge about the problem. And to me, after having seen the hit rates of the other players, it is much more reasonable to shrink extreme posteriors based on very few data points towards the global mean rather than just let them concentrate around 0 or 1.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
@@ -1465,18 +1465,18 @@ The number of effective samples is smaller than 25% for some parameters.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Tue Aug 24 2021
+Last updated: Sun Feb 13 2022
 
 Python implementation: CPython
 Python version       : 3.8.5
-IPython version      : 7.18.1
+IPython version      : 7.29.0
 
-pandas    : 1.3.1
-json      : 2.0.9
-matplotlib: 3.4.3
-bambi     : 0.6.0
-numpy     : 1.21.2
-arviz     : 0.11.2
+matplotlib: 3.5.1
+bambi     : 0.7.1
+sys       : 3.8.5 (default, Sep  4 2020, 07:30:14)
+[GCC 7.3.0]
+numpy     : 1.20.0
+arviz     : 0.11.4
 
 Watermark: 2.1.0
 
