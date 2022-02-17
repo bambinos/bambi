@@ -463,9 +463,11 @@ def test_t_regression():
     data = pd.DataFrame({"y": np.random.normal(size=100), "x": np.random.normal(size=100)})
     Model("y ~ x", data, family="t").fit(draws=10, tune=10)
 
+
 def test_vonmises_regression():
     data = pd.DataFrame({"y": np.random.vonmises(0, 1, size=100), "x": np.random.normal(size=100)})
     Model("y ~ x", data, family="vonmises").fit(draws=10, tune=10)
+
 
 def test_plot_priors(crossed_data):
     model = Model("Y ~ 0 + threecats", crossed_data)

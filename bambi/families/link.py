@@ -76,10 +76,12 @@ def inv_inverse_squared(eta):
 
 
 def arctan_2(x):
-    return 2*np.arctan(x)
+    return 2 * np.arctan(x)
+
 
 def tan_2(x):
-    return np.tan(x/2)
+    return np.tan(x / 2)
+
 
 def link_not_implemented(*args, **kwargs):
     raise NotImplementedError("link not implemented")

@@ -135,6 +135,7 @@ class StudentT(UnivariateFamily):
 
         return stats.t.rvs(nu, mean, sigma)
 
+
 class VonMises(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "tan_2"]
 
@@ -147,6 +148,7 @@ class VonMises(UnivariateFamily):
         kappa = kappa[:, idxs, np.newaxis]
 
         return np.random.vonmises(mean, kappa)
+
 
 class Wald(UnivariateFamily):
     SUPPORTED_LINKS = ["inverse", "inverse_squared", "identity", "log"]
