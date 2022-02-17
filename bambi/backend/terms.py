@@ -241,6 +241,7 @@ class ResponseTerm:
             nu = tt.concatenate([np.zeros((data.shape[0], 1)), nu], axis=1)
 
         # Add mean parameter and observed data
+
         kwargs = {self.family.likelihood.parent: linkinv(nu), "observed": data}
 
         # Add auxiliary parameters

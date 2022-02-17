@@ -135,6 +135,18 @@ class StudentT(UnivariateFamily):
 
         return stats.t.rvs(nu, mean, sigma)
 
+class VonMises(UnivariateFamily):
+    SUPPORTED_LINKS = ["identity", "tan_2"]
+
+    def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
+        mean = self.link.linkinv(linear_predictor)
+        kappa = posterior[model.response.name + "_kappa"].values
+
+        idxs = np.random.randint(low=0, high=draw_n, size=draws)
+        mean = mean[:, idxs, :]
+        kappa = kappa[:, idxs, np.newaxis]
+
+        return np.random.vonmises(mean, kappa)
 
 class Wald(UnivariateFamily):
     SUPPORTED_LINKS = ["inverse", "inverse_squared", "identity", "log"]

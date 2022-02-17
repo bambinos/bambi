@@ -328,6 +328,7 @@ def test_sparse_fails():
         "bernoulli",
         "poisson",
         "gamma",
+        "vonmises",
         "wald",
     ],
 )
@@ -353,6 +354,7 @@ def test_links():
         "gaussian": ["identity", "log", "inverse"],
         "negativebinomial": ["identity", "log", "cloglog"],
         "poisson": ["identity", "log"],
+        "vonmises": ["identity", "tan_2"],
         "wald": ["inverse", "inverse_squared", "identity", "log"],
     }
     for family, links in FAMILIES.items():
@@ -379,6 +381,7 @@ def test_bad_links():
         "gaussian": ["logit", "probit", "cloglog"],
         "negativebinomial": ["logit", "probit", "inverse", "inverse_squared"],
         "poisson": ["logit", "probit", "cloglog", "inverse", "inverse_squared"],
+        "vonmises": ["logit", "probit", "cloglog"],
         "wald": ["logit", "probit", "cloglog"],
     }
 

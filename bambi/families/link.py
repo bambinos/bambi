@@ -75,6 +75,12 @@ def inv_inverse_squared(eta):
     return 1 / np.sqrt(eta)
 
 
+def arctan_2(x):
+    return 2*np.arctan(x)
+
+def tan_2(x):
+    return np.tan(x/2)
+
 def link_not_implemented(*args, **kwargs):
     raise NotImplementedError("link not implemented")
 
@@ -114,7 +120,11 @@ LINKS = {
     "softmax": {
         "link": link_not_implemented,
         "linkinv": softmax
-    }
+    },
+    "tan_2": {
+        "link": tan_2,
+        "linkinv": arctan_2
+    },
 }
 # fmt: on
 

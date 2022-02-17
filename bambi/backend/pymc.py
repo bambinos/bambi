@@ -25,6 +25,7 @@ class PyMC3Model:
         "log": tt.exp,
         "logit": logit,
         "probit": probit,
+        "tan_2": lambda x : 2*tt.arctan(x),
         "softmax": tt.nnet.softmax,
     }
 
