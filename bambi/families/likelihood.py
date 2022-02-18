@@ -11,6 +11,7 @@ DISTRIBUTIONS = {
     "NegativeBinomial": {"params": ("mu", "alpha"), "parent": "mu", "args": ("alpha",)},
     "Poisson": {"params": ("mu",), "parent": "mu", "args": None},
     "StudentT": {"params": ("mu", "sigma"), "args": ("sigma", "nu")},
+    "VonMises": {"params": ("mu", "kappa"), "parent": "mu", "args": ("kappa",)},
     "Wald": {"params": ("mu", "lam"), "parent": "mu", "args": ("lam",)},
 }
 
