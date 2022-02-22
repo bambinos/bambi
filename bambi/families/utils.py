@@ -7,6 +7,7 @@ FAMILY_PARAMS = {
     "gaussian": ("sigma",),
     "negativebinomial": ("alpha",),
     "t": ("sigma", "nu"),
+    "vonmises": ("kappa",),
     "wald": ("lam",),
 }
 

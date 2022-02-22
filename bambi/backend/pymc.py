@@ -8,7 +8,7 @@ import theano.tensor as tt
 
 from bambi import version
 
-from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit
+from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
 from bambi.backend.terms import CommonTerm, GroupSpecificTerm, InterceptTerm, ResponseTerm
 
 _log = logging.getLogger("bambi")
@@ -25,6 +25,7 @@ class PyMC3Model:
         "log": tt.exp,
         "logit": logit,
         "probit": probit,
+        "tan_2": arctan_2,
         "softmax": tt.nnet.softmax,
     }
 
