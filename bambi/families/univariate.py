@@ -15,7 +15,10 @@ class UnivariateFamily(Family):
 
         # Drop var/dim if already present
         if name in posterior.data_vars:
-            posterior = posterior.drop_vars(name).drop_dims(coord_name)
+            posterior = posterior.drop_vars(name)
+
+        if coord_name in posterior.dims:
+            posterior = posterior.drop_dims(coord_name)
 
         coords = ("chain", "draw", coord_name)
         posterior[name] = (coords, mean)
