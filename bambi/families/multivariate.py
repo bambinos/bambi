@@ -77,7 +77,7 @@ class Categorical(MultivariateFamily):
         obs_n = mean.shape[-1]
 
         pps = np.empty((draws_n, obs_n), dtype=int)
-        response_levels = np.array([level for level in range(len(model.response.levels))])
+        response_levels = np.arange(len(model.response.levels))
         for idx in range(obs_n):
             pps[:, idx] = draw_categorical_samples(mean[..., idx].T, response_levels)
 
