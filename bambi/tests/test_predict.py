@@ -227,7 +227,7 @@ def test_posterior_predictive_categorical(inhaler):
     pps = idata.posterior_predictive["rating"].values
 
     assert pps.shape[-1] == inhaler.shape[0]
-    assert (np.unique(pps) == ["1", "2", "3", "4"]).all()
+    assert (np.unique(pps) == [0, 1, 2, 3]).all()
 
 
 def test_predict_categorical_group_specific():
