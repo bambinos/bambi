@@ -220,6 +220,16 @@ def test_predict_categorical(inhaler):
     model.predict(idata, data=inhaler.iloc[:20, :])
 
 
+def test_posterior_predictive_categorical(inhaler):
+    model = Model("rating ~ period", data=inhaler, family="categorical")
+    idata = model.fit()
+    model.predict(idata, kind="pps")
+    pps = idata.posterior_predictive["rating"].values
+
+    assert pps.shape[-1] == inhaler.shape[0]
+    assert (np.unique(pps) == ["1", "2", "3", "4"]).all()
+
+
 def test_predict_categorical_group_specific():
     # see https://github.com/bambinos/bambi/issues/447
     rng = np.random.default_rng(1234)
