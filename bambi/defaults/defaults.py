@@ -10,6 +10,7 @@ from bambi.families.univariate import (
     NegativeBinomial,
     Poisson,
     StudentT,
+    VonMises,
     Wald,
 )
 
@@ -31,6 +32,7 @@ SETTINGS_DISTRIBUTIONS = {
     "NegativeBinomial": {"alpha": 1, "mu": 1},
     "Poisson": {"mu": 1},
     "StudentT": {"lam": 1, "nu": 1},
+    "VonMises": {"mu": 0, "kappa": 1},
     "Wald": {"mu": 1, "lam": 1},
 }
 
@@ -127,6 +129,17 @@ SETTINGS_FAMILIES = {
         },
         "link": "identity",
         "family": StudentT,
+    },
+    "vonmises": {
+        "likelihood": {
+            "name": "VonMises",
+            "args": {
+                "kappa": "HalfNormal"
+            },
+            "parent": "mu",
+        },
+        "link": "tan_2",
+        "family": VonMises,
     },
     "wald": {
         "likelihood": {

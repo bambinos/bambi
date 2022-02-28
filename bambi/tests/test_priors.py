@@ -10,8 +10,6 @@ from bambi.families import Family, Likelihood
 from bambi.models import Model
 from bambi.priors import Prior
 
-from formulae.parser import ParseError
-
 
 @pytest.fixture(scope="module")
 def diabetes_data():

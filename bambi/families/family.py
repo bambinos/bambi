@@ -63,6 +63,7 @@ class Family:
         "logit",
         "probit",
         "softmax",
+        "tan_2",
     ]
 
     def __init__(self, name, likelihood, link):

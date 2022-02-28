@@ -1,3 +1,5 @@
+from os.path import dirname, join
+
 import logging
 
 import pytest
@@ -29,7 +31,6 @@ def crossed_data():
     dummies)
     Sites crossed with threecats
     """
-    from os.path import dirname, join
 
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "crossed_random.csv"))
@@ -39,11 +40,9 @@ def crossed_data():
 @pytest.fixture(scope="module")
 def dm():
     """
-    Data obtained from from https://github.com/jswesner/nps_emergence/tree/v2_nps_emerge
+    Data obtained from https://github.com/jswesner/nps_emergence/tree/v2_nps_emerge
     and used in Gamma GLM
     """
-    from os.path import dirname, join
-
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "dm.csv"))
     return data
@@ -54,8 +53,6 @@ def init_data():
     """
     Data used to test initialization method
     """
-    from os.path import dirname, join
-
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "obs.csv"))
     return data
@@ -63,11 +60,16 @@ def init_data():
 
 @pytest.fixture(scope="module")
 def inhaler():
-    from os.path import dirname, join
-
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "inhaler.csv"))
     data["rating"] = pd.Categorical(data["rating"], categories=[1, 2, 3, 4])
+    return data
+
+
+@pytest.fixture(scope="module")
+def categorical_family_categorical_predictor():
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "categorical_family_categorical_predictor.csv"))
     return data
 
 
@@ -442,26 +444,29 @@ def test_gamma_regression(dm):
     y = np.random.gamma(shape_true, y_true / shape_true, N)
     data = pd.DataFrame({"x": x, "y": y})
     model = Model("y ~ x", data, family="gamma", link="log")
-    model.fit()
+    model.fit(draws=10, tune=10)
 
     # Real data, categorical predictor.
     data = dm[["order", "ind_mg_dry"]]
     model = Model("ind_mg_dry ~ order", data, family="gamma", link="log")
-    model.fit()
+    model.fit(draws=10, tune=10)
 
 
 def test_beta_regression():
-    from os.path import dirname, join
-
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "gasoline.csv"))
     model = Model("yield ~  temp + batch", data, family="beta", categorical="batch")
-    model.fit(target_accept=0.9)
+    model.fit(draws=10, tune=10, target_accept=0.9)
 
 
 def test_t_regression():
     data = pd.DataFrame({"y": np.random.normal(size=100), "x": np.random.normal(size=100)})
-    Model("y ~ x", data, family="t").fit()
+    Model("y ~ x", data, family="t").fit(draws=10, tune=10)
+
+
+def test_vonmises_regression():
+    data = pd.DataFrame({"y": np.random.vonmises(0, 1, size=100), "x": np.random.normal(size=100)})
+    Model("y ~ x", data, family="vonmises").fit(draws=10, tune=10)
 
 
 def test_plot_priors(crossed_data):
@@ -523,11 +528,11 @@ def test_binomial_regression():
     )
 
     model = Model("prop(y, n) ~ x", data, family="binomial")
-    model.fit()
+    model.fit(draws=10, tune=10)
 
     # Using constant instead of variable in data frame
     model = Model("prop(y, 62) ~ x", data, family="binomial")
-    model.fit()
+    model.fit(draws=10, tune=10)
 
 
 def test_init_fallback(init_data, caplog):
@@ -541,12 +546,19 @@ def test_init_fallback(init_data, caplog):
 
 def test_categorical_family(inhaler):
     model = Model("rating ~ period + carry + treat", inhaler, family="categorical")
-    model.fit()
+    model.fit(draws=10, tune=10)
 
 
 def test_categorical_family_varying_intercept(inhaler):
     model = Model("rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical")
-    model.fit()
+    model.fit(draws=10, tune=10)
+
+
+def test_categorical_family_categorical_predictors(categorical_family_categorical_predictor):
+    model = Model(
+        "response ~ group + city", categorical_family_categorical_predictor, family="categorical"
+    )
+    model.fit(draws=10, tune=10)
 
 
 def test_set_alias():

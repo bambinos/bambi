@@ -54,8 +54,6 @@ def crossed_data():
     dummies)
     Sites crossed with threecats
     """
-    from os.path import dirname, join
-
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "crossed_random.csv"))
     return data
@@ -102,8 +100,6 @@ def test_distribute_group_specific_effect_over(diabetes_data):
 
 
 def test_model_init_from_filename():
-    from os.path import dirname, join
-
     data_dir = join(dirname(__file__), "data")
     filename = join(data_dir, "diabetes.txt")
     model = Model("BP ~ BMI", filename)
@@ -332,6 +328,7 @@ def test_sparse_fails():
         "bernoulli",
         "poisson",
         "gamma",
+        "vonmises",
         "wald",
     ],
 )
@@ -357,6 +354,7 @@ def test_links():
         "gaussian": ["identity", "log", "inverse"],
         "negativebinomial": ["identity", "log", "cloglog"],
         "poisson": ["identity", "log"],
+        "vonmises": ["identity", "tan_2"],
         "wald": ["inverse", "inverse_squared", "identity", "log"],
     }
     for family, links in FAMILIES.items():
@@ -383,6 +381,7 @@ def test_bad_links():
         "gaussian": ["logit", "probit", "cloglog"],
         "negativebinomial": ["logit", "probit", "inverse", "inverse_squared"],
         "poisson": ["logit", "probit", "cloglog", "inverse", "inverse_squared"],
+        "vonmises": ["logit", "probit", "cloglog"],
         "wald": ["logit", "probit", "cloglog"],
     }
 

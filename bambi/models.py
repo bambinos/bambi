@@ -1,6 +1,7 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
 import logging
+
 from copy import deepcopy
 
 import numpy as np
@@ -867,17 +868,25 @@ class Model:
             for name in term_names:
                 values = posterior[name].values
                 shape = values.shape
-                if len(shape) == 2:
-                    shape = (shape[0] * shape[1], 1)
+                # Since this is group-specific term, shape < 3 does not exists.
+                # 1-dimensional expr (the great majority: a single slope or intercept)
+                if len(shape) == 3:
+                    shape = (shape[0] * shape[1], shape[2])
+                # 2-dimensional predictors (e.g. spline basis and multivariate models)
                 else:
                     if isinstance(self.family, multivariate.Categorical):
                         response_n = len(self.response.levels) - 1
                         p = np.prod(shape[2:]) // response_n
                         shape = (shape[0] * shape[1], p, response_n)
+                    # Group specific effect with categorical expr
                     else:
-                        shape = (shape[0] * shape[1], shape[2])
+                        shape = (shape[0] * shape[1], shape[2] * shape[3])
+
                 beta_z_list.append(values.reshape(shape))
 
+            # 'beta_z' is of shape:
+            # * (chain_n * draw_n, p) for univariate
+            # * (chain_n * draw_n, p, response_n) for multivariate models
             beta_z = np.hstack(beta_z_list)
             contribution = np.dot(Z, beta_z.T).T
 

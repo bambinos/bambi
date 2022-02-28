@@ -15,7 +15,10 @@ class UnivariateFamily(Family):
 
         # Drop var/dim if already present
         if name in posterior.data_vars:
-            posterior = posterior.drop_vars(name).drop_dims(coord_name)
+            posterior = posterior.drop_vars(name)
+
+        if coord_name in posterior.dims:
+            posterior = posterior.drop_dims(coord_name)
 
         coords = ("chain", "draw", coord_name)
         posterior[name] = (coords, mean)
@@ -134,6 +137,20 @@ class StudentT(UnivariateFamily):
         sigma = sigma[:, idxs, np.newaxis]
 
         return stats.t.rvs(nu, mean, sigma)
+
+
+class VonMises(UnivariateFamily):
+    SUPPORTED_LINKS = ["identity", "tan_2"]
+
+    def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
+        mean = self.link.linkinv(linear_predictor)
+        kappa = posterior[model.response.name + "_kappa"].values
+
+        idxs = np.random.randint(low=0, high=draw_n, size=draws)
+        mean = mean[:, idxs, :]
+        kappa = kappa[:, idxs, np.newaxis]
+
+        return np.random.vonmises(mean, kappa)
 
 
 class Wald(UnivariateFamily):

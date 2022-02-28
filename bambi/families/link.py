@@ -39,12 +39,12 @@ def invcloglog(eta):
 def probit(mu):
     """Probit function that ensures the input is in (0, 1)"""
     mu = force_within_unit_interval(mu)
-    return 2 ** 0.5 * special.erfinv(2 * mu - 1)  # pylint: disable=no-member
+    return 2**0.5 * special.erfinv(2 * mu - 1)  # pylint: disable=no-member
 
 
 def invprobit(eta):
     """Inverse of the probit function that ensures result is in (0, 1)"""
-    result = 0.5 + 0.5 * special.erf(eta / 2 ** 0.5)  # pylint: disable=no-member
+    result = 0.5 + 0.5 * special.erf(eta / 2**0.5)  # pylint: disable=no-member
     return force_within_unit_interval(result)
 
 
@@ -68,11 +68,19 @@ def softmax(eta, axis=None):
 
 
 def inverse_squared(mu):
-    return 1 / mu ** 2
+    return 1 / mu**2
 
 
 def inv_inverse_squared(eta):
     return 1 / np.sqrt(eta)
+
+
+def arctan_2(x):
+    return 2 * np.arctan(x)
+
+
+def tan_2(x):
+    return np.tan(x / 2)
 
 
 def link_not_implemented(*args, **kwargs):
@@ -114,7 +122,11 @@ LINKS = {
     "softmax": {
         "link": link_not_implemented,
         "linkinv": softmax
-    }
+    },
+    "tan_2": {
+        "link": tan_2,
+        "linkinv": arctan_2
+    },
 }
 # fmt: on
 
