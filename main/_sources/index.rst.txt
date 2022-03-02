@@ -51,7 +51,7 @@ Alternatively, if you want the bleeding edge version of the package, you can ins
 Conda
 -----
 
-If you use Conda, you can also install the latest release of Bambi  with the following command:
+If you use Conda, you can also install the latest release of Bambi with the following command:
 
 .. code-block:: bash
 
@@ -60,7 +60,7 @@ If you use Conda, you can also install the latest release of Bambi  with the fol
 
 Usage
 =====
-A simple fixed effects model is shown below as example.
+A simple fixed effects model is shown in the example below.
 
 .. code-block:: python
 

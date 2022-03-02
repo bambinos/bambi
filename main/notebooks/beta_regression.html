@@ -1110,7 +1110,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <img alt="../_images/notebooks_beta_regression_23_0.png" src="../_images/notebooks_beta_regression_23_0.png" />
 </div>
 </div>
-<p>Next, we’ll see if we can in fact recover the effect on <span class="math notranslate nohighlight">\(\alpha\)</span>. Remember that in order to retern to <span class="math notranslate nohighlight">\(\alpha\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span> space, the linear equation passes through a inverse logit transformation, so we must apply this to the coefficient on <span class="math notranslate nohighlight">\(\Delta d\)</span> to get the effect on <span class="math notranslate nohighlight">\(\alpha\)</span>. The inverse logit is nicely defined in <code class="docutils literal notranslate"><span class="pre">scipy.special</span></code> as <code class="docutils literal notranslate"><span class="pre">expit</span></code>.</p>
+<p>Next, we’ll see if we can in fact recover the effect on <span class="math notranslate nohighlight">\(\alpha\)</span>. Remember that in order to return to <span class="math notranslate nohighlight">\(\alpha\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span> space, the linear equation passes through an inverse logit transformation, so we must apply this to the coefficient on <span class="math notranslate nohighlight">\(\Delta d\)</span> to get the effect on <span class="math notranslate nohighlight">\(\alpha\)</span>. The inverse logit is nicely defined in <code class="docutils literal notranslate"><span class="pre">scipy.special</span></code> as <code class="docutils literal notranslate"><span class="pre">expit</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
@@ -1137,7 +1137,7 @@ Mean effect: 0.5013
 </section>
 <section id="Example---Revisiting-Baseball-Data">
 <h2>Example - Revisiting Baseball Data<a class="headerlink" href="#Example---Revisiting-Baseball-Data" title="Permalink to this headline">¶</a></h2>
-<p>In the <a class="reference external" href="https://bambinos.github.io/bambi/main/notebooks/hierarchical_binomial_bambi.html">Hierarchical Logistic regression with Binomial family</a> notebook, we modeled baseball batting averages (times a player reached first via a hit per times at bat) via a Hierarchical Logisitic regression model. If, we’re interested in league-wide effects, we could look at a Beta regression. We work off the assumption that the league-wide batting average follows a Beta distribution, and that individual
+<p>In the <a class="reference external" href="https://bambinos.github.io/bambi/main/notebooks/hierarchical_binomial_bambi.html">Hierarchical Logistic regression with Binomial family</a> notebook, we modeled baseball batting averages (times a player reached first via a hit per times at bat) via a Hierarchical Logisitic regression model. If we’re interested in league-wide effects, we could look at a Beta regression. We work off the assumption that the league-wide batting average follows a Beta distribution, and that individual
 player’s batting averages are samples from that distribtuion.</p>
 <p>First, load the Batting dataset again, and re-calculate batting average as hits/at-bat. In order to make sure that we have a sufficient sample, we’ll require at least 100 at-bats in order consider a batter. Last, we’ll focus on 1990-2018.</p>
 <div class="nbinput nblast docutils container">
