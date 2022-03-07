@@ -37,6 +37,8 @@
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API Reference" href="../api_reference.html" />
+    <link rel="prev" title="Beta Regression" href="beta_regression.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -77,7 +79,7 @@
  </a>
 </li>
 
-<li class="toctree-l1 nav-item">
+<li class="toctree-l1 current active nav-item">
  <a class="reference internal nav-link" href="../examples.html">
   Examples
  </a>
@@ -579,7 +581,7 @@ div.rendered_html tbody tr:hover {
 </style>
 <section id="Categorical-Regression">
 <h1>Categorical Regression<a class="headerlink" href="#Categorical-Regression" title="Permalink to this headline">¶</a></h1>
-<p>In this example, we will use the categorical family to model outcomes with more than two categories. The examples in this notebook were constructed by Tomás Capretto, and assembled into this example by Tyler James Burch (&#64;tjburch on GitHub).</p>
+<p>In this example, we will use the categorical family to model outcomes with more than two categories. The examples in this notebook were constructed by Tomás Capretto, and assembled into this example by Tyler James Burch (<a class="reference external" href="https://github.com/tjburch">&#64;tjburch</a> on GitHub).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -587,11 +589,11 @@ div.rendered_html tbody tr:hover {
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
 <span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">from</span> <span class="nn">matplotlib.lines</span> <span class="kn">import</span> <span class="n">Line2D</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
-<span class="n">SEED</span> <span class="o">=</span> <span class="mi">1234</span>
+
+<span class="kn">from</span> <span class="nn">matplotlib.lines</span> <span class="kn">import</span> <span class="n">Line2D</span>
 </pre></div>
 </div>
 </div>
@@ -599,7 +601,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">SEED</span> <span class="o">=</span> <span class="mi">1234</span>
+<span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -655,26 +658,21 @@ NUTS: [x, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area rendered_html docutils container">
 <div>
+    <style>
+        /* Turns off some styling */
+        progress {
+            /* gets rid of default border in Firefox and Opera. */
+            border: none;
+            /* Needs to be in here for Safari polyfill so background images work as expected. */
+            background-size: auto;
+        }
+        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+            background: #F44336;
+        }
+    </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:31<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:03<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -682,13 +680,13 @@ NUTS: [x, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 49 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
 </pre></div></div>
 </div>
 <p>Note that we pass the <code class="docutils literal notranslate"><span class="pre">family=&quot;categorical&quot;</span></code> argument to Bambi’s <code class="docutils literal notranslate"><span class="pre">Model</span></code> method in order to call the categorical family. Here, the response variable are strings (“A”, “B”, “C”), however they can also be <code class="docutils literal notranslate"><span class="pre">pd.Categorical</span></code> objects.</p>
 <p>Next we will use posterior predictions to visualize the mean class probability across the <span class="math notranslate nohighlight">\(x\)</span> spectrum.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
@@ -707,8 +705,85 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_categorical_regression_9_0.png" src="../_images/notebooks_categorical_regression_9_0.png" />
-</div>
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">KeyError</span>                                  Traceback (most recent call last)
+<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/pandas/core/indexes/base.py</span> in <span class="ansi-cyan-fg">get_loc</span><span class="ansi-blue-fg">(self, key, method, tolerance)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3360</span>             <span class="ansi-green-fg">try</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">-&gt; 3361</span><span class="ansi-red-fg">                 </span><span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>_engine<span class="ansi-blue-fg">.</span>get_loc<span class="ansi-blue-fg">(</span>casted_key<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3362</span>             <span class="ansi-green-fg">except</span> KeyError <span class="ansi-green-fg">as</span> err<span class="ansi-blue-fg">:</span>
+
+<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/pandas/_libs/index.pyx</span> in <span class="ansi-cyan-fg">pandas._libs.index.IndexEngine.get_loc</span><span class="ansi-blue-fg">()</span>
+
+<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/pandas/_libs/index.pyx</span> in <span class="ansi-cyan-fg">pandas._libs.index.IndexEngine.get_loc</span><span class="ansi-blue-fg">()</span>
+
+<span class="ansi-green-fg">pandas/_libs/hashtable_class_helper.pxi</span> in <span class="ansi-cyan-fg">pandas._libs.hashtable.PyObjectHashTable.get_item</span><span class="ansi-blue-fg">()</span>
+
+<span class="ansi-green-fg">pandas/_libs/hashtable_class_helper.pxi</span> in <span class="ansi-cyan-fg">pandas._libs.hashtable.PyObjectHashTable.get_item</span><span class="ansi-blue-fg">()</span>
+
+<span class="ansi-red-fg">KeyError</span>: &#39;length&#39;
+
+The above exception was the direct cause of the following exception:
+
+<span class="ansi-red-fg">KeyError</span>                                  Traceback (most recent call last)
+<span class="ansi-green-fg">/tmp/ipykernel_58160/1656499320.py</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> x_new <span class="ansi-blue-fg">=</span> np<span class="ansi-blue-fg">.</span>linspace<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">-</span><span class="ansi-cyan-fg">5</span><span class="ansi-blue-fg">,</span> <span class="ansi-cyan-fg">5</span><span class="ansi-blue-fg">,</span> num<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">200</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-fg">----&gt; 2</span><span class="ansi-red-fg"> </span>model<span class="ansi-blue-fg">.</span>predict<span class="ansi-blue-fg">(</span>idata<span class="ansi-blue-fg">,</span> data<span class="ansi-blue-fg">=</span>pd<span class="ansi-blue-fg">.</span>DataFrame<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">{</span><span class="ansi-blue-fg">&#34;x&#34;</span><span class="ansi-blue-fg">:</span> x_new<span class="ansi-blue-fg">}</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">      3</span> p <span class="ansi-blue-fg">=</span> idata<span class="ansi-blue-fg">.</span>posterior<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">&#34;y_mean&#34;</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">.</span>sel<span class="ansi-blue-fg">(</span>draw<span class="ansi-blue-fg">=</span>slice<span class="ansi-blue-fg">(</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">,</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span> <span class="ansi-cyan-fg">10</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">      4</span>
+<span class="ansi-green-intense-fg ansi-bold">      5</span> <span class="ansi-green-fg">for</span> j<span class="ansi-blue-fg">,</span> g <span class="ansi-green-fg">in</span> enumerate<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#34;ABC&#34;</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+
+<span class="ansi-green-fg">~/Desktop/Cosas/oss/bambinos/bambi/bambi/models.py</span> in <span class="ansi-cyan-fg">predict</span><span class="ansi-blue-fg">(self, idata, kind, data, draws, inplace)</span>
+<span class="ansi-green-intense-fg ansi-bold">    810</span>                 X <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>_design<span class="ansi-blue-fg">.</span>common<span class="ansi-blue-fg">.</span>design_matrix
+<span class="ansi-green-intense-fg ansi-bold">    811</span>             <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">--&gt; 812</span><span class="ansi-red-fg">                 </span>X <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>_design<span class="ansi-blue-fg">.</span>common<span class="ansi-blue-fg">.</span>_evaluate_new_data<span class="ansi-blue-fg">(</span>data<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">.</span>design_matrix
+<span class="ansi-green-intense-fg ansi-bold">    813</span>
+<span class="ansi-green-intense-fg ansi-bold">    814</span>         <span class="ansi-green-fg">if</span> self<span class="ansi-blue-fg">.</span>_design<span class="ansi-blue-fg">.</span>group<span class="ansi-blue-fg">:</span>
+
+<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/formulae/matrices.py</span> in <span class="ansi-cyan-fg">_evaluate_new_data</span><span class="ansi-blue-fg">(self, data)</span>
+<span class="ansi-green-intense-fg ansi-bold">    257</span>         new_instance<span class="ansi-blue-fg">.</span>terms_info <span class="ansi-blue-fg">=</span> deepcopy<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">.</span>terms_info<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    258</span>         new_instance.design_matrix = np.column_stack(
+<span class="ansi-green-fg">--&gt; 259</span><span class="ansi-red-fg">             </span><span class="ansi-blue-fg">[</span>term<span class="ansi-blue-fg">.</span>eval_new_data<span class="ansi-blue-fg">(</span>data<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">for</span> term <span class="ansi-green-fg">in</span> self<span class="ansi-blue-fg">.</span>model<span class="ansi-blue-fg">.</span>terms<span class="ansi-blue-fg">]</span>
+<span class="ansi-green-intense-fg ansi-bold">    260</span>         )
+<span class="ansi-green-intense-fg ansi-bold">    261</span>         new_instance<span class="ansi-blue-fg">.</span>evaluated <span class="ansi-blue-fg">=</span> <span class="ansi-green-fg">True</span>
+
+<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/formulae/matrices.py</span> in <span class="ansi-cyan-fg">&lt;listcomp&gt;</span><span class="ansi-blue-fg">(.0)</span>
+<span class="ansi-green-intense-fg ansi-bold">    257</span>         new_instance<span class="ansi-blue-fg">.</span>terms_info <span class="ansi-blue-fg">=</span> deepcopy<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">.</span>terms_info<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    258</span>         new_instance.design_matrix = np.column_stack(
+<span class="ansi-green-fg">--&gt; 259</span><span class="ansi-red-fg">             </span><span class="ansi-blue-fg">[</span>term<span class="ansi-blue-fg">.</span>eval_new_data<span class="ansi-blue-fg">(</span>data<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">for</span> term <span class="ansi-green-fg">in</span> self<span class="ansi-blue-fg">.</span>model<span class="ansi-blue-fg">.</span>terms<span class="ansi-blue-fg">]</span>
+<span class="ansi-green-intense-fg ansi-bold">    260</span>         )
+<span class="ansi-green-intense-fg ansi-bold">    261</span>         new_instance<span class="ansi-blue-fg">.</span>evaluated <span class="ansi-blue-fg">=</span> <span class="ansi-green-fg">True</span>
+
+<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/formulae/terms/terms.py</span> in <span class="ansi-cyan-fg">eval_new_data</span><span class="ansi-blue-fg">(self, data)</span>
+<span class="ansi-green-intense-fg ansi-bold">    509</span>             )
+<span class="ansi-green-intense-fg ansi-bold">    510</span>         <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">--&gt; 511</span><span class="ansi-red-fg">             </span>result <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>components<span class="ansi-blue-fg">[</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">.</span>eval_new_data<span class="ansi-blue-fg">(</span>data<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    512</span>         <span class="ansi-green-fg">return</span> result
+<span class="ansi-green-intense-fg ansi-bold">    513</span>
+
+<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/formulae/terms/variable.py</span> in <span class="ansi-cyan-fg">eval_new_data</span><span class="ansi-blue-fg">(self, data_mask)</span>
+<span class="ansi-green-intense-fg ansi-bold">    216</span>         <span class="ansi-green-fg">if</span> self<span class="ansi-blue-fg">.</span>data <span class="ansi-green-fg">is</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    217</span>             <span class="ansi-green-fg">raise</span> ValueError<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#34;self.data is None. This error shouldn&#39;t have happened!&#34;</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-fg">--&gt; 218</span><span class="ansi-red-fg">         </span>x <span class="ansi-blue-fg">=</span> data_mask<span class="ansi-blue-fg">[</span>self<span class="ansi-blue-fg">.</span>name<span class="ansi-blue-fg">]</span>
+<span class="ansi-green-intense-fg ansi-bold">    219</span>         <span class="ansi-green-fg">if</span> self<span class="ansi-blue-fg">.</span>_type <span class="ansi-blue-fg">==</span> <span class="ansi-blue-fg">&#34;numeric&#34;</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    220</span>             <span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>_eval_numeric<span class="ansi-blue-fg">(</span>x<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">&#34;value&#34;</span><span class="ansi-blue-fg">]</span>
+
+<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/pandas/core/frame.py</span> in <span class="ansi-cyan-fg">__getitem__</span><span class="ansi-blue-fg">(self, key)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3456</span>             <span class="ansi-green-fg">if</span> self<span class="ansi-blue-fg">.</span>columns<span class="ansi-blue-fg">.</span>nlevels <span class="ansi-blue-fg">&gt;</span> <span class="ansi-cyan-fg">1</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">   3457</span>                 <span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>_getitem_multilevel<span class="ansi-blue-fg">(</span>key<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-fg">-&gt; 3458</span><span class="ansi-red-fg">             </span>indexer <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>columns<span class="ansi-blue-fg">.</span>get_loc<span class="ansi-blue-fg">(</span>key<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3459</span>             <span class="ansi-green-fg">if</span> is_integer<span class="ansi-blue-fg">(</span>indexer<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">   3460</span>                 indexer <span class="ansi-blue-fg">=</span> <span class="ansi-blue-fg">[</span>indexer<span class="ansi-blue-fg">]</span>
+
+<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/pandas/core/indexes/base.py</span> in <span class="ansi-cyan-fg">get_loc</span><span class="ansi-blue-fg">(self, key, method, tolerance)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3361</span>                 <span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>_engine<span class="ansi-blue-fg">.</span>get_loc<span class="ansi-blue-fg">(</span>casted_key<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3362</span>             <span class="ansi-green-fg">except</span> KeyError <span class="ansi-green-fg">as</span> err<span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">-&gt; 3363</span><span class="ansi-red-fg">                 </span><span class="ansi-green-fg">raise</span> KeyError<span class="ansi-blue-fg">(</span>key<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">from</span> err
+<span class="ansi-green-intense-fg ansi-bold">   3364</span>
+<span class="ansi-green-intense-fg ansi-bold">   3365</span>         <span class="ansi-green-fg">if</span> is_scalar<span class="ansi-blue-fg">(</span>key<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">and</span> isna<span class="ansi-blue-fg">(</span>key<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">and</span> <span class="ansi-green-fg">not</span> self<span class="ansi-blue-fg">.</span>hasnans<span class="ansi-blue-fg">:</span>
+
+<span class="ansi-red-fg">KeyError</span>: &#39;length&#39;
+</pre></div></div>
 </div>
 <p>Here, we can notice that the probability phases betweeen classes from left to right. At all points across <span class="math notranslate nohighlight">\(x\)</span>, sum of the class probabilities is 1, since in our generative model, it must be one of these three outcomes.</p>
 </section>
@@ -797,8 +872,8 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/Users/tburch/Documents/github/bambi/bambi_dev/lib/python3.9/site-packages/seaborn/axisgrid.py:88: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
-  self._figure.tight_layout(*args, **kwargs)
+/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/seaborn/axisgrid.py:64: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
+  self.fig.tight_layout(*args, **kwargs)
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -838,26 +913,21 @@ NUTS: [petal_width, petal_length, sepal_width, sepal_length, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area rendered_html docutils container">
 <div>
+    <style>
+        /* Turns off some styling */
+        progress {
+            /* gets rid of default border in Firefox and Opera. */
+            border: none;
+            /* Needs to be in here for Safari polyfill so background images work as expected. */
+            background-size: auto;
+        }
+        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+            background: #F44336;
+        }
+    </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:41<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:09<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput docutils container">
@@ -865,7 +935,7 @@ NUTS: [petal_width, petal_length, sepal_width, sepal_length, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 53 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 10 seconds.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -905,122 +975,122 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
   <tbody>
     <tr>
       <th>Intercept[versicolor]</th>
-      <td>-6.863</td>
-      <td>7.983</td>
-      <td>-22.715</td>
-      <td>7.238</td>
-      <td>0.257</td>
-      <td>0.188</td>
-      <td>968.0</td>
-      <td>1227.0</td>
+      <td>-6.467</td>
+      <td>8.059</td>
+      <td>-20.822</td>
+      <td>8.876</td>
+      <td>0.243</td>
+      <td>0.172</td>
+      <td>1099.0</td>
+      <td>1335.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Intercept[virginica]</th>
-      <td>-22.653</td>
-      <td>9.444</td>
-      <td>-40.842</td>
-      <td>-4.868</td>
+      <td>-22.395</td>
+      <td>9.670</td>
+      <td>-40.911</td>
+      <td>-5.136</td>
       <td>0.282</td>
       <td>0.199</td>
-      <td>1124.0</td>
-      <td>1205.0</td>
+      <td>1173.0</td>
+      <td>1188.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sepal_length[versicolor]</th>
-      <td>3.156</td>
-      <td>1.702</td>
-      <td>0.206</td>
-      <td>6.492</td>
-      <td>0.067</td>
-      <td>0.048</td>
-      <td>643.0</td>
-      <td>831.0</td>
+      <td>3.097</td>
+      <td>1.731</td>
+      <td>0.091</td>
+      <td>6.414</td>
+      <td>0.060</td>
+      <td>0.043</td>
+      <td>839.0</td>
+      <td>1009.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sepal_length[virginica]</th>
-      <td>2.376</td>
-      <td>1.780</td>
-      <td>-0.952</td>
-      <td>5.728</td>
-      <td>0.069</td>
-      <td>0.051</td>
-      <td>676.0</td>
-      <td>843.0</td>
+      <td>2.303</td>
+      <td>1.788</td>
+      <td>-1.086</td>
+      <td>5.495</td>
+      <td>0.061</td>
+      <td>0.045</td>
+      <td>853.0</td>
+      <td>1091.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sepal_width[versicolor]</th>
-      <td>-4.761</td>
-      <td>1.889</td>
-      <td>-8.636</td>
-      <td>-1.518</td>
-      <td>0.065</td>
-      <td>0.046</td>
-      <td>851.0</td>
-      <td>1115.0</td>
+      <td>-4.782</td>
+      <td>1.939</td>
+      <td>-8.643</td>
+      <td>-1.293</td>
+      <td>0.061</td>
+      <td>0.044</td>
+      <td>1002.0</td>
+      <td>1199.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sepal_width[virginica]</th>
-      <td>-6.649</td>
-      <td>2.341</td>
-      <td>-11.289</td>
-      <td>-2.482</td>
-      <td>0.085</td>
-      <td>0.060</td>
-      <td>764.0</td>
-      <td>921.0</td>
+      <td>-6.646</td>
+      <td>2.359</td>
+      <td>-11.049</td>
+      <td>-2.347</td>
+      <td>0.076</td>
+      <td>0.054</td>
+      <td>957.0</td>
+      <td>1157.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>petal_length[versicolor]</th>
-      <td>1.040</td>
-      <td>0.891</td>
-      <td>-0.697</td>
-      <td>2.653</td>
-      <td>0.031</td>
-      <td>0.022</td>
-      <td>836.0</td>
-      <td>1169.0</td>
+      <td>1.038</td>
+      <td>0.866</td>
+      <td>-0.672</td>
+      <td>2.557</td>
+      <td>0.027</td>
+      <td>0.019</td>
+      <td>1019.0</td>
+      <td>993.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>petal_length[virginica]</th>
-      <td>3.977</td>
-      <td>1.070</td>
-      <td>1.758</td>
-      <td>5.927</td>
-      <td>0.034</td>
-      <td>0.024</td>
-      <td>1026.0</td>
-      <td>794.0</td>
+      <td>3.986</td>
+      <td>1.050</td>
+      <td>2.070</td>
+      <td>6.000</td>
+      <td>0.033</td>
+      <td>0.023</td>
+      <td>1020.0</td>
+      <td>1077.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>petal_width[versicolor]</th>
-      <td>1.953</td>
-      <td>1.996</td>
-      <td>-1.979</td>
-      <td>5.516</td>
-      <td>0.068</td>
-      <td>0.057</td>
-      <td>868.0</td>
-      <td>1000.0</td>
+      <td>1.961</td>
+      <td>2.036</td>
+      <td>-1.730</td>
+      <td>5.720</td>
+      <td>0.067</td>
+      <td>0.048</td>
+      <td>924.0</td>
+      <td>1081.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>petal_width[virginica]</th>
-      <td>9.004</td>
-      <td>2.267</td>
-      <td>4.705</td>
-      <td>13.167</td>
-      <td>0.074</td>
-      <td>0.052</td>
-      <td>944.0</td>
-      <td>990.0</td>
+      <td>9.082</td>
+      <td>2.274</td>
+      <td>4.626</td>
+      <td>13.132</td>
+      <td>0.077</td>
+      <td>0.054</td>
+      <td>874.0</td>
+      <td>883.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1153,26 +1223,21 @@ NUTS: [sex, length, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area rendered_html docutils container">
 <div>
+    <style>
+        /* Turns off some styling */
+        progress {
+            /* gets rid of default border in Firefox and Opera. */
+            border: none;
+            /* Needs to be in here for Safari polyfill so background images work as expected. */
+            background-size: auto;
+        }
+        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+            background: #F44336;
+        }
+    </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:24<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:03<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1180,7 +1245,7 @@ NUTS: [sex, length, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 35 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.
 </pre></div></div>
 </div>
 <p>We can then look at how the food choices vary by length for both male and female alligators.</p>
@@ -1226,7 +1291,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/var/folders/6_/4vqvy7vn7kd0q5_ckhj7prfc0000gn/T/ipykernel_12655/2612338171.py:21: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
+/tmp/ipykernel_58160/2612338171.py:21: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
   fig.subplots_adjust(left=0.05, right=0.975, bottom=0.075, top=0.85)
 </pre></div></div>
 </div>
@@ -1275,6 +1340,20 @@ class.</p>
               
               <!-- Previous / next buttons -->
 <div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="beta_regression.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Beta Regression</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="../api_reference.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">API Reference</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
 </div>
               
           </main>
