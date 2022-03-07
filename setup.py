@@ -15,7 +15,7 @@ def check_installation(rv):
     if sys.version_info < rv:
         sys.stderr.write(
             f"[{sys.argv[0]}] - Error: Your Python interpreter must be "
-            + f"{rv[0], rv[1], rv[0]} or greater\n"
+            + f"{rv[0], rv[1], rv[2]} or greater\n"
         )
         sys.exit(-1)
 
