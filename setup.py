@@ -8,6 +8,16 @@ PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 README_FILE = os.path.join(PROJECT_ROOT, "README.md")
 VERSION_FILE = os.path.join(PROJECT_ROOT, "bambi", "version.py")
 REQUIREMENTS_FILE = os.path.join(PROJECT_ROOT, "requirements.txt")
+MINIMUM_PYTHON_VERSION = (3, 7, 2)
+
+
+def check_installation(rv):
+    if sys.version_info < rv:
+        sys.stderr.write(
+            f"[{sys.argv[0]}] - Error: Your Python interpreter must be "
+            + f"{rv[0], rv[1], rv[2]} or greater\n"
+        )
+        sys.exit(-1)
 
 
 def get_long_description():
@@ -19,6 +29,8 @@ def get_requirements():
     with codecs.open(REQUIREMENTS_FILE) as buff:
         return buff.read().splitlines()
 
+
+check_installation(MINIMUM_PYTHON_VERSION)
 
 with open(VERSION_FILE) as buff:
     exec(buff.read())
