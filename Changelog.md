@@ -4,9 +4,16 @@
 
 ### New features
 
+- Add VonMises (`"vonmises"`) built-in family (#453)
+
 ### Maintenance and fixes
 
+- Add posterior predictive sampling method to "categorical" family (#458)
+
 ### Documentation
+
+- Add Categorical regression example (#457)
+- Fix typos and clear up writing in some docs (#462)
 
 ### Deprecation
 
@@ -38,19 +45,9 @@
 
 ### 0.6.3
 
-### New features
-
 - Use formulae 0.2.0 (#411)
 
-### Maintenance and fixes
-
-### Documentation
-
-### Deprecation
-
 ### 0.6.2
-
-### New features
 
 ### Maintenance and fixes
 
@@ -61,8 +58,6 @@
 - Add installation instructions with conda (#406)
 - Corrected a typo: pary_id -> party_id (#402)
 - Add donation information (#409)
-
-### Deprecation
 
 ### 0.6.1
 
@@ -75,8 +70,6 @@
 ### Documentation
 
 - Add example with hierarchical binomial model (#398)
-
-### Deprecation
 
 ### 0.6.0
 
@@ -100,8 +93,6 @@
 
 - Add Negative Binomial family example notebook (#346)
 - Fixed typos and improved many notebooks (#374, #377, #382)
-
-### Deprecation
 
 ### 0.5.0
 
@@ -129,8 +120,6 @@
 - Webpage theme has been updated to PyData theme (#347)
 - Add model evaluation to logistic regression example (#350)
 
-### Deprecation
-
 ### 0.4.1
 
 ### New features
@@ -148,8 +137,6 @@
 
 - Fix gamma docstring (#328)
 
-### Deprecation
-
 ### 0.4.0
 
 ### New features
@@ -165,8 +152,6 @@
 
 - Add citation to Bambi preprint (#290)
 - Remove reference to pystan (#292)
-
-### Deprecation
 
 ### 0.3.0
 
