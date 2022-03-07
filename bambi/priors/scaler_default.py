@@ -45,7 +45,7 @@ class PriorScaler:
         if isinstance(self.model.family, (Gaussian, StudentT)):
             if priors["sigma"].auto_scale:
                 priors["sigma"] = Prior("HalfStudentT", nu=4, sigma=self.response_std)
-        if isinstance(self.model.family, VonMises):
+        elif isinstance(self.model.family, VonMises):
             if priors["kappa"].auto_scale:
                 priors["kappa"] = Prior("HalfStudentT", nu=4, sigma=self.response_std)
 
