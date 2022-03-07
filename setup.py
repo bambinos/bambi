@@ -8,7 +8,7 @@ PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 README_FILE = os.path.join(PROJECT_ROOT, "README.md")
 VERSION_FILE = os.path.join(PROJECT_ROOT, "bambi", "version.py")
 REQUIREMENTS_FILE = os.path.join(PROJECT_ROOT, "requirements.txt")
-REQUIRED_PYTHON_VERSION = (3, 7, 2)
+MINIMUM_PYTHON_VERSION = (3, 7, 2)
 
 
 def check_installation(rv):
@@ -30,7 +30,7 @@ def get_requirements():
         return buff.read().splitlines()
 
 
-check_installation(REQUIRED_PYTHON_VERSION)
+check_installation(MINIMUM_PYTHON_VERSION)
 
 with open(VERSION_FILE) as buff:
     exec(buff.read())
