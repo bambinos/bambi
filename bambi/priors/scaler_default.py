@@ -1,6 +1,6 @@
 import numpy as np
 
-from bambi.families.univariate import Gaussian, StudentT
+from bambi.families.univariate import Gaussian, StudentT, VonMises
 
 from .prior import Prior
 
@@ -45,6 +45,9 @@ class PriorScaler:
         if isinstance(self.model.family, (Gaussian, StudentT)):
             if priors["sigma"].auto_scale:
                 priors["sigma"] = Prior("HalfStudentT", nu=4, sigma=self.response_std)
+        elif isinstance(self.model.family, VonMises):
+            if priors["kappa"].auto_scale:
+                priors["kappa"] = Prior("HalfStudentT", nu=4, sigma=self.response_std)
 
     def scale_intercept(self, term):
         if term.prior.name != "Normal":
