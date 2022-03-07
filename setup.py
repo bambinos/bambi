@@ -8,6 +8,24 @@ PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 README_FILE = os.path.join(PROJECT_ROOT, "README.md")
 VERSION_FILE = os.path.join(PROJECT_ROOT, "bambi", "version.py")
 REQUIREMENTS_FILE = os.path.join(PROJECT_ROOT, "requirements.txt")
+REQUIRED_PYTHON_VERSION = (3, 7, 2)
+
+
+def check_installation(rv):
+    current_version = sys.version_info
+    if (
+        (current_version[0] >= rv[0])
+        and (current_version[1] >= rv[1])
+        and (current_version[2] >= rv[2])
+    ):
+        pass
+    else:
+        sys.stderr.write(
+            f"[{sys.argv[0]}] - Error: Your Python interpreter must be "
+            + f"{rv[0], rv[1], rv[0]}or greater\n"
+        )
+        sys.exit(-1)
+    return 0
 
 
 def get_long_description():
@@ -19,6 +37,9 @@ def get_requirements():
     with codecs.open(REQUIREMENTS_FILE) as buff:
         return buff.read().splitlines()
 
+
+# test Python version to fix NoReturnType error
+check_installation(REQUIRED_PYTHON_VERSION)
 
 with open(VERSION_FILE) as buff:
     exec(buff.read())
