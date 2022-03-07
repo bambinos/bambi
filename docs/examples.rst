@@ -19,4 +19,5 @@ Examples
   notebooks/wald_gamma_glm
   notebooks/negative_binomial
   notebooks/beta_regression
+  notebooks/categorical_regression
       notebooks/shooter_crossed_random_ANOVA
