@@ -15,7 +15,7 @@ class ResponseTerm:
         self.name = term.name
         self.data = term.design_vector
         self.constant = np.var(self.data) == 0  # NOTE: ATM we're not using this one
-        self.categorical = term.type == "categoric"
+        self.categorical = term.kind == "categoric"
         self.baseline = None  # Not None for non-binary categorical variables
         self.success = term.success if term.success is not None else 1  # not None for binary vars
         self.levels = None  # Not None for categorical variables
@@ -86,9 +86,8 @@ class Term:
     ----------
     name : str
         Name of the term.
-    term_dict: dict
-        A dictionary describing the components of the term. These can be found in
-        ``formulae.design_matrices().common.terms_info``
+    term: formulae.terms.Term
+        A ``formulae.terms.Term`` object.
     data : ndarray
         The term values.
     prior : Prior
@@ -97,27 +96,27 @@ class Term:
 
     group_specific = False
 
-    def __init__(self, name, term_dict, data, prior=None):
+    def __init__(self, name, term, data, prior=None):
         self.name = name
         self.data = data
         self.prior = prior
-        self.kind = term_dict["type"]
-        self.levels = term_dict["full_names"]
+        self.kind = term.kind
+        self.levels = term.name
         self.categorical = False
-        self.term_dict = term_dict
+        self.term = term
         self.alias = None
 
         # If the term has one component, it's categorical if the component is categorical.
         # If the term has more than one component (i.e. it is an interaction), it's categorical if
         # at least one of the components is categorical.
         if self.kind == "interaction":
-            if any(term["type"] == "categoric" for term in term_dict["terms"].values()):
+            if any(term.kind == "categoric" for term in term.terms.values()):
                 self.categorical = True
         else:
             self.categorical = self.kind == "categoric"
 
         # Flag constant terms
-        if self.categorical and len(term_dict["levels"]) == 1 and (data == data[0]).all():
+        if self.categorical and len(term.levels) == 1 and (data == data[0]).all():
             raise ValueError(f"The term '{name}' has only 1 category!")
 
         if not self.categorical and self.kind != "intercept" and np.all(data == data[0]):
@@ -134,11 +133,11 @@ class Term:
         if self.categorical:
             name = self.name + "_coord"
             if self.kind == "interaction":
-                self.pymc_coords[name] = term_dict["levels"]
-            elif term_dict["encoding"] == "full":
-                self.pymc_coords[name] = term_dict["levels"]
+                self.pymc_coords[name] = term.levels
+            elif term["encoding"] == "full":
+                self.pymc_coords[name] = term.levels
             else:
-                self.pymc_coords[name] = term_dict["levels"][1:]
+                self.pymc_coords[name] = term.levels[1:]
 
     def set_alias(self, value):
         self.alias = value
@@ -187,11 +186,11 @@ class GroupSpecificTerm:
         self.name = name
         self.data = data
         self.prior = prior
-        self.kind = term["type"]
-        self.groups = term["groups"]
-        self.levels = term["full_names"]
-        self.grouper = term["Ji"]
-        self.predictor = term["Xi"]
+        self.kind = term.kind
+        self.groups = term.groups
+        self.levels = term.name
+        self.grouper = term.factor.data
+        self.predictor = term.expr.data
         self.group_index = self.invert_dummies(self.grouper)
         self.categorical = False
         self.term = term
@@ -200,7 +199,7 @@ class GroupSpecificTerm:
 
         # Determine if the expression is categorical
         if self.kind == "interaction":
-            if any(t["type"] == "categoric" for t in term["terms"].values()):
+            if any(t.kind == "categoric" for t in term.terms.values()):
                 self.categorical = True
         else:
             self.categorical = self.kind == "categoric"
@@ -217,11 +216,11 @@ class GroupSpecificTerm:
         if self.categorical:
             name = expr + "_coord_group_expr"
             if self.kind == "interaction":
-                self.pymc_coords[name] = term["levels"]
+                self.pymc_coords[name] = term.levels
             elif term["encoding"] == "full":
-                self.pymc_coords[name] = term["levels"]
+                self.pymc_coords[name] = term.levels
             else:
-                self.pymc_coords[name] = term["levels"][1:]
+                self.pymc_coords[name] = term.levels[1:]
 
     def invert_dummies(self, dummies):
         """

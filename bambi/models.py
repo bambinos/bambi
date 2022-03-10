@@ -433,7 +433,7 @@ class Model:
         # Check if any of the names of the auxiliary params match the names of terms in the model
         # If that happens, raise an error.
         if aux_params and self._design.common:
-            conflicts = [name for name in aux_params if name in self._design.common.terms_info]
+            conflicts = [name for name in aux_params if name in self._design.common.terms]
             if conflicts:
                 raise ValueError(
                     f"The prior name for {', '.join(conflicts)} conflicts with the name of a "
@@ -519,7 +519,7 @@ class Model:
             either instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the
             width of the priors on a standardized scale.
         """
-        for name, term in common.terms_info.items():
+        for name, term in common.terms.items():
             data = common[name]
             prior = priors.pop(name, priors.get("common", None))
             if isinstance(prior, Prior):
@@ -546,7 +546,7 @@ class Model:
             the values are either instances of class ``Prior`` or ``int``, ``float``, or ``str``
             that specify the width of the priors on a standardized scale.
         """
-        for name, term in group.terms_info.items():
+        for name, term in group.terms.items():
             data = group[name]
             prior = priors.pop(name, priors.get("group_specific", None))
             self.terms[name] = GroupSpecificTerm(name, term, data, prior)
