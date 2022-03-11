@@ -11,11 +11,11 @@ REQUIREMENTS_FILE = os.path.join(PROJECT_ROOT, "requirements.txt")
 MINIMUM_PYTHON_VERSION = (3, 7, 2)
 
 
-def check_installation(min_version):
-    if sys.version_info < min_version:
+def check_installation():
+    if sys.version_info < MINIMUM_PYTHON_VERSION:
+        version = ".".join(str(i) for i in MINIMUM_PYTHON_VERSION)
         sys.stderr.write(
-            f"[{sys.argv[0]}] - Error: Your Python interpreter must be "
-            + f"{min_version[0], min_version[1], min_version[2]} or greater\n"
+            f"[{sys.argv[0]}] - Error: Your Python interpreter must be {version} or greater.\n"
         )
         sys.exit(-1)
 
@@ -36,7 +36,7 @@ def get_version():
     return vars()["__version__"]
 
 
-check_installation(MINIMUM_PYTHON_VERSION)
+check_installation()
 
 __version__ = get_version()
 
