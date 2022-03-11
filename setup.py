@@ -11,11 +11,11 @@ REQUIREMENTS_FILE = os.path.join(PROJECT_ROOT, "requirements.txt")
 MINIMUM_PYTHON_VERSION = (3, 7, 2)
 
 
-def check_installation(rv):
-    if sys.version_info < rv:
+def check_installation(min_version):
+    if sys.version_info < min_version:
         sys.stderr.write(
             f"[{sys.argv[0]}] - Error: Your Python interpreter must be "
-            + f"{rv[0], rv[1], rv[2]} or greater\n"
+            + f"{min_version[0], min_version[1], min_version[2]} or greater\n"
         )
         sys.exit(-1)
 
@@ -30,21 +30,16 @@ def get_requirements():
         return buff.read().splitlines()
 
 
+def get_version():
+    with open(VERSION_FILE, encoding="utf-8") as buff:
+        exec(buff.read())  # pylint: disable=exec-used
+    return vars()["__version__"]
+
+
 check_installation(MINIMUM_PYTHON_VERSION)
 
-with open(VERSION_FILE) as buff:
-    exec(buff.read())
+__version__ = get_version()
 
-if len(set(("test", "easy_install")).intersection(sys.argv)) > 0:
-    import setuptools
-
-tests_require = []
-extra_setuptools_args = {}
-if "setuptools" in sys.modules:
-    tests_require.append("nose")
-    extra_setuptools_args = dict(
-        test_suite="nose.collector", extras_require=dict(test="nose>=0.10.1")
-    )
 
 setup(
     name="bambi",
@@ -55,11 +50,9 @@ setup(
     url="http://github.com/bambinos/bambi",
     download_url="https://github.com/bambinos/bambi/archive/%s.tar.gz" % __version__,
     install_requires=get_requirements(),
-    maintainer="Tal Yarkoni",
-    maintainer_email="tyarkoni@gmail.com",
+    maintainer="Tomas Capretto",
+    maintainer_email="tomicapretto@gmail.com",
     packages=find_packages(exclude=["tests", "test_*"]),
     package_data={"bambi": ["priors/config/*"]},
-    tests_require=tests_require,
     license="MIT",
-    **extra_setuptools_args,
 )
