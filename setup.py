@@ -1,4 +1,3 @@
-import codecs
 import os
 import sys
 
@@ -21,12 +20,12 @@ def check_installation():
 
 
 def get_long_description():
-    with codecs.open(README_FILE, "rt") as buff:
+    with open(README_FILE, encoding="utf-8") as buff:
         return buff.read()
 
 
 def get_requirements():
-    with codecs.open(REQUIREMENTS_FILE) as buff:
+    with open(REQUIREMENTS_FILE, encoding="utf-8") as buff:
         return buff.read().splitlines()
 
 
