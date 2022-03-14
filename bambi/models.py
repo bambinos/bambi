@@ -754,7 +754,7 @@ class Model:
         return idata
 
     # pylint: disable=protected-access
-    def predict(self, idata, kind="mean", data=None, with_group_specific=True, draws=None, inplace=True):
+    def predict(self, idata, kind="mean", data=None, draws=None, inplace=True, with_group_specific=True):
         """Predict method for Bambi models
 
         Obtains in-sample and out-of-sample predictions from a fitted Bambi model.
@@ -815,7 +815,7 @@ class Model:
             else:
                 X = self._design.common._evaluate_new_data(data).design_matrix
 
-        if self._design.group anf with_group_specific:
+        if self._design.group and with_group_specific:
             if in_sample:
                 Z = self._design.group.design_matrix
             else:
