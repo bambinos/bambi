@@ -84,14 +84,14 @@ class Term:
 
     Parameters
     ----------
-    name : str
+    name: str
         Name of the term.
     term_dict: dict
         A dictionary describing the components of the term. These can be found in
         ``formulae.design_matrices().common.terms_info``
-    data : ndarray
+    data: ndarray
         The term values.
-    prior : Prior
+    prior: Prior
         A specification of the prior(s) to use. An instance of class ``priors.Prior``.
     """
 
@@ -170,14 +170,14 @@ class GroupSpecificTerm:
 
     Parameters
     ----------
-    name : str
+    name: str
         Name of the term.
     term: dict
         A dictionary describing the components of the term. These can be found in
         ``formulae.design_matrices().group.terms_info``
-    data : (DataFrame, Series, ndarray)
+    data: (DataFrame, Series, ndarray)
         The term values.
-    prior : Prior
+    prior: Prior
         A specification of the prior(s) to use. An instance of class ``priors.Prior``.
     """
 

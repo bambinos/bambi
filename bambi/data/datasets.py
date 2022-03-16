@@ -3,6 +3,7 @@ import hashlib
 import itertools
 import os
 import shutil
+
 from collections import namedtuple
 from urllib.request import urlretrieve
 
@@ -107,7 +108,7 @@ def get_data_home(data_home=None):
 
     Parameters
     ----------
-    data_home : str
+    data_home: str
         The path to Bambi data dir.
     """
     if data_home is None:
@@ -123,7 +124,7 @@ def clear_data_home(data_home=None):
 
     Parameters
     ----------
-    data_home : str
+    data_home: str
         The path to Bambi data dir. By default a folder named ``"bambi_data"`` in the user home
         folder.
     """
@@ -133,7 +134,6 @@ def clear_data_home(data_home=None):
 
 def _sha256(path):
     """Calculate the sha256 hash of the file at path."""
-
     sha256hash = hashlib.sha256()
     chunk_size = 8192
     with open(path, "rb") as buff:
@@ -157,14 +157,14 @@ def load_data(dataset=None, data_home=None):
 
     Parameters
     ----------
-    dataset : str
+    dataset: str
         Name of dataset to load.
-    data_home : str, optional
+    data_home: str, optional
         Where to save remote datasets
 
     Returns
     -------
-    Pandas DataFrame
+    pandas.DataFrame
     """
     home_dir = get_data_home(data_home=data_home)
 

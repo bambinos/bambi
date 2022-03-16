@@ -294,8 +294,7 @@ class Model:
     def build(self):
         """Set up the model for sampling/fitting.
 
-        Performs any steps that require access to all model terms (e.g., scaling priors on each
-        term), then calls the backend's ``.build()`` method.
+        Creates an instance of the underlying PyM3 model and adds all the necessary terms to it.
         """
         self.backend = PyMC3Model()
         self.backend.build(self)
@@ -306,17 +305,16 @@ class Model:
 
         Parameters
         ----------
-        priors : dict
+        priors: dict
             Dictionary of priors to update. Keys are names of terms to update; values are the new
             priors (either a ``Prior`` instance, or an int or float that scales the default priors).
             Note that a tuple can be passed as the key, in which case the same prior will be applied
             to all terms named in the tuple.
-        common : Prior, int, float or str
+        common: Prior, int, float or str
             A prior specification to apply to all common terms included in the model.
-        group_specific : Prior, int, float or str
+        group_specific: Prior, int, float or str
             A prior specification to apply to all group specific terms included in the model.
         """
-        # save arguments to pass to _set_priors() at build time
         kwargs = dict(zip(["priors", "common", "group_specific"], [priors, common, group_specific]))
         self._added_priors.update(kwargs)
         # After updating, we need to rebuild priors.
@@ -399,16 +397,16 @@ class Model:
 
         Parameters
         ----------
-        family : str or bambi.families.Family
+        family: str or bambi.families.Family
             A specification of the model family (analogous to the family object in R). Either a
             string, or an instance of class ``families.Family``. If a string is passed, a family
             with the corresponding name must be defined in the defaults loaded at model
             initialization.
-        link : str
+        link: str
             The name of the link function to use. Valid names are ``"cloglog"``, ``"identity"``,
             ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, ``"probit"``, and
             ``"softmax"``. Not all the link functions can be used with all the families.
-        priors : dict
+        priors: dict
             A dictionary with specification of priors for the parameters in the family of
             the response. Keys are names of other parameters than the mean in the family
             (i.e. they cannot be equal to ``family.parent``) and values can be an instance of class
@@ -489,7 +487,7 @@ class Model:
 
         Parameters
         ----------
-        response : formulae.ResponseVector
+        response: formulae.ResponseVector
             An instance of ``formulae.ResponseVector`` as returned by
             ``formulae.design_matrices()``.
         """
@@ -509,11 +507,11 @@ class Model:
 
         Parameters
         ----------
-        common : formulae.CommonEffectsMatrix
+        common: formulae.CommonEffectsMatrix
             Representation of the design matrix for the common effects of a model. It contains all
             the necessary information to build the ``Term`` objects associated with each common
             term in the model.
-        priors : dict
+        priors: dict
             Optional specification of priors for one or more terms. A dictionary where the keys are
             any of the names of the common terms in the model or ``"common"`` and the values are
             either instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the
@@ -536,11 +534,11 @@ class Model:
 
         Parameters
         ----------
-        group : formulae.GroupEffectsMatrix
+        group: formulae.GroupEffectsMatrix
             Representation of the design matrix for the group specific effects of a model. It
             contains all the necessary information to build the ``GroupSpecificTerm`` objects
             associated with each group-specific term in the model.
-        priors : dict
+        priors: dict
             Optional specification of priors for one or more terms. A dictionary where the keys are
             any of the names of the group-specific terms in the model or ``"group_specific"`` and
             the values are either instances of class ``Prior`` or ``int``, ``float``, or ``str``
@@ -581,13 +579,13 @@ class Model:
 
         Parameters
         ----------
-        draws : int
+        draws: int
             Number of draws to sample from the prior predictive distribution. Defaults to 5000.
-        var_names : str or list
+        var_names: str or list
             A list of names of variables for which to compute the posterior predictive
             distribution. Defaults to ``None`` which means to include both observed and
             unobserved RVs.
-        random_seed : int
+        random_seed: int
             Seed for the random number generator.
         figsize: tuple
             Figure size. If ``None`` it will be defined automatically.
@@ -655,8 +653,7 @@ class Model:
             var_names = [name for name in var_names if not name.endswith("_offset")]
 
         if omit_group_specific:
-            omitted = list(self.group_specific_terms)
-            var_names = [vn for vn in var_names if vn not in omitted]
+            var_names = [vn for vn in var_names if vn not in self.group_specific_terms]
 
         axes = None
         if var_names:
@@ -685,12 +682,12 @@ class Model:
 
         Parameters
         ----------
-        draws : int
+        draws: int
             Number of draws to sample from the prior predictive distribution. Defaults to 500.
-        var_names : str or list
+        var_names: str or list
             A list of names of variables for which to compute the prior predictive distribution.
             Defaults to ``None`` which means both observed and unobserved RVs.
-        random_seed : int
+        random_seed: int
             Seed for the random number generator.
 
         Returns
@@ -710,14 +707,15 @@ class Model:
         pps_ = pm.sample_prior_predictive(
             samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
         )
+
         # pps_ keys are not in the same order as `var_names` because `var_names` is converted
         # to set within pm.sample_prior_predictive()
-
         pps = {}
         for name in var_names:
             if name in self.terms and self.terms[name].categorical:
                 pps[name] = pps_[name]
             else:
+                # FIXME: Does this .squeeze() work when we have basis splines?
                 pps[name] = pps_[name].squeeze()
 
         response_name = self.response.name
@@ -761,7 +759,7 @@ class Model:
 
         Parameters
         ----------
-        idata : InferenceData
+        idata: InferenceData
             The ``InferenceData`` instance returned by ``.fit()``.
         kind: str
             Indicates the type of prediction required. Can be ``"mean"`` or ``"pps"``. The
@@ -850,7 +848,7 @@ class Model:
             contribution = np.dot(X, beta_x.T).T
 
             # 'response_n' is the dimensionality of the space where the response lives
-            # *  Univariate models: (chain_n, draw_n, obs_n)
+            # Univariate models: (chain_n, draw_n, obs_n)
             if len(contribution.shape) == 2:
                 shape = (chain_n, draw_n) + (contribution.shape[-1],)
             # Multivariate models: (chain_n, draw_n, response_n, obs_n)
@@ -942,19 +940,19 @@ class Model:
 
         Parameters
         ----------
-        formatting : str
+        formatting: str
             One of ``"plain"`` or ``"plain_with_params"``. Defaults to ``"plain"``.
-        name : str
+        name: str
             Name of the figure to save. Defaults to ``None``, no figure is saved.
-        figsize : tuple
+        figsize: tuple
             Maximum width and height of figure in inches. Defaults to ``None``, the figure size is
             set automatically. If defined and the drawing is larger than the given size, the drawing
             is uniformly scaled down so that it fits within the given size.  Only works if ``name``
             is not ``None``.
-        dpi : int
+        dpi: int
             Point per inch of the figure to save.
             Defaults to 300. Only works if ``name`` is not ``None``.
-        fmt : str
+        fmt: str
             Format of the figure to save.
             Defaults to ``"png"``. Only works if ``name`` is not ``None``.
 

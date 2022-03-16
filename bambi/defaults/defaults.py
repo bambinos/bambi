@@ -16,7 +16,6 @@ from bambi.families.univariate import (
 
 from bambi.families.multivariate import Categorical
 
-## NOTE: Check docs/api_reference.rst links the right lines from this document
 # Default parameters for PyMC3 distributions
 SETTINGS_DISTRIBUTIONS = {
     "Bernoulli": {"p": 0.5},
@@ -37,7 +36,7 @@ SETTINGS_DISTRIBUTIONS = {
 }
 
 # fmt: off
-SETTINGS_FAMILIES = {
+BUILTIN_FAMILIES = {
     "bernoulli": {
         "likelihood": {
             "name": "Bernoulli",
@@ -157,6 +156,28 @@ SETTINGS_FAMILIES = {
 
 
 def generate_prior(dist, **kwargs):
+    """Generate a Prior distribution.
+
+    The parameter ``kwargs`` is used to pass hyperpriors that are assigned to the parameters of
+    the prior to be built.
+
+    Parameters
+    ----------
+    dist: str, int, float
+        If a string, it is the name of the prior distribution. Default values for its parameters
+        are taken from ``SETTINGS_DISTRIBUTIONS``. If a number, a factor that is used to scale
+        the standard deviation of the priors that Bambi generates automatically.
+
+    Raises
+    ------
+    ValueError
+        If ``dist`` is not a string or a number.
+
+    Returns
+    -------
+    Prior
+        The Prior instance.
+    """
     if isinstance(dist, str):
         prior = Prior(dist, **SETTINGS_DISTRIBUTIONS[dist])
         if kwargs:
@@ -168,17 +189,80 @@ def generate_prior(dist, **kwargs):
     return prior
 
 
-def generate_likelihood(name, args, parent):  # pylint: disable=redefined-outer-name
+def generate_likelihood(name, args, parent):
+    """Generate a Likelihood instance.
+
+    Parameters
+    ----------
+    name: str
+        The name of the likelihood function.
+    args: dict
+        Indicates the auxiliary parameters and the values for their default priors. The keys are the
+        names of the parameters and the values are passed to ``generate_prior()`` to obtain the
+        actual instance of ``bambi.Prior``.
+    parent: str
+        The name of the parent parameter. In other words, the name of the mean parameter in the
+        likelihood function.
+
+    Returns
+    -------
+    bambi.Likelihood
+        The likelihood instance.
+    """
     priors = {k: generate_prior(v) for k, v in args.items()}
     return Likelihood(name, parent, **priors)
 
 
 def generate_family(name, likelihood, link, family):
+    """Generate a Bambi family.
+
+    Parameters
+    ----------
+    name: str
+        The name of the family.
+    likelihood: bambi.Likelihood
+        A representation of the likelihood function that corresponds to the family being created.
+    link: bambi.Link
+        A representation of the link function that corresponds to the family being created.
+    family: subclass of bambi.Family
+        A subclass of bambi.Family that generates the instance of the desired family.
+
+    Returns
+    -------
+    bambi.Family
+        The family instance.
+    """
     likelihood = generate_likelihood(**likelihood)
     return family(name, likelihood, link)
 
 
 def get_default_prior(term_type):
+    """Generate a Prior based on the default settings
+
+    The following summarises default priors for each type of term:
+
+    * intercept: Normal prior.
+    * common: Normal prior.
+    * intercept_flat: Uniform prior.
+    * common_flat: Uniform prior.
+    * group_specific: Normal prior where its sigma has a HalfNormal hyperprior.
+    * group_specific_flat: Normal prior where its sigma has a HalfFlat hyperprior.
+
+    Parameters
+    ----------
+    term_type: str
+        The type of the term for which the default prior is wanted.
+
+    Raises
+    ------
+    ValueError
+        If ``term_type`` is not within the values listed above.
+
+    Returns
+    -------
+    prior: Prior
+        The instance of Prior according to the ``term_type``.
+    """
     if term_type in ["intercept", "common"]:
         prior = generate_prior("Normal")
     elif term_type in ["intercept_flat", "common_flat"]:
@@ -193,13 +277,30 @@ def get_default_prior(term_type):
 
 
 def get_builtin_family(name):
-    """Generate a built-in ``bambi.families.Family`` instance
+    """Generate a built-in ``bambi.families.Family`` instance.
 
     Given the name of a built-in family, this function returns a ``bambi.families.Family`` instance
     that is constructed by calling other utility functions that construct the
     ``bambi.families.Likelihood`` and the ``bambi.priors.Prior`` instances that are needed to build
     the family.
+
+    The available built-in families are found in ``SETTINGS_FAMILIES``.
+
+    Parameters
+    ----------
+    name: str
+        The name of the built-in family.
+
+    Raises
+    ------
+    ValueError
+        If ``name`` is not the name of a built-in family.
+
+    Returns
+    -------
+    bambi.families.Family
+        The family instance.
     """
-    if name in SETTINGS_FAMILIES:
-        return generate_family(name, **SETTINGS_FAMILIES[name])
-    raise ValueError("f'{name}' is not a valid built-in family name")
+    if name in BUILTIN_FAMILIES:
+        return generate_family(name, **BUILTIN_FAMILIES[name])
+    raise ValueError(f"'{name}' is not a valid built-in family name.")

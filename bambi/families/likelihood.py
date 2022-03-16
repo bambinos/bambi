@@ -1,18 +1,23 @@
+from collections import namedtuple
+
 from bambi.priors import Prior
 from bambi.utils import multilinify, spacify
 
+
+DistSettings = namedtuple("DistSettings", ["params", "parent", "args"])
+
 DISTRIBUTIONS = {
-    "Bernoulli": {"params": ("p",), "parent": "p", "args": None},
-    "Beta": {"params": ("mu", "kappa"), "parent": "mu", "args": ("kappa",)},
-    "Binomial": {"params": ("p",), "parent": "p", "args": None},
-    "Categorical": {"params": ("p",), "parent": "p", "args": None},
-    "Gamma": {"params": ("mu", "alpha"), "parent": "mu", "args": ("alpha",)},
-    "Normal": {"params": ("mu", "sigma"), "parent": "mu", "args": ("sigma",)},
-    "NegativeBinomial": {"params": ("mu", "alpha"), "parent": "mu", "args": ("alpha",)},
-    "Poisson": {"params": ("mu",), "parent": "mu", "args": None},
-    "StudentT": {"params": ("mu", "sigma"), "args": ("sigma", "nu")},
-    "VonMises": {"params": ("mu", "kappa"), "parent": "mu", "args": ("kappa",)},
-    "Wald": {"params": ("mu", "lam"), "parent": "mu", "args": ("lam",)},
+    "Bernoulli": DistSettings(params=("p",), parent="p", args=None),
+    "Beta": DistSettings(params=("mu", "kappa"), parent="mu", args=("kappa",)),
+    "Binomial": DistSettings(params=("p",), parent="p", args=None),
+    "Categorical": DistSettings(params=("p",), parent="p", args=None),
+    "Gamma": DistSettings(params=("mu", "alpha"), parent="mu", args=("alpha",)),
+    "Normal": DistSettings(params=("mu", "sigma"), parent="mu", args=("sigma",)),
+    "NegativeBinomial": DistSettings(params=("mu", "alpha"), parent="mu", args=("alpha",)),
+    "Poisson": DistSettings(params=("mu",), parent="mu", args=None),
+    "StudentT": DistSettings(params=("mu", "sigma"), parent="mu", args=("sigma", "nu")),
+    "VonMises": DistSettings(params=("mu", "kappa"), parent="mu", args=("kappa",)),
+    "Wald": DistSettings(params=("mu", "lam"), parent="mu", args=("lam",)),
 }
 
 
@@ -74,12 +79,12 @@ class Likelihood:
 
         # The function does not require priors, but at least one was passed
         if priors != {} and args is None:
-            raise ValueError(f"'{self.name}' does not require any additional prior.")
+            raise ValueError(f"'{self.name}' does not require any additional priors.")
 
         # The function requires priors, priors were passed, but they differ from the required
         if priors and args:
             difference = set(args) - set(priors)
-            if len(difference) > 0:
+            if len(difference):
                 raise ValueError(f"'{self.name}' misses priors for the parameters {difference}")
 
             # And check priors passed are in fact of class Prior

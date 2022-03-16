@@ -9,11 +9,18 @@
 ### Maintenance and fixes
 
 - Add posterior predictive sampling method to "categorical" family (#458)
+- Fixed the wrong builtin link given by `link="inverse"` was wrong. It returned the same result as `link="cloglog"`
+- Replaced plain dictionaries with `namedtuple`s when same dictionary structure was repeated many times
+- The function `check_full_rank()` in `utils.py` now checks the array is 2 dimensional
+- Removed `_extract_family_prior()` from `bambi/families` as it was unnecesary.
+- Removed `bambi/families/utils.py` as it was unnecesary.
 
 ### Documentation
 
 - Add Categorical regression example (#457)
 - Fix typos and clear up writing in some docs (#462)
+- Documented the module `bambi/defaults`
+- Improved documentation and made it more consistent
 
 ### Deprecation
 

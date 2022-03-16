@@ -385,7 +385,7 @@ def add_lkj(backend, terms, eta=1):
 
     Parameters
     ----------
-    mu:
+    mu
         The contribution to the linear predictor of the roup-specific terms in ``terms``.
     """
 
