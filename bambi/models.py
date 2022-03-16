@@ -715,7 +715,6 @@ class Model:
             if name in self.terms and self.terms[name].categorical:
                 pps[name] = pps_[name]
             else:
-                # FIXME: Does this .squeeze() work when we have basis splines?
                 pps[name] = pps_[name].squeeze()
 
         response_name = self.response.name

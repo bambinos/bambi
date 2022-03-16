@@ -64,14 +64,14 @@ class Likelihood:
         # Checks are made when using a known distribution
         if self.name in self.DISTRIBUTIONS:
             if x is None:
-                x = self.DISTRIBUTIONS[self.name]["parent"]
-            elif x not in self.DISTRIBUTIONS[self.name]["params"]:
+                x = self.DISTRIBUTIONS[self.name].parent
+            elif x not in self.DISTRIBUTIONS[self.name].params:
                 raise ValueError(f"'{x}' is not a valid parameter for the likelihood '{self.name}'")
         # Otherwise, no check is done. At your own risk!
         self._parent = x
 
     def _check_priors(self, priors):
-        args = self.DISTRIBUTIONS[self.name]["args"]
+        args = self.DISTRIBUTIONS[self.name].args
 
         # The function requires priors but none were passed
         if priors == {} and args is not None:

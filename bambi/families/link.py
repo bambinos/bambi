@@ -150,8 +150,8 @@ class Link:
         self.linkinv_backend = linkinv_backend
 
         if name in LINKS:
-            self.link = LINKS[name]["link"]
-            self.linkinv = LINKS[name]["linkinv"]
+            self.link = LINKS[name].link
+            self.linkinv = LINKS[name].linkinv
         else:
             if not link or not linkinv or not linkinv_backend:
                 raise ValueError(
