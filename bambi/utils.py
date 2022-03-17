@@ -12,9 +12,10 @@ def listify(obj):
         return obj if isinstance(obj, (list, tuple, type(None))) else [obj]
 
 
-def spacify(string):
-    """Add 2 spaces to the beginning of each line in a multi-line string."""
-    return "  " + "  ".join(string.splitlines(True))
+def spacify(string, n=2):
+    """Add spaces to the beginning of each line in a multi-line string."""
+    space = n * " "
+    return space + space.join(string.splitlines(True))
 
 
 def multilinify(sequence, sep=","):
@@ -35,6 +36,7 @@ def check_full_rank(matrix):
     -------
     None
     """
+    assert matrix.ndim == 2
     if matrix_rank(matrix) < matrix.shape[1]:
         raise ValueError(
             "Design matrix for common effects is not full-rank. "

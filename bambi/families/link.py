@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 import numpy as np
 
 from scipy import special
@@ -75,64 +77,45 @@ def inv_inverse_squared(eta):
     return 1 / np.sqrt(eta)
 
 
-def arctan_2(x):
-    return 2 * np.arctan(x)
+def arctan_2(eta):
+    return 2 * np.arctan(eta)
 
 
-def tan_2(x):
-    return np.tan(x / 2)
+def tan_2(mu):
+    return np.tan(mu / 2)
+
+
+def inverse(mu):
+    return 1 / mu
+
+
+def inv_inverse(eta):
+    return 1 / eta
 
 
 def link_not_implemented(*args, **kwargs):
     raise NotImplementedError("link not implemented")
 
 
-# linkfun: These are g. They map the response to the linear predictor scale.
-# linkinv: These are g^(-1). They map the linear predictor to the response scale.
-# fmt: off
+# link: Known as g in the GLM literature. Maps the response to the linear predictor scale.
+# linkinv: Known as g^(-1) in the GLM literature. Maps the linear predictor to the response scale.
+LinksContainer = namedtuple("LinksContainer", ["link", "linkinv"])
+
 LINKS = {
-    "cloglog": {
-        "link": cloglog,
-        "linkinv": invcloglog
-    },
-    "identity": {
-        "link": identity,
-        "linkinv": identity
-    },
-    "inverse_squared": {
-        "link": inverse_squared,
-        "linkinv": inv_inverse_squared
-    },
-    "inverse": {
-        "link": cloglog,
-        "linkinv": invcloglog
-    },
-    "log": {
-        "link": np.log,
-        "linkinv": np.exp
-    },
-    "logit": {
-        "link": logit,
-        "linkinv": expit
-    },
-    "probit": {
-        "link": probit,
-        "linkinv": invprobit
-    },
-    "softmax": {
-        "link": link_not_implemented,
-        "linkinv": softmax
-    },
-    "tan_2": {
-        "link": tan_2,
-        "linkinv": arctan_2
-    },
+    "cloglog": LinksContainer(cloglog, invcloglog),
+    "identity": LinksContainer(identity, identity),
+    "inverse_squared": LinksContainer(inverse_squared, inv_inverse_squared),
+    "inverse": LinksContainer(inverse, inv_inverse),
+    "log": LinksContainer(np.log, np.exp),
+    "logit": LinksContainer(logit, expit),
+    "probit": LinksContainer(probit, invprobit),
+    "softmax": LinksContainer(link_not_implemented, softmax),
+    "tan_2": LinksContainer(tan_2, arctan_2),
 }
-# fmt: on
 
 
 class Link:
-    """Representation of link function.
+    """Representation of a link function.
 
     This object contains two main functions. One is the link function itself, the function
     that maps values in the response scale to the linear predictor, and the other is the inverse
@@ -158,7 +141,6 @@ class Link:
         Same than ``linkinv`` but must be something that works with PyMC3 backend (i.e. it must
         work with Theano tensors). Does not need to be specified when ``name`` is a known
         name.
-
     """
 
     def __init__(self, name, link=None, linkinv=None, linkinv_backend=None):
@@ -168,8 +150,8 @@ class Link:
         self.linkinv_backend = linkinv_backend
 
         if name in LINKS:
-            self.link = LINKS[name]["link"]
-            self.linkinv = LINKS[name]["linkinv"]
+            self.link = LINKS[name].link
+            self.linkinv = LINKS[name].linkinv
         else:
             if not link or not linkinv or not linkinv_backend:
                 raise ValueError(
