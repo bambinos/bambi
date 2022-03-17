@@ -294,7 +294,7 @@ class Model:
     def build(self):
         """Set up the model for sampling/fitting.
 
-        Creates an instance of the underlying PyM3 model and adds all the necessary terms to it.
+        Creates an instance of the underlying PyMC model and adds all the necessary terms to it.
         """
         self.backend = PyMC3Model()
         self.backend.build(self)

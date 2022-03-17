@@ -164,9 +164,9 @@ def generate_prior(dist, **kwargs):
     Parameters
     ----------
     dist: str, int, float
-        If a string, it is the name of the prior distribution. Default values for its parameters
-        are taken from ``SETTINGS_DISTRIBUTIONS``. If a number, a factor that is used to scale
-        the standard deviation of the priors that Bambi generates automatically.
+        If a string, it is the name of the prior distribution with default values taken from
+        ``SETTINGS_DISTRIBUTIONS``. If a number, it is a factor used to scale the standard deviation
+        of the priors generated automatically by Bambi.
 
     Raises
     ------
