@@ -92,6 +92,13 @@ Subject
     Subject number on which the observation was made
 """,
     ),
+    "periwinkles": FileMetadata(
+        filename="periwinkles.csv",
+        url="https://ndownloader.figshare.com/files/34446077",
+        checksum="50da9791b7a66fbcc9ea4dd828dc7a3a66d5e067faf10f3bfd143af6c590923a",
+        description="""Data for 31 periwinkles transplanted downshore as a function of the distance
+        travelled by them after release.""",
+    ),
 }
 
 
@@ -177,8 +184,8 @@ def load_data(dataset=None, data_home=None):
             checksum = _sha256(file_path)
             if datafile.checksum != checksum:
                 raise IOError(
-                    "{file_path} has an SHA256 checksum ({checksum}) differing from expected "
-                    "({datafile.checksum}), file may be corrupted. Run `bambi.clear_data_home()` "
+                    f"{file_path} has an SHA256 checksum ({checksum}) differing from expected "
+                    f"({datafile.checksum}), file may be corrupted. Run `bambi.clear_data_home()` "
                     "and try again, or please open an issue."
                 )
         return pd.read_csv(file_path)
