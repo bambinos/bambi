@@ -20,4 +20,6 @@ Examples
   notebooks/negative_binomial
   notebooks/beta_regression
   notebooks/categorical_regression
-      notebooks/shooter_crossed_random_ANOVA
+  notebooks/circular_regression
+       notebooks/shooter_crossed_random_ANOVA
+
