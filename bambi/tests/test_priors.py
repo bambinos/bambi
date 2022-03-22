@@ -1,10 +1,12 @@
 from os.path import dirname, join
-
-import numpy as np
-import pandas as pd
 import pytest
 
-from bambi.families import Family, Likelihood
+import numpy as np
+import pymc3 as pm
+import pandas as pd
+from scipy import special
+
+from bambi.families import Family, Likelihood, Link
 from bambi.models import Model
 from bambi.priors import Prior
 
@@ -139,6 +141,23 @@ def test_family_link_unsupported():
     family = Family("cheese", likelihood=likelihood, link="cloglog")
     with pytest.raises(ValueError):
         family.link = "Empty"
+
+
+def test_custom_link():
+    likelihood = Likelihood("Bernoulli", parent="p")
+    link = Link(
+        "my_logit", link=special.expit, linkinv=special.logit, linkinv_backend=pm.math.sigmoid
+    )
+    family = Family("bernoulli", likelihood, link)
+
+    data = pd.DataFrame(
+        {
+            "y": [0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
+            "x1": np.random.uniform(size=10),
+            "x2": np.random.uniform(size=10),
+        }
+    )
+    model = Model("y ~ x1 + x2", data, family=family)
 
 
 def test_family_bad_type():

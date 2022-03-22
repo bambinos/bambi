@@ -61,7 +61,7 @@ class Family:
             self.check_string_link(x)
             self._link = Link(x)
         elif isinstance(x, Link):
-            self.link = x
+            self._link = x
         else:
             raise ValueError(".link must be set to a string or a Link instance.")
 
