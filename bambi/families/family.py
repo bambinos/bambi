@@ -1,25 +1,4 @@
-from statsmodels.genmod import families as sm_families
-
 from bambi.families.link import Link
-
-STATSMODELS_FAMILIES = {
-    "bernoulli": sm_families.Binomial,
-    "gamma": sm_families.Gamma,
-    "gaussian": sm_families.Gaussian,
-    "wald": sm_families.InverseGaussian,
-    "negativebinomial": sm_families.NegativeBinomial,
-    "poisson": sm_families.Poisson,
-}
-
-STATSMODELS_LINKS = {
-    "identity": sm_families.links.identity(),
-    "logit": sm_families.links.logit(),
-    "probit": sm_families.links.probit(),
-    "cloglog": sm_families.links.cloglog(),
-    "inverse": sm_families.links.inverse_power(),
-    "inverse_squared": sm_families.links.inverse_squared(),
-    "log": sm_families.links.log(),
-}
 
 
 class Family:
@@ -70,7 +49,6 @@ class Family:
         self.name = name
         self.likelihood = likelihood
         self.link = link
-        self.smfamily = STATSMODELS_FAMILIES.get(name, None)
         self.aliases = {}
 
     @property
@@ -82,7 +60,6 @@ class Family:
         if isinstance(x, str):
             self.check_string_link(x)
             self._link = Link(x)
-            self.smlink = STATSMODELS_LINKS.get(x, None)
         elif isinstance(x, Link):
             self.link = x
         else:

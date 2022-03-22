@@ -11,18 +11,13 @@ class Prior:
         (e.g., ``"Normal"``, ``"Bernoulli"``, etc.)
     auto_scale: bool
         Whether to adjust the parameters of the prior or use them as passed. Default to ``True``.
-    scale: num or str
-        How to scale the prior. If a number, must be within 0 and 1. If a string, must be one of
-        ``"narrow"``, ``"medium"``, ``"wide"``, or ``"superwide"``. Only used when the model was
-        created with ``automatic_priors="mle"``.
     kwargs : dict
         Optional keywords specifying the parameters of the named distribution.
     """
 
-    def __init__(self, name, auto_scale=True, scale=None, **kwargs):
+    def __init__(self, name, auto_scale=True, **kwargs):
         self.name = name
         self.auto_scale = auto_scale
-        self.scale = scale
         self.args = {}
         self.update(**kwargs)
 

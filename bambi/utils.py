@@ -1,6 +1,3 @@
-from numpy.linalg import matrix_rank
-
-
 def listify(obj):
     """Wrap all non-list or tuple objects in a list.
 
@@ -22,23 +19,3 @@ def multilinify(sequence, sep=","):
     """Make a multi-line string out of a sequence of strings."""
     sep += "\n"
     return "\n" + sep.join(sequence)
-
-
-def check_full_rank(matrix):
-    """Checks if a matrix is full rank
-
-    Parameters
-    ----------
-    matrix: numpy.array
-        A 2-dimensional NumPy array that represents a design matrix
-
-    Returns
-    -------
-    None
-    """
-    assert matrix.ndim == 2
-    if matrix_rank(matrix) < matrix.shape[1]:
-        raise ValueError(
-            "Design matrix for common effects is not full-rank. "
-            "Bambi does not support sparse settings when automatic priors are obtained via MLE."
-        )

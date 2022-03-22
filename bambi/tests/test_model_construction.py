@@ -135,14 +135,6 @@ def test_model_no_response():
         Model("x", pd.DataFrame({"x": [1]}))
 
 
-def test_model_taylor_value(data_numeric_xy):
-    Model("y ~ x", data=data_numeric_xy, taylor=5)
-
-
-def test_model_alternative_scaler(data_numeric_xy):
-    Model("y ~ x", data=data_numeric_xy, automatic_priors="mle")
-
-
 def test_model_term_names_property(diabetes_data):
     model = Model("BMI ~ age_grp + BP + S1", diabetes_data)
     assert model.term_names == ["Intercept", "age_grp", "BP", "S1"]
@@ -294,30 +286,6 @@ def test_hyperprior_on_common_effect():
     priors = {"common": slope}
     with pytest.raises(ValueError):
         Model("y ~ x1 + (x1|g1)", data, priors=priors)
-
-
-def test_sparse_fails():
-    data = pd.DataFrame(
-        {
-            "y": np.random.normal(size=4),
-            "x1": np.random.normal(size=4),
-            "x2": np.random.normal(size=4),
-            "x3": np.random.normal(size=4),
-            "x4": np.random.normal(size=4),
-        }
-    )
-    with pytest.raises(ValueError, match="Design matrix for common effects is not full-rank"):
-        Model("y ~ x1 + x2 + x3 + x4", data, automatic_priors="mle")
-
-    data = pd.DataFrame(
-        {
-            "y": np.random.normal(size=4),
-            "g1": ["a", "b", "c", "d"],
-            "g2": ["a", "b", "c", "d"],
-        }
-    )
-    with pytest.raises(ValueError, match="Design matrix for common effects is not full-rank"):
-        Model("y ~ g1 + g2", data, automatic_priors="mle")
 
 
 @pytest.mark.parametrize(

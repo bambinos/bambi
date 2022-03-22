@@ -25,7 +25,7 @@ Alternatively, if you want the bleeding edge version of the package you can inst
 
 ### Dependencies
 
-Bambi requires working versions of ArviZ, formulae, NumPy, pandas, PyMC3 and statsmodels. Dependencies are listed in `requirements.txt`, and should all be installed by the Bambi installer; no further action should be required.
+Bambi requires working versions of ArviZ, formulae, NumPy, pandas, PyMC3. Dependencies are listed in `requirements.txt`, and should all be installed by the Bambi installer; no further action should be required.
 
 ## Example
 

@@ -4,8 +4,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from statsmodels.tools.sm_exceptions import PerfectSeparationError
-
 from bambi.families import Family, Likelihood
 from bambi.models import Model
 from bambi.priors import Prior
@@ -154,17 +152,6 @@ def test_family_bad_type():
 
     with pytest.raises(ValueError):
         Model("y ~ x", data, family={"family": "gaussian"})
-
-
-def test_complete_separation():
-    data = pd.DataFrame({"y": [0] * 5 + [1] * 5, "g": ["a"] * 5 + ["b"] * 5})
-
-    with pytest.raises(PerfectSeparationError):
-        Model("y ~ g", data, family="bernoulli", automatic_priors="mle")
-
-    # No error is raised
-    priors = {"common": Prior("Normal", mu=0, sigma=10)}
-    Model("y ~ g", data, family="bernoulli", priors=priors)
 
 
 def test_set_priors():
