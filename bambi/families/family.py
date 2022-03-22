@@ -84,7 +84,7 @@ class Family:
             self._link = Link(x)
             self.smlink = STATSMODELS_LINKS.get(x, None)
         elif isinstance(x, Link):
-            self.link = x
+            self._link = x
         else:
             raise ValueError(".link must be set to a string or a Link instance.")
 
