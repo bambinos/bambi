@@ -17,7 +17,10 @@
 
 ### Documentation
 
+- Add circular regression example (#465)
 - Add Categorical regression example (#457)
+- Add Beta regression example (#442)
+- Add Radon Example (#440) 
 - Fix typos and clear up writing in some docs (#462)
 - Documented the module `bambi/defaults` (#472)
 - Improved documentation and made it more consistent (#472)
