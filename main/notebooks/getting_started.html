@@ -679,7 +679,7 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">1235</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -689,7 +689,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Generator(PCG64) at 0x7FA82A01D120
+Generator(PCG64) at 0x7FDE29C69F20
 </pre></div></div>
 </div>
 </section>
@@ -731,7 +731,6 @@ Priors:
 
   Auxiliary parameters
     sigma ~ HalfStudentT(nu: 4, sigma: 1.013)
-
 </pre></div></div>
 </div>
 <p>Typically, we will initialize a Bambi <code class="docutils literal notranslate"><span class="pre">Model</span></code> by passing it a model formula and a pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>. Other arguments such as family, priors, and link are available. By default, it uses <code class="docutils literal notranslate"><span class="pre">family=&quot;gaussian&quot;</span></code> which implies a linear regression with normal error. We get back a model that we can immediately fit by calling <code class="docutils literal notranslate"><span class="pre">model.fit()</span></code>.</p>
@@ -1029,7 +1028,6 @@ Priors:
 
   Auxiliary parameters
     sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)
-
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1071,7 +1069,6 @@ Priors:
 
   Auxiliary parameters
     sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)
-
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1118,7 +1115,6 @@ Priors:
 
   Auxiliary parameters
     sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)
-
 </pre></div></div>
 </div>
 <p>Each of the above examples specifies a full model that can be fitted using PyMC3 by doing</p>
@@ -1152,29 +1148,34 @@ subject, plus N-1 condition slopes (each coded with respect to the first, omitte
 Automatically removing 33/6940 rows from the dataset.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, Intercept, gender, age, condition]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, gender, age, condition, Intercept]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:15<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 01:12<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1182,7 +1183,7 @@ NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, Intercept, gender, age, condition
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 17 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 73 seconds.
 </pre></div></div>
 </div>
 <p>The above code obtains 1,000 draws (the default value) and return them as an <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance (for more details, see the <a class="reference external" href="https://arviz-devs.github.io/arviz/schema/schema.html">ArviZ documentation</a>). In this case, the <code class="docutils literal notranslate"><span class="pre">fit()</span></code> method accepts optional keyword arguments to pass onto PyMC3’s <code class="docutils literal notranslate"><span class="pre">sample()</span></code> method, so any methods accepted by <code class="docutils literal notranslate"><span class="pre">sample()</span></code> can be specified here. We can also explicitly set the number of draws via the <code class="docutils literal notranslate"><span class="pre">draws</span></code> argument. For example, if we call
@@ -1229,151 +1230,9 @@ Automatically removing 33/6940 rows from the dataset.
 heights, a value of 3,000 cms should be assigned a probability of exactly 0).</p>
 <p>By default, Bambi will intelligently generate weakly informative priors for all model terms, by loosely scaling them to the observed data. Currently, Bambi uses a methodology very similar to the one described in the documentation of the R package <code class="docutils literal notranslate"><span class="pre">`rstanarm</span></code> &lt;<a class="reference external" href="https://mc-stan.org/rstanarm/articles/priors.html">https://mc-stan.org/rstanarm/articles/priors.html</a>&gt;`__. While the default priors will behave well in most typical settings, there are many cases where an analyst will want to specify their own priors–and in general, when informative priors
 are available, it’s a good idea to use them.</p>
-<!-- By default priors are specified on a (generalized) partial correlation scale that quantifies the expected standardized contribution of each individual term to the outcome variable when controlling for other terms. The default "wide" setting sets the scale of a common effect prior to $\sqrt{1/3} = 0.577$ on the partial correlation scale, which is the standard deviation of a flat prior from -1 to +1. This correlation-level scale value then gets translated to a Normal prior at the slope level, centered on 0 by default, with a correspondingly wide variance. This process results in a weakly informative (rather than non-informative) prior distribution whose width can be tuned in a simple, intuitive way. More detailed information about how the default priors work can be found in [this technical paper](https://arxiv.org/abs/1702.01201). --><p>You can pass <code class="docutils literal notranslate"><span class="pre">automatic_priors=&quot;mle&quot;</span></code> to the model initialization to recover the old default priors as described in <a class="reference external" href="https://arxiv.org/abs/1702.01201">this technical paper</a>. For example:</p>
+<p>Fortunately, Bambi is built on top of PyMC3, which means that we can seamlessly use any of the over 40 <code class="docutils literal notranslate"><span class="pre">Distribution</span></code> classes defined in PyMC3. We can specify such priors in Bambi using the <code class="docutils literal notranslate"><span class="pre">Prior</span></code> class, which initializes with a <code class="docutils literal notranslate"><span class="pre">name</span></code> argument (which must map on exactly to the name of a valid PyMC3 <code class="docutils literal notranslate"><span class="pre">Distribution</span></code>) followed by any of the parameters accepted by the corresponding <code class="docutils literal notranslate"><span class="pre">distribution</span></code>. For example:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add condition to the model as a common effect with a super wide prior</span>
-<span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + gender + age + (condition|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">automatic_priors</span><span class="o">=</span><span class="s2">&quot;mle&quot;</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-Automatically removing 33/6940 rows from the dataset.
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Formula: value ~ condition + gender + age + (condition|uid)
-Family name: Gaussian
-Link: identity
-Observations: 6907
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 4.5457, sigma: 10.3262)
-    condition ~ Normal(mu: 0, sigma: 4.3599)
-    gender ~ Normal(mu: 0, sigma: 4.756)
-    age ~ Normal(mu: 0, sigma: 0.4706)
-
-  Group-level effects
-    1|uid ~ Normal(mu: 0, sigma: HalfNormal(sigma: 5.9619))
-    condition|uid ~ Normal(mu: 0, sigma: HalfNormal(sigma: 4.3599))
-
-  Auxiliary parameters
-    sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)
-
-</pre></div></div>
-</div>
-<p>These old default priors are specified on a (generalized) partial correlation scale that quantifies the expected standardized contribution of each individual term to the outcome variable when controlling for other terms. The default “wide” setting sets the scale of a common effect prior to <span class="math notranslate nohighlight">\(\sqrt{1/3} = 0.577\)</span> on the partial correlation scale, which is the standard deviation of a flat prior from -1 to +1. This correlation-level scale value then gets translated to a Normal prior at the
-slope level, centered on 0 by default, with a correspondingly wide variance. This process results in a weakly informative (rather than non-informative) prior distribution whose width can be tuned in a simple, intuitive way.</p>
-<p>Predefined named scales include “superwide” (scale = 0.8), “wide” (0.577; the default), “medium” (0.4), and “narrow” (0.2). The theoretical maximum scale value is 1.0, which specifies a distribution of partial correlations with half of the values at -1 and the other half at +1. Scale values closer to 0 are considered more “informative” and tend to induce more shrinkage in the parameter estimates.</p>
-<p>In cases where we want to use the old default prior distributions, but alter their scale, we can specify either a numeric scale value or pass the name of a predefined constant. For example:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prior</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;condition&quot;</span><span class="p">:</span><span class="s2">&quot;superwide&quot;</span><span class="p">}</span>
-<span class="n">Model</span><span class="p">(</span>
-    <span class="s2">&quot;value ~ condition + gender + age + (condition|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span>
-    <span class="n">priors</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">automatic_priors</span><span class="o">=</span><span class="s2">&quot;mle&quot;</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-Automatically removing 33/6940 rows from the dataset.
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Formula: value ~ condition + gender + age + (condition|uid)
-Family name: Gaussian
-Link: identity
-Observations: 6907
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 4.5457, sigma: 10.6932)
-    condition ~ Normal(mu: 0, sigma: 7.1741)
-    gender ~ Normal(mu: 0, sigma: 4.756)
-    age ~ Normal(mu: 0, sigma: 0.4706)
-
-  Group-level effects
-    1|uid ~ Normal(mu: 0, sigma: HalfNormal(sigma: 6.1737))
-    condition|uid ~ Normal(mu: 0, sigma: HalfNormal(sigma: 7.1741))
-
-  Auxiliary parameters
-    sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)
-
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add group specific subject intercepts to the model, with a narrow prior on their standard deviation</span>
-<span class="n">prior</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;condition|ui&quot;</span><span class="p">:</span><span class="s2">&quot;0.1&quot;</span><span class="p">}</span>
-<span class="n">Model</span><span class="p">(</span>
-    <span class="s2">&quot;value ~ condition + gender + age + (condition|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span>
-    <span class="n">priors</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span> <span class="n">automatic_priors</span><span class="o">=</span><span class="s2">&quot;mle&quot;</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-Automatically removing 33/6940 rows from the dataset.
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Formula: value ~ condition + gender + age + (condition|uid)
-Family name: Gaussian
-Link: identity
-Observations: 6907
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 4.5457, sigma: 10.3262)
-    condition ~ Normal(mu: 0, sigma: 4.3599)
-    gender ~ Normal(mu: 0, sigma: 4.756)
-    age ~ Normal(mu: 0, sigma: 0.4706)
-
-  Group-level effects
-    1|uid ~ Normal(mu: 0, sigma: HalfNormal(sigma: 5.9619))
-    condition|uid ~ Normal(mu: 0, sigma: HalfNormal(sigma: 4.3599))
-
-  Auxiliary parameters
-    sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)
-
-</pre></div></div>
-</div>
-<p>The ability to specify prior scales this way is helpful, but also limited: we will sometimes find ourselves wanting to use something other than a Normal distribution to model our priors. Fortunately, Bambi is built on top of PyMC3, which means that we can seamlessly use any of the over 40 <code class="docutils literal notranslate"><span class="pre">Distribution</span></code> classes defined in PyMC3. We can specify such priors in Bambi using the <code class="docutils literal notranslate"><span class="pre">Prior</span></code> class, which initializes with a <code class="docutils literal notranslate"><span class="pre">name</span></code> argument (which must map on exactly to the name of a valid PyMC3
-<code class="docutils literal notranslate"><span class="pre">Distribution</span></code>) followed by any of the parameters accepted by the corresponding <code class="docutils literal notranslate"><span class="pre">distribution</span></code>. For example:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bambi</span> <span class="kn">import</span> <span class="n">Prior</span>
@@ -1396,7 +1255,7 @@ Automatically removing 9/6940 rows from the dataset.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1415,12 +1274,11 @@ Priors:
 
   Auxiliary parameters
     sigma ~ HalfStudentT(nu: 4, sigma: 2.4197)
-
 </pre></div></div>
 </div>
 <p>Priors specified using the <code class="docutils literal notranslate"><span class="pre">Prior</span></code> class can be nested to arbitrary depths–meaning, we can set any of a given prior’s argument to point to another <code class="docutils literal notranslate"><span class="pre">Prior</span></code> instance. This is particularly useful when specifying hierarchical priors on group specific effects, where the individual group specific slopes or intercepts are constrained to share a common source distribution:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subject_sd</span> <span class="o">=</span> <span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;HalfCauchy&quot;</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
@@ -1439,7 +1297,7 @@ Automatically removing 9/6940 rows from the dataset.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1458,144 +1316,9 @@ Priors:
 
   Auxiliary parameters
     sigma ~ HalfStudentT(nu: 4, sigma: 2.4197)
-
 </pre></div></div>
 </div>
 <p>The above prior specification indicates that the individual subject intercepts are to be treated as if they are randomly sampled from the same underlying normal distribution, where the variance of that normal distribution is parameterized by a separate hyperprior (a half-cauchy with beta = 5).</p>
-<p><strong>Note:</strong> The following describes the behavior of the <strong>old</strong> default priors that are going to be deprecated. This section is going to be removed in the future together with old default priors.</p>
-<p>Once we’ve defined custom priors for one or more terms, we need to map them onto those terms in our model. Bambi allows us to do this efficiently by passing a dictionary of term -&gt; prior mappings in a <code class="docutils literal notranslate"><span class="pre">fit()</span></code> call (and also via a separate <code class="docutils literal notranslate"><span class="pre">set_priors()</span></code> method on the <code class="docutils literal notranslate"><span class="pre">Model</span></code> class). The keys of the dictionary the names of terms, and the values are the desired priors. There are also <code class="docutils literal notranslate"><span class="pre">common</span></code> and <code class="docutils literal notranslate"><span class="pre">group_specific</span></code> arguments that make it easy to apply the same priors to all common or group
-specific effects in the model. Some examples:</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s2">&quot;y&quot;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span>
-    <span class="s2">&quot;X1&quot;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span>
-    <span class="s2">&quot;X2&quot;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span>
-    <span class="s2">&quot;X3&quot;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">50</span><span class="p">),</span>
-    <span class="s2">&quot;X4&quot;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
-<span class="p">})</span>
-</pre></div>
-</div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example 1: set each prior by name. Note that we can set the same</span>
-<span class="c1"># prior for multiple terms at once, by passing a tuple in the key.</span>
-<span class="n">priors</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;X1&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
-    <span class="s2">&quot;X2&quot;</span><span class="p">:</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
-    <span class="p">(</span><span class="s2">&quot;X3&quot;</span><span class="p">,</span> <span class="s2">&quot;X4&quot;</span><span class="p">):</span> <span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;ZeroInflatedPoisson&quot;</span><span class="p">,</span> <span class="n">theta</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">psi</span><span class="o">=</span><span class="mf">0.5</span><span class="p">),</span>
-<span class="p">}</span>
-<span class="n">Model</span><span class="p">(</span><span class="s2">&quot;y ~ X1 + X2 + (1|X3) + (1|X4)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">,</span> <span class="n">automatic_priors</span><span class="o">=</span><span class="s2">&quot;mle&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Formula: y ~ X1 + X2 + (1|X3) + (1|X4)
-Family name: Gaussian
-Link: identity
-Observations: 50
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 0.0322, sigma: 0.8434)
-    X1 ~ Normal(mu: 0, sigma: 0.3487)
-    X2 ~ Normal(mu: 0, sigma: 0.4543)
-
-  Group-level effects
-    1|X3 ~ Normal(mu: 0, sigma: HalfNormal(sigma: 0.4869))
-    1|X4 ~ Normal(mu: 0, sigma: HalfNormal(sigma: 0.4869))
-
-  Auxiliary parameters
-    sigma ~ HalfStudentT(nu: 4, sigma: 0.8346)
-
-</pre></div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Example 2: specify priors for all common effects and all group specific</span>
-<span class="c1"># effects, except for X1, which still gets its own custom prior.</span>
-<span class="n">priors</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;X1&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="s2">&quot;common&quot;</span><span class="p">:</span> <span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span> <span class="s2">&quot;group_specific&quot;</span><span class="p">:</span> <span class="s2">&quot;wide&quot;</span><span class="p">}</span>
-<span class="n">Model</span><span class="p">(</span><span class="s2">&quot;y ~ X1 + X2 + (1|X3) + (1|X4)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">,</span> <span class="n">automatic_priors</span><span class="o">=</span><span class="s2">&quot;mle&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Formula: y ~ X1 + X2 + (1|X3) + (1|X4)
-Family name: Gaussian
-Link: identity
-Observations: 50
-Priors:
-  Common-level effects
-    Intercept ~ Normal(sd: 100)
-    X1 ~ Normal(mu: 0, sigma: 0.3487)
-    X2 ~ Normal(sd: 100)
-
-  Group-level effects
-    1|X3 ~ Normal(mu: 0, sigma: HalfNormal(sigma: 0.4869))
-    1|X4 ~ Normal(mu: 0, sigma: HalfNormal(sigma: 0.4869))
-
-  Auxiliary parameters
-    sigma ~ HalfStudentT(nu: 4, sigma: 0.8346)
-
-</pre></div></div>
-</div>
-<p>Notice how this interface allows us to specify terms either by name (including passing tuples as keys in cases where we want multiple terms to share the same prior), or by term type (i.e., to set the same prior on all common or group specific effects). If we pass both named priors and common or group specific effects defaults, the former will take precedence over the latter (in the above example, the prior for <code class="docutils literal notranslate"><span class="pre">'X1'</span></code> will be <code class="docutils literal notranslate"><span class="pre">0.3</span></code>).</p>
-<p>If we prefer, we can also set priors outside of the model instantiation , using the <code class="docutils literal notranslate"><span class="pre">set_priors()</span></code> method:</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Specify model but don&#39;t build/sample just yet</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">&quot;y ~ X1 + X2 + (1|X3) + (1|X4)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">automatic_priors</span><span class="o">=</span><span class="s2">&quot;mle&quot;</span><span class="p">)</span>
-
-<span class="c1"># Specify priors—produces same result as in Example 2 above</span>
-<span class="n">model</span><span class="o">.</span><span class="n">set_priors</span><span class="p">({</span><span class="s2">&quot;X1&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">},</span> <span class="n">common</span><span class="o">=</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span> <span class="n">group_specific</span><span class="o">=</span><span class="s2">&quot;wide&quot;</span><span class="p">)</span>
-
-<span class="n">model</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Formula: y ~ X1 + X2 + (1|X3) + (1|X4)
-Family name: Gaussian
-Link: identity
-Observations: 50
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 0.0322, sigma: 0.8449)
-    X1 ~ Normal(mu: 0, sigma: 0.3487)
-    X2 ~ Normal(sd: 100)
-
-  Group-level effects
-    1|X3 ~ Normal(mu: 0, sigma: HalfNormal(sigma: 0.4869))
-    1|X4 ~ Normal(mu: 0, sigma: HalfNormal(sigma: 0.4869))
-
-  Auxiliary parameters
-    sigma ~ HalfStudentT(nu: 4, sigma: 0.8346)
-
-</pre></div></div>
-</div>
 <p>It’s important to note that explicitly setting priors by passing in <code class="docutils literal notranslate"><span class="pre">Prior</span></code> objects will disable Bambi’s default behavior of scaling priors to the data in order to ensure that they remain weakly informative. This means that if you specify your own prior, you have to be sure not only to specify the distribution you want, but also any relevant scale parameters. For example, the 0.5 in <code class="docutils literal notranslate"><span class="pre">Prior(&quot;Normal&quot;,</span> <span class="pre">mu=0,</span> <span class="pre">sd=0.5)</span></code> will be specified on the scale of the data, not the bounded partial
 correlation scale that Bambi uses for default priors. This means that if your outcome variable has a mean value of 10,000 and a standard deviation of, say, 1,000, you could potentially have some problems getting the model to produce reasonable estimates, since from the perspective of the data, you’re specifying an extremely strong prior.</p>
 </section>
@@ -1603,7 +1326,7 @@ correlation scale that Bambi uses for default priors. This means that if your ou
 <h2>Generalized linear mixed models<a class="headerlink" href="#Generalized-linear-mixed-models" title="Permalink to this headline">¶</a></h2>
 <p>Bambi supports the construction of mixed models with non-normal response distributions (i.e., generalized linear mixed models, or GLMMs). GLMMs are specified in the same way as LMMs, except that the user must specify the distribution to use for the response, and (optionally) the link function with which to transform the linear model prediction into the desired non-normal response. The easiest way to construct a GLMM is to simple set the <code class="docutils literal notranslate"><span class="pre">family</span></code> when creating the model:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;http://www.karlin.mff.cuni.cz/~pesta/prednasky/NMFM404/Data/binary.csv&quot;</span><span class="p">)</span>
@@ -1620,29 +1343,34 @@ correlation scale that Bambi uses for default priors. This means that if your ou
 Modeling the probability that admit==1
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [Intercept, rank, gpa, gre]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [rank, gpa, gre, Intercept]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:04<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:23<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1650,7 +1378,7 @@ NUTS: [Intercept, rank, gpa, gre]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 24 seconds.
 </pre></div></div>
 </div>
 <p>If no <code class="docutils literal notranslate"><span class="pre">link</span></code> argument is explicitly set (see below), the canonical link function (or an otherwise sensible default) will be used. The following table summarizes the currently available families and their associated links:</p>
@@ -1715,10 +1443,10 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <p>Following the convention used in many R packages, the response distribution to use for a GLMM is specified in a <code class="docutils literal notranslate"><span class="pre">Family</span></code> class that indicates how the response variable is distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility. In the following example, we show how the
 built-in Bernoulli family could be constructed on-the-fly:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">theano.tensor</span> <span class="k">as</span> <span class="nn">tt</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pymc3</span> <span class="k">as</span> <span class="nn">pm</span>
 
 <span class="kn">from</span> <span class="nn">bambi</span> <span class="kn">import</span> <span class="n">Family</span><span class="p">,</span> <span class="n">Likelihood</span><span class="p">,</span> <span class="n">Link</span>
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
@@ -1738,12 +1466,13 @@ built-in Bernoulli family could be constructed on-the-fly:</p>
 <span class="c1"># link: A function that maps the response to the linear predictor</span>
 <span class="c1"># linkinv: A function that maps the linear predictor to the response</span>
 <span class="c1"># linkinv_backend: A function that maps the linear predictor to the response</span>
-<span class="c1">#                  that works with Theano tensors</span>
+<span class="c1">#                  that works with Theano tensors.</span>
+<span class="c1">#                  pm.math.sigmoid is a Theano tensor function wrapped by PyMC3</span>
 <span class="n">link</span> <span class="o">=</span> <span class="n">Link</span><span class="p">(</span>
     <span class="s2">&quot;my_logit&quot;</span><span class="p">,</span>
     <span class="n">link</span><span class="o">=</span><span class="n">special</span><span class="o">.</span><span class="n">expit</span><span class="p">,</span>
     <span class="n">linkinv</span><span class="o">=</span><span class="n">special</span><span class="o">.</span><span class="n">logit</span><span class="p">,</span>
-    <span class="n">linkinv_backend</span><span class="o">=</span><span class="n">tt</span><span class="o">.</span><span class="n">nnet</span><span class="o">.</span><span class="n">sigmoid</span>
+    <span class="n">linkinv_backend</span><span class="o">=</span><span class="n">pm</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sigmoid</span>
 <span class="p">)</span>
 
 <span class="c1"># Construct the family -------------------------------------------</span>
@@ -1761,32 +1490,36 @@ built-in Bernoulli family could be constructed on-the-fly:</p>
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Modeling the probability that admit==1
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [Intercept, rank, gpa, gre]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [rank, gpa, gre, Intercept]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:04<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:21<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1794,7 +1527,7 @@ NUTS: [Intercept, rank, gpa, gre]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 22 seconds.
 </pre></div></div>
 </div>
 <p>The above example produces results identical to simply setting <code class="docutils literal notranslate"><span class="pre">family='bernoulli'</span></code>.</p>
@@ -1808,7 +1541,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <h2>Plotting<a class="headerlink" href="#Plotting" title="Permalink to this headline">¶</a></h2>
 <p>To visualize a plot of the posterior estimates and sample traces for all parameters, simply pass the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object to the arviz function <code class="docutils literal notranslate"><span class="pre">az._plot_trace</span></code>:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
@@ -1819,7 +1552,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_getting_started_47_0.png" src="../_images/notebooks_getting_started_47_0.png" />
+<img alt="../_images/notebooks_getting_started_38_0.png" src="../_images/notebooks_getting_started_38_0.png" />
 </div>
 </div>
 <p>More details on this plot are available in the <a class="reference external" href="https://arviz-devs.github.io/arviz/_modules/arviz/plots/traceplot.html">ArviZ documentation</a>.</p>
@@ -1828,7 +1561,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <h2>Summarizing<a class="headerlink" href="#Summarizing" title="Permalink to this headline">¶</a></h2>
 <p>If you prefer numerical summaries of the posterior estimates, you can use the <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code> function from <a class="reference external" href="https://arviz-devs.github.io/arviz/generated/arviz.summary.html#arviz.summary">ArviZ</a> which provides a pandas DataFrame with some key summary and diagnostics info on the model parameters, such as the 94% highest posterior density intervals:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
@@ -1836,7 +1569,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1872,14 +1605,14 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-3.508</td>
-      <td>1.137</td>
-      <td>-5.570</td>
-      <td>-1.369</td>
-      <td>0.020</td>
-      <td>0.015</td>
-      <td>3124.0</td>
-      <td>1636.0</td>
+      <td>-3.470</td>
+      <td>1.212</td>
+      <td>-5.720</td>
+      <td>-1.149</td>
+      <td>0.016</td>
+      <td>0.012</td>
+      <td>5937.0</td>
+      <td>3118.0</td>
       <td>1.0</td>
     </tr>
     <tr>
@@ -1890,32 +1623,32 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
       <td>0.004</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2340.0</td>
-      <td>1549.0</td>
+      <td>4265.0</td>
+      <td>3133.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>gpa</th>
-      <td>0.790</td>
-      <td>0.337</td>
-      <td>0.121</td>
-      <td>1.374</td>
-      <td>0.007</td>
+      <td>0.783</td>
+      <td>0.345</td>
+      <td>0.127</td>
+      <td>1.432</td>
       <td>0.005</td>
-      <td>2410.0</td>
-      <td>1624.0</td>
+      <td>0.004</td>
+      <td>4388.0</td>
+      <td>3084.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>rank</th>
       <td>-0.567</td>
-      <td>0.131</td>
-      <td>-0.801</td>
-      <td>-0.311</td>
+      <td>0.128</td>
+      <td>-0.802</td>
+      <td>-0.316</td>
       <td>0.002</td>
-      <td>0.002</td>
-      <td>2764.0</td>
-      <td>1410.0</td>
+      <td>0.001</td>
+      <td>5655.0</td>
+      <td>3139.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1924,7 +1657,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <p>If you want to view summaries or plots for specific parameters, you can pass a list of its names:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># show the names of all variables stored in the InferenceData object</span>
@@ -1933,7 +1666,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1946,14 +1679,6 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <section id="Accessing-back-end-objects">
 <h2>Accessing back-end objects<a class="headerlink" href="#Accessing-back-end-objects" title="Permalink to this headline">¶</a></h2>
 <p>Bambi is just a high-level interface to PyMC3. As such, Bambi internally stores virtually all objects generated by PyMC3, making it easy for users to retrieve, inspect, and modify those objects. For example, the <code class="docutils literal notranslate"><span class="pre">Model</span></code> class created by PyMC3 (as opposed to the Bambi class of the same name) is accessible from <code class="docutils literal notranslate"><span class="pre">model.backend.model</span></code>.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
-</div>
 </section>
 </section>
 
