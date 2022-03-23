@@ -16,9 +16,9 @@ from formulae import design_matrices
 from .backend import PyMC3Model
 from .defaults import get_default_prior, get_builtin_family
 from .families import Family, univariate, multivariate
-from .priors import Prior, PriorScaler, PriorScalerMLE
+from .priors import Prior, PriorScaler
 from .terms import GroupSpecificTerm, ResponseTerm, Term
-from .utils import check_full_rank, listify
+from .utils import listify
 from .version import __version__
 
 _log = logging.getLogger("bambi")
@@ -44,8 +44,7 @@ class Model:
     priors : dict
         Optional specification of priors for one or more terms. A dictionary where the keys are
         the names of terms in the model, "common" or "group_specific" and the values are
-        instances of class ``Prior`` when ``automatic_priors`` is ``"default"``, or either
-        ``Prior``, ``int``, ``float``, or ``str`` when ``automatic_priors`` is ``"mle"``.
+        instances of class ``Prior`` when ``automatic_priors`` is ``"default"``.
     link : str
         The name of the link function to use. Valid names are ``"cloglog"``, ``"identity"``,
         ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, ``"probit"``, and
@@ -72,9 +71,8 @@ class Model:
         (to be weakly informative) any time default priors are used. Note that any priors
         explicitly set by the user will always take precedence over default priors.
     automatic_priors: str
-        An optional specification to compute/scale automatic priors. ``"default"`` means to use
-        a method inspired on the R rstanarm library. ``"mle"`` means to use old default priors in
-        Bambi that rely on maximum likelihood estimations obtained via the statsmodels library.
+        An optional specification to compute automatic priors. ``"default"`` means to use
+        a method inspired on the R rstanarm library.
     noncentered : bool
         If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on
         grouped parameters. If ``False``, naive (centered) parameterization is used.
@@ -83,13 +81,6 @@ class Model:
         terms. Keys in the dictionary indicate the groups, and values indicate the value of eta.
         This is a very experimental feature. Defaults to ``None``, which means priors for the
         group-specific terms are independent.
-    taylor : int
-        Order of Taylor expansion to use in approximate variance when constructing the default
-        priors when ``automatic_priors`` is ``"mle"``. Should be between 1 and 13. Lower values are
-        less accurate, tending to undershoot the correct prior width, but are faster to compute and
-        more stable. Odd-numbered values tend to work better. Defaults to 5 for Normal models and
-        1 for non-Normal models. Values higher than the defaults are generally not recommended as
-        they can be unstable.
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -107,7 +98,6 @@ class Model:
         automatic_priors="default",
         noncentered=True,
         priors_cor=None,
-        taylor=None,
     ):
         # attributes that are set later
         self.terms = {}
@@ -126,7 +116,6 @@ class Model:
 
         self.auto_scale = auto_scale
         self.dropna = dropna
-        self.taylor = taylor
         self.noncentered = noncentered
         self.potentials = potentials
 
@@ -172,8 +161,6 @@ class Model:
         self._add_response(self._design.response)
 
         if self._design.common:
-            if self.automatic_priors == "mle":
-                check_full_rank(self._design.common.design_matrix)
             self._add_common(self._design.common, priors)
 
         if self._design.group:
@@ -341,15 +328,9 @@ class Model:
             method = self.automatic_priors
             if method == "default":
                 scaler = PriorScaler(self)
-            elif method == "mle":
-                if self.taylor is not None:
-                    taylor = self.taylor
-                else:
-                    taylor = 5 if isinstance(self.family, univariate.Gaussian) else 1
-                scaler = PriorScalerMLE(self, taylor=taylor)
             else:
                 raise ValueError(
-                    f"{method} is not a valid method for default priors. Use 'default' or 'mle'."
+                    f"{method} is not a valid method for default priors. Use 'default'."
                 )
             self.scaler = scaler
             self.scaler.scale()
@@ -382,7 +363,7 @@ class Model:
 
             # Prepare priors for explanatory terms.
             for names, prior in priors.items():
-                # In case we have tuple-keys, we loop throuh each of them.
+                # In case we have tuple-keys, we loop through each of them.
                 for name in listify(names):
                     if name not in self.terms:
                         raise ValueError(f"No terms in model match '{name}'.")
@@ -412,9 +393,7 @@ class Model:
             (i.e. they cannot be equal to ``family.parent``) and values can be an instance of class
             ``Prior``, a numeric value, or a string describing the width. In the numeric case,
             the distribution specified in the defaults will be used, and the passed value will be
-            used to scale the appropriate variance parameter. Strings, which are only available when
-            ``automatic_priors`` is ``"mle"``and can be one of ``"wide"``, ``"narrow"``,
-            ``"medium"``, or ``"superwide"``), predefined values will be used.
+            used to scale the appropriate variance parameter.
         """
 
         # If string, get builtin family

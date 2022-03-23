@@ -396,7 +396,6 @@ def test_prior_predictive(crossed_data):
         "count ~ threecats + continuous + dummy",
         crossed_data,
         family="poisson",
-        automatic_priors="mle",
     )
     model.fit(tune=0, draws=2)
     pps = model.prior_predictive(draws=500)
