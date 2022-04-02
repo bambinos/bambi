@@ -869,17 +869,23 @@ class Model:
                 # 1-dimensional expr (the great majority: a single slope or intercept)
                 if len(shape) == 3:
                     shape = (shape[0] * shape[1], shape[2])
+                    values = values.reshape(shape)
                 # 2-dimensional predictors (e.g. spline basis and multivariate models)
                 else:
                     if isinstance(self.family, multivariate.Categorical):
                         response_n = len(self.response.levels) - 1
                         p = np.prod(shape[2:]) // response_n
                         shape = (shape[0] * shape[1], p, response_n)
+                        values = values.reshape(shape)
                     # Group specific effect with categorical expr
                     else:
-                        shape = (shape[0] * shape[1], shape[2] * shape[3])
+                        # Needs to be reshaped in two steps.
+                        # Second stage uses order="F", see issue #477.
+                        shape_1 = (shape[0] * shape[1], shape[2], shape[3])
+                        shape_2 = (shape[0] * shape[1], shape[2] * shape[3])
+                        values = values.reshape(shape_1).reshape(shape_2, order="F")
 
-                beta_z_list.append(values.reshape(shape))
+                beta_z_list.append(values)
 
             # 'beta_z' is of shape:
             # * (chain_n * draw_n, p) for univariate
