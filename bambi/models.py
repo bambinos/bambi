@@ -754,7 +754,9 @@ class Model:
         return idata
 
     # pylint: disable=protected-access
-    def predict(self, idata, kind="mean", data=None, draws=None, inplace=True, with_group_specific=True):
+    def predict(
+        self, idata, kind="mean", data=None, draws=None, inplace=True, include_group_specific=True
+    ):
         """Predict method for Bambi models
 
         Obtains in-sample and out-of-sample predictions from a fitted Bambi model.
@@ -772,7 +774,7 @@ class Model:
         data: pandas.DataFrame or None
             An optional data frame with values for the predictors that are used to obtain
             out-of-sample predictions. If omitted, the original dataset is used.
-        with_group_specific: bool
+        include_group_specific: bool
             If ``True`` make predictions including the group specific effects. Otherwise,
             predictions are made with common effects only (i.e. group specific are set
             to zero).
@@ -815,7 +817,7 @@ class Model:
             else:
                 X = self._design.common._evaluate_new_data(data).design_matrix
 
-        if self._design.group and with_group_specific:
+        if self._design.group and include_group_specific:
             if in_sample:
                 Z = self._design.group.design_matrix
             else:
