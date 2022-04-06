@@ -8,26 +8,23 @@
 
     <title>Categorical Regression &#8212; Bambi 0.7.1 documentation</title>
     
-    <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-  
+
     
-    <link rel="stylesheet"
-      href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
-    <link rel="preload" as="font" type="font/woff2" crossorigin
-      href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
-    <link rel="preload" as="font" type="font/woff2" crossorigin
-      href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
-  
-    
-      
-  
-    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/pydata-sphinx-theme.css" />
     
-    <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
-  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
@@ -46,7 +43,7 @@
     <!-- Google Analytics -->
     
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
     
     <div class="container-fluid" id="banner"></div>
 
@@ -282,7 +279,7 @@
               
               <div class="toc-item">
                 
-<div class="tocsection onthispage pt-5 pb-3">
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
     <i class="fas fa-list"></i> On this page
 </div>
 
@@ -580,7 +577,7 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <section id="Categorical-Regression">
-<h1>Categorical Regression<a class="headerlink" href="#Categorical-Regression" title="Permalink to this headline">¶</a></h1>
+<h1>Categorical Regression<a class="headerlink" href="#Categorical-Regression" title="Permalink to this headline">#</a></h1>
 <p>In this example, we will use the categorical family to model outcomes with more than two categories. The examples in this notebook were constructed by Tomás Capretto, and assembled into this example by Tyler James Burch (<a class="reference external" href="https://github.com/tjburch">&#64;tjburch</a> on GitHub).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -608,7 +605,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>When modeling binary outcomes with Bambi, the Bernoulli family is used. The multivariate generalization of the Bernoulli family is the Categorical family, and with it, we can model an arbitrary number of outcome categories.</p>
 <section id="Example-with-toy-data">
-<h2>Example with toy data<a class="headerlink" href="#Example-with-toy-data" title="Permalink to this headline">¶</a></h2>
+<h2>Example with toy data<a class="headerlink" href="#Example-with-toy-data" title="Permalink to this headline">#</a></h2>
 <p>To start, we will create a toy dataset with three classes.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -788,7 +785,7 @@ The above exception was the direct cause of the following exception:
 <p>Here, we can notice that the probability phases betweeen classes from left to right. At all points across <span class="math notranslate nohighlight">\(x\)</span>, sum of the class probabilities is 1, since in our generative model, it must be one of these three outcomes.</p>
 </section>
 <section id="The-iris-dataset">
-<h2>The iris dataset<a class="headerlink" href="#The-iris-dataset" title="Permalink to this headline">¶</a></h2>
+<h2>The iris dataset<a class="headerlink" href="#The-iris-dataset" title="Permalink to this headline">#</a></h2>
 <p>Next, we will look at the classic “iris” dataset, which contains samples from 3 different species of iris plants. Using properties of the plant, we will try to model its species.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
@@ -1115,7 +1112,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <p>We can see that this has fit quite nicely. You’ll notice there are <span class="math notranslate nohighlight">\(n-1\)</span> parameters to fit, where <span class="math notranslate nohighlight">\(n\)</span> is the number of categories. In the minimal binary case, recall there’s only one parameter set, since it models probability <span class="math notranslate nohighlight">\(p\)</span> of being in a class, and probability <span class="math notranslate nohighlight">\(1-p\)</span> of being in the other class. Using the categorical distribution, this extends, so we have <span class="math notranslate nohighlight">\(p_1\)</span> for class 1, <span class="math notranslate nohighlight">\(p_2\)</span> for class 2, and <span class="math notranslate nohighlight">\(1-(p_1+p_2)\)</span> for the final class.</p>
 </section>
 <section id="Using-numerical-and-categorical-predictors">
-<h2>Using numerical and categorical predictors<a class="headerlink" href="#Using-numerical-and-categorical-predictors" title="Permalink to this headline">¶</a></h2>
+<h2>Using numerical and categorical predictors<a class="headerlink" href="#Using-numerical-and-categorical-predictors" title="Permalink to this headline">#</a></h2>
 <p>Next we will look at an example from chapter 8 of Alan Agresti’s <em>Categorical Data Analysis</em>, looking at the primary food choice for 64 alligators caught in Lake George, Florida. We will use their length (a continuous variable) and sex (a categorical variable) as predictors to model their food choice.</p>
 <p>First, reproducing the dataset,</p>
 <div class="nbinput docutils container">
@@ -1328,7 +1325,7 @@ class.</p>
 </div>
 <p>which depicts posterior predicted probability for each possible food choice for an alligator, which reinforces fish being the most likely food choice, followed by invertebrates.</p>
 <section id="References">
-<h3>References<a class="headerlink" href="#References" title="Permalink to this headline">¶</a></h3>
+<h3>References<a class="headerlink" href="#References" title="Permalink to this headline">#</a></h3>
 <p>Agresti, A. (2013) Categorical Data Analysis. 3rd Edition, John Wiley &amp; Sons Inc., Hoboken.</p>
 </section>
 </section>
@@ -1362,8 +1359,9 @@ class.</p>
       </div>
     </div>
   
-    <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
-  <footer class="footer mt-5 mt-md-0">
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
@@ -1374,7 +1372,7 @@ class.</p>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
 </p>
     </div>
     

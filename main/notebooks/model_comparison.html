@@ -8,26 +8,23 @@
 
     <title>Logistic Regression and Model Comparison with Bambi and ArviZ &#8212; Bambi 0.7.1 documentation</title>
     
-    <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-  
+
     
-    <link rel="stylesheet"
-      href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
-    <link rel="preload" as="font" type="font/woff2" crossorigin
-      href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
-    <link rel="preload" as="font" type="font/woff2" crossorigin
-      href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
-  
-    
-      
-  
-    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/pydata-sphinx-theme.css" />
     
-    <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
-  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
@@ -46,7 +43,7 @@
     <!-- Google Analytics -->
     
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
     
     <div class="container-fluid" id="banner"></div>
 
@@ -282,7 +279,7 @@
               
               <div class="toc-item">
                 
-<div class="tocsection onthispage pt-5 pb-3">
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
     <i class="fas fa-list"></i> On this page
 </div>
 
@@ -600,9 +597,9 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <section id="Logistic-Regression-and-Model-Comparison-with-Bambi-and-ArviZ">
-<h1>Logistic Regression and Model Comparison with Bambi and ArviZ<a class="headerlink" href="#Logistic-Regression-and-Model-Comparison-with-Bambi-and-ArviZ" title="Permalink to this headline">¶</a></h1>
+<h1>Logistic Regression and Model Comparison with Bambi and ArviZ<a class="headerlink" href="#Logistic-Regression-and-Model-Comparison-with-Bambi-and-ArviZ" title="Permalink to this headline">#</a></h1>
 <section id="Adults-dataset">
-<h2>Adults dataset<a class="headerlink" href="#Adults-dataset" title="Permalink to this headline">¶</a></h2>
+<h2>Adults dataset<a class="headerlink" href="#Adults-dataset" title="Permalink to this headline">#</a></h2>
 <div class="line-block">
 <div class="line">The <a class="reference external" href="http://archive.ics.uci.edu/ml/datasets/Adult">adults dataset</a> is comprised of census data from 1994 in United States.</div>
 <div class="line">The goal is to use demographic variables to predict whether an individual makes more than $50,000 per year.</div>
@@ -1024,7 +1021,7 @@ memory usage: 604.7 KB
 </div>
 </section>
 <section id="The-model">
-<h2>The model<a class="headerlink" href="#The-model" title="Permalink to this headline">¶</a></h2>
+<h2>The model<a class="headerlink" href="#The-model" title="Permalink to this headline">#</a></h2>
 <p>We will use a logistic regression model to estimate the probability of making more than \$50K as a function of age, hours of work per week, sex, race and education level.</p>
 <p>If we have a binary response variable <span class="math notranslate nohighlight">\(Y\)</span> and a set of predictors or explanatory variables <span class="math notranslate nohighlight">\(X_1, X_2, \cdots, X_p\)</span> the logistic regression model can be defined as follows:</p>
 <div class="math notranslate nohighlight">
@@ -1049,7 +1046,7 @@ memory usage: 604.7 KB
 <p>But this is a Bambi example, right? Let’s see how Bambi can helps us to build a logistic regression model.</p>
 </section>
 <section id="Model-1:">
-<h2>Model 1:<a class="headerlink" href="#Model-1:" title="Permalink to this headline">¶</a></h2>
+<h2>Model 1:<a class="headerlink" href="#Model-1:" title="Permalink to this headline">#</a></h2>
 <div class="math notranslate nohighlight">
 \[\log{\left(\frac{\pi}{1 - \pi}\right)} = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_3 + \beta_4 X_4\]</div>
 <p>Where:</p>
@@ -1239,7 +1236,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 </section>
 <section id="Model-2">
-<h2>Model 2<a class="headerlink" href="#Model-2" title="Permalink to this headline">¶</a></h2>
+<h2>Model 2<a class="headerlink" href="#Model-2" title="Permalink to this headline">#</a></h2>
 <div class="math notranslate nohighlight">
 \[\log{\left(\frac{\pi}{1 - \pi}\right)} = \beta_0 + \beta_1 X_1 + \beta_2 X_1^2 + \beta_3 X_2 + \beta_4 X_2^2
                                          + \beta_5 X_3 + \beta_6 X_4\]</div>
@@ -1438,7 +1435,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 </section>
 <section id="Model-3">
-<h2>Model 3<a class="headerlink" href="#Model-3" title="Permalink to this headline">¶</a></h2>
+<h2>Model 3<a class="headerlink" href="#Model-3" title="Permalink to this headline">#</a></h2>
 <div class="math notranslate nohighlight">
 \[\log{\left(\frac{\pi}{1 - \pi}\right)} = \beta_0 + \beta_1 X_1 + \beta_2 X_1^2 + \beta_3 X_1^3 + \beta_4 X_2
                                          + \beta_5 X_2^2 + \beta_6 X_2^3 + \beta_7 X_3 + \beta_8 X_4\]</div>
@@ -1665,7 +1662,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 </section>
 <section id="Model-comparison">
-<h2>Model comparison<a class="headerlink" href="#Model-comparison" title="Permalink to this headline">¶</a></h2>
+<h2>Model comparison<a class="headerlink" href="#Model-comparison" title="Permalink to this headline">#</a></h2>
 <p>We can perform a Bayesian model comparison very easily with <code class="docutils literal notranslate"><span class="pre">az.compare()</span></code>. Here we pass a dictionary with the InferenceData objects that <code class="docutils literal notranslate"><span class="pre">Model.fit()</span></code> returned and <code class="docutils literal notranslate"><span class="pre">az.compare()</span></code> returns a data frame that is ordered from best to worst according to the criteria used. By default, ArviZ uses <em>loo</em>, which is an estimation of leave one out cross validation. Another option is the widely applicable information criterion (WAIC). For more information about the information criterias available and
 other options within the function <a class="reference external" href="https://arviz-devs.github.io/arviz/api/generated/arviz.compare.html">see the docs</a>.</p>
 <div class="nbinput docutils container">
@@ -1785,7 +1782,7 @@ other options within the function <a class="reference external" href="https://ar
 achieve with this dataset. If you want, you could also try to add other predictors, such as education level and see how it impacts in the model comparison :).</p>
 </section>
 <section id="Probability-estimation">
-<h2>Probability estimation<a class="headerlink" href="#Probability-estimation" title="Permalink to this headline">¶</a></h2>
+<h2>Probability estimation<a class="headerlink" href="#Probability-estimation" title="Permalink to this headline">#</a></h2>
 <p>In this section we plot age vs the probability of making more than 50K a year given different profiles.</p>
 <p>We set hours of work per week at 40 hours and assign a grid from 18 to 75 age. They’re standardized because they were standardized when we fitted the model.</p>
 <p>Here we use <code class="docutils literal notranslate"><span class="pre">az.plot_hdi()</span></code> to get Highest Density Interval plots. We get two bands for each profile. One corresponds to an hdi probability of 0.94 (the default) and the other to an hdi probability of 0.5.</p>
@@ -1836,7 +1833,7 @@ achieve with this dataset. If you want, you could also try to add other predicto
 </div>
 <p>The highest posterior density bands show how the probability of earning more than 50K changes with age for a given profile. In all the cases, we see the probability of making more than $50K increases with age until approximately age 52, when the probability begins to drop off. We can interpret narrow portions of a curve as places where we have low uncertainty and spread out portions of the bands as places where we have somewhat higher uncertainty about our coefficient values.</p>
 <section id="Final-remarks">
-<h3>Final remarks<a class="headerlink" href="#Final-remarks" title="Permalink to this headline">¶</a></h3>
+<h3>Final remarks<a class="headerlink" href="#Final-remarks" title="Permalink to this headline">#</a></h3>
 <p>In this notebook we’ve seen how easy it is to incorporate ArviZ into a Bambi workflow to perform model comparison based on information criterias such as <strong>LOO</strong> and <strong>WAIC</strong>. However, an attentive reader might have seen that the highest density interval plot never shows a predicted probability greater than 0.5 (which is not good if we expect to predict that at least some people working 40hrs/wk make more than \$50k/yr). You can increase the hours of work per week for the profiles we’ve used and
 the HDIs will show larger values. But we won’t be seeing the whole picture.</p>
 <p>Although we’re using some demographic variables such as <strong>sex</strong> and <strong>race</strong>, the cells resulting from the combinations of their levels are still very heterogeneous. For example, we are mixing individuals of all educational levels. A possible next step is to <strong>incorporate education</strong> into the different models we compared. If any of the readers (yes, you!) is interested in doing so, here there are some notes that may help</p>
@@ -1918,8 +1915,9 @@ Watermark: 2.1.0
       </div>
     </div>
   
-    <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
-  <footer class="footer mt-5 mt-md-0">
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
@@ -1930,7 +1928,7 @@ Watermark: 2.1.0
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
 </p>
     </div>
     

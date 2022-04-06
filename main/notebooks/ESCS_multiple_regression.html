@@ -8,26 +8,23 @@
 
     <title>Multiple linear regression &#8212; Bambi 0.7.1 documentation</title>
     
-    <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-  
+
     
-    <link rel="stylesheet"
-      href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
-    <link rel="preload" as="font" type="font/woff2" crossorigin
-      href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
-    <link rel="preload" as="font" type="font/woff2" crossorigin
-      href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
-  
-    
-      
-  
-    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/pydata-sphinx-theme.css" />
     
-    <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
-  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
@@ -46,7 +43,7 @@
     <!-- Google Analytics -->
     
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
     
     <div class="container-fluid" id="banner"></div>
 
@@ -282,7 +279,7 @@
               
               <div class="toc-item">
                 
-<div class="tocsection onthispage pt-5 pb-3">
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
     <i class="fas fa-list"></i> On this page
 </div>
 
@@ -588,7 +585,7 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <section id="Multiple-linear-regression">
-<h1>Multiple linear regression<a class="headerlink" href="#Multiple-linear-regression" title="Permalink to this headline">¶</a></h1>
+<h1>Multiple linear regression<a class="headerlink" href="#Multiple-linear-regression" title="Permalink to this headline">#</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -612,7 +609,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <section id="Load-and-examine-Eugene-Springfield-community-sample-data">
-<h2>Load and examine Eugene-Springfield community sample data<a class="headerlink" href="#Load-and-examine-Eugene-Springfield-community-sample-data" title="Permalink to this headline">¶</a></h2>
+<h2>Load and examine Eugene-Springfield community sample data<a class="headerlink" href="#Load-and-examine-Eugene-Springfield-community-sample-data" title="Permalink to this headline">#</a></h2>
 <p>Bambi comes with several datasets. These can be accessed via the <code class="docutils literal notranslate"><span class="pre">load_data()</span></code> function.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -828,7 +825,7 @@ div.rendered_html tbody tr:hover {
 <p>We can easily see all the predictors are more or less symmetrically distributed without outliers and the pairwise correlations between them are not strong.</p>
 </section>
 <section id="Specify-model-and-examine-priors">
-<h2>Specify model and examine priors<a class="headerlink" href="#Specify-model-and-examine-priors" title="Permalink to this headline">¶</a></h2>
+<h2>Specify model and examine priors<a class="headerlink" href="#Specify-model-and-examine-priors" title="Permalink to this headline">#</a></h2>
 <p>We’re going to fit a pretty straightforward additive multiple regression model predicting drug index from all 5 personality dimension scores. It’s simple to specify the model using a familiar formula interface. Here we also tell Bambi to run two parallel Markov Chain Monte Carlo (MCMC) chains, each one with 2000 draws. The first 1000 draws are tuning steps that we discard and the last 1000 draws are considered to be taken from the joint posterior distribution of all the parameters (to be
 confirmed when we analyze the convergence of the chains).</p>
 <div class="nbinput docutils container">
@@ -977,7 +974,7 @@ Priors:
 the partial correlation scale!</p>
 </section>
 <section id="Examine-the-model-results">
-<h2>Examine the model results<a class="headerlink" href="#Examine-the-model-results" title="Permalink to this headline">¶</a></h2>
+<h2>Examine the model results<a class="headerlink" href="#Examine-the-model-results" title="Permalink to this headline">#</a></h2>
 <p>Let’s start with a pretty picture of the parameter estimates!</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
@@ -1131,7 +1128,7 @@ we would be concerned about the convergence of the chains.</p>
 <p>When there are multiple MCMC chains, the default summary output includes some basic convergence diagnostic info (the effective MCMC sample sizes and the Gelman-Rubin “R-hat” statistics), although in this case it’s pretty clear from the trace plots above that the chains have converged just fine.</p>
 </section>
 <section id="Summarize-effects-on-partial-correlation-scale">
-<h2>Summarize effects on partial correlation scale<a class="headerlink" href="#Summarize-effects-on-partial-correlation-scale" title="Permalink to this headline">¶</a></h2>
+<h2>Summarize effects on partial correlation scale<a class="headerlink" href="#Summarize-effects-on-partial-correlation-scale" title="Permalink to this headline">#</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
@@ -1619,7 +1616,7 @@ Data variables:
 </div>
 </section>
 <section id="Relative-importance:-Which-predictors-have-the-strongest-effects-(defined-in-terms-of-squared-partial-correlation?">
-<h2>Relative importance: Which predictors have the strongest effects (defined in terms of squared partial correlation?<a class="headerlink" href="#Relative-importance:-Which-predictors-have-the-strongest-effects-(defined-in-terms-of-squared-partial-correlation?" title="Permalink to this headline">¶</a></h2>
+<h2>Relative importance: Which predictors have the strongest effects (defined in terms of squared partial correlation?<a class="headerlink" href="#Relative-importance:-Which-predictors-have-the-strongest-effects-(defined-in-terms-of-squared-partial-correlation?" title="Permalink to this headline">#</a></h2>
 <p>We just take the square of the partial correlation coefficients, so it’s easy to get posteriors on that scale too:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
@@ -2448,7 +2445,7 @@ array(0.7405)</pre><div class='xr-wrap' hidden><div class='xr-header'><div class
 </div>
 </section>
 <section id="Posterior-Predictive">
-<h2>Posterior Predictive<a class="headerlink" href="#Posterior-Predictive" title="Permalink to this headline">¶</a></h2>
+<h2>Posterior Predictive<a class="headerlink" href="#Posterior-Predictive" title="Permalink to this headline">#</a></h2>
 <p>Once we have computed the posterior distribution, we can use it to compute the posterior predictive distribution. As the name implies, these are predictions assuming the model’s parameter are distributed as the posterior. Thus, the posterior predictive includes the uncertainty about the parameters.</p>
 <p>With bambi we can use the model’s <code class="docutils literal notranslate"><span class="pre">predict()</span></code> method with the fitted az.InferenceData to generate a posterior predictive samples, which are then automatically added to the az.InferenceData object</p>
 <div class="nbinput docutils container">
@@ -4936,8 +4933,9 @@ Watermark: 2.1.0
       </div>
     </div>
   
-    <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
-  <footer class="footer mt-5 mt-md-0">
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
@@ -4948,7 +4946,7 @@ Watermark: 2.1.0
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.4.0.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
 </p>
     </div>
     
