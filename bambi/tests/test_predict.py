@@ -252,3 +252,32 @@ def test_predict_categorical_group_specific():
 
     assert idata.posterior.y_mean.values.shape == (2, 100, 100)
     assert (idata.posterior.y_mean.values > 0).all() and (idata.posterior.y_mean.values < 1).all()
+
+
+def test_predict_include_group_specific():
+    rng = np.random.default_rng(1234)
+    size = 100
+
+    data = pd.DataFrame(
+        {
+            "y": rng.choice([0, 1], size=size),
+            "x1": rng.choice(list("abcd"), size=size),
+        }
+    )
+
+    model = Model("y ~ 1 + (1|x1)", data, family="bernoulli")
+    idata = model.fit(tune=100, draws=100, chains=2, random_seed=1234)
+    idata_1 = model.predict(idata, data=data, inplace=False, include_group_specific=True)
+    idata_2 = model.predict(idata, data=data, inplace=False, include_group_specific=False)
+
+    assert not np.isclose(
+        idata_1.posterior["y_mean"].values,
+        idata_2.posterior["y_mean"].values,
+    ).any()
+
+    # Since it's an intercept-only model, predictions are the same for all observations if
+    # we drop group-specific terms.
+    assert (idata_2.posterior["y_mean"] == idata_2.posterior["y_mean"][:, :, 0]).all()
+
+    # When we include group-specific terms, these predictions are different
+    assert not (idata_1.posterior["y_mean"] == idata_1.posterior["y_mean"][:, :, 0]).all()

@@ -5,6 +5,7 @@
 ### New features
 
 - Add VonMises (`"vonmises"`) built-in family (#453)
+- `Model.predict()` gains a new argument `include_group_specific` to determine if group-specific effects are considered when making predictions (#470)
 
 ### Maintenance and fixes
 
