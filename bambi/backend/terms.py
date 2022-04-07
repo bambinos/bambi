@@ -60,13 +60,7 @@ class CommonTerm:
         coords = {}
         if self.term.categorical:
             name = self.name + "_coord"
-            levels = self.term.term_dict["levels"]
-            if self.term.kind == "interaction":
-                coords[name] = levels
-            elif self.term.term_dict["encoding"] == "full":
-                coords[name] = levels
-            else:
-                coords[name] = levels[1:]
+            coords[name] = self.term.term.levels
         elif self.term.data.shape[1] > 1:
             # Not categorical but multi-column, like when we use splines
             name = self.name + "_coord"
@@ -132,13 +126,8 @@ class GroupSpecificTerm:
 
         if self.term.categorical:
             name = expr + "_coord_group_expr"
-            levels = self.term.term["levels"]
-            if self.term.kind == "interaction":
-                coords[name] = levels
-            elif self.term.term["encoding"] == "full":
-                coords[name] = levels
-            else:
-                coords[name] = levels[1:]
+            levels = self.term.term.expr.levels
+            coords[name] = levels
         return coords
 
     def build_distribution(self, dist, label, **kwargs):

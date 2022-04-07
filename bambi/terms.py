@@ -104,7 +104,7 @@ class Term:
         self.kind = term.kind
         self.levels = term.labels
         self.categorical = False
-        self.term_dict = term
+        self.term = term
         self.alias = None
 
         # If the term has one component, it's categorical if the component is categorical.
