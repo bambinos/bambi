@@ -604,19 +604,17 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">12345</span><span class="p">)</span>
-<span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <p>In this Jupyter notebook, we do a Bayesian reanalysis of the data reported in the <a class="reference external" href="http://www.psychologicalscience.org/pdf/StrackRRR_manuscript_accepted.pdf">recent registered replication report</a> (RRR) of a famous study by Strack, Martin &amp; Stepper (1988). The original Strack et al. study tested a <em>facial feedback hypothesis</em> arguing that emotional responses are, in part, driven by facial expressions (rather than expressions always following from emotions). Strack and colleagues reported that
 participants rated cartoons as more funny when the participants held a pen in their teeth (unknowingly inducing a smile) than when they held a pen between their lips (unknowingly inducing a pout). The article has been cited over 1,400 times, and has been enormously influential in popularizing the view that affective experiences and outward expressions of affective experiences can both influence each other (instead of the relationship being a one-way street from experience to expression). In
 2016, a Registered Replication Report led by Wagenmakers and colleagues attempted to replicate Study 1 from Strack, Martin, &amp; Stepper (1988) in 17 independent experiments comprising over 2,500 participants. The RRR reported no evidence in support of the effect.</p>
-<p>Here we use the <a class="reference external" href="http://github.com/bambinos/bambi">Bambi</a> model-building interface (itself just a wrapper for <a class="reference external" href="http://github.com/pymc-devs/pymc3">PyMC3</a>) to quickly re-analyze the RRR data using a Bayesian approach. Because the emphasis here is on fitting models in Bambi, we spend very little time on quality control and data exploration; our goal is simply to show how one can replicate and extend the primary analysis reported in the RRR in a few lines of Bambi code.</p>
-<p>We begin by importing all of the modules we’ll need, and enabling inline plotting with matplotlib.</p>
+<p>Because the emphasis here is on fitting models in Bambi, we spend very little time on quality control and data exploration; our goal is simply to show how one can replicate and extend the primary analysis reported in the RRR in a few lines of Bambi code.</p>
 <section id="Reading-in-the-data">
 <h2>Reading in the data<a class="headerlink" href="#Reading-in-the-data" title="Permalink to this headline">#</a></h2>
-<p>The data for the RRR of Strack, Martin, &amp; Stepper (henceforth <em>SMS</em>) is available as a set of CSV files from the project’s repository on the Open Science Framework. For the sake of completeness, we’ll show how to go from the raw CSV to the “long” data format that Bambi can use (and that’s required by most other mixed-effects modeling packages).</p>
+<p>The data for the RRR of Strack, Martin, &amp; Stepper (henceforth <em>SMS</em>) is available as a set of CSV files from the project’s repository on the Open Science Framework. For the sake of completeness, we’ll show how to go from the raw CSV to the “long” data format that Bambi can use.</p>
 <p>One slightly annoying thing about these 17 CSV files–each of which represents a different replication site–is that they don’t all contain exactly the same columns. Some labs added a column or two at the end (mostly for notes). To keep things simple, we’ll just truncate each dataset to only the first 22 columns. Because the variable names are structured in a bit of a confusing way, we’ll also just drop the first two rows in each file, and manually set the column names for all 22 variables. Once
 we’ve done that, we can simply concatenate all of the 17 datasets along the row axis to create one big dataset.</p>
 <div class="nbinput nblast docutils container">
@@ -704,123 +702,123 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
   <tbody>
     <tr>
       <th>0</th>
-      <td>1.0</td>
-      <td>1.0</td>
+      <td>13.0</td>
+      <td>107.0</td>
       <td>0.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>4.0</td>
-      <td>7.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
       <td>6.0</td>
+      <td>3.0</td>
       <td>...</td>
       <td>8.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>NaN</td>
-      <td>24.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>2.0</td>
-      <td>2.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>4.0</td>
-      <td>2.0</td>
-      <td>2.0</td>
-      <td>...</td>
-      <td>9.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>NaN</td>
-      <td>27.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>2.0</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>3.0</td>
-      <td>3.0</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>4.0</td>
-      <td>6.0</td>
-      <td>5.0</td>
-      <td>...</td>
-      <td>3.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>NaN</td>
-      <td>25.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>3.0</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>4.0</td>
-      <td>4.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>3.0</td>
-      <td>4.0</td>
-      <td>5.0</td>
-      <td>...</td>
-      <td>5.0</td>
-      <td>1.0</td>
-      <td>0.0</td>
-      <td>NaN</td>
-      <td>26.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>NaN</td>
-      <td>0.0</td>
-      <td>4.0</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>5.0</td>
-      <td>5.0</td>
-      <td>0.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>1.0</td>
-      <td>4.0</td>
-      <td>8.0</td>
-      <td>7.0</td>
-      <td>...</td>
-      <td>3.0</td>
       <td>1.0</td>
       <td>0.0</td>
       <td>NaN</td>
       <td>20.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>0.0</td>
+      <td>13.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>15.0</td>
+      <td>108.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>4.0</td>
+      <td>8.0</td>
+      <td>7.0</td>
+      <td>...</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>20.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>0.0</td>
+      <td>15.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>17.0</td>
+      <td>109.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>4.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>8.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>19.0</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>NaN</td>
       <td>0.0</td>
-      <td>5.0</td>
+      <td>17.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>19.0</td>
+      <td>110.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>4.0</td>
+      <td>6.0</td>
+      <td>4.0</td>
+      <td>...</td>
+      <td>6.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>19.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>0.0</td>
+      <td>19.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>21.0</td>
+      <td>111.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>4.0</td>
+      <td>8.0</td>
+      <td>7.0</td>
+      <td>...</td>
+      <td>7.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>NaN</td>
+      <td>19.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>NaN</td>
+      <td>0.0</td>
+      <td>21.0</td>
     </tr>
   </tbody>
 </table>
@@ -844,6 +842,174 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 </pre></div>
 </div>
 </div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">long</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>uid</th>
+      <th>condition</th>
+      <th>gender</th>
+      <th>age</th>
+      <th>study</th>
+      <th>self_perf</th>
+      <th>stimulus</th>
+      <th>value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>17.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>19.0</td>
+      <td>0.0</td>
+      <td>8.0</td>
+      <td>rating_c1</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>19.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>19.0</td>
+      <td>0.0</td>
+      <td>6.0</td>
+      <td>rating_c1</td>
+      <td>5.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>21.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>19.0</td>
+      <td>0.0</td>
+      <td>7.0</td>
+      <td>rating_c1</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>23.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>19.0</td>
+      <td>0.0</td>
+      <td>7.0</td>
+      <td>rating_c1</td>
+      <td>2.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>37.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>20.0</td>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>rating_c1</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>6935</th>
+      <td>161.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>19.0</td>
+      <td>16.0</td>
+      <td>3.0</td>
+      <td>rating_c4</td>
+      <td>5.0</td>
+    </tr>
+    <tr>
+      <th>6936</th>
+      <td>162.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>18.0</td>
+      <td>16.0</td>
+      <td>5.0</td>
+      <td>rating_c4</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>6937</th>
+      <td>163.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>21.0</td>
+      <td>16.0</td>
+      <td>7.0</td>
+      <td>rating_c4</td>
+      <td>5.0</td>
+    </tr>
+    <tr>
+      <th>6938</th>
+      <td>165.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>19.0</td>
+      <td>16.0</td>
+      <td>7.0</td>
+      <td>rating_c4</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <th>6939</th>
+      <td>166.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>21.0</td>
+      <td>16.0</td>
+      <td>6.0</td>
+      <td>rating_c4</td>
+      <td>7.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>6940 rows × 8 columns</p>
+</div></div>
+</div>
 <p>Notice that in the <code class="docutils literal notranslate"><span class="pre">melt()</span></code> call above, we’re treating not only the unique subject ID (uid) as an identifying variable, but also gender, experimental condition, age, and study name. Since these are all between-subject variables, these columns are all completely redundant with <code class="docutils literal notranslate"><span class="pre">uid</span></code>, and adding them does nothing to change the structure of our data. The point of explicitly listing them is just to keep them around in the dataset, so that we can easily add them to our models.</p>
 </section>
 <section id="Fitting-the-model">
@@ -856,7 +1022,7 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 </ul>
 <p>We’ll create a Bambi model, fit it, and store the results in a new object–which we can then interrogate in various ways.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize the model, passing in the dataset we want to use.</span>
@@ -880,29 +1046,34 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 Automatically removing 9/6940 rows from the dataset.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, Intercept, condition]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, condition, Intercept]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:11<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:12<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -910,18 +1081,16 @@ NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, Intercept, condition]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 12 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 13 seconds.
 </pre></div></div>
 </div>
-<p>Notice that, in Bambi, the common and group specific effects are specified in the same formula just as you would do in <a class="reference external" href="https://CRAN.R-project.org/package=brms">brms</a> because Bambi relies on <a class="reference external" href="https://github.com/bambinos/formulae">formulae</a> to parse model formulas.</p>
-<p>When we run the above code, nothing much will happen for a while. The process of compiling the model in Theano (the numerical library that PyMC3–and hence, Bambi–relies on) can take a few minutes. Once sampling starts, we get a nice progress bar (courtesy of PyMC3) that keeps us updated on the sampler’s progress. Our model is fairly large, in that it includes nearly 1800 parameters (most of which are the group specific subject intercepts); even so, it should take only a few minutes or less to
-run on newer machines.</p>
+<p>Notice that, in Bambi, the common and group specific effects are specified in the same formula. This is the same convention used by other similar packages like <a class="reference external" href="https://CRAN.R-project.org/package=brms">brms</a>.</p>
 </section>
 <section id="Inspecting-results">
 <h2>Inspecting results<a class="headerlink" href="#Inspecting-results" title="Permalink to this headline">#</a></h2>
 <p>We can plot the prior distributions for all parameters with a call to the <code class="docutils literal notranslate"><span class="pre">plot_priors()</span></code> method.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
@@ -932,18 +1101,17 @@ run on newer machines.</p>
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_Strack_RRR_re_analysis_13_0.png" src="../_images/notebooks_Strack_RRR_re_analysis_13_0.png" />
+<img alt="../_images/notebooks_Strack_RRR_re_analysis_15_0.png" src="../_images/notebooks_Strack_RRR_re_analysis_15_0.png" />
 </div>
 </div>
-<p>And we can easily get the posterior distributions and traces for all parameters with <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code>.</p>
+<p>And we can easily get the posterior distributions with <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code>. We can select a subset of the parameters with the <code class="docutils literal notranslate"><span class="pre">var_names</span></code> arguments, like in the following cell. Or alternative by negating variables like <code class="docutils literal notranslate"><span class="pre">var_names=&quot;~1|uid&quot;</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span>
-    <span class="n">results</span><span class="p">,</span>
-    <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;condition&quot;</span><span class="p">,</span> <span class="s2">&quot;value_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;1|uid_sigma&quot;</span><span class="p">],</span>
-    <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
+              <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;condition&quot;</span><span class="p">,</span> <span class="s2">&quot;value_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;1|uid_sigma&quot;</span><span class="p">],</span>
+              <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">);</span>
 </pre></div>
 </div>
@@ -952,12 +1120,12 @@ run on newer machines.</p>
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_Strack_RRR_re_analysis_15_0.png" src="../_images/notebooks_Strack_RRR_re_analysis_15_0.png" />
+<img alt="../_images/notebooks_Strack_RRR_re_analysis_17_0.png" src="../_images/notebooks_Strack_RRR_re_analysis_17_0.png" />
 </div>
 </div>
-<p>If we want a numerical summary of the results, we just pass the results object to <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>. By default, the summary display shows us the mean, standard deviation, and 94% highest density interval for the posterior. When we have multiple MCMC chains, the summary also includes some basic convergence diagnostic info like the effective sample sizes and the Gelman-Rubin R-hat statistic.</p>
+<p>If we want a numerical summary of the results, we just pass the results object to <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>. By default, summary shows the mean, standard deviation, and 94% highest density interval for the posterior. Summary also includes the Monte Carlo standard error, the effective sample size and the R-hat statistic.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;1|uid_sigma&#39;</span><span class="p">])</span>
@@ -965,7 +1133,7 @@ run on newer machines.</p>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1001,51 +1169,51 @@ run on newer machines.</p>
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>4.562</td>
-      <td>0.050</td>
-      <td>4.468</td>
-      <td>4.652</td>
+      <td>4.564</td>
+      <td>0.047</td>
+      <td>4.478</td>
+      <td>4.654</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>1347.0</td>
-      <td>1115.0</td>
-      <td>1.00</td>
+      <td>2436.0</td>
+      <td>2467.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>condition</th>
-      <td>-0.030</td>
-      <td>0.063</td>
-      <td>-0.154</td>
-      <td>0.081</td>
+      <td>-0.032</td>
+      <td>0.059</td>
+      <td>-0.144</td>
+      <td>0.079</td>
       <td>0.001</td>
-      <td>0.002</td>
-      <td>2003.0</td>
-      <td>1307.0</td>
-      <td>1.01</td>
+      <td>0.001</td>
+      <td>3630.0</td>
+      <td>2302.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>value_sigma</th>
-      <td>2.402</td>
+      <td>2.401</td>
       <td>0.021</td>
       <td>2.362</td>
-      <td>2.440</td>
-      <td>0.001</td>
+      <td>2.441</td>
       <td>0.000</td>
-      <td>1586.0</td>
-      <td>1099.0</td>
-      <td>1.00</td>
+      <td>0.000</td>
+      <td>3422.0</td>
+      <td>2770.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>1|uid_sigma</th>
-      <td>0.307</td>
-      <td>0.044</td>
-      <td>0.225</td>
-      <td>0.394</td>
-      <td>0.002</td>
+      <td>0.305</td>
+      <td>0.046</td>
+      <td>0.219</td>
+      <td>0.390</td>
       <td>0.001</td>
-      <td>525.0</td>
-      <td>864.0</td>
-      <td>1.00</td>
+      <td>0.001</td>
+      <td>1233.0</td>
+      <td>1860.0</td>
+      <td>1.0</td>
     </tr>
   </tbody>
 </table>
@@ -1054,17 +1222,18 @@ run on newer machines.</p>
 </section>
 <section id="Expanding-the-model">
 <h2>Expanding the model<a class="headerlink" href="#Expanding-the-model" title="Permalink to this headline">#</a></h2>
-<p>Looking at the parameter estimates produced by our model, it seems pretty clear that there’s no meaningful effect of condition. The posterior distribution is centered almost exactly on 0, with most of the probability mass on very small values. The 94% HDI spans from -0.144 to 0.078–in other words, the plausible effect of the experimental manipulation is, at best, to produce a change of &lt; 0.2 on cartoon ratings made on a 10-point scale. For perspective, the variation between subjects is enormous
-in comparison–the standard deviation for group specific effects <code class="docutils literal notranslate"><span class="pre">1|uid_sigma</span></code> is around 0.3. We can also see that the model is behaving well, and the sampler seems to have converged nicely (the traces for all parameters look stationary).</p>
+<p>Looking at the parameter estimates produced by our model, it seems pretty clear that there’s no meaningful effect of condition. The posterior distribution is centered almost exactly on 0, with most of the probability mass on very small values. The 94% HDI spans from <span class="math notranslate nohighlight">\(\approx -0.14\)</span> to <span class="math notranslate nohighlight">\(\approx 0.08\)</span>–in other words, the plausible effect of the experimental manipulation is, at best, to produce a change of &lt; 0.2 on cartoon ratings made on a 10-point scale. For perspective, the variation
+between subjects is enormous in comparison–the standard deviation for group specific effects <code class="docutils literal notranslate"><span class="pre">1|uid_sigma</span></code> is around 0.3. We can also see that the model is behaving well, and the sampler seems to have converged nicely (the traces for all parameters look stationary).</p>
 <p>Unfortunately, our first model has at least two pretty serious problems. First, it gives no consideration to between-study variation–we’re simply lumping all 1,728 subjects together, as if they came from the same study. A better model would properly account for study-level variation. We could model study as either a common or a group specific factor in this case–both choices are defensible, depending on whether we want to think of the 17 studies in this dataset as the only sites of interest, or
-as if they’re just 17 random sites drawn from some much larger population that have particular characteristics we want to account for. For present purposes, we’ll adopt the latter strategy (as an exercise, you can modify the the code below and re-run the model with study as a common factor). We’ll <a class="reference external" href="http://idiom.ucsd.edu/~rlevy/papers/barr-etal-2013-jml.pdf">“keep it maximal”</a> by adding both group specific study intercepts and group specific study slopes to the model. That is, we’ll assume
-that the subjects at each research site have a different baseline appreciation of the cartoons (some find the cartoons funnier than others), and that the effect of condition also varies across sites.</p>
+as if they’re just 17 random sites drawn from some much larger population that have particular characteristics we want to account for.</p>
+<p>For present purposes, we’ll adopt the latter strategy (as an exercise, you can modify the the code below and re-run the model with study as a common factor). We’ll <a class="reference external" href="http://idiom.ucsd.edu/~rlevy/papers/barr-etal-2013-jml.pdf">“keep it maximal”</a> by adding both group specific study intercepts and group specific study slopes to the model. That is, we’ll assume that the subjects at each research site have a different baseline appreciation of the cartoons (some find the cartoons funnier than
+others), and that the effect of condition also varies across sites.</p>
 <p>Second, our model also fails to explicitly model variation in cartoon ratings that should properly be attributed to the 4 stimuli. In principle, our estimate of the common effect of condition could change somewhat once we correctly account for stimulus variability (though in practice, the net effect is almost always to <em>reduce</em> effects, not increase them–so in this case, it’s very unlikely that adding group specific stimulus effects will produce a meaningful effect of condition). So we’ll deal
 with this by adding specific intercepts for the 4 stimuli. We’ll model the stimuli as group specific effect, rather than common, because it wouldn’t make sense to think of these particular cartoons as exhausting the universe of stimuli we care about (i.e., we wouldn’t really care about the facial-feedback effect if we knew that it only applied to 4 specific Far Side cartoons, and no other stimuli).</p>
 <p>Lastly, just for fun, we can throw in some additional covariates, since they’re readily available in the dataset, and may be of interest even if they don’t directly inform the core hypothesis. Specifically, we’ll add common effects of gender and age to the model, which will let us estimate the degree to which participants’ ratings of the cartoons varies as a function of these background variables.</p>
 <p>Once we’ve done all that, we end up with a model that’s in a good position to answer the question we care about–namely, whether the smiling/pouting manipulation has an effect on cartoon ratings that generalizes across the subjects, studies, and stimuli found in the RRR dataset.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
@@ -1091,29 +1260,34 @@ with this by adding specific intercepts for the 4 stimuli. We’ll model the sti
 Automatically removing 33/6940 rows from the dataset.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [value_sigma, condition|stimulus_offset, condition|stimulus_sigma, 1|stimulus_offset, 1|stimulus_sigma, condition|study_offset, condition|study_sigma, 1|study_offset, 1|study_sigma, 1|uid_offset, 1|uid_sigma, Intercept, gender, age, condition]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [value_sigma, condition|stimulus_offset, condition|stimulus_sigma, 1|stimulus_offset, 1|stimulus_sigma, condition|study_offset, condition|study_sigma, 1|study_offset, 1|study_sigma, 1|uid_offset, 1|uid_sigma, gender, age, condition, Intercept]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
-  <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [6000/6000 16:24<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='12000' class='' max='12000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [12000/12000 1:06:15<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1121,11 +1295,11 @@ NUTS: [value_sigma, condition|stimulus_offset, condition|stimulus_sigma, 1|stimu
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws total) took 984 seconds.
+Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws total) took 3975 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
@@ -1141,7 +1315,7 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_Strack_RRR_re_analysis_20_0.png" src="../_images/notebooks_Strack_RRR_re_analysis_20_0.png" />
+<img alt="../_images/notebooks_Strack_RRR_re_analysis_22_0.png" src="../_images/notebooks_Strack_RRR_re_analysis_22_0.png" />
 </div>
 </div>
 </section>
@@ -1151,7 +1325,7 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 RRR and the original Strack study equally; the moral of the story is <a class="reference external" href="http://jakewestfall.org/publications/crossed_power_JEPG.pdf">to deliberately sample large numbers of stimuli and explicitly model their influence</a>. * Older people seem to rate cartoons as being (a little bit) funnier. * The variation across sites is surprisingly small–in terms of both the group specific intercepts (<code class="docutils literal notranslate"><span class="pre">1|study</span></code>) and the group specific slopes (<code class="docutils literal notranslate"><span class="pre">condition|study</span></code>). In other words, the constitution of the
 sample, the gender of the experimenter, or any of the hundreds of others of between-site differences that one might conceivably have expected to matter, don’t really seem to make much of a difference to participants’ ratings of the cartoons.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
@@ -1164,19 +1338,18 @@ sample, the gender of the experimenter, or any of the hundreds of others of betw
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Tue Jul 27 2021
+Last updated: Sat Apr 09 2022
 
 Python implementation: CPython
-Python version       : 3.8.5
-IPython version      : 7.18.1
+Python version       : 3.9.7
+IPython version      : 8.1.1
 
-arviz : 0.11.2
-numpy : 1.20.1
-pandas: 1.2.2
-bambi : 0.5.0
-json  : 2.0.9
+arviz : 0.11.4
+bambi : 0.7.1
+pandas: 1.4.1
+numpy : 1.21.5
 
-Watermark: 2.1.0
+Watermark: 2.3.0
 
 </pre></div></div>
 </div>
