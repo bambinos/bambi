@@ -100,6 +100,14 @@ Subject
         description="""Data for 31 periwinkles transplanted downshore as a function of the distance
         travelled by them after release.""",
     ),
+    "admissions": FileMetadata(
+        filename="admissions.csv",
+        url="https://figshare.com/ndownloader/files/34757857",
+        checksum="41e2312ca09d50e99c2db67fbabc78d215df6ce71eefe880df5e9310a9fa8397",
+        description="""Admission into graduate school data. This dataset has a binary response
+        variable called 'admit'. There are three predictor variables: 'gre', 'gpa' and 'rank'."""
+
+    )
 }
 
 
