@@ -647,10 +647,10 @@ div.rendered_html tbody tr:hover {
 <section id="Quickstart">
 <h2>Quickstart<a class="headerlink" href="#Quickstart" title="Permalink to this headline">#</a></h2>
 <p>Suppose we have data for a typical within-subjects psychology experiment with 2 experimental conditions. Stimuli are nested within condition, and subjects are crossed with condition. We want to fit a model predicting reaction time (RT) from the common effect of condition, group specific intercepts for subjects, group specific condition slopes for students, and group specific intercepts for stimuli. Using Bambi we can fit this model and summarize its results as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bambi</span> <span class="kn">import</span> <span class="n">Model</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
 
 <span class="c1"># Assume we already have our data loaded as a pandas DataFrame</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">&quot;rt ~ condition + (condition|subject) + (1|stimulus)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;rt ~ condition + (condition|subject) + (1|stimulus)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 <span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
@@ -666,28 +666,19 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 </pre></div>
 </div>
 </div>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">1235</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
-</pre></div>
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-Generator(PCG64) at 0x7FDE29C69F20
-</pre></div></div>
 </div>
 </section>
 <section id="Creating-a-model">
@@ -697,13 +688,11 @@ Generator(PCG64) at 0x7FDE29C69F20
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bambi</span> <span class="kn">import</span> <span class="n">Model</span>
-
-<span class="c1"># Read in a tab-delimited file containing our data</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Read in a tab-delimited file containing our data</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="s2">&quot;data/my_data.txt&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="c1"># Initialize the model</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">&quot;y ~ x + z&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;y ~ x + z&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
 <span class="c1"># Inspect model object</span>
 <span class="n">model</span>
@@ -735,7 +724,7 @@ Priors:
 <section id="Data-format">
 <h3>Data format<a class="headerlink" href="#Data-format" title="Permalink to this headline">#</a></h3>
 <p>As with most mixed effect modeling packages, Bambi expects data in “long” format–meaning that each row should reflects a single observation at the most fine-grained level of analysis. For example, given a model where students are nested into classrooms and classrooms are nested into schools, we would want data with the following kind of structure:</p>
-<table class="table">
+<center><table class="table">
 <colgroup>
 <col style="width: 26%" />
 <col style="width: 22%" />
@@ -808,7 +797,7 @@ Priors:
 </tr>
 </tbody>
 </table>
-</section>
+</center></section>
 </section>
 <section id="Formula-based-specification">
 <h2>Formula-based specification<a class="headerlink" href="#Formula-based-specification" title="Permalink to this headline">#</a></h2>
@@ -994,7 +983,7 @@ Priors:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Common (or fixed) effects only</span>
-<span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + age + gender&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + age + gender&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1032,7 +1021,7 @@ Priors:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Common effects and group specific (or random) intercepts for subject</span>
-<span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + age + gender + (1|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + age + gender + (1|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1074,7 +1063,7 @@ Priors:
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Multiple, complex group specific effects with both</span>
 <span class="c1"># group specific slopes and group specific intercepts</span>
-<span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1132,7 +1121,7 @@ subject, plus N-1 condition slopes (each coded with respect to the first, omitte
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + age + gender + (1|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + age + gender + (1|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1145,7 +1134,7 @@ subject, plus N-1 condition slopes (each coded with respect to the first, omitte
 Automatically removing 33/6940 rows from the dataset.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
+Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, gender, age, condition, Intercept]
 </pre></div></div>
 </div>
@@ -1153,26 +1142,21 @@ NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, gender, age, condition, Intercept
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 01:12<00:00 Sampling 4 chains, 0 divergences]
+    <style>
+        /* Turns off some styling */
+        progress {
+            /* gets rid of default border in Firefox and Opera. */
+            border: none;
+            /* Needs to be in here for Safari polyfill so background images work as expected. */
+            background-size: auto;
+        }
+        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+            background: #F44336;
+        }
+    </style>
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:14<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1180,7 +1164,7 @@ NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, gender, age, condition, Intercept
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 73 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 16 seconds.
 </pre></div></div>
 </div>
 <p>The above code obtains 1,000 draws (the default value) and return them as an <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance (for more details, see the <a class="reference external" href="https://arviz-devs.github.io/arviz/schema/schema.html">ArviZ documentation</a>). In this case, the <code class="docutils literal notranslate"><span class="pre">fit()</span></code> method accepts optional keyword arguments to pass onto PyMC3’s <code class="docutils literal notranslate"><span class="pre">sample()</span></code> method, so any methods accepted by <code class="docutils literal notranslate"><span class="pre">sample()</span></code> can be specified here. We can also explicitly set the number of draws via the <code class="docutils literal notranslate"><span class="pre">draws</span></code> argument. For example, if we call
@@ -1190,7 +1174,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + age + gender + (1|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + age + gender + (1|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">model</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1232,14 +1216,12 @@ are available, it’s a good idea to use them.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bambi</span> <span class="kn">import</span> <span class="n">Prior</span>
-
-<span class="c1"># A Laplace prior with mean of 0 and scale of 10</span>
-<span class="n">my_favorite_prior</span> <span class="o">=</span> <span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Laplace&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># A Laplace prior with mean of 0 and scale of 10</span>
+<span class="n">my_favorite_prior</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Laplace&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 
 <span class="c1"># Set the prior when adding a term to the model; more details on this below.</span>
 <span class="n">priors</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;1|uid&quot;</span><span class="p">:</span> <span class="n">my_favorite_prior</span><span class="p">}</span>
-<span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + (1|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + (1|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1278,10 +1260,10 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subject_sd</span> <span class="o">=</span> <span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;HalfCauchy&quot;</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="n">subject_prior</span> <span class="o">=</span> <span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="n">subject_sd</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subject_sd</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;HalfCauchy&quot;</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">subject_prior</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="n">subject_sd</span><span class="p">)</span>
 <span class="n">priors</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;1|uid&quot;</span><span class="p">:</span> <span class="n">subject_prior</span><span class="p">}</span>
-<span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + (1|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + (1|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1326,8 +1308,8 @@ correlation scale that Bambi uses for default priors. This means that if your ou
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;http://www.karlin.mff.cuni.cz/~pesta/prednasky/NMFM404/Data/binary.csv&quot;</span><span class="p">)</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">&quot;admit ~ gre + gpa + rank&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;admissions&quot;</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;admit ~ gre + gpa + rank&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1340,7 +1322,7 @@ correlation scale that Bambi uses for default priors. This means that if your ou
 Modeling the probability that admit==1
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
+Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [rank, gpa, gre, Intercept]
 </pre></div></div>
 </div>
@@ -1348,26 +1330,21 @@ NUTS: [rank, gpa, gre, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:23<00:00 Sampling 4 chains, 0 divergences]
+    <style>
+        /* Turns off some styling */
+        progress {
+            /* gets rid of default border in Firefox and Opera. */
+            border: none;
+            /* Needs to be in here for Safari polyfill so background images work as expected. */
+            background-size: auto;
+        }
+        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+            background: #F44336;
+        }
+    </style>
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:05<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1375,7 +1352,7 @@ NUTS: [rank, gpa, gre, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 24 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
 </pre></div></div>
 </div>
 <p>If no <code class="docutils literal notranslate"><span class="pre">link</span></code> argument is explicitly set (see below), the canonical link function (or an otherwise sensible default) will be used. The following table summarizes the currently available families and their associated links:</p>
@@ -1443,41 +1420,38 @@ built-in Bernoulli family could be constructed on-the-fly:</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pymc3</span> <span class="k">as</span> <span class="nn">pm</span>
-
-<span class="kn">from</span> <span class="nn">bambi</span> <span class="kn">import</span> <span class="n">Family</span><span class="p">,</span> <span class="n">Likelihood</span><span class="p">,</span> <span class="n">Link</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
 
 <span class="c1"># Construct likelihood distribution ------------------------------</span>
 <span class="c1"># This must use a valid PyMC3 distribution name.</span>
 <span class="c1"># &#39;parent&#39; is the name of the variable that represents the mean of the distribution.</span>
 <span class="c1"># The mean of the Bernoulli family is given by &#39;p&#39;.</span>
-<span class="n">likelihood</span> <span class="o">=</span> <span class="n">Likelihood</span><span class="p">(</span><span class="s2">&quot;Bernoulli&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="s2">&quot;p&quot;</span><span class="p">)</span>
+<span class="n">likelihood</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Likelihood</span><span class="p">(</span><span class="s2">&quot;Bernoulli&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="s2">&quot;p&quot;</span><span class="p">)</span>
 
 <span class="c1"># Set link function ----------------------------------------------</span>
 <span class="c1"># There are two alternative approaches.</span>
 <span class="c1"># 1. Pass a name that is known by Bambi</span>
-<span class="n">link</span> <span class="o">=</span> <span class="n">Link</span><span class="p">(</span><span class="s2">&quot;logit&quot;</span><span class="p">)</span>
+<span class="n">link</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Link</span><span class="p">(</span><span class="s2">&quot;logit&quot;</span><span class="p">)</span>
 
 <span class="c1"># 2. Build everything from scratch</span>
 <span class="c1"># link: A function that maps the response to the linear predictor</span>
 <span class="c1"># linkinv: A function that maps the linear predictor to the response</span>
 <span class="c1"># linkinv_backend: A function that maps the linear predictor to the response</span>
 <span class="c1">#                  that works with Theano tensors.</span>
-<span class="c1">#                  pm.math.sigmoid is a Theano tensor function wrapped by PyMC3</span>
-<span class="n">link</span> <span class="o">=</span> <span class="n">Link</span><span class="p">(</span>
+<span class="c1">#                  bmb.math.sigmoid is a Theano tensor function wrapped by PyMC3 and Bambi</span>
+<span class="n">link</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Link</span><span class="p">(</span>
     <span class="s2">&quot;my_logit&quot;</span><span class="p">,</span>
     <span class="n">link</span><span class="o">=</span><span class="n">special</span><span class="o">.</span><span class="n">expit</span><span class="p">,</span>
     <span class="n">linkinv</span><span class="o">=</span><span class="n">special</span><span class="o">.</span><span class="n">logit</span><span class="p">,</span>
-    <span class="n">linkinv_backend</span><span class="o">=</span><span class="n">pm</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sigmoid</span>
+    <span class="n">linkinv_backend</span><span class="o">=</span><span class="n">bmb</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sigmoid</span>
 <span class="p">)</span>
 
 <span class="c1"># Construct the family -------------------------------------------</span>
 <span class="c1"># Families are defined by a name, a Likelihood and a Link.</span>
-<span class="n">family</span> <span class="o">=</span> <span class="n">Family</span><span class="p">(</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">,</span> <span class="n">link</span><span class="p">)</span>
+<span class="n">family</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Family</span><span class="p">(</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">,</span> <span class="n">link</span><span class="p">)</span>
 
 <span class="c1"># Now it&#39;s business as usual</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span><span class="s2">&quot;admit ~ gre + gpa + rank&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">family</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;admit ~ gre + gpa + rank&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">family</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1489,7 +1463,7 @@ built-in Bernoulli family could be constructed on-the-fly:</p>
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
+Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [rank, gpa, gre, Intercept]
 </pre></div></div>
 </div>
@@ -1497,26 +1471,21 @@ NUTS: [rank, gpa, gre, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:21<00:00 Sampling 4 chains, 0 divergences]
+    <style>
+        /* Turns off some styling */
+        progress {
+            /* gets rid of default border in Firefox and Opera. */
+            border: none;
+            /* Needs to be in here for Safari polyfill so background images work as expected. */
+            background-size: auto;
+        }
+        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+            background: #F44336;
+        }
+    </style>
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:04<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1524,7 +1493,7 @@ NUTS: [rank, gpa, gre, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 22 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.
 </pre></div></div>
 </div>
 <p>The above example produces results identical to simply setting <code class="docutils literal notranslate"><span class="pre">family='bernoulli'</span></code>.</p>
@@ -1602,14 +1571,14 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-3.470</td>
-      <td>1.212</td>
-      <td>-5.720</td>
-      <td>-1.149</td>
-      <td>0.016</td>
-      <td>0.012</td>
-      <td>5937.0</td>
-      <td>3118.0</td>
+      <td>-3.527</td>
+      <td>1.132</td>
+      <td>-5.745</td>
+      <td>-1.457</td>
+      <td>0.021</td>
+      <td>0.017</td>
+      <td>2813.0</td>
+      <td>1284.0</td>
       <td>1.0</td>
     </tr>
     <tr>
@@ -1620,32 +1589,32 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
       <td>0.004</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>4265.0</td>
-      <td>3133.0</td>
+      <td>2360.0</td>
+      <td>1595.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>gpa</th>
-      <td>0.783</td>
-      <td>0.345</td>
-      <td>0.127</td>
-      <td>1.432</td>
+      <td>0.799</td>
+      <td>0.327</td>
+      <td>0.214</td>
+      <td>1.407</td>
+      <td>0.007</td>
       <td>0.005</td>
-      <td>0.004</td>
-      <td>4388.0</td>
-      <td>3084.0</td>
+      <td>2258.0</td>
+      <td>1330.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>rank</th>
-      <td>-0.567</td>
+      <td>-0.568</td>
       <td>0.128</td>
-      <td>-0.802</td>
-      <td>-0.316</td>
+      <td>-0.800</td>
+      <td>-0.332</td>
       <td>0.002</td>
-      <td>0.001</td>
-      <td>5655.0</td>
-      <td>3139.0</td>
+      <td>0.002</td>
+      <td>2998.0</td>
+      <td>1645.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1676,6 +1645,77 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <section id="Accessing-back-end-objects">
 <h2>Accessing back-end objects<a class="headerlink" href="#Accessing-back-end-objects" title="Permalink to this headline">#</a></h2>
 <p>Bambi is just a high-level interface to PyMC3. As such, Bambi internally stores virtually all objects generated by PyMC3, making it easy for users to retrieve, inspect, and modify those objects. For example, the <code class="docutils literal notranslate"><span class="pre">Model</span></code> class created by PyMC3 (as opposed to the Bambi class of the same name) is accessible from <code class="docutils literal notranslate"><span class="pre">model.backend.model</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+pymc3.model.Model
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="math notranslate nohighlight">
+$$
+                \begin{array}{rcl}
+                \text{Intercept} &amp;\sim &amp; \text{Normal}\\\text{gre} &amp;\sim &amp; \text{Normal}\\\text{gpa} &amp;\sim &amp; \text{Normal}\\\text{rank} &amp;\sim &amp; \text{Normal}\\\text{admit} &amp;\sim &amp; \text{Bernoulli}
+                \end{array}
+                $$</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">observed_RVs</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[admit ~ Bernoulli]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">unobserved_RVs</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[Intercept ~ Normal, gre ~ Normal, gpa ~ Normal, rank ~ Normal]
+</pre></div></div>
+</div>
 </section>
 </section>
 
