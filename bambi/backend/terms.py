@@ -61,8 +61,8 @@ class CommonTerm:
         if self.term.categorical:
             name = self.name + "_coord"
             coords[name] = self.term.term.levels
+        # Not categorical but multi-column, like when we use splines
         elif self.term.data.shape[1] > 1:
-            # Not categorical but multi-column, like when we use splines
             name = self.name + "_coord"
             coords[name] = list(range(self.term.data.shape[1]))
         return coords
