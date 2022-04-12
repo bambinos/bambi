@@ -61,28 +61,27 @@ def crossed_data():
 
 def test_term_init(diabetes_data):
     design = design_matrices("BMI", diabetes_data)
-    term_info = design.common.terms_info["BMI"]
-    term = Term("BMI", term_info, diabetes_data["BMI"])
-    # Test that all defaults are properly initialized
+    term = design.common.terms["BMI"]
+    term = Term("BMI", term, design.common["BMI"])
     assert term.name == "BMI"
     assert not term.categorical
     assert not term.group_specific
     assert term.levels is not None
-    assert term.data.shape == (442,)
+    assert term.data.shape == (442, 1)
 
 
 def test_distribute_group_specific_effect_over(diabetes_data):
     # 163 unique levels of BMI in diabetes_data
     # With intercept
     model = Model("BP ~ (C(age_grp)|BMI)", diabetes_data)
-    model.build()
 
     # Treatment encoding because of the intercept
-    lvls = sorted(list(diabetes_data["age_grp"].unique()))[1:]
+    levels = sorted(list(diabetes_data["age_grp"].unique()))[1:]
+    levels = [str(level) for level in levels]
 
     assert "C(age_grp)|BMI" in model.terms
     assert "1|BMI" in model.terms
-    assert model.terms["C(age_grp)|BMI"].pymc_coords["C(age_grp)_coord_group_expr"] == lvls
+    assert model.terms["C(age_grp)|BMI"].pymc_coords["C(age_grp)_coord_group_expr"] == levels
 
     # This is equal to the sub-matrix of Z that corresponds to this term.
     # 442 is the number of observations. 163 the number of groups.
@@ -92,8 +91,6 @@ def test_distribute_group_specific_effect_over(diabetes_data):
 
     # Without intercept. Reference level is not removed.
     model = Model("BP ~ (0 + C(age_grp)|BMI)", diabetes_data)
-    model.build()
-
     assert "C(age_grp)|BMI" in model.terms
     assert not "1|BMI" in model.terms
     assert model.terms["C(age_grp)|BMI"].data.shape == (442, 489)

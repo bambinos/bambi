@@ -466,16 +466,23 @@ class Model:
 
         Parameters
         ----------
-        response: formulae.ResponseVector
-            An instance of ``formulae.ResponseVector`` as returned by
+        response : formulae.ResponseMatrix
+            An instance of ``formulae.ResponseMatrix`` as returned by
             ``formulae.design_matrices()``.
         """
 
-        if response.success is not None and not isinstance(self.family, univariate.Bernoulli):
+        if hasattr(response.term.term.components[0], "reference"):
+            reference = response.term.term.components[0].reference
+        else:
+            reference = None
+
+        if reference is not None and not isinstance(self.family, univariate.Bernoulli):
             raise ValueError("Index notation for response is only available for 'bernoulli' family")
 
         if isinstance(self.family, univariate.Bernoulli):
-            if not all(np.isin(response.design_vector, [0, 1])):
+            if response.kind == "categoric" and response.levels is None and reference is None:
+                raise ValueError("Categoric response must be binary for 'bernoulli' family.")
+            if response.kind == "numeric" and not all(np.isin(response.design_matrix, [0, 1])):
                 raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
 
         self.response = ResponseTerm(response)
@@ -896,7 +903,7 @@ class Model:
             }
 
             if not in_sample and isinstance(self.family, univariate.Binomial):
-                pps_kwargs["trials"] = self._design.response._evaluate_new_data(data)
+                pps_kwargs["trials"] = self._design.response.evaluate_new_data(data)
 
             pps = self.family.posterior_predictive(**pps_kwargs)
 
