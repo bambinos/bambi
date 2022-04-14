@@ -431,9 +431,9 @@ group specific effects. Defaults to <code class="docutils literal notranslate"><
 <li><p><strong>include_mean</strong> (<em>bool</em>) – Compute the posterior of the mean response. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>method</strong> (<em>str</em>) – The method to use for fitting the model. By default, <code class="docutils literal notranslate"><span class="pre">&quot;mcmc&quot;</span></code>. This automatically
 assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
-variables and Metropolis for non-binary discrete ones. Alternatively, <code class="docutils literal notranslate"><span class="pre">&quot;advi&quot;</span></code>, in
-which case the model will be fitted using  automatic differentiation variational
-inference as implemented in PyMC3.
+variables and Metropolis for non-binary discrete ones. Alternatively, <code class="docutils literal notranslate"><span class="pre">&quot;vi&quot;</span></code>, in
+which case the model will be fitted using variational inference as implemented in PyMC3
+using the <code class="docutils literal notranslate"><span class="pre">fit</span></code> function.
 Finally, <code class="docutils literal notranslate"><span class="pre">&quot;laplace&quot;</span></code>, in which case a Laplace approximation is used and is not
 recommended other than for pedagogical use.</p></li>
 <li><p><strong>init</strong> (<em>str</em>) – Initialization method. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>. The available methods are:
@@ -465,8 +465,12 @@ in the system unless there are more than 4 CPUs, in which case it is set to 4.</
 <li><p><strong>**kwargs</strong> – For other kwargs see the documentation for <code class="docutils literal notranslate"><span class="pre">pymc3.sample()</span></code>.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>An ArviZ <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance.</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>An ArviZ <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance if method  <code class="docutils literal notranslate"><span class="pre">&quot;mcmc&quot;</span></code> (default).</p></li>
+<li><p>An <code class="docutils literal notranslate"><span class="pre">Approximation</span></code> object if  <code class="docutils literal notranslate"><span class="pre">&quot;vi&quot;</span></code> and a dictionary if  <code class="docutils literal notranslate"><span class="pre">&quot;laplace&quot;</span></code>.</p></li>
+</ul>
+</p>
 </dd>
 </dl>
 </dd></dl>
