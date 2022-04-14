@@ -208,9 +208,9 @@ class Model:
         method: str
             The method to use for fitting the model. By default, ``"mcmc"``. This automatically
             assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
-            variables and Metropolis for non-binary discrete ones. Alternatively, ``"advi"``, in
-            which case the model will be fitted using  automatic differentiation variational
-            inference as implemented in PyMC3.
+            variables and Metropolis for non-binary discrete ones. Alternatively, ``"vi"``, in
+            which case the model will be fitted using variational inference as implemented in PyMC3
+            using the ``fit`` function.
             Finally, ``"laplace"``, in which case a Laplace approximation is used and is not
             recommended other than for pedagogical use.
         init: str
@@ -249,7 +249,8 @@ class Model:
 
         Returns
         -------
-        An ArviZ ``InferenceData`` instance.
+        An ArviZ ``InferenceData`` instance if method  ``"mcmc"`` (default).
+        An ``Approximation`` object if  ``"vi"`` and a dictionary if  ``"laplace"``.
         """
 
         if not self.built:
