@@ -35,7 +35,7 @@ class PyMC3Model:
 
         # Attributes defined elsewhere
         self._design_matrix_without_intercept = None
-        self.advi_params = None
+        self.vi_approx = None
         self.coords = {}
         self.fit = False
         self.has_intercept = False
@@ -86,7 +86,7 @@ class PyMC3Model:
         **kwargs,
     ):
         """Run PyMC3 sampler."""
-        # NOTE: Methods return different types of objects (idata, advi_params, and dictionary)
+        # NOTE: Methods return different types of objects (idata, approximation, and dictionary)
         if method.lower() == "mcmc":
             result = self._run_mcmc(
                 draws,
@@ -101,8 +101,8 @@ class PyMC3Model:
                 random_seed,
                 **kwargs,
             )
-        elif method.lower() == "advi":
-            result = self._run_advi(**kwargs)
+        elif method.lower() == "vi":
+            result = self._run_vi(**kwargs)
         else:
             result = self._run_laplace()
 
@@ -273,7 +273,7 @@ class PyMC3Model:
         # These represents unidimensional coordinates that are added for numerical variables.
         # These variables have a shape of 1 so we can concatenate the coefficients and multiply
         # the resulting vector withe the design matrix.
-        # But having a unidimiensional coordinate for a numeric variable does not make sense.
+        # But having a unidimensional coordinate for a numeric variable does not make sense.
         # So we drop them.
         coords_to_drop = [dim for dim in idata.posterior.dims if dim.endswith("_dim_0")]
         idata.posterior = idata.posterior.squeeze(coords_to_drop).reset_coords(
@@ -326,16 +326,15 @@ class PyMC3Model:
 
         return idata
 
-    def _run_advi(self, **kwargs):
-        # This should return an InferenceData object (once arviz adds support for VI)
+    def _run_vi(self, **kwargs):
         with self.model:
-            self.advi_params = pm.variational.ADVI(**kwargs)
-        return self.advi_params
+            self.vi_approx = pm.fit(**kwargs)
+        return self.vi_approx
 
     def _run_laplace(self):
         """Fit a model using a Laplace approximation.
 
-        Mainly for pedagogical use. ``mcmc`` and ``advi`` are better approximations.
+        Mainly for pedagogical use. ``mcmc`` and ``vi`` are better approximations.
 
         Parameters
         ----------
@@ -353,7 +352,7 @@ class PyMC3Model:
             maps = pm.find_MAP(start=test_point, vars=varis)
             hessian = pm.find_hessian(maps, vars=varis)
             if np.linalg.det(hessian) == 0:
-                raise np.linalg.LinAlgError("Singular matrix. Use mcmc or advi method")
+                raise np.linalg.LinAlgError("Singular matrix. Use mcmc or vi method")
             stds = np.diag(np.linalg.inv(hessian) ** 0.5)
             maps = [v for (k, v) in maps.items() if not pm.util.is_transformed_name(k)]
             modes = [v.item() if v.size == 1 else v for v in maps]
