@@ -308,8 +308,11 @@ class PyMC3Model:
                     common_terms += [term.alias]
                 else:
                     common_terms += [term.name]
+
             if self.spec.response.pymc_coords:
-                shape += (len(self.spec.response.levels) - 1,)
+                # Grab the first object in a dictionary
+                levels = list(self.spec.response.pymc_coords.values())[0]
+                shape += (len(levels),)
                 coords += list(self.spec.response.pymc_coords)
 
             posterior = idata.posterior.stack(samples=coords)
@@ -319,6 +322,7 @@ class PyMC3Model:
                 intercept_name = self.spec.intercept_term.alias
             else:
                 intercept_name = self.spec.intercept_term.name
+
             idata.posterior[intercept_name] -= np.dot(X.mean(0), coefs).reshape(shape)
 
         if include_mean:

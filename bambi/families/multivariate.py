@@ -45,7 +45,10 @@ class Categorical(MultivariateFamily):
 
         # Drop var/dim if already present
         if name in posterior.data_vars:
-            posterior = posterior.drop_vars(name).drop_dims(coord_name)
+            posterior = posterior.drop_vars(name)
+
+        if coord_name in posterior.dims:
+            posterior = posterior.drop_dims(coord_name)
 
         response_coord_name = model.response.name + "_mean_coord"
         coords = ("chain", "draw", response_coord_name, coord_name)
@@ -82,3 +85,43 @@ class Categorical(MultivariateFamily):
             pps[:, idx] = draw_categorical_samples(mean[..., idx].T, response_levels)
 
         return pps.reshape((shape[0], shape[1], obs_n))
+
+
+class Multinomial(MultivariateFamily):
+    SUPPORTED_LINKS = ["softmax"]
+
+    def predict(self, model, posterior, linear_predictor):
+        # This is only 'softmax' for now.
+        # Second axis is the one where the response coord is inserted
+        # We need to append zeros for the reference category
+        shape = linear_predictor.shape
+        linear_predictor = np.dstack(
+            (np.zeros(shape=(shape[0], shape[1], 1, shape[3])), linear_predictor)
+        )
+
+        mean = self.link.linkinv(linear_predictor, axis=2)
+
+        obs_n = mean.shape[-1]
+        name = model.response.name + "_mean"
+        coord_name = model.response.name + "_obs"
+
+        # Drop var/dim if already present
+        if name in posterior.data_vars:
+            posterior = posterior.drop_vars(name)
+
+        if coord_name in posterior.dims:
+            posterior = posterior.drop_dims(coord_name)
+
+        response_coord_name = model.response.name + "_mean_coord"
+        coords = ("chain", "draw", response_coord_name, coord_name)
+        posterior[name] = (coords, mean)
+
+        # NOTE: Improve this. It would be better to have a better way to grab this list.
+        posterior = posterior.assign_coords(
+            {response_coord_name: [str(level) for level in range(model.response.data.shape[1])]}
+        )
+        posterior = posterior.assign_coords({coord_name: list(range(obs_n))})
+        return posterior
+
+    def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
+        return None

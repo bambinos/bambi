@@ -486,7 +486,7 @@ class Model:
             if response.kind == "numeric" and not all(np.isin(response.design_matrix, [0, 1])):
                 raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
 
-        self.response = ResponseTerm(response)
+        self.response = ResponseTerm(response, self)
         self.built = False
 
     def _add_common(self, common, priors):
@@ -821,14 +821,14 @@ class Model:
                 if len(shape) == 2:
                     shape = (shape[0] * shape[1], 1)
                 # 2-dimensional predictors (e.g. spline basis and multivariate models)
+                elif isinstance(self.family, (multivariate.Categorical, multivariate.Multinomial)):
+                    # Basis splines, categorical predictors, etc. may have more than one column.
+                    response_n = len(list(self.response.pymc_coords.values())[0])
+                    p = np.prod(shape[2:]) // response_n
+                    shape = (shape[0] * shape[1], p, response_n)
                 else:
-                    if isinstance(self.family, multivariate.Categorical):
-                        # Basis splines, categorical predictors, etc. may have more than one column.
-                        response_n = len(self.response.levels) - 1
-                        p = np.prod(shape[2:]) // response_n
-                        shape = (shape[0] * shape[1], p, response_n)
-                    else:
-                        shape = (shape[0] * shape[1], shape[2])
+                    shape = (shape[0] * shape[1], shape[2])
+
                 beta_x_list.append(values.reshape(shape))
 
             # 'beta_x' is of shape:

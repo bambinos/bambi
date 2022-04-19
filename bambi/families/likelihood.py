@@ -12,6 +12,7 @@ DISTRIBUTIONS = {
     "Binomial": DistSettings(params=("p",), parent="p", args=None),
     "Categorical": DistSettings(params=("p",), parent="p", args=None),
     "Gamma": DistSettings(params=("mu", "alpha"), parent="mu", args=("alpha",)),
+    "Multinomial": DistSettings(params=("p",), parent="p", args=None),
     "Normal": DistSettings(params=("mu", "sigma"), parent="mu", args=("sigma",)),
     "NegativeBinomial": DistSettings(params=("mu", "alpha"), parent="mu", args=("alpha",)),
     "Poisson": DistSettings(params=("mu",), parent="mu", args=None),
