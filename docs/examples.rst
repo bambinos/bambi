@@ -11,6 +11,7 @@ Examples
   notebooks/sleepstudy
   notebooks/radon_example
   notebooks/Strack_RRR_re_analysis
+  notebooks/shooter_crossed_random_ANOVA
   notebooks/t_regression
   notebooks/logistic_regression
   notebooks/model_comparison
@@ -21,5 +22,4 @@ Examples
   notebooks/beta_regression
   notebooks/categorical_regression
   notebooks/circular_regression
-       notebooks/shooter_crossed_random_ANOVA
 

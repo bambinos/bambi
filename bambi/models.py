@@ -411,7 +411,7 @@ class Model:
         # Check if any of the names of the auxiliary params match the names of terms in the model
         # If that happens, raise an error.
         if aux_params and self._design.common:
-            conflicts = [name for name in aux_params if name in self._design.common.terms_info]
+            conflicts = [name for name in aux_params if name in self._design.common.terms]
             if conflicts:
                 raise ValueError(
                     f"The prior name for {', '.join(conflicts)} conflicts with the name of a "
@@ -467,16 +467,23 @@ class Model:
 
         Parameters
         ----------
-        response: formulae.ResponseVector
-            An instance of ``formulae.ResponseVector`` as returned by
+        response : formulae.ResponseMatrix
+            An instance of ``formulae.ResponseMatrix`` as returned by
             ``formulae.design_matrices()``.
         """
 
-        if response.success is not None and not isinstance(self.family, univariate.Bernoulli):
+        if hasattr(response.term.term.components[0], "reference"):
+            reference = response.term.term.components[0].reference
+        else:
+            reference = None
+
+        if reference is not None and not isinstance(self.family, univariate.Bernoulli):
             raise ValueError("Index notation for response is only available for 'bernoulli' family")
 
         if isinstance(self.family, univariate.Bernoulli):
-            if not all(np.isin(response.design_vector, [0, 1])):
+            if response.kind == "categoric" and response.levels is None and reference is None:
+                raise ValueError("Categoric response must be binary for 'bernoulli' family.")
+            if response.kind == "numeric" and not all(np.isin(response.design_matrix, [0, 1])):
                 raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
 
         self.response = ResponseTerm(response)
@@ -497,7 +504,7 @@ class Model:
             either instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the
             width of the priors on a standardized scale.
         """
-        for name, term in common.terms_info.items():
+        for name, term in common.terms.items():
             data = common[name]
             prior = priors.pop(name, priors.get("common", None))
             if isinstance(prior, Prior):
@@ -524,7 +531,7 @@ class Model:
             the values are either instances of class ``Prior`` or ``int``, ``float``, or ``str``
             that specify the width of the priors on a standardized scale.
         """
-        for name, term in group.terms_info.items():
+        for name, term in group.terms.items():
             data = group[name]
             prior = priors.pop(name, priors.get("group_specific", None))
             self.terms[name] = GroupSpecificTerm(name, term, data, prior)
@@ -792,13 +799,13 @@ class Model:
             if in_sample:
                 X = self._design.common.design_matrix
             else:
-                X = self._design.common._evaluate_new_data(data).design_matrix
+                X = self._design.common.evaluate_new_data(data).design_matrix
 
         if self._design.group and include_group_specific:
             if in_sample:
                 Z = self._design.group.design_matrix
             else:
-                Z = self._design.group._evaluate_new_data(data).design_matrix
+                Z = self._design.group.evaluate_new_data(data).design_matrix
 
         # Contribution due to common terms
         if X is not None:
@@ -903,7 +910,7 @@ class Model:
             }
 
             if not in_sample and isinstance(self.family, univariate.Binomial):
-                pps_kwargs["trials"] = self._design.response._evaluate_new_data(data)
+                pps_kwargs["trials"] = self._design.response.evaluate_new_data(data)
 
             pps = self.family.posterior_predictive(**pps_kwargs)
 
