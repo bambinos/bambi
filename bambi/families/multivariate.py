@@ -124,4 +124,33 @@ class Multinomial(MultivariateFamily):
         return posterior
 
     def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
-        return None
+        # Second axis is the one where the response coord is inserted.
+        # We need to append zeros for the reference category.
+        shape = linear_predictor.shape
+        linear_predictor = np.dstack(
+            (np.zeros(shape=(shape[0], shape[1], 1, shape[3])), linear_predictor)
+        )
+
+        # Compute the mean posterior. The link is softmax now.
+        mean = self.link.linkinv(linear_predictor, axis=2)
+
+        # Select draws from the mean posterior
+        idxs = np.random.randint(low=0, high=draw_n, size=draws)
+        mean = mean[:, idxs, :, :]
+        shape = mean.shape
+
+        mean = mean.reshape((np.prod(mean.shape[:2]), mean.shape[2], mean.shape[3]))
+        draws_n = mean.shape[0]
+        obs_n = mean.shape[-1]
+
+        pps = np.empty(mean.shape, dtype=int)
+        n = model.response.data.sum(1)
+
+        # random.multinomial only accepts n : interger, p : vector.
+        for i in range(obs_n):
+            for j in range(draws_n):
+                pps[j, :, i] = np.random.multinomial(n[i], mean[j, :, i])
+
+        # Final shape is of (chain, draw, categories, observations)
+        pps = pps.reshape(shape)
+        return pps

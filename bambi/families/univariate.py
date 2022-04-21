@@ -63,7 +63,7 @@ class Binomial(UnivariateFamily):
         mean = self.link.linkinv(linear_predictor)
         idxs = np.random.randint(low=0, high=draw_n, size=draws)
         mean = mean[:, idxs, :]
-        np.random.binomial(trials.squeeze(), mean)
+        return np.random.binomial(trials.squeeze(), mean)
 
 
 class Gamma(UnivariateFamily):
