@@ -198,9 +198,9 @@ class ResponseTerm:
 
     Parameters
     ----------
-    term: bambi.terms.ResponseTerm
+    term : bambi.terms.ResponseTerm
         The response term as represented in Bambi.
-    family: bambi.famlies.Family
+    family : bambi.famlies.Family
         The model family.
     """
 
@@ -211,9 +211,9 @@ class ResponseTerm:
     def build(self, nu, invlinks):
         """Create and return the response distribution for the PyMC3 model.
 
-        nu: theano.tensor.var.TensorVariable
+        nu : theano.tensor.var.TensorVariable
             The linear predictor in the PyMC3 model.
-        invlinks: dict
+        invlinks : dict
             A dictionary where names are names of inverse link functions and values are functions
             that can operate with Theano tensors.
         """
@@ -227,6 +227,8 @@ class ResponseTerm:
 
         # Add column of zeros to the linear predictor for the reference level (the first one)
         if isinstance(self.family, (Categorical, Multinomial)):
+            # Make sure intercept-only models work
+            nu = np.ones((data.shape[0], 1)) * nu
             nu = tt.concatenate([np.zeros((data.shape[0], 1)), nu], axis=1)
 
         # Add mean parameter and observed data
