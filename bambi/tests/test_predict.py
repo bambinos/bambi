@@ -254,6 +254,56 @@ def test_predict_categorical_group_specific():
     assert (idata.posterior.y_mean.values > 0).all() and (idata.posterior.y_mean.values < 1).all()
 
 
+def test_predict_multinomial(inhaler):
+    def c(*args):
+        return np.column_stack(args)
+
+    df = inhaler.groupby(["treat", "carry", "rating"], as_index=False).size()
+    df = df.pivot(index=["treat", "carry"], columns="rating", values="size").reset_index()
+    df.columns = ["treat", "carry", "y1", "y2", "y3", "y4"]
+
+    # Intercept only
+    model = Model("c(y1, y2, y3, y4) ~ 1", df, family="multinomial")
+    idata = model.fit()
+
+    model.predict(idata)
+    model.predict(idata, data=df.iloc[:3, :])
+
+    # Numerical predictors
+    model = Model("c(y1, y2, y3, y4) ~ treat + carry", df, family="multinomial")
+    idata = model.fit()
+
+    model.predict(idata)
+    model.predict(idata, data=df.iloc[:3, :])
+
+    # Categorical predictors
+    df["treat"] = df["treat"].replace({-0.5: "A", 0.5: "B"})
+    df["carry"] = df["carry"].replace({-1: "a", 0: "b", 1: "c"})
+
+    model = Model("c(y1, y2, y3, y4) ~ treat + carry", df, family="multinomial")
+    idata = model.fit()
+
+    model.predict(idata)
+    model.predict(idata, data=df.iloc[:3, :])
+
+
+def test_posterior_predictive_multinomial(inhaler):
+    def c(*args):
+        return np.column_stack(args)
+
+    df = inhaler.groupby(["treat", "carry", "rating"], as_index=False).size()
+    df = df.pivot(index=["treat", "carry"], columns="rating", values="size").reset_index()
+    df.columns = ["treat", "carry", "y1", "y2", "y3", "y4"]
+
+    # Intercept only
+    model = Model("c(y1, y2, y3, y4) ~ 1", df, family="multinomial")
+    idata = model.fit()
+
+    # The sum across the columns of the response is the same for all the chain and draws.
+    model.predict(idata, kind="pps")
+    assert np.all(idata.posterior_predictive["c(y1, y2, y3, y4)"].values.sum(2).var((0, 1)) == 0)
+
+
 def test_predict_include_group_specific():
     rng = np.random.default_rng(1234)
     size = 100

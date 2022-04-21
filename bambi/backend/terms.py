@@ -3,7 +3,7 @@ import pymc3 as pm
 import theano.tensor as tt
 
 from bambi.backend.utils import has_hyperprior, get_distribution
-from bambi.families.multivariate import Categorical
+from bambi.families.multivariate import Categorical, Multinomial
 from bambi.families.univariate import Beta, Binomial, Gamma
 from bambi.priors import Prior
 
@@ -31,9 +31,9 @@ class CommonTerm:
         args = self.term.prior.args
         distribution = get_distribution(dist)
 
-        # Dims of the response variable (e.g. categorical family)
+        # Dims of the response variable
         response_dims = []
-        if spec.response.categorical and not spec.response.binary:
+        if isinstance(spec.family, (Categorical, Multinomial)):
             response_dims = list(spec.response.pymc_coords)
             response_dims_n = len(spec.response.pymc_coords[response_dims[0]])
 
@@ -50,7 +50,7 @@ class CommonTerm:
         else:
             coef = distribution(label, shape=data.shape[1], **args)
 
-        # Pre-pends one dimension if response is multi-categorical and predictor is one dimensional
+        # Prepends one dimension if response is multivariate categorical and predictor is 1d
         if response_dims and len(dims) == 1:
             coef = coef[np.newaxis, :]
 
@@ -99,9 +99,9 @@ class GroupSpecificTerm:
         kwargs = self.term.prior.args
         predictor = self.term.predictor.squeeze()
 
-        # Dims of the response variable (e.g. categorical family)
+        # Dims of the response variable (e.g. categorical)
         response_dims = []
-        if spec.response.categorical and not spec.response.binary:
+        if isinstance(spec.family, (Categorical, Multinomial)):
             response_dims = list(spec.response.pymc_coords)
 
         dims = list(self.coords) + response_dims
@@ -179,7 +179,7 @@ class InterceptTerm:
         dist = get_distribution(self.term.prior.name)
         label = self.name
         # Pre-pends one dimension if response is multi-categorical
-        if spec.response.categorical and not spec.response.binary:
+        if isinstance(spec.family, (Categorical, Multinomial)):
             dims = list(spec.response.pymc_coords)
             dist = dist(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:
@@ -198,9 +198,9 @@ class ResponseTerm:
 
     Parameters
     ----------
-    term: bambi.terms.ResponseTerm
+    term : bambi.terms.ResponseTerm
         The response term as represented in Bambi.
-    family: bambi.famlies.Family
+    family : bambi.famlies.Family
         The model family.
     """
 
@@ -211,9 +211,9 @@ class ResponseTerm:
     def build(self, nu, invlinks):
         """Create and return the response distribution for the PyMC3 model.
 
-        nu: theano.tensor.var.TensorVariable
+        nu : theano.tensor.var.TensorVariable
             The linear predictor in the PyMC3 model.
-        invlinks: dict
+        invlinks : dict
             A dictionary where names are names of inverse link functions and values are functions
             that can operate with Theano tensors.
         """
@@ -226,7 +226,9 @@ class ResponseTerm:
             linkinv = self.family.link.linkinv_backend
 
         # Add column of zeros to the linear predictor for the reference level (the first one)
-        if isinstance(self.family, Categorical):
+        if isinstance(self.family, (Categorical, Multinomial)):
+            # Make sure intercept-only models work
+            nu = np.ones((data.shape[0], 1)) * nu
             nu = tt.concatenate([np.zeros((data.shape[0], 1)), nu], axis=1)
 
         # Add mean parameter and observed data
@@ -281,6 +283,10 @@ class ResponseTerm:
             # We build sigma from mu and alpha.
             sigma = kwargs["mu"] / (kwargs["alpha"] ** 0.5)
             return dist(self.name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
+
+        if isinstance(self.family, Multinomial):
+            n = kwargs["observed"].sum(axis=1)[:, np.newaxis]
+            return dist(self.name, p=kwargs["p"], observed=kwargs["observed"], n=n)
 
         return dist(self.name, **kwargs)
 

@@ -1,5 +1,7 @@
 import numpy as np
 
+from bambi.families.multivariate import Categorical, Multinomial
+
 
 class ResponseTerm:
     """Representation of a single response model term.
@@ -9,9 +11,11 @@ class ResponseTerm:
     term: formulae.ResponseVector
         An object describing the response of the model,
         as returned by ``formulae.design_matrices().response``
+    spec: bambi.Model
+        The model where this response term is used.
     """
 
-    def __init__(self, term):
+    def __init__(self, term, spec):
         self.name = term.name
         self.categorical = term.kind == "categoric"
         self.reference = None
@@ -46,9 +50,14 @@ class ResponseTerm:
         # These help to give the appropriate shape to coefficients and make the resulting
         # InferenceData object much cleaner
         self.pymc_coords = {}
-        if self.categorical and not self.binary:
+        if isinstance(spec.family, Categorical):
             name = self.name + "_coord"
             self.pymc_coords[name] = [level for level in term.levels if level != self.reference]
+        # NOTE: We don't have the labels of the levels. This could be improved?
+        elif isinstance(spec.family, Multinomial):
+            name = self.name + "_coord"
+            self.pymc_coords[name] = [str(level) for level in range(self.data.shape[1] - 1)]
+        # TBD: Continue here when we add general multivariate responses.
 
     def set_alias(self, value):
         self.alias = value
@@ -200,8 +209,9 @@ class GroupSpecificTerm:
         # Determine if the term represents cell-means encoding.
         self.is_cell_means = self.categorical and (self.data.sum(1) == 1).all()
 
-        # Used in pymc3 model coords to label coordinates appropiately
+        # Used in pymc model coords to label coordinates appropiately
         self.pymc_coords = {}
+
         # Group is always a coordinate added to the model.
         expr, factor = self.name.split("|")
         self.pymc_coords[factor + "_coord_group_factor"] = self.groups
