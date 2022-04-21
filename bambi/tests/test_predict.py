@@ -263,14 +263,14 @@ def test_predict_multinomial(inhaler):
     df.columns = ["treat", "carry", "y1", "y2", "y3", "y4"]
 
     # Intercept only
-    model = Model("c(y1, y2, y3, y4) ~ 1", inhaler, family="multinomial")
+    model = Model("c(y1, y2, y3, y4) ~ 1", df, family="multinomial")
     idata = model.fit()
 
     model.predict(idata)
     model.predict(idata, data=df.iloc[:3, :])
 
     # Numerical predictors
-    model = Model("c(y1, y2, y3, y4) ~ treat + carry", inhaler, family="multinomial")
+    model = Model("c(y1, y2, y3, y4) ~ treat + carry", df, family="multinomial")
     idata = model.fit()
 
     model.predict(idata)
@@ -280,7 +280,7 @@ def test_predict_multinomial(inhaler):
     df["treat"] = df["treat"].replace({-0.5: "A", 0.5: "B"})
     df["carry"] = df["carry"].replace({-1: "a", 0: "b", 1: "c"})
 
-    model = Model("c(y1, y2, y3, y4) ~ treat + carry", inhaler, family="multinomial")
+    model = Model("c(y1, y2, y3, y4) ~ treat + carry", df, family="multinomial")
     idata = model.fit()
 
     model.predict(idata)
@@ -296,7 +296,7 @@ def test_posterior_predictive_multinomial(inhaler):
     df.columns = ["treat", "carry", "y1", "y2", "y3", "y4"]
 
     # Intercept only
-    model = Model("c(y1, y2, y3, y4) ~ 1", inhaler, family="multinomial")
+    model = Model("c(y1, y2, y3, y4) ~ 1", df, family="multinomial")
     idata = model.fit()
 
     # The sum across the columns of the response is the same for all the chain and draws.
