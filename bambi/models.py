@@ -865,8 +865,10 @@ class Model:
                     values = values.reshape(shape)
                 # 2-dimensional predictors (e.g. spline basis and multivariate models)
                 else:
-                    if isinstance(self.family, multivariate.Categorical):
-                        response_n = len(self.response.levels) - 1
+                    if isinstance(
+                        self.family, (multivariate.Categorical, multivariate.Multinomial)
+                    ):
+                        response_n = len(list(self.response.pymc_coords.values())[0])
                         p = np.prod(shape[2:]) // response_n
                         shape = (shape[0] * shape[1], p, response_n)
                         values = values.reshape(shape)

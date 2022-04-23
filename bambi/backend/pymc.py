@@ -10,6 +10,7 @@ from bambi import version
 
 from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
 from bambi.backend.terms import CommonTerm, GroupSpecificTerm, InterceptTerm, ResponseTerm
+from bambi.families.multivariate import Categorical, Multinomial
 
 _log = logging.getLogger("bambi")
 
@@ -177,12 +178,10 @@ class PyMC3Model:
             if predictor.ndim > 1:
                 for col in range(predictor.shape[1]):
                     self.mu += coef[:, col] * predictor[:, col]
+            elif isinstance(spec.family, (Categorical, Multinomial)):
+                self.mu += coef * predictor[:, np.newaxis]
             else:
-                # For categorical family
-                if spec.response.categorical and not spec.response.binary:
-                    self.mu += coef * predictor[:, np.newaxis]
-                else:
-                    self.mu += coef * predictor
+                self.mu += coef * predictor
 
     def _build_response(self, spec):
         ResponseTerm(spec.response, spec.family).build(self.mu, self.INVLINKS)
