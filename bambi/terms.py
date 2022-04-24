@@ -139,6 +139,9 @@ class Term:
         if self.categorical:
             name = self.name + "_coord"
             self.pymc_coords[name] = term.levels
+        elif self.data.ndim > 1 and self.data.shape[1] > 1:
+            name = self.name + "_coord"
+            self.pymc_coords[name] = np.arange(self.data.shape[1])
 
     def set_alias(self, value):
         self.alias = value
