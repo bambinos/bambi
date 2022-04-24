@@ -811,42 +811,63 @@ class Model:
         if X is not None:
             beta_x_list = []
             term_names = list(self.common_terms)
+            coord_response = list(self.response.pymc_coords)
+
             if self.intercept_term:
                 term_names.insert(0, "Intercept")
 
             for name in term_names:
-                values = posterior[name].values
-                shape = values.shape
-                # 1-dimensional predictors (the great majority: a single slope or intercept)
-                if len(shape) == 2:
-                    shape = (shape[0] * shape[1], 1)
-                # 2-dimensional predictors (e.g. spline basis and multivariate models)
-                elif isinstance(self.family, (multivariate.Categorical, multivariate.Multinomial)):
-                    # Basis splines, categorical predictors, etc. may have more than one column.
-                    response_n = len(list(self.response.pymc_coords.values())[0])
-                    p = np.prod(shape[2:]) // response_n
-                    shape = (shape[0] * shape[1], p, response_n)
-                else:
-                    shape = (shape[0] * shape[1], shape[2])
+                coord_term = list(self.terms[name].pymc_coords)
+                term_posterior = posterior[name]
+                coords = set(term_posterior.coords)
 
-                beta_x_list.append(values.reshape(shape))
+                # 1-dimensional predictors (a single slope or intercept)
+                if coords == {"chain", "draw"}:
+                    values = term_posterior.stack(samples=("chain", "draw")).values
+                    if len(values.shape) == 1:
+                        values = values[:, np.newaxis]
+                # 2-dimensional predictors (splines or categoricals)
+                elif coords == {"chain", "draw"}.union(coord_term):
+                    transpose_coords = ["samples"] + coord_term
+                    values = (
+                        term_posterior.stack(samples=("chain", "draw"))
+                        .transpose(*transpose_coords)
+                        .values
+                    )
+                    if len(values.shape) == 1:
+                        values = values[:, np.newaxis]
+                elif isinstance(self.family, (multivariate.Categorical, multivariate.Multinomial)):
+                    transpose_coords = ["samples"] + coord_term + coord_response
+                    values = (
+                        term_posterior.stack(samples=("chain", "draw"))
+                        .transpose(*transpose_coords)
+                        .values
+                    )
+                    # When p = 1 we have shape (samples_n, response_n),
+                    # we need (samples_n, 1, response_n)
+                    if len(values.shape) == 2:
+                        values = values[:, np.newaxis, :]
+                else:
+                    raise ValueError("ups!")
+
+                beta_x_list.append(values)
 
             # 'beta_x' is of shape:
             # * (chain_n * draw_n, p) for univariate
-            # * (chain_n * draw_n, p, response_n) for multivariate models
+            # * (chain_n * draw_n, p, response_n) for multivariate
             beta_x = np.hstack(beta_x_list)
 
-            # This dot product works both for 2d and 3d 'beta_x'.
-            contribution = np.dot(X, beta_x.T).T
-
-            # 'response_n' is the dimensionality of the space where the response lives
-            # Univariate models: (chain_n, draw_n, obs_n)
-            if len(contribution.shape) == 2:
-                shape = (chain_n, draw_n) + (contribution.shape[-1],)
-            # Multivariate models: (chain_n, draw_n, response_n, obs_n)
+            # 'contribution' is of shape:
+            # * (chain_n * draw_n, obs_n) for univariate
+            # * (chain_n * draw_n, obs_n, response_n) for multivariate
+            if len(beta_x.shape) == 2:
+                contribution = np.dot(X, beta_x.T).T
             else:
-                shape = (chain_n, draw_n) + contribution.shape[1:]
+                contribution = np.zeros((beta_x.shape[0], X.shape[0], beta_x.shape[2]))
+                for i in range(contribution.shape[2]):
+                    contribution[:, :, i] = np.dot(X, beta_x[:, :, i].T).T
 
+            shape = (chain_n, draw_n) + contribution.shape[1:]
             contribution = contribution.reshape(shape)
             linear_predictor += contribution
 
@@ -854,31 +875,53 @@ class Model:
         if Z is not None:
             beta_z_list = []
             term_names = list(self.group_specific_terms)
+            coord_response = list(self.response.pymc_coords)
 
             for name in term_names:
-                values = posterior[name].values
-                shape = values.shape
-                # Since this is group-specific term, shape < 3 does not exists.
-                # 1-dimensional expr (the great majority: a single slope or intercept)
-                if len(shape) == 3:
-                    shape = (shape[0] * shape[1], shape[2])
-                    values = values.reshape(shape)
-                # 2-dimensional predictors (e.g. spline basis and multivariate models)
-                else:
-                    if isinstance(
-                        self.family, (multivariate.Categorical, multivariate.Multinomial)
+                coord_term = list(self.terms[name].pymc_coords)
+                coord_factor = [c for c in coord_term if c.endswith("_coord_group_factor")]
+                coord_expr = [c for c in coord_term if c.endswith("_coord_group_expr")]
+                term_posterior = posterior[name]
+                coords = set(term_posterior.coords)
+
+                # Group-specific term: len(coords) < 3 does not exist.
+                if coords == {"chain", "draw"}.union(coord_expr):
+                    transpose_coords = ["samples"] + coord_expr
+                    values = (
+                        term_posterior.stack(samples=("chain", "draw"))
+                        .traspose(*transpose_coords)
+                        .values
+                    )
+                elif coords == {"chain", "draw"}.union(coord_expr + coord_factor):
+                    transpose_coords = ["samples", "coefs"]
+                    values = (
+                        term_posterior.stack(samples=("chain", "draw"))
+                        .stack(coefs=tuple(coord_expr + coord_factor))
+                        .transpose(*transpose_coords)
+                        .values
+                    )
+                elif isinstance(self.family, (multivariate.Categorical, multivariate.Multinomial)):
+                    if coords == {"chain", "draw"}.union(coord_factor + coord_response):
+                        transpose_coords = ["samples"] + coord_factor + coord_response
+                        values = (
+                            term_posterior.stack(samples=("chain", "draw"))
+                            .transpose(*transpose_coords)
+                            .values
+                        )
+                    elif coords == {"chain", "draw"}.union(
+                        coord_expr + coord_factor + coord_response
                     ):
-                        response_n = len(list(self.response.pymc_coords.values())[0])
-                        p = np.prod(shape[2:]) // response_n
-                        shape = (shape[0] * shape[1], p, response_n)
-                        values = values.reshape(shape)
-                    # Group specific effect with categorical expr
+                        transpose_coords = ["samples", "coefs"] + coord_response
+                        values = (
+                            term_posterior.stack(samples=("chain", "draw"))
+                            .stack(coefs=tuple(coord_expr + coord_factor))
+                            .transpose(*transpose_coords)
+                            .values
+                        )
                     else:
-                        # Needs to be reshaped in two steps.
-                        # Second stage uses order="F", see issue #477.
-                        shape_1 = (shape[0] * shape[1], shape[2], shape[3])
-                        shape_2 = (shape[0] * shape[1], shape[2] * shape[3])
-                        values = values.reshape(shape_1).reshape(shape_2, order="F")
+                        raise ValueError("ups!!")
+                else:
+                    raise ValueError("ups!")
 
                 beta_z_list.append(values)
 
@@ -886,19 +929,20 @@ class Model:
             # * (chain_n * draw_n, p) for univariate
             # * (chain_n * draw_n, p, response_n) for multivariate models
             beta_z = np.hstack(beta_z_list)
-            contribution = np.dot(Z, beta_z.T).T
 
-            if len(contribution.shape) == 2:
-                shape = (chain_n, draw_n) + (contribution.shape[-1],)
+            # 'contribution' is of shape:
+            # * (chain_n * draw_n, obs_n) for univariate
+            # * (chain_n * draw_n, obs_n, response_n) for multivariate
+            if len(beta_z.shape) == 2:
+                contribution = np.dot(Z, beta_z.T).T
             else:
-                shape = (chain_n, draw_n) + contribution.shape[1:]
+                contribution = np.zeros((beta_z.shape[0], Z.shape[0], beta_z.shape[2]))
+                for i in range(contribution.shape[2]):
+                    contribution[:, :, i] = np.dot(Z, beta_z[:, :, i].T).T
 
+            shape = (chain_n, draw_n) + contribution.shape[1:]
             contribution = contribution.reshape(shape)
             linear_predictor += contribution
-
-        # 'linear_predictor' is of shape
-        # * (chain_n, draw_n, obs_n) for univariate models
-        # * (chain_n, draw_n, response_n, obs_n) for multivariate models
 
         if kind == "mean":
             idata.posterior = self.family.predict(self, posterior, linear_predictor)
