@@ -310,7 +310,6 @@ def test_predict_multinomial(inhaler):
 
     model.predict(idata)
     model.predict(idata, kind="pps")
-    model.predict(idata, data=df.iloc[:3, :])
 
 
 def test_posterior_predictive_multinomial(inhaler):
