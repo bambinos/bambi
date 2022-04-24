@@ -292,14 +292,13 @@ def test_predict_multinomial(inhaler):
     model.predict(idata)
     model.predict(idata, data=df.iloc[:3, :])
 
-
     data = pd.DataFrame(
         {
             "state": ["A", "B", "C"],
             "y1": [35298, 1885, 5775],
             "y2": [167328, 20731, 21564],
             "y3": [212682, 37716, 20222],
-            "y4": [37966, 5196, 3277]
+            "y4": [37966, 5196, 3277],
         }
     )
 
