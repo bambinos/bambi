@@ -9,10 +9,10 @@ class ResponseTerm:
 
     Parameters
     ----------
-    term: formulae.ResponseVector
+    term : formulae.ResponseMatrix
         An object describing the response of the model,
         as returned by ``formulae.design_matrices().response``
-    spec: bambi.Model
+    spec : bambi.Model
         The model where this response term is used.
     """
 
