@@ -896,7 +896,7 @@ class Model:
                     transpose_coords = ["samples", "coefs"]
                     values = (
                         term_posterior.stack(samples=("chain", "draw"))
-                        .stack(coefs=tuple(coord_expr + coord_factor))
+                        .stack(coefs=tuple(coord_factor + coord_expr))
                         .transpose(*transpose_coords)
                         .values
                     )
@@ -914,7 +914,7 @@ class Model:
                         transpose_coords = ["samples", "coefs"] + coord_response
                         values = (
                             term_posterior.stack(samples=("chain", "draw"))
-                            .stack(coefs=tuple(coord_expr + coord_factor))
+                            .stack(coefs=tuple(coord_factor + coord_expr))
                             .transpose(*transpose_coords)
                             .values
                         )

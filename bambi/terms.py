@@ -1,6 +1,7 @@
 import numpy as np
 
 from bambi.families.multivariate import Categorical, Multinomial
+from bambi.families.univariate import Bernoulli
 
 
 class ResponseTerm:
@@ -43,6 +44,10 @@ class ResponseTerm:
             else:
                 self.reference = get_reference_level(term.term.term)
                 self.data = np.nonzero(term.design_matrix)[1]
+        elif isinstance(spec.family, Bernoulli):
+            # We've already checked the values are all 0 and 1
+            self.success = 1
+            self.data = term.design_matrix
         else:
             self.data = term.design_matrix
 
