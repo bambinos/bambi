@@ -18,7 +18,7 @@ from .defaults import get_default_prior, get_builtin_family
 from .families import Family, univariate, multivariate
 from .priors import Prior, PriorScaler
 from .terms import GroupSpecificTerm, ResponseTerm, Term
-from .utils import listify
+from .utils import listify, extra_namespace
 from .version import __version__
 
 _log = logging.getLogger("bambi")
@@ -149,7 +149,7 @@ class Model:
         # Obtain design matrices and related objects.
         na_action = "drop" if dropna else "error"
         self.formula = formula
-        self._design = design_matrices(formula, data, na_action, env=1)
+        self._design = design_matrices(formula, data, na_action, 1, extra_namespace)
 
         if self._design.response is None:
             raise ValueError(
