@@ -1,6 +1,7 @@
 import numpy as np
 
 from bambi.families.multivariate import Categorical, Multinomial
+from bambi.families.univariate import Bernoulli
 
 
 class ResponseTerm:
@@ -8,10 +9,10 @@ class ResponseTerm:
 
     Parameters
     ----------
-    term: formulae.ResponseVector
+    term : formulae.ResponseMatrix
         An object describing the response of the model,
         as returned by ``formulae.design_matrices().response``
-    spec: bambi.Model
+    spec : bambi.Model
         The model where this response term is used.
     """
 
@@ -43,6 +44,10 @@ class ResponseTerm:
             else:
                 self.reference = get_reference_level(term.term.term)
                 self.data = np.nonzero(term.design_matrix)[1]
+        elif isinstance(spec.family, Bernoulli):
+            # We've already checked the values are all 0 and 1
+            self.success = 1
+            self.data = term.design_matrix
         else:
             self.data = term.design_matrix
 
@@ -139,6 +144,9 @@ class Term:
         if self.categorical:
             name = self.name + "_coord"
             self.pymc_coords[name] = term.levels
+        elif self.data.ndim > 1 and self.data.shape[1] > 1:
+            name = self.name + "_coord"
+            self.pymc_coords[name] = np.arange(self.data.shape[1])
 
     def set_alias(self, value):
         self.alias = value
