@@ -80,17 +80,17 @@ def test_empty_model(crossed_data):
 
 def test_intercept_only_model(crossed_data):
     model0 = Model("Y ~ 1", crossed_data)
-    model0.fit(tune=0, draws=1, init=None)
+    model0.fit(tune=0, draws=1)
 
 
 def test_slope_only_model(crossed_data):
     model0 = Model("Y ~ 0 + continuous", crossed_data)
-    model0.fit(tune=0, draws=1, init=None)
+    model0.fit(tune=0, draws=1)
 
 
 def test_cell_means_parameterization(crossed_data):
     model0 = Model("Y ~ 0 + threecats", crossed_data)
-    model0.fit(tune=0, draws=1, init=None)
+    model0.fit(tune=0, draws=1)
 
 
 def test_3x4_common_anova(crossed_data):
@@ -99,7 +99,7 @@ def test_3x4_common_anova(crossed_data):
 
     # with intercept
     model0 = Model("Y ~ threecats*fourcats", crossed_data)
-    fitted0 = model0.fit(tune=0, draws=1, init=None)
+    fitted0 = model0.fit(tune=0, draws=1)
     assert len(fitted0.posterior.data_vars) == 5
 
     # without intercept (i.e., 2-factor cell means model)
@@ -110,7 +110,7 @@ def test_3x4_common_anova(crossed_data):
 
 def test_cell_means_with_covariate(crossed_data):
     model0 = Model("Y ~ 0 + threecats + continuous", crossed_data)
-    model0.fit(tune=0, draws=1, init=None)
+    model0.fit(tune=0, draws=1)
 
     # check that threecats priors have finite variance
     assert not (np.isinf(model0.terms["threecats"].prior.args["sigma"])).all()
@@ -331,7 +331,7 @@ def test_logistic_regression_categoric():
 
 
 def test_poisson_regression(crossed_data):
-    # build model using fit and pymc3
+    # build model using fit and pymc
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
     model0 = Model("count ~ dummy + continuous + threecats", crossed_data, family="poisson")
     model0.fit(tune=0, draws=1)

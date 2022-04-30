@@ -1,6 +1,6 @@
 import numpy as np
-import pymc3 as pm
-import theano.tensor as tt
+import pymc as pm
+import aesara.tensor as at
 
 from bambi.backend.utils import has_hyperprior, get_distribution
 from bambi.families.multivariate import Categorical, Multinomial
@@ -9,9 +9,9 @@ from bambi.priors import Prior
 
 
 class CommonTerm:
-    """Represetation of a common effects term in PyMC3
+    """Representation of a common effects term in PyMC
 
-    An object that builds the PyMC3 distribution for a common effects term. It also contains the
+    An object that builds the PyMC distribution for a common effects term. It also contains the
     coordinates that we then add to the model.
 
     Parameters
@@ -75,9 +75,9 @@ class CommonTerm:
 
 
 class GroupSpecificTerm:
-    """Represetation of a group specific effects term in PyMC3
+    """Representation of a group specific effects term in PyMC
 
-    Creates an object that builds the PyMC3 distribution for a group specific effect. It also
+    Creates an object that builds the PyMC distribution for a group specific effect. It also
     contains the coordinates that we then add to the model.
 
     Parameters
@@ -131,7 +131,7 @@ class GroupSpecificTerm:
         return coords
 
     def build_distribution(self, dist, label, **kwargs):
-        """Build and return a PyMC3 Distribution."""
+        """Build and return a PyMC Distribution."""
         dist = get_distribution(dist)
 
         if "dims" in kwargs:
@@ -164,7 +164,7 @@ class GroupSpecificTerm:
 
 
 class InterceptTerm:
-    """Representation of an intercept term in a PyMC3 model.
+    """Representation of an intercept term in a PyMC model.
 
     Parameters
     ----------
@@ -194,7 +194,7 @@ class InterceptTerm:
 
 
 class ResponseTerm:
-    """Representation of a response term in a PyMC3 model.
+    """Representation of a response term in a PyMC model.
 
     Parameters
     ----------
@@ -209,13 +209,13 @@ class ResponseTerm:
         self.family = family
 
     def build(self, nu, invlinks):
-        """Create and return the response distribution for the PyMC3 model.
+        """Create and return the response distribution for the PyMC model.
 
-        nu : theano.tensor.var.TensorVariable
-            The linear predictor in the PyMC3 model.
+        nu : aesara.tensor.var.TensorVariable
+            The linear predictor in the PyMC model.
         invlinks : dict
             A dictionary where names are names of inverse link functions and values are functions
-            that can operate with Theano tensors.
+            that can operate with Aesara tensors.
         """
         data = self.term.data.squeeze()
 
@@ -229,7 +229,7 @@ class ResponseTerm:
         if isinstance(self.family, (Categorical, Multinomial)):
             # Make sure intercept-only models work
             nu = np.ones((data.shape[0], 1)) * nu
-            nu = tt.concatenate([np.zeros((data.shape[0], 1)), nu], axis=1)
+            nu = at.concatenate([np.zeros((data.shape[0], 1)), nu], axis=1)
 
         # Add mean parameter and observed data
         kwargs = {self.family.likelihood.parent: linkinv(nu), "observed": data}
