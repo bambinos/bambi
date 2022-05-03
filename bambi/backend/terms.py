@@ -185,7 +185,7 @@ class InterceptTerm:
         else:
             # NOTE: Intercept only models with shape=1 don't work anymore
             #       It seems that 'shape=1' is not needed anymore?
-            #dist = dist(label, shape=1, **self.term.prior.args)
+            # dist = dist(label, shape=1, **self.term.prior.args)
             dist = dist(label, **self.term.prior.args)
         return dist
 
