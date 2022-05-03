@@ -40,13 +40,13 @@ def extract_argument_names(expr, accepted_funcs):
     ----------
     expr : str
         An expression that is parsed to extract the components of the call.
-    accepted_funcs: list
+    accepted_funcs : list
         A list with the names of the functions that we accept to parse.
 
     Returns
     -------
     list
-        If all criteria are met, the names of the arguments. Othwerise it returns None.
+        If all criteria are met, the names of the arguments. Otherwise it returns None.
     """
     # Extract the first thing in the body
     parsed_expr = ast.parse(expr).body[0]

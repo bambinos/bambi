@@ -63,9 +63,10 @@ class ResponseTerm:
             name = self.name + "_coord"
             labels = extract_argument_names(self.name, list(extra_namespace))
             if labels:
-                labels = labels[1:]
+                self.levels = labels
             else:
-                labels = [str(level) for level in range(self.data.shape[1] - 1)]
+                self.levels = [str(level) for level in range(self.data.shape[1])]
+            labels = self.levels[1:]
             self.pymc_coords[name] = labels
         # TBD: Continue here when we add general multivariate responses.
 
