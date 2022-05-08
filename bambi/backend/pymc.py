@@ -57,11 +57,10 @@ class PyMC3Model:
         self.has_intercept = spec.intercept_term is not None
         self.mu = 0.0
 
-        response_coords = spec.response.pymc_coords
-        for name, values in response_coords.items():
+        for name, values in spec.response.coords.items():
             if name not in self.model.coords:
                 self.model.add_coords({name: values})
-        self.coords.update(**response_coords)
+        self.coords.update(**spec.response.coords)
 
         with self.model:
             self._build_intercept(spec)
@@ -280,22 +279,22 @@ class PyMC3Model:
         )
 
         # This does not add any new coordinate, it just changes the order so the ones
-        # ending in "_coord_group_factor" are placed after the others.
-        coords_original = list(self.coords)
-        coords_group = [c for c in coords_original if c.endswith("_coord_group_factor")]
+        # ending in "__factor_dim" are placed after the others.
+        dims_original = list(self.coords)
+        dims_group = [c for c in dims_original if c.endswith("__factor_dim")]
 
-        # Keep the original order in coords_original
-        coords_original_set = set(coords_original) - set(coords_group)
-        coords_original = [c for c in coords_original if c in coords_original_set]
-        coords_new = ["chain", "draw"] + coords_original + coords_group
-        idata.posterior = idata.posterior.transpose(*coords_new)
+        # Keep the original order in dims_original
+        dims_original_set = set(dims_original) - set(dims_group)
+        dims_original = [c for c in dims_original if c in dims_original_set]
+        dims_new = ["chain", "draw"] + dims_original + dims_group
+        idata.posterior = idata.posterior.transpose(*dims_new)
 
         # Compute the actual intercept
         if self.has_intercept and self.spec.common_terms:
             chain_n = len(idata.posterior["chain"])
             draw_n = len(idata.posterior["draw"])
             shape = (chain_n, draw_n)
-            coords = ["chain", "draw"]
+            dims = ["chain", "draw"]
 
             # Design matrix without intercept
             X = self._design_matrix_without_intercept
@@ -308,13 +307,13 @@ class PyMC3Model:
                 else:
                     common_terms += [term.name]
 
-            if self.spec.response.pymc_coords:
+            if self.spec.response.coords:
                 # Grab the first object in a dictionary
-                levels = list(self.spec.response.pymc_coords.values())[0]
+                levels = list(self.spec.response.coords.values())[0]
                 shape += (len(levels),)
-                coords += list(self.spec.response.pymc_coords)
+                dims += list(self.spec.response.coords)
 
-            posterior = idata.posterior.stack(samples=coords)
+            posterior = idata.posterior.stack(samples=dims)
             coefs = np.vstack([np.atleast_2d(posterior[name].values) for name in common_terms])
 
             if self.spec.intercept_term.alias:
@@ -425,13 +424,13 @@ def add_lkj(backend, terms, eta=1):
     start = 0
     for term in terms:
         label = term.name
-        dims = list(term.pymc_coords)
+        dims = list(term.coords)
 
         # Add coordinates to the model, only if they are not added yet.
-        for name, values in term.pymc_coords.items():
+        for name, values in term.coords.items():
             if name not in backend.model.coords:
                 backend.model.add_coords({name: values})
-        backend.coords.update(**term.pymc_coords)
+        backend.coords.update(**term.coords)
 
         predictor = term.predictor.squeeze()
         delta = term.predictor.shape[1]

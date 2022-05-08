@@ -34,8 +34,8 @@ class CommonTerm:
         # Dims of the response variable
         response_dims = []
         if isinstance(spec.family, (Categorical, Multinomial)):
-            response_dims = list(spec.response.pymc_coords)
-            response_dims_n = len(spec.response.pymc_coords[response_dims[0]])
+            response_dims = list(spec.response.coords)
+            response_dims_n = len(spec.response.coords[response_dims[0]])
 
             # Arguments may be of shape (a,) but we need them to be of shape (a, b)
             # a: length of predictor coordinates
@@ -59,11 +59,11 @@ class CommonTerm:
     def get_coords(self):
         coords = {}
         if self.term.categorical:
-            name = self.name + "_coord"
+            name = self.name + "_dim"
             coords[name] = self.term.term.levels
         # Not categorical but multi-column, like when we use splines
         elif self.term.data.shape[1] > 1:
-            name = self.name + "_coord"
+            name = self.name + "_dim"
             coords[name] = list(range(self.term.data.shape[1]))
         return coords
 
@@ -102,7 +102,7 @@ class GroupSpecificTerm:
         # Dims of the response variable (e.g. categorical)
         response_dims = []
         if isinstance(spec.family, (Categorical, Multinomial)):
-            response_dims = list(spec.response.pymc_coords)
+            response_dims = list(spec.response.coords)
 
         dims = list(self.coords) + response_dims
         # Squeeze ensures we don't have a shape of (n, 1) when we mean (n, )
@@ -122,10 +122,10 @@ class GroupSpecificTerm:
             expr, factor = self.term.name.split("|")
 
         # The group is always a coordinate we add to the model.
-        coords[factor + "_coord_group_factor"] = self.term.groups
+        coords[factor + "__factor_dim"] = self.term.groups
 
         if self.term.categorical:
-            name = expr + "_coord_group_expr"
+            name = expr + "__expr_dim"
             levels = self.term.term.expr.levels
             coords[name] = levels
         return coords
@@ -180,7 +180,7 @@ class InterceptTerm:
         label = self.name
         # Pre-pends one dimension if response is multi-categorical
         if isinstance(spec.family, (Categorical, Multinomial)):
-            dims = list(spec.response.pymc_coords)
+            dims = list(spec.response.coords)
             dist = dist(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:
             dist = dist(label, shape=1, **self.term.prior.args)
