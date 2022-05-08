@@ -98,10 +98,7 @@ class Multinomial(MultivariateFamily):
         coords = ("chain", "draw", coord_name, response_coord_name)
         posterior[name] = (coords, mean)
 
-        # NOTE: Improve this. It would be better to have a better way to grab this list.
-        posterior = posterior.assign_coords(
-            {response_coord_name: [str(level) for level in range(model.response.data.shape[1])]}
-        )
+        posterior = posterior.assign_coords({response_coord_name: model.response.levels})
         posterior = posterior.assign_coords({coord_name: list(range(obs_n))})
         return posterior
 

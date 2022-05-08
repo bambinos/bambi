@@ -2,6 +2,7 @@ import numpy as np
 
 from bambi.families.multivariate import Categorical, Multinomial
 from bambi.families.univariate import Bernoulli
+from bambi.utils import extract_argument_names, extra_namespace
 
 
 class ResponseTerm:
@@ -58,10 +59,15 @@ class ResponseTerm:
         if isinstance(spec.family, Categorical):
             name = self.name + "_coord"
             self.pymc_coords[name] = [level for level in term.levels if level != self.reference]
-        # NOTE: We don't have the labels of the levels. This could be improved?
         elif isinstance(spec.family, Multinomial):
             name = self.name + "_coord"
-            self.pymc_coords[name] = [str(level) for level in range(self.data.shape[1] - 1)]
+            labels = extract_argument_names(self.name, list(extra_namespace))
+            if labels:
+                self.levels = labels
+            else:
+                self.levels = [str(level) for level in range(self.data.shape[1])]
+            labels = self.levels[1:]
+            self.pymc_coords[name] = labels
         # TBD: Continue here when we add general multivariate responses.
 
     def set_alias(self, value):

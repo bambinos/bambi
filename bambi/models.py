@@ -18,7 +18,7 @@ from .defaults import get_default_prior, get_builtin_family
 from .families import Family, univariate, multivariate
 from .priors import Prior, PriorScaler
 from .terms import GroupSpecificTerm, ResponseTerm, Term
-from .utils import listify
+from .utils import listify, extra_namespace
 from .version import __version__
 
 _log = logging.getLogger("bambi")
@@ -149,7 +149,7 @@ class Model:
         # Obtain design matrices and related objects.
         na_action = "drop" if dropna else "error"
         self.formula = formula
-        self._design = design_matrices(formula, data, na_action, env=1)
+        self._design = design_matrices(formula, data, na_action, 1, extra_namespace)
 
         if self._design.response is None:
             raise ValueError(
@@ -836,6 +836,7 @@ class Model:
                     )
                     if len(values.shape) == 1:
                         values = values[:, np.newaxis]
+                # Multivariate families, we need to consider the dimension of the response too
                 elif isinstance(self.family, (multivariate.Categorical, multivariate.Multinomial)):
                     transpose_coords = ["samples"] + coord_term + coord_response
                     values = (
@@ -843,12 +844,12 @@ class Model:
                         .transpose(*transpose_coords)
                         .values
                     )
-                    # When p = 1 we have shape (samples_n, response_n),
-                    # we need (samples_n, 1, response_n)
+                    # When p = 1 values is of shape (samples_n, response_n).
+                    # We need it to be of shape (samples_n, 1, response_n)
                     if len(values.shape) == 2:
                         values = values[:, np.newaxis, :]
                 else:
-                    raise ValueError("ups!")
+                    raise ValueError(f"Unexpected coordinates in term {name}")
 
                 beta_x_list.append(values)
 
@@ -885,6 +886,7 @@ class Model:
                 coords = set(term_posterior.coords)
 
                 # Group-specific term: len(coords) < 3 does not exist.
+                # 1 dimensional predictors
                 if coords == {"chain", "draw"}.union(coord_expr):
                     transpose_coords = ["samples"] + coord_expr
                     values = (
@@ -892,6 +894,7 @@ class Model:
                         .traspose(*transpose_coords)
                         .values
                     )
+                # 2 dimensional predictors
                 elif coords == {"chain", "draw"}.union(coord_expr + coord_factor):
                     transpose_coords = ["samples", "coefs"]
                     values = (
@@ -900,7 +903,9 @@ class Model:
                         .transpose(*transpose_coords)
                         .values
                     )
+                # Multivariate families, need to consider dimensionality of the response
                 elif isinstance(self.family, (multivariate.Categorical, multivariate.Multinomial)):
+                    # 1 dimensional predictors (there's no factor dimension)
                     if coords == {"chain", "draw"}.union(coord_factor + coord_response):
                         transpose_coords = ["samples"] + coord_factor + coord_response
                         values = (
@@ -908,6 +913,7 @@ class Model:
                             .transpose(*transpose_coords)
                             .values
                         )
+                    # 2 dimensional predictors (there's a factor dimension)
                     elif coords == {"chain", "draw"}.union(
                         coord_expr + coord_factor + coord_response
                     ):
@@ -919,9 +925,9 @@ class Model:
                             .values
                         )
                     else:
-                        raise ValueError("ups!!")
+                        raise ValueError(f"Unexpected coordinates in term {name}")
                 else:
-                    raise ValueError("ups!")
+                    raise ValueError(f"Unexpected coordinates in term {name}")
 
                 beta_z_list.append(values)
 
