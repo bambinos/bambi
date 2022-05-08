@@ -135,7 +135,7 @@ class GroupSpecificTerm:
         dist = get_distribution(dist)
 
         if "dims" in kwargs:
-            group_dim = [dim for dim in kwargs["dims"] if dim.endswith("_group_expr")]
+            group_dim = [dim for dim in kwargs["dims"] if dim.endswith("__expr_dim")]
             kwargs = {
                 k: self.expand_prior_args(k, v, label, dims=group_dim) for (k, v) in kwargs.items()
             }
