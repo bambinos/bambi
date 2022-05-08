@@ -694,6 +694,10 @@ class Model:
             samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
         )
 
+        if hasattr(idata, "prior"):
+            to_drop = [dim for dim in idata.prior.dims if dim.endswith("_dim_0")]
+            idata.prior = idata.prior.squeeze(to_drop).reset_coords(to_drop, drop=True)
+
         for group in idata.groups():
             getattr(idata, group).attrs["modeling_interface"] = "bambi"
             getattr(idata, group).attrs["modeling_interface_version"] = __version__
