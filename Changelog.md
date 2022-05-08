@@ -15,13 +15,14 @@
 - The function `check_full_rank()` in `utils.py` now checks the array is 2 dimensional (#472)
 - Removed `_extract_family_prior()` from `bambi/families` as it was unnecesary (#472)
 - Removed `bambi/families/utils.py` as it was unnecesary (#472)
+- Replaced `"_coord_group_factor"` with `"__factor_dim"` and `"_coord_group_expr"` with `"__expr_dim"` in dimension/coord names (#499)
 
 ### Documentation
 
 - Add circular regression example (#465)
 - Add Categorical regression example (#457)
 - Add Beta regression example (#442)
-- Add Radon Example (#440) 
+- Add Radon Example (#440)
 - Fix typos and clear up writing in some docs (#462)
 - Documented the module `bambi/defaults` (#472)
 - Improved documentation and made it more consistent (#472)
