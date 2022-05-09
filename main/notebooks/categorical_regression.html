@@ -655,21 +655,26 @@ NUTS: [x, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:03<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:04<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -682,8 +687,18 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <p>Note that we pass the <code class="docutils literal notranslate"><span class="pre">family=&quot;categorical&quot;</span></code> argument to Bambi’s <code class="docutils literal notranslate"><span class="pre">Model</span></code> method in order to call the categorical family. Here, the response variable are strings (“A”, “B”, “C”), however they can also be <code class="docutils literal notranslate"><span class="pre">pd.Categorical</span></code> objects.</p>
 <p>Next we will use posterior predictions to visualize the mean class probability across the <span class="math notranslate nohighlight">\(x\)</span> spectrum.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x_new</span><span class="p">}))</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;y_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">draw</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x_new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
@@ -691,7 +706,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <span class="n">p</span> <span class="o">=</span> <span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;y_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">draw</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
 
 <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="s2">&quot;ABC&quot;</span><span class="p">):</span>
-   <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;y_mean_coord&quot;</span><span class="p">:</span><span class="n">g</span><span class="p">})</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+   <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;y_mean_dim&quot;</span><span class="p">:</span><span class="n">g</span><span class="p">})</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">);</span>
@@ -702,85 +717,8 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<div class="highlight"><pre>
-<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
-<span class="ansi-red-fg">KeyError</span>                                  Traceback (most recent call last)
-<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/pandas/core/indexes/base.py</span> in <span class="ansi-cyan-fg">get_loc</span><span class="ansi-blue-fg">(self, key, method, tolerance)</span>
-<span class="ansi-green-intense-fg ansi-bold">   3360</span>             <span class="ansi-green-fg">try</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-fg">-&gt; 3361</span><span class="ansi-red-fg">                 </span><span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>_engine<span class="ansi-blue-fg">.</span>get_loc<span class="ansi-blue-fg">(</span>casted_key<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">   3362</span>             <span class="ansi-green-fg">except</span> KeyError <span class="ansi-green-fg">as</span> err<span class="ansi-blue-fg">:</span>
-
-<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/pandas/_libs/index.pyx</span> in <span class="ansi-cyan-fg">pandas._libs.index.IndexEngine.get_loc</span><span class="ansi-blue-fg">()</span>
-
-<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/pandas/_libs/index.pyx</span> in <span class="ansi-cyan-fg">pandas._libs.index.IndexEngine.get_loc</span><span class="ansi-blue-fg">()</span>
-
-<span class="ansi-green-fg">pandas/_libs/hashtable_class_helper.pxi</span> in <span class="ansi-cyan-fg">pandas._libs.hashtable.PyObjectHashTable.get_item</span><span class="ansi-blue-fg">()</span>
-
-<span class="ansi-green-fg">pandas/_libs/hashtable_class_helper.pxi</span> in <span class="ansi-cyan-fg">pandas._libs.hashtable.PyObjectHashTable.get_item</span><span class="ansi-blue-fg">()</span>
-
-<span class="ansi-red-fg">KeyError</span>: &#39;length&#39;
-
-The above exception was the direct cause of the following exception:
-
-<span class="ansi-red-fg">KeyError</span>                                  Traceback (most recent call last)
-<span class="ansi-green-fg">/tmp/ipykernel_58160/1656499320.py</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-intense-fg ansi-bold">      1</span> x_new <span class="ansi-blue-fg">=</span> np<span class="ansi-blue-fg">.</span>linspace<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">-</span><span class="ansi-cyan-fg">5</span><span class="ansi-blue-fg">,</span> <span class="ansi-cyan-fg">5</span><span class="ansi-blue-fg">,</span> num<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">200</span><span class="ansi-blue-fg">)</span>
-<span class="ansi-green-fg">----&gt; 2</span><span class="ansi-red-fg"> </span>model<span class="ansi-blue-fg">.</span>predict<span class="ansi-blue-fg">(</span>idata<span class="ansi-blue-fg">,</span> data<span class="ansi-blue-fg">=</span>pd<span class="ansi-blue-fg">.</span>DataFrame<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">{</span><span class="ansi-blue-fg">&#34;x&#34;</span><span class="ansi-blue-fg">:</span> x_new<span class="ansi-blue-fg">}</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">      3</span> p <span class="ansi-blue-fg">=</span> idata<span class="ansi-blue-fg">.</span>posterior<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">&#34;y_mean&#34;</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">.</span>sel<span class="ansi-blue-fg">(</span>draw<span class="ansi-blue-fg">=</span>slice<span class="ansi-blue-fg">(</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">,</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span> <span class="ansi-cyan-fg">10</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">      4</span>
-<span class="ansi-green-intense-fg ansi-bold">      5</span> <span class="ansi-green-fg">for</span> j<span class="ansi-blue-fg">,</span> g <span class="ansi-green-fg">in</span> enumerate<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#34;ABC&#34;</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
-
-<span class="ansi-green-fg">~/Desktop/Cosas/oss/bambinos/bambi/bambi/models.py</span> in <span class="ansi-cyan-fg">predict</span><span class="ansi-blue-fg">(self, idata, kind, data, draws, inplace)</span>
-<span class="ansi-green-intense-fg ansi-bold">    810</span>                 X <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>_design<span class="ansi-blue-fg">.</span>common<span class="ansi-blue-fg">.</span>design_matrix
-<span class="ansi-green-intense-fg ansi-bold">    811</span>             <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-fg">--&gt; 812</span><span class="ansi-red-fg">                 </span>X <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>_design<span class="ansi-blue-fg">.</span>common<span class="ansi-blue-fg">.</span>_evaluate_new_data<span class="ansi-blue-fg">(</span>data<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">.</span>design_matrix
-<span class="ansi-green-intense-fg ansi-bold">    813</span>
-<span class="ansi-green-intense-fg ansi-bold">    814</span>         <span class="ansi-green-fg">if</span> self<span class="ansi-blue-fg">.</span>_design<span class="ansi-blue-fg">.</span>group<span class="ansi-blue-fg">:</span>
-
-<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/formulae/matrices.py</span> in <span class="ansi-cyan-fg">_evaluate_new_data</span><span class="ansi-blue-fg">(self, data)</span>
-<span class="ansi-green-intense-fg ansi-bold">    257</span>         new_instance<span class="ansi-blue-fg">.</span>terms_info <span class="ansi-blue-fg">=</span> deepcopy<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">.</span>terms_info<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    258</span>         new_instance.design_matrix = np.column_stack(
-<span class="ansi-green-fg">--&gt; 259</span><span class="ansi-red-fg">             </span><span class="ansi-blue-fg">[</span>term<span class="ansi-blue-fg">.</span>eval_new_data<span class="ansi-blue-fg">(</span>data<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">for</span> term <span class="ansi-green-fg">in</span> self<span class="ansi-blue-fg">.</span>model<span class="ansi-blue-fg">.</span>terms<span class="ansi-blue-fg">]</span>
-<span class="ansi-green-intense-fg ansi-bold">    260</span>         )
-<span class="ansi-green-intense-fg ansi-bold">    261</span>         new_instance<span class="ansi-blue-fg">.</span>evaluated <span class="ansi-blue-fg">=</span> <span class="ansi-green-fg">True</span>
-
-<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/formulae/matrices.py</span> in <span class="ansi-cyan-fg">&lt;listcomp&gt;</span><span class="ansi-blue-fg">(.0)</span>
-<span class="ansi-green-intense-fg ansi-bold">    257</span>         new_instance<span class="ansi-blue-fg">.</span>terms_info <span class="ansi-blue-fg">=</span> deepcopy<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">.</span>terms_info<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    258</span>         new_instance.design_matrix = np.column_stack(
-<span class="ansi-green-fg">--&gt; 259</span><span class="ansi-red-fg">             </span><span class="ansi-blue-fg">[</span>term<span class="ansi-blue-fg">.</span>eval_new_data<span class="ansi-blue-fg">(</span>data<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">for</span> term <span class="ansi-green-fg">in</span> self<span class="ansi-blue-fg">.</span>model<span class="ansi-blue-fg">.</span>terms<span class="ansi-blue-fg">]</span>
-<span class="ansi-green-intense-fg ansi-bold">    260</span>         )
-<span class="ansi-green-intense-fg ansi-bold">    261</span>         new_instance<span class="ansi-blue-fg">.</span>evaluated <span class="ansi-blue-fg">=</span> <span class="ansi-green-fg">True</span>
-
-<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/formulae/terms/terms.py</span> in <span class="ansi-cyan-fg">eval_new_data</span><span class="ansi-blue-fg">(self, data)</span>
-<span class="ansi-green-intense-fg ansi-bold">    509</span>             )
-<span class="ansi-green-intense-fg ansi-bold">    510</span>         <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-fg">--&gt; 511</span><span class="ansi-red-fg">             </span>result <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>components<span class="ansi-blue-fg">[</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">.</span>eval_new_data<span class="ansi-blue-fg">(</span>data<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">    512</span>         <span class="ansi-green-fg">return</span> result
-<span class="ansi-green-intense-fg ansi-bold">    513</span>
-
-<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/formulae/terms/variable.py</span> in <span class="ansi-cyan-fg">eval_new_data</span><span class="ansi-blue-fg">(self, data_mask)</span>
-<span class="ansi-green-intense-fg ansi-bold">    216</span>         <span class="ansi-green-fg">if</span> self<span class="ansi-blue-fg">.</span>data <span class="ansi-green-fg">is</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-intense-fg ansi-bold">    217</span>             <span class="ansi-green-fg">raise</span> ValueError<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#34;self.data is None. This error shouldn&#39;t have happened!&#34;</span><span class="ansi-blue-fg">)</span>
-<span class="ansi-green-fg">--&gt; 218</span><span class="ansi-red-fg">         </span>x <span class="ansi-blue-fg">=</span> data_mask<span class="ansi-blue-fg">[</span>self<span class="ansi-blue-fg">.</span>name<span class="ansi-blue-fg">]</span>
-<span class="ansi-green-intense-fg ansi-bold">    219</span>         <span class="ansi-green-fg">if</span> self<span class="ansi-blue-fg">.</span>_type <span class="ansi-blue-fg">==</span> <span class="ansi-blue-fg">&#34;numeric&#34;</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-intense-fg ansi-bold">    220</span>             <span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>_eval_numeric<span class="ansi-blue-fg">(</span>x<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">&#34;value&#34;</span><span class="ansi-blue-fg">]</span>
-
-<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/pandas/core/frame.py</span> in <span class="ansi-cyan-fg">__getitem__</span><span class="ansi-blue-fg">(self, key)</span>
-<span class="ansi-green-intense-fg ansi-bold">   3456</span>             <span class="ansi-green-fg">if</span> self<span class="ansi-blue-fg">.</span>columns<span class="ansi-blue-fg">.</span>nlevels <span class="ansi-blue-fg">&gt;</span> <span class="ansi-cyan-fg">1</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-intense-fg ansi-bold">   3457</span>                 <span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>_getitem_multilevel<span class="ansi-blue-fg">(</span>key<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-fg">-&gt; 3458</span><span class="ansi-red-fg">             </span>indexer <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>columns<span class="ansi-blue-fg">.</span>get_loc<span class="ansi-blue-fg">(</span>key<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">   3459</span>             <span class="ansi-green-fg">if</span> is_integer<span class="ansi-blue-fg">(</span>indexer<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
-<span class="ansi-green-intense-fg ansi-bold">   3460</span>                 indexer <span class="ansi-blue-fg">=</span> <span class="ansi-blue-fg">[</span>indexer<span class="ansi-blue-fg">]</span>
-
-<span class="ansi-green-fg">~/anaconda3/envs/bmb/lib/python3.8/site-packages/pandas/core/indexes/base.py</span> in <span class="ansi-cyan-fg">get_loc</span><span class="ansi-blue-fg">(self, key, method, tolerance)</span>
-<span class="ansi-green-intense-fg ansi-bold">   3361</span>                 <span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>_engine<span class="ansi-blue-fg">.</span>get_loc<span class="ansi-blue-fg">(</span>casted_key<span class="ansi-blue-fg">)</span>
-<span class="ansi-green-intense-fg ansi-bold">   3362</span>             <span class="ansi-green-fg">except</span> KeyError <span class="ansi-green-fg">as</span> err<span class="ansi-blue-fg">:</span>
-<span class="ansi-green-fg">-&gt; 3363</span><span class="ansi-red-fg">                 </span><span class="ansi-green-fg">raise</span> KeyError<span class="ansi-blue-fg">(</span>key<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">from</span> err
-<span class="ansi-green-intense-fg ansi-bold">   3364</span>
-<span class="ansi-green-intense-fg ansi-bold">   3365</span>         <span class="ansi-green-fg">if</span> is_scalar<span class="ansi-blue-fg">(</span>key<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">and</span> isna<span class="ansi-blue-fg">(</span>key<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">and</span> <span class="ansi-green-fg">not</span> self<span class="ansi-blue-fg">.</span>hasnans<span class="ansi-blue-fg">:</span>
-
-<span class="ansi-red-fg">KeyError</span>: &#39;length&#39;
-</pre></div></div>
+<img alt="../_images/notebooks_categorical_regression_10_0.png" src="../_images/notebooks_categorical_regression_10_0.png" />
+</div>
 </div>
 <p>Here, we can notice that the probability phases betweeen classes from left to right. At all points across <span class="math notranslate nohighlight">\(x\)</span>, sum of the class probabilities is 1, since in our generative model, it must be one of these three outcomes.</p>
 </section>
@@ -788,16 +726,16 @@ The above exception was the direct cause of the following exception:
 <h2>The iris dataset<a class="headerlink" href="#The-iris-dataset" title="Permalink to this headline">#</a></h2>
 <p>Next, we will look at the classic “iris” dataset, which contains samples from 3 different species of iris plants. Using properties of the plant, we will try to model its species.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">iris</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s1">&#39;iris&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">iris</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;iris&quot;</span><span class="p">)</span>
 <span class="n">iris</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -857,10 +795,10 @@ The above exception was the direct cause of the following exception:
 </div>
 <p>The dataset includes four different properties of the plants: it’s sepal length, sepal width, petal length, and petal width. There are 3 different class possibilities: setosa, versicolor, and virginica.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sns</span><span class="o">.</span><span class="n">pairplot</span><span class="p">(</span><span class="n">iris</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s1">&#39;species&#39;</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sns</span><span class="o">.</span><span class="n">pairplot</span><span class="p">(</span><span class="n">iris</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;species&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -869,20 +807,20 @@ The above exception was the direct cause of the following exception:
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/seaborn/axisgrid.py:64: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
-  self.fig.tight_layout(*args, **kwargs)
+/home/tomas/anaconda3/envs/bambi/lib/python3.9/site-packages/seaborn/axisgrid.py:88: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
+  self._figure.tight_layout(*args, **kwargs)
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_categorical_regression_14_1.png" src="../_images/notebooks_categorical_regression_14_1.png" />
+<img alt="../_images/notebooks_categorical_regression_15_1.png" src="../_images/notebooks_categorical_regression_15_1.png" />
 </div>
 </div>
 <p>We can see the three species have several distinct characteristics, which our linear model can capture to distinguish between them.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
@@ -910,21 +848,26 @@ NUTS: [petal_width, petal_length, sepal_width, sepal_length, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:09<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:51<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput docutils container">
@@ -932,11 +875,11 @@ NUTS: [petal_width, petal_length, sepal_width, sepal_length, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 10 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 52 seconds.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -972,122 +915,122 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
   <tbody>
     <tr>
       <th>Intercept[versicolor]</th>
-      <td>-6.467</td>
-      <td>8.059</td>
-      <td>-20.822</td>
-      <td>8.876</td>
-      <td>0.243</td>
-      <td>0.172</td>
-      <td>1099.0</td>
-      <td>1335.0</td>
+      <td>-6.959</td>
+      <td>7.909</td>
+      <td>-21.094</td>
+      <td>7.953</td>
+      <td>0.234</td>
+      <td>0.183</td>
+      <td>1154.0</td>
+      <td>999.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Intercept[virginica]</th>
-      <td>-22.395</td>
-      <td>9.670</td>
-      <td>-40.911</td>
-      <td>-5.136</td>
-      <td>0.282</td>
-      <td>0.199</td>
-      <td>1173.0</td>
-      <td>1188.0</td>
+      <td>-22.725</td>
+      <td>9.226</td>
+      <td>-40.377</td>
+      <td>-5.868</td>
+      <td>0.269</td>
+      <td>0.194</td>
+      <td>1177.0</td>
+      <td>1316.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sepal_length[versicolor]</th>
-      <td>3.097</td>
-      <td>1.731</td>
-      <td>0.091</td>
-      <td>6.414</td>
-      <td>0.060</td>
-      <td>0.043</td>
-      <td>839.0</td>
-      <td>1009.0</td>
+      <td>3.155</td>
+      <td>1.674</td>
+      <td>-0.030</td>
+      <td>6.223</td>
+      <td>0.055</td>
+      <td>0.040</td>
+      <td>914.0</td>
+      <td>1141.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sepal_length[virginica]</th>
-      <td>2.303</td>
-      <td>1.788</td>
-      <td>-1.086</td>
-      <td>5.495</td>
-      <td>0.061</td>
-      <td>0.045</td>
-      <td>853.0</td>
-      <td>1091.0</td>
+      <td>2.346</td>
+      <td>1.749</td>
+      <td>-0.946</td>
+      <td>5.668</td>
+      <td>0.062</td>
+      <td>0.044</td>
+      <td>806.0</td>
+      <td>1043.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sepal_width[versicolor]</th>
-      <td>-4.782</td>
-      <td>1.939</td>
-      <td>-8.643</td>
-      <td>-1.293</td>
-      <td>0.061</td>
-      <td>0.044</td>
-      <td>1002.0</td>
-      <td>1199.0</td>
+      <td>-4.730</td>
+      <td>1.932</td>
+      <td>-8.587</td>
+      <td>-1.461</td>
+      <td>0.060</td>
+      <td>0.043</td>
+      <td>1022.0</td>
+      <td>1275.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>sepal_width[virginica]</th>
-      <td>-6.646</td>
-      <td>2.359</td>
-      <td>-11.049</td>
-      <td>-2.347</td>
-      <td>0.076</td>
-      <td>0.054</td>
-      <td>957.0</td>
-      <td>1157.0</td>
+      <td>-6.633</td>
+      <td>2.323</td>
+      <td>-10.787</td>
+      <td>-2.187</td>
+      <td>0.073</td>
+      <td>0.051</td>
+      <td>1016.0</td>
+      <td>954.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>petal_length[versicolor]</th>
-      <td>1.038</td>
-      <td>0.866</td>
-      <td>-0.672</td>
-      <td>2.557</td>
-      <td>0.027</td>
-      <td>0.019</td>
-      <td>1019.0</td>
-      <td>993.0</td>
+      <td>1.059</td>
+      <td>0.914</td>
+      <td>-0.709</td>
+      <td>2.765</td>
+      <td>0.031</td>
+      <td>0.023</td>
+      <td>874.0</td>
+      <td>964.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>petal_length[virginica]</th>
-      <td>3.986</td>
-      <td>1.050</td>
-      <td>2.070</td>
-      <td>6.000</td>
-      <td>0.033</td>
+      <td>4.006</td>
+      <td>1.028</td>
+      <td>1.961</td>
+      <td>5.814</td>
+      <td>0.032</td>
       <td>0.023</td>
-      <td>1020.0</td>
-      <td>1077.0</td>
+      <td>1000.0</td>
+      <td>1157.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>petal_width[versicolor]</th>
       <td>1.961</td>
-      <td>2.036</td>
-      <td>-1.730</td>
-      <td>5.720</td>
-      <td>0.067</td>
-      <td>0.048</td>
-      <td>924.0</td>
-      <td>1081.0</td>
+      <td>2.088</td>
+      <td>-1.634</td>
+      <td>6.187</td>
+      <td>0.075</td>
+      <td>0.053</td>
+      <td>784.0</td>
+      <td>982.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>petal_width[virginica]</th>
-      <td>9.082</td>
-      <td>2.274</td>
-      <td>4.626</td>
-      <td>13.132</td>
-      <td>0.077</td>
-      <td>0.054</td>
-      <td>874.0</td>
-      <td>883.0</td>
+      <td>9.105</td>
+      <td>2.309</td>
+      <td>4.933</td>
+      <td>13.555</td>
+      <td>0.074</td>
+      <td>0.052</td>
+      <td>961.0</td>
+      <td>858.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1095,7 +1038,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">idata</span><span class="p">);</span>
@@ -1106,7 +1049,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_categorical_regression_17_0.png" src="../_images/notebooks_categorical_regression_17_0.png" />
+<img alt="../_images/notebooks_categorical_regression_18_0.png" src="../_images/notebooks_categorical_regression_18_0.png" />
 </div>
 </div>
 <p>We can see that this has fit quite nicely. You’ll notice there are <span class="math notranslate nohighlight">\(n-1\)</span> parameters to fit, where <span class="math notranslate nohighlight">\(n\)</span> is the number of categories. In the minimal binary case, recall there’s only one parameter set, since it models probability <span class="math notranslate nohighlight">\(p\)</span> of being in a class, and probability <span class="math notranslate nohighlight">\(1-p\)</span> of being in the other class. Using the categorical distribution, this extends, so we have <span class="math notranslate nohighlight">\(p_1\)</span> for class 1, <span class="math notranslate nohighlight">\(p_2\)</span> for class 2, and <span class="math notranslate nohighlight">\(1-(p_1+p_2)\)</span> for the final class.</p>
@@ -1116,7 +1059,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <p>Next we will look at an example from chapter 8 of Alan Agresti’s <em>Categorical Data Analysis</em>, looking at the primary food choice for 64 alligators caught in Lake George, Florida. We will use their length (a continuous variable) and sex (a categorical variable) as predictors to model their food choice.</p>
 <p>First, reproducing the dataset,</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">length</span> <span class="o">=</span> <span class="p">[</span>
@@ -1145,7 +1088,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1197,7 +1140,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <p>Next, constructing the model,</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;choice ~ length + sex&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;categorical&quot;</span><span class="p">)</span>
@@ -1220,21 +1163,26 @@ NUTS: [sex, length, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:03<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:19<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1242,12 +1190,12 @@ NUTS: [sex, length, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 20 seconds.
 </pre></div></div>
 </div>
 <p>We can then look at how the food choices vary by length for both male and female alligators.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">new_length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
@@ -1259,8 +1207,8 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Other&quot;</span><span class="p">,</span> <span class="s2">&quot;Invertebrates&quot;</span><span class="p">,</span> <span class="s2">&quot;Fish&quot;</span><span class="p">]</span>
 
 <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">choice</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">choices</span><span class="p">):</span>
-   <span class="n">males</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;choice_mean_coord&quot;</span><span class="p">:</span><span class="n">choice</span><span class="p">,</span> <span class="s2">&quot;choice_obs&quot;</span><span class="p">:</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">49</span><span class="p">)})</span>
-   <span class="n">females</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;choice_mean_coord&quot;</span><span class="p">:</span><span class="n">choice</span><span class="p">,</span> <span class="s2">&quot;choice_obs&quot;</span><span class="p">:</span><span class="nb">slice</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">)})</span>
+   <span class="n">males</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;choice_mean_dim&quot;</span><span class="p">:</span><span class="n">choice</span><span class="p">,</span> <span class="s2">&quot;choice_obs&quot;</span><span class="p">:</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">49</span><span class="p">)})</span>
+   <span class="n">females</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;choice_mean_dim&quot;</span><span class="p">:</span><span class="n">choice</span><span class="p">,</span> <span class="s2">&quot;choice_obs&quot;</span><span class="p">:</span><span class="nb">slice</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">)})</span>
    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">new_length</span><span class="p">,</span> <span class="n">males</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">new_length</span><span class="p">,</span> <span class="n">females</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
    <span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">new_length</span><span class="p">,</span> <span class="n">males</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -1288,7 +1236,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/tmp/ipykernel_58160/2612338171.py:21: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
+/tmp/ipykernel_38053/2509692565.py:21: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
   fig.subplots_adjust(left=0.05, right=0.975, bottom=0.075, top=0.85)
 </pre></div></div>
 </div>
@@ -1296,14 +1244,14 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_categorical_regression_24_1.png" src="../_images/notebooks_categorical_regression_24_1.png" />
+<img alt="../_images/notebooks_categorical_regression_25_1.png" src="../_images/notebooks_categorical_regression_25_1.png" />
 </div>
 </div>
 <p>Here we can see that the larger male and female alligators are, the less of a taste they have for invertebrates, and far prefer fish. Additionally, males seem to have a higher propensity to consume “other” foods compared to females at any size. Of note, the posterior means predicted by Bambi contain information about all <span class="math notranslate nohighlight">\(n\)</span> categories (despite having only <span class="math notranslate nohighlight">\(n-1\)</span> coefficients), so we can directly construct this plot, rather than manually calculating <span class="math notranslate nohighlight">\(1-(p_1+p_2)\)</span> for the third
 class.</p>
 <p>Last, we can make a posterior predictive plot,</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
@@ -1320,7 +1268,7 @@ class.</p>
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_categorical_regression_26_0.png" src="../_images/notebooks_categorical_regression_26_0.png" />
+<img alt="../_images/notebooks_categorical_regression_27_0.png" src="../_images/notebooks_categorical_regression_27_0.png" />
 </div>
 </div>
 <p>which depicts posterior predicted probability for each possible food choice for an alligator, which reinforces fish being the most likely food choice, followed by invertebrates.</p>

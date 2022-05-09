@@ -1424,19 +1424,24 @@ NUTS: [log_radon_sigma, floor]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
   100.00% [4000/4000 00:02<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
@@ -1513,38 +1518,38 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
   <tbody>
     <tr>
       <th>floor[Basement]</th>
-      <td>1.362</td>
-      <td>0.028</td>
-      <td>1.307</td>
-      <td>1.409</td>
+      <td>1.363</td>
+      <td>0.029</td>
+      <td>1.309</td>
+      <td>1.418</td>
       <td>0.001</td>
       <td>0.000</td>
-      <td>2613.0</td>
-      <td>1627.0</td>
+      <td>2620.0</td>
+      <td>1401.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>floor[Floor]</th>
-      <td>0.777</td>
-      <td>0.064</td>
-      <td>0.665</td>
-      <td>0.902</td>
+      <td>0.775</td>
+      <td>0.068</td>
+      <td>0.641</td>
+      <td>0.897</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>2986.0</td>
-      <td>1561.0</td>
+      <td>2733.0</td>
+      <td>1240.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>log_radon_sigma</th>
       <td>0.791</td>
       <td>0.019</td>
-      <td>0.757</td>
-      <td>0.827</td>
+      <td>0.759</td>
+      <td>0.829</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2376.0</td>
-      <td>1493.0</td>
+      <td>2693.0</td>
+      <td>1717.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1660,7 +1665,7 @@ to. We pool all the counties into a single estimate, or in other words, we perfo
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-array([3.83010025, 2.13711049])
+array([3.84902894, 2.14455141])
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1777,21 +1782,26 @@ NUTS: [log_radon_sigma, county:floor]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:47<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 01:03<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1799,7 +1809,7 @@ NUTS: [log_radon_sigma, county:floor]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 48 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 63 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -2040,19 +2050,24 @@ NUTS: [log_radon_sigma, 1|county, 1|county_sigma, Intercept]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
   100.00% [4000/4000 00:04<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
@@ -2263,21 +2278,26 @@ NUTS: [log_radon_sigma, 1|county, 1|county_sigma, floor]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:06<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:04<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -2285,7 +2305,7 @@ NUTS: [log_radon_sigma, 1|county, 1|county_sigma, floor]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 7 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
 </pre></div></div>
 </div>
 <p>When looking at the graph representation of the model we still see the hierarchical structure for the <code class="docutils literal notranslate"><span class="pre">county</span></code> varying intercepts, but we do not see it for the <code class="docutils literal notranslate"><span class="pre">floor</span></code> feature as expected.</p>
@@ -2450,21 +2470,26 @@ NUTS: [log_radon_sigma, floor|county_offset, floor|county_sigma, floor]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
   <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:22<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [8000/8000 00:18<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -2472,7 +2497,7 @@ NUTS: [log_radon_sigma, floor|county_offset, floor|county_sigma, floor]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws total) took 23 seconds.
+Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws total) took 18 seconds.
 </pre></div></div>
 </div>
 <p>In the graph representation of the model we can now see hierarchical structures both in the intercepts and the slopes. The terms that end with <code class="docutils literal notranslate"><span class="pre">_offset</span></code> appeared because we are using a non-centered parametrization. This parametrization is an algebraic trick that helps computation but leaves the model unchanged.</p>
@@ -2637,21 +2662,26 @@ NUTS: [log_radon_sigma, floor|county_offset, floor|county_sigma, log_u, floor]
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
   <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:21<00:00 Sampling 2 chains, 0 divergences]
+  100.00% [8000/8000 00:20<00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -2659,7 +2689,7 @@ NUTS: [log_radon_sigma, floor|county_offset, floor|county_sigma, log_u, floor]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws total) took 22 seconds.
+Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws total) took 20 seconds.
 The number of effective samples is smaller than 25% for some parameters.
 </pre></div></div>
 </div>
@@ -2712,8 +2742,8 @@ The number of effective samples is smaller than 25% for some parameters.
 
 <span class="c1"># Compute the posterior for the floor coefficient when it is Basement</span>
 <span class="n">intercepts</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">covariate_results</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">floor_coord</span><span class="o">=</span><span class="s2">&quot;Basement&quot;</span><span class="p">)[</span><span class="s2">&quot;floor&quot;</span><span class="p">]</span>
-    <span class="o">+</span> <span class="n">covariate_results</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">floor_coord_group_expr</span><span class="o">=</span><span class="s2">&quot;Basement&quot;</span><span class="p">)[</span><span class="s2">&quot;floor|county&quot;</span><span class="p">]</span>
+    <span class="n">covariate_results</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">floor_dim</span><span class="o">=</span><span class="s2">&quot;Basement&quot;</span><span class="p">)[</span><span class="s2">&quot;floor&quot;</span><span class="p">]</span>
+    <span class="o">+</span> <span class="n">covariate_results</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">floor__expr_dim</span><span class="o">=</span><span class="s2">&quot;Basement&quot;</span><span class="p">)[</span><span class="s2">&quot;floor|county&quot;</span><span class="p">]</span>
 <span class="p">)</span><span class="o">.</span><span class="n">values</span>
 
 <span class="n">y_predicted</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercepts</span> <span class="o">+</span> <span class="n">log_u_slope</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="n">n_counties</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
@@ -2851,7 +2881,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <li><p>The partial pooling model is mixing global and information at county level. This is clearly seen by how corresponding (green) line is in between the pooling and unpooling lines.</p></li>
 </ul>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[50]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
@@ -2864,23 +2894,23 @@ The number of effective samples is smaller than 25% for some parameters.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Sat Feb 12 2022
+Last updated: Sat May 07 2022
 
 Python implementation: CPython
-Python version       : 3.8.5
-IPython version      : 7.29.0
+Python version       : 3.9.12
+IPython version      : 8.3.0
 
-pandas    : 1.3.1
-pymc3     : 3.11.4
-arviz     : 0.11.4
-seaborn   : 0.11.0
+pandas    : 1.4.2
+matplotlib: 3.5.2
+numpy     : 1.21.6
+pymc3     : 3.11.5
 bambi     : 0.7.1
-sys       : 3.8.5 (default, Sep  4 2020, 07:30:14)
-[GCC 7.3.0]
-numpy     : 1.20.0
-matplotlib: 3.5.1
+sys       : 3.9.12 | packaged by conda-forge | (main, Mar 24 2022, 23:25:59)
+[GCC 10.3.0]
+seaborn   : 0.11.2
+arviz     : 0.12.0
 
-Watermark: 2.1.0
+Watermark: 2.3.0
 
 </pre></div></div>
 </div>
