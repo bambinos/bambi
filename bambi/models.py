@@ -718,8 +718,8 @@ class Model:
         dims = {}
         for name in var_names:
             if name in self.terms:
-                coords.update(**self.terms[name].pymc_coords)
-                dims[name] = list(self.terms[name].pymc_coords.keys())
+                coords.update(**self.terms[name].coords)
+                dims[name] = list(self.terms[name].coords.keys())
 
         idata = from_dict(
             prior_predictive=prior_predictive,
@@ -811,37 +811,37 @@ class Model:
         if X is not None:
             beta_x_list = []
             term_names = list(self.common_terms)
-            coord_response = list(self.response.pymc_coords)
+            response_dims = list(self.response.coords)
 
             if self.intercept_term:
                 term_names.insert(0, "Intercept")
 
             for name in term_names:
-                coord_term = list(self.terms[name].pymc_coords)
+                term_dims = list(self.terms[name].coords)
                 term_posterior = posterior[name]
-                coords = set(term_posterior.coords)
+                dims = set(term_posterior.coords)
 
                 # 1-dimensional predictors (a single slope or intercept)
-                if coords == {"chain", "draw"}:
+                if dims == {"chain", "draw"}:
                     values = term_posterior.stack(samples=("chain", "draw")).values
                     if len(values.shape) == 1:
                         values = values[:, np.newaxis]
                 # 2-dimensional predictors (splines or categoricals)
-                elif coords == {"chain", "draw"}.union(coord_term):
-                    transpose_coords = ["samples"] + coord_term
+                elif dims == {"chain", "draw"}.union(term_dims):
+                    transpose_dims = ["samples"] + term_dims
                     values = (
                         term_posterior.stack(samples=("chain", "draw"))
-                        .transpose(*transpose_coords)
+                        .transpose(*transpose_dims)
                         .values
                     )
                     if len(values.shape) == 1:
                         values = values[:, np.newaxis]
                 # Multivariate families, we need to consider the dimension of the response too
                 elif isinstance(self.family, (multivariate.Categorical, multivariate.Multinomial)):
-                    transpose_coords = ["samples"] + coord_term + coord_response
+                    transpose_dims = ["samples"] + term_dims + response_dims
                     values = (
                         term_posterior.stack(samples=("chain", "draw"))
-                        .transpose(*transpose_coords)
+                        .transpose(*transpose_dims)
                         .values
                     )
                     # When p = 1 values is of shape (samples_n, response_n).
@@ -849,7 +849,7 @@ class Model:
                     if len(values.shape) == 2:
                         values = values[:, np.newaxis, :]
                 else:
-                    raise ValueError(f"Unexpected coordinates in term {name}")
+                    raise ValueError(f"Unexpected dimensions in term {name}")
 
                 beta_x_list.append(values)
 
@@ -876,58 +876,56 @@ class Model:
         if Z is not None:
             beta_z_list = []
             term_names = list(self.group_specific_terms)
-            coord_response = list(self.response.pymc_coords)
+            response_dims = list(self.response.coords)
 
             for name in term_names:
-                coord_term = list(self.terms[name].pymc_coords)
-                coord_factor = [c for c in coord_term if c.endswith("_coord_group_factor")]
-                coord_expr = [c for c in coord_term if c.endswith("_coord_group_expr")]
+                term_dims = list(self.terms[name].coords)
+                factor_dims = [c for c in term_dims if c.endswith("__factor_dim")]
+                expr_dims = [c for c in term_dims if c.endswith("__expr_dim")]
                 term_posterior = posterior[name]
-                coords = set(term_posterior.coords)
+                dims = set(term_posterior.dims)
 
-                # Group-specific term: len(coords) < 3 does not exist.
+                # Group-specific term: len(dims) < 3 does not exist.
                 # 1 dimensional predictors
-                if coords == {"chain", "draw"}.union(coord_expr):
-                    transpose_coords = ["samples"] + coord_expr
+                if dims == {"chain", "draw"}.union(expr_dims):
+                    transpose_dims = ["samples"] + expr_dims
                     values = (
                         term_posterior.stack(samples=("chain", "draw"))
-                        .traspose(*transpose_coords)
+                        .traspose(*transpose_dims)
                         .values
                     )
                 # 2 dimensional predictors
-                elif coords == {"chain", "draw"}.union(coord_expr + coord_factor):
-                    transpose_coords = ["samples", "coefs"]
+                elif dims == {"chain", "draw"}.union(expr_dims + factor_dims):
+                    transpose_dims = ["samples", "coefs"]
                     values = (
                         term_posterior.stack(samples=("chain", "draw"))
-                        .stack(coefs=tuple(coord_factor + coord_expr))
-                        .transpose(*transpose_coords)
+                        .stack(coefs=tuple(factor_dims + expr_dims))
+                        .transpose(*transpose_dims)
                         .values
                     )
                 # Multivariate families, need to consider dimensionality of the response
                 elif isinstance(self.family, (multivariate.Categorical, multivariate.Multinomial)):
                     # 1 dimensional predictors (there's no factor dimension)
-                    if coords == {"chain", "draw"}.union(coord_factor + coord_response):
-                        transpose_coords = ["samples"] + coord_factor + coord_response
+                    if dims == {"chain", "draw"}.union(factor_dims + response_dims):
+                        transpose_dims = ["samples"] + factor_dims + response_dims
                         values = (
                             term_posterior.stack(samples=("chain", "draw"))
-                            .transpose(*transpose_coords)
+                            .transpose(*transpose_dims)
                             .values
                         )
                     # 2 dimensional predictors (there's a factor dimension)
-                    elif coords == {"chain", "draw"}.union(
-                        coord_expr + coord_factor + coord_response
-                    ):
-                        transpose_coords = ["samples", "coefs"] + coord_response
+                    elif dims == {"chain", "draw"}.union(expr_dims + factor_dims + response_dims):
+                        transpose_dims = ["samples", "coefs"] + response_dims
                         values = (
                             term_posterior.stack(samples=("chain", "draw"))
-                            .stack(coefs=tuple(coord_factor + coord_expr))
-                            .transpose(*transpose_coords)
+                            .stack(coefs=tuple(factor_dims + expr_dims))
+                            .transpose(*transpose_dims)
                             .values
                         )
                     else:
-                        raise ValueError(f"Unexpected coordinates in term {name}")
+                        raise ValueError(f"Unexpected dimensions in term {name}")
                 else:
-                    raise ValueError(f"Unexpected coordinates in term {name}")
+                    raise ValueError(f"Unexpected dimensions in term {name}")
 
                 beta_z_list.append(values)
 

@@ -25,22 +25,22 @@ class Categorical(MultivariateFamily):
         mean = self.link.linkinv(linear_predictor, axis=-1)
 
         obs_n = mean.shape[2]
-        name = model.response.name + "_mean"
-        coord_name = model.response.name + "_obs"
+        response_var = model.response.name + "_mean"
+        response_dim = model.response.name + "_obs"
 
         # Drop var/dim if already present
-        if name in posterior.data_vars:
-            posterior = posterior.drop_vars(name)
+        if response_var in posterior.data_vars:
+            posterior = posterior.drop_vars(response_var)
 
-        if coord_name in posterior.dims:
-            posterior = posterior.drop_dims(coord_name)
+        if response_dim in posterior.dims:
+            posterior = posterior.drop_dims(response_dim)
 
-        response_coord_name = model.response.name + "_mean_coord"
-        coords = ("chain", "draw", coord_name, response_coord_name)
-        posterior[name] = (coords, mean)
+        response_levels_dim = model.response.name + "_mean_dim"
+        dims = ("chain", "draw", response_dim, response_levels_dim)
+        posterior[response_var] = (dims, mean)
 
-        posterior = posterior.assign_coords({response_coord_name: model.response.levels})
-        posterior = posterior.assign_coords({coord_name: list(range(obs_n))})
+        posterior = posterior.assign_coords({response_levels_dim: model.response.levels})
+        posterior = posterior.assign_coords({response_dim: list(range(obs_n))})
         return posterior
 
     def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
@@ -84,22 +84,22 @@ class Multinomial(MultivariateFamily):
         mean = self.link.linkinv(linear_predictor, axis=-1)
 
         obs_n = mean.shape[2]
-        name = model.response.name + "_mean"
-        coord_name = model.response.name + "_obs"
+        response_var = model.response.name + "_mean"
+        response_dim = model.response.name + "_obs"
 
         # Drop var/dim if already present
-        if name in posterior.data_vars:
-            posterior = posterior.drop_vars(name)
+        if response_var in posterior.data_vars:
+            posterior = posterior.drop_vars(response_var)
 
-        if coord_name in posterior.dims:
-            posterior = posterior.drop_dims(coord_name)
+        if response_dim in posterior.dims:
+            posterior = posterior.drop_dims(response_dim)
 
-        response_coord_name = model.response.name + "_mean_coord"
-        coords = ("chain", "draw", coord_name, response_coord_name)
-        posterior[name] = (coords, mean)
+        response_levels_dim = model.response.name + "_mean_dim"
+        dims = ("chain", "draw", response_dim, response_levels_dim)
+        posterior[response_var] = (dims, mean)
 
-        posterior = posterior.assign_coords({response_coord_name: model.response.levels})
-        posterior = posterior.assign_coords({coord_name: list(range(obs_n))})
+        posterior = posterior.assign_coords({response_levels_dim: model.response.levels})
+        posterior = posterior.assign_coords({response_dim: list(range(obs_n))})
         return posterior
 
     def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):

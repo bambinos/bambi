@@ -10,19 +10,19 @@ class UnivariateFamily(Family):
         """Predict mean response"""
         mean = self.link.linkinv(linear_predictor)
         obs_n = mean.shape[-1]
-        name = model.response.name + "_mean"
-        coord_name = name + "_obs"
+        response_var = model.response.name + "_mean"
+        response_dim = model.response.name + "_obs"
 
         # Drop var/dim if already present
-        if name in posterior.data_vars:
-            posterior = posterior.drop_vars(name)
+        if response_var in posterior.data_vars:
+            posterior = posterior.drop_vars(response_var)
 
-        if coord_name in posterior.dims:
-            posterior = posterior.drop_dims(coord_name)
+        if response_dim in posterior.dims:
+            posterior = posterior.drop_dims(response_dim)
 
-        coords = ("chain", "draw", coord_name)
-        posterior[name] = (coords, mean)
-        posterior = posterior.assign_coords({coord_name: list(range(obs_n))})
+        dims = ("chain", "draw", response_dim)
+        posterior[response_var] = (dims, mean)
+        posterior = posterior.assign_coords({response_dim: list(range(obs_n))})
         return posterior
 
 

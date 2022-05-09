@@ -55,19 +55,19 @@ class ResponseTerm:
         # We use pymc coords when the response is multi-categorical.
         # These help to give the appropriate shape to coefficients and make the resulting
         # InferenceData object much cleaner
-        self.pymc_coords = {}
+        self.coords = {}
         if isinstance(spec.family, Categorical):
-            name = self.name + "_coord"
-            self.pymc_coords[name] = [level for level in term.levels if level != self.reference]
+            name = self.name + "_dim"
+            self.coords[name] = [level for level in term.levels if level != self.reference]
         elif isinstance(spec.family, Multinomial):
-            name = self.name + "_coord"
+            name = self.name + "_dim"
             labels = extract_argument_names(self.name, list(extra_namespace))
             if labels:
                 self.levels = labels
             else:
                 self.levels = [str(level) for level in range(self.data.shape[1])]
             labels = self.levels[1:]
-            self.pymc_coords[name] = labels
+            self.coords[name] = labels
         # TBD: Continue here when we add general multivariate responses.
 
     def set_alias(self, value):
@@ -146,13 +146,13 @@ class Term:
         # Obtain pymc coordinates, only for categorical components of a term.
         # A categorical component can have up to two coordinates if it is including with both
         # reduced and full rank encodings.
-        self.pymc_coords = {}
+        self.coords = {}
         if self.categorical:
-            name = self.name + "_coord"
-            self.pymc_coords[name] = term.levels
+            name = self.name + "_dim"
+            self.coords[name] = term.levels
         elif self.data.ndim > 1 and self.data.shape[1] > 1:
-            name = self.name + "_coord"
-            self.pymc_coords[name] = np.arange(self.data.shape[1])
+            name = self.name + "_dim"
+            self.coords[name] = np.arange(self.data.shape[1])
 
     def set_alias(self, value):
         self.alias = value
@@ -224,15 +224,15 @@ class GroupSpecificTerm:
         self.is_cell_means = self.categorical and (self.data.sum(1) == 1).all()
 
         # Used in pymc model coords to label coordinates appropiately
-        self.pymc_coords = {}
+        self.coords = {}
 
         # Group is always a coordinate added to the model.
         expr, factor = self.name.split("|")
-        self.pymc_coords[factor + "_coord_group_factor"] = self.groups
+        self.coords[factor + "__factor_dim"] = self.groups
 
         if self.categorical:
-            name = expr + "_coord_group_expr"
-            self.pymc_coords[name] = term.expr.levels
+            name = expr + "__expr_dim"
+            self.coords[name] = term.expr.levels
 
     def invert_dummies(self, dummies):
         """

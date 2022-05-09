@@ -81,7 +81,7 @@ def test_distribute_group_specific_effect_over(diabetes_data):
 
     assert "C(age_grp)|BMI" in model.terms
     assert "1|BMI" in model.terms
-    assert model.terms["C(age_grp)|BMI"].pymc_coords["C(age_grp)_coord_group_expr"] == levels
+    assert model.terms["C(age_grp)|BMI"].coords["C(age_grp)__expr_dim"] == levels
 
     # This is equal to the sub-matrix of Z that corresponds to this term.
     # 442 is the number of observations. 163 the number of groups.
