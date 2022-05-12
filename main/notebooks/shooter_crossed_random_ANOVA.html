@@ -1830,7 +1830,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <img alt="../_images/notebooks_shooter_crossed_random_ANOVA_17_0.png" src="../_images/notebooks_shooter_crossed_random_ANOVA_17_0.png" />
 </div>
 </div>
-<p>The priors on the common effects seem quite reasonable. Recall that because of the -1 vs +1 contrast coding, the coefficients correspond to <em>half</em> the difference betwen the two levels of each factor. So the priors on the common effects essentially say that the black vs. white and gun vs. no gun (and their interaction) response rate differences are very unlikely to be as large as a full response per second.</p>
+<p>The priors on the common effects seem quite reasonable. Recall that because of the -1 vs +1 contrast coding, the coefficients correspond to <em>half</em> the difference between the two levels of each factor. So the priors on the common effects essentially say that the black vs. white and gun vs. no gun (and their interaction) response rate differences are very unlikely to be as large as a full response per second.</p>
 <p>Now let’s visualize the model estimates. We do this by passing the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object that resulted from the <code class="docutils literal notranslate"><span class="pre">Model.fit()</span></code> call to <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:

@@ -1921,7 +1921,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <img alt="../_images/notebooks_radon_example_64_0.png" src="../_images/notebooks_radon_example_64_0.png" />
 </div>
 </div>
-<p>As expeced, the values strongly concentrated along the diagonal. In other words, for each county and floor level combination, the model uses their sample mean of radon level as prediction, plus smoothing due to the non-flat priors.</p>
+<p>As expected, the values strongly concentrated along the diagonal. In other words, for each county and floor level combination, the model uses their sample mean of radon level as prediction, plus smoothing due to the non-flat priors.</p>
 <p><strong>What does no pooling exactly mean here?</strong></p>
 <p>In the previous example we said <em>complete pooling</em> means the observations are pooled together into single estimates no matter the county they belong to. The situation is completely the opposite in this <em>no pooling</em> scenario. Here, none of the measurements in a given county affect the computation of the coefficient for another county. That’s why, in the end, the estimation for each combination of county and floor level (i.e. <span class="math notranslate nohighlight">\(\gamma_{jk}\)</span>) is the mean of the measurements in that county and
 floor level (plus prior smoothing) as is reflected in the diagonal scatterplot above.</p>
