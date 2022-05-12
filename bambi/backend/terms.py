@@ -9,7 +9,7 @@ from bambi.priors import Prior
 
 
 class CommonTerm:
-    """Represetation of a common effects term in PyMC3
+    """Representation of a common effects term in PyMC3
 
     An object that builds the PyMC3 distribution for a common effects term. It also contains the
     coordinates that we then add to the model.
@@ -75,7 +75,7 @@ class CommonTerm:
 
 
 class GroupSpecificTerm:
-    """Represetation of a group specific effects term in PyMC3
+    """Representation of a group specific effects term in PyMC3
 
     Creates an object that builds the PyMC3 distribution for a group specific effect. It also
     contains the coordinates that we then add to the model.

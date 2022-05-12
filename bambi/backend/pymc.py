@@ -270,7 +270,7 @@ class PyMC3Model:
         # Coordinates that end with "_dim_0" are added automatically.
         # These represents unidimensional coordinates that are added for numerical variables.
         # These variables have a shape of 1 so we can concatenate the coefficients and multiply
-        # the resulting vector withe the design matrix.
+        # the resulting vector with the design matrix.
         # But having a unidimensional coordinate for a numeric variable does not make sense.
         # So we drop them.
         coords_to_drop = [dim for dim in idata.posterior.dims if dim.endswith("_dim_0")]

@@ -70,7 +70,7 @@ def test_likelihood_bad_priors():
     with pytest.raises(ValueError):
         Likelihood("Normal", parent="mu", sigma="HalfNormal")
 
-    # Passing unnecesary priors
+    # Passing unnecessary priors
     with pytest.raises(ValueError):
         Likelihood("Bernoulli", sigma=sigma)
 

@@ -891,7 +891,7 @@ class Model:
                     transpose_dims = ["samples"] + expr_dims
                     values = (
                         term_posterior.stack(samples=("chain", "draw"))
-                        .traspose(*transpose_dims)
+                        .transpose(*transpose_dims)
                         .values
                     )
                 # 2 dimensional predictors

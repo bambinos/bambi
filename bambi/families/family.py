@@ -9,10 +9,10 @@ class Family:
     name: str
         The name of the family. It can be any string.
     likelihood: Likelihood
-        A ``bambi.families.Likelihood`` instace specifying the model likelihood function.
+        A ``bambi.families.Likelihood`` instance specifying the model likelihood function.
     link: str or Link
         The name of the link function or a ``bambi.families.Link`` instance. The link function
-        transforms the linear model prediction to the mean parameter of the likelihood funtion.
+        transforms the linear model prediction to the mean parameter of the likelihood function.
 
     Examples
     --------
