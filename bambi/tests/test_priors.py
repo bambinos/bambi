@@ -2,7 +2,7 @@ from os.path import dirname, join
 import pytest
 
 import numpy as np
-import pymc3 as pm
+import pymc as pm
 import pandas as pd
 from scipy import special
 
@@ -39,7 +39,7 @@ def test_likelihood_class():
         assert hasattr(likelihood, name)
 
     # A likelihood with unrecognized name
-    # The class is not going to complain. Whether "Magic" works in PyMC3 is up to the user.
+    # The class is not going to complain. Whether "Magic" works in PyMC is up to the user.
     likelihood = Likelihood("Magic", parent="Wizard", sigma=sigma)
     for name in ["name", "priors", "parent"]:
         assert hasattr(likelihood, name)

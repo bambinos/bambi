@@ -16,7 +16,7 @@ from bambi.families.univariate import (
 
 from bambi.families.multivariate import Categorical, Multinomial
 
-# Default parameters for PyMC3 distributions
+# Default parameters for PyMC distributions
 SETTINGS_DISTRIBUTIONS = {
     "Bernoulli": {"p": 0.5},
     "Beta": {"alpha": 1, "beta": 1},

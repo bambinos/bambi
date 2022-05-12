@@ -2,9 +2,9 @@ import logging
 import traceback
 
 import numpy as np
-import pymc3 as pm
+import pymc as pm
 
-import theano.tensor as tt
+import aesara.tensor as at
 
 from bambi import version
 
@@ -15,19 +15,19 @@ from bambi.families.multivariate import Categorical, Multinomial
 _log = logging.getLogger("bambi")
 
 
-class PyMC3Model:
-    """PyMC3 model-fitting backend."""
+class PyMCModel:
+    """PyMC model-fitting backend."""
 
     INVLINKS = {
         "cloglog": cloglog,
         "identity": identity,
         "inverse_squared": inverse_squared,
-        "inverse": tt.inv,
-        "log": tt.exp,
+        "inverse": at.inv,
+        "log": at.exp,
         "logit": logit,
         "probit": probit,
         "tan_2": arctan_2,
-        "softmax": tt.nnet.softmax,
+        "softmax": at.nnet.softmax,
     }
 
     def __init__(self):
@@ -45,7 +45,7 @@ class PyMC3Model:
         self.spec = None
 
     def build(self, spec):
-        """Compile the PyMC3 model from an abstract model specification.
+        """Compile the PyMC model from an abstract model specification.
 
         Parameters
         ----------
@@ -86,7 +86,7 @@ class PyMC3Model:
         random_seed=None,
         **kwargs,
     ):
-        """Run PyMC3 sampler."""
+        """Run PyMC sampler."""
         # NOTE: Methods return different types of objects (idata, approximation, and dictionary)
         if method.lower() == "mcmc":
             result = self._run_mcmc(
@@ -121,7 +121,7 @@ class PyMC3Model:
             for term in spec.common_terms.values():
                 common_term = CommonTerm(term)
                 # Add coords
-                # NOTE: At the moment, there's a bug in PyMC3 so we need to check if coordinate is
+                # NOTE: At the moment, there's a bug in PyMC so we need to check if coordinate is
                 # present in the model before attempting to add it.
                 for name, values in common_term.coords.items():
                     if name not in self.model.coords:
@@ -134,7 +134,7 @@ class PyMC3Model:
                 columns.append(data)
 
             # Column vector of coefficients and design matrix
-            coefs = tt.concatenate(coefs)
+            coefs = at.concatenate(coefs)
             data = np.hstack(columns)
 
             # If there's an intercept, center the data
@@ -144,7 +144,7 @@ class PyMC3Model:
                 data = data - data.mean(0)
 
             # Add term to linear predictor
-            self.mu += tt.dot(data, coefs)
+            self.mu += at.dot(data, coefs)
 
     def _build_group_specific_terms(self, spec):
         # Add group specific terms that have prior for their correlation matrix
@@ -162,7 +162,7 @@ class PyMC3Model:
             group_specific_term = GroupSpecificTerm(term, spec.noncentered)
 
             # Add coords
-            # NOTE: At the moment, there's a bug in PyMC3 so we need to check if coordinate is
+            # NOTE: At the moment, there's a bug in PyMC so we need to check if coordinate is
             # present in the model before attempting to add it.
             for name, values in group_specific_term.coords.items():
                 if name not in self.model.coords:
@@ -223,7 +223,6 @@ class PyMC3Model:
                     chains=chains,
                     cores=cores,
                     random_seed=random_seed,
-                    return_inferencedata=True,
                     **kwargs,
                 )
             except (RuntimeError, ValueError):
@@ -241,7 +240,6 @@ class PyMC3Model:
                         chains=chains,
                         cores=cores,
                         random_seed=random_seed,
-                        return_inferencedata=True,
                         **kwargs,
                     )
                 else:
@@ -341,7 +339,7 @@ class PyMC3Model:
 
         Parameters
         ----------
-        model: PyMC3 model
+        model: PyMC model
 
         Returns
         -------
@@ -409,7 +407,8 @@ def add_lkj(backend, terms, eta=1):
     sigma = pm.HalfNormal.dist(sigma=sigma, shape=rows)
 
     # Obtain Cholesky factor for the covariance
-    lkj_decomp, corr, sigma = pm.LKJCholeskyCov(  # pylint: disable=unused-variable
+    # pylint: disable=unused-variable, disable=unpacking-non-sequence
+    (lkj_decomp, corr, sigma,) = pm.LKJCholeskyCov(
         "_LKJCholeskyCov_" + grouper,
         n=rows,
         eta=eta,
@@ -419,7 +418,7 @@ def add_lkj(backend, terms, eta=1):
     )
 
     coefs_offset = pm.Normal("_LKJ_" + grouper + "_offset", mu=0, sigma=1, shape=(rows, cols))
-    coefs = tt.dot(lkj_decomp, coefs_offset).T
+    coefs = at.dot(lkj_decomp, coefs_offset).T
 
     ## Separate group-specific terms
     start = 0
