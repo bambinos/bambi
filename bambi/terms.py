@@ -223,7 +223,7 @@ class GroupSpecificTerm:
         # Determine if the term represents cell-means encoding.
         self.is_cell_means = self.categorical and (self.data.sum(1) == 1).all()
 
-        # Used in pymc model coords to label coordinates appropiately
+        # Used in pymc model coords to label coordinates appropriately
         self.coords = {}
 
         # Group is always a coordinate added to the model.

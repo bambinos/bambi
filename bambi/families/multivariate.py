@@ -121,7 +121,7 @@ class Multinomial(MultivariateFamily):
         n = model.response.data.sum(1)
 
         # random.multinomial only accepts
-        # * n : interger
+        # * n : integer
         # * p : vector
         for i in range(obs_n):
             for j in range(draws_n):
