@@ -129,7 +129,7 @@ class Model:
         object_cols = list(data.select_dtypes("object").columns)
         cols_to_convert = list(set(object_cols + listify(categorical)))
         if cols_to_convert:
-            data = data.copy() # don't modify original data frame
+            data = data.copy()  # don't modify original data frame
             data[cols_to_convert] = data[cols_to_convert].apply(lambda x: x.astype("category"))
 
         self.data = data

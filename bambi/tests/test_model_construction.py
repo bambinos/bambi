@@ -14,6 +14,7 @@ from bambi.models import Model
 from bambi.terms import Term, GroupSpecificTerm
 from bambi.priors import Prior
 
+
 @pytest.fixture(scope="module")
 def data_numeric_xy():
     data = pd.DataFrame(
