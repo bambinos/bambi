@@ -16,6 +16,7 @@
 - Removed `_extract_family_prior()` from `bambi/families` as it was unnecesary (#472)
 - Removed `bambi/families/utils.py` as it was unnecesary (#472)
 - Replaced `"_coord_group_factor"` with `"__factor_dim"` and `"_coord_group_expr"` with `"__expr_dim"` in dimension/coord names (#499)
+- Fixed a bug related to modifying the types of the columns in the original data frame (#502)
 
 ### Documentation
 
