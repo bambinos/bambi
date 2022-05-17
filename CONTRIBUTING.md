@@ -39,7 +39,7 @@ Both more or less follows PEP 8.
 ### Docstring formatting
 
 Docstrings should follow the
-[numpy docstring guide](https://numpydoc.readthedocs.io/en/latest/format.html)
+[NumPy docstring guide](https://numpydoc.readthedocs.io/en/latest/format.html)
 Please reasonably document any additions or changes to the codebase, when in doubt, add a docstring.
 
 ## Steps
@@ -54,13 +54,13 @@ Please reasonably document any additions or changes to the codebase, when in dou
    git remote add upstream git@github.com:bambinos/bambi.git
    ```
 
-3. Create a `feature` branch to hold your development changes:
+3. Create a feature branch (e.g. `my-feature`) to hold your development changes:
 
    ```bash
    git checkout -b my-feature
    ```
 
-   Always use a `feature` branch. It's good practice to never routinely work on the `master` branch of any repository.
+   Always use a feature branch. It's good practice to never routinely work on the `main` branch of any repository.
 
 4. Project requirements are in `requirements.txt`, and libraries used for development are in `requirements-dev.txt`. To set up a development environment, you may run:
 
@@ -73,7 +73,7 @@ Please reasonably document any additions or changes to the codebase, when in dou
 
    ```bash
    git add modified_files
-   git commit
+   git commit -m "Message summarizing commit changes"
    ```
 
    to record your changes locally.
@@ -81,7 +81,7 @@ Please reasonably document any additions or changes to the codebase, when in dou
 
    ```bash
    git fetch upstream
-   git rebase upstream/master
+   git rebase upstream/main
    ```
 
    Then push the changes to your GitHub account with:
@@ -117,15 +117,19 @@ We recommend that your contribution complies with the following guidelines befor
 - Code coverage **cannot** decrease. Coverage can be checked with **pytest-cov** package:
 
   ```bash
-  pip install pytest pytest-cov coverage
   pytest --cov=bambi --cov-report=html bambi/tests/
+  ```
+
+- Your code passes black
+
+  ```bash
+  black bambi/
   ```
 
 - Your code passes pylint
 
   ```bash
-  pip install pylint
   pylint bambi/
   ```
 
-**This guide was derived from the [arviz guide to contributing](https://github.com/arviz-devs/arviz/blob/master/CONTRIBUTING.md)**
+**This guide was derived from the [ArviZ guide to contributing](https://github.com/arviz-devs/arviz/blob/master/CONTRIBUTING.md)**
