@@ -420,14 +420,14 @@ def test_posterior_predictive(crossed_data):
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
     model = Model("count ~ threecats + continuous + dummy", crossed_data, family="poisson")
     fitted = model.fit(tune=0, draws=10, chains=2)
-    pps = model.predict(fitted, kind="pps", draws=500, inplace=False)
+    pps = model.predict(fitted, kind="pps", inplace=False)
 
-    assert pps.posterior_predictive["count"].shape == (2, 500, 120)
+    assert pps.posterior_predictive["count"].shape == (2, 10, 120)
 
-    pps = model.predict(fitted, kind="pps", draws=500, inplace=True)
+    pps = model.predict(fitted, kind="pps", inplace=True)
 
     assert pps is None
-    assert fitted.posterior_predictive["count"].shape == (2, 500, 120)
+    assert fitted.posterior_predictive["count"].shape == (2, 10, 120)
 
 
 def test_gamma_regression(dm):

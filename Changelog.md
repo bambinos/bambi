@@ -35,6 +35,7 @@
 ### Deprecation
 
 - Removed old default priors (#474)
+- Removed `draws` parameter from `Model.predict()` method (#504)
 
 ### 0.7.1
 
