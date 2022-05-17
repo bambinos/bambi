@@ -9,10 +9,10 @@ import pytest
 
 from formulae import design_matrices
 
+from bambi.data.datasets import load_data
 from bambi.models import Model
 from bambi.terms import Term, GroupSpecificTerm
 from bambi.priors import Prior
-
 
 @pytest.fixture(scope="module")
 def data_numeric_xy():
@@ -391,3 +391,16 @@ def test_1d_group_specific():
     model = Model("y ~ (x|g)", data)
     model.build()
     assert model.backend.mu.tag.test_value.shape == (40,)
+
+
+def test_data_is_copied():
+    adults = load_data("adults")
+
+    model_1 = Model("age ~ sex * race", adults)
+    model_2 = Model("age ~ sex * race", adults, categorical=["age", "sex"])
+
+    for model in [model_1, model_2]:
+        assert id(adults) != id(model.data)
+        assert all(model.data.dtypes[:3] == "category")
+
+    assert all(adults.dtypes[:3] == "object")
