@@ -125,16 +125,12 @@ class Model:
         elif not isinstance(data, pd.DataFrame):
             raise ValueError("'data' must be a string with a path to a .csv or a pandas DataFrame.")
 
-        # Object columns converted to category by default.
-        obj_cols = data.select_dtypes(["object"]).columns
-        data[obj_cols] = data[obj_cols].apply(lambda x: x.astype("category"))
-
-        # Explicitly convert columns to category if desired--though this
-        # can also be done within the formula using C().
-        if categorical is not None:
-            data = data.copy()
-            cats = listify(categorical)
-            data[cats] = data[cats].apply(lambda x: x.astype("category"))
+        # Convert 'object' and explicitly asked columns to categorical.
+        object_cols = list(data.select_dtypes("object").columns)
+        cols_to_convert = list(set(object_cols + listify(categorical)))
+        if cols_to_convert:
+            data = data.copy()  # don't modify original data frame
+            data[cols_to_convert] = data[cols_to_convert].apply(lambda x: x.astype("category"))
 
         self.data = data
 

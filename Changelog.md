@@ -6,16 +6,20 @@
 
 - Add VonMises (`"vonmises"`) built-in family (#453)
 - `Model.predict()` gains a new argument `include_group_specific` to determine if group-specific effects are considered when making predictions (#470)
+- Add Multinomial (`"multinomial"`) built-in family (#490)
 
 ### Maintenance and fixes
 
 - Add posterior predictive sampling method to "categorical" family (#458)
+- Require Python >= 3.7.2 to fix NoReturn type bug in Python (#463)
 - Fixed the wrong builtin link given by `link="inverse"` was wrong. It returned the same result as `link="cloglog"` (#472)
 - Replaced plain dictionaries with `namedtuple`s when same dictionary structure was repeated many times (#472)
 - The function `check_full_rank()` in `utils.py` now checks the array is 2 dimensional (#472)
 - Removed `_extract_family_prior()` from `bambi/families` as it was unnecesary (#472)
 - Removed `bambi/families/utils.py` as it was unnecesary (#472)
+- Removed external links and unused datasets (#483)
 - Replaced `"_coord_group_factor"` with `"__factor_dim"` and `"_coord_group_expr"` with `"__expr_dim"` in dimension/coord names (#499)
+- Fixed a bug related to modifying the types of the columns in the original data frame (#502)
 
 ### Documentation
 
@@ -26,8 +30,11 @@
 - Fix typos and clear up writing in some docs (#462)
 - Documented the module `bambi/defaults` (#472)
 - Improved documentation and made it more consistent (#472)
+- Cleaned Strack RRR example (#479)
 
 ### Deprecation
+
+- Removed old default priors (#474)
 
 ### 0.7.1
 
