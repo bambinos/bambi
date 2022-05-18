@@ -1,6 +1,16 @@
 # Changelog
 
-### 0.X.X
+## 0.X.X
+
+### New features
+
+### Maintenance and fixes
+
+### Documentation
+
+### Deprecation
+
+## 0.8.0
 
 ### New features
 
@@ -37,13 +47,13 @@
 - Removed old default priors (#474)
 - Removed `draws` parameter from `Model.predict()` method (#504)
 
-### 0.7.1
+## 0.7.1
 
 ### Maintenance and fixes
 
 - Fixed bug related to the shape of 2 level categorical group-specific effects (#441)
 
-### 0.7.0
+## 0.7.0
 
 ### New features
 
@@ -63,11 +73,11 @@
 - Add B-Spline regression example with cherry blossoms dataset (#416)
 - Add hirarchical linear regression example with sleepstudy dataset (#424)
 
-### 0.6.3
+## 0.6.3
 
 - Use formulae 0.2.0 (#411)
 
-### 0.6.2
+## 0.6.2
 
 ### Maintenance and fixes
 
@@ -79,7 +89,7 @@
 - Corrected a typo: pary_id -> party_id (#402)
 - Add donation information (#409)
 
-### 0.6.1
+## 0.6.1
 
 ### Maintenance and fixes
 
@@ -91,7 +101,7 @@
 
 - Add example with hierarchical binomial model (#398)
 
-### 0.6.0
+## 0.6.0
 
 ### New features
 
@@ -114,7 +124,7 @@
 - Add Negative Binomial family example notebook (#346)
 - Fixed typos and improved many notebooks (#374, #377, #382)
 
-### 0.5.0
+## 0.5.0
 
 ### New features
 
@@ -140,7 +150,7 @@
 - Webpage theme has been updated to PyData theme (#347)
 - Add model evaluation to logistic regression example (#350)
 
-### 0.4.1
+## 0.4.1
 
 ### New features
 
@@ -157,7 +167,7 @@
 
 - Fix gamma docstring (#328)
 
-### 0.4.0
+## 0.4.0
 
 ### New features
 
@@ -173,7 +183,7 @@
 - Add citation to Bambi preprint (#290)
 - Remove reference to pystan (#292)
 
-### 0.3.0
+## 0.3.0
 
 ### New features
 
@@ -217,7 +227,7 @@
 - Remove stan backend and replace sd with sigma (#205)
 - Deprecate samples argument in favor of draws (#247)
 
-### 0.2.0 The First Python 3 (and ArviZ) Bambino
+## 0.2.0 The First Python 3 (and ArviZ) Bambino
 
 ### New features
 
@@ -247,7 +257,7 @@
 
 - Deprecate Stan backend (#183)
 
-### 0.1.5 (The last legacy Python Bambino)
+## 0.1.5 (The last legacy Python Bambino)
 
 ### New features
 
