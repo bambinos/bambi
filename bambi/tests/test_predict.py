@@ -68,7 +68,7 @@ def inhaler():
 def test_predict_bernoulli(data_bernoulli):
     data = data_bernoulli
     model = Model("y ~ x1*x2", data, family="bernoulli")
-    idata = model.fit(target_accept=0.90)
+    idata = model.fit(tune=100, draws=100, target_accept=0.90)
 
     model.predict(idata, kind="mean")
     model.predict(idata, kind="pps")
@@ -87,7 +87,7 @@ def test_predict_beta(data_beta):
     data = data_beta
     data["batch"] = pd.Categorical(data["batch"], [10, 1, 2, 3, 4, 5, 6, 7, 8, 9], ordered=True)
     model = Model("yield ~ temp + batch", data, family="beta")
-    idata = model.fit(target_accept=0.90)
+    idata = model.fit(tune=100, draws=100, target_accept=0.90)
 
     model.predict(idata, kind="mean")
     model.predict(idata, kind="pps")
@@ -110,7 +110,7 @@ def test_predict_gamma(data_gamma):
     data = data_gamma
 
     model = Model("y ~ x", data, family="gamma", link="log")
-    idata = model.fit()
+    idata = model.fit(tune=100, draws=100)
 
     model.predict(idata, kind="mean")
     model.predict(idata, kind="pps")
@@ -128,7 +128,7 @@ def test_predict_gamma(data_gamma):
 def test_predict_gaussian(data_numeric_xy):
     data = data_numeric_xy
     model = Model("y ~ x", data, family="gaussian")
-    idata = model.fit()
+    idata = model.fit(tune=100, draws=100)
 
     model.predict(idata, kind="mean")
     model.predict(idata, kind="pps")
@@ -141,7 +141,7 @@ def test_predict_negativebinomial(data_count):
     data = data_count
 
     model = Model("y ~ x", data, family="negativebinomial")
-    idata = model.fit()
+    idata = model.fit(tune=100, draws=100)
 
     model.predict(idata, kind="mean")
     model.predict(idata, kind="pps")
@@ -160,7 +160,7 @@ def test_predict_poisson(data_count):
     data = data_count
 
     model = Model("y ~ x", data, family="negativebinomial")
-    idata = model.fit()
+    idata = model.fit(tune=100, draws=100)
 
     model.predict(idata, kind="mean")
     model.predict(idata, kind="pps")
@@ -178,7 +178,7 @@ def test_predict_poisson(data_count):
 def test_predict_t(data_numeric_xy):
     data = data_numeric_xy
     model = Model("y ~ x", data, family="t")
-    idata = model.fit()
+    idata = model.fit(tune=100, draws=100)
 
     model.predict(idata, kind="mean")
     model.predict(idata, kind="pps")
@@ -191,7 +191,7 @@ def test_predict_wald(data_gamma):
     data = data_gamma
 
     model = Model("y ~ x", data, family="wald", link="log")
-    idata = model.fit()
+    idata = model.fit(tune=100, draws=100)
 
     model.predict(idata, kind="mean")
     model.predict(idata, kind="pps")
@@ -208,7 +208,7 @@ def test_predict_wald(data_gamma):
 
 def test_predict_categorical(inhaler):
     model = Model("rating ~ period + carry + treat", inhaler, family="categorical")
-    idata = model.fit()
+    idata = model.fit(tune=100, draws=100)
 
     model.predict(idata)
     assert np.allclose(idata.posterior["rating_mean"].values.sum(-1), 1)
@@ -217,7 +217,7 @@ def test_predict_categorical(inhaler):
     assert np.allclose(idata.posterior["rating_mean"].values.sum(-1), 1)
 
     model = Model("rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical")
-    idata = model.fit()
+    idata = model.fit(tune=100, draws=100)
 
     model.predict(idata)
     assert np.allclose(idata.posterior["rating_mean"].values.sum(-1), 1)
@@ -228,7 +228,7 @@ def test_predict_categorical(inhaler):
 
 def test_posterior_predictive_categorical(inhaler):
     model = Model("rating ~ period", data=inhaler, family="categorical")
-    idata = model.fit()
+    idata = model.fit(tune=100, draws=100)
     model.predict(idata, kind="pps")
     pps = idata.posterior_predictive["rating"].values
 
@@ -270,14 +270,14 @@ def test_predict_multinomial(inhaler):
 
     # Intercept only
     model = Model("c(y1, y2, y3, y4) ~ 1", df, family="multinomial")
-    idata = model.fit()
+    idata = model.fit(tune=100, draws=100)
 
     model.predict(idata)
     model.predict(idata, data=df.iloc[:3, :])
 
     # Numerical predictors
     model = Model("c(y1, y2, y3, y4) ~ treat + carry", df, family="multinomial")
-    idata = model.fit()
+    idata = model.fit(tune=100, draws=100)
 
     model.predict(idata)
     model.predict(idata, data=df.iloc[:3, :])
@@ -287,7 +287,7 @@ def test_predict_multinomial(inhaler):
     df["carry"] = df["carry"].replace({-1: "a", 0: "b", 1: "c"})
 
     model = Model("c(y1, y2, y3, y4) ~ treat + carry", df, family="multinomial")
-    idata = model.fit()
+    idata = model.fit(tune=100, draws=100)
 
     model.predict(idata)
     model.predict(idata, data=df.iloc[:3, :])
@@ -322,7 +322,7 @@ def test_posterior_predictive_multinomial(inhaler):
 
     # Intercept only
     model = Model("c(y1, y2, y3, y4) ~ 1", df, family="multinomial")
-    idata = model.fit()
+    idata = model.fit(tune=100, draws=100)
 
     # The sum across the columns of the response is the same for all the chain and draws.
     model.predict(idata, kind="pps")

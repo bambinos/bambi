@@ -8,7 +8,7 @@ class MultivariateFamily(Family):
     def predict(self, model, posterior, linear_predictor):
         return NotImplemented
 
-    def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
+    def posterior_predictive(self, model, posterior, linear_predictor):
         return NotImplemented
 
 
@@ -43,7 +43,7 @@ class Categorical(MultivariateFamily):
         posterior = posterior.assign_coords({response_dim: list(range(obs_n))})
         return posterior
 
-    def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
+    def posterior_predictive(self, model, posterior, linear_predictor):
         # https://stackoverflow.com/questions/34187130
         def draw_categorical_samples(probability_matrix, items):
             cumsum = probability_matrix.cumsum(axis=0)
@@ -55,8 +55,6 @@ class Categorical(MultivariateFamily):
         linear_predictor = np.concatenate([np.zeros(shape[:-1] + (1,)), linear_predictor], axis=-1)
 
         mean = self.link.linkinv(linear_predictor, axis=-1)
-        idxs = np.random.randint(low=0, high=draw_n, size=draws)
-        mean = mean[:, idxs, :, :]
         shape = mean.shape
 
         mean = mean.reshape((mean.shape[0] * mean.shape[1], mean.shape[2], mean.shape[3]))
@@ -102,15 +100,11 @@ class Multinomial(MultivariateFamily):
         posterior = posterior.assign_coords({response_dim: list(range(obs_n))})
         return posterior
 
-    def posterior_predictive(self, model, posterior, linear_predictor, draws, draw_n):
+    def posterior_predictive(self, model, posterior, linear_predictor):
         shape = linear_predictor.shape
         linear_predictor = np.concatenate([np.zeros(shape[:-1] + (1,)), linear_predictor], axis=-1)
 
         mean = self.link.linkinv(linear_predictor, axis=-1)
-
-        # Select draws from the mean posterior
-        idxs = np.random.randint(low=0, high=draw_n, size=draws)
-        mean = mean[:, idxs, :, :]
         shape = mean.shape
 
         mean = mean.reshape((mean.shape[0] * mean.shape[1], mean.shape[2], mean.shape[3]))

@@ -734,9 +734,7 @@ class Model:
         return idata
 
     # pylint: disable=protected-access
-    def predict(
-        self, idata, kind="mean", data=None, draws=None, inplace=True, include_group_specific=True
-    ):
+    def predict(self, idata, kind="mean", data=None, inplace=True, include_group_specific=True):
         """Predict method for Bambi models
 
         Obtains in-sample and out-of-sample predictions from a fitted Bambi model.
@@ -758,10 +756,6 @@ class Model:
             If ``True`` make predictions including the group specific effects. Otherwise,
             predictions are made with common effects only (i.e. group specific are set
             to zero).
-        draws: None
-            The number of random draws per chain. Only used if ``kind="pps"``. Not recommended
-            unless more than ndraws times nchains posterior predictive samples are needed.
-            Defaults to ``None`` which means ndraws draws are obtained.
         inplace: bool
             If ``True`` it will modify ``idata`` in-place. Otherwise, it will return a copy of
             ``idata`` with the predictions added. If ``kind="mean"``, a new variable ending in
@@ -784,7 +778,6 @@ class Model:
         chain_n = len(idata.posterior.coords.get("chain"))
         draw_n = len(idata.posterior.coords.get("draw"))
         posterior = idata.posterior
-        draws = draw_n if draws is None else draws
         in_sample = data is None
 
         if not inplace:
@@ -951,8 +944,6 @@ class Model:
                 "model": self,
                 "posterior": posterior,
                 "linear_predictor": linear_predictor,
-                "draws": draws,
-                "draw_n": draw_n,
             }
 
             if not in_sample and isinstance(self.family, univariate.Binomial):
