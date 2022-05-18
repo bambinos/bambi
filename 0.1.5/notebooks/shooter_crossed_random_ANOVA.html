@@ -6,10 +6,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Bayesian Workflow Example (Police Officer’s Dilemma) &#8212; Bambi 0.7.1 documentation</title>
+    <title>Bayesian Workflow Example (Police Officer’s Dilemma) &#8212; Bambi 0.8.0 documentation</title>
     
-  <link href="../_static/css/theme.css" rel="stylesheet">
-  <link href="../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -19,22 +20,18 @@
   <link rel="preload" as="font" type="font/woff2" crossorigin
     href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
-    
-      
-
-    
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/blank.css" />
     
-  <link rel="preload" as="script" href="../_static/js/index.be7d3bbb2ef33a8344ce.js">
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Bayesian Workflow Example (Strack RRR Analysis Replication)" href="Strack_RRR_re_analysis.html" />
@@ -46,7 +43,7 @@
     <!-- Google Analytics -->
     
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
     
     <div class="container-fluid" id="banner"></div>
 
@@ -102,16 +99,12 @@
       <div class="navbar-end-item">
         <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
         <li class="nav-item">
-          <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub">
-            <span><i class="fab fa-github-square"></i></span>
-            <label class="sr-only">GitHub</label>
-          </a>
+          <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="https://pypi.org/project/bambi/" rel="noopener" target="_blank" title="PyPi">
-            <span><i class="fas fa-box"></i></span>
-            <label class="sr-only">PyPi</label>
-          </a>
+          <a class="nav-link" href="https://pypi.org/project/bambi/" rel="noopener" target="_blank" title="PyPi"><span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label></a>
         </li>
       </ul>
       </div>
@@ -128,6 +121,7 @@
             
             <!-- Only show if we have sidebars configured, else just a small margin  -->
             <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items">
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -143,7 +137,7 @@
   <p style="margin-top: 1em; margin-bottom: 0;">
     <strong>
     You're reading an old version of this documentation (v. 0.1.5).<br>
-    If you want up-to-date information, please have a look at <a href="../../0.7.1/index.html">latest</a>.
+    If you want up-to-date information, please have a look at <a href="../../0.8.0/index.html">latest</a>.
   </strong>
   </p>
   
@@ -166,7 +160,15 @@
                 
 
                   
-                    <li><a href="../../0.7.1/index.html">0.7.1 (latest)</a></li>
+                    <li><a href="../../0.8.0/index.html">0.8.0 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.7.1/index.html">0.7.1</a></li>
                   
 
                 
@@ -266,6 +268,9 @@
   </nav>
 
 
+              </div>
+              <div class="sidebar-end-items">
+              </div>
             </div>
             
           
@@ -276,7 +281,7 @@
               
               <div class="toc-item">
                 
-<div class="tocsection onthispage pt-5 pb-3">
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
     <i class="fas fa-list"></i> On this page
 </div>
 
@@ -579,7 +584,7 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <section id="Bayesian-Workflow-Example-(Police-Officer’s-Dilemma)">
-<h1>Bayesian Workflow Example (Police Officer’s Dilemma)<a class="headerlink" href="#Bayesian-Workflow-Example-(Police-Officer’s-Dilemma)" title="Permalink to this headline">¶</a></h1>
+<h1>Bayesian Workflow Example (Police Officer’s Dilemma)<a class="headerlink" href="#Bayesian-Workflow-Example-(Police-Officer’s-Dilemma)" title="Permalink to this headline">#</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -606,7 +611,7 @@ and in each round or “trial” a person or “target” appears on the screen 
 Subjects receive points for correct and timely responses in each trial; subjects’ scores are penalized for incorrect reponses (i.e., shooting an unarmed person or failing to shoot an armed person) or if they don’t respond within the 0.85 response window. The goal of the task, from the subject’s perspective, is to maximize their score.</p>
 <p>The typical findings in the shooter task are that (a) subjects are quicker to respond to armed targets than to unarmed targets, but are <em>especially</em> quick toward armed black targets and especially slow toward unarmed black targets, and (b) subjects are more likely to shoot black targets than white targets, whether they are armed or not.</p>
 <section id="Load-and-examine-data">
-<h2>Load and examine data<a class="headerlink" href="#Load-and-examine-data" title="Permalink to this headline">¶</a></h2>
+<h2>Load and examine data<a class="headerlink" href="#Load-and-examine-data" title="Permalink to this headline">#</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -1747,9 +1752,9 @@ be a little more convenient for us by allowing us to use some fairly standard di
 </div>
 </section>
 <section id="Fit-response-rate-models">
-<h2>Fit response rate models<a class="headerlink" href="#Fit-response-rate-models" title="Permalink to this headline">¶</a></h2>
+<h2>Fit response rate models<a class="headerlink" href="#Fit-response-rate-models" title="Permalink to this headline">#</a></h2>
 <section id="Random-subject-effects-only">
-<h3>Random subject effects only<a class="headerlink" href="#Random-subject-effects-only" title="Permalink to this headline">¶</a></h3>
+<h3>Random subject effects only<a class="headerlink" href="#Random-subject-effects-only" title="Permalink to this headline">#</a></h3>
 <p>Our first model is analogous to how the data from the shooter task are usually analyzed: incorporating all subject-level sources of variability, but ignoring the sampling variability due to the sample of 50 targets. This is a Bayesian generalized linear mixed model (GLMM) with a Normal response and with intercepts and slopes that vary randomly across subjects. Of note here is the <code class="docutils literal notranslate"><span class="pre">C(x,</span> <span class="pre">Sum)</span></code> syntax, which is from the <a class="reference external" href="http://statsmodels.sourceforge.net/stable/contrasts.html">Patsy library</a>
 that we use to parse formulae. This instructs Bambi to use contrast codes of -1 and +1 for the two levels of each of the fixed factors of <code class="docutils literal notranslate"><span class="pre">race</span></code> (black vs. white) and <code class="docutils literal notranslate"><span class="pre">object</span></code> (gun vs. no gun), so that the <code class="docutils literal notranslate"><span class="pre">race</span></code> and <code class="docutils literal notranslate"><span class="pre">object</span></code> coefficients can be interpreted as simple effects on average across the levels of the other factor (directly analogous, but not quite equivalent, to the main effects). This is the standard coding used in ANOVA.</p>
 <div class="nbinput docutils container">
@@ -1950,7 +1955,7 @@ fixed effect priors (see <a class="reference external" href="https://arxiv.org/a
 away from 0.</p>
 </section>
 <section id="Random-stimulus-effects">
-<h3>Random stimulus effects<a class="headerlink" href="#Random-stimulus-effects" title="Permalink to this headline">¶</a></h3>
+<h3>Random stimulus effects<a class="headerlink" href="#Random-stimulus-effects" title="Permalink to this headline">#</a></h3>
 <p>A major flaw in the analysis above is that random stimulus effects are ignored. The model does include random effects for subjects, reflecting the fact that the subjects we observed are but a sample from the broader population of subjects we are interested in and that potentially could have appeared in our study. But the targets we observed – the 50 photographs of white and black men that subjets responded to – are also but a sample from the broader theoretical population of targets we are
 interested in talking about, and that we could have just as easily and justifiably used as the experimental stimuli in the study. Since the stimuli comprise a random sample, they are subject to sampling variability, and this sampling variability should be accounted in the analysis by including random stimulus effects. For some more information on this, <a class="reference external" href="http://jakewestfall.org/publications/JWK.pdf">see here, particularly pages 62-63</a>.</p>
 <p>To account for this, we let the intercept and <code class="docutils literal notranslate"><span class="pre">object</span></code> slope vary randomly across targets. Random object slopes across targets are possible because, if you recall, the design of the study was such that each target gets viewed twice by each subject, once with a gun and once without a gun. However, because each target is always either white or black, it’s not possible to add random slopes for the <code class="docutils literal notranslate"><span class="pre">race</span></code> factor or the interaction.</p>
@@ -2171,7 +2176,7 @@ such as a black cell phone, are possibly easier to confuse with a gun, so subjec
 </section>
 </section>
 <section id="Fit-response-models">
-<h2>Fit response models<a class="headerlink" href="#Fit-response-models" title="Permalink to this headline">¶</a></h2>
+<h2>Fit response models<a class="headerlink" href="#Fit-response-models" title="Permalink to this headline">#</a></h2>
 <p>Here we seek evidence of the second traditional finding, that subjects are more likely to response ‘shoot’ toward black targets than toward white targets, regardless of whether they are armed or not. Currently the dataset just records whether the given response was correct or not, so first we transformed this into whether the response was ‘shoot’ or ‘dontshoot’.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
@@ -9620,7 +9625,7 @@ dtype: float64
               
               
               <!-- Previous / next buttons -->
-<div class='prev-next-area'> 
+<div class='prev-next-area'>
     <a class='left-prev' id="prev-link" href="ESCS_multiple_regression.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
@@ -9643,19 +9648,20 @@ dtype: float64
       </div>
     </div>
   
-  <script src="../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
 <footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2021, The developers of Bambi.<br>
+    &copy; Copyright 2022, The developers of Bambi.<br>
 </p>
     </div>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
 </p>
     </div>
     

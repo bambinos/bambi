@@ -5,10 +5,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>bambi.families.family &#8212; Bambi 0.7.1 documentation</title>
+    <title>bambi.families.family &#8212; Bambi 0.8.0 documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet">
-  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -18,14 +19,10 @@
   <link rel="preload" as="font" type="font/woff2" crossorigin
     href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
-    
-      
-
-    
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/blank.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
@@ -41,7 +38,7 @@
     <!-- Google Analytics -->
     
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
     
     <div class="container-fluid" id="banner"></div>
 
@@ -103,16 +100,12 @@
       <div class="navbar-end-item">
         <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
         <li class="nav-item">
-          <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub">
-            <span><i class="fab fa-github-square"></i></span>
-            <label class="sr-only">GitHub</label>
-          </a>
+          <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="https://pypi.org/project/bambi/" rel="noopener" target="_blank" title="PyPi">
-            <span><i class="fas fa-box"></i></span>
-            <label class="sr-only">PyPi</label>
-          </a>
+          <a class="nav-link" href="https://pypi.org/project/bambi/" rel="noopener" target="_blank" title="PyPi"><span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label></a>
         </li>
       </ul>
       </div>
@@ -129,6 +122,7 @@
             
             <!-- Only show if we have sidebars configured, else just a small margin  -->
             <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items">
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -146,7 +140,7 @@
   <p style="margin-top: 1em; margin-bottom: 0;">
   <strong>
     You're reading the documentation for a development version (main).<br>
-    For the latest released version, please have a look at <a href="../../../../0.7.1/index.html">latest</a>.
+    For the latest released version, please have a look at <a href="../../../../0.8.0/index.html">latest</a>.
   </strong>
   </p>
   
@@ -167,7 +161,15 @@
                 
 
                   
-                    <li><a href="../../../../0.7.1/index.html">0.7.1 (latest)</a></li>
+                    <li><a href="../../../../0.8.0/index.html">0.8.0 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../../0.7.1/index.html">0.7.1</a></li>
                   
 
                 
@@ -267,6 +269,9 @@
   </nav>
 
 
+              </div>
+              <div class="sidebar-end-items">
+              </div>
             </div>
             
           
@@ -286,28 +291,7 @@
               <div>
                 
   <h1>Source code for bambi.families.family</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">statsmodels.genmod</span> <span class="kn">import</span> <span class="n">families</span> <span class="k">as</span> <span class="n">sm_families</span>
-
-<span class="kn">from</span> <span class="nn">bambi.families.link</span> <span class="kn">import</span> <span class="n">Link</span>
-
-<span class="n">STATSMODELS_FAMILIES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;bernoulli&quot;</span><span class="p">:</span> <span class="n">sm_families</span><span class="o">.</span><span class="n">Binomial</span><span class="p">,</span>
-    <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="n">sm_families</span><span class="o">.</span><span class="n">Gamma</span><span class="p">,</span>
-    <span class="s2">&quot;gaussian&quot;</span><span class="p">:</span> <span class="n">sm_families</span><span class="o">.</span><span class="n">Gaussian</span><span class="p">,</span>
-    <span class="s2">&quot;wald&quot;</span><span class="p">:</span> <span class="n">sm_families</span><span class="o">.</span><span class="n">InverseGaussian</span><span class="p">,</span>
-    <span class="s2">&quot;negativebinomial&quot;</span><span class="p">:</span> <span class="n">sm_families</span><span class="o">.</span><span class="n">NegativeBinomial</span><span class="p">,</span>
-    <span class="s2">&quot;poisson&quot;</span><span class="p">:</span> <span class="n">sm_families</span><span class="o">.</span><span class="n">Poisson</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="n">STATSMODELS_LINKS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;identity&quot;</span><span class="p">:</span> <span class="n">sm_families</span><span class="o">.</span><span class="n">links</span><span class="o">.</span><span class="n">identity</span><span class="p">(),</span>
-    <span class="s2">&quot;logit&quot;</span><span class="p">:</span> <span class="n">sm_families</span><span class="o">.</span><span class="n">links</span><span class="o">.</span><span class="n">logit</span><span class="p">(),</span>
-    <span class="s2">&quot;probit&quot;</span><span class="p">:</span> <span class="n">sm_families</span><span class="o">.</span><span class="n">links</span><span class="o">.</span><span class="n">probit</span><span class="p">(),</span>
-    <span class="s2">&quot;cloglog&quot;</span><span class="p">:</span> <span class="n">sm_families</span><span class="o">.</span><span class="n">links</span><span class="o">.</span><span class="n">cloglog</span><span class="p">(),</span>
-    <span class="s2">&quot;inverse&quot;</span><span class="p">:</span> <span class="n">sm_families</span><span class="o">.</span><span class="n">links</span><span class="o">.</span><span class="n">inverse_power</span><span class="p">(),</span>
-    <span class="s2">&quot;inverse_squared&quot;</span><span class="p">:</span> <span class="n">sm_families</span><span class="o">.</span><span class="n">links</span><span class="o">.</span><span class="n">inverse_squared</span><span class="p">(),</span>
-    <span class="s2">&quot;log&quot;</span><span class="p">:</span> <span class="n">sm_families</span><span class="o">.</span><span class="n">links</span><span class="o">.</span><span class="n">log</span><span class="p">(),</span>
-<span class="p">}</span>
+<span></span><span class="kn">from</span> <span class="nn">bambi.families.link</span> <span class="kn">import</span> <span class="n">Link</span>
 
 
 <div class="viewcode-block" id="Family"><a class="viewcode-back" href="../../../api_reference.html#bambi.families.Family">[docs]</a><span class="k">class</span> <span class="nc">Family</span><span class="p">:</span>
@@ -315,13 +299,13 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    name : str</span>
+<span class="sd">    name: str</span>
 <span class="sd">        The name of the family. It can be any string.</span>
 <span class="sd">    likelihood: Likelihood</span>
-<span class="sd">        A ``bambi.families.Likelihood`` instace specifying the model likelihood function.</span>
-<span class="sd">    link : str or Link</span>
+<span class="sd">        A ``bambi.families.Likelihood`` instance specifying the model likelihood function.</span>
+<span class="sd">    link: str or Link</span>
 <span class="sd">        The name of the link function or a ``bambi.families.Link`` instance. The link function</span>
-<span class="sd">        transforms the linear model prediction to the mean parameter of the likelihood funtion.</span>
+<span class="sd">        transforms the linear model prediction to the mean parameter of the likelihood function.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
@@ -351,13 +335,13 @@
         <span class="s2">&quot;logit&quot;</span><span class="p">,</span>
         <span class="s2">&quot;probit&quot;</span><span class="p">,</span>
         <span class="s2">&quot;softmax&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;tan_2&quot;</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">link</span> <span class="o">=</span> <span class="n">link</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">smfamily</span> <span class="o">=</span> <span class="n">STATSMODELS_FAMILIES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="nd">@property</span>
@@ -369,9 +353,8 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">check_string_link</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_link</span> <span class="o">=</span> <span class="n">Link</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">smlink</span> <span class="o">=</span> <span class="n">STATSMODELS_LINKS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Link</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">link</span> <span class="o">=</span> <span class="n">x</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_link</span> <span class="o">=</span> <span class="n">x</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;.link must be set to a string or a Link instance.&quot;</span><span class="p">)</span>
 
@@ -416,19 +399,20 @@
       </div>
     </div>
   
-  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
 <footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2021, The developers of Bambi.<br>
+    &copy; Copyright 2022, The developers of Bambi.<br>
 </p>
     </div>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
 </p>
     </div>
     

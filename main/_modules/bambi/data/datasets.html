@@ -5,10 +5,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>bambi.data.datasets &#8212; Bambi 0.7.1 documentation</title>
+    <title>bambi.data.datasets &#8212; Bambi 0.8.0 documentation</title>
     
-  <link href="../../../_static/css/theme.css" rel="stylesheet">
-  <link href="../../../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -18,14 +19,10 @@
   <link rel="preload" as="font" type="font/woff2" crossorigin
     href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
-    
-      
-
-    
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/css/blank.css" />
     
-  <link rel="preload" as="script" href="../../../_static/js/index.be7d3bbb2ef33a8344ce.js">
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
 
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
@@ -41,7 +38,7 @@
     <!-- Google Analytics -->
     
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
     
     <div class="container-fluid" id="banner"></div>
 
@@ -103,16 +100,12 @@
       <div class="navbar-end-item">
         <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
         <li class="nav-item">
-          <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub">
-            <span><i class="fab fa-github-square"></i></span>
-            <label class="sr-only">GitHub</label>
-          </a>
+          <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="https://pypi.org/project/bambi/" rel="noopener" target="_blank" title="PyPi">
-            <span><i class="fas fa-box"></i></span>
-            <label class="sr-only">PyPi</label>
-          </a>
+          <a class="nav-link" href="https://pypi.org/project/bambi/" rel="noopener" target="_blank" title="PyPi"><span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label></a>
         </li>
       </ul>
       </div>
@@ -129,6 +122,7 @@
             
             <!-- Only show if we have sidebars configured, else just a small margin  -->
             <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items">
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -146,7 +140,7 @@
   <p style="margin-top: 1em; margin-bottom: 0;">
   <strong>
     You're reading the documentation for a development version (main).<br>
-    For the latest released version, please have a look at <a href="../../../../0.7.1/index.html">latest</a>.
+    For the latest released version, please have a look at <a href="../../../../0.8.0/index.html">latest</a>.
   </strong>
   </p>
   
@@ -167,7 +161,15 @@
                 
 
                   
-                    <li><a href="../../../../0.7.1/index.html">0.7.1 (latest)</a></li>
+                    <li><a href="../../../../0.8.0/index.html">0.8.0 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../../0.7.1/index.html">0.7.1</a></li>
                   
 
                 
@@ -267,6 +269,9 @@
   </nav>
 
 
+              </div>
+              <div class="sidebar-end-items">
+              </div>
             </div>
             
           
@@ -291,6 +296,7 @@
 <span class="kn">import</span> <span class="nn">itertools</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
+
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">namedtuple</span>
 <span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">urlretrieve</span>
 
@@ -380,6 +386,20 @@
 <span class="s2">    Subject number on which the observation was made</span>
 <span class="s2">&quot;&quot;&quot;</span><span class="p">,</span>
     <span class="p">),</span>
+    <span class="s2">&quot;periwinkles&quot;</span><span class="p">:</span> <span class="n">FileMetadata</span><span class="p">(</span>
+        <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;periwinkles.csv&quot;</span><span class="p">,</span>
+        <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://ndownloader.figshare.com/files/34446077&quot;</span><span class="p">,</span>
+        <span class="n">checksum</span><span class="o">=</span><span class="s2">&quot;50da9791b7a66fbcc9ea4dd828dc7a3a66d5e067faf10f3bfd143af6c590923a&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Data for 31 periwinkles transplanted downshore as a function of the distance</span>
+<span class="s2">        travelled by them after release.&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;admissions&quot;</span><span class="p">:</span> <span class="n">FileMetadata</span><span class="p">(</span>
+        <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;admissions.csv&quot;</span><span class="p">,</span>
+        <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://figshare.com/ndownloader/files/34757857&quot;</span><span class="p">,</span>
+        <span class="n">checksum</span><span class="o">=</span><span class="s2">&quot;41e2312ca09d50e99c2db67fbabc78d215df6ce71eefe880df5e9310a9fa8397&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Admission into graduate school data. This dataset has a binary response</span>
+<span class="s2">        variable called &#39;admit&#39;. There are three predictor variables: &#39;gre&#39;, &#39;gpa&#39; and &#39;rank&#39;.&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
 <span class="p">}</span>
 
 
@@ -395,7 +415,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data_home : str</span>
+<span class="sd">    data_home: str</span>
 <span class="sd">        The path to Bambi data dir.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">data_home</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -411,7 +431,7 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    data_home : str</span>
+<span class="sd">    data_home: str</span>
 <span class="sd">        The path to Bambi data dir. By default a folder named ``&quot;bambi_data&quot;`` in the user home</span>
 <span class="sd">        folder.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -421,7 +441,6 @@
 
 <span class="k">def</span> <span class="nf">_sha256</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Calculate the sha256 hash of the file at path.&quot;&quot;&quot;</span>
-
     <span class="n">sha256hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">()</span>
     <span class="n">chunk_size</span> <span class="o">=</span> <span class="mi">8192</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">buff</span><span class="p">:</span>
@@ -445,14 +464,14 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    dataset : str</span>
+<span class="sd">    dataset: str</span>
 <span class="sd">        Name of dataset to load.</span>
-<span class="sd">    data_home : str, optional</span>
+<span class="sd">    data_home: str, optional</span>
 <span class="sd">        Where to save remote datasets</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    Pandas DataFrame</span>
+<span class="sd">    pandas.DataFrame</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">home_dir</span> <span class="o">=</span> <span class="n">get_data_home</span><span class="p">(</span><span class="n">data_home</span><span class="o">=</span><span class="n">data_home</span><span class="p">)</span>
 
@@ -465,8 +484,8 @@
             <span class="n">checksum</span> <span class="o">=</span> <span class="n">_sha256</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">datafile</span><span class="o">.</span><span class="n">checksum</span> <span class="o">!=</span> <span class="n">checksum</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
-                    <span class="s2">&quot;</span><span class="si">{file_path}</span><span class="s2"> has an SHA256 checksum (</span><span class="si">{checksum}</span><span class="s2">) differing from expected &quot;</span>
-                    <span class="s2">&quot;(</span><span class="si">{datafile.checksum}</span><span class="s2">), file may be corrupted. Run `bambi.clear_data_home()` &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> has an SHA256 checksum (</span><span class="si">{</span><span class="n">checksum</span><span class="si">}</span><span class="s2">) differing from expected &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">datafile</span><span class="o">.</span><span class="n">checksum</span><span class="si">}</span><span class="s2">), file may be corrupted. Run `bambi.clear_data_home()` &quot;</span>
                     <span class="s2">&quot;and try again, or please open an issue.&quot;</span>
                 <span class="p">)</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
@@ -507,19 +526,20 @@
       </div>
     </div>
   
-  <script src="../../../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
 <footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2021, The developers of Bambi.<br>
+    &copy; Copyright 2022, The developers of Bambi.<br>
 </p>
     </div>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
 </p>
     </div>
     

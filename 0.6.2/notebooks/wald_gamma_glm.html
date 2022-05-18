@@ -6,10 +6,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Wald and Gamma Regression (Australian insurance claims 2004-2005) &#8212; Bambi 0.7.1 documentation</title>
+    <title>Wald and Gamma Regression (Australian insurance claims 2004-2005) &#8212; Bambi 0.8.0 documentation</title>
     
-  <link href="../_static/css/theme.css" rel="stylesheet">
-  <link href="../_static/css/index.ff1ffe594081f20da1ef19478df9384b.css" rel="stylesheet">
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
 
     
   <link rel="stylesheet"
@@ -19,22 +20,18 @@
   <link rel="preload" as="font" type="font/woff2" crossorigin
     href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
-    
-      
-
-    
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/css/blank.css" />
     
-  <link rel="preload" as="script" href="../_static/js/index.be7d3bbb2ef33a8344ce.js">
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Negative Binomial Regression" href="negative_binomial.html" />
@@ -46,7 +43,7 @@
     <!-- Google Analytics -->
     
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="80">
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
     
     <div class="container-fluid" id="banner"></div>
 
@@ -108,16 +105,12 @@
       <div class="navbar-end-item">
         <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
         <li class="nav-item">
-          <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub">
-            <span><i class="fab fa-github-square"></i></span>
-            <label class="sr-only">GitHub</label>
-          </a>
+          <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="https://pypi.org/project/bambi/" rel="noopener" target="_blank" title="PyPi">
-            <span><i class="fas fa-box"></i></span>
-            <label class="sr-only">PyPi</label>
-          </a>
+          <a class="nav-link" href="https://pypi.org/project/bambi/" rel="noopener" target="_blank" title="PyPi"><span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label></a>
         </li>
       </ul>
       </div>
@@ -134,6 +127,7 @@
             
             <!-- Only show if we have sidebars configured, else just a small margin  -->
             <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items">
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -149,7 +143,7 @@
   <p style="margin-top: 1em; margin-bottom: 0;">
     <strong>
     You're reading an old version of this documentation (v. 0.6.2).<br>
-    If you want up-to-date information, please have a look at <a href="../../0.7.1/index.html">latest</a>.
+    If you want up-to-date information, please have a look at <a href="../../0.8.0/index.html">latest</a>.
   </strong>
   </p>
   
@@ -172,7 +166,15 @@
                 
 
                   
-                    <li><a href="../../0.7.1/index.html">0.7.1 (latest)</a></li>
+                    <li><a href="../../0.8.0/index.html">0.8.0 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.7.1/index.html">0.7.1</a></li>
                   
 
                 
@@ -272,6 +274,9 @@
   </nav>
 
 
+              </div>
+              <div class="sidebar-end-items">
+              </div>
             </div>
             
           
@@ -282,7 +287,7 @@
               
               <div class="toc-item">
                 
-<div class="tocsection onthispage pt-5 pb-3">
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
     <i class="fas fa-list"></i> On this page
 </div>
 
@@ -595,7 +600,7 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <section id="Wald-and-Gamma-Regression-(Australian-insurance-claims-2004-2005)">
-<h1>Wald and Gamma Regression (Australian insurance claims 2004-2005)<a class="headerlink" href="#Wald-and-Gamma-Regression-(Australian-insurance-claims-2004-2005)" title="Permalink to this headline">¶</a></h1>
+<h1>Wald and Gamma Regression (Australian insurance claims 2004-2005)<a class="headerlink" href="#Wald-and-Gamma-Regression-(Australian-insurance-claims-2004-2005)" title="Permalink to this headline">#</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -617,7 +622,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <section id="Load-and-examine-Vehicle-insurance-data">
-<h2>Load and examine Vehicle insurance data<a class="headerlink" href="#Load-and-examine-Vehicle-insurance-data" title="Permalink to this headline">¶</a></h2>
+<h2>Load and examine Vehicle insurance data<a class="headerlink" href="#Load-and-examine-Vehicle-insurance-data" title="Permalink to this headline">#</a></h2>
 <p>In this notebook we use a data set consisting of 67856 insurance policies and 4624 (6.8%) claims in Australia between 2004 and 2005. The original source of this dataset is the book <a class="reference external" href="http://www.businessandeconomics.mq.edu.au/our_departments/Applied_Finance_and_Actuarial_Studies/research/books/GLMsforInsuranceData">Generalized Linear Models for Insurance Data</a> by Piet de Jong and Gillian Z. Heller.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -794,7 +799,7 @@ div.rendered_html tbody tr:hover {
 <p>In this case we are going to fit GLMs with a right-skewed distribution for the random component. This time we will be using Wald and Gamma distributions. One of their differences is that the variance is proportional to the cubic mean in the case of the Wald distribution, and proportional to the squared mean in the case of the Gamma distribution.</p>
 </section>
 <section id="Wald-family">
-<h2>Wald family<a class="headerlink" href="#Wald-family" title="Permalink to this headline">¶</a></h2>
+<h2>Wald family<a class="headerlink" href="#Wald-family" title="Permalink to this headline">#</a></h2>
 <p>The Wald family (a.k.a inverse Gaussian model) states that</p>
 <div class="math notranslate nohighlight">
 \[\begin{array}{cc}
@@ -807,7 +812,7 @@ y_i \sim \text{Wald}(\mu_i, \lambda) &amp; g(\mu_i) = \mathbf{x}_i^T\beta
 <p>for <span class="math notranslate nohighlight">\(x &gt; 0\)</span>, mean <span class="math notranslate nohighlight">\(\mu &gt; 0\)</span> and <span class="math notranslate nohighlight">\(\lambda &gt; 0\)</span> is the shape parameter. The variance is given by <span class="math notranslate nohighlight">\(\sigma^2 = \mu^3/\lambda\)</span>. The canonical link is <span class="math notranslate nohighlight">\(g(\mu_i) = \mu_i^{-2}\)</span>, but <span class="math notranslate nohighlight">\(g(\mu_i) = \log(\mu_i)\)</span> is usually preferred, and it is what we use here.</p>
 </section>
 <section id="Gamma-family">
-<h2>Gamma family<a class="headerlink" href="#Gamma-family" title="Permalink to this headline">¶</a></h2>
+<h2>Gamma family<a class="headerlink" href="#Gamma-family" title="Permalink to this headline">#</a></h2>
 <p>The default parametrization of the Gamma density function is</p>
 <div class="math notranslate nohighlight">
 \[\displaystyle f(x | \alpha, \beta) = \frac{\beta^\alpha x^{\alpha -1} e^{-\beta x}}{\Gamma(\alpha)}\]</div>
@@ -825,13 +830,13 @@ y_i \sim \text{Gamma}(\mu_i, \sigma_i), &amp; g(\mu_i) = \mathbf{x}_i^T\beta, &a
 <p>where <span class="math notranslate nohighlight">\(\alpha\)</span> is the shape parameter in the original parametrization of the gamma pdf. The canonical link is <span class="math notranslate nohighlight">\(g(\mu_i) = \mu_i^{-1}\)</span>, but here we use <span class="math notranslate nohighlight">\(g(\mu_i) = \log(\mu_i)\)</span> again.</p>
 </section>
 <section id="Model-fit">
-<h2>Model fit<a class="headerlink" href="#Model-fit" title="Permalink to this headline">¶</a></h2>
+<h2>Model fit<a class="headerlink" href="#Model-fit" title="Permalink to this headline">#</a></h2>
 <p>In this example we are going to use the binned age, the gender, and the area of residence to predict the amount of the claim, conditional on the existence of the claim because we are only working with observations where there is a claim.</p>
 <p><code class="docutils literal notranslate"><span class="pre">&quot;agecat&quot;</span></code> is interpreted as a numeric variable in our data frame, but we know it is categorical, and we wouldn’t be happy if our model takes it as if it was numeric, would we?</p>
 <p>We have two alternatives to tell Bambi that this numeric variable must be treated as categorical. The first one is to wrap the name of the variable with <code class="docutils literal notranslate"><span class="pre">C()</span></code>, and the other is to pass the same name to the categorical argument when we create the model. We are going to use the first approach with the Wald family and the second with the Gamma.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">C()</span></code> notation is taken from <a class="reference external" href="https://patsy.readthedocs.io/en/latest/index.html">Patsy</a> and is encouraged when you want to explicitly pass the order of the levels of the variables. If you are happy with the default order, better pass the name to <code class="docutils literal notranslate"><span class="pre">categorical</span></code> so tables and plots have prettier labels :)</p>
 <section id="Wald">
-<h3>Wald<a class="headerlink" href="#Wald" title="Permalink to this headline">¶</a></h3>
+<h3>Wald<a class="headerlink" href="#Wald" title="Permalink to this headline">#</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
@@ -1104,7 +1109,7 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 <p>Finally, from the marginal posteriors for the areas, we can see that F is the only area that clearly stands out, with a higher mean claim amount than in the rest. Area E may also have a higher claim amount, but this difference with the other areas is not as evident as it happens with F.</p>
 </section>
 <section id="Gamma">
-<h3>Gamma<a class="headerlink" href="#Gamma" title="Permalink to this headline">¶</a></h3>
+<h3>Gamma<a class="headerlink" href="#Gamma" title="Permalink to this headline">#</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
@@ -1382,7 +1387,7 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 </section>
 </section>
 <section id="Model-comparison">
-<h2>Model comparison<a class="headerlink" href="#Model-comparison" title="Permalink to this headline">¶</a></h2>
+<h2>Model comparison<a class="headerlink" href="#Model-comparison" title="Permalink to this headline">#</a></h2>
 <p>We can perform a Bayesian model comparison very easily with <code class="docutils literal notranslate"><span class="pre">az.compare()</span></code>. Here we pass a dictionary with the InferenceData objects that <code class="docutils literal notranslate"><span class="pre">Model.fit()</span></code> returned and <code class="docutils literal notranslate"><span class="pre">az.compare()</span></code> returns a data frame that is ordered from best to worst according to the criteria used.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
@@ -1520,7 +1525,7 @@ Watermark: 2.1.0
               
               
               <!-- Previous / next buttons -->
-<div class='prev-next-area'> 
+<div class='prev-next-area'>
     <a class='left-prev' id="prev-link" href="Strack_RRR_re_analysis.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
@@ -1543,19 +1548,20 @@ Watermark: 2.1.0
       </div>
     </div>
   
-  <script src="../_static/js/index.be7d3bbb2ef33a8344ce.js"></script>
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
 <footer class="footer mt-5 mt-md-0">
   <div class="container">
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2021, The developers of Bambi.<br>
+    &copy; Copyright 2022, The developers of Bambi.<br>
 </p>
     </div>
     
     <div class="footer-item">
       <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.3.2.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
 </p>
     </div>
     
