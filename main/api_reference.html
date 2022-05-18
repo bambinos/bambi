@@ -572,7 +572,7 @@ depending on the value of <code class="docutils literal notranslate"><span class
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bambi.models.Model.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">draws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_group_specific</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.predict" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_group_specific</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.predict" title="Permalink to this definition">#</a></dt>
 <dd><p>Predict method for Bambi models</p>
 <p>Obtains in-sample and out-of-sample predictions from a fitted Bambi model.</p>
 <dl class="field-list simple">
@@ -589,9 +589,6 @@ out-of-sample predictions. If omitted, the original dataset is used.</p></li>
 <li><p><strong>include_group_specific</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> make predictions including the group specific effects. Otherwise,
 predictions are made with common effects only (i.e. group specific are set
 to zero).</p></li>
-<li><p><strong>draws</strong> (<em>None</em>) – The number of random draws per chain. Only used if <code class="docutils literal notranslate"><span class="pre">kind=&quot;pps&quot;</span></code>. Not recommended
-unless more than ndraws times nchains posterior predictive samples are needed.
-Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code> which means ndraws draws are obtained.</p></li>
 <li><p><strong>inplace</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> it will modify <code class="docutils literal notranslate"><span class="pre">idata</span></code> in-place. Otherwise, it will return a copy of
 <code class="docutils literal notranslate"><span class="pre">idata</span></code> with the predictions added. If <code class="docutils literal notranslate"><span class="pre">kind=&quot;mean&quot;</span></code>, a new variable ending in
 <code class="docutils literal notranslate"><span class="pre">&quot;_mean&quot;</span></code> is added to the <code class="docutils literal notranslate"><span class="pre">posterior</span></code> group. If <code class="docutils literal notranslate"><span class="pre">kind=&quot;pps&quot;</span></code>, it appends a
@@ -876,7 +873,7 @@ Run <code class="docutils literal notranslate"><span class="pre">bmb.clear_data_
     
     <div class="footer-item">
       <p class="copyright">
-    &copy; Copyright 2021, The developers of Bambi.<br>
+    &copy; Copyright 2022, The developers of Bambi.<br>
 </p>
     </div>
     
