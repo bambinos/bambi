@@ -288,7 +288,7 @@ class ResponseTerm:
             return dist(self.name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
 
         if isinstance(self.family, Multinomial):
-            n = kwargs["observed"].sum(axis=1)[:, np.newaxis]
+            n = kwargs["observed"].sum(axis=1)
             return dist(self.name, p=kwargs["p"], observed=kwargs["observed"], n=n)
 
         return dist(self.name, **kwargs)
