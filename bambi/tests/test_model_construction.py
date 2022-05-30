@@ -225,18 +225,18 @@ def test_categorical_term():
         "x2",
         "g1[b]",
         "1|g2_sigma",
+        "g1|g2_sigma[b]",
+        "x2|g2_sigma",
+        "y_sigma",
         "1|g2[x]",
         "1|g2[y]",
         "1|g2[z]",
-        "g1|g2_sigma[b]",
         "g1|g2[b, x]",
         "g1|g2[b, y]",
         "g1|g2[b, z]",
-        "x2|g2_sigma",
         "x2|g2[x]",
         "x2|g2[y]",
         "x2|g2[z]",
-        "y_sigma",
     ]
     assert list(df.index) == names
 
@@ -393,4 +393,4 @@ def test_1d_group_specific():
     # The difference is that we do .squeeze() on it after creation.
     model = Model("y ~ (x|g)", data)
     model.build()
-    assert model.backend.mu.tag.test_value.shape == (40,)
+    assert model.backend.mu.eval().shape == (40,)

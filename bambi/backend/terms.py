@@ -293,7 +293,9 @@ class ResponseTerm:
             sigma = kwargs["mu"] / (kwargs["alpha"] ** 0.5)
             return dist(self.name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
 
-        return dist(self.name, **kwargs)
+        if isinstance(self.family, Multinomial):
+            n = kwargs["observed"].sum(axis=1)
+            return dist(self.name, p=kwargs["p"], observed=kwargs["observed"], n=n)
 
     @property
     def name(self):
