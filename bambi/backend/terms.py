@@ -1,17 +1,17 @@
 import numpy as np
-import pymc3 as pm
-import theano.tensor as tt
+import pymc as pm
+import aesara.tensor as at
 
 from bambi.backend.utils import has_hyperprior, get_distribution
-from bambi.families.multivariate import Categorical
+from bambi.families.multivariate import Categorical, Multinomial
 from bambi.families.univariate import Beta, Binomial, Gamma
 from bambi.priors import Prior
 
 
 class CommonTerm:
-    """Represetation of a common effects term in PyMC3
+    """Representation of a common effects term in PyMC
 
-    An object that builds the PyMC3 distribution for a common effects term. It also contains the
+    An object that builds the PyMC distribution for a common effects term. It also contains the
     coordinates that we then add to the model.
 
     Parameters
@@ -31,9 +31,9 @@ class CommonTerm:
         args = self.term.prior.args
         distribution = get_distribution(dist)
 
-        # Dims of the response variable (e.g. categorical family)
+        # Dims of the response variable
         response_dims = []
-        if spec.response.categorical and not spec.response.binary:
+        if isinstance(spec.family, (Categorical, Multinomial)):
             response_dims = list(spec.response.pymc_coords)
             response_dims_n = len(spec.response.pymc_coords[response_dims[0]])
 
@@ -50,7 +50,7 @@ class CommonTerm:
         else:
             coef = distribution(label, shape=data.shape[1], **args)
 
-        # Pre-pends one dimension if response is multi-categorical and predictor is one dimensional
+        # Prepends one dimension if response is multivariate categorical and predictor is 1d
         if response_dims and len(dims) == 1:
             coef = coef[np.newaxis, :]
 
@@ -60,15 +60,9 @@ class CommonTerm:
         coords = {}
         if self.term.categorical:
             name = self.name + "_coord"
-            levels = self.term.term_dict["levels"]
-            if self.term.kind == "interaction":
-                coords[name] = levels
-            elif self.term.term_dict["encoding"] == "full":
-                coords[name] = levels
-            else:
-                coords[name] = levels[1:]
+            coords[name] = self.term.term.levels
+        # Not categorical but multi-column, like when we use splines
         elif self.term.data.shape[1] > 1:
-            # Not categorical but multi-column, like when we use splines
             name = self.name + "_coord"
             coords[name] = list(range(self.term.data.shape[1]))
         return coords
@@ -81,9 +75,9 @@ class CommonTerm:
 
 
 class GroupSpecificTerm:
-    """Represetation of a group specific effects term in PyMC3
+    """Representation of a group specific effects term in PyMC
 
-    Creates an object that builds the PyMC3 distribution for a group specific effect. It also
+    Creates an object that builds the PyMC distribution for a group specific effect. It also
     contains the coordinates that we then add to the model.
 
     Parameters
@@ -105,9 +99,9 @@ class GroupSpecificTerm:
         kwargs = self.term.prior.args
         predictor = self.term.predictor.squeeze()
 
-        # Dims of the response variable (e.g. categorical family)
+        # Dims of the response variable (e.g. categorical)
         response_dims = []
-        if spec.response.categorical and not spec.response.binary:
+        if isinstance(spec.family, (Categorical, Multinomial)):
             response_dims = list(spec.response.pymc_coords)
 
         dims = list(self.coords) + response_dims
@@ -132,17 +126,12 @@ class GroupSpecificTerm:
 
         if self.term.categorical:
             name = expr + "_coord_group_expr"
-            levels = self.term.term["levels"]
-            if self.term.kind == "interaction":
-                coords[name] = levels
-            elif self.term.term["encoding"] == "full":
-                coords[name] = levels
-            else:
-                coords[name] = levels[1:]
+            levels = self.term.term.expr.levels
+            coords[name] = levels
         return coords
 
     def build_distribution(self, dist, label, **kwargs):
-        """Build and return a PyMC3 Distribution."""
+        """Build and return a PyMC Distribution."""
         dist = get_distribution(dist)
 
         if "dims" in kwargs:
@@ -175,7 +164,7 @@ class GroupSpecificTerm:
 
 
 class InterceptTerm:
-    """Representation of an intercept term in a PyMC3 model.
+    """Representation of an intercept term in a PyMC model.
 
     Parameters
     ----------
@@ -190,11 +179,14 @@ class InterceptTerm:
         dist = get_distribution(self.term.prior.name)
         label = self.name
         # Pre-pends one dimension if response is multi-categorical
-        if spec.response.categorical and not spec.response.binary:
+        if isinstance(spec.family, (Categorical, Multinomial)):
             dims = list(spec.response.pymc_coords)
             dist = dist(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:
-            dist = dist(label, shape=1, **self.term.prior.args)
+            # NOTE: Intercept only models with shape=1 don't work anymore
+            #       It seems that 'shape=1' is not needed anymore?
+            # dist = dist(label, shape=1, **self.term.prior.args)
+            dist = dist(label, **self.term.prior.args)
         return dist
 
     @property
@@ -205,13 +197,13 @@ class InterceptTerm:
 
 
 class ResponseTerm:
-    """Representation of a response term in a PyMC3 model.
+    """Representation of a response term in a PyMC model.
 
     Parameters
     ----------
-    term: bambi.terms.ResponseTerm
+    term : bambi.terms.ResponseTerm
         The response term as represented in Bambi.
-    family: bambi.famlies.Family
+    family : bambi.famlies.Family
         The model family.
     """
 
@@ -220,13 +212,13 @@ class ResponseTerm:
         self.family = family
 
     def build(self, nu, invlinks):
-        """Create and return the response distribution for the PyMC3 model.
+        """Create and return the response distribution for the PyMC model.
 
-        nu: theano.tensor.var.TensorVariable
-            The linear predictor in the PyMC3 model.
-        invlinks: dict
+        nu : aesara.tensor.var.TensorVariable
+            The linear predictor in the PyMC model.
+        invlinks : dict
             A dictionary where names are names of inverse link functions and values are functions
-            that can operate with Theano tensors.
+            that can operate with Aesara tensors.
         """
         data = self.term.data.squeeze()
 
@@ -237,8 +229,10 @@ class ResponseTerm:
             linkinv = self.family.link.linkinv_backend
 
         # Add column of zeros to the linear predictor for the reference level (the first one)
-        if isinstance(self.family, Categorical):
-            nu = tt.concatenate([np.zeros((data.shape[0], 1)), nu], axis=1)
+        if isinstance(self.family, (Categorical, Multinomial)):
+            # Make sure intercept-only models work
+            nu = np.ones((data.shape[0], 1)) * nu
+            nu = at.concatenate([np.zeros((data.shape[0], 1)), nu], axis=1)
 
         # Add mean parameter and observed data
         kwargs = {self.family.likelihood.parent: linkinv(nu), "observed": data}
@@ -296,6 +290,9 @@ class ResponseTerm:
         if isinstance(self.family, Multinomial):
             n = kwargs["observed"].sum(axis=1)
             return dist(self.name, p=kwargs["p"], observed=kwargs["observed"], n=n)
+
+        return dist(self.name, **kwargs)
+
 
     @property
     def name(self):

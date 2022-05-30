@@ -1,58 +1,68 @@
 import numpy as np
 
+from bambi.families.multivariate import Categorical, Multinomial
+from bambi.families.univariate import Bernoulli
+
 
 class ResponseTerm:
     """Representation of a single response model term.
 
     Parameters
     ----------
-    term: formulae.ResponseVector
+    term : formulae.ResponseMatrix
         An object describing the response of the model,
         as returned by ``formulae.design_matrices().response``
+    spec : bambi.Model
+        The model where this response term is used.
     """
 
-    def __init__(self, term):
+    def __init__(self, term, spec):
         self.name = term.name
-        self.data = term.design_vector
-        self.constant = np.var(self.data) == 0  # NOTE: ATM we're not using this one
-        self.categorical = term.type == "categoric"
-        self.baseline = None  # Not None for non-binary categorical variables
-        self.success = term.success if term.success is not None else 1  # not None for binary vars
+        self.categorical = term.kind == "categoric"
+        self.reference = None
         self.levels = None  # Not None for categorical variables
         self.binary = None  # Not None for categorical variables (either True or False)
+        self.success = None  # Not None for binary variables (either True or False)
         self.alias = None
+        self.data = None
 
         if self.categorical:
-            self.binary = term.binary
-            self.levels = term.levels
-            if self.binary:
-                self.success = term.success
+            if term.levels is None:
+                self.binary = True
             else:
-                self.baseline = term.baseline
+                self.levels = term.levels
+                self.binary = len(term.levels) == 2
 
-        if self.categorical:
-            self.binary = term.binary
-            self.levels = term.levels
             if self.binary:
-                self.success = term.success
+                self.success = get_success_level(term.term.term)
+                if term.design_matrix.ndim == 1:
+                    self.data = term.design_matrix
+                else:
+                    idx = self.levels.index(self.success)
+                    self.data = term.design_matrix[:, idx]
+            # Applies to the categorical family
             else:
-                self.baseline = term.baseline
+                self.reference = get_reference_level(term.term.term)
+                self.data = np.nonzero(term.design_matrix)[1]
+        elif isinstance(spec.family, Bernoulli):
+            # We've already checked the values are all 0 and 1
+            self.success = 1
+            self.data = term.design_matrix
+        else:
+            self.data = term.design_matrix
 
         # We use pymc coords when the response is multi-categorical.
         # These help to give the appropriate shape to coefficients and make the resulting
         # InferenceData object much cleaner
         self.pymc_coords = {}
-        if self.categorical and not self.binary:
+        if isinstance(spec.family, Categorical):
             name = self.name + "_coord"
-            self.pymc_coords[name] = term.levels[1:]
-
-        # We use pymc coords when the response is multi-categorical.
-        # These help to give the appropriate shape to coefficients and make the resulting
-        # InferenceData object much cleaner
-        self.pymc_coords = {}
-        if self.categorical and not self.binary:
+            self.pymc_coords[name] = [level for level in term.levels if level != self.reference]
+        # NOTE: We don't have the labels of the levels. This could be improved?
+        elif isinstance(spec.family, Multinomial):
             name = self.name + "_coord"
-            self.pymc_coords[name] = term.levels[1:]
+            self.pymc_coords[name] = [str(level) for level in range(self.data.shape[1] - 1)]
+        # TBD: Continue here when we add general multivariate responses.
 
     def set_alias(self, value):
         self.alias = value
@@ -71,7 +81,7 @@ class ResponseTerm:
             if self.binary:
                 args += [f"success: {self.success}"]
             else:
-                args += [f"baseline: {self.baseline}"]
+                args += [f"reference: {self.reference}"]
 
         return f"{self.__class__.__name__}({', '.join(args)})"
 
@@ -97,27 +107,27 @@ class Term:
 
     group_specific = False
 
-    def __init__(self, name, term_dict, data, prior=None):
+    def __init__(self, name, term, data, prior=None):
         self.name = name
         self.data = data
         self.prior = prior
-        self.kind = term_dict["type"]
-        self.levels = term_dict["full_names"]
+        self.kind = term.kind
+        self.levels = term.labels
         self.categorical = False
-        self.term_dict = term_dict
+        self.term = term
         self.alias = None
 
         # If the term has one component, it's categorical if the component is categorical.
         # If the term has more than one component (i.e. it is an interaction), it's categorical if
         # at least one of the components is categorical.
         if self.kind == "interaction":
-            if any(term["type"] == "categoric" for term in term_dict["terms"].values()):
+            if any(component.kind == "categoric" for component in term.components):
                 self.categorical = True
         else:
             self.categorical = self.kind == "categoric"
 
         # Flag constant terms
-        if self.categorical and len(term_dict["levels"]) == 1 and (data == data[0]).all():
+        if self.categorical and len(term.levels) == 1 and (data == data[0]).all():
             raise ValueError(f"The term '{name}' has only 1 category!")
 
         if not self.categorical and self.kind != "intercept" and np.all(data == data[0]):
@@ -133,12 +143,10 @@ class Term:
         self.pymc_coords = {}
         if self.categorical:
             name = self.name + "_coord"
-            if self.kind == "interaction":
-                self.pymc_coords[name] = term_dict["levels"]
-            elif term_dict["encoding"] == "full":
-                self.pymc_coords[name] = term_dict["levels"]
-            else:
-                self.pymc_coords[name] = term_dict["levels"][1:]
+            self.pymc_coords[name] = term.levels
+        elif self.data.ndim > 1 and self.data.shape[1] > 1:
+            name = self.name + "_coord"
+            self.pymc_coords[name] = np.arange(self.data.shape[1])
 
     def set_alias(self, value):
         self.alias = value
@@ -184,23 +192,24 @@ class GroupSpecificTerm:
     group_specific = True
 
     def __init__(self, name, term, data, prior=None):
-        self.name = name
-        self.data = data
-        self.prior = prior
-        self.kind = term["type"]
-        self.groups = term["groups"]
-        self.levels = term["full_names"]
-        self.grouper = term["Ji"]
-        self.predictor = term["Xi"]
-        self.group_index = self.invert_dummies(self.grouper)
         self.categorical = False
-        self.term = term
         self.alias = None
         self.hyperprior_alias = {}
 
+        self.name = name
+        self.data = data
+        self.prior = prior
+        self.kind = term.kind
+        self.groups = term.groups
+        self.levels = term.labels
+        self.grouper = term.factor.data
+        self.predictor = term.expr.data
+        self.group_index = self.invert_dummies(self.grouper)
+        self.term = term
+
         # Determine if the expression is categorical
         if self.kind == "interaction":
-            if any(t["type"] == "categoric" for t in term["terms"].values()):
+            if any(component.kind == "categoric" for component in term.expr.components):
                 self.categorical = True
         else:
             self.categorical = self.kind == "categoric"
@@ -208,20 +217,16 @@ class GroupSpecificTerm:
         # Determine if the term represents cell-means encoding.
         self.is_cell_means = self.categorical and (self.data.sum(1) == 1).all()
 
-        # Used in pymc3 model coords to label coordinates appropiately
+        # Used in pymc model coords to label coordinates appropiately
         self.pymc_coords = {}
+
         # Group is always a coordinate added to the model.
         expr, factor = self.name.split("|")
         self.pymc_coords[factor + "_coord_group_factor"] = self.groups
 
         if self.categorical:
             name = expr + "_coord_group_expr"
-            if self.kind == "interaction":
-                self.pymc_coords[name] = term["levels"]
-            elif term["encoding"] == "full":
-                self.pymc_coords[name] = term["levels"]
-            else:
-                self.pymc_coords[name] = term["levels"][1:]
+            self.pymc_coords[name] = term.expr.levels
 
     def invert_dummies(self, dummies):
         """
@@ -260,3 +265,35 @@ class GroupSpecificTerm:
 
     def __repr__(self):
         return self.__str__()
+
+
+# pylint: disable = protected-access
+def get_reference_level(term):
+    if term.kind != "categoric":
+        return None
+
+    if term.levels is None:
+        return None
+
+    levels = term.levels
+    intermediate_data = term.components[0]._intermediate_data
+    if hasattr(intermediate_data, "_contrast"):
+        return intermediate_data._contrast.reference
+
+    return levels[0]
+
+
+# pylint: disable = protected-access
+def get_success_level(term):
+    if term.kind != "categoric":
+        return None
+
+    if term.levels is None:
+        return term.components[0].reference
+
+    levels = term.levels
+    intermediate_data = term.components[0]._intermediate_data
+    if hasattr(intermediate_data, "_contrast"):
+        return intermediate_data._contrast.reference
+
+    return levels[0]

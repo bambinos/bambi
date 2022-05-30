@@ -12,6 +12,7 @@ DISTRIBUTIONS = {
     "Binomial": DistSettings(params=("p",), parent="p", args=None),
     "Categorical": DistSettings(params=("p",), parent="p", args=None),
     "Gamma": DistSettings(params=("mu", "alpha"), parent="mu", args=("alpha",)),
+    "Multinomial": DistSettings(params=("p",), parent="p", args=None),
     "Normal": DistSettings(params=("mu", "sigma"), parent="mu", args=("sigma",)),
     "NegativeBinomial": DistSettings(params=("mu", "alpha"), parent="mu", args=("alpha",)),
     "Poisson": DistSettings(params=("mu",), parent="mu", args=None),
@@ -31,7 +32,7 @@ class Likelihood:
     Parameters
     ----------
     name: str
-        Name of the likelihood function. Must be a valid PyMC3 distribution name.
+        Name of the likelihood function. Must be a valid PyMC distribution name.
     parent: str
         Optional specification of the name of the mean parameter in the likelihood.
         This is the parameter whose transformation is modeled by the linear predictor.

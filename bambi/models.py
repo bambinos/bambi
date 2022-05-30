@@ -6,14 +6,13 @@ from copy import deepcopy
 
 import numpy as np
 import pandas as pd
-import pymc3 as pm
+import pymc as pm
 
 from arviz.plots import plot_posterior
-from arviz.data import from_dict
 
 from formulae import design_matrices
 
-from .backend import PyMC3Model
+from .backend import PyMCModel
 from .defaults import get_default_prior, get_builtin_family
 from .families import Family, univariate, multivariate
 from .priors import Prior, PriorScaler
@@ -53,7 +52,7 @@ class Model:
         The names of any variables to treat as categorical. Can be either a single variable
         name, or a list of names. If categorical is ``None``, the data type of the columns in
         the ``data`` will be used to infer handling. In cases where numeric columns are
-        to be treated as categoricals (e.g., group specific factors coded as numerical IDs),
+        to be treated as categorical (e.g., group specific factors coded as numerical IDs),
         explicitly passing variable names via this argument is recommended.
     potentials : A list of 2-tuples.
         Optional specification of potentials. A potential is an arbitrary expression added to the
@@ -187,7 +186,7 @@ class Model:
         random_seed=None,
         **kwargs,
     ):
-        """Fit the model using PyMC3.
+        """Fit the model using PyMC.
 
         Parameters
         ----------
@@ -208,9 +207,9 @@ class Model:
         method: str
             The method to use for fitting the model. By default, ``"mcmc"``. This automatically
             assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
-            variables and Metropolis for non-binary discrete ones. Alternatively, ``"advi"``, in
-            which case the model will be fitted using  automatic differentiation variational
-            inference as implemented in PyMC3.
+            variables and Metropolis for non-binary discrete ones. Alternatively, ``"vi"``, in
+            which case the model will be fitted using variational inference as implemented in PyMC
+            using the ``fit`` function.
             Finally, ``"laplace"``, in which case a Laplace approximation is used and is not
             recommended other than for pedagogical use.
         init: str
@@ -245,11 +244,12 @@ class Model:
         random_seed : int or list of ints
             A list is accepted if cores is greater than one.
         **kwargs:
-            For other kwargs see the documentation for ``pymc3.sample()``.
+            For other kwargs see the documentation for ``PyMC.sample()``.
 
         Returns
         -------
-        An ArviZ ``InferenceData`` instance.
+        An ArviZ ``InferenceData`` instance if method  ``"mcmc"`` (default).
+        An ``Approximation`` object if  ``"vi"`` and a dictionary if  ``"laplace"``.
         """
 
         if not self.built:
@@ -283,7 +283,7 @@ class Model:
 
         Creates an instance of the underlying PyMC model and adds all the necessary terms to it.
         """
-        self.backend = PyMC3Model()
+        self.backend = PyMCModel()
         self.backend.build(self)
         self.built = True
 
@@ -410,7 +410,7 @@ class Model:
         # Check if any of the names of the auxiliary params match the names of terms in the model
         # If that happens, raise an error.
         if aux_params and self._design.common:
-            conflicts = [name for name in aux_params if name in self._design.common.terms_info]
+            conflicts = [name for name in aux_params if name in self._design.common.terms]
             if conflicts:
                 raise ValueError(
                     f"The prior name for {', '.join(conflicts)} conflicts with the name of a "
@@ -466,19 +466,26 @@ class Model:
 
         Parameters
         ----------
-        response: formulae.ResponseVector
-            An instance of ``formulae.ResponseVector`` as returned by
+        response : formulae.ResponseMatrix
+            An instance of ``formulae.ResponseMatrix`` as returned by
             ``formulae.design_matrices()``.
         """
 
-        if response.success is not None and not isinstance(self.family, univariate.Bernoulli):
+        if hasattr(response.term.term.components[0], "reference"):
+            reference = response.term.term.components[0].reference
+        else:
+            reference = None
+
+        if reference is not None and not isinstance(self.family, univariate.Bernoulli):
             raise ValueError("Index notation for response is only available for 'bernoulli' family")
 
         if isinstance(self.family, univariate.Bernoulli):
-            if not all(np.isin(response.design_vector, [0, 1])):
+            if response.kind == "categoric" and response.levels is None and reference is None:
+                raise ValueError("Categoric response must be binary for 'bernoulli' family.")
+            if response.kind == "numeric" and not all(np.isin(response.design_matrix, [0, 1])):
                 raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
 
-        self.response = ResponseTerm(response)
+        self.response = ResponseTerm(response, self)
         self.built = False
 
     def _add_common(self, common, priors):
@@ -496,7 +503,7 @@ class Model:
             either instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the
             width of the priors on a standardized scale.
         """
-        for name, term in common.terms_info.items():
+        for name, term in common.terms.items():
             data = common[name]
             prior = priors.pop(name, priors.get("common", None))
             if isinstance(prior, Prior):
@@ -523,7 +530,7 @@ class Model:
             the values are either instances of class ``Prior`` or ``int``, ``float``, or ``str``
             that specify the width of the priors on a standardized scale.
         """
-        for name, term in group.terms_info.items():
+        for name, term in group.terms.items():
             data = group[name]
             prior = priors.pop(name, priors.get("group_specific", None))
             self.terms[name] = GroupSpecificTerm(name, term, data, prior)
@@ -683,49 +690,17 @@ class Model:
         if omit_offsets:
             var_names = [name for name in var_names if not name.endswith("_offset")]
 
-        pps_ = pm.sample_prior_predictive(
+        idata = pm.sample_prior_predictive(
             samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
         )
 
-        # pps_ keys are not in the same order as `var_names` because `var_names` is converted
-        # to set within pm.sample_prior_predictive()
-        pps = {}
-        for name in var_names:
-            if name in self.terms and self.terms[name].categorical:
-                pps[name] = pps_[name]
-            else:
-                pps[name] = pps_[name].squeeze()
+        if hasattr(idata, "prior"):
+            to_drop = [dim for dim in idata.prior.dims if dim.endswith("_dim_0")]
+            idata.prior = idata.prior.squeeze(to_drop).reset_coords(to_drop, drop=True)
 
-        response_name = self.response.name
-        if response_name in pps:
-            prior_predictive = {response_name: pps.pop(response_name)[np.newaxis]}
-            observed_data = {response_name: self.response.data.squeeze()}
-        else:
-            prior_predictive = {}
-            observed_data = {}
-
-        prior = {k: v[np.newaxis] for k, v in pps.items()}
-
-        coords = {}
-        dims = {}
-        for name in var_names:
-            if name in self.terms:
-                coords.update(**self.terms[name].pymc_coords)
-                dims[name] = list(self.terms[name].pymc_coords.keys())
-
-        idata = from_dict(
-            prior_predictive=prior_predictive,
-            prior=prior,
-            observed_data=observed_data,
-            coords=coords,
-            dims=dims,
-            attrs={
-                "inference_library": self.backend.name,
-                "inference_library_version": self.backend.name,
-                "modeling_interface": "bambi",
-                "modeling_interface_version": __version__,
-            },
-        )
+        for group in idata.groups():
+            getattr(idata, group).attrs["modeling_interface"] = "bambi"
+            getattr(idata, group).attrs["modeling_interface_version"] = __version__
 
         return idata
 
@@ -791,54 +766,75 @@ class Model:
             if in_sample:
                 X = self._design.common.design_matrix
             else:
-                X = self._design.common._evaluate_new_data(data).design_matrix
+                X = self._design.common.evaluate_new_data(data).design_matrix
 
         if self._design.group and include_group_specific:
             if in_sample:
                 Z = self._design.group.design_matrix
             else:
-                Z = self._design.group._evaluate_new_data(data).design_matrix
+                Z = self._design.group.evaluate_new_data(data).design_matrix
 
         # Contribution due to common terms
         if X is not None:
             beta_x_list = []
             term_names = list(self.common_terms)
+            coord_response = list(self.response.pymc_coords)
+
             if self.intercept_term:
                 term_names.insert(0, "Intercept")
 
             for name in term_names:
-                values = posterior[name].values
-                shape = values.shape
-                # 1-dimensional predictors (the great majority: a single slope or intercept)
-                if len(shape) == 2:
-                    shape = (shape[0] * shape[1], 1)
-                # 2-dimensional predictors (e.g. spline basis and multivariate models)
+                coord_term = list(self.terms[name].pymc_coords)
+                term_posterior = posterior[name]
+                coords = set(term_posterior.coords)
+
+                # 1-dimensional predictors (a single slope or intercept)
+                if coords == {"chain", "draw"}:
+                    values = term_posterior.stack(samples=("chain", "draw")).values
+                    if len(values.shape) == 1:
+                        values = values[:, np.newaxis]
+                # 2-dimensional predictors (splines or categoricals)
+                elif coords == {"chain", "draw"}.union(coord_term):
+                    transpose_coords = ["samples"] + coord_term
+                    values = (
+                        term_posterior.stack(samples=("chain", "draw"))
+                        .transpose(*transpose_coords)
+                        .values
+                    )
+                    if len(values.shape) == 1:
+                        values = values[:, np.newaxis]
+                elif isinstance(self.family, (multivariate.Categorical, multivariate.Multinomial)):
+                    transpose_coords = ["samples"] + coord_term + coord_response
+                    values = (
+                        term_posterior.stack(samples=("chain", "draw"))
+                        .transpose(*transpose_coords)
+                        .values
+                    )
+                    # When p = 1 we have shape (samples_n, response_n),
+                    # we need (samples_n, 1, response_n)
+                    if len(values.shape) == 2:
+                        values = values[:, np.newaxis, :]
                 else:
-                    if isinstance(self.family, multivariate.Categorical):
-                        # Basis splines, categorical predictors, etc. may have more than one column.
-                        response_n = len(self.response.levels) - 1
-                        p = np.prod(shape[2:]) // response_n
-                        shape = (shape[0] * shape[1], p, response_n)
-                    else:
-                        shape = (shape[0] * shape[1], shape[2])
-                beta_x_list.append(values.reshape(shape))
+                    raise ValueError("ups!")
+
+                beta_x_list.append(values)
 
             # 'beta_x' is of shape:
             # * (chain_n * draw_n, p) for univariate
-            # * (chain_n * draw_n, p, response_n) for multivariate models
+            # * (chain_n * draw_n, p, response_n) for multivariate
             beta_x = np.hstack(beta_x_list)
 
-            # This dot product works both for 2d and 3d 'beta_x'.
-            contribution = np.dot(X, beta_x.T).T
-
-            # 'response_n' is the dimensionality of the space where the response lives
-            # Univariate models: (chain_n, draw_n, obs_n)
-            if len(contribution.shape) == 2:
-                shape = (chain_n, draw_n) + (contribution.shape[-1],)
-            # Multivariate models: (chain_n, draw_n, response_n, obs_n)
+            # 'contribution' is of shape:
+            # * (chain_n * draw_n, obs_n) for univariate
+            # * (chain_n * draw_n, obs_n, response_n) for multivariate
+            if len(beta_x.shape) == 2:
+                contribution = np.dot(X, beta_x.T).T
             else:
-                shape = (chain_n, draw_n) + contribution.shape[1:]
+                contribution = np.zeros((beta_x.shape[0], X.shape[0], beta_x.shape[2]))
+                for i in range(contribution.shape[2]):
+                    contribution[:, :, i] = np.dot(X, beta_x[:, :, i].T).T
 
+            shape = (chain_n, draw_n) + contribution.shape[1:]
             contribution = contribution.reshape(shape)
             linear_predictor += contribution
 
@@ -846,29 +842,53 @@ class Model:
         if Z is not None:
             beta_z_list = []
             term_names = list(self.group_specific_terms)
+            coord_response = list(self.response.pymc_coords)
 
             for name in term_names:
-                values = posterior[name].values
-                shape = values.shape
-                # Since this is group-specific term, shape < 3 does not exists.
-                # 1-dimensional expr (the great majority: a single slope or intercept)
-                if len(shape) == 3:
-                    shape = (shape[0] * shape[1], shape[2])
-                    values = values.reshape(shape)
-                # 2-dimensional predictors (e.g. spline basis and multivariate models)
-                else:
-                    if isinstance(self.family, multivariate.Categorical):
-                        response_n = len(self.response.levels) - 1
-                        p = np.prod(shape[2:]) // response_n
-                        shape = (shape[0] * shape[1], p, response_n)
-                        values = values.reshape(shape)
-                    # Group specific effect with categorical expr
+                coord_term = list(self.terms[name].pymc_coords)
+                coord_factor = [c for c in coord_term if c.endswith("_coord_group_factor")]
+                coord_expr = [c for c in coord_term if c.endswith("_coord_group_expr")]
+                term_posterior = posterior[name]
+                coords = set(term_posterior.coords)
+
+                # Group-specific term: len(coords) < 3 does not exist.
+                if coords == {"chain", "draw"}.union(coord_expr):
+                    transpose_coords = ["samples"] + coord_expr
+                    values = (
+                        term_posterior.stack(samples=("chain", "draw"))
+                        .traspose(*transpose_coords)
+                        .values
+                    )
+                elif coords == {"chain", "draw"}.union(coord_expr + coord_factor):
+                    transpose_coords = ["samples", "coefs"]
+                    values = (
+                        term_posterior.stack(samples=("chain", "draw"))
+                        .stack(coefs=tuple(coord_factor + coord_expr))
+                        .transpose(*transpose_coords)
+                        .values
+                    )
+                elif isinstance(self.family, (multivariate.Categorical, multivariate.Multinomial)):
+                    if coords == {"chain", "draw"}.union(coord_factor + coord_response):
+                        transpose_coords = ["samples"] + coord_factor + coord_response
+                        values = (
+                            term_posterior.stack(samples=("chain", "draw"))
+                            .transpose(*transpose_coords)
+                            .values
+                        )
+                    elif coords == {"chain", "draw"}.union(
+                        coord_expr + coord_factor + coord_response
+                    ):
+                        transpose_coords = ["samples", "coefs"] + coord_response
+                        values = (
+                            term_posterior.stack(samples=("chain", "draw"))
+                            .stack(coefs=tuple(coord_factor + coord_expr))
+                            .transpose(*transpose_coords)
+                            .values
+                        )
                     else:
-                        # Needs to be reshaped in two steps.
-                        # Second stage uses order="F", see issue #477.
-                        shape_1 = (shape[0] * shape[1], shape[2], shape[3])
-                        shape_2 = (shape[0] * shape[1], shape[2] * shape[3])
-                        values = values.reshape(shape_1).reshape(shape_2, order="F")
+                        raise ValueError("ups!!")
+                else:
+                    raise ValueError("ups!")
 
                 beta_z_list.append(values)
 
@@ -876,19 +896,20 @@ class Model:
             # * (chain_n * draw_n, p) for univariate
             # * (chain_n * draw_n, p, response_n) for multivariate models
             beta_z = np.hstack(beta_z_list)
-            contribution = np.dot(Z, beta_z.T).T
 
-            if len(contribution.shape) == 2:
-                shape = (chain_n, draw_n) + (contribution.shape[-1],)
+            # 'contribution' is of shape:
+            # * (chain_n * draw_n, obs_n) for univariate
+            # * (chain_n * draw_n, obs_n, response_n) for multivariate
+            if len(beta_z.shape) == 2:
+                contribution = np.dot(Z, beta_z.T).T
             else:
-                shape = (chain_n, draw_n) + contribution.shape[1:]
+                contribution = np.zeros((beta_z.shape[0], Z.shape[0], beta_z.shape[2]))
+                for i in range(contribution.shape[2]):
+                    contribution[:, :, i] = np.dot(Z, beta_z[:, :, i].T).T
 
+            shape = (chain_n, draw_n) + contribution.shape[1:]
             contribution = contribution.reshape(shape)
             linear_predictor += contribution
-
-        # 'linear_predictor' is of shape
-        # * (chain_n, draw_n, obs_n) for univariate models
-        # * (chain_n, draw_n, response_n, obs_n) for multivariate models
 
         if kind == "mean":
             idata.posterior = self.family.predict(self, posterior, linear_predictor)
@@ -902,7 +923,7 @@ class Model:
             }
 
             if not in_sample and isinstance(self.family, univariate.Binomial):
-                pps_kwargs["trials"] = self._design.response._evaluate_new_data(data)
+                pps_kwargs["trials"] = self._design.response.evaluate_new_data(data)
 
             pps = self.family.posterior_predictive(**pps_kwargs)
 

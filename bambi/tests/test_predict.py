@@ -211,13 +211,19 @@ def test_predict_categorical(inhaler):
     idata = model.fit()
 
     model.predict(idata)
+    assert np.allclose(idata.posterior["rating_mean"].values.sum(-1), 1)
+
     model.predict(idata, data=inhaler.iloc[:20, :])
+    assert np.allclose(idata.posterior["rating_mean"].values.sum(-1), 1)
 
     model = Model("rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical")
     idata = model.fit()
 
     model.predict(idata)
+    assert np.allclose(idata.posterior["rating_mean"].values.sum(-1), 1)
+
     model.predict(idata, data=inhaler.iloc[:20, :])
+    assert np.allclose(idata.posterior["rating_mean"].values.sum(-1), 1)
 
 
 def test_posterior_predictive_categorical(inhaler):
@@ -252,6 +258,75 @@ def test_predict_categorical_group_specific():
 
     assert idata.posterior.y_mean.values.shape == (2, 100, 100)
     assert (idata.posterior.y_mean.values > 0).all() and (idata.posterior.y_mean.values < 1).all()
+
+
+def test_predict_multinomial(inhaler):
+    def c(*args):
+        return np.column_stack(args)
+
+    df = inhaler.groupby(["treat", "carry", "rating"], as_index=False).size()
+    df = df.pivot(index=["treat", "carry"], columns="rating", values="size").reset_index()
+    df.columns = ["treat", "carry", "y1", "y2", "y3", "y4"]
+
+    # Intercept only
+    model = Model("c(y1, y2, y3, y4) ~ 1", df, family="multinomial")
+    idata = model.fit()
+
+    model.predict(idata)
+    model.predict(idata, data=df.iloc[:3, :])
+
+    # Numerical predictors
+    model = Model("c(y1, y2, y3, y4) ~ treat + carry", df, family="multinomial")
+    idata = model.fit()
+
+    model.predict(idata)
+    model.predict(idata, data=df.iloc[:3, :])
+
+    # Categorical predictors
+    df["treat"] = df["treat"].replace({-0.5: "A", 0.5: "B"})
+    df["carry"] = df["carry"].replace({-1: "a", 0: "b", 1: "c"})
+
+    model = Model("c(y1, y2, y3, y4) ~ treat + carry", df, family="multinomial")
+    idata = model.fit()
+
+    model.predict(idata)
+    model.predict(idata, data=df.iloc[:3, :])
+
+    data = pd.DataFrame(
+        {
+            "state": ["A", "B", "C"],
+            "y1": [35298, 1885, 5775],
+            "y2": [167328, 20731, 21564],
+            "y3": [212682, 37716, 20222],
+            "y4": [37966, 5196, 3277],
+        }
+    )
+
+    # Contains group-specific effect
+    model = Model(
+        "c(y1, y2, y3, y4) ~ 1 + (1 | state)", data, family="multinomial", noncentered=False
+    )
+    idata = model.fit(tune=100, draws=100, random_seed=0)
+
+    model.predict(idata)
+    model.predict(idata, kind="pps")
+
+
+def test_posterior_predictive_multinomial(inhaler):
+    def c(*args):
+        return np.column_stack(args)
+
+    df = inhaler.groupby(["treat", "carry", "rating"], as_index=False).size()
+    df = df.pivot(index=["treat", "carry"], columns="rating", values="size").reset_index()
+    df.columns = ["treat", "carry", "y1", "y2", "y3", "y4"]
+
+    # Intercept only
+    model = Model("c(y1, y2, y3, y4) ~ 1", df, family="multinomial")
+    idata = model.fit()
+
+    # The sum across the columns of the response is the same for all the chain and draws.
+    model.predict(idata, kind="pps")
+    assert np.all(idata.posterior_predictive["c(y1, y2, y3, y4)"].values.sum(-1).var((0, 1)) == 0)
 
 
 def test_predict_include_group_specific():

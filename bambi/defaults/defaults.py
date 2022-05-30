@@ -14,9 +14,9 @@ from bambi.families.univariate import (
     Wald,
 )
 
-from bambi.families.multivariate import Categorical
+from bambi.families.multivariate import Categorical, Multinomial
 
-# Default parameters for PyMC3 distributions
+# Default parameters for PyMC distributions
 SETTINGS_DISTRIBUTIONS = {
     "Bernoulli": {"p": 0.5},
     "Beta": {"alpha": 1, "beta": 1},
@@ -96,6 +96,15 @@ BUILTIN_FAMILIES = {
         },
         "link": "identity",
         "family": Gaussian,
+    },
+    "multinomial": {
+        "likelihood": {
+            "name": "Multinomial",
+            "args": {},
+            "parent": "p"
+        },
+        "link": "softmax",
+        "family": Multinomial,
     },
     "negativebinomial": {
         "likelihood": {

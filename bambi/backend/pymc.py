@@ -2,31 +2,32 @@ import logging
 import traceback
 
 import numpy as np
-import pymc3 as pm
+import pymc as pm
 
-import theano.tensor as tt
+import aesara.tensor as at
 
 from bambi import version
 
 from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
 from bambi.backend.terms import CommonTerm, GroupSpecificTerm, InterceptTerm, ResponseTerm
+from bambi.families.multivariate import Categorical, Multinomial
 
 _log = logging.getLogger("bambi")
 
 
-class PyMC3Model:
-    """PyMC3 model-fitting backend."""
+class PyMCModel:
+    """PyMC model-fitting backend."""
 
     INVLINKS = {
         "cloglog": cloglog,
         "identity": identity,
         "inverse_squared": inverse_squared,
-        "inverse": tt.inv,
-        "log": tt.exp,
+        "inverse": at.inv,
+        "log": at.exp,
         "logit": logit,
         "probit": probit,
         "tan_2": arctan_2,
-        "softmax": tt.nnet.softmax,
+        "softmax": at.nnet.softmax,
     }
 
     def __init__(self):
@@ -35,7 +36,7 @@ class PyMC3Model:
 
         # Attributes defined elsewhere
         self._design_matrix_without_intercept = None
-        self.advi_params = None
+        self.vi_approx = None
         self.coords = {}
         self.fit = False
         self.has_intercept = False
@@ -44,7 +45,7 @@ class PyMC3Model:
         self.spec = None
 
     def build(self, spec):
-        """Compile the PyMC3 model from an abstract model specification.
+        """Compile the PyMC model from an abstract model specification.
 
         Parameters
         ----------
@@ -85,8 +86,8 @@ class PyMC3Model:
         random_seed=None,
         **kwargs,
     ):
-        """Run PyMC3 sampler."""
-        # NOTE: Methods return different types of objects (idata, advi_params, and dictionary)
+        """Run PyMC sampler."""
+        # NOTE: Methods return different types of objects (idata, approximation, and dictionary)
         if method.lower() == "mcmc":
             result = self._run_mcmc(
                 draws,
@@ -101,8 +102,8 @@ class PyMC3Model:
                 random_seed,
                 **kwargs,
             )
-        elif method.lower() == "advi":
-            result = self._run_advi(**kwargs)
+        elif method.lower() == "vi":
+            result = self._run_vi(**kwargs)
         else:
             result = self._run_laplace()
 
@@ -120,7 +121,7 @@ class PyMC3Model:
             for term in spec.common_terms.values():
                 common_term = CommonTerm(term)
                 # Add coords
-                # NOTE: At the moment, there's a bug in PyMC3 so we need to check if coordinate is
+                # NOTE: At the moment, there's a bug in PyMC so we need to check if coordinate is
                 # present in the model before attempting to add it.
                 for name, values in common_term.coords.items():
                     if name not in self.model.coords:
@@ -133,7 +134,7 @@ class PyMC3Model:
                 columns.append(data)
 
             # Column vector of coefficients and design matrix
-            coefs = tt.concatenate(coefs)
+            coefs = at.concatenate(coefs)
             data = np.hstack(columns)
 
             # If there's an intercept, center the data
@@ -143,7 +144,7 @@ class PyMC3Model:
                 data = data - data.mean(0)
 
             # Add term to linear predictor
-            self.mu += tt.dot(data, coefs)
+            self.mu += at.dot(data, coefs)
 
     def _build_group_specific_terms(self, spec):
         # Add group specific terms that have prior for their correlation matrix
@@ -161,7 +162,7 @@ class PyMC3Model:
             group_specific_term = GroupSpecificTerm(term, spec.noncentered)
 
             # Add coords
-            # NOTE: At the moment, there's a bug in PyMC3 so we need to check if coordinate is
+            # NOTE: At the moment, there's a bug in PyMC so we need to check if coordinate is
             # present in the model before attempting to add it.
             for name, values in group_specific_term.coords.items():
                 if name not in self.model.coords:
@@ -177,12 +178,10 @@ class PyMC3Model:
             if predictor.ndim > 1:
                 for col in range(predictor.shape[1]):
                     self.mu += coef[:, col] * predictor[:, col]
+            elif isinstance(spec.family, (Categorical, Multinomial)):
+                self.mu += coef * predictor[:, np.newaxis]
             else:
-                # For categorical family
-                if spec.response.categorical and not spec.response.binary:
-                    self.mu += coef * predictor[:, np.newaxis]
-                else:
-                    self.mu += coef * predictor
+                self.mu += coef * predictor
 
     def _build_response(self, spec):
         ResponseTerm(spec.response, spec.family).build(self.mu, self.INVLINKS)
@@ -224,7 +223,6 @@ class PyMC3Model:
                     chains=chains,
                     cores=cores,
                     random_seed=random_seed,
-                    return_inferencedata=True,
                     **kwargs,
                 )
             except (RuntimeError, ValueError):
@@ -242,7 +240,6 @@ class PyMC3Model:
                         chains=chains,
                         cores=cores,
                         random_seed=random_seed,
-                        return_inferencedata=True,
                         **kwargs,
                     )
                 else:
@@ -273,7 +270,7 @@ class PyMC3Model:
         # These represents unidimensional coordinates that are added for numerical variables.
         # These variables have a shape of 1 so we can concatenate the coefficients and multiply
         # the resulting vector withe the design matrix.
-        # But having a unidimiensional coordinate for a numeric variable does not make sense.
+        # But having a unidimensional coordinate for a numeric variable does not make sense.
         # So we drop them.
         coords_to_drop = [dim for dim in idata.posterior.dims if dim.endswith("_dim_0")]
         idata.posterior = idata.posterior.squeeze(coords_to_drop).reset_coords(
@@ -308,8 +305,11 @@ class PyMC3Model:
                     common_terms += [term.alias]
                 else:
                     common_terms += [term.name]
+
             if self.spec.response.pymc_coords:
-                shape += (len(self.spec.response.levels) - 1,)
+                # Grab the first object in a dictionary
+                levels = list(self.spec.response.pymc_coords.values())[0]
+                shape += (len(levels),)
                 coords += list(self.spec.response.pymc_coords)
 
             posterior = idata.posterior.stack(samples=coords)
@@ -319,6 +319,7 @@ class PyMC3Model:
                 intercept_name = self.spec.intercept_term.alias
             else:
                 intercept_name = self.spec.intercept_term.name
+
             idata.posterior[intercept_name] -= np.dot(X.mean(0), coefs).reshape(shape)
 
         if include_mean:
@@ -326,20 +327,19 @@ class PyMC3Model:
 
         return idata
 
-    def _run_advi(self, **kwargs):
-        # This should return an InferenceData object (once arviz adds support for VI)
+    def _run_vi(self, **kwargs):
         with self.model:
-            self.advi_params = pm.variational.ADVI(**kwargs)
-        return self.advi_params
+            self.vi_approx = pm.fit(**kwargs)
+        return self.vi_approx
 
     def _run_laplace(self):
         """Fit a model using a Laplace approximation.
 
-        Mainly for pedagogical use. ``mcmc`` and ``advi`` are better approximations.
+        Mainly for pedagogical use. ``mcmc`` and ``vi`` are better approximations.
 
         Parameters
         ----------
-        model: PyMC3 model
+        model: PyMC model
 
         Returns
         -------
@@ -353,7 +353,7 @@ class PyMC3Model:
             maps = pm.find_MAP(start=test_point, vars=varis)
             hessian = pm.find_hessian(maps, vars=varis)
             if np.linalg.det(hessian) == 0:
-                raise np.linalg.LinAlgError("Singular matrix. Use mcmc or advi method")
+                raise np.linalg.LinAlgError("Singular matrix. Use mcmc or vi method")
             stds = np.diag(np.linalg.inv(hessian) ** 0.5)
             maps = [v for (k, v) in maps.items() if not pm.util.is_transformed_name(k)]
             modes = [v.item() if v.size == 1 else v for v in maps]
@@ -407,7 +407,8 @@ def add_lkj(backend, terms, eta=1):
     sigma = pm.HalfNormal.dist(sigma=sigma, shape=rows)
 
     # Obtain Cholesky factor for the covariance
-    lkj_decomp, corr, sigma = pm.LKJCholeskyCov(  # pylint: disable=unused-variable
+    # pylint: disable=unused-variable, disable=unpacking-non-sequence
+    (lkj_decomp, corr, sigma,) = pm.LKJCholeskyCov(
         "_LKJCholeskyCov_" + grouper,
         n=rows,
         eta=eta,
@@ -417,7 +418,7 @@ def add_lkj(backend, terms, eta=1):
     )
 
     coefs_offset = pm.Normal("_LKJ_" + grouper + "_offset", mu=0, sigma=1, shape=(rows, cols))
-    coefs = tt.dot(lkj_decomp, coefs_offset).T
+    coefs = at.dot(lkj_decomp, coefs_offset).T
 
     ## Separate group-specific terms
     start = 0

@@ -75,14 +75,16 @@ class PriorScaler:
         if term.prior.args["sigma"].name != "HalfNormal":
             return
 
-        # Recreate the corresponding common effect data
-        data_as_common = term.predictor
-
         # Handle intercepts
         if term.kind == "intercept":
             _, sigma = self.get_intercept_stats()
         # Handle slopes
         else:
+            # Recreate the corresponding common effect data
+            if len(term.predictor.shape) == 2:
+                data_as_common = term.predictor
+            else:
+                data_as_common = term.predictor[:, None]
             sigma = np.zeros(data_as_common.shape[1])
             for i, x in enumerate(data_as_common.T):
                 sigma[i] = self.get_slope_sigma(x)
