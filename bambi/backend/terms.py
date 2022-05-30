@@ -293,7 +293,6 @@ class ResponseTerm:
 
         return dist(self.name, **kwargs)
 
-
     @property
     def name(self):
         if self.term.alias:
