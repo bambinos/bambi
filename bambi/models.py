@@ -9,6 +9,7 @@ import pandas as pd
 import pymc as pm
 
 from arviz.plots import plot_posterior
+from arviz.data import from_dict
 
 from formulae import design_matrices
 
