@@ -661,7 +661,6 @@ class Model:
     def prior_predictive(self, draws=500, var_names=None, omit_offsets=True, random_seed=None):
         """
         Generate samples from the prior predictive distribution.
-
         Parameters
         ----------
         draws: int
@@ -671,7 +670,6 @@ class Model:
             Defaults to ``None`` which means both observed and unobserved RVs.
         random_seed: int
             Seed for the random number generator.
-
         Returns
         -------
         InferenceData
@@ -686,13 +684,18 @@ class Model:
         if omit_offsets:
             var_names = [name for name in var_names if not name.endswith("_offset")]
 
-        idata = pm.sample_prior_predictive(
+        pps_ = pm.sample_prior_predictive(
             samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
         )
 
-        if hasattr(idata, "prior"):
-            to_drop = [dim for dim in idata.prior.dims if dim.endswith("_dim_0")]
-            idata.prior = idata.prior.squeeze(to_drop).reset_coords(to_drop, drop=True)
+        # pps_ keys are not in the same order as `var_names` because `var_names` is converted
+        # to set within pm.sample_prior_predictive()
+        pps = {}
+        for name in var_names:
+            if name in self.terms and self.terms[name].categorical:
+                pps[name] = pps_[name]
+            else:
+                pps[name] = pps_[name].squeeze()
 
         response_name = self.response.name
         if response_name in pps:
