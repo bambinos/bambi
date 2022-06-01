@@ -7,7 +7,7 @@ class Prior:
     Parameters
     ----------
     name : str
-        Name of prior distribution. Must be the name of a PyMC3 distribution
+        Name of prior distribution. Must be the name of a PyMC distribution
         (e.g., ``"Normal"``, ``"Bernoulli"``, etc.)
     auto_scale: bool
         Whether to adjust the parameters of the prior or use them as passed. Default to ``True``.
