@@ -6,14 +6,13 @@ from copy import deepcopy
 
 import numpy as np
 import pandas as pd
-import pymc3 as pm
+import pymc as pm
 
 from arviz.plots import plot_posterior
-from arviz.data import from_dict
 
 from formulae import design_matrices
 
-from .backend import PyMC3Model
+from .backend import PyMCModel
 from .defaults import get_default_prior, get_builtin_family
 from .families import Family, univariate, multivariate
 from .priors import Prior, PriorScaler
@@ -53,7 +52,7 @@ class Model:
         The names of any variables to treat as categorical. Can be either a single variable
         name, or a list of names. If categorical is ``None``, the data type of the columns in
         the ``data`` will be used to infer handling. In cases where numeric columns are
-        to be treated as categoricals (e.g., group specific factors coded as numerical IDs),
+        to be treated as categorical (e.g., group specific factors coded as numerical IDs),
         explicitly passing variable names via this argument is recommended.
     potentials : A list of 2-tuples.
         Optional specification of potentials. A potential is an arbitrary expression added to the
@@ -183,7 +182,7 @@ class Model:
         random_seed=None,
         **kwargs,
     ):
-        """Fit the model using PyMC3.
+        """Fit the model using PyMC.
 
         Parameters
         ----------
@@ -205,7 +204,7 @@ class Model:
             The method to use for fitting the model. By default, ``"mcmc"``. This automatically
             assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
             variables and Metropolis for non-binary discrete ones. Alternatively, ``"vi"``, in
-            which case the model will be fitted using variational inference as implemented in PyMC3
+            which case the model will be fitted using variational inference as implemented in PyMC
             using the ``fit`` function.
             Finally, ``"laplace"``, in which case a Laplace approximation is used and is not
             recommended other than for pedagogical use.
@@ -241,7 +240,7 @@ class Model:
         random_seed : int or list of ints
             A list is accepted if cores is greater than one.
         **kwargs:
-            For other kwargs see the documentation for ``pymc3.sample()``.
+            For other kwargs see the documentation for ``PyMC.sample()``.
 
         Returns
         -------
@@ -280,7 +279,7 @@ class Model:
 
         Creates an instance of the underlying PyMC model and adds all the necessary terms to it.
         """
-        self.backend = PyMC3Model()
+        self.backend = PyMCModel()
         self.backend.build(self)
         self.built = True
 
@@ -662,7 +661,6 @@ class Model:
     def prior_predictive(self, draws=500, var_names=None, omit_offsets=True, random_seed=None):
         """
         Generate samples from the prior predictive distribution.
-
         Parameters
         ----------
         draws: int
@@ -672,7 +670,6 @@ class Model:
             Defaults to ``None`` which means both observed and unobserved RVs.
         random_seed: int
             Seed for the random number generator.
-
         Returns
         -------
         InferenceData

@@ -138,8 +138,8 @@ class Link:
         A function that maps the linear predictor to the response. Known as the :math:`g^{-1}`
         function in GLM jargon. Does not need to be specified when ``name`` is a known name.
     linkinv_backend: function
-        Same than ``linkinv`` but must be something that works with PyMC3 backend (i.e. it must
-        work with Theano tensors). Does not need to be specified when ``name`` is a known
+        Same than ``linkinv`` but must be something that works with PyMC backend (i.e. it must
+        work with Aesara tensors). Does not need to be specified when ``name`` is a known
         name.
     """
 
@@ -156,7 +156,7 @@ class Link:
             if not link or not linkinv or not linkinv_backend:
                 raise ValueError(
                     f"Link name '{name}' is not supported and at least one of 'link', "
-                    "'linkinv' or 'linkinv_backend' are unespecified."
+                    "'linkinv' or 'linkinv_backend' are unspecified."
                 )
 
     def __str__(self):

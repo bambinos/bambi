@@ -1,3 +1,3 @@
-from .pymc import PyMC3Model
+from .pymc import PyMCModel
 
-__all__ = ["PyMC3Model"]
+__all__ = ["PyMCModel"]

@@ -1,16 +1,16 @@
 import logging
 
-from pymc3 import math
+from pymc import math
 
 from .data import clear_data_home, load_data
 from .families import Family, Likelihood, Link
 from .models import Model
 from .priors import Prior
-from .backend import PyMC3Model
+from .backend import PyMCModel
 from .version import __version__
 
 
-__all__ = ["Model", "Prior", "Family", "Likelihood", "Link", "PyMC3Model"]
+__all__ = ["Model", "Prior", "Family", "Likelihood", "Link", "PyMCModel"]
 
 _log = logging.getLogger("bambi")
 
