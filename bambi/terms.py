@@ -231,8 +231,9 @@ class GroupSpecificTerm:
         self.coords[factor + "__factor_dim"] = self.groups
 
         if self.categorical:
-            name = expr + "__expr_dim"
-            self.coords[name] = term.expr.levels
+            self.coords[expr + "__expr_dim"] = term.expr.levels
+        elif self.predictor.ndim == 2 and self.predictor.shape[1] > 1:
+            self.coords[expr + "__expr_dim"] = [str(i) for i in range(self.predictor.shape[1])]
 
     def invert_dummies(self, dummies):
         """
