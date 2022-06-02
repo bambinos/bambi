@@ -397,6 +397,7 @@ def test_prior_predictive(crossed_data):
         family="poisson",
     )
     model.build()
+    print(model)
     pps = model.prior_predictive(draws=500)
 
     keys = ["Intercept", "threecats", "continuous", "dummy"]

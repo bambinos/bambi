@@ -685,49 +685,17 @@ class Model:
         if omit_offsets:
             var_names = [name for name in var_names if not name.endswith("_offset")]
 
-        pps_ = pm.sample_prior_predictive(
+        idata = pm.sample_prior_predictive(
             samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
         )
 
-        # pps_ keys are not in the same order as `var_names` because `var_names` is converted
-        # to set within pm.sample_prior_predictive()
-        pps = {}
-        for name in var_names:
-            if name in self.terms and self.terms[name].categorical:
-                pps[name] = pps_[name]
-            else:
-                pps[name] = pps_[name].squeeze()
+        if hasattr(idata, "prior"):
+            to_drop = [dim for dim in idata.prior.dims if dim.endswith("_dim_0")]
+            idata.prior = idata.prior.squeeze(to_drop).reset_coords(to_drop, drop=True)
 
-        response_name = self.response.name
-        if response_name in pps:
-            prior_predictive = {response_name: pps.pop(response_name)[np.newaxis]}
-            observed_data = {response_name: self.response.data.squeeze()}
-        else:
-            prior_predictive = {}
-            observed_data = {}
-
-        prior = {k: v[np.newaxis] for k, v in pps.items()}
-
-        coords = {}
-        dims = {}
-        for name in var_names:
-            if name in self.terms:
-                coords.update(**self.terms[name].coords)
-                dims[name] = list(self.terms[name].coords.keys())
-
-        idata = from_dict(
-            prior_predictive=prior_predictive,
-            prior=prior,
-            observed_data=observed_data,
-            coords=coords,
-            dims=dims,
-            attrs={
-                "inference_library": self.backend.name,
-                "inference_library_version": self.backend.name,
-                "modeling_interface": "bambi",
-                "modeling_interface_version": __version__,
-            },
-        )
+        for group in idata.groups():
+            getattr(idata, group).attrs["modeling_interface"] = "bambi"
+            getattr(idata, group).attrs["modeling_interface_version"] = __version__
 
         return idata
 
