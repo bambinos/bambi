@@ -376,7 +376,6 @@ def test_poisson_regression(crossed_data):
     assert all([dicts_close(priors0[x], priors1[x]) for x in priors0.keys()])
 
 
-@pytest.mark.skip(reason="Standard deviation results are different and I don't know why")
 def test_laplace():
     data = pd.DataFrame(np.repeat((0, 1), (30, 60)), columns=["w"])
     priors = {"Intercept": Prior("Uniform", lower=0, upper=1)}

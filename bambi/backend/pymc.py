@@ -346,10 +346,14 @@ class PyMCModel:
         standard deviations.
         """
         unobserved_rvs = self.model.unobserved_RVs
-        test_point = self.model.test_point
+        test_point = self.model.initial_point(seed=None)
         with self.model:
             varis = [v for v in unobserved_rvs if not pm.util.is_transformed_name(v.name)]
             maps = pm.find_MAP(start=test_point, vars=varis)
+            # Remove transform from the value variable associated with varis
+            for v in varis:
+                v_value = self.model.rvs_to_values[v]
+                v_value.tag.transform = None
             hessian = pm.find_hessian(maps, vars=varis)
             if np.linalg.det(hessian) == 0:
                 raise np.linalg.LinAlgError("Singular matrix. Use mcmc or vi method")
