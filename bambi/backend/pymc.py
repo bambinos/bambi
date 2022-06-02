@@ -351,8 +351,8 @@ class PyMCModel:
             varis = [v for v in unobserved_rvs if not pm.util.is_transformed_name(v.name)]
             maps = pm.find_MAP(start=test_point, vars=varis)
             # Remove transform from the value variable associated with varis
-            for v in varis:
-                v_value = self.model.rvs_to_values[v]
+            for var in varis:
+                v_value = self.model.rvs_to_values[var]
                 v_value.tag.transform = None
             hessian = pm.find_hessian(maps, vars=varis)
             if np.linalg.det(hessian) == 0:
