@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Hierarchical Linear Regression (Radon Contamination dataset) &#8212; Bambi 0.8.0 documentation</title>
+    <title>Hierarchical Linear Regression (Radon Contamination dataset) &#8212; Bambi 0.9.0 documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -818,7 +818,7 @@ div.rendered_html tbody tr:hover {
 <section id="Prepare-Notebook">
 <h2>Prepare Notebook<a class="headerlink" href="#Prepare-Notebook" title="Permalink to this headline">#</a></h2>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
@@ -826,13 +826,13 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">pymc3</span> <span class="k">as</span> <span class="nn">pm</span>
+<span class="kn">import</span> <span class="nn">pymc</span> <span class="k">as</span> <span class="nn">pm</span>
 <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
@@ -848,7 +848,7 @@ div.rendered_html tbody tr:hover {
 <h2>Read Data<a class="headerlink" href="#Read-Data" title="Permalink to this headline">#</a></h2>
 <p>Let us load the data into a pandas data frame.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get radon data</span>
@@ -861,7 +861,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">radon_df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
@@ -1049,7 +1049,7 @@ div.rendered_html tbody tr:hover {
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">city_df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
@@ -1156,7 +1156,7 @@ div.rendered_html tbody tr:hover {
 <h2>Preprocess Data<a class="headerlink" href="#Preprocess-Data" title="Permalink to this headline">#</a></h2>
 <p>We are going to preprocess the data as done in the article <a class="reference external" href="https://docs.pymc.io/projects/examples/en/latest/case_studies/multilevel_modeling.html">A Primer on Bayesian Methods for Multilevel Modeling</a>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Strip spaces from column names</span>
@@ -1200,7 +1200,7 @@ div.rendered_html tbody tr:hover {
 <h2>EDA<a class="headerlink" href="#EDA" title="Permalink to this headline">#</a></h2>
 <p>In order to get a glimpse of the data, we are going to do some exploratory data analysis. First, let’s have a look at the global distribution of the untransformed radon levels.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
@@ -1219,7 +1219,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>Next, let us see the global <code class="docutils literal notranslate"><span class="pre">log(radon</span> <span class="pre">+</span> <span class="pre">0.1)</span></code> distribution.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
@@ -1238,7 +1238,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>There are many a priori reasons to think houses with basement has higher radon levels. From geochemistry to composition of building materials to poor ventilation. We can split the distribution of <code class="docutils literal notranslate"><span class="pre">log(radon</span> <span class="pre">+</span> <span class="pre">0.1)</span></code> per <code class="docutils literal notranslate"><span class="pre">floor</span></code> to see if we are able to see that difference in our data.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
@@ -1261,7 +1261,7 @@ div.rendered_html tbody tr:hover {
 <p>This exploration tell us that, as expected, the average radon level is higher in <code class="docutils literal notranslate"><span class="pre">Basement</span></code> than <code class="docutils literal notranslate"><span class="pre">Floor</span></code>.</p>
 <p>Next, we are going to count the number of counties.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_counties</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;county&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">size</span>
@@ -1279,7 +1279,7 @@ Number of counties: 85
 </div>
 <p>Let us dig deeper into the distribution of radon and number of observations per county and floor level.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">log_radon_county_agg</span>  <span class="o">=</span> <span class="p">(</span>
@@ -1312,7 +1312,7 @@ Number of counties: 85
 <li><p>On the right hand side we see that the number of observations per county is not the same for the <code class="docutils literal notranslate"><span class="pre">floor</span></code> levels. In particular, we see that there are some counties with a lot of basement observations. This can create some bias when computing simple statistics to compare across counties. Moreover, not all <code class="docutils literal notranslate"><span class="pre">county</span></code> and <code class="docutils literal notranslate"><span class="pre">floor</span></code> combinations are present in the dataset. For example:</p></li>
 </ul>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;county == &#39;YELLOW MEDICINE&#39; and floor == &#39;Floor&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">empty</span>
@@ -1358,7 +1358,7 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 <p>Let us now write the Bambi model.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">0</span></code> on the right side of <code class="docutils literal notranslate"><span class="pre">~</span></code> in the model formula removes the global intercept that is added by default. This allows Bambi to use one coefficient for each floor level.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># A dictionary with the priors we pass to the model initialization</span>
@@ -1373,7 +1373,7 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1393,7 +1393,7 @@ Priors:
 <p>The <code class="docutils literal notranslate"><span class="pre">Family</span> <span class="pre">name:</span> <span class="pre">Gaussian</span></code> indicates the selected family, which defaults to Gaussian. And <code class="docutils literal notranslate"><span class="pre">Link:</span> <span class="pre">identity</span></code> indicates the default value for the link argument in <code class="docutils literal notranslate"><span class="pre">bmb.Model()</span></code>. Taken together this simply means that we are fitting a normal linear regression model.</p>
 <p>Let’s see the graph representation of the model before fitting. To do so, we first need to call the <code class="docutils literal notranslate"><span class="pre">.build()</span></code> method. Internally, this builds the underlying PyMC model.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pooled_model</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
@@ -1402,7 +1402,7 @@ Priors:
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1410,7 +1410,7 @@ Priors:
 </div>
 <p>Let’s now fit the model.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pooled_results</span> <span class="o">=</span> <span class="n">pooled_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
@@ -1424,8 +1424,8 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [log_radon_sigma, floor]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [floor, log_radon_sigma]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1450,8 +1450,8 @@ NUTS: [log_radon_sigma, floor]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:02<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:08<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1459,12 +1459,12 @@ NUTS: [log_radon_sigma, floor]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 2 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 9 seconds.
 </pre></div></div>
 </div>
 <p>Now we can examine the posterior distribution, i.e. the joint distribution of model parameters conditional on the data:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">pooled_results</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chain_prop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ls&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">})</span>
@@ -1481,7 +1481,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <p>We can also see some posterior summary statistics.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pooled_summary</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">pooled_results</span><span class="p">)</span>
@@ -1490,7 +1490,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1528,36 +1528,36 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
       <th>floor[Basement]</th>
       <td>1.363</td>
       <td>0.029</td>
-      <td>1.309</td>
-      <td>1.418</td>
-      <td>0.001</td>
+      <td>1.308</td>
+      <td>1.416</td>
       <td>0.000</td>
-      <td>2620.0</td>
-      <td>1401.0</td>
+      <td>0.000</td>
+      <td>5477.0</td>
+      <td>2904.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>floor[Floor]</th>
       <td>0.775</td>
-      <td>0.068</td>
-      <td>0.641</td>
-      <td>0.897</td>
+      <td>0.065</td>
+      <td>0.652</td>
+      <td>0.893</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>2733.0</td>
-      <td>1240.0</td>
+      <td>5222.0</td>
+      <td>3085.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>log_radon_sigma</th>
       <td>0.791</td>
       <td>0.019</td>
-      <td>0.759</td>
-      <td>0.829</td>
+      <td>0.757</td>
+      <td>0.826</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2693.0</td>
-      <td>1717.0</td>
+      <td>4693.0</td>
+      <td>2910.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1567,7 +1567,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <p>From the posterior plot and the summary, we can see the mean radon level is considerably higher in the Basement than in the Floor level. This reflects what we originally saw in the initial data exploration. In addition, sice we have more measurements in the Basement, the uncertainty in its posterior is smaller than the uncertainty in the posterior for the Floor level.</p>
 <p>We can compare the mean of the posterior distribution of the <code class="docutils literal notranslate"><span class="pre">floor</span></code> terms to the sample mean. This is going to be useful to understand the meaning of <strong>complete pooling</strong>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
@@ -1620,7 +1620,7 @@ to. We pool all the counties into a single estimate, or in other words, we perfo
 <li><p>Apply the inverse transform to have the posterior predictive samples in the original scale of the response.</p></li>
 </ul>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note we create a new data set.</span>
@@ -1660,7 +1660,7 @@ to. We pool all the counties into a single estimate, or in other words, we perfo
 </div>
 <p>The distributions look very similar, but we see that we have some extreme values. Hence if we need a number to compare them let us use the median.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">pps</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -1668,16 +1668,16 @@ to. We pool all the counties into a single estimate, or in other words, we perfo
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-array([3.84902894, 2.14455141])
+array([3.82510215, 2.11134857])
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;floor&quot;</span><span class="p">])[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
@@ -1685,7 +1685,7 @@ array([3.84902894, 2.14455141])
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1736,7 +1736,7 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 <p>where <span class="math notranslate nohighlight">\(\lambda\)</span> is a positive constant that we set to 1.</p>
 <p>To specify this model in Bambi we can use the formula <code class="docutils literal notranslate"><span class="pre">log_radon</span> <span class="pre">~</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">county:floor</span></code>. Again, we remove the global intercept with the <code class="docutils literal notranslate"><span class="pre">0</span></code> on the right hand side. <code class="docutils literal notranslate"><span class="pre">county:floor</span></code> specifies the multiplicative interaction between <code class="docutils literal notranslate"><span class="pre">county</span></code> and <code class="docutils literal notranslate"><span class="pre">floor</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unpooled_priors</span> <span class="o">=</span> <span class="p">{</span>
@@ -1750,7 +1750,7 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1768,7 +1768,7 @@ Priors:
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unpooled_results</span> <span class="o">=</span> <span class="n">unpooled_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
@@ -1782,8 +1782,8 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [log_radon_sigma, county:floor]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [county:floor, log_radon_sigma]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1808,8 +1808,8 @@ NUTS: [log_radon_sigma, county:floor]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 01:03<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:53<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1817,11 +1817,11 @@ NUTS: [log_radon_sigma, county:floor]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 63 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 54 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unpooled_model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
@@ -1829,7 +1829,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1838,7 +1838,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <p>From the graph representation of the model we see the model estimates <span class="math notranslate nohighlight">\(170 = 85 \times 2\)</span> parameters for the <code class="docutils literal notranslate"><span class="pre">county:floor</span></code> interaction. Let us now explore the model fit.</p>
 <p>First, we can now see the plot of the marginal posterior distributions along with the sampling traces.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">unpooled_results</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chain_prop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ls&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">})</span>
@@ -1855,7 +1855,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <p>Some posteriors for <code class="docutils literal notranslate"><span class="pre">county:floor</span></code> are much more spread than others, which makes it harder to compare them. To obtain a better summary visualization we can use a forest plot. This plot also allows us to identify exactly the combination of <code class="docutils literal notranslate"><span class="pre">county</span></code> and <code class="docutils literal notranslate"><span class="pre">floor</span></code> level.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_forest</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">unpooled_results</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span> <span class="n">r_hat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">textsize</span><span class="o">=</span><span class="mi">8</span><span class="p">);</span>
@@ -1872,7 +1872,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <p>Note how for the combination <code class="docutils literal notranslate"><span class="pre">county</span> <span class="pre">==</span> <span class="pre">'YELLOW</span> <span class="pre">MEDICINE'</span> <span class="pre">and</span> <span class="pre">floor</span> <span class="pre">==</span> <span class="pre">'Floor'</span></code> where we do not have any observations, the model can still generate predictions which are essentially coming from the prior distributions, which explains the large HDI intervals.</p>
 <p>Next, let’s have a look into the posterior mean for each <code class="docutils literal notranslate"><span class="pre">county</span></code> and <code class="docutils literal notranslate"><span class="pre">floor</span></code> combination:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unpooled_summary</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">unpooled_results</span><span class="p">)</span>
@@ -1881,7 +1881,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <p>We can now plot the posterior distribution mean of the gamma coefficients against the observed values (sample).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get county and floor names from summary table</span>
@@ -1993,7 +1993,7 @@ u_j &amp;= \text{Intercept specific to the county } j \\
 <p>The common intercept <span class="math notranslate nohighlight">\(\alpha\)</span> represents the mean response across all counties and floor levels.</p>
 <p>On top of it, the county-specific intercept terms <span class="math notranslate nohighlight">\(u_j\)</span> represent county-specific deviations from that global mean. This type of term is also known as a vaying intercept in the statistical literature.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># We can add the hyper-priors inside the prior dictionary parameter of the model constructor</span>
@@ -2014,7 +2014,7 @@ u_j &amp;= \text{Intercept specific to the county } j \\
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -2036,7 +2036,7 @@ Priors:
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">noncentered</span></code> argument asks Bambi not to use the non centered representation for the varying effects. This makes the graph representation clearer and is closer to the original implementation in the PyMC documentation.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">partial_pooling_results</span> <span class="o">=</span> <span class="n">partial_pooling_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
@@ -2050,8 +2050,8 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [log_radon_sigma, 1|county, 1|county_sigma, Intercept]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, 1|county_sigma, 1|county, log_radon_sigma]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2076,8 +2076,8 @@ NUTS: [log_radon_sigma, 1|county, 1|county_sigma, Intercept]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:04<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:03<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -2085,13 +2085,12 @@ NUTS: [log_radon_sigma, 1|county, 1|county_sigma, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
-The number of effective samples is smaller than 25% for some parameters.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.
 </pre></div></div>
 </div>
 <p>We can inspect the graphical representation of the model:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">partial_pooling_model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
@@ -2099,7 +2098,7 @@ The number of effective samples is smaller than 25% for some parameters.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -2108,7 +2107,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <p>We can clearly see a new hierarchical level as compared to the complete pooling model and unpooled model.</p>
 <p>Next, we can plot the posterior distribution of the coefficients in the model:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">partial_pooling_results</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chain_prop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ls&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">})</span>
@@ -2129,7 +2128,7 @@ The number of effective samples is smaller than 25% for some parameters.
 </ul>
 <p>Let us now compare the posterior predictive mean against the observed data at county level.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">partial_pooling_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">partial_pooling_results</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
@@ -2222,7 +2221,7 @@ u_k &amp;= \text{Intercept specific to the county } k \\
 <h5>Notes<a class="headerlink" href="#id14" title="Permalink to this headline">#</a></h5>
 <p><span class="math notranslate nohighlight">\(\beta_j\)</span> and <span class="math notranslate nohighlight">\(u_k\)</span> may look similar. The difference is that the latter is a hierarchical effect (it has a hyperprior), while the former is not.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_priors</span> <span class="o">=</span> <span class="p">{</span>
@@ -2243,7 +2242,7 @@ u_k &amp;= \text{Intercept specific to the county } k \\
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -2264,7 +2263,7 @@ Priors:
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_results</span> <span class="o">=</span> <span class="n">varying_intercept_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
@@ -2278,8 +2277,8 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [log_radon_sigma, 1|county, 1|county_sigma, floor]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [floor, 1|county_sigma, 1|county, log_radon_sigma]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2304,8 +2303,8 @@ NUTS: [log_radon_sigma, 1|county, 1|county_sigma, floor]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:04<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:15<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -2313,12 +2312,12 @@ NUTS: [log_radon_sigma, 1|county, 1|county_sigma, floor]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 16 seconds.
 </pre></div></div>
 </div>
 <p>When looking at the graph representation of the model we still see the hierarchical structure for the <code class="docutils literal notranslate"><span class="pre">county</span></code> varying intercepts, but we do not see it for the <code class="docutils literal notranslate"><span class="pre">floor</span></code> feature as expected.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
@@ -2326,7 +2325,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -2334,7 +2333,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <p>Let us visualize the posterior distributions:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">varying_intercept_results</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chain_prop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ls&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">});</span>
@@ -2409,7 +2408,7 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 <li><p><code class="docutils literal notranslate"><span class="pre">floor|county</span></code> is <span class="math notranslate nohighlight">\(b_{jk}\)</span>, the county-specific floor coefficients. Again, since there’s no varying intercepot for the counties, this includes coefficients for both floor levels.</p></li>
 </ul>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_slope_priors</span> <span class="o">=</span> <span class="p">{</span>
@@ -2430,7 +2429,7 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -2452,7 +2451,7 @@ Priors:
 </div>
 <p>Next, we fit the model. Note we increase the default number of <code class="docutils literal notranslate"><span class="pre">draws</span></code> from the posterior and the <code class="docutils literal notranslate"><span class="pre">tune</span></code> samples to 2000. In addition, as the structure of the model gets more complex, so does the posterior. That’s why we increase <code class="docutils literal notranslate"><span class="pre">target_accept</span></code> from the default 0.8 to 0.9, because we want to explore the posterior more cautiously .</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_slope_results</span> <span class="o">=</span> <span class="n">varying_intercept_slope_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
@@ -2470,8 +2469,8 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [log_radon_sigma, floor|county_offset, floor|county_sigma, floor]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [floor, floor|county_sigma, floor|county_offset, log_radon_sigma]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2496,8 +2495,8 @@ NUTS: [log_radon_sigma, floor|county_offset, floor|county_sigma, floor]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:18<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='16000' class='' max='16000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [16000/16000 01:00<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -2505,12 +2504,12 @@ NUTS: [log_radon_sigma, floor|county_offset, floor|county_sigma, floor]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws total) took 18 seconds.
+Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws total) took 60 seconds.
 </pre></div></div>
 </div>
 <p>In the graph representation of the model we can now see hierarchical structures both in the intercepts and the slopes. The terms that end with <code class="docutils literal notranslate"><span class="pre">_offset</span></code> appeared because we are using a non-centered parametrization. This parametrization is an algebraic trick that helps computation but leaves the model unchanged.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_slope_model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
@@ -2518,7 +2517,7 @@ Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -2526,7 +2525,7 @@ Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <p>Let’s have a look at the marginal posterior for the coefficients in the model.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;floor&quot;</span><span class="p">,</span> <span class="s2">&quot;floor|county&quot;</span><span class="p">,</span> <span class="s2">&quot;floor|county_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;log_radon_sigma&quot;</span><span class="p">]</span>
@@ -2600,7 +2599,7 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 \end{aligned}\end{split}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\lambda\)</span> is a positive constant that we set to <span class="math notranslate nohighlight">\(1\)</span>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">covariate_priors</span> <span class="o">=</span> <span class="p">{</span>
@@ -2622,7 +2621,7 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -2644,7 +2643,7 @@ Priors:
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">covariate_results</span> <span class="o">=</span> <span class="n">covariate_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
@@ -2662,8 +2661,8 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [log_radon_sigma, floor|county_offset, floor|county_sigma, log_u, floor]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [floor, log_u, floor|county_sigma, floor|county_offset, log_radon_sigma]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2688,8 +2687,8 @@ NUTS: [log_radon_sigma, floor|county_offset, floor|county_sigma, log_u, floor]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:20<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='16000' class='' max='16000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [16000/16000 01:05<00:00 Sampling 4 chains, 91 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -2697,12 +2696,13 @@ NUTS: [log_radon_sigma, floor|county_offset, floor|county_sigma, log_u, floor]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws total) took 20 seconds.
-The number of effective samples is smaller than 25% for some parameters.
+Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws total) took 66 seconds.
+There were 91 divergences after tuning. Increase `target_accept` or reparameterize.
+The acceptance probability does not match the target. It is 0.7554, but should be close to 0.9. Try to increase the number of tuning steps.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">covariate_model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
@@ -2710,14 +2710,14 @@ The number of effective samples is smaller than 25% for some parameters.
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <img alt="../_images/notebooks_radon_example_114_0.svg" src="../_images/notebooks_radon_example_114_0.svg" /></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;floor&quot;</span><span class="p">,</span> <span class="s2">&quot;log_u&quot;</span><span class="p">,</span> <span class="s2">&quot;floor|county&quot;</span><span class="p">,</span> <span class="s2">&quot;floor|county_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;log_radon_sigma&quot;</span><span class="p">]</span>
@@ -2739,7 +2739,7 @@ The number of effective samples is smaller than 25% for some parameters.
 </div>
 <p>Let us now visualize the posterior distributions of the intercepts:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[50]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># get log_u values per county</span>
@@ -2754,7 +2754,7 @@ The number of effective samples is smaller than 25% for some parameters.
     <span class="o">+</span> <span class="n">covariate_results</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">floor__expr_dim</span><span class="o">=</span><span class="s2">&quot;Basement&quot;</span><span class="p">)[</span><span class="s2">&quot;floor|county&quot;</span><span class="p">]</span>
 <span class="p">)</span><span class="o">.</span><span class="n">values</span>
 
-<span class="n">y_predicted</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercepts</span> <span class="o">+</span> <span class="n">log_u_slope</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="n">n_counties</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="n">y_predicted</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercepts</span> <span class="o">+</span> <span class="n">log_u_slope</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">8000</span><span class="p">,</span> <span class="n">n_counties</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
 <span class="c1"># reduce the intercepts posterior samples to the mean per county</span>
 <span class="n">mean_intercept</span> <span class="o">=</span> <span class="n">intercepts</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">log_u_slope</span>
@@ -2762,7 +2762,7 @@ The number of effective samples is smaller than 25% for some parameters.
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[52]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
@@ -2790,7 +2790,7 @@ The number of effective samples is smaller than 25% for some parameters.
 
 <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span>
     <span class="n">x</span><span class="o">=</span><span class="n">log_u_sample</span><span class="p">,</span>
-    <span class="n">y</span><span class="o">=</span><span class="n">mean_intercept</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="n">n_counties</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">mean_intercept</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">8000</span><span class="p">,</span> <span class="n">n_counties</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
     <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
     <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
     <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Mean intercept&quot;</span><span class="p">,</span>
@@ -2822,7 +2822,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <h2>Summary<a class="headerlink" href="#Summary" title="Permalink to this headline">#</a></h2>
 <p>Let us dig deeper into the model comparison for the pooled, unpooled, and partial pooling models. To do so we are generate predictions for each model ad county level, where we aggregate by taking the mean, and plot them against the observed values.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[53]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># generate posterior predictive samples</span>
@@ -2851,7 +2851,7 @@ The number of effective samples is smaller than 25% for some parameters.
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[54]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
@@ -2889,7 +2889,7 @@ The number of effective samples is smaller than 25% for some parameters.
 <li><p>The partial pooling model is mixing global and information at county level. This is clearly seen by how corresponding (green) line is in between the pooling and unpooling lines.</p></li>
 </ul>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[55]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
@@ -2902,21 +2902,21 @@ The number of effective samples is smaller than 25% for some parameters.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Sat May 07 2022
+Last updated: Wed Jun 01 2022
 
 Python implementation: CPython
-Python version       : 3.9.12
+Python version       : 3.9.7
 IPython version      : 8.3.0
 
-pandas    : 1.4.2
-matplotlib: 3.5.2
-numpy     : 1.21.6
-pymc3     : 3.11.5
 bambi     : 0.7.1
-sys       : 3.9.12 | packaged by conda-forge | (main, Mar 24 2022, 23:25:59)
-[GCC 10.3.0]
+arviz     : 0.12.1
 seaborn   : 0.11.2
-arviz     : 0.12.0
+matplotlib: 3.5.1
+pymc      : 4.0.0b6
+numpy     : 1.21.5
+pandas    : 1.4.2
+sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
+[GCC 7.5.0]
 
 Watermark: 2.3.0
 

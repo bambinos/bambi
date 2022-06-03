@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Getting Started &#8212; Bambi 0.8.0 documentation</title>
+    <title>Getting Started &#8212; Bambi 0.9.0 documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -1142,29 +1142,34 @@ subject, plus N-1 condition slopes (each coded with respect to the first, omitte
 Automatically removing 33/6940 rows from the dataset.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, gender, age, condition, Intercept]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, condition, age, gender, 1|uid_sigma, 1|uid_offset, value_sigma]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:14<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:38<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1172,7 +1177,7 @@ NUTS: [value_sigma, 1|uid_offset, 1|uid_sigma, gender, age, condition, Intercept
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 16 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 39 seconds.
 </pre></div></div>
 </div>
 <p>The above code obtains 1,000 draws (the default value) and return them as an <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance (for more details, see the <a class="reference external" href="https://arviz-devs.github.io/arviz/schema/schema.html">ArviZ documentation</a>). In this case, the <code class="docutils literal notranslate"><span class="pre">fit()</span></code> method accepts optional keyword arguments to pass onto PyMC3’s <code class="docutils literal notranslate"><span class="pre">sample()</span></code> method, so any methods accepted by <code class="docutils literal notranslate"><span class="pre">sample()</span></code> can be specified here. We can also explicitly set the number of draws via the <code class="docutils literal notranslate"><span class="pre">draws</span></code> argument. For example, if we call
@@ -1330,29 +1335,34 @@ correlation scale that Bambi uses for default priors. This means that if your ou
 Modeling the probability that admit==1
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [rank, gpa, gre, Intercept]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, gre, gpa, rank]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:05<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:29<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1360,7 +1370,7 @@ NUTS: [rank, gpa, gre, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 30 seconds.
 </pre></div></div>
 </div>
 <p>If no <code class="docutils literal notranslate"><span class="pre">link</span></code> argument is explicitly set (see below), the canonical link function (or an otherwise sensible default) will be used. The following table summarizes the currently available families and their associated links:</p>
@@ -1445,8 +1455,8 @@ built-in Bernoulli family could be constructed on-the-fly:</p>
 <span class="c1"># link: A function that maps the response to the linear predictor</span>
 <span class="c1"># linkinv: A function that maps the linear predictor to the response</span>
 <span class="c1"># linkinv_backend: A function that maps the linear predictor to the response</span>
-<span class="c1">#                  that works with Theano tensors.</span>
-<span class="c1">#                  bmb.math.sigmoid is a Theano tensor function wrapped by PyMC3 and Bambi</span>
+<span class="c1">#                  that works with Aesara tensors.</span>
+<span class="c1">#                  bmb.math.sigmoid is a Aesara tensor function wrapped by PyMC3 and Bambi</span>
 <span class="n">link</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Link</span><span class="p">(</span>
     <span class="s2">&quot;my_logit&quot;</span><span class="p">,</span>
     <span class="n">link</span><span class="o">=</span><span class="n">special</span><span class="o">.</span><span class="n">expit</span><span class="p">,</span>
@@ -1471,29 +1481,34 @@ built-in Bernoulli family could be constructed on-the-fly:</p>
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [rank, gpa, gre, Intercept]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, gre, gpa, rank]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:04<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:23<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1501,11 +1516,11 @@ NUTS: [rank, gpa, gre, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 23 seconds.
 </pre></div></div>
 </div>
 <p>The above example produces results identical to simply setting <code class="docutils literal notranslate"><span class="pre">family='bernoulli'</span></code>.</p>
-<p>One complication in specifying a custom <code class="docutils literal notranslate"><span class="pre">Family</span></code> is that one must pass both a link function and an inverse link function which must be able to operate over theano tensors rather than numpy arrays, so you’ll probably need to rely on tensor operations provided in <code class="docutils literal notranslate"><span class="pre">theano.tensor</span></code> (many of which are also wrapped by PyMC3) when defining a new link.</p>
+<p>One complication in specifying a custom <code class="docutils literal notranslate"><span class="pre">Family</span></code> is that one must pass both a link function and an inverse link function which must be able to operate over Aesara tensors rather than numpy arrays, so you’ll probably need to rely on tensor operations provided in <code class="docutils literal notranslate"><span class="pre">aesara.tensor</span></code> (many of which are also wrapped by PyMC3) when defining a new link.</p>
 </section>
 <section id="Results">
 <h2>Results<a class="headerlink" href="#Results" title="Permalink to this headline">#</a></h2>
@@ -1579,14 +1594,14 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-3.527</td>
-      <td>1.132</td>
-      <td>-5.745</td>
-      <td>-1.457</td>
-      <td>0.021</td>
-      <td>0.017</td>
-      <td>2813.0</td>
-      <td>1284.0</td>
+      <td>-3.508</td>
+      <td>1.148</td>
+      <td>-5.653</td>
+      <td>-1.425</td>
+      <td>0.014</td>
+      <td>0.011</td>
+      <td>6371.0</td>
+      <td>3162.0</td>
       <td>1.0</td>
     </tr>
     <tr>
@@ -1594,35 +1609,35 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
       <td>0.002</td>
       <td>0.001</td>
       <td>0.000</td>
-      <td>0.004</td>
+      <td>0.005</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2360.0</td>
-      <td>1595.0</td>
+      <td>4878.0</td>
+      <td>3182.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>gpa</th>
-      <td>0.799</td>
-      <td>0.327</td>
-      <td>0.214</td>
-      <td>1.407</td>
-      <td>0.007</td>
-      <td>0.005</td>
-      <td>2258.0</td>
-      <td>1330.0</td>
+      <td>0.790</td>
+      <td>0.332</td>
+      <td>0.147</td>
+      <td>1.402</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>5532.0</td>
+      <td>3141.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>rank</th>
-      <td>-0.568</td>
-      <td>0.128</td>
-      <td>-0.800</td>
-      <td>-0.332</td>
+      <td>-0.569</td>
+      <td>0.132</td>
+      <td>-0.827</td>
+      <td>-0.338</td>
       <td>0.002</td>
-      <td>0.002</td>
-      <td>2998.0</td>
-      <td>1645.0</td>
+      <td>0.001</td>
+      <td>4812.0</td>
+      <td>2929.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1654,7 +1669,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <h2>Accessing back-end objects<a class="headerlink" href="#Accessing-back-end-objects" title="Permalink to this headline">#</a></h2>
 <p>Bambi is just a high-level interface to PyMC3. As such, Bambi internally stores virtually all objects generated by PyMC3, making it easy for users to retrieve, inspect, and modify those objects. For example, the <code class="docutils literal notranslate"><span class="pre">Model</span></code> class created by PyMC3 (as opposed to the Bambi class of the same name) is accessible from <code class="docutils literal notranslate"><span class="pre">model.backend.model</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
@@ -1662,16 +1677,16 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-pymc3.model.Model
+pymc.model.Model
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span>
@@ -1679,19 +1694,19 @@ pymc3.model.Model
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="math notranslate nohighlight">
 $$
-                \begin{array}{rcl}
-                \text{Intercept} &amp;\sim &amp; \text{Normal}\\\text{gre} &amp;\sim &amp; \text{Normal}\\\text{gpa} &amp;\sim &amp; \text{Normal}\\\text{rank} &amp;\sim &amp; \text{Normal}\\\text{admit} &amp;\sim &amp; \text{Bernoulli}
-                \end{array}
-                $$</div></div>
+            \begin{array}{rcl}
+            \text{Intercept} &amp;\sim &amp; \operatorname{N}(0,~26.6)\\\text{gre} &amp;\sim &amp; \operatorname{N}(0,~0.0217)\\\text{gpa} &amp;\sim &amp; \operatorname{N}(0,~6.58)\\\text{rank} &amp;\sim &amp; \operatorname{N}(0,~2.65)\\\text{admit} &amp;\sim &amp; \operatorname{Bern}(f(\text{rank},~\text{gpa},~\text{gre},~\text{Intercept}))
+            \end{array}
+            $$</div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">observed_RVs</span>
@@ -1699,16 +1714,16 @@ $$
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[admit ~ Bernoulli]
+[admit]
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">unobserved_RVs</span>
@@ -1716,12 +1731,12 @@ $$
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-[Intercept ~ Normal, gre ~ Normal, gpa ~ Normal, rank ~ Normal]
+[Intercept, gre, gpa, rank]
 </pre></div></div>
 </div>
 </section>

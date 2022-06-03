@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Hierarchical Linear Regression (Sleepstudy example) &#8212; Bambi 0.8.0 documentation</title>
+    <title>Hierarchical Linear Regression (Sleepstudy example) &#8212; Bambi 0.9.0 documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -828,7 +828,6 @@ Priors:
 
   Auxiliary parameters
     sigma ~ HalfStudentT(nu: 4, sigma: 56.1721)
-
 </pre></div></div>
 </div>
 <p>There we see the formula used to specify the model, the name of the response distribution (<code class="docutils literal notranslate"><span class="pre">Gaussian</span></code>), the link function (<code class="docutils literal notranslate"><span class="pre">identity</span></code>), together with the number of observations (<code class="docutils literal notranslate"><span class="pre">180</span></code>). Below, we have a description of the prior distributions for the different terms in the model. This tells Bambi is using <code class="docutils literal notranslate"><span class="pre">Normal</span></code> priors for both common and group-specific terms, and a <code class="docutils literal notranslate"><span class="pre">HalfStudentT</span></code> distribution for the residual error term of the linear regression.</p>
@@ -848,29 +847,34 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [Reaction_sigma, Days|Subject_offset, Days|Subject_sigma, 1|Subject_offset, 1|Subject_sigma, Days, Intercept]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_sigma, Days|Subject_offset, Reaction_sigma]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
-  <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [6000/6000 00:14<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='12000' class='' max='12000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [12000/12000 00:15<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -878,7 +882,7 @@ NUTS: [Reaction_sigma, Days|Subject_offset, Days|Subject_sigma, 1|Subject_offset
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 15 seconds.
+Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 16 seconds.
 </pre></div></div>
 </div>
 </section>
@@ -925,17 +929,17 @@ Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>251.686</td>
-      <td>7.468</td>
-      <td>237.227</td>
-      <td>265.466</td>
+      <td>251.476</td>
+      <td>7.567</td>
+      <td>236.722</td>
+      <td>265.558</td>
     </tr>
     <tr>
       <th>Days</th>
-      <td>10.559</td>
-      <td>1.722</td>
-      <td>7.076</td>
-      <td>13.718</td>
+      <td>10.504</td>
+      <td>1.682</td>
+      <td>7.339</td>
+      <td>13.671</td>
     </tr>
   </tbody>
 </table>
@@ -1049,21 +1053,21 @@ better at reaction times. Looks like they took this as a serious challenge!</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Sun Nov 14 2021
+Last updated: Wed Jun 01 2022
 
 Python implementation: CPython
-Python version       : 3.8.5
-IPython version      : 7.18.1
+Python version       : 3.9.7
+IPython version      : 8.3.0
 
-sys       : 3.8.5 (default, Sep  4 2020, 07:30:14)
-[GCC 7.3.0]
-matplotlib: 3.4.3
-pandas    : 1.3.1
-bambi     : 0.6.3
-numpy     : 1.21.2
-arviz     : 0.11.4
+matplotlib: 3.5.1
+bambi     : 0.7.1
+pandas    : 1.4.2
+numpy     : 1.21.5
+sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
+[GCC 7.5.0]
+arviz     : 0.12.1
 
-Watermark: 2.1.0
+Watermark: 2.3.0
 
 </pre></div></div>
 </div>

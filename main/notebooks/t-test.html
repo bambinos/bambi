@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Comparison of two means (T-test) &#8212; Bambi 0.8.0 documentation</title>
+    <title>Comparison of two means (T-test) &#8212; Bambi 0.9.0 documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -699,20 +699,11 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/home/tomas/anaconda3/envs/bmb/lib/python3.8/site-packages/xarray/core/alignment.py:307: FutureWarning: Index.__or__ operating as a set operation is deprecated, in the future this will be a logical operation matching Series.__or__.  Use index.union(other) instead
-  index = joiner(matching_indexes)
-</pre></div></div>
-</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_t-test_7_1.png" src="../_images/notebooks_t-test_7_1.png" />
+<img alt="../_images/notebooks_t-test_7_0.png" src="../_images/notebooks_t-test_7_0.png" />
 </div>
 </div>
 <p>When we carry out a two sample t-test we are implicitly using a linear model that can be specified in different ways. One of these approaches is the following:</p>
@@ -751,29 +742,34 @@ div.rendered_html tbody tr:hover {
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [Val_sigma, Intercept, Group]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, Group, Val_sigma]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:01<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:04<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -781,7 +777,7 @@ NUTS: [Val_sigma, Intercept, Group]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 2 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 5 seconds.
 </pre></div></div>
 </div>
 <p>We’ve only specified the formula for the model and Bambi automatically selected priors distributions and values for their parameters. We can inspect both the setup and the priors as following:</p>
@@ -810,8 +806,6 @@ Priors:
 
   Auxiliary parameters
     sigma ~ HalfStudentT(nu: 4, sigma: 2.4567)
-
-
 ------
 * To see a plot of the priors call the .plot_priors() method.
 * To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()
@@ -894,37 +888,37 @@ Priors:
     <tr>
       <th>Intercept</th>
       <td>6.117</td>
-      <td>0.182</td>
+      <td>0.180</td>
       <td>5.797</td>
-      <td>6.447</td>
+      <td>6.453</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>2873.0</td>
-      <td>1528.0</td>
+      <td>4599.0</td>
+      <td>2949.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Group[b]</th>
-      <td>2.003</td>
+      <td>2.001</td>
       <td>0.275</td>
-      <td>1.459</td>
-      <td>2.489</td>
-      <td>0.005</td>
+      <td>1.480</td>
+      <td>2.497</td>
       <td>0.004</td>
-      <td>2832.0</td>
-      <td>1519.0</td>
+      <td>0.003</td>
+      <td>5524.0</td>
+      <td>2489.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Val_sigma</th>
       <td>2.263</td>
       <td>0.101</td>
-      <td>2.079</td>
-      <td>2.453</td>
-      <td>0.002</td>
+      <td>2.080</td>
+      <td>2.456</td>
       <td>0.001</td>
-      <td>3176.0</td>
-      <td>1686.0</td>
+      <td>0.001</td>
+      <td>5751.0</td>
+      <td>2988.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -966,7 +960,7 @@ Priors:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-1.0
+1e+00
 </pre></div></div>
 </div>
 <p>The linear model implicit in the t-test can also be specified without an intercept term, such is the case of Model 2.</p>
@@ -1006,29 +1000,34 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [Val_sigma, Group]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Group, Val_sigma]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
-  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:01<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:22<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1036,7 +1035,7 @@ NUTS: [Val_sigma, Group]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 2 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 22 seconds.
 </pre></div></div>
 </div>
 <p>We’ve only specified the formula for the model and Bambi automatically selected priors distributions and values for their parameters. We can inspect both the setup and the priors as following:</p>
@@ -1064,8 +1063,6 @@ Priors:
 
   Auxiliary parameters
     sigma ~ HalfStudentT(nu: 4, sigma: 2.4567)
-
-
 ------
 * To see a plot of the priors call the .plot_priors() method.
 * To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()
@@ -1148,37 +1145,37 @@ Priors:
     <tr>
       <th>Group[a]</th>
       <td>6.115</td>
-      <td>0.180</td>
-      <td>5.743</td>
-      <td>6.429</td>
+      <td>0.183</td>
+      <td>5.790</td>
+      <td>6.469</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>3028.0</td>
-      <td>1723.0</td>
+      <td>5152.0</td>
+      <td>2990.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Group[b]</th>
-      <td>8.125</td>
-      <td>0.218</td>
-      <td>7.690</td>
-      <td>8.510</td>
-      <td>0.005</td>
+      <td>8.121</td>
+      <td>0.211</td>
+      <td>7.738</td>
+      <td>8.518</td>
       <td>0.003</td>
-      <td>2305.0</td>
-      <td>1359.0</td>
+      <td>0.002</td>
+      <td>5530.0</td>
+      <td>2632.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Val_sigma</th>
-      <td>2.262</td>
-      <td>0.098</td>
-      <td>2.086</td>
-      <td>2.441</td>
-      <td>0.002</td>
+      <td>2.260</td>
+      <td>0.097</td>
+      <td>2.087</td>
+      <td>2.446</td>
       <td>0.001</td>
-      <td>2922.0</td>
-      <td>1586.0</td>
+      <td>0.001</td>
+      <td>5014.0</td>
+      <td>2985.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1219,7 +1216,7 @@ Priors:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-1.0
+1e+00
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1236,20 +1233,21 @@ Priors:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Tue Jul 27 2021
+Last updated: Wed Jun 01 2022
 
 Python implementation: CPython
-Python version       : 3.8.5
-IPython version      : 7.18.1
+Python version       : 3.9.7
+IPython version      : 8.3.0
 
-bambi     : 0.5.0
-numpy     : 1.20.1
-matplotlib: 3.3.3
-arviz     : 0.11.2
-json      : 2.0.9
-pandas    : 1.2.2
+matplotlib: 3.5.1
+arviz     : 0.12.1
+bambi     : 0.7.1
+pandas    : 1.4.2
+sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
+[GCC 7.5.0]
+numpy     : 1.21.5
 
-Watermark: 2.1.0
+Watermark: 2.3.0
 
 </pre></div></div>
 </div>

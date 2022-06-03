@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Circular Regression &#8212; Bambi 0.8.0 documentation</title>
+    <title>Circular Regression &#8212; Bambi 0.9.0 documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -559,7 +559,7 @@ div.rendered_html tbody tr:hover {
 </style>
 <section id="Circular-Regression">
 <h1>Circular Regression<a class="headerlink" href="#Circular-Regression" title="Permalink to this headline">#</a></h1>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
@@ -572,15 +572,6 @@ div.rendered_html tbody tr:hover {
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/u/32/martino5/unix/anaconda3/envs/bambi/lib/python3.9/site-packages/statsmodels/tools/_testing.py:19: FutureWarning: pandas.util.testing is deprecated. Use the functions in the public API at pandas.testing instead.
-  import pandas.util.testing as tm
-</pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -720,48 +711,12 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
+WARNING (aesara.tensor.basic_opt): Optimization Warning: The Op i1 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
+WARNING (aesara.tensor.basic_opt): Optimization Warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
 Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [direction_kappa, distance, Intercept]
-</pre></div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area rendered_html docutils container">
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area rendered_html docutils container">
-<div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:03<00:00 Sampling 4 chains, 0 divergences]
-</div></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.
-Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [direction_sigma, distance, Intercept]
+NUTS: [Intercept, distance, direction_kappa]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -788,6 +743,44 @@ NUTS: [direction_sigma, distance, Intercept]
 <div>
   <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
   100.00% [8000/8000 00:02<00:00 Sampling 4 chains, 0 divergences]
+</div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, distance, direction_sigma]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:01<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -843,38 +836,38 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>1.695</td>
-      <td>0.362</td>
-      <td>1.023</td>
-      <td>2.348</td>
+      <td>1.686</td>
+      <td>0.325</td>
+      <td>1.118</td>
+      <td>2.304</td>
       <td>0.008</td>
       <td>0.006</td>
-      <td>1969.0</td>
-      <td>1950.0</td>
+      <td>1966.0</td>
+      <td>1640.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>distance</th>
       <td>-0.010</td>
-      <td>0.005</td>
+      <td>0.004</td>
       <td>-0.019</td>
-      <td>-0.001</td>
+      <td>-0.003</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2184.0</td>
-      <td>2129.0</td>
+      <td>2205.0</td>
+      <td>2290.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>direction_kappa</th>
-      <td>2.272</td>
-      <td>0.452</td>
-      <td>1.500</td>
-      <td>3.181</td>
+      <td>2.622</td>
+      <td>0.623</td>
+      <td>1.538</td>
+      <td>3.837</td>
+      <td>0.012</td>
       <td>0.008</td>
-      <td>0.006</td>
-      <td>3060.0</td>
-      <td>2008.0</td>
+      <td>2871.0</td>
+      <td>2219.0</td>
       <td>1.0</td>
     </tr>
   </tbody>

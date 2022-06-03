@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Logistic Regression (Vote intention with ANES data) &#8212; Bambi 0.8.0 documentation</title>
+    <title>Logistic Regression (Vote intention with ANES data) &#8212; Bambi 0.9.0 documentation</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -993,32 +993,43 @@ pick one of the events to model, but will inform you which one it picked when yo
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
+/home/osvaldo/proyectos/00_BM/bambi/bambi/models.py:129: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  data[obj_cols] = data[obj_cols].apply(lambda x: x.astype(&#34;category&#34;))
 Modeling the probability that vote==clinton
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [party_id:age, party_id, Intercept]
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, party_id, party_id:age]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
 <div>
-    <style>
-        /* Turns off some styling */
-        progress {
-            /* gets rid of default border in Firefox and Opera. */
-            border: none;
-            /* Needs to be in here for Safari polyfill so background images work as expected. */
-            background-size: auto;
-        }
-        .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-            background: #F44336;
-        }
-    </style>
-  <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [6000/6000 00:08<00:00 Sampling 2 chains, 0 divergences]
+  <progress value='12000' class='' max='12000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [12000/12000 01:04<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1026,7 +1037,7 @@ NUTS: [party_id:age, party_id, Intercept]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 9 seconds.
+Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 66 seconds.
 </pre></div></div>
 </div>
 <p>We can print the model object to see information about the response distribution, the link function and the priors.</p>
@@ -1053,8 +1064,6 @@ Priors:
     Intercept ~ Normal(mu: 0, sigma: 4.3846)
     party_id ~ Normal(mu: [0. 0.], sigma: [5.4007 6.0634])
     party_id:age ~ Normal(mu: [0. 0. 0.], sigma: [0.0938 0.1007 0.1098])
-
-
 ------
 * To see a plot of the priors call the .plot_priors() method.
 * To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()
@@ -1139,74 +1148,74 @@ Priors:
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>1.668</td>
-      <td>0.726</td>
-      <td>0.308</td>
-      <td>3.056</td>
-      <td>0.015</td>
+      <td>1.682</td>
+      <td>0.732</td>
+      <td>0.347</td>
+      <td>3.107</td>
       <td>0.011</td>
-      <td>2261.0</td>
-      <td>2154.0</td>
+      <td>0.008</td>
+      <td>4180.0</td>
+      <td>4203.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[independent]</th>
-      <td>-0.260</td>
-      <td>0.972</td>
-      <td>-2.036</td>
-      <td>1.598</td>
-      <td>0.022</td>
-      <td>0.017</td>
-      <td>1926.0</td>
-      <td>1969.0</td>
+      <td>-0.294</td>
+      <td>0.964</td>
+      <td>-2.064</td>
+      <td>1.571</td>
+      <td>0.015</td>
+      <td>0.012</td>
+      <td>3910.0</td>
+      <td>4407.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[republican]</th>
-      <td>-1.163</td>
-      <td>1.602</td>
-      <td>-4.085</td>
-      <td>1.955</td>
-      <td>0.034</td>
-      <td>0.025</td>
-      <td>2218.0</td>
-      <td>2102.0</td>
+      <td>-1.166</td>
+      <td>1.574</td>
+      <td>-4.117</td>
+      <td>1.758</td>
+      <td>0.027</td>
+      <td>0.019</td>
+      <td>3506.0</td>
+      <td>4675.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[democrat]</th>
       <td>0.013</td>
       <td>0.015</td>
-      <td>-0.016</td>
-      <td>0.041</td>
+      <td>-0.015</td>
+      <td>0.043</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2176.0</td>
-      <td>2281.0</td>
+      <td>4161.0</td>
+      <td>4331.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[independent]</th>
-      <td>-0.034</td>
+      <td>-0.033</td>
       <td>0.012</td>
-      <td>-0.057</td>
-      <td>-0.012</td>
+      <td>-0.056</td>
+      <td>-0.011</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2767.0</td>
-      <td>2477.0</td>
+      <td>5498.0</td>
+      <td>4557.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[republican]</th>
       <td>-0.079</td>
-      <td>0.037</td>
-      <td>-0.152</td>
-      <td>-0.015</td>
+      <td>0.036</td>
+      <td>-0.151</td>
+      <td>-0.017</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>2333.0</td>
-      <td>1977.0</td>
+      <td>0.000</td>
+      <td>3902.0</td>
+      <td>3683.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1344,10 +1353,10 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
   </thead>
   <tbody>
     <tr>
-      <th>191</th>
-      <td>215</td>
-      <td>trump</td>
-      <td>95</td>
+      <th>365</th>
+      <td>410</td>
+      <td>clinton</td>
+      <td>55</td>
       <td>republican</td>
     </tr>
   </tbody>
@@ -1419,20 +1428,6 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
   </thead>
   <tbody>
     <tr>
-      <th>34</th>
-      <td>34</td>
-      <td>trump</td>
-      <td>83</td>
-      <td>republican</td>
-    </tr>
-    <tr>
-      <th>58</th>
-      <td>64</td>
-      <td>trump</td>
-      <td>84</td>
-      <td>republican</td>
-    </tr>
-    <tr>
       <th>62</th>
       <td>68</td>
       <td>trump</td>
@@ -1447,10 +1442,24 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
       <td>republican</td>
     </tr>
     <tr>
+      <th>222</th>
+      <td>248</td>
+      <td>clinton</td>
+      <td>36</td>
+      <td>republican</td>
+    </tr>
+    <tr>
       <th>320</th>
       <td>359</td>
       <td>clinton</td>
       <td>22</td>
+      <td>republican</td>
+    </tr>
+    <tr>
+      <th>322</th>
+      <td>361</td>
+      <td>clinton</td>
+      <td>37</td>
       <td>republican</td>
     </tr>
     <tr>
@@ -1689,20 +1698,6 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
   </thead>
   <tbody>
     <tr>
-      <th>34</th>
-      <td>34</td>
-      <td>trump</td>
-      <td>83</td>
-      <td>republican</td>
-    </tr>
-    <tr>
-      <th>58</th>
-      <td>64</td>
-      <td>trump</td>
-      <td>84</td>
-      <td>republican</td>
-    </tr>
-    <tr>
       <th>62</th>
       <td>68</td>
       <td>trump</td>
@@ -1717,10 +1712,24 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
       <td>republican</td>
     </tr>
     <tr>
+      <th>222</th>
+      <td>248</td>
+      <td>clinton</td>
+      <td>36</td>
+      <td>republican</td>
+    </tr>
+    <tr>
       <th>320</th>
       <td>359</td>
       <td>clinton</td>
       <td>22</td>
+      <td>republican</td>
+    </tr>
+    <tr>
+      <th>322</th>
+      <td>361</td>
+      <td>clinton</td>
+      <td>37</td>
       <td>republican</td>
     </tr>
     <tr>
@@ -1785,7 +1794,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.996
+9.95e-01
 </pre></div></div>
 </div>
 <p>Probability that the Democrat slope is greater than the Independent slope?</p>
@@ -1803,7 +1812,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.99225
+0.992
 </pre></div></div>
 </div>
 <p>Probability that the Independent slope is greater than the Republican slope?</p>
@@ -1821,7 +1830,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.88375
+0.89425
 </pre></div></div>
 </div>
 <p>Probability that the Democrat slope is greater than 0?</p>
@@ -1839,7 +1848,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.81275
+0.797375
 </pre></div></div>
 </div>
 <p>Probability that the Republican slope is less than 0?</p>
@@ -1857,7 +1866,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.99225
+0.993375
 </pre></div></div>
 </div>
 <p>Probability that the Independent slope is less than 0?</p>
@@ -1875,7 +1884,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.997
+0.99625
 </pre></div></div>
 </div>
 <p>If we look at the plot of the marginal posteriors, we may be suspicious that, for example, the probability that Democrat slope is greater than the Republican slope is 0.998 (almost 1!), given the overlap between the blue and green density functions. However, we can’t answer such a question using the marginal posteriors only, as shown in the plot. Since Democrat and Republican slopes (<span class="math notranslate nohighlight">\(\beta_3\)</span> and <span class="math notranslate nohighlight">\(\beta_5\)</span>, respectively) are random variables, we need to use their joint distribution
@@ -2052,21 +2061,21 @@ to answer probability questions that involve both of them. The fact that logical
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Sun Nov 14 2021
+Last updated: Wed Jun 01 2022
 
 Python implementation: CPython
-Python version       : 3.8.5
-IPython version      : 7.18.1
+Python version       : 3.9.7
+IPython version      : 8.3.0
 
-numpy     : 1.21.2
-sys       : 3.8.5 (default, Sep  4 2020, 07:30:14)
-[GCC 7.3.0]
-bambi     : 0.6.3
-arviz     : 0.11.4
-matplotlib: 3.4.3
-pandas    : 1.3.1
+matplotlib: 3.5.1
+pandas    : 1.4.2
+arviz     : 0.12.1
+bambi     : 0.7.1
+sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
+[GCC 7.5.0]
+numpy     : 1.21.5
 
-Watermark: 2.1.0
+Watermark: 2.3.0
 
 </pre></div></div>
 </div>
