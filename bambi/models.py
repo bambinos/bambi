@@ -6,14 +6,13 @@ from copy import deepcopy
 
 import numpy as np
 import pandas as pd
-import pymc3 as pm
+import pymc as pm
 
 from arviz.plots import plot_posterior
-from arviz.data import from_dict
 
 from formulae import design_matrices
 
-from .backend import PyMC3Model
+from .backend import PyMCModel
 from .defaults import get_default_prior, get_builtin_family
 from .families import Family, univariate, multivariate
 from .priors import Prior, PriorScaler
@@ -53,7 +52,7 @@ class Model:
         The names of any variables to treat as categorical. Can be either a single variable
         name, or a list of names. If categorical is ``None``, the data type of the columns in
         the ``data`` will be used to infer handling. In cases where numeric columns are
-        to be treated as categoricals (e.g., group specific factors coded as numerical IDs),
+        to be treated as categorical (e.g., group specific factors coded as numerical IDs),
         explicitly passing variable names via this argument is recommended.
     potentials : A list of 2-tuples.
         Optional specification of potentials. A potential is an arbitrary expression added to the
@@ -183,7 +182,7 @@ class Model:
         random_seed=None,
         **kwargs,
     ):
-        """Fit the model using PyMC3.
+        """Fit the model using PyMC.
 
         Parameters
         ----------
@@ -205,7 +204,7 @@ class Model:
             The method to use for fitting the model. By default, ``"mcmc"``. This automatically
             assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
             variables and Metropolis for non-binary discrete ones. Alternatively, ``"vi"``, in
-            which case the model will be fitted using variational inference as implemented in PyMC3
+            which case the model will be fitted using variational inference as implemented in PyMC
             using the ``fit`` function.
             Finally, ``"laplace"``, in which case a Laplace approximation is used and is not
             recommended other than for pedagogical use.
@@ -241,7 +240,7 @@ class Model:
         random_seed : int or list of ints
             A list is accepted if cores is greater than one.
         **kwargs:
-            For other kwargs see the documentation for ``pymc3.sample()``.
+            For other kwargs see the documentation for ``PyMC.sample()``.
 
         Returns
         -------
@@ -280,7 +279,7 @@ class Model:
 
         Creates an instance of the underlying PyMC model and adds all the necessary terms to it.
         """
-        self.backend = PyMC3Model()
+        self.backend = PyMCModel()
         self.backend.build(self)
         self.built = True
 
@@ -662,7 +661,6 @@ class Model:
     def prior_predictive(self, draws=500, var_names=None, omit_offsets=True, random_seed=None):
         """
         Generate samples from the prior predictive distribution.
-
         Parameters
         ----------
         draws: int
@@ -672,7 +670,6 @@ class Model:
             Defaults to ``None`` which means both observed and unobserved RVs.
         random_seed: int
             Seed for the random number generator.
-
         Returns
         -------
         InferenceData
@@ -687,49 +684,17 @@ class Model:
         if omit_offsets:
             var_names = [name for name in var_names if not name.endswith("_offset")]
 
-        pps_ = pm.sample_prior_predictive(
+        idata = pm.sample_prior_predictive(
             samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
         )
 
-        # pps_ keys are not in the same order as `var_names` because `var_names` is converted
-        # to set within pm.sample_prior_predictive()
-        pps = {}
-        for name in var_names:
-            if name in self.terms and self.terms[name].categorical:
-                pps[name] = pps_[name]
-            else:
-                pps[name] = pps_[name].squeeze()
+        if hasattr(idata, "prior"):
+            to_drop = [dim for dim in idata.prior.dims if dim.endswith("_dim_0")]
+            idata.prior = idata.prior.squeeze(to_drop).reset_coords(to_drop, drop=True)
 
-        response_name = self.response.name
-        if response_name in pps:
-            prior_predictive = {response_name: pps.pop(response_name)[np.newaxis]}
-            observed_data = {response_name: self.response.data.squeeze()}
-        else:
-            prior_predictive = {}
-            observed_data = {}
-
-        prior = {k: v[np.newaxis] for k, v in pps.items()}
-
-        coords = {}
-        dims = {}
-        for name in var_names:
-            if name in self.terms:
-                coords.update(**self.terms[name].coords)
-                dims[name] = list(self.terms[name].coords.keys())
-
-        idata = from_dict(
-            prior_predictive=prior_predictive,
-            prior=prior,
-            observed_data=observed_data,
-            coords=coords,
-            dims=dims,
-            attrs={
-                "inference_library": self.backend.name,
-                "inference_library_version": self.backend.name,
-                "modeling_interface": "bambi",
-                "modeling_interface_version": __version__,
-            },
-        )
+        for group in idata.groups():
+            getattr(idata, group).attrs["modeling_interface"] = "bambi"
+            getattr(idata, group).attrs["modeling_interface_version"] = __version__
 
         return idata
 

@@ -32,7 +32,7 @@ class Likelihood:
     Parameters
     ----------
     name: str
-        Name of the likelihood function. Must be a valid PyMC3 distribution name.
+        Name of the likelihood function. Must be a valid PyMC distribution name.
     parent: str
         Optional specification of the name of the mean parameter in the likelihood.
         This is the parameter whose transformation is modeled by the linear predictor.
