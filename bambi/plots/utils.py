@@ -9,7 +9,7 @@ def get_unique_levels(x):
     return levels
 
 
-def get_group_offset(n, lower=0.05, upper=0.35):
+def get_group_offset(n, lower=0.05, upper=0.4):
     # Complementary log log function, scaled.
     # See following code to have an idea of how this function looks like
     # lower, upper = 0.05, 0.4
