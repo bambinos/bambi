@@ -11,7 +11,7 @@ from matplotlib.patches import Patch
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
 
 from bambi.utils import listify
-from bambi.plots.utils import get_unique_levels
+from bambi.plots.utils import get_group_offset, get_unique_levels
 
 
 def create_cap_data(model, covariates, grid_n=200, groups_n=5):
@@ -181,7 +181,7 @@ def plot_cap(model, idata, covariates, level=0.95, legend=True, ax=None):
 def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, ax):
     if len(covariates) == 1:
         main = covariates[0]
-        ax.plot(cap_data[main], y_hat_mean)
+        ax.plot(cap_data[main], y_hat_mean, solid_capstyle="butt")
         ax.fill_between(cap_data[main], y_hat_bounds[0], y_hat_bounds[1], alpha=0.5)
     else:
         main, group = covariates
@@ -189,7 +189,7 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, ax
 
         for i, grp in enumerate(groups):
             idx = (cap_data[group] == grp).values
-            ax.plot(cap_data.loc[idx, main], y_hat_mean[idx], color=f"C{i}")
+            ax.plot(cap_data.loc[idx, main], y_hat_mean[idx], color=f"C{i}", solid_capstyle="butt")
             ax.fill_between(
                 cap_data.loc[idx, main],
                 y_hat_bounds[0][idx],
@@ -232,7 +232,8 @@ def _plot_cap_categoric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, 
         group = covariates[1]
         group_levels = get_unique_levels(cap_data[group])
         group_levels_n = len(group_levels)
-        offset_groups = np.linspace(-0.3, 0.3, group_levels_n)
+        offset_bounds = get_group_offset(group_levels_n)
+        offset_groups = np.linspace(-offset_bounds, offset_bounds, group_levels_n)
 
         for i, grp in enumerate(group_levels):
             idx = (cap_data[group] == grp).values
