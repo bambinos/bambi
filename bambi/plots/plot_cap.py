@@ -112,20 +112,21 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
     return cap_data
 
 
-def plot_cap(model, idata, covariates, level=0.95, legend=True, ax=None):
+def plot_cap(model, idata, covariates, hdi_prob=0.94, legend=True, ax=None):
     """Plot Conditional Adjusted Predictions
 
     Parameters
     ----------
     model : bambi.Model
-        _description_
+        The model for which we want to plot the predictions.
     idata : arviz.InferenceData
-        _description_
+        The InferenceData object that contains the samples from the posterior distribution of
+        the model.
     covariates : list
         A sequence of one or two names of variables. The first variable is taken as the main
         variable. If present, the second variable is a grouping variable.
-    level : float, optional
-        The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.95.
+    hdi_prob : float, optional
+        The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
     legend : bool, optional
         Whether to automatically include a legend in the plot. Defaults to ``True``.
     ax : matplotlib.axes._subplots.AxesSubplot, optional
@@ -150,10 +151,10 @@ def plot_cap(model, idata, covariates, level=0.95, legend=True, ax=None):
     cap_data = create_cap_data(model, covariates)
     idata = model.predict(idata, data=cap_data, inplace=False)
 
-    if not 0 < level < 1:
-        raise ValueError(f"'level' must be greater than 0 and smaller than 1. It is {level}")
+    if not 0 < hdi_prob < 1:
+        raise ValueError(f"'level' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
 
-    lower_bound = round((1 - level) / 2, 4)
+    lower_bound = round((1 - hdi_prob) / 2, 4)
     upper_bound = 1 - lower_bound
 
     y_hat = idata.posterior[f"{model.response.name}_mean"]
