@@ -96,13 +96,12 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
         if hasattr(term, "components"):
             for component in term.components:
                 name = component.name
-                # For numeric predictors, select the mean.
-                if component.kind == "numeric":
-                    if name not in data_dict:
+                if name not in data_dict:
+                    # For numeric predictors, select the mean.
+                    if component.kind == "numeric":
                         data_dict[name] = np.mean(data[name])
-                # For categoric predictors, select the most frequent level.
-                elif component.kind == "categoric":
-                    if name not in data_dict:
+                    # For categoric predictors, select the most frequent level.
+                    elif component.kind == "categoric":
                         data_dict[name] = mode(data[name])
 
     cap_data = pd.DataFrame(data_dict)
