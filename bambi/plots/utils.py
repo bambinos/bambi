@@ -20,6 +20,5 @@ def get_group_offset(n, lower=0.05, upper=0.35):
     # ax.axvline(2, color="k", ls="--")
     # ax.axhline(lower, color="k", ls="--")
     # ax.axhline(upper, color="k", ls="--")
-    b0 = 3.25
-    b1 = 1
-    return lower + np.exp(-np.exp(b0 - b1 * n)) * (upper - lower)
+    intercept, slope = 3.25, 1
+    return lower + np.exp(-np.exp(intercept - slope * n)) * (upper - lower)
