@@ -596,7 +596,7 @@ def test_fit_include_mean(crossed_data):
     assert np.array_equal(mean, predicted_mean)
 
 
-def test_splines():
+def test_group_specific_splines():
     x_check = pd.DataFrame(
         {
             "x": [
