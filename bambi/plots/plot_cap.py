@@ -113,7 +113,7 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
     return cap_data
 
 
-def plot_cap(model, idata, covariates, HDI=True, hdi_prob=0.94, legend=True, ax=None):
+def plot_cap(model, idata, covariates, HDI=True, hdi_prob=None, legend=True, ax=None):
     """Plot Conditional Adjusted Predictions
 
     Parameters
@@ -130,6 +130,7 @@ def plot_cap(model, idata, covariates, HDI=True, hdi_prob=0.94, legend=True, ax=
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     hdi_prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
+        Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
     legend : bool, optional
         Whether to automatically include a legend in the plot. Defaults to ``True``.
     ax : matplotlib.axes._subplots.AxesSubplot, optional
@@ -153,6 +154,9 @@ def plot_cap(model, idata, covariates, HDI=True, hdi_prob=0.94, legend=True, ax=
 
     cap_data = create_cap_data(model, covariates)
     idata = model.predict(idata, data=cap_data, inplace=False)
+
+    if hdi_prob is None:
+        hdi_prob = az.rcParams["stats.hdi_prob"]
 
     if not 0 < hdi_prob < 1:
         raise ValueError(f"'level' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
