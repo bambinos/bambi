@@ -594,3 +594,47 @@ def test_fit_include_mean(crossed_data):
     predicted_mean = idata.posterior["Y_mean"].stack(sample=("chain", "draw")).values.mean(1)
 
     assert np.array_equal(mean, predicted_mean)
+
+
+def test_group_specific_splines():
+    x_check = pd.DataFrame(
+        {
+            "x": [
+                82.0,
+                143.0,
+                426.0,
+                641.0,
+                1156.0,
+                986.0,
+                365.0,
+                187.0,
+                254.0,
+                550.0,
+                101.0,
+                661.0,
+                327.0,
+                119.0,
+            ],
+            "day": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"] * 2,
+            "y": [
+                571.0,
+                684.0,
+                1652.0,
+                2130.0,
+                2455.0,
+                1874.0,
+                1288.0,
+                1011.0,
+                1004.0,
+                1993.0,
+                593.0,
+                1986.0,
+                1503.0,
+                711.0,
+            ],
+        }
+    )
+    knots = np.array([191.0, 297.0, 512.5])
+
+    model = Model("y ~ (bs(x, knots=knots, intercept=False, degree=1)|day)", data=x_check)
+    model.build()
