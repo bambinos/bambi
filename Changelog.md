@@ -10,6 +10,18 @@
 
 ### Deprecation
 
+# Changelog
+
+## 0.9.0
+
+### New features
+
+- Bambi now uses [PyMC 4.0](https://www.pymc.io/blog/v4_announcement.html) as it's backend. Most if not all your previous model should run the same, without  the need of any change.
+-  Add Plot Conditional Adjusted Predictions `plot_cap` (#517)
+
+### Maintenance and fixes
+-  Group specific terms now work with numeric of multiple columns (#516) 
+
 ## 0.8.0
 
 ### New features
