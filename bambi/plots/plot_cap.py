@@ -2,6 +2,7 @@
 # pylint: disable = too-many-function-args
 from statistics import mode
 
+import arviz as az
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -112,7 +113,7 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
     return cap_data
 
 
-def plot_cap(model, idata, covariates, hdi_prob=0.94, legend=True, ax=None):
+def plot_cap(model, idata, covariates, HDI=True, hdi_prob=0.94, legend=True, ax=None):
     """Plot Conditional Adjusted Predictions
 
     Parameters
@@ -125,6 +126,8 @@ def plot_cap(model, idata, covariates, hdi_prob=0.94, legend=True, ax=None):
     covariates : list
         A sequence of one or two names of variables. The first variable is taken as the main
         variable. If present, the second variable is a grouping variable.
+    HDI : bool, optional
+        Whether to compute the highest density interval (defaults to True) or the quantiles.
     hdi_prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
     legend : bool, optional
@@ -154,12 +157,15 @@ def plot_cap(model, idata, covariates, hdi_prob=0.94, legend=True, ax=None):
     if not 0 < hdi_prob < 1:
         raise ValueError(f"'level' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
 
-    lower_bound = round((1 - hdi_prob) / 2, 4)
-    upper_bound = 1 - lower_bound
-
     y_hat = idata.posterior[f"{model.response.name}_mean"]
     y_hat_mean = y_hat.mean(("chain", "draw"))
-    y_hat_bounds = y_hat.quantile(q=(lower_bound, upper_bound), dim=("chain", "draw"))
+
+    if HDI:
+        y_hat_bounds = az.hdi(y_hat, hdi_prob)[f"{model.response.name}_mean"].T
+    else:
+        lower_bound = round((1 - hdi_prob) / 2, 4)
+        upper_bound = 1 - lower_bound
+        y_hat_bounds = y_hat.quantile(q=(lower_bound, upper_bound), dim=("chain", "draw"))
 
     if ax is None:
         fig, ax = plt.subplots()
