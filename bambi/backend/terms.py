@@ -125,9 +125,10 @@ class GroupSpecificTerm:
         coords[factor + "__factor_dim"] = self.term.groups
 
         if self.term.categorical:
-            name = expr + "__expr_dim"
             levels = self.term.term.expr.levels
-            coords[name] = levels
+            coords[expr + "__expr_dim"] = levels
+        elif self.term.predictor.ndim == 2 and self.term.predictor.shape[1] > 1:
+            coords[expr + "__expr_dim"] = [str(i) for i in range(self.term.predictor.shape[1])]
         return coords
 
     def build_distribution(self, dist, label, **kwargs):
