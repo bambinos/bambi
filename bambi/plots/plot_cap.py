@@ -159,7 +159,7 @@ def plot_cap(model, idata, covariates, use_hdi=True, hdi_prob=None, legend=True,
         hdi_prob = az.rcParams["stats.hdi_prob"]
 
     if not 0 < hdi_prob < 1:
-        raise ValueError(f"'level' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
+        raise ValueError(f"'hdi_prob' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
 
     y_hat = idata.posterior[f"{model.response.name}_mean"]
     y_hat_mean = y_hat.mean(("chain", "draw"))
