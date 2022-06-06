@@ -113,7 +113,7 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
     return cap_data
 
 
-def plot_cap(model, idata, covariates, HDI=True, hdi_prob=None, legend=True, ax=None):
+def plot_cap(model, idata, covariates, use_hdi=True, hdi_prob=None, legend=True, ax=None):
     """Plot Conditional Adjusted Predictions
 
     Parameters
@@ -126,7 +126,7 @@ def plot_cap(model, idata, covariates, HDI=True, hdi_prob=None, legend=True, ax=
     covariates : list
         A sequence of one or two names of variables. The first variable is taken as the main
         variable. If present, the second variable is a grouping variable.
-    HDI : bool, optional
+    use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     hdi_prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
@@ -164,7 +164,7 @@ def plot_cap(model, idata, covariates, HDI=True, hdi_prob=None, legend=True, ax=
     y_hat = idata.posterior[f"{model.response.name}_mean"]
     y_hat_mean = y_hat.mean(("chain", "draw"))
 
-    if HDI:
+    if use_hdi:
         y_hat_bounds = az.hdi(y_hat, hdi_prob)[f"{model.response.name}_mean"].T
     else:
         lower_bound = round((1 - hdi_prob) / 2, 4)
