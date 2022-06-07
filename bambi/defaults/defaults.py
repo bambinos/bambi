@@ -8,6 +8,7 @@ from bambi.families.univariate import (
     Gamma,
     Gaussian,
     NegativeBinomial,
+    Laplace,
     Poisson,
     StudentT,
     VonMises,
@@ -29,6 +30,7 @@ SETTINGS_DISTRIBUTIONS = {
     "HalfNormal": {"sigma": 1},
     "Normal": {"mu": 0, "sigma": 1},
     "NegativeBinomial": {"alpha": 1, "mu": 1},
+    "Laplace": {"mu": 0, "b": 1},
     "Poisson": {"mu": 1},
     "StudentT": {"lam": 1, "nu": 1},
     "VonMises": {"mu": 0, "kappa": 1},
@@ -116,6 +118,17 @@ BUILTIN_FAMILIES = {
         },
         "link": "log",
         "family": NegativeBinomial,
+    },
+    "laplace": {
+        "likelihood": {
+            "name": "Laplace",
+            "args": {
+                "b": "HalfNormal"
+            },
+            "parent": "mu",
+        },
+        "link": "identity",
+        "family": Laplace,
     },
     "poisson": {
         "likelihood": {

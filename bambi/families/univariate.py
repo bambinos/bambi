@@ -90,6 +90,17 @@ class NegativeBinomial(UnivariateFamily):
         return np.random.negative_binomial(n, p)
 
 
+class Laplace(UnivariateFamily):
+    SUPPORTED_LINKS = ["identity", "log", "inverse"]
+
+    def posterior_predictive(self, model, posterior, linear_predictor):
+        "Sample from posterior predictive distribution"
+        mean = self.link.linkinv(linear_predictor)
+        sigma = posterior[model.response.name + "_sigma"].values
+        sigma = sigma[:, :, np.newaxis]
+        return np.random.laplace(mean, sigma)
+
+
 class Poisson(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "log"]
 
