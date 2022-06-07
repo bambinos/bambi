@@ -123,7 +123,7 @@ BUILTIN_FAMILIES = {
         "likelihood": {
             "name": "Laplace",
             "args": {
-                "b": "HalfNormal"
+                "scale": "HalfNormal"
             },
             "parent": "mu",
         },

@@ -15,7 +15,7 @@ DISTRIBUTIONS = {
     "Multinomial": DistSettings(params=("p",), parent="p", args=None),
     "Normal": DistSettings(params=("mu", "sigma"), parent="mu", args=("sigma",)),
     "NegativeBinomial": DistSettings(params=("mu", "alpha"), parent="mu", args=("alpha",)),
-    "Laplace": DistSettings(params=("mu", "b"), parent="mu", args=("b",)),
+    "Laplace": DistSettings(params=("mu", "scale"), parent="mu", args=("scale",)),
     "Poisson": DistSettings(params=("mu",), parent="mu", args=None),
     "StudentT": DistSettings(params=("mu", "sigma"), parent="mu", args=("sigma", "nu")),
     "VonMises": DistSettings(params=("mu", "kappa"), parent="mu", args=("kappa",)),
