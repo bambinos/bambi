@@ -96,9 +96,9 @@ class Laplace(UnivariateFamily):
     def posterior_predictive(self, model, posterior, linear_predictor):
         "Sample from posterior predictive distribution"
         mean = self.link.linkinv(linear_predictor)
-        scale = posterior[model.response.name + "_scale"].values
-        scale = scale[:, :, np.newaxis]
-        return np.random.laplace(mean, scale)
+        b = posterior[model.response.name + "_b"].values
+        b = b[:, :, np.newaxis]
+        return np.random.laplace(mean, b)
 
 
 class Poisson(UnivariateFamily):
