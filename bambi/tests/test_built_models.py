@@ -301,6 +301,8 @@ def test_group_specific_categorical_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
     model = Model("Y ~ continuous + (threecats:fourcats|site)", crossed_data)
     model.fit(tune=10, draws=10)
+    model.fit(tune=10, draws=10, method="nuts_numpyro")
+    model.fit(tune=10, draws=10, method="nuts_blackjax")
 
 
 def test_logistic_regression_empty_index():
@@ -327,6 +329,8 @@ def test_logistic_regression_categoric():
     data = pd.DataFrame({"y": y, "x": np.random.normal(size=50)})
     model = Model("y ~ x", data, family="bernoulli")
     model.fit()
+    model.fit(tune=10, draws=10, method="nuts_numpyro")
+    model.fit(tune=10, draws=10, method="nuts_blackjax")
 
 
 def test_poisson_regression(crossed_data):
@@ -449,6 +453,8 @@ def test_gamma_regression(dm):
     data = dm[["order", "ind_mg_dry"]]
     model = Model("ind_mg_dry ~ order", data, family="gamma", link="log")
     model.fit(draws=10, tune=10)
+    model.fit(tune=10, draws=10, method="nuts_numpyro")
+    model.fit(tune=10, draws=10, method="nuts_blackjax")
 
 
 def test_beta_regression():
