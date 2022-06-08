@@ -271,7 +271,7 @@ class PyMCModel:
             else:
                 raise ValueError(
                     f'sampler_backend value {sampler_backend} is not valid. Please choose one of'
-                    f'``default``, ``numpyro`` or ``blackjax``'
+                    f'``mcmc``, ``mcmc-numpyro`` or `mcmc-blackjax``'
                 )
 
         idata = self._clean_mcmc_results(idata, omit_offsets, include_mean)
