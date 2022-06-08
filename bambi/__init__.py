@@ -1,5 +1,7 @@
 import logging
 
+from pymc import math
+
 from .data import clear_data_home, load_data
 from .families import Family, Likelihood, Link
 from .models import Model
