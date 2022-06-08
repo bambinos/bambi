@@ -131,9 +131,7 @@ def test_many_common_many_group_specific(crossed_data):
         dropna=True,
     )
     model0.fit(
-        tune=10,
-        draws=10,
-        chains=2,
+        tune=10, draws=10, chains=2,
     )
 
     model1 = Model(
@@ -142,9 +140,7 @@ def test_many_common_many_group_specific(crossed_data):
         dropna=True,
     )
     model1.fit(
-        tune=10,
-        draws=10,
-        chains=2,
+        tune=10, draws=10, chains=2,
     )
     # check that the group specific effects design matrices have the same shape
     X0 = pd.concat([pd.DataFrame(t.data) for t in model0.group_specific_terms.values()], axis=1)
@@ -331,13 +327,8 @@ def test_logistic_regression_categoric():
 
 def test_laplace_regression():
     size = 100
-    x = np.random.normal(loc=10., scale=5., size=size)
-    data = pd.DataFrame(
-        {
-            "x": x,
-            "y": np.random.laplace(loc=x, size=size)
-        }
-    )
+    x = np.random.normal(loc=10.0, scale=5.0, size=size)
+    data = pd.DataFrame({"x": x, "y": np.random.laplace(loc=x, size=size)})
 
     bmb_model = Model("y ~ x", data, family="laplace")
     bmb_model.fit()
@@ -405,11 +396,7 @@ def test_laplace():
 def test_prior_predictive(crossed_data):
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
     # New default priors are too wide for this case... something to keep investigating
-    model = Model(
-        "count ~ threecats + continuous + dummy",
-        crossed_data,
-        family="poisson",
-    )
+    model = Model("count ~ threecats + continuous + dummy", crossed_data, family="poisson",)
     model.build()
     print(model)
     pps = model.prior_predictive(draws=500)
@@ -509,12 +496,7 @@ def test_potentials():
     ]
 
     model = Model(
-        "w ~ 1",
-        data,
-        family="bernoulli",
-        link="identity",
-        priors=priors,
-        potentials=potentials,
+        "w ~ 1", data, family="bernoulli", link="identity", priors=priors, potentials=potentials,
     )
     model.build()
     assert len(model.backend.model.potentials) == 2
