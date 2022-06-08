@@ -248,6 +248,8 @@ class PyMCModel:
                         raise
             elif sampler_backend == "mcmc-numpyro":
                 import pymc.sampling_jax  # Lazy import to not force users to install Jax
+                if not chains:
+                    chains = 4  # sample_numpyro_nuts does not handle chains = None like pm.sample does
                 idata = pm.sampling_jax.sample_numpyro_nuts(
                     draws=draws,
                     tune=tune,
@@ -257,6 +259,8 @@ class PyMCModel:
                 )
             elif sampler_backend == "mcmc-blackjax":
                 import pymc.sampling_jax  # Lazy import to not force users to install Jax
+                if not chains:
+                    chains = 4  # sample_blackjax_nuts does not handle chains = None like pm.sample does
                 idata = pm.sampling_jax.sample_blackjax_nuts(
                     draws=draws,
                     tune=tune,
