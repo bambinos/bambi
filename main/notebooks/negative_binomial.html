@@ -1,18 +1,22 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Negative Binomial Regression (Students absence example) &#8212; Bambi 0.9.0 documentation</title>
-    
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
 
-    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
   <link rel="stylesheet"
     href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
   <link rel="preload" as="font" type="font/woff2" crossorigin
@@ -21,13 +25,14 @@
     href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    
+
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -36,32 +41,40 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Beta Regression" href="beta_regression.html" />
     <link rel="prev" title="Wald and Gamma Regression (Australian insurance claims 2004-2005)" href="wald_gamma_glm.html" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="None">
-    
-
-    <!-- Google Analytics -->
-    
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
-    
-    <div class="container-fluid" id="banner"></div>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
 
     
-    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
 
   <div id="navbar-start">
     
     
-<a class="navbar-brand" href="../index.html">
-<p class="title">Bambi</p>
-</a>
+  
 
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">Bambi 0.9.0 documentation</p>
+  
+</a>
     
   </div>
 
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
+    <span class="fas fa-bars"></span>
   </button>
 
   
@@ -103,6 +116,14 @@
     <div id="navbar-end">
       
       <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
         <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
         <li class="nav-item">
           <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
@@ -121,13 +142,13 @@
     </nav>
     
 
-    <div class="container-xl">
-      <div class="row">
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
           
-            
-            <!-- Only show if we have sidebars configured, else just a small margin  -->
-            <div class="col-12 col-md-3 bd-sidebar">
-              <div class="sidebar-start-items">
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items">
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -137,7 +158,7 @@
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
   
 
@@ -282,19 +303,20 @@
   </nav>
 
 
-              </div>
-              <div class="sidebar-end-items">
-              </div>
-            </div>
-            
-          
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
 
           
-          <div class="d-none d-xl-block col-xl-2 bd-toc">
-            
-              
-              <div class="toc-item">
-                
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+    
+    <div class="toc-item">
+      
 <div class="tocsection onthispage mt-5 pt-1 pb-3">
     <i class="fas fa-list"></i> On this page
 </div>
@@ -363,23 +385,21 @@
 </ul>
 
 </nav>
-              </div>
-              
-              <div class="toc-item">
-                
-              </div>
-              
-            
-          </div>
-          
+    </div>
+    
+    <div class="toc-item">
+      
+    </div>
+    
+  
+</div>
+
 
           
           
-            
-          
-          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+          <div class="bd-content col-12 col-md-9 col-xl-7">
               
-              <div>
+              <article class="bd-article" role="main">
                 
   
 <style>
@@ -638,9 +658,9 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <section id="Negative-Binomial-Regression-(Students-absence-example)">
-<h1>Negative Binomial Regression (Students absence example)<a class="headerlink" href="#Negative-Binomial-Regression-(Students-absence-example)" title="Permalink to this headline">#</a></h1>
+<h1>Negative Binomial Regression (Students absence example)<a class="headerlink" href="#Negative-Binomial-Regression-(Students-absence-example)" title="Permalink to this heading">#</a></h1>
 <section id="Negative-binomial-distribution-review">
-<h2>Negative binomial distribution review<a class="headerlink" href="#Negative-binomial-distribution-review" title="Permalink to this headline">#</a></h2>
+<h2>Negative binomial distribution review<a class="headerlink" href="#Negative-binomial-distribution-review" title="Permalink to this heading">#</a></h2>
 <p>I always experience some kind of confusion when looking at the negative binomial distribution after a while of not working with it. There are so many different definitions that I usually need to read everything more than once. The definition I’ve first learned, and the one I like the most, says as follows: The negative binomial distribution is the distribution of a random variable that is defined as the number of independent Bernoulli trials until the k-th “success”. In short, we repeat a
 Bernoulli experiment until we observe k successes and record the number of trials it required.</p>
 <div class="math notranslate nohighlight">
@@ -771,14 +791,14 @@ distribution. Or in other words, conditional on a gamma-distributed variable <sp
 </div>
 </section>
 <section id="Negative-binomial-in-GLM">
-<h2>Negative binomial in GLM<a class="headerlink" href="#Negative-binomial-in-GLM" title="Permalink to this headline">#</a></h2>
+<h2>Negative binomial in GLM<a class="headerlink" href="#Negative-binomial-in-GLM" title="Permalink to this heading">#</a></h2>
 <p>The negative binomial distribution belongs to the exponential family, and the canonical link function is</p>
 <div class="math notranslate nohighlight">
 \[g(\mu_i) = \log\left(\frac{\mu_i}{k + \mu_i}\right) = \log\left(\frac{k}{\mu_i} + 1\right)\]</div>
 <p>but it is difficult to interpret. The log link is usually preferred because of the analogy with Poisson model, and it also tends to give better results.</p>
 </section>
 <section id="Load-and-explore-Students-data">
-<h2>Load and explore Students data<a class="headerlink" href="#Load-and-explore-Students-data" title="Permalink to this headline">#</a></h2>
+<h2>Load and explore Students data<a class="headerlink" href="#Load-and-explore-Students-data" title="Permalink to this heading">#</a></h2>
 <p>This example is based on this <a class="reference external" href="https://stats.idre.ucla.edu/r/dae/negative-binomial-regression/">UCLA example</a>.</p>
 <p>School administrators study the attendance behavior of high school juniors at two schools. Predictors of the <strong>number of days of absence</strong> include the <strong>type of program</strong> in which the student is enrolled and a <strong>standardized test in math</strong>. We have attendance data on 314 high school juniors.</p>
 <p>The variables of insterest in the dataset are</p>
@@ -1027,7 +1047,7 @@ Name: prog, dtype: int64
 <p>On the other hand, the distribution of the days of absence is right-skewed in all cases. Students in the General program present the highest absence mean while the Vocational group is the one who misses fewer classes on average.</p>
 </section>
 <section id="Models">
-<h2>Models<a class="headerlink" href="#Models" title="Permalink to this headline">#</a></h2>
+<h2>Models<a class="headerlink" href="#Models" title="Permalink to this heading">#</a></h2>
 <p>We are interested in measuring the association between the type of the program and the math score with the days of absence. It’s also of interest to see if the association between math score and days of absence is different in each type of program.</p>
 <p>In order to answer our questions, we are going to fit and compare two models. The first model uses the type of the program and the math score as predictors. The second model also includes the interaction between these two variables. The score in the math test is going to be standardized in both cases to make things easier for the sampler and save some seconds. A good idea to follow along is to run these models without scaling <code class="docutils literal notranslate"><span class="pre">math</span></code> and comparing how long it took to fit.</p>
 <p>We are going to use a negative binomial likelihood to model the days of absence. But let’s stop here and think why we use this likelihood. Earlier, we said that the negative binomial distributon arises when our variable represents the number of trials until we got <span class="math notranslate nohighlight">\(k\)</span> successes. However, the number of trials is fixed, i.e. the number of school days in a given year is not a random variable. So if we stick to the definition, we could think of the two alternative views for this problem</p>
@@ -1039,12 +1059,12 @@ Name: prog, dtype: int64
 <p>But then, why negative binomial? Can’t we just use a Poisson likelihood?</p>
 <p>Yes, we can. However, using a Poisson likelihood implies that the mean is equal to the variance, and that is usually an unrealistic assumption. If it turns out the variance is either substantially smaller or greater than the mean, the Poisson regression model results in a poor fit. Alternatively, if we use a negative binomial likelihood, the variance is not forced to be equal to the mean, and there’s more flexibility to handle a given dataset, and consequently, the fit tends to better.</p>
 <section id="Model-1">
-<h3>Model 1<a class="headerlink" href="#Model-1" title="Permalink to this headline">#</a></h3>
+<h3>Model 1<a class="headerlink" href="#Model-1" title="Permalink to this heading">#</a></h3>
 <div class="math notranslate nohighlight">
 \[\log{Y_i} = \beta_1 \text{Academic}_i + \beta_2 \text{General}_i + \beta_3 \text{Vocational}_i + \beta_4 \text{Math_std}_i\]</div>
 </section>
 <section id="Model-2">
-<h3>Model 2<a class="headerlink" href="#Model-2" title="Permalink to this headline">#</a></h3>
+<h3>Model 2<a class="headerlink" href="#Model-2" title="Permalink to this heading">#</a></h3>
 <div class="math notranslate nohighlight">
 \[\log{Y_i} = \beta_1 \text{Academic}_i + \beta_2 \text{General}_i + \beta_3 \text{Vocational}_i + \beta_4 \text{Math_std}_i
             + \beta_5 \text{General}_i \cdot \text{Math_std}_i + \beta_6 \text{Vocational}_i \cdot \text{Math_std}_i\]</div>
@@ -1081,10 +1101,10 @@ Name: prog, dtype: int64
 </section>
 </section>
 <section id="Model-fit">
-<h2>Model fit<a class="headerlink" href="#Model-fit" title="Permalink to this headline">#</a></h2>
+<h2>Model fit<a class="headerlink" href="#Model-fit" title="Permalink to this heading">#</a></h2>
 <p>It’s very easy to fit these models with Bambi. We just pass a formula describing the terms in the model and Bambi will know how to handle each of them correctly. The <code class="docutils literal notranslate"><span class="pre">0</span></code> on the right hand side of <code class="docutils literal notranslate"><span class="pre">~</span></code> simply means we don’t want to have the intercept term that is added by default. <code class="docutils literal notranslate"><span class="pre">scale(math)</span></code> tells Bambi we want to use standardize <code class="docutils literal notranslate"><span class="pre">math</span></code> before being included in the model. By default, Bambi uses a log link for negative binomial GLMs. We’ll stick to this default here.</p>
 <section id="id1">
-<h3>Model 1<a class="headerlink" href="#id1" title="Permalink to this headline">#</a></h3>
+<h3>Model 1<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
@@ -1141,7 +1161,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 </section>
 <section id="id2">
-<h3>Model 2<a class="headerlink" href="#id2" title="Permalink to this headline">#</a></h3>
+<h3>Model 2<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
 <p>For this second model we just add <code class="docutils literal notranslate"><span class="pre">prog:scale(math)</span></code> to indicate the interaction. A shorthand would be to use <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">~</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">prog*scale(math)</span></code>, which uses the <strong>full interaction</strong> operator. In other words, it just means we want to include the interaction between <code class="docutils literal notranslate"><span class="pre">prog</span></code> and <code class="docutils literal notranslate"><span class="pre">scale(math)</span></code> as well as their main effects.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
@@ -1200,7 +1220,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </section>
 </section>
 <section id="Explore-models">
-<h2>Explore models<a class="headerlink" href="#Explore-models" title="Permalink to this headline">#</a></h2>
+<h2>Explore models<a class="headerlink" href="#Explore-models" title="Permalink to this heading">#</a></h2>
 <p>The first thing we do is calling <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>. Here we pass the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object the <code class="docutils literal notranslate"><span class="pre">.fit()</span></code> returned. This prints information about the marginal posteriors for each parameter in the model as well as convergence diagnostics.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
@@ -1483,7 +1503,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 </section>
 <section id="Plot-predicted-mean-response">
-<h2>Plot predicted mean response<a class="headerlink" href="#Plot-predicted-mean-response" title="Permalink to this headline">#</a></h2>
+<h2>Plot predicted mean response<a class="headerlink" href="#Plot-predicted-mean-response" title="Permalink to this heading">#</a></h2>
 <p>We finish this example showing how we can get predictions for new data and plot the mean response for each program together with confidence intervals.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
@@ -1595,51 +1615,55 @@ Watermark: 2.3.0
 </section>
 
 
-              </div>
+              </article>
               
-              
-              <!-- Previous / next buttons -->
-<div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="wald_gamma_glm.html" title="previous page">
-        <i class="fas fa-angle-left"></i>
-        <div class="prev-next-info">
-            <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Wald and Gamma Regression (Australian insurance claims 2004-2005)</p>
-        </div>
-    </a>
-    <a class='right-next' id="next-link" href="beta_regression.html" title="next page">
-    <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Beta Regression</p>
-    </div>
-    <i class="fas fa-angle-right"></i>
-    </a>
-</div>
-              
-          </main>
-          
 
+              
+              <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+  <a class='left-prev' id="prev-link" href="wald_gamma_glm.html" title="previous page">
+      <i class="fas fa-angle-left"></i>
+      <div class="prev-next-info">
+          <p class="prev-next-subtitle">previous</p>
+          <p class="prev-next-title">Wald and Gamma Regression (Australian insurance claims 2004-2005)</p>
+      </div>
+  </a>
+  <a class='right-next' id="next-link" href="beta_regression.html" title="next page">
+  <div class="prev-next-info">
+      <p class="prev-next-subtitle">next</p>
+      <p class="prev-next-title">Beta Regression</p>
+  </div>
+  <i class="fas fa-angle-right"></i>
+  </a>
+</div>
+              </footer>
+              
+          </div>
+          
       </div>
     </div>
+
+  
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
-<footer class="footer mt-5 mt-md-0">
-  <div class="container">
-    
-    <div class="footer-item">
-      <p class="copyright">
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
     &copy; Copyright 2022, The developers of Bambi.<br>
 </p>
-    </div>
-    
-    <div class="footer-item">
-      <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
-</p>
-    </div>
-    
   </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.1.<br>
+</p>
+  </div>
+  
+</div>
 </footer>
   </body>
 </html>

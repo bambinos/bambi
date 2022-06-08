@@ -1,18 +1,22 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
     <title>Hierarchical Logistic regression with Binomial family &#8212; Bambi 0.9.0 documentation</title>
-    
-  <!-- Loaded before other Sphinx assets -->
-  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
-<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<script>
+  document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+  document.documentElement.dataset.theme = localStorage.getItem("theme") || "light"
+</script>
 
-    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=92025949c220c2e29695" rel="stylesheet">
+
+
   <link rel="stylesheet"
     href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
   <link rel="preload" as="font" type="font/woff2" crossorigin
@@ -21,13 +25,14 @@
     href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
 
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
-    
+
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695">
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
@@ -36,32 +41,40 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Regression for Binary responses: Alternative link functions" href="alternative_links_binary.html" />
     <link rel="prev" title="Logistic Regression and Model Comparison with Bambi and ArviZ" href="model_comparison.html" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="docsearch:language" content="None">
-    
-
-    <!-- Google Analytics -->
-    
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="docsearch:language" content="en">
   </head>
-  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
-    
-    <div class="container-fluid" id="banner"></div>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+    <div class="bd-header-announcement container-fluid" id="banner">
+      
+
+    </div>
 
     
-    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+    <nav class="bd-header navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="bd-header__inner container-xl">
 
   <div id="navbar-start">
     
     
-<a class="navbar-brand" href="../index.html">
-<p class="title">Bambi</p>
-</a>
+  
 
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">Bambi 0.9.0 documentation</p>
+  
+</a>
     
   </div>
 
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
+    <span class="fas fa-bars"></span>
   </button>
 
   
@@ -103,6 +116,14 @@
     <div id="navbar-end">
       
       <div class="navbar-end-item">
+        <span id="theme-switch" class="btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
         <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
         <li class="nav-item">
           <a class="nav-link" href="https://github.com/bambinos/bambi" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
@@ -121,13 +142,13 @@
     </nav>
     
 
-    <div class="container-xl">
-      <div class="row">
+    <div class="bd-container container-xl">
+      <div class="bd-container__inner row">
           
-            
-            <!-- Only show if we have sidebars configured, else just a small margin  -->
-            <div class="col-12 col-md-3 bd-sidebar">
-              <div class="sidebar-start-items">
+
+<!-- Only show if we have sidebars configured, else just a small margin  -->
+<div class="bd-sidebar-primary col-12 col-md-3 bd-sidebar">
+  <div class="sidebar-start-items">
 <div id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
@@ -137,7 +158,7 @@
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
   
 
@@ -282,19 +303,20 @@
   </nav>
 
 
-              </div>
-              <div class="sidebar-end-items">
-              </div>
-            </div>
-            
-          
+  </div>
+  <div class="sidebar-end-items">
+  </div>
+</div>
+
 
           
-          <div class="d-none d-xl-block col-xl-2 bd-toc">
-            
-              
-              <div class="toc-item">
-                
+
+
+<div class="bd-sidebar-secondary d-none d-xl-block col-xl-2 bd-toc">
+  
+    
+    <div class="toc-item">
+      
 <div class="tocsection onthispage mt-5 pt-1 pb-3">
     <i class="fas fa-list"></i> On this page
 </div>
@@ -339,23 +361,21 @@
 </ul>
 
 </nav>
-              </div>
-              
-              <div class="toc-item">
-                
-              </div>
-              
-            
-          </div>
-          
+    </div>
+    
+    <div class="toc-item">
+      
+    </div>
+    
+  
+</div>
+
 
           
           
-            
-          
-          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+          <div class="bd-content col-12 col-md-9 col-xl-7">
               
-              <div>
+              <article class="bd-article" role="main">
                 
   
 <style>
@@ -614,18 +634,18 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <section id="Hierarchical-Logistic-regression-with-Binomial-family">
-<h1>Hierarchical Logistic regression with Binomial family<a class="headerlink" href="#Hierarchical-Logistic-regression-with-Binomial-family" title="Permalink to this headline">#</a></h1>
+<h1>Hierarchical Logistic regression with Binomial family<a class="headerlink" href="#Hierarchical-Logistic-regression-with-Binomial-family" title="Permalink to this heading">#</a></h1>
 <p>This notebook shows how to build a hierarchical logistic regression model with the Binomial family in Bambi.</p>
 <p>This example is based on the <a class="reference external" href="https://ericmjl.github.io/bayesian-analysis-recipes/notebooks/hierarchical-baseball/">Hierarchical baseball</a> article in <a class="reference external" href="https://ericmjl.github.io/bayesian-analysis-recipes/">Bayesian Analysis Recipes</a>, a collection of articles on how to do Bayesian data analysis with PyMC3 made by <a class="reference external" href="https://ericmjl.github.io/">Eric Ma</a>.</p>
 <section id="Problem-description">
-<h2>Problem description<a class="headerlink" href="#Problem-description" title="Permalink to this headline">#</a></h2>
+<h2>Problem description<a class="headerlink" href="#Problem-description" title="Permalink to this heading">#</a></h2>
 <p>Extracted from the original work:</p>
 <blockquote>
 <div><p>Baseball players have many metrics measured for them. Let’s say we are on a baseball team, and would like to quantify player performance, one metric being their batting average (defined by how many times a batter hit a pitched ball, divided by the number of times they were up for batting (“at bat”)). How would you go about this task?</p>
 </div></blockquote>
 </section>
 <section id="Load-libraries-and-data">
-<h2>Load libraries and data<a class="headerlink" href="#Load-libraries-and-data" title="Permalink to this headline">#</a></h2>
+<h2>Load libraries and data<a class="headerlink" href="#Load-libraries-and-data" title="Permalink to this heading">#</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -848,7 +868,7 @@ div.rendered_html tbody tr:hover {
 </ul>
 </section>
 <section id="Explore-our-data">
-<h2>Explore our data<a class="headerlink" href="#Explore-our-data" title="Permalink to this headline">#</a></h2>
+<h2>Explore our data<a class="headerlink" href="#Explore-our-data" title="Permalink to this heading">#</a></h2>
 <p>It’s always good to explore the data before starting to write down our models. This is very useful to gain a good understanding of the distribution of the variables and their relationships, and even anticipate some problems that may occur during the sampling process.</p>
 <p>The following graph summarizes the percentage of hits, as well as the number of times the players were up for batting and the number of times they hit the ball.</p>
 <div class="nbinput nblast docutils container">
@@ -932,7 +952,7 @@ a maximum-likelihood estimation approach. Nonetheless, they can also impact the 
 <p>As a final note, <strong>abreujo02</strong>, has been there for batting 624 times, and thus the grey dot representing this number does not appear in the plot.</p>
 </section>
 <section id="Non-hierarchical-model">
-<h2>Non-hierarchical model<a class="headerlink" href="#Non-hierarchical-model" title="Permalink to this headline">#</a></h2>
+<h2>Non-hierarchical model<a class="headerlink" href="#Non-hierarchical-model" title="Permalink to this heading">#</a></h2>
 <p>Let’s get started with a simple cell-means logistic regression for <span class="math notranslate nohighlight">\(p_i\)</span>, the probability of hitting the ball for the player <span class="math notranslate nohighlight">\(i\)</span></p>
 <div class="math notranslate nohighlight">
 \[\begin{array}{lr}
@@ -1044,7 +1064,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <p>Now, let’s keep this posterior aside for later use and let’s fit the hierarchical version.</p>
 </section>
 <section id="Hierarchical-model">
-<h2>Hierarchical model<a class="headerlink" href="#Hierarchical-model" title="Permalink to this headline">#</a></h2>
+<h2>Hierarchical model<a class="headerlink" href="#Hierarchical-model" title="Permalink to this heading">#</a></h2>
 <p>This model incorporates a group-specific intercept for each player:</p>
 <div class="math notranslate nohighlight">
 \[\begin{array}{lr}
@@ -1431,7 +1451,7 @@ Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws 
 <p>Let’s jump onto the next section where we plot and compare the probability of hit for the players using both models.</p>
 </section>
 <section id="Compare-predictions">
-<h2>Compare predictions<a class="headerlink" href="#Compare-predictions" title="Permalink to this headline">#</a></h2>
+<h2>Compare predictions<a class="headerlink" href="#Compare-predictions" title="Permalink to this heading">#</a></h2>
 <p>Now we’re going to plot the distribution of the probability of hit for each player, using both models.</p>
 <p>But before doing that, we need to obtain the posterior in that scale. We could manually take the posterior of the coefficients, compute the linear predictor, and transform that to the probability scale. But that’s a lot of work!</p>
 <p>Fortunately, Bambi models have a method called <code class="docutils literal notranslate"><span class="pre">.predict()</span></code> that we can use to predict in the probability scale. By default, it modifies in-place the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object we pass to it. Then, the posterior samples can be found in the variable <code class="docutils literal notranslate"><span class="pre">p(H,</span> <span class="pre">AB)_mean</span></code>.</p>
@@ -1526,7 +1546,7 @@ Watermark: 2.3.0
 </div>
 </section>
 <section id="Footnotes">
-<h2>Footnotes<a class="headerlink" href="#Footnotes" title="Permalink to this headline">#</a></h2>
+<h2>Footnotes<a class="headerlink" href="#Footnotes" title="Permalink to this heading">#</a></h2>
 <ol class="arabic simple">
 <li><p>By default, the <code class="docutils literal notranslate"><span class="pre">.predict()</span></code> method obtains the posterior for the mean of the likelihood distribution. This mean would be <span class="math notranslate nohighlight">\(np\)</span> for the Binomial family. However, since <span class="math notranslate nohighlight">\(n\)</span> varies from observation to observation, it returns the value of <span class="math notranslate nohighlight">\(p\)</span>, as if it was a Bernoulli family.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">.predict()</span></code>just appends <code class="docutils literal notranslate"><span class="pre">_mean</span></code> to the name of the response to indicate it is the posterior of the mean.</p></li>
@@ -1535,51 +1555,55 @@ Watermark: 2.3.0
 </section>
 
 
-              </div>
+              </article>
               
-              
-              <!-- Previous / next buttons -->
-<div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="model_comparison.html" title="previous page">
-        <i class="fas fa-angle-left"></i>
-        <div class="prev-next-info">
-            <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Logistic Regression and Model Comparison with Bambi and ArviZ</p>
-        </div>
-    </a>
-    <a class='right-next' id="next-link" href="alternative_links_binary.html" title="next page">
-    <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Regression for Binary responses: Alternative link functions</p>
-    </div>
-    <i class="fas fa-angle-right"></i>
-    </a>
-</div>
-              
-          </main>
-          
 
+              
+              <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+  <a class='left-prev' id="prev-link" href="model_comparison.html" title="previous page">
+      <i class="fas fa-angle-left"></i>
+      <div class="prev-next-info">
+          <p class="prev-next-subtitle">previous</p>
+          <p class="prev-next-title">Logistic Regression and Model Comparison with Bambi and ArviZ</p>
+      </div>
+  </a>
+  <a class='right-next' id="next-link" href="alternative_links_binary.html" title="next page">
+  <div class="prev-next-info">
+      <p class="prev-next-subtitle">next</p>
+      <p class="prev-next-title">Regression for Binary responses: Alternative link functions</p>
+  </div>
+  <i class="fas fa-angle-right"></i>
+  </a>
+</div>
+              </footer>
+              
+          </div>
+          
       </div>
     </div>
+
+  
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
-<footer class="footer mt-5 mt-md-0">
-  <div class="container">
-    
-    <div class="footer-item">
-      <p class="copyright">
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=92025949c220c2e29695"></script>
+
+<footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    <p class="copyright">
     &copy; Copyright 2022, The developers of Bambi.<br>
 </p>
-    </div>
-    
-    <div class="footer-item">
-      <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
-</p>
-    </div>
-    
   </div>
+  
+  <div class="footer-item">
+    <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.1.<br>
+</p>
+  </div>
+  
+</div>
 </footer>
   </body>
 </html>
