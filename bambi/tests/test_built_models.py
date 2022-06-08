@@ -329,6 +329,15 @@ def test_logistic_regression_categoric():
     model.fit()
 
 
+def test_laplace_regression():
+    size = 100
+    x = np.random.normal(loc=10.0, scale=5.0, size=size)
+    data = pd.DataFrame({"x": x, "y": np.random.laplace(loc=x, size=size)})
+
+    bmb_model = Model("y ~ x", data, family="laplace")
+    bmb_model.fit()
+
+
 def test_poisson_regression(crossed_data):
     # build model using fit and pymc
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
