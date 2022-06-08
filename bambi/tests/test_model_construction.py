@@ -17,7 +17,12 @@ from bambi.priors import Prior
 
 @pytest.fixture(scope="module")
 def data_numeric_xy():
-    data = pd.DataFrame({"y": np.random.normal(size=100), "x": np.random.normal(size=100),})
+    data = pd.DataFrame(
+        {
+            "y": np.random.normal(size=100),
+            "x": np.random.normal(size=100),
+        }
+    )
     return data
 
 
@@ -283,7 +288,15 @@ def test_hyperprior_on_common_effect():
 
 @pytest.mark.parametrize(
     "family",
-    ["gaussian", "negativebinomial", "bernoulli", "poisson", "gamma", "vonmises", "wald",],
+    [
+        "gaussian",
+        "negativebinomial",
+        "bernoulli",
+        "poisson",
+        "gamma",
+        "vonmises",
+        "wald",
+    ],
 )
 def test_automatic_priors(family):
     """Test that automatic priors work correctly"""

@@ -32,7 +32,7 @@ class PriorScaler:
         if self.priors:
             sigmas = np.hstack([prior["sigma"] for prior in self.priors.values()])
             x_mean = np.hstack([self.model.terms[term].data.mean(axis=0) for term in self.priors])
-            sigma = (sigma ** 2 + np.dot(sigmas ** 2, x_mean ** 2)) ** 0.5
+            sigma = (sigma**2 + np.dot(sigmas**2, x_mean**2)) ** 0.5
 
         return mu, sigma
 

@@ -257,7 +257,11 @@ class PyMCModel:
                         4  # sample_numpyro_nuts does not handle chains = None like pm.sample does
                     )
                 idata = pm.sampling_jax.sample_numpyro_nuts(
-                    draws=draws, tune=tune, chains=chains, random_seed=random_seed, **kwargs,
+                    draws=draws,
+                    tune=tune,
+                    chains=chains,
+                    random_seed=random_seed,
+                    **kwargs,
                 )
             elif sampler_backend == "nuts_blackjax":
                 import pymc.sampling_jax  # Lazy import to not force users to install Jax
@@ -267,7 +271,11 @@ class PyMCModel:
                         4  # sample_blackjax_nuts does not handle chains = None like pm.sample does
                     )
                 idata = pm.sampling_jax.sample_blackjax_nuts(
-                    draws=draws, tune=tune, chains=chains, random_seed=random_seed, **kwargs,
+                    draws=draws,
+                    tune=tune,
+                    chains=chains,
+                    random_seed=random_seed,
+                    **kwargs,
                 )
             else:
                 raise ValueError(
