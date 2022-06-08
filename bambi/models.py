@@ -241,7 +241,7 @@ class Model:
         random_seed : int or list of ints
             A list is accepted if cores is greater than one.
         sampler_backend: str
-            If ``default`` uses the standard PyMC fit() method. Is only valid if method == "mcmc".
+            If ``default`` uses the standard PyMC sampling method. Is only valid if method == "mcmc".
             Other valid sampling methods are ``numpyro`` and ``blackjax`` which both use JAX (see
             https://www.pymc.io/blog/v4_announcement.html#new-jax-backend-for-faster-sampling)
             and which offers both performance improvements on the CPU due to JIT compilation
