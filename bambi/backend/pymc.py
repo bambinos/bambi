@@ -87,7 +87,7 @@ class PyMCModel:
     ):
         """Run PyMC sampler."""
         # NOTE: Methods return different types of objects (idata, approximation, and dictionary)
-        if method.lower() in ["mcmc", "mcmc-numpyro", "mcmc-blackjax"]:
+        if method.lower() in ["mcmc", "nuts_numpyro", "nuts_blackjax"]:
             result = self._run_mcmc(
                 draws,
                 tune,
@@ -246,7 +246,7 @@ class PyMCModel:
                         )
                     else:
                         raise
-            elif sampler_backend == "mcmc-numpyro":
+            elif sampler_backend == "nuts_numpyro":
                 import pymc.sampling_jax  # Lazy import to not force users to install Jax
                 if not chains:
                     chains = 4  # sample_numpyro_nuts does not handle chains = None like pm.sample does
@@ -257,7 +257,7 @@ class PyMCModel:
                     random_seed=random_seed,
                     **kwargs,
                 )
-            elif sampler_backend == "mcmc-blackjax":
+            elif sampler_backend == "nuts_blackjax":
                 import pymc.sampling_jax  # Lazy import to not force users to install Jax
                 if not chains:
                     chains = 4  # sample_blackjax_nuts does not handle chains = None like pm.sample does
@@ -271,7 +271,7 @@ class PyMCModel:
             else:
                 raise ValueError(
                     f'sampler_backend value {sampler_backend} is not valid. Please choose one of'
-                    f'``mcmc``, ``mcmc-numpyro`` or `mcmc-blackjax``'
+                    f'``mcmc``, ``nuts_numpyro`` or ``nuts_blackjax``'
                 )
 
         idata = self._clean_mcmc_results(idata, omit_offsets, include_mean)

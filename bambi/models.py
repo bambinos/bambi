@@ -208,10 +208,10 @@ class Model:
             using the ``fit`` function.
             Finally, ``"laplace"``, in which case a Laplace approximation is used and is not
             recommended other than for pedagogical use.
-            To use the PyMC numpyro and blackjax samplers, use ``mcmc-numpyro`` or ``mcmc-blackjax``
+            To use the PyMC numpyro and blackjax samplers, use ``nuts_numpyro`` or ``nuts_blackjax``
             respectively. Both methods will only work if you can use NUTS sampling, so your model must
-            be differentiable. It is also recommended, if using ``mcmc-numpyro`` or
-            ``mcmc-blackjax``, to set the kwarg of ``chain_method`` to either ``parallel`` or
+            be differentiable. It is also recommended, if using ``nuts_numpyro`` or
+            ``nuts_blackjax``, to set the kwarg of ``chain_method`` to either ``parallel`` or
             ``vectorized`` for optimal performance.
         init: str
             Initialization method. Defaults to ``"auto"``. The available methods are:
