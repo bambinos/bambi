@@ -221,12 +221,7 @@ def test_set_prior_with_tuple():
 
 
 def test_set_prior_unexisting_term():
-    data = pd.DataFrame(
-        {
-            "y": np.random.normal(size=100),
-            "x": np.random.normal(size=100),
-        }
-    )
+    data = pd.DataFrame({"y": np.random.normal(size=100), "x": np.random.normal(size=100),})
     prior = Prior("Uniform", lower=0, upper=50)
     model = Model("y ~ x", data)
     with pytest.raises(ValueError):

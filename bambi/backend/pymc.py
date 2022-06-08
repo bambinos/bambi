@@ -228,7 +228,10 @@ class PyMCModel:
                         **kwargs,
                     )
                 except (RuntimeError, ValueError):
-                    if "ValueError: Mass matrix contains" in traceback.format_exc() and init == "auto":
+                    if (
+                        "ValueError: Mass matrix contains" in traceback.format_exc()
+                        and init == "auto"
+                    ):
                         _log.info(
                             "\nThe default initialization using init='auto' has failed, trying to "
                             "recover by switching to init='adapt_diag'",
@@ -248,30 +251,28 @@ class PyMCModel:
                         raise
             elif sampler_backend == "nuts_numpyro":
                 import pymc.sampling_jax  # Lazy import to not force users to install Jax
+
                 if not chains:
-                    chains = 4  # sample_numpyro_nuts does not handle chains = None like pm.sample does
+                    chains = (
+                        4  # sample_numpyro_nuts does not handle chains = None like pm.sample does
+                    )
                 idata = pm.sampling_jax.sample_numpyro_nuts(
-                    draws=draws,
-                    tune=tune,
-                    chains=chains,
-                    random_seed=random_seed,
-                    **kwargs,
+                    draws=draws, tune=tune, chains=chains, random_seed=random_seed, **kwargs,
                 )
             elif sampler_backend == "nuts_blackjax":
                 import pymc.sampling_jax  # Lazy import to not force users to install Jax
+
                 if not chains:
-                    chains = 4  # sample_blackjax_nuts does not handle chains = None like pm.sample does
+                    chains = (
+                        4  # sample_blackjax_nuts does not handle chains = None like pm.sample does
+                    )
                 idata = pm.sampling_jax.sample_blackjax_nuts(
-                    draws=draws,
-                    tune=tune,
-                    chains=chains,
-                    random_seed=random_seed,
-                    **kwargs,
+                    draws=draws, tune=tune, chains=chains, random_seed=random_seed, **kwargs,
                 )
             else:
                 raise ValueError(
-                    f'sampler_backend value {sampler_backend} is not valid. Please choose one of'
-                    f'``mcmc``, ``nuts_numpyro`` or ``nuts_blackjax``'
+                    f"sampler_backend value {sampler_backend} is not valid. Please choose one of"
+                    f"``mcmc``, ``nuts_numpyro`` or ``nuts_blackjax``"
                 )
 
         idata = self._clean_mcmc_results(idata, omit_offsets, include_mean)
