@@ -3,7 +3,6 @@ import traceback
 
 import numpy as np
 import pymc as pm
-import pymc.sampling_jax
 
 import aesara.tensor as at
 
@@ -84,12 +83,11 @@ class PyMCModel:
         chains=None,
         cores=None,
         random_seed=None,
-        sampler_backend="default",
         **kwargs,
     ):
         """Run PyMC sampler."""
         # NOTE: Methods return different types of objects (idata, approximation, and dictionary)
-        if method.lower() == "mcmc":
+        if method.lower() in ["mcmc", "mcmc-numpyro", "mcmc-blackjax"]:
             result = self._run_mcmc(
                 draws,
                 tune,
@@ -101,7 +99,7 @@ class PyMCModel:
                 chains,
                 cores,
                 random_seed,
-                sampler_backend,
+                method.lower(),
                 **kwargs,
             )
         elif method.lower() == "vi":
@@ -212,11 +210,11 @@ class PyMCModel:
         chains=None,
         cores=None,
         random_seed=None,
-        sampler_backend="default",
+        sampler_backend="mcmc",
         **kwargs,
     ):
         with self.model:
-            if sampler_backend == "default":
+            if sampler_backend == "mcmc":
                 try:
                     idata = pm.sample(
                         draws=draws,
@@ -248,7 +246,8 @@ class PyMCModel:
                         )
                     else:
                         raise
-            elif sampler_backend == "numpyro":
+            elif sampler_backend == "mcmc-numpyro":
+                import pymc.sampling_jax  # Lazy import to not force users to install Jax
                 idata = pm.sampling_jax.sample_numpyro_nuts(
                     draws=draws,
                     tune=tune,
@@ -256,7 +255,8 @@ class PyMCModel:
                     random_seed=random_seed,
                     **kwargs,
                 )
-            elif sampler_backend == "blackjax":
+            elif sampler_backend == "mcmc-blackjax":
+                import pymc.sampling_jax  # Lazy import to not force users to install Jax
                 idata = pm.sampling_jax.sample_blackjax_nuts(
                     draws=draws,
                     tune=tune,
