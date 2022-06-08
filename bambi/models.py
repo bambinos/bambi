@@ -180,6 +180,7 @@ class Model:
         chains=None,
         cores=None,
         random_seed=None,
+        sampler_backend="default",
         **kwargs,
     ):
         """Fit the model using PyMC.
@@ -239,6 +240,17 @@ class Model:
             in the system unless there are more than 4 CPUs, in which case it is set to 4.
         random_seed : int or list of ints
             A list is accepted if cores is greater than one.
+        sampler_backend: str
+            If ``default`` uses the standard PyMC fit() method. Is only valid if method == "mcmc".
+            Other valid sampling methods are ``numpyro`` and ``blackjax`` which both use JAX (see
+            https://www.pymc.io/blog/v4_announcement.html#new-jax-backend-for-faster-sampling)
+            and which offers both performance improvements on the CPU due to JIT compilation
+            and also GPU use (which will happen automatically if a GPU is detected - see the
+            JAX documentation https://jax.readthedocs.io/en/latest/index.html). Also, both
+            non-default methods will only work if you can use NUTS sampling, so your model must
+            be differentiable. It is also strongly recommended, if using ``numpyro`` or
+            ``blackjax``, to set the kwarg of ``chain_method`` to either ``parallel`` or
+            ``vectorized`` for optimal performance.
         **kwargs:
             For other kwargs see the documentation for ``PyMC.sample()``.
 
@@ -247,6 +259,11 @@ class Model:
         An ArviZ ``InferenceData`` instance if method  ``"mcmc"`` (default).
         An ``Approximation`` object if  ``"vi"`` and a dictionary if  ``"laplace"``.
         """
+
+        if sampler_backend != "default" and method != "mcmc":
+            raise ValueError(
+                f"Non-default sampler_backend {sampler_backend} can only be used with method 'mcmc'"
+            )
 
         if not self.built:
             self.build()
@@ -271,6 +288,7 @@ class Model:
             chains=chains,
             cores=cores,
             random_seed=random_seed,
+            sampler_backend=sampler_backend,
             **kwargs,
         )
 

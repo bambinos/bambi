@@ -3,6 +3,7 @@ import traceback
 
 import numpy as np
 import pymc as pm
+import pymc.sampling_jax
 
 import aesara.tensor as at
 
@@ -83,6 +84,7 @@ class PyMCModel:
         chains=None,
         cores=None,
         random_seed=None,
+        sampler_backend="default",
         **kwargs,
     ):
         """Run PyMC sampler."""
@@ -99,6 +101,7 @@ class PyMCModel:
                 chains,
                 cores,
                 random_seed,
+                sampler_backend,
                 **kwargs,
             )
         elif method.lower() == "vi":
@@ -209,40 +212,63 @@ class PyMCModel:
         chains=None,
         cores=None,
         random_seed=None,
+        sampler_backend="default",
         **kwargs,
     ):
         with self.model:
-            try:
-                idata = pm.sample(
-                    draws=draws,
-                    tune=tune,
-                    discard_tuned_samples=discard_tuned_samples,
-                    init=init,
-                    n_init=n_init,
-                    chains=chains,
-                    cores=cores,
-                    random_seed=random_seed,
-                    **kwargs,
-                )
-            except (RuntimeError, ValueError):
-                if "ValueError: Mass matrix contains" in traceback.format_exc() and init == "auto":
-                    _log.info(
-                        "\nThe default initialization using init='auto' has failed, trying to "
-                        "recover by switching to init='adapt_diag'",
-                    )
+            if sampler_backend == "default":
+                try:
                     idata = pm.sample(
                         draws=draws,
                         tune=tune,
                         discard_tuned_samples=discard_tuned_samples,
-                        init="adapt_diag",
+                        init=init,
                         n_init=n_init,
                         chains=chains,
                         cores=cores,
                         random_seed=random_seed,
                         **kwargs,
                     )
-                else:
-                    raise
+                except (RuntimeError, ValueError):
+                    if "ValueError: Mass matrix contains" in traceback.format_exc() and init == "auto":
+                        _log.info(
+                            "\nThe default initialization using init='auto' has failed, trying to "
+                            "recover by switching to init='adapt_diag'",
+                        )
+                        idata = pm.sample(
+                            draws=draws,
+                            tune=tune,
+                            discard_tuned_samples=discard_tuned_samples,
+                            init="adapt_diag",
+                            n_init=n_init,
+                            chains=chains,
+                            cores=cores,
+                            random_seed=random_seed,
+                            **kwargs,
+                        )
+                    else:
+                        raise
+            elif sampler_backend == "numpyro":
+                idata = pm.sampling_jax.sample_numpyro_nuts(
+                    draws=draws,
+                    tune=tune,
+                    chains=chains,
+                    random_seed=random_seed,
+                    **kwargs,
+                )
+            elif sampler_backend == "blackjax":
+                idata = pm.sampling_jax.sample_blackjax_nuts(
+                    draws=draws,
+                    tune=tune,
+                    chains=chains,
+                    random_seed=random_seed,
+                    **kwargs,
+                )
+            else:
+                raise ValueError(
+                    f'sampler_backend value {sampler_backend} is not valid. Please choose one of'
+                    f'``default``, ``numpyro`` or ``blackjax``'
+                )
 
         idata = self._clean_mcmc_results(idata, omit_offsets, include_mean)
         return idata
