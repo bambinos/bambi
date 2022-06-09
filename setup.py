@@ -7,6 +7,7 @@ PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 README_FILE = os.path.join(PROJECT_ROOT, "README.md")
 VERSION_FILE = os.path.join(PROJECT_ROOT, "bambi", "version.py")
 REQUIREMENTS_FILE = os.path.join(PROJECT_ROOT, "requirements.txt")
+OPTIONAL_REQUIREMENTS_FILE = os.path.join(PROJECT_ROOT, "requirements-optional.txt")
 MINIMUM_PYTHON_VERSION = (3, 7, 2)
 
 
@@ -26,6 +27,11 @@ def get_long_description():
 
 def get_requirements():
     with open(REQUIREMENTS_FILE, encoding="utf-8") as buff:
+        return buff.read().splitlines()
+
+
+def get_optional_requirements():
+    with open(OPTIONAL_REQUIREMENTS_FILE, encoding="utf-8") as buff:
         return buff.read().splitlines()
 
 
@@ -49,6 +55,9 @@ setup(
     url="http://github.com/bambinos/bambi",
     download_url="https://github.com/bambinos/bambi/archive/%s.tar.gz" % __version__,
     install_requires=get_requirements(),
+    extras_require={
+        "jax": [get_optional_requirements()],
+    },
     maintainer="Tomas Capretto",
     maintainer_email="tomicapretto@gmail.com",
     packages=find_packages(exclude=["tests", "test_*"]),
