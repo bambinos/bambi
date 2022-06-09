@@ -647,6 +647,7 @@ class Model:
             axes = plot_posterior(
                 pps,
                 group="prior",
+                var_names=var_names,
                 figsize=figsize,
                 textsize=textsize,
                 hdi_prob=hdi_prob,
