@@ -360,7 +360,9 @@ class PyMCModel:
             else:
                 intercept_name = self.spec.intercept_term.name
 
-            idata.posterior[intercept_name] = idata.posterior[intercept_name] - np.dot(X.mean(0), coefs).reshape(shape)
+            idata.posterior[intercept_name] = idata.posterior[intercept_name] - np.dot(
+                X.mean(0), coefs
+            ).reshape(shape)
 
         if include_mean:
             self.spec.predict(idata)
