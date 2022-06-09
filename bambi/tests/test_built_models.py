@@ -329,6 +329,15 @@ def test_logistic_regression_categoric():
     model.fit()
 
 
+def test_laplace_regression():
+    size = 100
+    x = np.random.normal(loc=10.0, scale=5.0, size=size)
+    data = pd.DataFrame({"x": x, "y": np.random.laplace(loc=x, size=size)})
+
+    bmb_model = Model("y ~ x", data, family="laplace")
+    bmb_model.fit()
+
+
 def test_logistic_regression_numpyro():
     y = pd.Series(np.random.choice(["a", "b"], 50), dtype="category")
     data = pd.DataFrame({"y": y, "x": np.random.normal(size=50)})
