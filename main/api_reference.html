@@ -471,7 +471,10 @@ variables and Metropolis for non-binary discrete ones. Alternatively, <code clas
 which case the model will be fitted using variational inference as implemented in PyMC
 using the <code class="docutils literal notranslate"><span class="pre">fit</span></code> function.
 Finally, <code class="docutils literal notranslate"><span class="pre">&quot;laplace&quot;</span></code>, in which case a Laplace approximation is used and is not
-recommended other than for pedagogical use.</p></li>
+recommended other than for pedagogical use.
+To use the PyMC numpyro and blackjax samplers, use <code class="docutils literal notranslate"><span class="pre">nuts_numpyro</span></code> or <code class="docutils literal notranslate"><span class="pre">nuts_blackjax</span></code>
+respectively. Both methods will only work if you can use NUTS sampling, so your model
+must be differentiable.</p></li>
 <li><p><strong>init</strong> (<em>str</em>) – Initialization method. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;auto&quot;</span></code>. The available methods are:
 * auto: Use <code class="docutils literal notranslate"><span class="pre">&quot;jitter+adapt_diag&quot;</span></code> and if this method fails it uses <code class="docutils literal notranslate"><span class="pre">&quot;adapt_diag&quot;</span></code>.
 * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the
