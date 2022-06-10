@@ -208,6 +208,9 @@ class Model:
             using the ``fit`` function.
             Finally, ``"laplace"``, in which case a Laplace approximation is used and is not
             recommended other than for pedagogical use.
+            To use the PyMC numpyro and blackjax samplers, use ``nuts_numpyro`` or ``nuts_blackjax``
+            respectively. Both methods will only work if you can use NUTS sampling, so your model
+            must be differentiable.
         init: str
             Initialization method. Defaults to ``"auto"``. The available methods are:
             * auto: Use ``"jitter+adapt_diag"`` and if this method fails it uses ``"adapt_diag"``.

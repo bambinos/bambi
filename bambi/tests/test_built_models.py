@@ -338,6 +338,40 @@ def test_laplace_regression():
     bmb_model.fit()
 
 
+def test_logistic_regression_numpyro():
+    y = pd.Series(np.random.choice(["a", "b"], 50), dtype="category")
+    data = pd.DataFrame({"y": y, "x": np.random.normal(size=50)})
+    model = Model("y ~ x", data, family="bernoulli")
+    model.fit(method="nuts_numpyro", chain_method="vectorized")
+
+
+def test_logistic_regression_blackjax():
+    y = pd.Series(np.random.choice(["a", "b"], 50), dtype="category")
+    data = pd.DataFrame({"y": y, "x": np.random.normal(size=50)})
+    model = Model("y ~ x", data, family="bernoulli")
+    model.fit(method="nuts_blackjax", chain_method="vectorized")
+
+
+def test_regression_blackjax():
+    size = 1_000
+    rng = np.random.default_rng(0)
+    x = rng.normal(size=size)
+    data = pd.DataFrame({"x": x, "y": rng.normal(loc=x, size=size)})
+
+    bmb_model = Model("y ~ x", data)
+    bmb_model.fit(method="nuts_blackjax", chain_method="vectorized")
+
+
+def test_regression_nunpyro():
+    size = 1_000
+    rng = np.random.default_rng(0)
+    x = rng.normal(size=size)
+    data = pd.DataFrame({"x": x, "y": rng.normal(loc=x, size=size)})
+
+    bmb_model = Model("y ~ x", data)
+    bmb_model.fit(method="nuts_numpyro", chain_method="vectorized")
+
+
 def test_poisson_regression(crossed_data):
     # build model using fit and pymc
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()

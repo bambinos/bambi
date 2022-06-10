@@ -87,7 +87,7 @@ class PyMCModel:
     ):
         """Run PyMC sampler."""
         # NOTE: Methods return different types of objects (idata, approximation, and dictionary)
-        if method.lower() == "mcmc":
+        if method.lower() in ["mcmc", "nuts_numpyro", "nuts_blackjax"]:
             result = self._run_mcmc(
                 draws,
                 tune,
@@ -99,6 +99,7 @@ class PyMCModel:
                 chains,
                 cores,
                 random_seed,
+                method.lower(),
                 **kwargs,
             )
         elif method.lower() == "vi":
@@ -209,40 +210,80 @@ class PyMCModel:
         chains=None,
         cores=None,
         random_seed=None,
+        sampler_backend="mcmc",
         **kwargs,
     ):
         with self.model:
-            try:
-                idata = pm.sample(
-                    draws=draws,
-                    tune=tune,
-                    discard_tuned_samples=discard_tuned_samples,
-                    init=init,
-                    n_init=n_init,
-                    chains=chains,
-                    cores=cores,
-                    random_seed=random_seed,
-                    **kwargs,
-                )
-            except (RuntimeError, ValueError):
-                if "ValueError: Mass matrix contains" in traceback.format_exc() and init == "auto":
-                    _log.info(
-                        "\nThe default initialization using init='auto' has failed, trying to "
-                        "recover by switching to init='adapt_diag'",
-                    )
+            if sampler_backend == "mcmc":
+                try:
                     idata = pm.sample(
                         draws=draws,
                         tune=tune,
                         discard_tuned_samples=discard_tuned_samples,
-                        init="adapt_diag",
+                        init=init,
                         n_init=n_init,
                         chains=chains,
                         cores=cores,
                         random_seed=random_seed,
                         **kwargs,
                     )
-                else:
-                    raise
+                except (RuntimeError, ValueError):
+                    if (
+                        "ValueError: Mass matrix contains" in traceback.format_exc()
+                        and init == "auto"
+                    ):
+                        _log.info(
+                            "\nThe default initialization using init='auto' has failed, trying to "
+                            "recover by switching to init='adapt_diag'",
+                        )
+                        idata = pm.sample(
+                            draws=draws,
+                            tune=tune,
+                            discard_tuned_samples=discard_tuned_samples,
+                            init="adapt_diag",
+                            n_init=n_init,
+                            chains=chains,
+                            cores=cores,
+                            random_seed=random_seed,
+                            **kwargs,
+                        )
+                    else:
+                        raise
+            elif sampler_backend == "nuts_numpyro":
+                # Lazy import to not force users to install Jax
+                import pymc.sampling_jax  # pylint: disable=import-outside-toplevel
+
+                if not chains:
+                    chains = (
+                        4  # sample_numpyro_nuts does not handle chains = None like pm.sample does
+                    )
+                idata = pymc.sampling_jax.sample_numpyro_nuts(
+                    draws=draws,
+                    tune=tune,
+                    chains=chains,
+                    random_seed=random_seed,
+                    **kwargs,
+                )
+            elif sampler_backend == "nuts_blackjax":
+                # Lazy import to not force users to install Jax
+                import pymc.sampling_jax  # pylint: disable=import-outside-toplevel
+
+                if not chains:
+                    chains = (
+                        4  # sample_blackjax_nuts does not handle chains = None like pm.sample does
+                    )
+                idata = pymc.sampling_jax.sample_blackjax_nuts(
+                    draws=draws,
+                    tune=tune,
+                    chains=chains,
+                    random_seed=random_seed,
+                    **kwargs,
+                )
+            else:
+                raise ValueError(
+                    f"sampler_backend value {sampler_backend} is not valid. Please choose one of"
+                    f"``mcmc``, ``nuts_numpyro`` or ``nuts_blackjax``"
+                )
 
         idata = self._clean_mcmc_results(idata, omit_offsets, include_mean)
         return idata
@@ -319,7 +360,9 @@ class PyMCModel:
             else:
                 intercept_name = self.spec.intercept_term.name
 
-            idata.posterior[intercept_name] -= np.dot(X.mean(0), coefs).reshape(shape)
+            idata.posterior[intercept_name] = idata.posterior[intercept_name] - np.dot(
+                X.mean(0), coefs
+            ).reshape(shape)
 
         if include_mean:
             self.spec.predict(idata)
