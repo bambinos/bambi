@@ -215,40 +215,17 @@ class PyMCModel:
     ):
         with self.model:
             if sampler_backend == "mcmc":
-                try:
-                    idata = pm.sample(
-                        draws=draws,
-                        tune=tune,
-                        discard_tuned_samples=discard_tuned_samples,
-                        init=init,
-                        n_init=n_init,
-                        chains=chains,
-                        cores=cores,
-                        random_seed=random_seed,
-                        **kwargs,
-                    )
-                except (RuntimeError, ValueError):
-                    if (
-                        "ValueError: Mass matrix contains" in traceback.format_exc()
-                        and init == "auto"
-                    ):
-                        _log.info(
-                            "\nThe default initialization using init='auto' has failed, trying to "
-                            "recover by switching to init='adapt_diag'",
-                        )
-                        idata = pm.sample(
-                            draws=draws,
-                            tune=tune,
-                            discard_tuned_samples=discard_tuned_samples,
-                            init="adapt_diag",
-                            n_init=n_init,
-                            chains=chains,
-                            cores=cores,
-                            random_seed=random_seed,
-                            **kwargs,
-                        )
-                    else:
-                        raise
+                idata = pm.sample(
+                    draws=draws,
+                    tune=tune,
+                    discard_tuned_samples=discard_tuned_samples,
+                    init=init,
+                    n_init=n_init,
+                    chains=chains,
+                    cores=cores,
+                    random_seed=random_seed,
+                    **kwargs,
+                )
             elif sampler_backend == "nuts_numpyro":
                 # Lazy import to not force users to install Jax
                 import pymc.sampling_jax  # pylint: disable=import-outside-toplevel
