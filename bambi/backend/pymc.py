@@ -64,6 +64,7 @@ class PyMCModel:
 
         with self.model:
             self._build_intercept(spec)
+            self._build_offsets(spec)
             self._build_common_terms(spec)
             self._build_group_specific_terms(spec)
             self._build_response(spec)
@@ -114,11 +115,15 @@ class PyMCModel:
         if self.has_intercept:
             self.mu += InterceptTerm(spec.intercept_term).build(spec)
 
+    def _build_offsets(self, spec):
+        for offset in spec.offset_terms.values():
+            self.mu += offset.data.squeeze()
+
     def _build_common_terms(self, spec):
         if spec.common_terms:
             coefs = []
             columns = []
-            for term in spec.common_terms.values():
+            for term in spec.common_terms:
                 common_term = CommonTerm(term)
                 # Add coords
                 # NOTE: At the moment, there's a bug in PyMC so we need to check if coordinate is

@@ -16,7 +16,7 @@ from .backend import PyMCModel
 from .defaults import get_default_prior, get_builtin_family
 from .families import Family, univariate, multivariate
 from .priors import Prior, PriorScaler
-from .terms import GroupSpecificTerm, ResponseTerm, Term
+from .terms import GroupSpecificTerm, OffsetTerm, ResponseTerm, Term
 from .utils import listify, extra_namespace
 from .version import __version__
 
@@ -318,6 +318,8 @@ class Model:
                 kind = "group_specific"
             elif term.kind == "intercept":
                 kind = "intercept"
+            elif term.kind == "offset":
+                continue
             else:
                 kind = "common"
             term.prior = prepare_prior(term.prior, kind, self.auto_scale)
@@ -512,7 +514,10 @@ class Model:
                         f"Trying to set hyperprior on '{name}'. "
                         "Can't set a hyperprior on common effects."
                     )
-            self.terms[name] = Term(name, term, data, prior)
+            if term.kind == "offset":
+                self.terms[name] = OffsetTerm(name, term, data)
+            else:
+                self.terms[name] = Term(name, term, data, prior)
 
     def _add_group_specific(self, group, priors):
         """Add group-specific (a.k.a. random) terms to the model.
@@ -1000,8 +1005,11 @@ class Model:
         return groups
 
     def __str__(self):
-        priors = ""
         priors_common = [f"    {t.name} ~ {t.prior}" for t in self.common_terms.values()]
+        if self.intercept_term:
+            term = self.intercept_term
+            priors_common = [f"    {term.name} ~ {term.prior}"] + priors_common
+
         priors_group = [f"    {t.name} ~ {t.prior}" for t in self.group_specific_terms.values()]
 
         # Prior for the correlation matrix in group-specific terms
@@ -1010,17 +1018,22 @@ class Model:
         # Priors for auxiliary parameters, e.g., standard deviation in normal linear model
         priors_aux = [f"    {k} ~ {v}" for k, v in self.family.likelihood.priors.items()]
 
-        if self.intercept_term:
-            t = self.intercept_term
-            priors_common = [f"    {t.name} ~ {t.prior}"] + priors_common
-        if priors_common:
-            priors += "\n".join(["  Common-level effects", *priors_common])
-        if priors_group:
-            priors += "\n\n" + "\n".join(["  Group-level effects", *priors_group])
-        if priors_cor:
-            priors += "\n\n" + "\n".join(["  Group-level correlation", *priors_cor])
-        if priors_aux:
-            priors += "\n\n" + "\n".join(["  Auxiliary parameters", *priors_aux])
+        # Offsets
+        offsets = [f"    {t.name} ~ 1" for t in self.offset_terms.values()]
+
+        priors_dict = {
+            "Common-level effects": priors_common,
+            "Group-level effects": priors_group,
+            "Group-level correlation": priors_cor,
+            "Offset effects": offsets,
+            "Auxiliary parameters": priors_aux,
+        }
+
+        priors_list = []
+        for group, values in priors_dict.items():
+            if values:
+                priors_list += ["\n".join([f"  {group}"] + values)]
+        priors_message = "\n\n".join(priors_list)
 
         str_list = [
             f"Formula: {self.formula}",
@@ -1028,7 +1041,7 @@ class Model:
             f"Link: {self.family.link.name}",
             f"Observations: {self.response.data.shape[0]}",
             "Priors:",
-            priors,
+            priors_message,
         ]
         if self.backend and self.backend.fit:
             extra_foot = (
@@ -1053,7 +1066,9 @@ class Model:
     def common_terms(self):
         """Return dict of all and only common effects in model."""
         return {
-            k: v for (k, v) in self.terms.items() if not v.group_specific and v.kind != "intercept"
+            k: v
+            for (k, v) in self.terms.items()
+            if not v.group_specific and v.kind not in ["intercept", "offset"]
         }
 
     @property
@@ -1069,6 +1084,13 @@ class Model:
             return term[0]
         else:
             return None
+
+    @property
+    def offset_terms(self):
+        """Return dict of all and only offset effects in model."""
+        return {
+            k: v for (k, v) in self.terms.items() if not v.group_specific and v.kind == "offset"
+        }
 
 
 def prepare_prior(prior, kind, auto_scale):
