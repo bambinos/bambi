@@ -953,7 +953,7 @@ class Model:
         ndarray
         """
         self.predict(idata, kind="pps", data=data)
-        return idata.posterior_predictive[predict_variable].mean(axis=(0, 1)).values
+        return idata.posterior_predictive[predict_variable].mean(("chain", "draw")).values
 
     def graph(self, formatting="plain", name=None, figsize=None, dpi=300, fmt="png"):
         """
