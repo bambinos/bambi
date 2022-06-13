@@ -931,6 +931,30 @@ class Model:
         else:
             return idata
 
+    def predict_sklearn(self, idata, predict_variable, data=None):
+        """
+        Produce point estimate predictions for each of the test data points in 'data'
+        (or the training data, if no test data is provided) which returns a numpy
+        array of the predicted means for each data point for the target variable
+        (i.e. the same return format as the sklearn 'predict' API)
+
+        Parameters
+        ----------
+        idata: InferenceData
+            The ``InferenceData`` instance returned by ``.fit()``.
+        predict_variable: string
+            The name of the target variable fit by the model
+        data: pandas.DataFrame or None
+            An optional data frame with values for the predictors that are used to obtain
+            out-of-sample predictions. If omitted, the original dataset is used.
+
+        Returns
+        -------
+        ndarray
+        """
+        self.predict(idata, kind="pps", data=data)
+        return idata.posterior_predictive[predict_variable].mean(axis=(0,1)).values
+
     def graph(self, formatting="plain", name=None, figsize=None, dpi=300, fmt="png"):
         """
         Produce a graphviz Digraph from a built Bambi model.
