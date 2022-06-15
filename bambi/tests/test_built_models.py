@@ -336,9 +336,17 @@ def test_logistic_regression_bad_numeric():
         model.fit()
 
 
-def test_logistic_regression_categoric(logistic_regression_data):
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("mcmc", {}),
+        ("nuts_numpyro", {"chain_method": "vectorized"}),
+        ("nuts_blackjax", {"chain_method": "vectorized"}),
+    ],
+)
+def test_logistic_regression_categoric_alternative_samplers(logistic_regression_data, args):
     model = Model("y ~ x", logistic_regression_data, family="bernoulli")
-    model.fit()
+    model.fit(tune=50, draws=50, method=args[0], **args[1])
 
 
 def test_laplace_regression():
@@ -350,24 +358,17 @@ def test_laplace_regression():
     bmb_model.fit()
 
 
-def test_logistic_regression_numpyro(logistic_regression_data):
-    model = Model("y ~ x", logistic_regression_data, family="bernoulli")
-    model.fit(method="nuts_numpyro", chain_method="vectorized")
-
-
-def test_logistic_regression_blackjax(logistic_regression_data):
-    model = Model("y ~ x", logistic_regression_data, family="bernoulli")
-    model.fit(method="nuts_blackjax", chain_method="vectorized")
-
-
-def test_regression_blackjax(linear_regression_data):
-    bmb_model = Model("y ~ x", linear_regression_data)
-    bmb_model.fit(method="nuts_blackjax", chain_method="vectorized")
-
-
-def test_regression_nunpyro(linear_regression_data):
-    bmb_model = Model("y ~ x", linear_regression_data)
-    bmb_model.fit(method="nuts_numpyro", chain_method="vectorized")
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("mcmc", {}),
+        ("nuts_numpyro", {"chain_method": "vectorized"}),
+        ("nuts_blackjax", {"chain_method": "vectorized"}),
+    ],
+)
+def test_regression_alternative_samplers(linear_regression_data, args):
+    model = Model("y ~ x", linear_regression_data)
+    model.fit(tune=50, draws=50, method=args[0], **args[1])
 
 
 def test_poisson_regression(crossed_data):
