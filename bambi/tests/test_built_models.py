@@ -73,6 +73,20 @@ def categorical_family_categorical_predictor():
     return data
 
 
+@pytest.fixture(scope="module")
+def logistic_regression_data():
+    y = pd.Series(np.random.choice(["a", "b"], 50), dtype="category")
+    return pd.DataFrame({"y": y, "x": np.random.normal(size=50)})
+
+
+@pytest.fixture(scope="module")
+def linear_regression_data():
+    size = 1_000
+    rng = np.random.default_rng(0)
+    x = rng.normal(size=size)
+    return pd.DataFrame({"x": x, "y": rng.normal(loc=x, size=size)})
+
+
 def test_empty_model(crossed_data):
     model0 = Model("Y ~ 0", crossed_data)
     model0.fit(tune=0, draws=1)
@@ -322,11 +336,17 @@ def test_logistic_regression_bad_numeric():
         model.fit()
 
 
-def test_logistic_regression_categoric():
-    y = pd.Series(np.random.choice(["a", "b"], 50), dtype="category")
-    data = pd.DataFrame({"y": y, "x": np.random.normal(size=50)})
-    model = Model("y ~ x", data, family="bernoulli")
-    model.fit()
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("mcmc", {}),
+        ("nuts_numpyro", {"chain_method": "vectorized"}),
+        ("nuts_blackjax", {"chain_method": "vectorized"}),
+    ],
+)
+def test_logistic_regression_categoric_alternative_samplers(logistic_regression_data, args):
+    model = Model("y ~ x", logistic_regression_data, family="bernoulli")
+    model.fit(tune=50, draws=50, method=args[0], **args[1])
 
 
 def test_laplace_regression():
@@ -338,38 +358,17 @@ def test_laplace_regression():
     bmb_model.fit()
 
 
-def test_logistic_regression_numpyro():
-    y = pd.Series(np.random.choice(["a", "b"], 50), dtype="category")
-    data = pd.DataFrame({"y": y, "x": np.random.normal(size=50)})
-    model = Model("y ~ x", data, family="bernoulli")
-    model.fit(method="nuts_numpyro", chain_method="vectorized")
-
-
-def test_logistic_regression_blackjax():
-    y = pd.Series(np.random.choice(["a", "b"], 50), dtype="category")
-    data = pd.DataFrame({"y": y, "x": np.random.normal(size=50)})
-    model = Model("y ~ x", data, family="bernoulli")
-    model.fit(method="nuts_blackjax", chain_method="vectorized")
-
-
-def test_regression_blackjax():
-    size = 1_000
-    rng = np.random.default_rng(0)
-    x = rng.normal(size=size)
-    data = pd.DataFrame({"x": x, "y": rng.normal(loc=x, size=size)})
-
-    bmb_model = Model("y ~ x", data)
-    bmb_model.fit(method="nuts_blackjax", chain_method="vectorized")
-
-
-def test_regression_nunpyro():
-    size = 1_000
-    rng = np.random.default_rng(0)
-    x = rng.normal(size=size)
-    data = pd.DataFrame({"x": x, "y": rng.normal(loc=x, size=size)})
-
-    bmb_model = Model("y ~ x", data)
-    bmb_model.fit(method="nuts_numpyro", chain_method="vectorized")
+@pytest.mark.parametrize(
+    "args",
+    [
+        ("mcmc", {}),
+        ("nuts_numpyro", {"chain_method": "vectorized"}),
+        ("nuts_blackjax", {"chain_method": "vectorized"}),
+    ],
+)
+def test_regression_alternative_samplers(linear_regression_data, args):
+    model = Model("y ~ x", linear_regression_data)
+    model.fit(tune=50, draws=50, method=args[0], **args[1])
 
 
 def test_poisson_regression(crossed_data):
