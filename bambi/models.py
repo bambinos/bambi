@@ -1076,7 +1076,7 @@ class Model:
 
     @property
     def common_terms(self):
-        """Return dict of all and only common effects in model."""
+        """Return dict of all common effects in model."""
         return {
             k: v
             for (k, v) in self.terms.items()
@@ -1085,7 +1085,7 @@ class Model:
 
     @property
     def group_specific_terms(self):
-        """Return dict of all and only group specific effects in model."""
+        """Return dict of all group specific effects in model."""
         return {k: v for (k, v) in self.terms.items() if v.group_specific}
 
     @property
@@ -1099,7 +1099,7 @@ class Model:
 
     @property
     def offset_terms(self):
-        """Return dict of all and only offset effects in model."""
+        """Return dict of all offset effects in model."""
         return {
             k: v for (k, v) in self.terms.items() if not v.group_specific and v.kind == "offset"
         }
