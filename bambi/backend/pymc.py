@@ -123,7 +123,7 @@ class PyMCModel:
         if spec.common_terms:
             coefs = []
             columns = []
-            for term in spec.common_terms:
+            for term in spec.common_terms.values():
                 common_term = CommonTerm(term)
                 # Add coords
                 # NOTE: At the moment, there's a bug in PyMC so we need to check if coordinate is

@@ -748,6 +748,7 @@ class Model:
         linear_predictor = 0
         X = None
         Z = None
+        x_offsets = []
 
         chain_n = len(idata.posterior.coords.get("chain"))
         draw_n = len(idata.posterior.coords.get("draw"))
@@ -763,6 +764,13 @@ class Model:
                 X = self._design.common.design_matrix
             else:
                 X = self._design.common.evaluate_new_data(data).design_matrix
+
+            # Add offset columns to their own design matrix
+            # Remove them from the common design matrix.
+            for term in self.offset_terms:
+                term_slice = self._design.common.slices[term]
+                x_offsets.append(X[:, term_slice])
+                X = np.delete(X, term_slice, axis=1)
 
         if self._design.group and include_group_specific:
             if in_sample:
@@ -834,6 +842,10 @@ class Model:
             shape = (chain_n, draw_n) + contribution.shape[1:]
             contribution = contribution.reshape(shape)
             linear_predictor += contribution
+
+        # If model contains offset, add directly to the linear predictor
+        if x_offsets:
+            linear_predictor += np.column_stack(x_offsets).sum(axis=1)[np.newaxis, np.newaxis, :]
 
         # Contribution due to group-specific terms. Same comments than for beta_x apply here.
         if Z is not None:
