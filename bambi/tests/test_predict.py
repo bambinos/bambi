@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 
 from bambi.models import Model
+from bambi import load_data
 
 
 @pytest.fixture(scope="module")
@@ -313,9 +314,6 @@ def test_predict_multinomial(inhaler):
 
 
 def test_posterior_predictive_multinomial(inhaler):
-    def c(*args):
-        return np.column_stack(args)
-
     df = inhaler.groupby(["treat", "carry", "rating"], as_index=False).size()
     df = df.pivot(index=["treat", "carry"], columns="rating", values="size").reset_index()
     df.columns = ["treat", "carry", "y1", "y2", "y3", "y4"]
@@ -356,3 +354,11 @@ def test_predict_include_group_specific():
 
     # When we include group-specific terms, these predictions are different
     assert not (idata_1.posterior["y_mean"] == idata_1.posterior["y_mean"][:, :, 0]).all()
+
+
+def test_predict_offset():
+    data = load_data("carclaims")
+    model = Model("numclaims ~ offset(np.log(exposure))", data, family="poisson", link="log")
+    idata = model.fit(tune=100, draws=100, chains=2, random_seed=1234)
+    model.predict(idata)
+    model.predict(idata, kind="pps")
