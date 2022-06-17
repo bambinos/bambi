@@ -357,8 +357,22 @@ def test_predict_include_group_specific():
 
 
 def test_predict_offset():
+    # Simple case
     data = load_data("carclaims")
     model = Model("numclaims ~ offset(np.log(exposure))", data, family="poisson", link="log")
     idata = model.fit(tune=100, draws=100, chains=2, random_seed=1234)
     model.predict(idata)
+    model.predict(idata, kind="pps")
+
+    # More complex case
+    data = pd.DataFrame(
+        {
+            "y": np.random.poisson(20, size=100),
+            "x": np.random.normal(size=100),
+            "group": np.tile(np.arange(10), 10),
+        }
+    )
+    data["time"] = data["y"] - np.random.normal(loc=1, size=100)
+    model = Model("y ~ offset(np.log(time)) + x + (1 | group)", data, family="poisson")
+    idata = model.fit(tune=100, draws=100, chains=2, target_accept=0.9, random_seed=1234)
     model.predict(idata, kind="pps")
