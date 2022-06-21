@@ -637,7 +637,6 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.constrained_layout.use&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">SEED</span> <span class="o">=</span> <span class="mi">7355608</span>
 </pre></div>
 </div>
@@ -766,7 +765,7 @@ day is a baseline, and sleep deprivation started after day 3. The subjects in th
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.075</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.975</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.075</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.925</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.03</span><span class="p">)</span>
 
     <span class="n">axes_flat</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
@@ -991,7 +990,7 @@ better at reaction times. Looks like they took this as a serious challenge!</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1|Subject&quot;</span><span class="p">,</span> <span class="s2">&quot;Days|Subject&quot;</span><span class="p">],</span> <span class="n">backend_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;constrained_layout&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">});</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1|Subject&quot;</span><span class="p">,</span> <span class="s2">&quot;Days|Subject&quot;</span><span class="p">]);</span>
 </pre></div>
 </div>
 </div>
@@ -1013,18 +1012,17 @@ better at reaction times. Looks like they took this as a serious challenge!</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">intercept</span> <span class="o">=</span> <span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;1|Subject&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
-<span class="n">slope</span> <span class="o">=</span> <span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Days|Subject&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#  extract a subsample from the posterior and stack the chain and draw dims</span>
+<span class="n">posterior</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
 
 <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">18</span><span class="p">):</span>
-    <span class="c1"># Not all the samples are drawn</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">intercept</span><span class="p">[::</span><span class="mi">10</span><span class="p">,</span> <span class="n">subject</span><span class="p">]</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">slope</span><span class="p">[::</span><span class="mi">10</span><span class="p">,</span> <span class="n">subject</span><span class="p">]</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">posterior</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="s2">&quot;1|Subject&quot;</span><span class="p">,</span> <span class="s2">&quot;Days|Subject&quot;</span><span class="p">,</span>
+                       <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;Subject__factor_dim&quot;</span><span class="p">,</span>
+                       <span class="n">add_guide</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                       <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 
-<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="s2">&quot;0.25&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="s2">&quot;0.25&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Subject-specific intercept&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Subject-specific slope&quot;</span><span class="p">);</span>
 </pre></div>
@@ -1050,13 +1048,12 @@ better at reaction times. Looks like they took this as a serious challenge!</p>
 <span class="c1"># Plot the data</span>
 <span class="n">axes</span> <span class="o">=</span> <span class="n">plot_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
-<span class="n">axes_flat</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
 
 <span class="c1"># Take the posterior of the mean reaction time</span>
-<span class="n">reaction_mean</span> <span class="o">=</span> <span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Reaction_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;draw&quot;</span><span class="p">,</span> <span class="s2">&quot;chain&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">values</span>
+<span class="n">reaction_mean</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">idata</span><span class="p">)[</span><span class="s2">&quot;Reaction_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
-<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">subject</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Subject&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()):</span>
-    <span class="n">ax</span> <span class="o">=</span> <span class="n">axes_flat</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">subject</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Subject&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span> <span class="n">axes</span><span class="o">.</span><span class="n">ravel</span><span class="p">()):</span>
+
     <span class="n">idx</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Subject&quot;</span><span class="p">]</span><span class="o">==</span> <span class="n">subject</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
     <span class="n">days</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;Days&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
@@ -1089,19 +1086,19 @@ better at reaction times. Looks like they took this as a serious challenge!</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Wed Jun 01 2022
+Last updated: Mon Jun 20 2022
 
 Python implementation: CPython
 Python version       : 3.9.7
 IPython version      : 8.3.0
 
-matplotlib: 3.5.1
-bambi     : 0.7.1
 pandas    : 1.4.2
 numpy     : 1.21.5
+matplotlib: 3.5.1
 sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
 [GCC 7.5.0]
-arviz     : 0.12.1
+bambi     : 0.9.0
+arviz     : 0.13.0.dev0
 
 Watermark: 2.3.0
 
@@ -1155,7 +1152,7 @@ Watermark: 2.3.0
   
   <div class="footer-item">
     <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.1.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.2.<br>
 </p>
   </div>
   

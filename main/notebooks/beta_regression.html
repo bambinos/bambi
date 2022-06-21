@@ -617,7 +617,7 @@ div.rendered_html tbody tr:hover {
 <h1>Beta Regression<a class="headerlink" href="#Beta-Regression" title="Permalink to this heading">#</a></h1>
 <p>This example has been contributed by Tyler James Burch (<a class="reference external" href="https://github.com/tjburch">&#64;tjburch</a> on GitHub).</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
@@ -631,7 +631,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
@@ -644,7 +644,7 @@ div.rendered_html tbody tr:hover {
 <p>To start getting an intuitive sense of the Beta distribution, we’ll model coin flipping probabilities. Say we grab all the coins out of our pocket, we might have some fresh from the mint, but we might also have some old ones. Due to the variation, some may be slightly biased toward heads or tails, and our goal is to model distribution of the probabilities of flipping heads for the coins in our pocket.</p>
 <p>Since we trust the mint, we’ll say the <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> are both large, we’ll use 1,000 for each, which gives a distribution spanning from 0.45 to 0.55.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">alpha</span> <span class="o">=</span> <span class="mi">1_000</span>
@@ -664,7 +664,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>Next, we’ll use Bambi to try to recover the parameters of the Beta distribution. Since we have no predictors, we can do a intercept-only model to try to recover them.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;probabilities&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">})</span>
@@ -719,7 +719,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">fitted</span><span class="p">);</span>
@@ -734,7 +734,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">fitted</span><span class="p">)</span>
@@ -742,7 +742,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -778,26 +778,26 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-0.00</td>
-      <td>0.000</td>
-      <td>-0.001</td>
-      <td>0.001</td>
       <td>0.000</td>
       <td>0.00</td>
-      <td>3563.0</td>
-      <td>2830.0</td>
+      <td>-0.000</td>
+      <td>0.001</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>3947.0</td>
+      <td>3081.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>probabilities_kappa</th>
-      <td>2014.09</td>
-      <td>29.125</td>
-      <td>1956.581</td>
-      <td>2066.276</td>
-      <td>0.509</td>
-      <td>0.36</td>
-      <td>3272.0</td>
-      <td>2747.0</td>
+      <td>1988.336</td>
+      <td>28.22</td>
+      <td>1935.757</td>
+      <td>2041.255</td>
+      <td>0.444</td>
+      <td>0.314</td>
+      <td>4043.0</td>
+      <td>3007.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -811,7 +811,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <p><span class="math notranslate nohighlight">\(\kappa = \frac{\mu(1-\mu)}{\sigma^2} - 1\)</span></p>
 <p>Rather than <span class="math notranslate nohighlight">\(\sigma\)</span>, you’ll note Bambi returns <span class="math notranslate nohighlight">\(\kappa\)</span>. We’ll define a function to retrieve our original parameters.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">mukappa_to_alphabeta</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">kappa</span><span class="p">):</span>
@@ -820,9 +820,9 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
     <span class="n">beta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">*</span> <span class="n">kappa</span>
 
     <span class="c1"># Get mean values and 95% HDIs</span>
-    <span class="n">alpha_mean</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">alpha_mean</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
     <span class="n">alpha_hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-    <span class="n">beta_mean</span> <span class="o">=</span> <span class="n">beta</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">beta_mean</span> <span class="o">=</span> <span class="n">beta</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
     <span class="n">beta_hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
     <span class="k">return</span> <span class="n">alpha_mean</span><span class="p">,</span> <span class="n">alpha_hdi</span><span class="p">,</span> <span class="n">beta_mean</span><span class="p">,</span> <span class="n">beta_hdi</span>
@@ -842,8 +842,44 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Alpha - mean: 1007.0, 95% HDI: 980.0 - 1037.0
-Beta - mean: 1007.0, 95% HDI: 979.0 - 1036.0
+Alpha - mean: 994.0, 95% HDI: 968.0 - 1024.0
+Beta - mean: 994.0, 95% HDI: 968.0 - 1023.0
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">mukappa_to_alphabeta</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">kappa</span><span class="p">):</span>
+    <span class="c1"># Calculate alpha and beta</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">*</span> <span class="n">kappa</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">*</span> <span class="n">kappa</span>
+
+    <span class="c1"># Get mean values and 95% HDIs</span>
+    <span class="n">alpha_mean</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">alpha_hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">beta_mean</span> <span class="o">=</span> <span class="n">beta</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">beta_hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="k">return</span> <span class="n">alpha_mean</span><span class="p">,</span> <span class="n">alpha_hdi</span><span class="p">,</span> <span class="n">beta_mean</span><span class="p">,</span> <span class="n">beta_hdi</span>
+
+<span class="n">alpha</span><span class="p">,</span> <span class="n">alpha_hdi</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">beta_hdi</span> <span class="o">=</span> <span class="n">mukappa_to_alphabeta</span><span class="p">(</span>
+    <span class="n">expit</span><span class="p">(</span><span class="n">fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]),</span>
+    <span class="n">fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;probabilities_kappa&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Alpha - mean: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span><span class="si">}</span><span class="s2">, 95% HDI: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">alpha_hdi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">alpha_hdi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Beta - mean: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span><span class="si">}</span><span class="s2">, 95% HDI: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">beta_hdi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">beta_hdi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Alpha - mean: 994.0, 95% HDI: 968.0 - 1024.0
+Beta - mean: 994.0, 95% HDI: 968.0 - 1023.0
 </pre></div></div>
 </div>
 <p>We’ve managed to recover our parameters with an intercept-only model.</p>
@@ -881,7 +917,7 @@ Normal distribution with a standard deviation of 25 per side.</p>
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_beta_regression_15_0.png" src="../_images/notebooks_beta_regression_15_0.png" />
+<img alt="../_images/notebooks_beta_regression_16_0.png" src="../_images/notebooks_beta_regression_16_0.png" />
 </div>
 </div>
 <p>Next, we’ll generate a toy dataset according to our specifications above. As an added foil, we will also assume that we’re limited in our measuring equipment, that we can only measure correctly to the nearest integer micron.</p>
@@ -940,33 +976,33 @@ Normal distribution with a standard deviation of 25 per side.</p>
   <tbody>
     <tr>
       <th>0</th>
-      <td>0.452564</td>
-      <td>17.0</td>
-      <td>52.0</td>
+      <td>0.476742</td>
+      <td>5.0</td>
+      <td>32.0</td>
     </tr>
     <tr>
       <th>1</th>
-      <td>0.498537</td>
-      <td>1.0</td>
-      <td>2.0</td>
+      <td>0.465821</td>
+      <td>12.0</td>
+      <td>20.0</td>
     </tr>
     <tr>
       <th>2</th>
-      <td>0.487699</td>
-      <td>6.0</td>
-      <td>17.0</td>
+      <td>0.474213</td>
+      <td>0.0</td>
+      <td>15.0</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>0.505611</td>
-      <td>36.0</td>
-      <td>34.0</td>
+      <td>0.573222</td>
+      <td>54.0</td>
+      <td>5.0</td>
     </tr>
     <tr>
       <th>4</th>
-      <td>0.468879</td>
-      <td>1.0</td>
-      <td>15.0</td>
+      <td>0.490487</td>
+      <td>23.0</td>
+      <td>29.0</td>
     </tr>
   </tbody>
 </table>
@@ -993,7 +1029,7 @@ Normal distribution with a standard deviation of 25 per side.</p>
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_beta_regression_19_0.png" src="../_images/notebooks_beta_regression_19_0.png" />
+<img alt="../_images/notebooks_beta_regression_20_0.png" src="../_images/notebooks_beta_regression_20_0.png" />
 </div>
 </div>
 <p>Next we want to make a model to recover the effect per micron of dirt per side. So far, we’ve considered the biasing toward one side or another independently. A linear model might look something like this:</p>
@@ -1013,7 +1049,7 @@ identity, probit, and cloglog links as well.</p>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;delta_d&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;heads_bias_dirt&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tails_bias_dirt&quot;</span><span class="p">]</span>
 <span class="n">dirt_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;p ~ delta_d&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;beta&quot;</span><span class="p">)</span>
 <span class="n">dirt_fitted</span> <span class="o">=</span> <span class="n">dirt_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
-<span class="n">dirt_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dirt_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">dirt_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dirt_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1107,14 +1143,14 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-0.006</td>
-      <td>0.001</td>
-      <td>-0.008</td>
       <td>-0.003</td>
+      <td>0.001</td>
+      <td>-0.005</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>5633.0</td>
-      <td>3146.0</td>
+      <td>0.000</td>
+      <td>5312.0</td>
+      <td>3078.0</td>
       <td>1.0</td>
     </tr>
     <tr>
@@ -1125,20 +1161,20 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
       <td>0.005</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>5715.0</td>
-      <td>2909.0</td>
+      <td>4881.0</td>
+      <td>2684.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>p_kappa</th>
-      <td>1856.987</td>
-      <td>82.193</td>
-      <td>1695.136</td>
-      <td>2002.796</td>
-      <td>1.108</td>
-      <td>0.784</td>
-      <td>5518.0</td>
-      <td>2686.0</td>
+      <td>1899.666</td>
+      <td>85.987</td>
+      <td>1732.301</td>
+      <td>2055.125</td>
+      <td>1.141</td>
+      <td>0.812</td>
+      <td>5688.0</td>
+      <td>3324.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1157,7 +1193,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_beta_regression_23_0.png" src="../_images/notebooks_beta_regression_23_0.png" />
+<img alt="../_images/notebooks_beta_regression_24_0.png" src="../_images/notebooks_beta_regression_24_0.png" />
 </div>
 </div>
 <p>Next, we’ll see if we can in fact recover the effect on <span class="math notranslate nohighlight">\(\alpha\)</span>. Remember that in order to return to <span class="math notranslate nohighlight">\(\alpha\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span> space, the linear equation passes through an inverse logit transformation, so we must apply this to the coefficient on <span class="math notranslate nohighlight">\(\Delta d\)</span> to get the effect on <span class="math notranslate nohighlight">\(\alpha\)</span>. The inverse logit is nicely defined in <code class="docutils literal notranslate"><span class="pre">scipy.special</span></code> as <code class="docutils literal notranslate"><span class="pre">expit</span></code>.</p>
@@ -1222,7 +1258,7 @@ player’s batting averages are samples from that distribution.</p>
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_beta_regression_31_0.png" src="../_images/notebooks_beta_regression_31_0.png" />
+<img alt="../_images/notebooks_beta_regression_32_0.png" src="../_images/notebooks_beta_regression_32_0.png" />
 </div>
 </div>
 <p>If we’re interested in modeling the distribution of batting averages, we can start with an intercept-only model.</p>
@@ -1240,12 +1276,6 @@ player’s batting averages are samples from that distribution.</p>
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/osvaldo/proyectos/00_BM/bambi/bambi/models.py:129: SettingWithCopyWarning:
-A value is trying to be set on a copy of a slice from a DataFrame.
-Try using .loc[row_indexer,col_indexer] = value instead
-
-See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-  data[obj_cols] = data[obj_cols].apply(lambda x: x.astype(&#34;category&#34;))
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
@@ -1283,7 +1313,7 @@ NUTS: [Intercept, batting_avg_kappa]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1337,20 +1367,20 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
       <td>-1.035</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>3522.0</td>
-      <td>2806.0</td>
+      <td>3745.0</td>
+      <td>2913.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>batting_avg_kappa</th>
-      <td>152.622</td>
-      <td>2.007</td>
-      <td>148.864</td>
-      <td>156.296</td>
-      <td>0.034</td>
-      <td>0.024</td>
-      <td>3397.0</td>
-      <td>2859.0</td>
+      <td>152.524</td>
+      <td>2.003</td>
+      <td>148.859</td>
+      <td>156.326</td>
+      <td>0.032</td>
+      <td>0.023</td>
+      <td>3833.0</td>
+      <td>2598.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1362,7 +1392,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">model_avg</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">avg_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">model_avg</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">avg_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1378,7 +1408,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_beta_regression_37_0.png" src="../_images/notebooks_beta_regression_37_0.png" />
+<img alt="../_images/notebooks_beta_regression_38_0.png" src="../_images/notebooks_beta_regression_38_0.png" />
 </div>
 </div>
 <p>This appears to fit reasonably well. If, for example, we were interested in simulating players, we could sample from this distribution.</p>
@@ -1582,38 +1612,38 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-1.378</td>
-      <td>0.073</td>
-      <td>-1.525</td>
-      <td>-1.252</td>
+      <td>-1.376</td>
+      <td>0.072</td>
+      <td>-1.515</td>
+      <td>-1.247</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>5101.0</td>
-      <td>3014.0</td>
+      <td>5275.0</td>
+      <td>3044.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>batting_avg_shift</th>
-      <td>1.361</td>
-      <td>0.277</td>
-      <td>0.874</td>
-      <td>1.916</td>
+      <td>1.354</td>
+      <td>0.275</td>
+      <td>0.850</td>
+      <td>1.873</td>
       <td>0.004</td>
       <td>0.003</td>
-      <td>5066.0</td>
-      <td>2946.0</td>
+      <td>5402.0</td>
+      <td>3106.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>batting_avg_kappa</th>
-      <td>135.938</td>
-      <td>9.413</td>
-      <td>118.680</td>
-      <td>153.179</td>
-      <td>0.133</td>
-      <td>0.094</td>
-      <td>4991.0</td>
-      <td>2838.0</td>
+      <td>135.771</td>
+      <td>9.640</td>
+      <td>117.762</td>
+      <td>153.337</td>
+      <td>0.141</td>
+      <td>0.100</td>
+      <td>4702.0</td>
+      <td>2753.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1655,25 +1685,25 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
     <tr style="text-align: right;">
       <th></th>
       <th>rank</th>
-      <th>loo</th>
+      <th>elpd_loo</th>
       <th>p_loo</th>
-      <th>d_loo</th>
+      <th>elpd_diff</th>
       <th>weight</th>
       <th>se</th>
       <th>dse</th>
       <th>warning</th>
-      <th>loo_scale</th>
+      <th>scale</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>lag-model</th>
       <td>0</td>
-      <td>785.022752</td>
-      <td>3.009498</td>
+      <td>784.914632</td>
+      <td>3.108452</td>
       <td>0.000000</td>
-      <td>0.993483</td>
-      <td>14.544605</td>
+      <td>0.995738</td>
+      <td>14.535129</td>
       <td>0.000000</td>
       <td>False</td>
       <td>log</td>
@@ -1681,12 +1711,12 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
     <tr>
       <th>intercept-only</th>
       <td>1</td>
-      <td>774.093597</td>
-      <td>2.146701</td>
-      <td>10.929155</td>
-      <td>0.006517</td>
-      <td>15.359865</td>
-      <td>4.677413</td>
+      <td>774.082566</td>
+      <td>2.153033</td>
+      <td>10.832065</td>
+      <td>0.004262</td>
+      <td>15.343778</td>
+      <td>4.644965</td>
       <td>False</td>
       <td>log</td>
     </tr>
@@ -1699,24 +1729,123 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ppc</span><span class="o">=</span> <span class="n">model_lag</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">lag_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ppc</span><span class="o">=</span> <span class="n">model_lag</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">lag_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
 <span class="n">az</span><span class="o">.</span><span class="n">plot_ppc</span><span class="p">(</span><span class="n">lag_fitted</span><span class="p">);</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">KeyboardInterrupt</span>                         Traceback (most recent call last)
+<span class="ansi-green-intense-fg ansi-bold">/home/osvaldo/proyectos/00_BM/bambi/docs/notebooks/beta_regression.ipynb Cell 47&#39;</span> in <span class="ansi-cyan-fg">&lt;cell line: 2&gt;</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-intense-fg ansi-bold">      &lt;a href=&#39;vscode-notebook-cell:/home/osvaldo/proyectos/00_BM/bambi/docs/notebooks/beta_regression.ipynb#ch0000045?line=0&#39;&gt;1&lt;/a&gt;</span> ppc= model_lag.predict(lag_fitted, kind=&#34;pps&#34;)
+<span class="ansi-green-fg">----&gt; &lt;a href=&#39;vscode-notebook-cell:/home/osvaldo/proyectos/00_BM/bambi/docs/notebooks/beta_regression.ipynb#ch0000045?line=1&#39;&gt;2&lt;/a&gt;</span> az.plot_ppc(lag_fitted)
+
+File <span class="ansi-green-fg">~/proyectos/00_BM/arviz/arviz/plots/ppcplot.py:356</span>, in <span class="ansi-cyan-fg">plot_ppc</span><span class="ansi-blue-fg">(data, kind, alpha, mean, observed, color, colors, grid, figsize, textsize, data_pairs, var_names, filter_vars, coords, flatten, flatten_pp, num_pp_samples, random_seed, jitter, animated, animation_kwargs, legend, labeller, ax, backend, backend_kwargs, group, show)</span>
+<span class="ansi-green-intense-fg ansi-bold">    354</span> # TODO: Add backend kwargs
+<span class="ansi-green-intense-fg ansi-bold">    355</span> plot = get_plotting_function(&#34;plot_ppc&#34;, &#34;ppcplot&#34;, backend)
+<span class="ansi-green-fg">--&gt; 356</span> axes = plot(**ppcplot_kwargs)
+<span class="ansi-green-intense-fg ansi-bold">    357</span> return axes
+
+File <span class="ansi-green-fg">~/proyectos/00_BM/arviz/arviz/plots/backends/matplotlib/ppcplot.py:163</span>, in <span class="ansi-cyan-fg">plot_ppc</span><span class="ansi-blue-fg">(ax, length_plotters, rows, cols, figsize, animated, obs_plotters, pp_plotters, predictive_dataset, pp_sample_ix, kind, alpha, colors, textsize, mean, observed, jitter, total_pp_samples, legend, labeller, group, animation_kwargs, num_pp_samples, backend_kwargs, show)</span>
+<span class="ansi-green-intense-fg ansi-bold">    161</span> vals = np.array([vals]).flatten()
+<span class="ansi-green-intense-fg ansi-bold">    162</span> if dtype == &#34;f&#34;:
+<span class="ansi-green-fg">--&gt; 163</span>     pp_x, pp_density = kde(vals)
+<span class="ansi-green-intense-fg ansi-bold">    164</span>     pp_densities.append(pp_density)
+<span class="ansi-green-intense-fg ansi-bold">    165</span>     pp_xs.append(pp_x)
+
+File <span class="ansi-green-fg">~/proyectos/00_BM/arviz/arviz/stats/density_utils.py:502</span>, in <span class="ansi-cyan-fg">kde</span><span class="ansi-blue-fg">(x, circular, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">    499</span> else:
+<span class="ansi-green-intense-fg ansi-bold">    500</span>     kde_fun = _kde_linear
+<span class="ansi-green-fg">--&gt; 502</span> return kde_fun(x, **kwargs)
+
+File <span class="ansi-green-fg">~/proyectos/00_BM/arviz/arviz/stats/density_utils.py:588</span>, in <span class="ansi-cyan-fg">_kde_linear</span><span class="ansi-blue-fg">(x, bw, adaptive, extend, bound_correction, extend_fct, bw_fct, bw_return, custom_lims, cumulative, grid_len, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">    585</span> grid_counts, _, grid_edges = histogram(x, grid_len, (grid_min, grid_max))
+<span class="ansi-green-intense-fg ansi-bold">    587</span> # Bandwidth estimation
+<span class="ansi-green-fg">--&gt; 588</span> bw = bw_fct * _get_bw(x, bw, grid_counts, x_std, x_range)
+<span class="ansi-green-intense-fg ansi-bold">    590</span> # Density estimation
+<span class="ansi-green-intense-fg ansi-bold">    591</span> if adaptive:
+
+File <span class="ansi-green-fg">~/proyectos/00_BM/arviz/arviz/stats/density_utils.py:157</span>, in <span class="ansi-cyan-fg">_get_bw</span><span class="ansi-blue-fg">(x, bw, grid_counts, x_std, x_range)</span>
+<span class="ansi-green-intense-fg ansi-bold">    150</span>         raise ValueError(
+<span class="ansi-green-intense-fg ansi-bold">    151</span>             &#34;Unrecognized bandwidth method.\n&#34;
+<span class="ansi-green-intense-fg ansi-bold">    152</span>             f&#34;Input is: {bw_lower}.\n&#34;
+<span class="ansi-green-intense-fg ansi-bold">    153</span>             f&#34;Expected one of: {list(_BW_METHODS_LINEAR)}.&#34;
+<span class="ansi-green-intense-fg ansi-bold">    154</span>         )
+<span class="ansi-green-intense-fg ansi-bold">    156</span>     bw_fun = _BW_METHODS_LINEAR[bw_lower]
+<span class="ansi-green-fg">--&gt; 157</span>     bw = bw_fun(x, grid_counts=grid_counts, x_std=x_std, x_range=x_range)
+<span class="ansi-green-intense-fg ansi-bold">    158</span> else:
+<span class="ansi-green-intense-fg ansi-bold">    159</span>     raise ValueError(
+<span class="ansi-green-intense-fg ansi-bold">    160</span>         &#34;Unrecognized `bw` argument.\n&#34;
+<span class="ansi-green-intense-fg ansi-bold">    161</span>         &#34;Expected a positive numeric or one of the following strings:\n&#34;
+<span class="ansi-green-intense-fg ansi-bold">    162</span>         f&#34;{list(_BW_METHODS_LINEAR)}.&#34;
+<span class="ansi-green-intense-fg ansi-bold">    163</span>     )
+
+File <span class="ansi-green-fg">~/proyectos/00_BM/arviz/arviz/stats/density_utils.py:80</span>, in <span class="ansi-cyan-fg">_bw_experimental</span><span class="ansi-blue-fg">(x, grid_counts, x_std, x_range)</span>
+<span class="ansi-green-intense-fg ansi-bold">     78</span> def _bw_experimental(x, grid_counts=None, x_std=None, x_range=None):
+<span class="ansi-green-intense-fg ansi-bold">     79</span>     &#34;&#34;&#34;Experimental bandwidth estimator.&#34;&#34;&#34;
+<span class="ansi-green-fg">---&gt; 80</span>     bw_silverman = _bw_silverman(x, x_std=x_std)
+<span class="ansi-green-intense-fg ansi-bold">     81</span>     bw_isj = _bw_isj(x, grid_counts=grid_counts, x_range=x_range)
+<span class="ansi-green-intense-fg ansi-bold">     82</span>     return 0.5 * (bw_silverman + bw_isj)
+
+File <span class="ansi-green-fg">~/proyectos/00_BM/arviz/arviz/stats/density_utils.py:29</span>, in <span class="ansi-cyan-fg">_bw_silverman</span><span class="ansi-blue-fg">(x, x_std, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">     27</span> if x_std is None:
+<span class="ansi-green-intense-fg ansi-bold">     28</span>     x_std = np.std(x)
+<span class="ansi-green-fg">---&gt; 29</span> q75, q25 = np.percentile(x, [75, 25])
+<span class="ansi-green-intense-fg ansi-bold">     30</span> x_iqr = q75 - q25
+<span class="ansi-green-intense-fg ansi-bold">     31</span> a = min(x_std, x_iqr / 1.34)
+
+File <span class="ansi-green-fg">&lt;__array_function__ internals&gt;:5</span>, in <span class="ansi-cyan-fg">percentile</span><span class="ansi-blue-fg">(*args, **kwargs)</span>
+
+File <span class="ansi-green-fg">~/anaconda3/lib/python3.9/site-packages/numpy/lib/function_base.py:3867</span>, in <span class="ansi-cyan-fg">percentile</span><span class="ansi-blue-fg">(a, q, axis, out, overwrite_input, interpolation, keepdims)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3865</span> if not _quantile_is_valid(q):
+<span class="ansi-green-intense-fg ansi-bold">   3866</span>     raise ValueError(&#34;Percentiles must be in the range [0, 100]&#34;)
+<span class="ansi-green-fg">-&gt; 3867</span> return _quantile_unchecked(
+<span class="ansi-green-intense-fg ansi-bold">   3868</span>     a, q, axis, out, overwrite_input, interpolation, keepdims)
+
+File <span class="ansi-green-fg">~/anaconda3/lib/python3.9/site-packages/numpy/lib/function_base.py:3986</span>, in <span class="ansi-cyan-fg">_quantile_unchecked</span><span class="ansi-blue-fg">(a, q, axis, out, overwrite_input, interpolation, keepdims)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3983</span> def _quantile_unchecked(a, q, axis=None, out=None, overwrite_input=False,
+<span class="ansi-green-intense-fg ansi-bold">   3984</span>                         interpolation=&#39;linear&#39;, keepdims=False):
+<span class="ansi-green-intense-fg ansi-bold">   3985</span>     &#34;&#34;&#34;Assumes that q is in [0, 1], and is an ndarray&#34;&#34;&#34;
+<span class="ansi-green-fg">-&gt; 3986</span>     r, k = _ureduce(a, func=_quantile_ureduce_func, q=q, axis=axis, out=out,
+<span class="ansi-green-intense-fg ansi-bold">   3987</span>                     overwrite_input=overwrite_input,
+<span class="ansi-green-intense-fg ansi-bold">   3988</span>                     interpolation=interpolation)
+<span class="ansi-green-intense-fg ansi-bold">   3989</span>     if keepdims:
+<span class="ansi-green-intense-fg ansi-bold">   3990</span>         return r.reshape(q.shape + k)
+
+File <span class="ansi-green-fg">~/anaconda3/lib/python3.9/site-packages/numpy/lib/function_base.py:3564</span>, in <span class="ansi-cyan-fg">_ureduce</span><span class="ansi-blue-fg">(a, func, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3561</span> else:
+<span class="ansi-green-intense-fg ansi-bold">   3562</span>     keepdim = (1,) * a.ndim
+<span class="ansi-green-fg">-&gt; 3564</span> r = func(a, **kwargs)
+<span class="ansi-green-intense-fg ansi-bold">   3565</span> return r, keepdim
+
+File <span class="ansi-green-fg">~/anaconda3/lib/python3.9/site-packages/numpy/lib/function_base.py:4107</span>, in <span class="ansi-cyan-fg">_quantile_ureduce_func</span><span class="ansi-blue-fg">(***failed resolving arguments***)</span>
+<span class="ansi-green-intense-fg ansi-bold">   4104</span>     n = np.array(False, dtype=bool)
+<span class="ansi-green-intense-fg ansi-bold">   4106</span> weights_shape = indices.shape + (1,) * (ap.ndim - 1)
+<span class="ansi-green-fg">-&gt; 4107</span> weights_above = not_scalar(indices - indices_below).reshape(weights_shape)
+<span class="ansi-green-intense-fg ansi-bold">   4109</span> x_below = take(ap, indices_below, axis=0)
+<span class="ansi-green-intense-fg ansi-bold">   4110</span> x_above = take(ap, indices_above, axis=0)
+
+<span class="ansi-red-fg">KeyboardInterrupt</span>:
+</pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_beta_regression_45_0.png" src="../_images/notebooks_beta_regression_45_0.png" />
+<img alt="../_images/notebooks_beta_regression_46_1.png" src="../_images/notebooks_beta_regression_46_1.png" />
 </div>
 </div>
 <p>The biggest question this helps us understand is, for each point of batting average in the previous year, how much better do we expect a player to be in the current year?</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mean_effect</span> <span class="o">=</span> <span class="n">lag_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mean_effect</span> <span class="o">=</span> <span class="n">lag_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 <span class="n">hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">lag_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)</span>
 
 <span class="n">lower</span> <span class="o">=</span> <span class="n">expit</span><span class="p">(</span><span class="n">hdi</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
@@ -1731,12 +1860,12 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Mean effect: 0.7960
-95% interval 0.7037 - 0.8760
+Mean effect: 0.7954
+95% interval 0.6970 - 0.8701
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">df_shift</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="p">,</span> <span class="n">lag_fitted</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="o">.</span><span class="n">batting_avg</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;goldenrod&quot;</span><span class="p">,</span> <span class="n">fill_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;alpha&quot;</span><span class="p">:</span><span class="mf">0.8</span><span class="p">})</span>
@@ -1755,8 +1884,41 @@ Mean effect: 0.7960
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_beta_regression_48_0.png" src="../_images/notebooks_beta_regression_48_0.png" />
+<img alt="../_images/notebooks_beta_regression_49_0.png" src="../_images/notebooks_beta_regression_49_0.png" />
 </div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Last updated: Mon Jun 20 2022
+
+Python implementation: CPython
+Python version       : 3.9.7
+IPython version      : 8.3.0
+
+matplotlib: 3.5.1
+pandas    : 1.4.2
+numpy     : 1.21.5
+arviz     : 0.13.0.dev0
+scipy     : 1.7.3
+bambi     : 0.9.0
+sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
+[GCC 7.5.0]
+
+Watermark: 2.3.0
+
+</pre></div></div>
 </div>
 </section>
 </section>
@@ -1806,7 +1968,7 @@ Mean effect: 0.7960
   
   <div class="footer-item">
     <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.1.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.2.<br>
 </p>
   </div>
   

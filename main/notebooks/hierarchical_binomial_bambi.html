@@ -1147,7 +1147,7 @@ NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:04<00:00 Sampling 4 chains, 70 divergences]
+  100.00% [8000/8000 00:03<00:00 Sampling 4 chains, 70 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1155,7 +1155,7 @@ NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 5 seconds.
 There was 1 divergence after tuning. Increase `target_accept` or reparameterize.
 There were 4 divergences after tuning. Increase `target_accept` or reparameterize.
 There were 47 divergences after tuning. Increase `target_accept` or reparameterize.
@@ -1171,38 +1171,14 @@ There were 18 divergences after tuning. Increase `target_accept` or reparameteri
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_prior</span> <span class="o">=</span> <span class="n">model_hierarchical</span><span class="o">.</span><span class="n">prior_predictive</span><span class="p">()</span>
-<span class="n">prior</span> <span class="o">=</span> <span class="n">idata_prior</span><span class="p">[</span><span class="s2">&quot;prior_predictive&quot;</span><span class="p">][</span><span class="s2">&quot;p(H, AB)&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+<span class="n">prior</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">idata_prior</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;prior_predictive&quot;</span><span class="p">)[</span><span class="s2">&quot;p(H, AB)&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
-<p>If we inspect the array, we see there are 500 draws (rows) for each of the 15 players (columns)</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">prior</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">prior</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-(500, 15)
-[[  0  12   8 ...  11  14   1]
- [  1 565  36 ...  15 162 106]
- [  1 619  61 ...  16 179 111]
- ...
- [  0  66   0 ...   5   0   0]
- [  1   4  15 ...   4   1   1]
- [  0 609  61 ...   1  19  47]]
-</pre></div></div>
-</div>
+<p>If we inspect the DataArray, we see there are 500 draws (<code class="docutils literal notranslate"><span class="pre">sample</span></code>) for each of the 15 players (<code class="docutils literal notranslate"><span class="pre">p(H,</span> <span class="pre">AB)_dim_0</span></code>)</p>
 <p>Let’s plot these distributions together with the observed proportion of hits for every player here.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># We define this function because this plot is going to be repeated below.</span>
@@ -1213,7 +1189,7 @@ There were 18 divergences after tuning. Increase `target_accept` or reparameteri
     <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="s2">&quot;col&quot;</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">axes</span><span class="o">.</span><span class="n">ravel</span><span class="p">()):</span>
-        <span class="n">pps</span> <span class="o">=</span> <span class="n">prior</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span>
+        <span class="n">pps</span> <span class="o">=</span> <span class="n">prior</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;p(H, AB)_dim_0&quot;</span><span class="p">:</span><span class="n">idx</span><span class="p">})</span>
         <span class="n">ab</span> <span class="o">=</span> <span class="n">AB</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
         <span class="n">h</span> <span class="o">=</span> <span class="n">H</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
         <span class="n">hist</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">pps</span> <span class="o">/</span> <span class="n">ab</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#a3a3a3&quot;</span><span class="p">)</span>
@@ -1238,7 +1214,7 @@ There were 18 divergences after tuning. Increase `target_accept` or reparameteri
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_prior_predictive</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">prior</span><span class="p">)</span>
@@ -1250,7 +1226,7 @@ There were 18 divergences after tuning. Increase `target_accept` or reparameteri
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/tmp/ipykernel_68567/4093018835.py:17: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
+/tmp/ipykernel_22567/4289598508.py:17: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
   fig.subplots_adjust(left=0.025, right=0.975, hspace=0.05, wspace=0.05, bottom=0.125)
 </pre></div></div>
 </div>
@@ -1258,12 +1234,12 @@ There were 18 divergences after tuning. Increase `target_accept` or reparameteri
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_hierarchical_binomial_bambi_30_1.png" src="../_images/notebooks_hierarchical_binomial_bambi_30_1.png" />
+<img alt="../_images/notebooks_hierarchical_binomial_bambi_29_1.png" src="../_images/notebooks_hierarchical_binomial_bambi_29_1.png" />
 </div>
 </div>
 <p>Indeed, priors are too wide! Let’s use tighter priors and see what’s the result</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">priors</span> <span class="o">=</span> <span class="p">{</span>
@@ -1276,7 +1252,7 @@ There were 18 divergences after tuning. Increase `target_accept` or reparameteri
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1295,12 +1271,12 @@ Priors:
 </div>
 <p>Now let’s check the prior predictive distribution for these new priors.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_hierarchical</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
 <span class="n">idata_prior</span> <span class="o">=</span> <span class="n">model_hierarchical</span><span class="o">.</span><span class="n">prior_predictive</span><span class="p">()</span>
-<span class="n">prior</span> <span class="o">=</span> <span class="n">idata_prior</span><span class="p">[</span><span class="s2">&quot;prior_predictive&quot;</span><span class="p">][</span><span class="s2">&quot;p(H, AB)&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+<span class="n">prior</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">idata_prior</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;prior_predictive&quot;</span><span class="p">)[</span><span class="s2">&quot;p(H, AB)&quot;</span><span class="p">]</span>
 <span class="n">plot_prior_predictive</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">prior</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1310,7 +1286,7 @@ Priors:
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/tmp/ipykernel_68567/4093018835.py:17: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
+/tmp/ipykernel_22567/4289598508.py:17: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
   fig.subplots_adjust(left=0.025, right=0.975, hspace=0.05, wspace=0.05, bottom=0.125)
 </pre></div></div>
 </div>
@@ -1318,12 +1294,12 @@ Priors:
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_hierarchical_binomial_bambi_34_1.png" src="../_images/notebooks_hierarchical_binomial_bambi_34_1.png" />
+<img alt="../_images/notebooks_hierarchical_binomial_bambi_33_1.png" src="../_images/notebooks_hierarchical_binomial_bambi_33_1.png" />
 </div>
 </div>
 <p>Definetely it looks much better. Now the priors tend to have a symmetric shape with a mode at 0.5, with substantial probability on the whole domain.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_hierarchical</span> <span class="o">=</span> <span class="n">model_hierarchical</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">)</span>
@@ -1364,7 +1340,7 @@ NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:05<00:00 Sampling 4 chains, 20 divergences]
+  100.00% [8000/8000 00:03<00:00 Sampling 4 chains, 20 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1372,7 +1348,7 @@ NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 6 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.
 There were 7 divergences after tuning. Increase `target_accept` or reparameterize.
 There were 2 divergences after tuning. Increase `target_accept` or reparameterize.
 There were 11 divergences after tuning. Increase `target_accept` or reparameterize.
@@ -1380,7 +1356,7 @@ There were 11 divergences after tuning. Increase `target_accept` or reparameteri
 </div>
 <p>Let’s try with increasing <code class="docutils literal notranslate"><span class="pre">target_accept</span></code> and the number of <code class="docutils literal notranslate"><span class="pre">tune</span></code> samples.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_hierarchical</span> <span class="o">=</span> <span class="n">model_hierarchical</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">)</span>
@@ -1421,7 +1397,7 @@ NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='16000' class='' max='16000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [16000/16000 00:16<00:00 Sampling 4 chains, 0 divergences]
+  100.00% [16000/16000 00:10<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1429,11 +1405,11 @@ NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws total) took 17 seconds.
+Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws total) took 11 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;1|playerID&quot;</span><span class="p">,</span> <span class="s2">&quot;1|playerID_sigma&quot;</span><span class="p">]</span>
@@ -1445,7 +1421,7 @@ Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_hierarchical_binomial_bambi_39_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_39_0.png" />
+<img alt="../_images/notebooks_hierarchical_binomial_bambi_38_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_38_0.png" />
 </div>
 </div>
 <p>Let’s jump onto the next section where we plot and compare the probability of hit for the players using both models.</p>
@@ -1456,7 +1432,7 @@ Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws 
 <p>But before doing that, we need to obtain the posterior in that scale. We could manually take the posterior of the coefficients, compute the linear predictor, and transform that to the probability scale. But that’s a lot of work!</p>
 <p>Fortunately, Bambi models have a method called <code class="docutils literal notranslate"><span class="pre">.predict()</span></code> that we can use to predict in the probability scale. By default, it modifies in-place the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object we pass to it. Then, the posterior samples can be found in the variable <code class="docutils literal notranslate"><span class="pre">p(H,</span> <span class="pre">AB)_mean</span></code>.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_non_hierarchical</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata_non_hierarchical</span><span class="p">)</span>
@@ -1466,7 +1442,7 @@ Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws 
 </div>
 <p>Let’s create a forestplot using the posteriors obtained with both models so we can compare them very easily .</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
@@ -1507,14 +1483,14 @@ Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_hierarchical_binomial_bambi_45_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_45_0.png" />
+<img alt="../_images/notebooks_hierarchical_binomial_bambi_44_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_44_0.png" />
 </div>
 </div>
 <p>One of the first things one can see is that not only the center of the distributions varies but also their dispersion. Those posteriors that are very wide are associated with players who have batted only once or few times, while tighter posteriors correspond to players who batted several times.</p>
 <p>Players who have extreme empirical proportions have similar extreme posteriors under the non-hierarchical model. However, under the hierarchical model, these distributions are now <strong>shrunk towards the global mean</strong>. Extreme values are very unlikely under the hierarchical model.</p>
 <p>And finally, paraphrasing Eric, there’s nothing ineherently right or wrong about shrinkage and hierarchical models. Whether this is reasonable or not depends on our prior knowledge about the problem. And to me, after having seen the hit rates of the other players, it is much more reasonable to shrink extreme posteriors based on very few data points towards the global mean rather than just let them concentrate around 0 or 1.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
@@ -1527,18 +1503,18 @@ Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Wed Jun 01 2022
+Last updated: Mon Jun 20 2022
 
 Python implementation: CPython
 Python version       : 3.9.7
 IPython version      : 8.3.0
 
-arviz     : 0.12.1
-numpy     : 1.21.5
+bambi     : 0.9.0
+arviz     : 0.13.0.dev0
 matplotlib: 3.5.1
+numpy     : 1.21.5
 sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
 [GCC 7.5.0]
-bambi     : 0.7.1
 
 Watermark: 2.3.0
 
@@ -1599,7 +1575,7 @@ Watermark: 2.3.0
   
   <div class="footer-item">
     <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.1.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.2.<br>
 </p>
   </div>
   

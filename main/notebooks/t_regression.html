@@ -673,7 +673,7 @@ div.rendered_html tbody tr:hover {
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note, &quot;gaussian&quot; is the default argument for family. Added to be explicit.</span>
 <span class="n">gauss_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;y ~ x&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;gaussian&quot;</span><span class="p">)</span>
 <span class="n">gauss_fitted</span> <span class="o">=</span> <span class="n">gauss_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
-<span class="n">gauss_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">gauss_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">gauss_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">gauss_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -711,7 +711,7 @@ NUTS: [Intercept, x, y_sigma]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='12000' class='' max='12000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [12000/12000 00:05<00:00 Sampling 4 chains, 0 divergences]
+  100.00% [12000/12000 00:02<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -719,7 +719,7 @@ NUTS: [Intercept, x, y_sigma]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 7 seconds.
+Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 3 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -767,38 +767,38 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>1.532</td>
-      <td>0.231</td>
-      <td>1.096</td>
-      <td>1.962</td>
+      <td>1.535</td>
+      <td>0.229</td>
+      <td>1.091</td>
+      <td>1.941</td>
       <td>0.002</td>
       <td>0.002</td>
-      <td>9444.0</td>
-      <td>5570.0</td>
+      <td>10022.0</td>
+      <td>6139.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>x</th>
-      <td>1.200</td>
-      <td>0.408</td>
-      <td>0.434</td>
-      <td>1.961</td>
+      <td>1.198</td>
+      <td>0.400</td>
+      <td>0.478</td>
+      <td>1.967</td>
       <td>0.004</td>
       <td>0.003</td>
-      <td>9333.0</td>
-      <td>5682.0</td>
+      <td>10313.0</td>
+      <td>5779.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>y_sigma</th>
-      <td>1.186</td>
+      <td>1.185</td>
       <td>0.084</td>
-      <td>1.035</td>
-      <td>1.344</td>
+      <td>1.041</td>
+      <td>1.354</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>9791.0</td>
-      <td>6434.0</td>
+      <td>9456.0</td>
+      <td>5203.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -816,7 +816,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_out</span><span class="p">,</span> <span class="n">y_out</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
 <span class="c1"># Plot recovered linear regression</span>
 <span class="n">x_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">x_out</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">x_out</span><span class="p">),</span> <span class="mi">2000</span><span class="p">)</span>
-<span class="n">y_pred</span> <span class="o">=</span> <span class="n">gauss_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="n">x_range</span> <span class="o">+</span> <span class="n">gauss_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">Intercept</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">gauss_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">*</span> <span class="n">x_range</span> <span class="o">+</span> <span class="n">gauss_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">Intercept</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_range</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span>
          <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
          <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Recovered regression line&quot;</span>
@@ -829,7 +829,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">true_regression_line</span><span class="p">,</span>
         <span class="n">label</span><span class="o">=</span><span class="s2">&quot;True regression line&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span>
-</pre></div>
+<br/></pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -920,7 +920,7 @@ distribution decrease. In the limit of <span class="math notranslate nohighlight
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;y ~ x&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;t&quot;</span><span class="p">)</span>
 <span class="n">t_fitted</span> <span class="o">=</span> <span class="n">t_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
-<span class="n">t_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">t_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">t_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">t_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -958,7 +958,7 @@ NUTS: [Intercept, x, y_sigma, y_nu]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='12000' class='' max='12000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [12000/12000 00:06<00:00 Sampling 4 chains, 0 divergences]
+  100.00% [12000/12000 00:03<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -966,7 +966,7 @@ NUTS: [Intercept, x, y_sigma, y_nu]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 7 seconds.
+Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 3 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1014,50 +1014,50 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>0.997</td>
+      <td>0.995</td>
       <td>0.109</td>
       <td>0.787</td>
-      <td>1.198</td>
+      <td>1.190</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>11856.0</td>
-      <td>6353.0</td>
+      <td>10722.0</td>
+      <td>6760.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>x</th>
-      <td>1.896</td>
-      <td>0.189</td>
-      <td>1.550</td>
-      <td>2.249</td>
+      <td>1.899</td>
+      <td>0.191</td>
+      <td>1.528</td>
+      <td>2.240</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>12109.0</td>
-      <td>6165.0</td>
+      <td>10973.0</td>
+      <td>6673.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>y_sigma</th>
       <td>0.406</td>
-      <td>0.046</td>
-      <td>0.321</td>
-      <td>0.491</td>
+      <td>0.045</td>
+      <td>0.326</td>
+      <td>0.492</td>
       <td>0.001</td>
       <td>0.000</td>
-      <td>7799.0</td>
-      <td>6005.0</td>
+      <td>7360.0</td>
+      <td>6177.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>y_nu</th>
-      <td>2.613</td>
-      <td>0.617</td>
-      <td>1.519</td>
-      <td>3.731</td>
+      <td>2.616</td>
+      <td>0.618</td>
+      <td>1.542</td>
+      <td>3.751</td>
       <td>0.007</td>
       <td>0.005</td>
-      <td>8121.0</td>
-      <td>5947.0</td>
+      <td>7058.0</td>
+      <td>6431.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1072,8 +1072,8 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_slope_intercept</span><span class="p">(</span><span class="n">mod</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">(</span>
-        <span class="n">mod</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
-        <span class="n">mod</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">Intercept</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">mod</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
+        <span class="n">mod</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">Intercept</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
     <span class="p">)</span>
 <span class="n">gauss_slope</span><span class="p">,</span> <span class="n">gauss_int</span> <span class="o">=</span> <span class="n">get_slope_intercept</span><span class="p">(</span><span class="n">gauss_fitted</span><span class="p">)</span>
 <span class="n">t_slope</span><span class="p">,</span> <span class="n">t_int</span> <span class="o">=</span> <span class="n">get_slope_intercept</span><span class="p">(</span><span class="n">t_fitted</span><span class="p">)</span>
@@ -1119,13 +1119,13 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
       <th>Slope</th>
       <td>2.0</td>
       <td>1.20</td>
-      <td>1.9</td>
+      <td>1.90</td>
     </tr>
     <tr>
       <th>Intercept</th>
       <td>1.0</td>
       <td>1.53</td>
-      <td>1.0</td>
+      <td>0.99</td>
     </tr>
   </tbody>
 </table>
@@ -1142,7 +1142,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_out</span><span class="p">,</span> <span class="n">y_out</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
 <span class="c1"># Plot recovered robust linear regression</span>
 <span class="n">x_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">x_out</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">x_out</span><span class="p">),</span> <span class="mi">2000</span><span class="p">)</span>
-<span class="n">y_pred</span> <span class="o">=</span> <span class="n">t_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="n">x_range</span> <span class="o">+</span> <span class="n">t_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">Intercept</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">t_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">*</span> <span class="n">x_range</span> <span class="o">+</span> <span class="n">t_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">Intercept</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_range</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span>
          <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
          <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Recovered regression line&quot;</span>
@@ -1186,7 +1186,7 @@ differences (especially given a relatively small number of samples).</p>
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/osvaldo/anaconda3/lib/python3.9/site-packages/arviz/stats/stats.py:812: UserWarning: Estimated shape parameter of Pareto distribution is greater than 0.7 for one or more samples. You should consider using a more robust model, this is because importance sampling is less likely to work well if the marginal posterior and LOO posterior are very different. This is more likely to happen with a non-robust model and highly influential observations.
+/home/osvaldo/proyectos/00_BM/arviz/arviz/stats/stats.py:811: UserWarning: Estimated shape parameter of Pareto distribution is greater than 0.7 for one or more samples. You should consider using a more robust model, this is because importance sampling is less likely to work well if the marginal posterior and LOO posterior are very different. This is more likely to happen with a non-robust model and highly influential observations.
   warnings.warn(
 </pre></div></div>
 </div>
@@ -1214,25 +1214,25 @@ differences (especially given a relatively small number of samples).</p>
     <tr style="text-align: right;">
       <th></th>
       <th>rank</th>
-      <th>loo</th>
+      <th>elpd_loo</th>
       <th>p_loo</th>
-      <th>d_loo</th>
+      <th>elpd_diff</th>
       <th>weight</th>
       <th>se</th>
       <th>dse</th>
       <th>warning</th>
-      <th>loo_scale</th>
+      <th>scale</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>Student T</th>
       <td>0</td>
-      <td>-101.809309</td>
-      <td>5.664925</td>
-      <td>0.000000</td>
-      <td>1.000000e+00</td>
-      <td>14.966523</td>
+      <td>-101.673224</td>
+      <td>5.521664</td>
+      <td>0.00000</td>
+      <td>1.0</td>
+      <td>14.928767</td>
       <td>0.000000</td>
       <td>False</td>
       <td>log</td>
@@ -1240,12 +1240,12 @@ differences (especially given a relatively small number of samples).</p>
     <tr>
       <th>gaussian</th>
       <td>1</td>
-      <td>-171.602424</td>
-      <td>13.716197</td>
-      <td>69.793115</td>
-      <td>2.557243e-11</td>
-      <td>29.317909</td>
-      <td>17.520369</td>
+      <td>-171.465054</td>
+      <td>13.592956</td>
+      <td>69.79183</td>
+      <td>0.0</td>
+      <td>29.246632</td>
+      <td>17.462814</td>
       <td>True</td>
       <td>log</td>
     </tr>
@@ -1283,19 +1283,19 @@ differences (especially given a relatively small number of samples).</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Wed Jun 01 2022
+Last updated: Sun Jun 19 2022
 
 Python implementation: CPython
 Python version       : 3.9.7
 IPython version      : 8.3.0
 
-bambi     : 0.7.1
-arviz     : 0.12.1
-numpy     : 1.21.5
-matplotlib: 3.5.1
+bambi     : 0.9.0
 pandas    : 1.4.2
+arviz     : 0.13.0.dev0
 sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
 [GCC 7.5.0]
+numpy     : 1.21.5
+matplotlib: 3.5.1
 
 Watermark: 2.3.0
 
@@ -1348,7 +1348,7 @@ Watermark: 2.3.0
   
   <div class="footer-item">
     <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.1.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.2.<br>
 </p>
   </div>
   

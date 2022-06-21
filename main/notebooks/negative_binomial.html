@@ -1006,7 +1006,7 @@ Name: prog, dtype: int64
 </div>
 <p>Let’s explore the distributions of math score and days of absence for each of the three programs listed above. The vertical lines indicate the mean values.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="s2">&quot;col&quot;</span><span class="p">)</span>
@@ -1106,7 +1106,7 @@ Name: prog, dtype: int64
 <section id="id1">
 <h3>Model 1<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_additive</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;daysabs ~ 0 + prog + scale(math)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;negativebinomial&quot;</span><span class="p">)</span>
@@ -1164,7 +1164,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <h3>Model 2<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
 <p>For this second model we just add <code class="docutils literal notranslate"><span class="pre">prog:scale(math)</span></code> to indicate the interaction. A shorthand would be to use <code class="docutils literal notranslate"><span class="pre">y</span> <span class="pre">~</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">prog*scale(math)</span></code>, which uses the <strong>full interaction</strong> operator. In other words, it just means we want to include the interaction between <code class="docutils literal notranslate"><span class="pre">prog</span></code> and <code class="docutils literal notranslate"><span class="pre">scale(math)</span></code> as well as their main effects.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_interaction</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;daysabs ~ 0 + prog + scale(math) + prog:scale(math)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;negativebinomial&quot;</span><span class="p">)</span>
@@ -1214,7 +1214,7 @@ NUTS: [prog, scale(math), prog:scale(math), daysabs_alpha]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 10 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 9 seconds.
 </pre></div></div>
 </div>
 </section>
@@ -1223,7 +1223,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <h2>Explore models<a class="headerlink" href="#Explore-models" title="Permalink to this heading">#</a></h2>
 <p>The first thing we do is calling <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>. Here we pass the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object the <code class="docutils literal notranslate"><span class="pre">.fit()</span></code> returned. This prints information about the marginal posteriors for each parameter in the model as well as convergence diagnostics.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata_additive</span><span class="p">)</span>
@@ -1231,7 +1231,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1267,62 +1267,62 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>prog[Academic]</th>
-      <td>1.890</td>
-      <td>0.086</td>
-      <td>1.722</td>
-      <td>2.041</td>
+      <td>1.887</td>
+      <td>0.083</td>
+      <td>1.728</td>
+      <td>2.035</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>7300.0</td>
-      <td>3098.0</td>
+      <td>5600.0</td>
+      <td>3477.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog[General]</th>
-      <td>2.339</td>
-      <td>0.167</td>
-      <td>2.025</td>
-      <td>2.652</td>
+      <td>2.341</td>
+      <td>0.165</td>
+      <td>2.053</td>
+      <td>2.680</td>
       <td>0.002</td>
-      <td>0.001</td>
-      <td>7069.0</td>
-      <td>3036.0</td>
+      <td>0.002</td>
+      <td>6190.0</td>
+      <td>3329.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog[Vocational]</th>
       <td>1.051</td>
-      <td>0.115</td>
-      <td>0.829</td>
-      <td>1.256</td>
+      <td>0.114</td>
+      <td>0.841</td>
+      <td>1.269</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>5705.0</td>
-      <td>2979.0</td>
+      <td>5565.0</td>
+      <td>2890.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>scale(math)</th>
-      <td>-0.153</td>
-      <td>0.063</td>
-      <td>-0.266</td>
-      <td>-0.031</td>
+      <td>-0.152</td>
+      <td>0.066</td>
+      <td>-0.281</td>
+      <td>-0.034</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>5284.0</td>
-      <td>3268.0</td>
+      <td>5437.0</td>
+      <td>3514.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>daysabs_alpha</th>
-      <td>1.021</td>
+      <td>1.020</td>
       <td>0.106</td>
-      <td>0.830</td>
-      <td>1.224</td>
+      <td>0.817</td>
+      <td>1.209</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>6964.0</td>
-      <td>2995.0</td>
+      <td>5989.0</td>
+      <td>3033.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1330,7 +1330,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata_interaction</span><span class="p">)</span>
@@ -1338,7 +1338,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1374,86 +1374,86 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>prog[Academic]</th>
-      <td>1.878</td>
-      <td>0.085</td>
-      <td>1.724</td>
-      <td>2.038</td>
+      <td>1.879</td>
+      <td>0.086</td>
+      <td>1.721</td>
+      <td>2.044</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>4147.0</td>
-      <td>3005.0</td>
+      <td>4258.0</td>
+      <td>3465.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog[General]</th>
-      <td>2.340</td>
-      <td>0.165</td>
-      <td>2.027</td>
-      <td>2.645</td>
+      <td>2.343</td>
+      <td>0.169</td>
+      <td>2.021</td>
+      <td>2.657</td>
       <td>0.002</td>
       <td>0.002</td>
-      <td>4406.0</td>
-      <td>3205.0</td>
+      <td>4726.0</td>
+      <td>2938.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog[Vocational]</th>
-      <td>0.989</td>
-      <td>0.126</td>
-      <td>0.749</td>
-      <td>1.225</td>
+      <td>0.985</td>
+      <td>0.125</td>
+      <td>0.745</td>
+      <td>1.209</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>4096.0</td>
-      <td>3220.0</td>
+      <td>4256.0</td>
+      <td>3084.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>scale(math)</th>
-      <td>-0.193</td>
-      <td>0.083</td>
-      <td>-0.345</td>
-      <td>-0.035</td>
+      <td>-0.195</td>
+      <td>0.081</td>
+      <td>-0.341</td>
+      <td>-0.037</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>3439.0</td>
-      <td>2899.0</td>
+      <td>3283.0</td>
+      <td>3305.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog:scale(math)[General]</th>
-      <td>0.012</td>
+      <td>0.013</td>
       <td>0.170</td>
-      <td>-0.301</td>
-      <td>0.335</td>
+      <td>-0.295</td>
+      <td>0.348</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>4022.0</td>
-      <td>3182.0</td>
+      <td>4001.0</td>
+      <td>2938.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog:scale(math)[Vocational]</th>
-      <td>0.194</td>
-      <td>0.166</td>
-      <td>-0.128</td>
-      <td>0.492</td>
+      <td>0.195</td>
+      <td>0.165</td>
+      <td>-0.123</td>
+      <td>0.490</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>3642.0</td>
-      <td>3364.0</td>
+      <td>3245.0</td>
+      <td>3067.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>daysabs_alpha</th>
-      <td>1.021</td>
-      <td>0.108</td>
-      <td>0.829</td>
-      <td>1.230</td>
+      <td>1.018</td>
+      <td>0.104</td>
+      <td>0.823</td>
+      <td>1.216</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>3950.0</td>
-      <td>2396.0</td>
+      <td>4199.0</td>
+      <td>3081.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1462,7 +1462,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <p>The information in the two tables above can be visualized in a more concise manner using a forest plot. ArviZ provides us with <code class="docutils literal notranslate"><span class="pre">plot_forest()</span></code>. There we simply pass a list containing the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> objects of the models we want to compare.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_forest</span><span class="p">(</span>
@@ -1486,7 +1486,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <p>We can also make conclusions about the association between the program and the math score with the days of absence. First, we see the posterior for the Vocational group is to the left of the posterior for the two other programs, meaning it is associated with fewer absences (as we have seen when first exploring our data). There also seems to be a difference between General and Academic, where we may conclude the students in the General group tend to miss more classes.</p>
 <p>In addition, the marginal posterior for <code class="docutils literal notranslate"><span class="pre">math</span></code> shows negative values in both cases. This means that students with higher math scores tend to miss fewer classes. Below, we see a forest plot with the posteriors for the coefficients of the interaction effects. Both of them overlap with 0, which means the data does not give much evidence to support there is an interaction effect between program and math score (i.e., the association between math and days of absence is similar for all the programs).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_forest</span><span class="p">(</span><span class="n">idata_interaction</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;prog:scale(math)&quot;</span><span class="p">],</span> <span class="n">combined</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
@@ -1506,7 +1506,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <h2>Plot predicted mean response<a class="headerlink" href="#Plot-predicted-mean-response" title="Permalink to this heading">#</a></h2>
 <p>We finish this example showing how we can get predictions for new data and plot the mean response for each program together with confidence intervals.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">math_score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
@@ -1522,7 +1522,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
             <span class="n">data</span><span class="o">=</span><span class="n">new_data</span><span class="p">,</span>
             <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span>
         <span class="p">)</span>
-        <span class="n">prediction</span> <span class="o">=</span> <span class="n">new_idata</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">sample</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">])[</span><span class="s2">&quot;daysabs_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="n">new_idata</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;daysabs_mean&quot;</span><span class="p">]</span>
         <span class="n">predictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prediction</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">predictions</span>
@@ -1530,7 +1530,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prediction_additive</span> <span class="o">=</span> <span class="n">predict</span><span class="p">(</span><span class="n">model_additive</span><span class="p">,</span> <span class="n">idata_additive</span><span class="p">)</span>
@@ -1539,26 +1539,26 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mu_additive</span> <span class="o">=</span> <span class="p">[</span><span class="n">prediction</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="n">prediction_additive</span><span class="p">]</span>
-<span class="n">mu_interaction</span> <span class="o">=</span> <span class="p">[</span><span class="n">prediction</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="n">prediction_interaction</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mu_additive</span> <span class="o">=</span> <span class="p">[</span><span class="n">prediction</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="n">prediction_additive</span><span class="p">]</span>
+<span class="n">mu_interaction</span> <span class="o">=</span> <span class="p">[</span><span class="n">prediction</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">prediction</span> <span class="ow">in</span> <span class="n">prediction_interaction</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 
 <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">program</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">programs</span><span class="p">):</span>
     <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">math_score</span><span class="p">,</span> <span class="n">mu_additive</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">program</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">math_score</span><span class="p">,</span> <span class="n">prediction_additive</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">math_score</span><span class="p">,</span> <span class="n">prediction_additive</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
     <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">math_score</span><span class="p">,</span> <span class="n">mu_interaction</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">program</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">math_score</span><span class="p">,</span> <span class="n">prediction_interaction</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">math_score</span><span class="p">,</span> <span class="n">prediction_interaction</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Additive&quot;</span><span class="p">);</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Interaction&quot;</span><span class="p">);</span>
@@ -1580,7 +1580,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <p>If you’ve made it to the end of this notebook and you’re still curious about what else you can do with these two models, you’re invited to use <code class="docutils literal notranslate"><span class="pre">az.compare()</span></code> to compare the fit of the two models. What do you expect before seeing the plot? Why? Is there anything else you could do to improve the fit of the model?</p>
 <p>Also, if you’re still curious about what this model would have looked like with the Poisson likelihood, you just need to replace <code class="docutils literal notranslate"><span class="pre">family=&quot;negativebinomial&quot;</span></code> with <code class="docutils literal notranslate"><span class="pre">family=&quot;poisson&quot;</span></code> and then you’re ready to compare results!</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
@@ -1593,19 +1593,19 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Wed Jun 01 2022
+Last updated: Mon Jun 20 2022
 
 Python implementation: CPython
 Python version       : 3.9.7
 IPython version      : 8.3.0
 
+bambi     : 0.9.0
+numpy     : 1.21.5
+arviz     : 0.13.0.dev0
+matplotlib: 3.5.1
 sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
 [GCC 7.5.0]
 pandas    : 1.4.2
-numpy     : 1.21.5
-arviz     : 0.12.1
-matplotlib: 3.5.1
-bambi     : 0.7.1
 
 Watermark: 2.3.0
 
@@ -1659,7 +1659,7 @@ Watermark: 2.3.0
   
   <div class="footer-item">
     <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.1.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.2.<br>
 </p>
   </div>
   

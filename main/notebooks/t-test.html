@@ -805,7 +805,7 @@ NUTS: [Intercept, Group, Val_sigma]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:04<00:00 Sampling 4 chains, 0 divergences]
+  100.00% [8000/8000 00:01<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -813,7 +813,7 @@ NUTS: [Intercept, Group, Val_sigma]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 5 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.
 </pre></div></div>
 </div>
 <p>We’ve only specified the formula for the model and Bambi automatically selected priors distributions and values for their parameters. We can inspect both the setup and the priors as following:</p>
@@ -923,38 +923,38 @@ Priors:
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>6.117</td>
-      <td>0.180</td>
-      <td>5.797</td>
-      <td>6.453</td>
+      <td>6.120</td>
+      <td>0.178</td>
+      <td>5.781</td>
+      <td>6.440</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>4599.0</td>
-      <td>2949.0</td>
+      <td>4861.0</td>
+      <td>3368.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Group[b]</th>
       <td>2.001</td>
       <td>0.275</td>
-      <td>1.480</td>
-      <td>2.497</td>
+      <td>1.479</td>
+      <td>2.495</td>
       <td>0.004</td>
       <td>0.003</td>
-      <td>5524.0</td>
-      <td>2489.0</td>
+      <td>5832.0</td>
+      <td>3087.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Val_sigma</th>
-      <td>2.263</td>
-      <td>0.101</td>
-      <td>2.080</td>
-      <td>2.456</td>
+      <td>2.262</td>
+      <td>0.098</td>
+      <td>2.089</td>
+      <td>2.455</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>5751.0</td>
-      <td>2988.0</td>
+      <td>5662.0</td>
+      <td>2876.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -967,9 +967,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Grab just the posterior of the term of interest (group)</span>
-<span class="n">group_posterior</span> <span class="o">=</span> <span class="n">results_1</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;Group&#39;</span><span class="p">]</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">group_posterior</span><span class="p">,</span> <span class="n">ref_val</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">results_1</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="s2">&quot;Group&quot;</span><span class="p">,</span> <span class="n">ref_val</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -980,13 +978,13 @@ Priors:
 <img alt="../_images/notebooks_t-test_18_0.png" src="../_images/notebooks_t-test_18_0.png" />
 </div>
 </div>
-<p>Another way to arrive to a similar conclusion is by calculating the probability that the parameter <span class="math notranslate nohighlight">\(\beta_1 &gt; 0\)</span>. This probability, practically equal to 1, tells us that the mean of the two populations are different.</p>
+<p>Another way to arrive to a similar conclusion is by calculating the probability that the parameter <span class="math notranslate nohighlight">\(\beta_1 &gt; 0\)</span>. This probability is equal to 1, telling us that the mean of the two populations are different.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Probabiliy that posterior is &gt; 0</span>
-<span class="p">(</span><span class="n">group_posterior</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="p">(</span><span class="n">results_1</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Group&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -996,7 +994,7 @@ Priors:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-1e+00
+1.0
 </pre></div></div>
 </div>
 <p>The linear model implicit in the t-test can also be specified without an intercept term, such is the case of Model 2.</p>
@@ -1063,7 +1061,7 @@ NUTS: [Group, Val_sigma]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:22<00:00 Sampling 4 chains, 0 divergences]
+  100.00% [8000/8000 00:07<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1071,7 +1069,7 @@ NUTS: [Group, Val_sigma]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 22 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 8 seconds.
 </pre></div></div>
 </div>
 <p>We’ve only specified the formula for the model and Bambi automatically selected priors distributions and values for their parameters. We can inspect both the setup and the priors as following:</p>
@@ -1180,38 +1178,38 @@ Priors:
   <tbody>
     <tr>
       <th>Group[a]</th>
-      <td>6.115</td>
-      <td>0.183</td>
-      <td>5.790</td>
-      <td>6.469</td>
+      <td>6.112</td>
+      <td>0.174</td>
+      <td>5.792</td>
+      <td>6.452</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>5152.0</td>
-      <td>2990.0</td>
+      <td>4570.0</td>
+      <td>2902.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Group[b]</th>
-      <td>8.121</td>
-      <td>0.211</td>
-      <td>7.738</td>
-      <td>8.518</td>
+      <td>8.118</td>
+      <td>0.212</td>
+      <td>7.724</td>
+      <td>8.519</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>5530.0</td>
-      <td>2632.0</td>
+      <td>5551.0</td>
+      <td>2987.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Val_sigma</th>
-      <td>2.260</td>
-      <td>0.097</td>
-      <td>2.087</td>
-      <td>2.446</td>
+      <td>2.262</td>
+      <td>0.098</td>
+      <td>2.077</td>
+      <td>2.441</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>5014.0</td>
-      <td>2985.0</td>
+      <td>5076.0</td>
+      <td>2635.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1223,9 +1221,9 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Grab just the posterior of the term of interest (group)</span>
-<span class="n">group_posterior</span> <span class="o">=</span> <span class="n">results_2</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;Group&#39;</span><span class="p">][:,:,</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">results_2</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s1">&#39;Group&#39;</span><span class="p">][:,:,</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">group_posterior</span><span class="p">,</span> <span class="n">ref_val</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">post_group</span> <span class="o">=</span> <span class="n">results_2</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Group&quot;</span><span class="p">]</span>
+<span class="n">diff</span> <span class="o">=</span> <span class="n">post_group</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">Group_dim</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">post_group</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">Group_dim</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">ref_val</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1236,13 +1234,13 @@ Priors:
 <img alt="../_images/notebooks_t-test_31_0.png" src="../_images/notebooks_t-test_31_0.png" />
 </div>
 </div>
-<p>Another way to arrive to a similar conclusion is by calculating the probability that the parameter <span class="math notranslate nohighlight">\(\beta_1 - \beta_0 &gt; 0\)</span>. This probability, practically equal to 1, tells us that the mean of the two populations are different.</p>
+<p>Another way to arrive to a similar conclusion is by calculating the probability that the parameter <span class="math notranslate nohighlight">\(\beta_1 - \beta_0 &gt; 0\)</span>. This probability equals to 1, telling us that the mean of the two populations are different.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Probabiliy that posterior is &gt; 0</span>
-<span class="p">(</span><span class="n">group_posterior</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="p">(</span><span class="n">post_group</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1252,7 +1250,7 @@ Priors:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-1e+00
+1.0
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1269,19 +1267,20 @@ Priors:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Wed Jun 01 2022
+Last updated: Wed Jun 15 2022
 
 Python implementation: CPython
 Python version       : 3.9.7
 IPython version      : 8.3.0
 
-matplotlib: 3.5.1
-arviz     : 0.12.1
-bambi     : 0.7.1
-pandas    : 1.4.2
 sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
 [GCC 7.5.0]
+arviz     : 0.13.0.dev0
+matplotlib: 3.5.1
 numpy     : 1.21.5
+json      : 2.0.9
+bambi     : 0.9.0
+pandas    : 1.4.2
 
 Watermark: 2.3.0
 
@@ -1336,7 +1335,7 @@ Watermark: 2.3.0
   
   <div class="footer-item">
     <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.1.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.2.<br>
 </p>
   </div>
   

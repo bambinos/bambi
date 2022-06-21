@@ -615,7 +615,7 @@ div.rendered_html tbody tr:hover {
 </style>
 <section id="Hierarchical-Linear-Regression-(Pigs-dataset)">
 <h1>Hierarchical Linear Regression (Pigs dataset)<a class="headerlink" href="#Hierarchical-Linear-Regression-(Pigs-dataset)" title="Permalink to this heading">#</a></h1>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
@@ -624,8 +624,18 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/osvaldo/anaconda3/lib/python3.9/site-packages/statsmodels/compat/pandas.py:61: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
+  from pandas import Int64Index as NumericIndex
+</pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -817,7 +827,7 @@ NUTS: [Intercept, Time, 1|Pig_sigma, 1|Pig_offset, Time|Pig_sigma, Time|Pig_offs
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:14<00:00 Sampling 4 chains, 0 divergences]
+  100.00% [8000/8000 00:16<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -825,7 +835,7 @@ NUTS: [Intercept, Time, 1|Pig_sigma, 1|Pig_offset, Time|Pig_sigma, Time|Pig_offs
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 15 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 17 seconds.
 </pre></div></div>
 </div>
 <p>We can print the model to have a summary of the details</p>
@@ -953,63 +963,63 @@ Priors:
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>15.729</td>
-      <td>0.567</td>
-      <td>14.680</td>
-      <td>16.780</td>
-      <td>0.019</td>
-      <td>0.013</td>
-      <td>899.0</td>
-      <td>1456.0</td>
-      <td>1.0</td>
+      <td>15.723</td>
+      <td>0.561</td>
+      <td>14.710</td>
+      <td>16.802</td>
+      <td>0.017</td>
+      <td>0.012</td>
+      <td>1096.0</td>
+      <td>1672.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>Time</th>
-      <td>6.938</td>
-      <td>0.082</td>
-      <td>6.784</td>
-      <td>7.090</td>
+      <td>6.937</td>
+      <td>0.087</td>
+      <td>6.773</td>
+      <td>7.101</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>650.0</td>
-      <td>1049.0</td>
-      <td>1.0</td>
+      <td>682.0</td>
+      <td>1548.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>1|Pig_sigma</th>
-      <td>4.529</td>
-      <td>0.431</td>
-      <td>3.721</td>
-      <td>5.328</td>
-      <td>0.012</td>
-      <td>0.008</td>
-      <td>1378.0</td>
-      <td>2165.0</td>
-      <td>1.0</td>
+      <td>4.545</td>
+      <td>0.430</td>
+      <td>3.813</td>
+      <td>5.389</td>
+      <td>0.010</td>
+      <td>0.007</td>
+      <td>1768.0</td>
+      <td>2710.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>Time|Pig_sigma</th>
-      <td>0.663</td>
-      <td>0.061</td>
-      <td>0.560</td>
-      <td>0.783</td>
+      <td>0.665</td>
+      <td>0.062</td>
+      <td>0.547</td>
+      <td>0.774</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>1443.0</td>
-      <td>2099.0</td>
-      <td>1.0</td>
+      <td>1484.0</td>
+      <td>2046.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>Weight_sigma</th>
-      <td>2.460</td>
+      <td>2.459</td>
       <td>0.066</td>
-      <td>2.341</td>
-      <td>2.581</td>
+      <td>2.336</td>
+      <td>2.584</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>5000.0</td>
-      <td>2992.0</td>
-      <td>1.0</td>
+      <td>4765.0</td>
+      <td>2667.0</td>
+      <td>1.00</td>
     </tr>
   </tbody>
 </table>
@@ -1028,17 +1038,20 @@ Priors:
 <span class="n">data_0</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Pig&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4601</span><span class="p">][[</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Weight&quot;</span><span class="p">]]</span>
 <span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
 
-<span class="n">intercept_common</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
-<span class="n">slope_common</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+<span class="n">posterior</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<span class="n">intercept_common</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]</span>
+<span class="n">slope_common</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span>
 
-<span class="n">intercept_specific_0</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;1|Pig&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">slope_specific_0</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Time|Pig&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">intercept_specific_0</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;1|Pig&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">Pig__factor_dim</span><span class="o">=</span><span class="s2">&quot;4601&quot;</span><span class="p">)</span>
+<span class="n">slope_specific_0</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Time|Pig&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">Pig__factor_dim</span><span class="o">=</span><span class="s2">&quot;4601&quot;</span><span class="p">)</span>
 
-<span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercept_common</span> <span class="o">+</span> <span class="n">intercept_specific_0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-<span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">slope_common</span> <span class="o">+</span> <span class="n">slope_specific_0</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+<span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercept_common</span> <span class="o">+</span> <span class="n">intercept_specific_0</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">slope_common</span> <span class="o">+</span> <span class="n">slope_specific_0</span><span class="p">)</span>
 
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">time</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="n">time</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="c1"># make time a DataArray so we can get automatic broadcasting</span>
+<span class="n">time_xi</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_xi</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">time_xi</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_xi</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="n">time_xi</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data_0</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">],</span> <span class="n">data_0</span><span class="p">[</span><span class="s2">&quot;Weight&quot;</span><span class="p">],</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Weight (kg)&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Time (weeks)&quot;</span><span class="p">);</span>
@@ -1057,11 +1070,12 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">intercept_group_specific</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;1|Pig&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
-<span class="n">slope_group_specific</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Time|Pig&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
-<span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercept_common</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">intercept_group_specific</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">values</span>
-<span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">slope_common</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">slope_group_specific</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">values</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">time</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">intercept_group_specific</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;1|Pig&quot;</span><span class="p">]</span>
+<span class="n">slope_group_specific</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Time|Pig&quot;</span><span class="p">]</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">intercept_common</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">intercept_group_specific</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">slope_common</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">slope_group_specific</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">)</span>
+<span class="n">time_xi</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_xi</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">time_xi</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Weight (kg)&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Time (weeks)&quot;</span><span class="p">);</span>
 </pre></div>
@@ -1129,19 +1143,20 @@ Priors:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Wed Jun 01 2022
+Last updated: Thu Jun 16 2022
 
 Python implementation: CPython
 Python version       : 3.9.7
 IPython version      : 8.3.0
 
+statsmodels: 0.13.0
+arviz      : 0.13.0.dev0
 numpy      : 1.21.5
 sys        : 3.9.7 (default, Sep 16 2021, 13:09:58)
 [GCC 7.5.0]
-arviz      : 0.12.1
-statsmodels: 0.13.2
-bambi      : 0.7.1
 matplotlib : 3.5.1
+bambi      : 0.9.0
+xarray     : 2022.3.0
 
 Watermark: 2.3.0
 
@@ -1195,7 +1210,7 @@ Watermark: 2.3.0
   
   <div class="footer-item">
     <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.1.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.2.<br>
 </p>
   </div>
   

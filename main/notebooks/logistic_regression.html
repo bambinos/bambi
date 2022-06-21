@@ -1029,12 +1029,6 @@ pick one of the events to model, but will inform you which one it picked when yo
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/osvaldo/proyectos/00_BM/bambi/bambi/models.py:129: SettingWithCopyWarning:
-A value is trying to be set on a copy of a slice from a DataFrame.
-Try using .loc[row_indexer,col_indexer] = value instead
-
-See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-  data[obj_cols] = data[obj_cols].apply(lambda x: x.astype(&#34;category&#34;))
 Modeling the probability that vote==clinton
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
@@ -1065,7 +1059,7 @@ NUTS: [Intercept, party_id, party_id:age]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='12000' class='' max='12000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [12000/12000 01:04<00:00 Sampling 4 chains, 0 divergences]
+  100.00% [12000/12000 00:48<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1073,7 +1067,7 @@ NUTS: [Intercept, party_id, party_id:age]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 66 seconds.
+Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 49 seconds.
 </pre></div></div>
 </div>
 <p>We can print the model object to see information about the response distribution, the link function and the priors.</p>
@@ -1788,10 +1782,8 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># We need to automatically add labels to InferenceData object to recover this by_label selection</span>
-<span class="n">parties</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;democrat&quot;</span><span class="p">,</span> <span class="s2">&quot;independent&quot;</span><span class="p">,</span> <span class="s2">&quot;republican&quot;</span><span class="p">]</span>
-<span class="n">party_idx</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
-<span class="n">dem</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">rep</span> <span class="o">=</span> <span class="p">[</span><span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;party_id:age&quot;</span><span class="p">][:,</span> <span class="p">:,</span> <span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">party_idx</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parties</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;democrat&quot;</span><span class="p">,</span> <span class="s2">&quot;independent&quot;</span><span class="p">,</span> <span class="s2">&quot;republican&quot;</span><span class="p">]</span>
+<span class="n">dem</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">rep</span> <span class="o">=</span> <span class="p">[</span><span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;party_id:age&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;party_id:age_dim&quot;</span><span class="p">:</span><span class="n">party</span><span class="p">})</span> <span class="k">for</span> <span class="n">party</span> <span class="ow">in</span> <span class="n">parties</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -1800,9 +1792,9 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">dem</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">rep</span><span class="p">]):</span>
-    <span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">parties</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">az</span><span class="o">.</span><span class="n">plot_dist</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;party_id:age_dim&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
@@ -1820,7 +1812,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">dem</span> <span class="o">&gt;</span> <span class="n">rep</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">dem</span> <span class="o">&gt;</span> <span class="n">rep</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1830,7 +1822,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-9.95e-01
+0.995
 </pre></div></div>
 </div>
 <p>Probability that the Democrat slope is greater than the Independent slope?</p>
@@ -1838,7 +1830,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">dem</span> <span class="o">&gt;</span> <span class="n">ind</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">dem</span> <span class="o">&gt;</span> <span class="n">ind</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1856,7 +1848,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">ind</span> <span class="o">&gt;</span> <span class="n">rep</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">ind</span> <span class="o">&gt;</span> <span class="n">rep</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1871,15 +1863,15 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <p>Probability that the Democrat slope is greater than 0?</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">dem</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">dem</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1892,7 +1884,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">rep</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">rep</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1910,7 +1902,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">ind</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">ind</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -2044,12 +2036,8 @@ to answer probability questions that involve both of them. The fact that logical
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Select posterior values for the mean probability of voting for Clinton</span>
-<span class="c1"># Note we stack chains and draws, then vote_posterior has a shape of (n_chains * n_draws, n_obs)</span>
-<span class="n">vote_posterior</span> <span class="o">=</span> <span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;vote_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">values</span>
-
-<span class="c1"># Select 25% of the values in the posterior, making sure we take values from both chains.</span>
-<span class="n">vote_posterior</span> <span class="o">=</span> <span class="n">vote_posterior</span><span class="p">[:,</span> <span class="p">::</span><span class="mi">4</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Select a sample of posterior values for the mean probability of voting for Clinton</span>
+<span class="n">vote_posterior</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">clinton_fitted</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">2000</span><span class="p">)[</span><span class="s2">&quot;vote_mean&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -2097,19 +2085,19 @@ to answer probability questions that involve both of them. The fact that logical
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Wed Jun 01 2022
+Last updated: Sun Jun 19 2022
 
 Python implementation: CPython
 Python version       : 3.9.7
 IPython version      : 8.3.0
 
-matplotlib: 3.5.1
+bambi     : 0.9.0
 pandas    : 1.4.2
-arviz     : 0.12.1
-bambi     : 0.7.1
+arviz     : 0.13.0.dev0
+numpy     : 1.21.5
+matplotlib: 3.5.1
 sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
 [GCC 7.5.0]
-numpy     : 1.21.5
 
 Watermark: 2.3.0
 
@@ -2163,7 +2151,7 @@ Watermark: 2.3.0
   
   <div class="footer-item">
     <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.1.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.2.<br>
 </p>
   </div>
   

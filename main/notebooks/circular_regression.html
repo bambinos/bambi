@@ -778,7 +778,7 @@ NUTS: [Intercept, distance, direction_kappa]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:02<00:00 Sampling 4 chains, 0 divergences]
+  100.00% [8000/8000 00:03<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput docutils container">
@@ -786,7 +786,7 @@ NUTS: [Intercept, distance, direction_kappa]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
@@ -816,7 +816,7 @@ NUTS: [Intercept, distance, direction_sigma]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:01<00:00 Sampling 4 chains, 0 divergences]
+  100.00% [8000/8000 00:02<00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -825,6 +825,7 @@ NUTS: [Intercept, distance, direction_sigma]
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
 Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.
+The acceptance probability does not match the target. It is 0.8855, but should be close to 0.8. Try to increase the number of tuning steps.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -872,38 +873,38 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>1.686</td>
-      <td>0.325</td>
-      <td>1.118</td>
-      <td>2.304</td>
+      <td>1.692</td>
+      <td>0.321</td>
+      <td>1.106</td>
+      <td>2.299</td>
       <td>0.008</td>
       <td>0.006</td>
-      <td>1966.0</td>
-      <td>1640.0</td>
+      <td>1888.0</td>
+      <td>1722.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>distance</th>
-      <td>-0.010</td>
+      <td>-0.011</td>
       <td>0.004</td>
       <td>-0.019</td>
-      <td>-0.003</td>
+      <td>-0.002</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2205.0</td>
-      <td>2290.0</td>
+      <td>2212.0</td>
+      <td>2012.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>direction_kappa</th>
-      <td>2.622</td>
-      <td>0.623</td>
-      <td>1.538</td>
-      <td>3.837</td>
-      <td>0.012</td>
-      <td>0.008</td>
-      <td>2871.0</td>
-      <td>2219.0</td>
+      <td>2.630</td>
+      <td>0.616</td>
+      <td>1.496</td>
+      <td>3.749</td>
+      <td>0.014</td>
+      <td>0.010</td>
+      <td>2066.0</td>
+      <td>1835.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -916,7 +917,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">posterior_mean</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">families</span><span class="o">.</span><span class="n">link</span><span class="o">.</span><span class="n">tan_2</span><span class="p">(</span><span class="n">idata_vm</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;direction_mean&quot;</span><span class="p">])</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">posterior_mean</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">]))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">posterior_mean</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">)))</span>
 <span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">posterior_mean</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span> <span class="s2">&quot;k.&quot;</span><span class="p">)</span>
@@ -925,7 +926,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;VonMises Family&quot;</span><span class="p">)</span>
 
 <span class="n">posterior_mean</span> <span class="o">=</span> <span class="n">idata_n</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;direction_mean&quot;</span><span class="p">]</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">posterior_mean</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">]))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">posterior_mean</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">)))</span>
 <span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">posterior_mean</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span> <span class="s2">&quot;k.&quot;</span><span class="p">)</span>
@@ -954,7 +955,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;polar&#39;</span><span class="p">)</span>
 
 <span class="n">model_vm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata_vm</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
-<span class="n">pp_samples</span> <span class="o">=</span> <span class="n">idata_vm</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="p">[</span><span class="s2">&quot;direction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">T</span><span class="p">[::</span><span class="mi">50</span><span class="p">]</span>
+<span class="n">pp_samples</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">idata_vm</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;posterior_predictive&quot;</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">200</span><span class="p">)[</span><span class="s2">&quot;direction&quot;</span><span class="p">]</span>
 <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;C0&quot;</span> <span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="s2">&quot;C1&quot;</span><span class="p">]</span>
 
 <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">circ</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">((</span><span class="n">ax0</span><span class="p">,</span> <span class="n">ax1</span><span class="p">),</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;radians&quot;</span><span class="p">,</span> <span class="n">colors</span><span class="p">)):</span>
@@ -988,6 +989,47 @@ are usually modelled with the help of sin and cosine functions. You can read mor
 <li><p><a class="reference external" href="https://www.routledge.com/Applied-Directional-Statistics-Modern-Methods-and-Case-Studies/Ley-Verdebout/p/book/9780367733452">Applied Directional Statistics</a></p></li>
 <li><p><a class="reference external" href="https://www.wiley.com/en-us/Directional+Statistics-p-9780471953333">Directional Statistics</a></p></li>
 </ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Last updated: Mon Jun 20 2022
+
+Python implementation: CPython
+Python version       : 3.9.7
+IPython version      : 8.3.0
+
+scipy     : 1.7.3
+arviz     : 0.13.0.dev0
+bambi     : 0.9.0
+matplotlib: 3.5.1
+sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
+[GCC 7.5.0]
+pandas    : 1.4.2
+numpy     : 1.21.5
+
+Watermark: 2.3.0
+
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
 </section>
 
 
@@ -1035,7 +1077,7 @@ are usually modelled with the help of sin and cosine functions. You can read mor
   
   <div class="footer-item">
     <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.1.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.2.<br>
 </p>
   </div>
   

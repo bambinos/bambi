@@ -1140,7 +1140,7 @@ Priors:
     sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)
 </pre></div></div>
 </div>
-<p>Each of the above examples specifies a full model that can be fitted using PyMC3 by doing</p>
+<p>Each of the above examples specifies a full model that can be fitted using PyMC by doing</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -1153,7 +1153,7 @@ subject, plus N-1 condition slopes (each coded with respect to the first, omitte
 </section>
 <section id="Fitting-the-model">
 <h3>Fitting the model<a class="headerlink" href="#Fitting-the-model" title="Permalink to this heading">#</a></h3>
-<p>Once a model is fully specified, we need to run the PyMC3 sampler to generate parameter estimates. If we’re using the one-line <code class="docutils literal notranslate"><span class="pre">fit()</span></code> interface, sampling will begin right away:</p>
+<p>Once a model is fully specified, we need to run the PyMC sampler to generate parameter estimates. If we’re using the one-line <code class="docutils literal notranslate"><span class="pre">fit()</span></code> interface, sampling will begin right away:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
@@ -1209,8 +1209,11 @@ NUTS: [Intercept, condition, age, gender, 1|uid_sigma, 1|uid_offset, value_sigma
 Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 39 seconds.
 </pre></div></div>
 </div>
-<p>The above code obtains 1,000 draws (the default value) and return them as an <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance (for more details, see the <a class="reference external" href="https://arviz-devs.github.io/arviz/schema/schema.html">ArviZ documentation</a>). In this case, the <code class="docutils literal notranslate"><span class="pre">fit()</span></code> method accepts optional keyword arguments to pass onto PyMC3’s <code class="docutils literal notranslate"><span class="pre">sample()</span></code> method, so any methods accepted by <code class="docutils literal notranslate"><span class="pre">sample()</span></code> can be specified here. We can also explicitly set the number of draws via the <code class="docutils literal notranslate"><span class="pre">draws</span></code> argument. For example, if we call
-<code class="docutils literal notranslate"><span class="pre">fit(draws=2000,</span> <span class="pre">chains=2)</span></code>, the PyMC3 sampler will sample two chains in parallel, drawing 2,000 draws for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see the <a class="reference external" href="https://docs.pymc.io/api/inference.html#module-pymc3.sampling">PyMC3 documentation</a>).</p>
+<p>The above code obtains 1,000 draws (the default value) and return them as an <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance.</p>
+<p>:::{tip} InferenceData is a rich data structure that allows to store and manipulate data such as posterior samples, prior/posterior predictive samples, observed data, etc. It is based on <a class="reference external" href="https://docs.xarray.dev/en/stable/">xarray</a>, a library oferring N-dimensional labeled arrays (you can think of it as a generalization of both Numpy arrays and Pandas dataframes).</p>
+<p>For examples on how to perform common operations with InferenceData, like indexing, selection etc please go trough <a class="reference external" href="https://arviz-devs.github.io/arviz/getting_started/WorkingWithInferenceData.html">these examples</a> and for details of the InferenceData Schema see this <a class="reference external" href="https://arviz-devs.github.io/arviz/schema/schema.html">specification</a>).::</p>
+<p>In this case, the <code class="docutils literal notranslate"><span class="pre">fit()</span></code> method accepts optional keyword arguments to pass onto PyMC’s <code class="docutils literal notranslate"><span class="pre">sample()</span></code> method, so any methods accepted by <code class="docutils literal notranslate"><span class="pre">sample()</span></code> can be specified here. We can also explicitly set the number of draws via the <code class="docutils literal notranslate"><span class="pre">draws</span></code> argument. For example, if we call <code class="docutils literal notranslate"><span class="pre">fit(draws=2000,</span> <span class="pre">chains=2)</span></code>, the PyMC sampler will sample two chains in parallel, drawing 2,000 draws for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see
+the <a class="reference external" href="https://www.pymc.io/projects/docs/en/stable/api/generated/pymc.sample.html#pymc.sample">PyMC documentation</a>).</p>
 <p>Alternatively, we can build a model, but not fit it.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
@@ -1229,7 +1232,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 Automatically removing 33/6940 rows from the dataset.
 </pre></div></div>
 </div>
-<p>Building without sampling can be useful if we want to inspect the internal PyMC3 model before we start the (potentially long) sampling process. Once we’re satisfied, and wish to run the sampler, we can then simply call <code class="docutils literal notranslate"><span class="pre">model.fit()</span></code>, and the sampler will start running. Another good reason to build a model is to generate plot of the marginal priors using <code class="docutils literal notranslate"><span class="pre">model.plot_priors()</span></code>.</p>
+<p>Building without sampling can be useful if we want to inspect the internal PyMC model before we start the (potentially long) sampling process. Once we’re satisfied, and wish to run the sampler, we can then simply call <code class="docutils literal notranslate"><span class="pre">model.fit()</span></code>, and the sampler will start running. Another good reason to build a model is to generate plot of the marginal priors using <code class="docutils literal notranslate"><span class="pre">model.plot_priors()</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
@@ -1253,7 +1256,7 @@ Automatically removing 33/6940 rows from the dataset.
 heights, a value of 3,000 cms should be assigned a probability of exactly 0).</p>
 <p>By default, Bambi will intelligently generate weakly informative priors for all model terms, by loosely scaling them to the observed data. Currently, Bambi uses a methodology very similar to the one described in the documentation of the R package <code class="docutils literal notranslate"><span class="pre">`rstanarm</span></code> &lt;<a class="reference external" href="https://mc-stan.org/rstanarm/articles/priors.html">https://mc-stan.org/rstanarm/articles/priors.html</a>&gt;`__. While the default priors will behave well in most typical settings, there are many cases where an analyst will want to specify their own priors–and in general, when informative priors
 are available, it’s a good idea to use them.</p>
-<p>Fortunately, Bambi is built on top of PyMC3, which means that we can seamlessly use any of the over 40 <code class="docutils literal notranslate"><span class="pre">Distribution</span></code> classes defined in PyMC3. We can specify such priors in Bambi using the <code class="docutils literal notranslate"><span class="pre">Prior</span></code> class, which initializes with a <code class="docutils literal notranslate"><span class="pre">name</span></code> argument (which must map on exactly to the name of a valid PyMC3 <code class="docutils literal notranslate"><span class="pre">Distribution</span></code>) followed by any of the parameters accepted by the corresponding <code class="docutils literal notranslate"><span class="pre">distribution</span></code>. For example:</p>
+<p>Fortunately, Bambi is built on top of PyMC, which means that we can seamlessly use any of the over 40 <code class="docutils literal notranslate"><span class="pre">Distribution</span></code> classes defined in PyMC. We can specify such priors in Bambi using the <code class="docutils literal notranslate"><span class="pre">Prior</span></code> class, which initializes with a <code class="docutils literal notranslate"><span class="pre">name</span></code> argument (which must map on exactly to the name of a valid PyMC <code class="docutils literal notranslate"><span class="pre">Distribution</span></code>) followed by any of the parameters accepted by the corresponding <code class="docutils literal notranslate"><span class="pre">distribution</span></code>. For example:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
@@ -1465,7 +1468,7 @@ built-in Bernoulli family could be constructed on-the-fly:</p>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
 
 <span class="c1"># Construct likelihood distribution ------------------------------</span>
-<span class="c1"># This must use a valid PyMC3 distribution name.</span>
+<span class="c1"># This must use a valid PyMC distribution name.</span>
 <span class="c1"># &#39;parent&#39; is the name of the variable that represents the mean of the distribution.</span>
 <span class="c1"># The mean of the Bernoulli family is given by &#39;p&#39;.</span>
 <span class="n">likelihood</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Likelihood</span><span class="p">(</span><span class="s2">&quot;Bernoulli&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="s2">&quot;p&quot;</span><span class="p">)</span>
@@ -1480,7 +1483,7 @@ built-in Bernoulli family could be constructed on-the-fly:</p>
 <span class="c1"># linkinv: A function that maps the linear predictor to the response</span>
 <span class="c1"># linkinv_backend: A function that maps the linear predictor to the response</span>
 <span class="c1">#                  that works with Aesara tensors.</span>
-<span class="c1">#                  bmb.math.sigmoid is a Aesara tensor function wrapped by PyMC3 and Bambi</span>
+<span class="c1">#                  bmb.math.sigmoid is a Aesara tensor function wrapped by PyMC and Bambi</span>
 <span class="n">link</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Link</span><span class="p">(</span>
     <span class="s2">&quot;my_logit&quot;</span><span class="p">,</span>
     <span class="n">link</span><span class="o">=</span><span class="n">special</span><span class="o">.</span><span class="n">expit</span><span class="p">,</span>
@@ -1544,7 +1547,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </pre></div></div>
 </div>
 <p>The above example produces results identical to simply setting <code class="docutils literal notranslate"><span class="pre">family='bernoulli'</span></code>.</p>
-<p>One complication in specifying a custom <code class="docutils literal notranslate"><span class="pre">Family</span></code> is that one must pass both a link function and an inverse link function which must be able to operate over Aesara tensors rather than numpy arrays, so you’ll probably need to rely on tensor operations provided in <code class="docutils literal notranslate"><span class="pre">aesara.tensor</span></code> (many of which are also wrapped by PyMC3) when defining a new link.</p>
+<p>One complication in specifying a custom <code class="docutils literal notranslate"><span class="pre">Family</span></code> is that one must pass both a link function and an inverse link function which must be able to operate over Aesara tensors rather than numpy arrays, so you’ll probably need to rely on tensor operations provided in <code class="docutils literal notranslate"><span class="pre">aesara.tensor</span></code> (many of which are also wrapped by PyMC) when defining a new link.</p>
 </section>
 <section id="Results">
 <h2>Results<a class="headerlink" href="#Results" title="Permalink to this heading">#</a></h2>
@@ -1691,7 +1694,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </section>
 <section id="Accessing-back-end-objects">
 <h2>Accessing back-end objects<a class="headerlink" href="#Accessing-back-end-objects" title="Permalink to this heading">#</a></h2>
-<p>Bambi is just a high-level interface to PyMC3. As such, Bambi internally stores virtually all objects generated by PyMC3, making it easy for users to retrieve, inspect, and modify those objects. For example, the <code class="docutils literal notranslate"><span class="pre">Model</span></code> class created by PyMC3 (as opposed to the Bambi class of the same name) is accessible from <code class="docutils literal notranslate"><span class="pre">model.backend.model</span></code>.</p>
+<p>Bambi is just a high-level interface to PyMC. As such, Bambi internally stores virtually all objects generated by PyMC, making it easy for users to retrieve, inspect, and modify those objects. For example, the <code class="docutils literal notranslate"><span class="pre">Model</span></code> class created by PyMC (as opposed to the Bambi class of the same name) is accessible from <code class="docutils literal notranslate"><span class="pre">model.backend.model</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
@@ -1811,7 +1814,7 @@ $$
   
   <div class="footer-item">
     <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.1.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.2.<br>
 </p>
   </div>
   
