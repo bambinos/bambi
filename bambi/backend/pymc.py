@@ -64,6 +64,7 @@ class PyMCModel:
 
         with self.model:
             self._build_intercept(spec)
+            self._build_offsets(spec)
             self._build_common_terms(spec)
             self._build_group_specific_terms(spec)
             self._build_response(spec)
@@ -111,18 +112,36 @@ class PyMCModel:
         return result
 
     def _build_intercept(self, spec):
+        """Add intercept term to the PyMC model.
+
+        We have linear predictors of the form 'X @ b + Z @ u'. This is technically part of
+        'X @ b' but it is added separately for convenience reasons.
+
+        Parameters
+        ----------
+        spec : bambi.Model
+            The model.
+        """
         if self.has_intercept:
             self.mu += InterceptTerm(spec.intercept_term).build(spec)
 
     def _build_common_terms(self, spec):
+        """Add common (fixed) terms to the PyMC model.
+
+        We have linear predictors of the form 'X @ b + Z @ u'.
+        This creates the 'b' parameter vector in PyMC, computes `X @ b`, and adds it to ``self.mu``.
+
+        Parameters
+        ----------
+        spec : bambi.Model
+            The model.
+        """
         if spec.common_terms:
             coefs = []
             columns = []
             for term in spec.common_terms.values():
                 common_term = CommonTerm(term)
                 # Add coords
-                # NOTE: At the moment, there's a bug in PyMC so we need to check if coordinate is
-                # present in the model before attempting to add it.
                 for name, values in common_term.coords.items():
                     if name not in self.model.coords:
                         self.model.add_coords({name: values})
@@ -147,6 +166,16 @@ class PyMCModel:
             self.mu += at.dot(data, coefs)
 
     def _build_group_specific_terms(self, spec):
+        """Add group-specific (random or varying) terms to the PyMC model.
+
+        We have linear predictors of the form 'X @ b + Z @ u'.
+        This creates the 'u' parameter vector in PyMC, computes `Z @ u`, and adds it to ``self.mu``.
+
+        Parameters
+        ----------
+        spec : bambi.Model
+            The model.
+        """
         # Add group specific terms that have prior for their correlation matrix
         for group, eta in spec.priors_cor.items():
             # pylint: disable=protected-access
@@ -162,8 +191,6 @@ class PyMCModel:
             group_specific_term = GroupSpecificTerm(term, spec.noncentered)
 
             # Add coords
-            # NOTE: At the moment, there's a bug in PyMC so we need to check if coordinate is
-            # present in the model before attempting to add it.
             for name, values in group_specific_term.coords.items():
                 if name not in self.model.coords:
                     self.model.add_coords({name: values})
@@ -183,10 +210,43 @@ class PyMCModel:
             else:
                 self.mu += coef * predictor
 
+    def _build_offsets(self, spec):
+        """Add offset terms to the PyMC model.
+
+        Offsets are terms with a regression coefficient of 1.
+        This is technically part of  'X @ b' in the linear predictor 'X @ b + Z @ u'.
+        It's added here so we avoid the creation of a constant variable in PyMC.
+
+        Parameters
+        ----------
+        spec : bambi.Model
+            The model.
+        """
+        for offset in spec.offset_terms.values():
+            self.mu += offset.data.squeeze()
+
     def _build_response(self, spec):
+        """Add response term to the PyMC model
+
+        Parameters
+        ----------
+        spec : bambi.Model
+            The model.
+        """
         ResponseTerm(spec.response, spec.family).build(self.mu, self.INVLINKS)
 
     def _build_potentials(self, spec):
+        """Add potentials to the PyMC model.
+
+        Potentials are arbitrary quantities that are added to the model log likelihood.
+        See 'Factor Potentials' in
+        https://github.com/fonnesbeck/probabilistic_python/blob/main/pymc_intro.ipynb
+
+        Parameters
+        ----------
+        spec : bambi.Model
+            The model.
+        """
         if spec.potentials is not None:
             count = 0
             for variable, constraint in spec.potentials:
