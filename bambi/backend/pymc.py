@@ -115,7 +115,7 @@ class PyMCModel:
         """Add intercept term to the PyMC model.
 
         We have linear predictors of the form 'X @ b + Z @ u'. This is technically part of
-        'X @ b' but it is added separately for convenient reasons.
+        'X @ b' but it is added separately for convenience reasons.
 
         Parameters
         ----------
