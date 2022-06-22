@@ -214,7 +214,7 @@ class PyMCModel:
         """Add offset terms to the PyMC model.
 
         Offsets are terms with a regression coefficient of 1.
-        This is technicaly part of  'X @ b' in the linear predictor 'X @ b + Z @ u'.
+        This is technically part of  'X @ b' in the linear predictor 'X @ b + Z @ u'.
         It's added here so we avoid the creation of a constant variabel in PyMC.
 
         Parameters
