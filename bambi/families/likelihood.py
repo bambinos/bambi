@@ -20,6 +20,7 @@ DISTRIBUTIONS = {
     "StudentT": DistSettings(params=("mu", "sigma"), parent="mu", args=("sigma", "nu")),
     "VonMises": DistSettings(params=("mu", "kappa"), parent="mu", args=("kappa",)),
     "Wald": DistSettings(params=("mu", "lam"), parent="mu", args=("lam",)),
+    "Exponential": DistSettings(params=("lam"), parent="lam", args=None),
 }
 
 

@@ -143,3 +143,11 @@ class Wald(UnivariateFamily):
         lam = posterior[model.response.name + "_lam"].values
         lam = lam[:, :, np.newaxis]
         return np.random.wald(mean, lam)
+
+
+class Exponential(UnivariateFamily):
+    SUPPORTED_LINKS = ["identity", "log", "softplus", "inverse"] # "inverse", "inverse_squared",
+
+    def posterior_predictive(self, model, posterior, linear_predictor):
+        lam = self.link.linkinv(linear_predictor)
+        return np.random.exponential(lam)

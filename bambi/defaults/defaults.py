@@ -13,6 +13,7 @@ from bambi.families.univariate import (
     StudentT,
     VonMises,
     Wald,
+    Exponential
 )
 
 from bambi.families.multivariate import Categorical, Multinomial
@@ -35,6 +36,7 @@ SETTINGS_DISTRIBUTIONS = {
     "StudentT": {"lam": 1, "nu": 1},
     "VonMises": {"mu": 0, "kappa": 1},
     "Wald": {"mu": 1, "lam": 1},
+    "Exponential": { }
 }
 
 # fmt: off
@@ -173,6 +175,15 @@ BUILTIN_FAMILIES = {
         "link": "inverse_squared",
         "family": Wald,
     },
+    "exponential": {
+        "likelihood": {
+            "name": "Exponential",
+            "args": { },
+            "parent": "lam",
+        },
+        "link": "identity",
+        "family": Exponential,
+    }
 }
 # fmt: on
 

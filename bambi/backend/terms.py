@@ -4,7 +4,7 @@ import aesara.tensor as at
 
 from bambi.backend.utils import has_hyperprior, get_distribution
 from bambi.families.multivariate import Categorical, Multinomial
-from bambi.families.univariate import Beta, Binomial, Gamma
+from bambi.families.univariate import Beta, Binomial, Gamma, Exponential
 from bambi.priors import Prior
 
 
@@ -291,6 +291,13 @@ class ResponseTerm:
         if isinstance(self.family, Multinomial):
             n = kwargs["observed"].sum(axis=1)
             return dist(self.name, p=kwargs["p"], observed=kwargs["observed"], n=n)
+
+        if isinstance(self.family, Exponential):
+            kwargs['time'] = kwargs['observed'][:, 0]
+            kwargs['event'] = kwargs['observed'][:, 1]
+
+            return pm.Exponential('y', pm.math.exp(kwargs['event'] * kwargs['lam']), observed=(kwargs['event']) * kwargs['time']) + \
+                   pm.Potential('y_cens', - ((1-kwargs['event']) * kwargs['lam']))
 
         return dist(self.name, **kwargs)
 
