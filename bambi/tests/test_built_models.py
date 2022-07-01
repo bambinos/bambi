@@ -87,6 +87,13 @@ def linear_regression_data():
     return pd.DataFrame({"x": x, "y": rng.normal(loc=x, size=size)})
 
 
+@pytest.fixture(scope="module")
+def veterans_data():
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "veteran.csv"))
+    return data
+
+
 def test_empty_model(crossed_data):
     model0 = Model("Y ~ 0", crossed_data)
     model0.fit(tune=0, draws=1)
@@ -680,3 +687,29 @@ def test_group_specific_splines():
 
     model = Model("y ~ (bs(x, knots=knots, intercept=False, degree=1)|day)", data=x_check)
     model.build()
+
+def test_exponential_family(veterans_data):
+    """
+    Results obtained from R
+    fit < - survreg(Surv(time, status) ~ 1 + trt, data = veteran, dist = "exponential")
+    summary(fit)
+    1 / exp(fit$coefficients)
+    """
+    model = Model(
+        "Surv(time,status) ~ 1 + B(trt, success=2)",
+        veterans_data,
+        family="exponential",
+        link="identity"
+    )
+
+    idata = model.fit()
+
+    print(idata.posterior)
+
+    lam_intercept = np.exp(np.mean(idata.posterior["Intercept"].stack(samples=("chain", "draw")).values))
+    lam_trt = np.exp(np.mean(idata.posterior["B(trt, success = 2)"].stack(samples=("chain", "draw")).values))
+    lam_intercept_R = 0.008055381
+    lam_trt_R = 0.911332875
+    print(lam_intercept, lam_trt)
+    assert np.abs(lam_intercept - lam_intercept_R) < 0.005
+    assert np.abs(lam_trt - lam_trt_R) < 0.01
