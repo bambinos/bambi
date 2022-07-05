@@ -13,7 +13,7 @@ from bambi.families.univariate import (
     StudentT,
     VonMises,
     Wald,
-    Exponential
+    Exponential,
 )
 
 from bambi.families.multivariate import Categorical, Multinomial
@@ -36,7 +36,7 @@ SETTINGS_DISTRIBUTIONS = {
     "StudentT": {"lam": 1, "nu": 1},
     "VonMises": {"mu": 0, "kappa": 1},
     "Wald": {"mu": 1, "lam": 1},
-    "Exponential": { }
+    "Exponential": {},
 }
 
 # fmt: off

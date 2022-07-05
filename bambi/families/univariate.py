@@ -146,7 +146,7 @@ class Wald(UnivariateFamily):
 
 
 class Exponential(UnivariateFamily):
-    SUPPORTED_LINKS = ["identity", "log", "softplus", "inverse"] # "inverse", "inverse_squared",
+    SUPPORTED_LINKS = ["identity"]
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         lam = self.link.linkinv(linear_predictor)

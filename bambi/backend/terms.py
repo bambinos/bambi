@@ -293,16 +293,21 @@ class ResponseTerm:
             return dist(self.name, p=kwargs["p"], observed=kwargs["observed"], n=n)
 
         if isinstance(self.family, Exponential):
-            kwargs['time'] = kwargs['observed'][:, 0]
-            kwargs['event'] = kwargs['observed'][:, 1]
+            kwargs["time"] = kwargs["observed"][:, 0]
+            kwargs["event"] = kwargs["observed"][:, 1]
 
             def exponential_lccdf(lam, time):
-                return - (lam * time)
+                return -(lam * time)
 
-            lambda_rate = at.ones_like(kwargs['time']) / pm.math.exp(kwargs['lam'])
+            lambda_rate = at.ones_like(kwargs["time"]) / pm.math.exp(kwargs["lam"])
 
-            return pm.Exponential('y', lambda_rate[kwargs['event'] == 1], observed=kwargs['time'][kwargs['event'] == 1]) + \
-                       pm.Potential('y_cens', exponential_lccdf(lambda_rate, kwargs['time'])[kwargs['event'] == 0])
+            return pm.Exponential(
+                "y",
+                lambda_rate[kwargs["event"] == 1],
+                observed=kwargs["time"][kwargs["event"] == 1],
+            ) + pm.Potential(
+                "y_cens", exponential_lccdf(lambda_rate, kwargs["time"])[kwargs["event"] == 0]
+            )
 
         return dist(self.name, **kwargs)
 

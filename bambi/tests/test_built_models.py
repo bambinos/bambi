@@ -688,27 +688,27 @@ def test_group_specific_splines():
     model = Model("y ~ (bs(x, knots=knots, intercept=False, degree=1)|day)", data=x_check)
     model.build()
 
+
 def test_exponential_family(veterans_data):
     """
     Results obtained from R
     fit < - survreg(Surv(time, status) ~ 1 + trt, data = veteran, dist = "exponential")
     summary(fit)
     """
-    model = Model(
-        "Surv(time,status) ~ 1 + B(trt, success=2)",
-        veterans_data,
-        family="exponential"
-    )
+    model = Model("Surv(time,status) ~ 1 + B(trt, success=2)", veterans_data, family="exponential")
 
     idata = model.fit()
 
     lam_intercept = np.mean(idata.posterior["Intercept"].stack(samples=("chain", "draw")).values)
-    lam_trt = np.mean(idata.posterior["B(trt, success = 2)"].stack(samples=("chain", "draw")).values)
+    lam_trt = np.mean(
+        idata.posterior["B(trt, success = 2)"].stack(samples=("chain", "draw")).values
+    )
     lam_intercept_R = 4.8214
     lam_trt_R = 0.0928
 
     assert np.abs(lam_intercept - lam_intercept_R) < 0.005
     assert np.abs(lam_trt - lam_trt_R) < 0.005
+
 
 def test_exponential_family_intercept_only(veterans_data):
     """
@@ -716,11 +716,7 @@ def test_exponential_family_intercept_only(veterans_data):
     fit < - survreg(Surv(time, status) ~ 1, data = veteran, dist = "exponential")
     summary(fit)
     """
-    model = Model(
-        "Surv(time,status) ~ 1 ",
-        veterans_data,
-        family="exponential"
-    )
+    model = Model("Surv(time,status) ~ 1 ", veterans_data, family="exponential")
 
     idata = model.fit()
 
