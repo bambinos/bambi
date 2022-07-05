@@ -700,7 +700,7 @@ def test_exponential_family(veterans_data):
         family="exponential"
     )
 
-    idata = model.fit(cores=1)
+    idata = model.fit()
 
     lam_intercept = np.mean(idata.posterior["Intercept"].stack(samples=("chain", "draw")).values)
     lam_trt = np.mean(idata.posterior["B(trt, success = 2)"].stack(samples=("chain", "draw")).values)
@@ -722,9 +722,9 @@ def test_exponential_family_intercept_only(veterans_data):
         family="exponential"
     )
 
-    idata = model.fit(cores=1)
+    idata = model.fit()
 
-    lam_intercept = np.exp(np.mean(idata.posterior["Intercept"].stack(samples=("chain", "draw")).values))
-    lam_intercept_R = 4.8214
+    lam_intercept = np.mean(idata.posterior["Intercept"].stack(samples=("chain", "draw")).values)
+    lam_intercept_R = 4.8689
 
     assert np.abs(lam_intercept - lam_intercept_R) < 0.005
