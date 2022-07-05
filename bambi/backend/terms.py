@@ -296,8 +296,13 @@ class ResponseTerm:
             kwargs['time'] = kwargs['observed'][:, 0]
             kwargs['event'] = kwargs['observed'][:, 1]
 
-            return pm.Exponential('y', pm.math.exp(kwargs['event'] * kwargs['lam']), observed=(kwargs['event']) * kwargs['time']) + \
-                   pm.Potential('y_cens', - ((1-kwargs['event']) * kwargs['lam']))
+            def exponential_lccdf(lam, time):
+                return - (lam * time)
+
+            lambda_rate = at.ones_like(kwargs['time']) / pm.math.exp(kwargs['lam'])
+
+            return pm.Exponential('y', lambda_rate[kwargs['event'] == 1], observed=kwargs['time'][kwargs['event'] == 1]) + \
+                       pm.Potential('y_cens', exponential_lccdf(lambda_rate, kwargs['time'])[kwargs['event'] == 0])
 
         return dist(self.name, **kwargs)
 
