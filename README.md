@@ -1,5 +1,3 @@
-# Bambi
-
 <img src="https://raw.githubusercontent.com/bambinos/bambi/main/docs/logos/RGB/Bambi_logo.png" width=200></img>
 
 [![PyPi version](https://badge.fury.io/py/bambi.svg)](https://badge.fury.io/py/bambi)
