@@ -180,6 +180,7 @@ class Model:
         chains=None,
         cores=None,
         random_seed=None,
+        vi_kwargs=None,
         **kwargs,
     ):
         """Fit the model using PyMC.
@@ -242,8 +243,10 @@ class Model:
             in the system unless there are more than 4 CPUs, in which case it is set to 4.
         random_seed : int or list of ints
             A list is accepted if cores is greater than one.
+        vi_kwargs : dict
+            kwargs passed to ``pymc.fit``. Only works when ``method="vi".
         **kwargs:
-            For other kwargs see the documentation for ``PyMC.sample()``.
+            For other kwargs see the documentation for ``pymc.sample()``.
 
         Returns
         -------

@@ -430,6 +430,21 @@ def test_laplace():
     np.testing.assert_array_almost_equal((mode_n, std_n), (mode_a.item(), std_a.item()), decimal=2)
 
 
+def test_vi():
+    data = pd.DataFrame(np.repeat((0, 1), (30, 60)), columns=["w"])
+    priors = {"Intercept": Prior("Uniform", lower=0, upper=1)}
+    model = Model("w ~ 1", data=data, family="bernoulli", priors=priors, link="identity")
+    results = model.fit(method="vi", kwargs={"method": "advi"})
+    samples = results.sample(1000).posterior["Intercept"]
+    mode_n = samples.mean()
+    std_n = samples.std()
+    mode_a = data.mean()
+    std_a = data.std() / len(data) ** 0.5
+    np.testing.assert_array_almost_equal(
+        (mode_n.item(), std_n.item()), (mode_a.item(), std_a.item()), decimal=2
+    )
+
+
 def test_prior_predictive(crossed_data):
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
     # New default priors are too wide for this case... something to keep investigating
@@ -439,7 +454,6 @@ def test_prior_predictive(crossed_data):
         family="poisson",
     )
     model.build()
-    print(model)
     pps = model.prior_predictive(draws=500)
 
     keys = ["Intercept", "threecats", "continuous", "dummy"]

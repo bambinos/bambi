@@ -84,6 +84,7 @@ class PyMCModel:
         chains=None,
         cores=None,
         random_seed=None,
+        vi_kwargs=None,
         **kwargs,
     ):
         """Run PyMC sampler."""
@@ -104,7 +105,9 @@ class PyMCModel:
                 **kwargs,
             )
         elif method.lower() == "vi":
-            result = self._run_vi(**kwargs)
+            if vi_kwargs is None:
+                vi_kwargs = {}
+            result = self._run_vi(**vi_kwargs)
         else:
             result = self._run_laplace()
 
