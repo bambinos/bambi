@@ -277,6 +277,7 @@ class Model:
             chains=chains,
             cores=cores,
             random_seed=random_seed,
+            vi_kwargs=vi_kwargs,
             **kwargs,
         )
 
