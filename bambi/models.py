@@ -174,7 +174,7 @@ class Model:
         discard_tuned_samples=True,
         omit_offsets=True,
         include_mean=False,
-        method="mcmc",
+        inference_method="mcmc",
         init="auto",
         n_init=50000,
         chains=None,
@@ -200,7 +200,7 @@ class Model:
             group specific effects. Defaults to ``True``.
         include_mean: bool
             Compute the posterior of the mean response. Defaults to ``False``.
-        method: str
+        inference_method: str
             The method to use for fitting the model. By default, ``"mcmc"``. This automatically
             assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
             variables and Metropolis for non-binary discrete ones. Alternatively, ``"vi"``, in
@@ -247,10 +247,18 @@ class Model:
 
         Returns
         -------
-        An ArviZ ``InferenceData`` instance if method  ``"mcmc"`` (default).
+        An ArviZ ``InferenceData`` instance if inference_method  ``"mcmc"`` (default).
         An ``Approximation`` object if  ``"vi"`` and a dictionary if  ``"laplace"``.
         """
+        method = kwargs.pop("method", None)
+        if method is not None:
+            if inference_method == "vi":
+                kwargs["method"] = method
+            else:
+                print("the method argument has been deprecated, please use inference_method")
+                inference_method = method
 
+        print(kwargs)
         if not self.built:
             self.build()
 
@@ -268,7 +276,7 @@ class Model:
             discard_tuned_samples=discard_tuned_samples,
             omit_offsets=omit_offsets,
             include_mean=include_mean,
-            method=method,
+            inference_method=inference_method,
             init=init,
             n_init=n_init,
             chains=chains,
