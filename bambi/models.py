@@ -1,6 +1,7 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
 import logging
+import warnings
 
 from copy import deepcopy
 
@@ -255,10 +256,12 @@ class Model:
             if inference_method == "vi":
                 kwargs["method"] = method
             else:
-                print("the method argument has been deprecated, please use inference_method")
+                warnings.warn(
+                    "the method argument has been deprecated, please use inference_method",
+                    FutureWarning,
+                )
                 inference_method = method
 
-        print(kwargs)
         if not self.built:
             self.build()
 
