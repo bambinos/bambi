@@ -78,7 +78,7 @@ class PyMCModel:
         discard_tuned_samples=True,
         omit_offsets=True,
         include_mean=False,
-        method="mcmc",
+        inference_method="mcmc",
         init="auto",
         n_init=50000,
         chains=None,
@@ -87,8 +87,9 @@ class PyMCModel:
         **kwargs,
     ):
         """Run PyMC sampler."""
+        inference_method = inference_method.lower()
         # NOTE: Methods return different types of objects (idata, approximation, and dictionary)
-        if method.lower() in ["mcmc", "nuts_numpyro", "nuts_blackjax"]:
+        if inference_method in ["mcmc", "nuts_numpyro", "nuts_blackjax"]:
             result = self._run_mcmc(
                 draws,
                 tune,
@@ -100,13 +101,15 @@ class PyMCModel:
                 chains,
                 cores,
                 random_seed,
-                method.lower(),
+                inference_method,
                 **kwargs,
             )
-        elif method.lower() == "vi":
+        elif inference_method == "vi":
             result = self._run_vi(**kwargs)
-        else:
+        elif inference_method == "laplace":
             result = self._run_laplace()
+        else:
+            raise NotImplementedError(f"{inference_method} method has not been implemented")
 
         self.fit = True
         return result

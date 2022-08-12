@@ -346,7 +346,7 @@ def test_logistic_regression_bad_numeric():
 )
 def test_logistic_regression_categoric_alternative_samplers(logistic_regression_data, args):
     model = Model("y ~ x", logistic_regression_data, family="bernoulli")
-    model.fit(tune=50, draws=50, method=args[0], **args[1])
+    model.fit(tune=50, draws=50, inference_method=args[0], **args[1])
 
 
 def test_laplace_regression():
@@ -368,7 +368,7 @@ def test_laplace_regression():
 )
 def test_regression_alternative_samplers(linear_regression_data, args):
     model = Model("y ~ x", linear_regression_data)
-    model.fit(tune=50, draws=50, method=args[0], **args[1])
+    model.fit(tune=50, draws=50, inference_method=args[0], **args[1])
 
 
 def test_poisson_regression(crossed_data):
@@ -422,12 +422,27 @@ def test_laplace():
     data = pd.DataFrame(np.repeat((0, 1), (30, 60)), columns=["w"])
     priors = {"Intercept": Prior("Uniform", lower=0, upper=1)}
     model = Model("w ~ 1", data=data, family="bernoulli", priors=priors, link="identity")
-    results = model.fit(method="laplace")
+    results = model.fit(inference_method="laplace")
     mode_n = np.round(results["Intercept"][0], 2)
     std_n = np.round(results["Intercept"][1][0], 2)
     mode_a = data.mean()
     std_a = data.std() / len(data) ** 0.5
     np.testing.assert_array_almost_equal((mode_n, std_n), (mode_a.item(), std_a.item()), decimal=2)
+
+
+def test_vi():
+    data = pd.DataFrame(np.repeat((0, 1), (30, 60)), columns=["w"])
+    priors = {"Intercept": Prior("Uniform", lower=0, upper=1)}
+    model = Model("w ~ 1", data=data, family="bernoulli", priors=priors, link="identity")
+    results = model.fit(inference_method="vi", method="advi")
+    samples = results.sample(1000).posterior["Intercept"]
+    mode_n = samples.mean()
+    std_n = samples.std()
+    mode_a = data.mean()
+    std_a = data.std() / len(data) ** 0.5
+    np.testing.assert_array_almost_equal(
+        (mode_n.item(), std_n.item()), (mode_a.item(), std_a.item()), decimal=2
+    )
 
 
 def test_prior_predictive(crossed_data):
@@ -439,7 +454,6 @@ def test_prior_predictive(crossed_data):
         family="poisson",
     )
     model.build()
-    print(model)
     pps = model.prior_predictive(draws=500)
 
     keys = ["Intercept", "threecats", "continuous", "dummy"]
