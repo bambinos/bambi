@@ -4,7 +4,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>API Reference &#8212; Bambi 0.9.0 documentation</title>
 <script>
@@ -452,7 +452,7 @@ group-specific terms are independent.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bambi.models.Model.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">draws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tune</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discard_tuned_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omit_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mcmc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chains</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.fit" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">draws</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tune</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discard_tuned_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omit_offsets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_mean</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inference_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mcmc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_init</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chains</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.fit" title="Permalink to this definition">#</a></dt>
 <dd><p>Fit the model using PyMC.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -466,7 +466,7 @@ number specified in the <code class="docutils literal notranslate"><span class="
 <li><p><strong>omit_offsets</strong> (<em>bool</em>) – Omits offset terms in the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object returned when the model includes
 group specific effects. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 <li><p><strong>include_mean</strong> (<em>bool</em>) – Compute the posterior of the mean response. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
-<li><p><strong>method</strong> (<em>str</em>) – The method to use for fitting the model. By default, <code class="docutils literal notranslate"><span class="pre">&quot;mcmc&quot;</span></code>. This automatically
+<li><p><strong>inference_method</strong> (<em>str</em>) – The method to use for fitting the model. By default, <code class="docutils literal notranslate"><span class="pre">&quot;mcmc&quot;</span></code>. This automatically
 assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
 variables and Metropolis for non-binary discrete ones. Alternatively, <code class="docutils literal notranslate"><span class="pre">&quot;vi&quot;</span></code>, in
 which case the model will be fitted using variational inference as implemented in PyMC
@@ -507,7 +507,8 @@ in the system unless there are more than 4 CPUs, in which case it is set to 4.</
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><ul class="simple">
-<li><p>An ArviZ <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance if method  <code class="docutils literal notranslate"><span class="pre">&quot;mcmc&quot;</span></code> (default).</p></li>
+<li><p>An ArviZ <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance if inference_method  <code class="docutils literal notranslate"><span class="pre">&quot;mcmc&quot;</span></code> (default),</p></li>
+<li><p><em>”nuts_numpyro” or “nuts_blackjax”.</em></p></li>
 <li><p>An <code class="docutils literal notranslate"><span class="pre">Approximation</span></code> object if  <code class="docutils literal notranslate"><span class="pre">&quot;vi&quot;</span></code> and a dictionary if  <code class="docutils literal notranslate"><span class="pre">&quot;laplace&quot;</span></code>.</p></li>
 </ul>
 </p>
@@ -930,7 +931,7 @@ Run <code class="docutils literal notranslate"><span class="pre">bmb.clear_data_
   
   <div class="footer-item">
     <p class="sphinx-version">
-Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.0.2.<br>
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.1.1.<br>
 </p>
   </div>
   
