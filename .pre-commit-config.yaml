@@ -1,0 +1,18 @@
+fail_fast: true
+
+repos:
+  - repo: https://github.com/ambv/black
+    rev: 22.3.0
+    hooks:
+      - id: black
+        args: [--diff, --check]
+
+  - repo: https://github.com/PyCQA/pylint
+    rev: v2.10.2
+    hooks:
+      - id: pylint
+        args: [--rcfile=.pylintrc]
+  - repo: https://github.com/MarcoGorelli/madforhooks
+    rev: 0.3.0
+    hooks:
+      - id: no-print-statements
