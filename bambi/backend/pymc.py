@@ -473,11 +473,22 @@ class PyMCModel:
 
         samples = np.random.multivariate_normal(modes, cov, size=draws)
 
-        return _posterior_to_idata(samples, self.model)
+        return _posterior_samples_to_idata(samples, self.model)
 
 
-def _posterior_to_idata(samples, model):
-    """ """
+def _posterior_samples_to_idata(samples, model):
+    """Create InferenceData from samples.
+
+    Parameters
+    ----------
+    samples: array
+        Posterior samples
+    model: PyMC model
+
+    Returns
+    -------
+    An ArviZ's InferenceData object.
+    """
     initial_point = model.initial_point(seed=None)
     variables = model.value_vars
 
