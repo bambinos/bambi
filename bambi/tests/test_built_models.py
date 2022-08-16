@@ -590,6 +590,7 @@ def test_binomial_regression():
     model.fit(draws=10, tune=10)
 
 
+@pytest.mark.skip(reason="this example no longer trigger the fallback to adapt_diag")
 def test_init_fallback(init_data, caplog):
     model = Model("od ~ temp + (1|source) + 0", init_data)
     with caplog.at_level(logging.INFO):
