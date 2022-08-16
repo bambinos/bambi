@@ -248,9 +248,9 @@ class Model:
 
         Returns
         -------
-        An ArviZ ``InferenceData`` instance if inference_method  ``"mcmc"`` (default),
-        "nuts_numpyro" or "nuts_blackjax".
-        An ``Approximation`` object if  ``"vi"`` and a dictionary if  ``"laplace"``.
+        An ArviZ ``InferenceData`` instance if inference_method is  ``"mcmc"`` (default),
+        "nuts_numpyro", "nuts_blackjax" or "laplace".
+        An ``Approximation`` object if  ``"vi"``.
         """
         method = kwargs.pop("method", None)
         if method is not None:

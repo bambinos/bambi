@@ -423,8 +423,8 @@ def test_laplace():
     priors = {"Intercept": Prior("Uniform", lower=0, upper=1)}
     model = Model("w ~ 1", data=data, family="bernoulli", priors=priors, link="identity")
     results = model.fit(inference_method="laplace")
-    mode_n = np.round(results["Intercept"][0], 2)
-    std_n = np.round(results["Intercept"][1][0], 2)
+    mode_n = results.posterior["Intercept"].mean().item()
+    std_n = results.posterior["Intercept"].std().item()
     mode_a = data.mean()
     std_a = data.std() / len(data) ** 0.5
     np.testing.assert_array_almost_equal((mode_n, std_n), (mode_a.item(), std_a.item()), decimal=2)

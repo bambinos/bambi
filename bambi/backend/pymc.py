@@ -1,5 +1,6 @@
 import logging
 import traceback
+from copy import deepcopy
 
 import numpy as np
 import pymc as pm
@@ -107,7 +108,7 @@ class PyMCModel:
         elif inference_method == "vi":
             result = self._run_vi(**kwargs)
         elif inference_method == "laplace":
-            result = self._run_laplace()
+            result = self._run_laplace(draws)
         else:
             raise NotImplementedError(f"{inference_method} method has not been implemented")
 
@@ -437,44 +438,82 @@ class PyMCModel:
             self.vi_approx = pm.fit(**kwargs)
         return self.vi_approx
 
-    def _run_laplace(self):
+    def _run_laplace(self, draws):
         """Fit a model using a Laplace approximation.
 
-        Mainly for pedagogical use. ``mcmc`` and ``vi`` are better approximations.
+        Mainly for pedagogical use, provides reasonable results for approximately
+        Gaussian posteriors. The approximation can be very poor for some models
+        like hierarchical ones. Use ``mcmc``, ``nuts_numpyro``, ``nuts_blackjax``
+        or ``vi`` for better approximations.
 
         Parameters
         ----------
         model: PyMC model
+        draws: int
+            The number of samples to draw from the posterior distribution.
 
         Returns
         -------
-        Dictionary, the keys are the names of the variables and the values tuples of modes and
-        standard deviations.
+        An ArviZ's InferenceData object.
         """
-        unobserved_rvs = self.model.unobserved_RVs
-        test_point = self.model.initial_point(seed=None)
         with self.model:
-            varis = [v for v in unobserved_rvs if not pm.util.is_transformed_name(v.name)]
-            maps = pm.find_MAP(start=test_point, vars=varis)
-            # Remove transform from the value variable associated with varis
-            for var in varis:
-                v_value = self.model.rvs_to_values[var]
-                v_value.tag.transform = None
-            hessian = pm.find_hessian(maps, vars=varis)
-            if np.linalg.det(hessian) == 0:
-                raise np.linalg.LinAlgError("Singular matrix. Use mcmc or vi method")
-            stds = np.diag(np.linalg.inv(hessian) ** 0.5)
-            maps = [v for (k, v) in maps.items() if not pm.util.is_transformed_name(k)]
-            modes = [v.item() if v.size == 1 else v for v in maps]
-            names = [v.name for v in varis]
-            shapes = [np.atleast_1d(mode).shape for mode in modes]
-            stds_reshaped = []
-            idx0 = 0
-            for shape in shapes:
-                idx1 = idx0 + sum(shape)
-                stds_reshaped.append(np.reshape(stds[idx0:idx1], shape))
-                idx0 = idx1
-        return dict(zip(names, zip(modes, stds_reshaped)))
+            maps = pm.find_MAP()
+            n_maps = deepcopy(maps)
+            for m in maps:
+                if pm.util.is_transformed_name(m):
+                    n_maps.pop(pm.util.get_untransformed_name(m))
+
+            hessian = pm.find_hessian(n_maps)
+
+        if np.linalg.det(hessian) == 0:
+            raise np.linalg.LinAlgError("Singular matrix. Use mcmc or vi method")
+
+        cov = np.linalg.inv(hessian)
+        modes = np.concatenate([np.atleast_1d(v) for v in n_maps.values()])
+
+        samples = np.random.multivariate_normal(modes, cov, size=draws)
+
+        return _posterior_samples_to_idata(samples, self.model)
+
+
+def _posterior_samples_to_idata(samples, model):
+    """Create InferenceData from samples.
+
+    Parameters
+    ----------
+    samples: array
+        Posterior samples
+    model: PyMC model
+
+    Returns
+    -------
+    An ArviZ's InferenceData object.
+    """
+    initial_point = model.initial_point(seed=None)
+    variables = model.value_vars
+
+    var_info = {}
+    for name, value in initial_point.items():
+        var_info[name] = (value.shape, value.size)
+
+    length_pos = len(samples)
+    varnames = [v.name for v in variables]
+
+    with model:
+        strace = pm.backends.ndarray.NDArray(name=model.name)  # pylint:disable=no-member
+        strace.setup(length_pos, 0)
+    for i in range(length_pos):
+        value = []
+        size = 0
+        for varname in varnames:
+            shape, new_size = var_info[varname]
+            var_samples = samples[i][size : size + new_size]
+            value.append(var_samples.reshape(shape))
+            size += new_size
+        strace.record(point=dict(zip(varnames, value)))
+
+    idata = pm.to_inference_data(pm.backends.base.MultiTrace([strace]), model=model)
+    return idata
 
 
 def add_lkj(backend, terms, eta=1):
