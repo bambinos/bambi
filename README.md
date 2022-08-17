@@ -82,13 +82,16 @@ If you use Bambi and want to cite it please use [![arXiv](https://img.shields.io
 Here is the citation in BibTeX format
 
 ```
-@misc{capretto2020,
-      title={Bambi: A simple interface for fitting Bayesian linear models in Python},
-      author={Tomás Capretto and Camen Piho and Ravin Kumar and Jacob Westfall and Tal Yarkoni and Osvaldo A. Martin},
-      year={2020},
-      eprint={2012.10754},
-      archivePrefix={arXiv},
-      primaryClass={stat.CO}
+@article{Capretto2022,
+ title={Bambi: A Simple Interface for Fitting Bayesian Linear Models in Python},
+ volume={103},
+ url={https://www.jstatsoft.org/index.php/jss/article/view/v103i15},
+ doi={10.18637/jss.v103.i15},
+ number={15},
+ journal={Journal of Statistical Software},
+ author={Capretto, Tomás and Piho, Camen and Kumar, Ravin and Westfall, Jacob and Yarkoni, Tal and Martin, Osvaldo A},
+ year={2022},
+ pages={1–29}
 }
 ```
 
