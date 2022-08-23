@@ -31,6 +31,11 @@ def c(*args):  # pylint: disable=invalid-name
     return np.column_stack(args)
 
 
+def censored(time, status):
+    """Concatenate columns into a 2D NumPy Array"""
+    return np.column_stack([time, status])
+
+
 def extract_argument_names(expr, accepted_funcs):
     """Extract the names of the arguments passed to a function.
 
@@ -75,4 +80,4 @@ def extract_argument_names(expr, accepted_funcs):
     return None
 
 
-extra_namespace = {"c": c}
+extra_namespace = {"c": c, "censored": censored}

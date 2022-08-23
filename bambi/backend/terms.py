@@ -2,6 +2,7 @@ import numpy as np
 import pymc as pm
 import aesara.tensor as at
 
+# from bambi.utils import Censored
 from bambi.backend.utils import has_hyperprior, get_distribution
 from bambi.families.multivariate import Categorical, Multinomial
 from bambi.families.univariate import Beta, Binomial, Gamma, Exponential
@@ -292,6 +293,12 @@ class ResponseTerm:
             n = kwargs["observed"].sum(axis=1)
             return dist(self.name, p=kwargs["p"], observed=kwargs["observed"], n=n)
 
+        if "censored(" in self.term.name:
+            return self.__handle_censored_response(kwargs)
+
+        return dist(self.name, **kwargs)
+
+    def __handle_censored_response(self, kwargs):
         if isinstance(self.family, Exponential):
             kwargs["time"] = kwargs["observed"][:, 0]
             kwargs["event"] = kwargs["observed"][:, 1]
@@ -308,8 +315,8 @@ class ResponseTerm:
             ) + pm.Potential(
                 "y_cens", exponential_lccdf(lambda_rate, kwargs["time"])[kwargs["event"] == 0]
             )
-
-        return dist(self.name, **kwargs)
+        else:
+            raise ValueError(f"The familty '{self.family.name}' does not support censored data!")
 
     @property
     def name(self):

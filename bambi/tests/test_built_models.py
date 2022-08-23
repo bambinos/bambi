@@ -695,7 +695,9 @@ def test_exponential_family(veterans_data):
     fit < - survreg(Surv(time, status) ~ 1 + trt, data = veteran, dist = "exponential")
     summary(fit)
     """
-    model = Model("Surv(time,status) ~ 1 + B(trt, success=2)", veterans_data, family="exponential")
+    model = Model(
+        "censored(time,status) ~ 1 + B(trt, success=2)", veterans_data, family="exponential"
+    )
 
     idata = model.fit()
 
@@ -706,8 +708,8 @@ def test_exponential_family(veterans_data):
     lam_intercept_R = 4.8214
     lam_trt_R = 0.0928
 
-    assert np.abs(lam_intercept - lam_intercept_R) < 0.005
-    assert np.abs(lam_trt - lam_trt_R) < 0.005
+    assert np.abs(lam_intercept - lam_intercept_R) < 0.01
+    assert np.abs(lam_trt - lam_trt_R) < 0.01
 
 
 def test_exponential_family_intercept_only(veterans_data):
@@ -716,11 +718,11 @@ def test_exponential_family_intercept_only(veterans_data):
     fit < - survreg(Surv(time, status) ~ 1, data = veteran, dist = "exponential")
     summary(fit)
     """
-    model = Model("Surv(time,status) ~ 1 ", veterans_data, family="exponential")
+    model = Model("censored(time,status) ~ 1 ", veterans_data, family="exponential")
 
-    idata = model.fit()
+    idata = model.fit(cores=1)
 
     lam_intercept = np.mean(idata.posterior["Intercept"].stack(samples=("chain", "draw")).values)
     lam_intercept_R = 4.8689
 
-    assert np.abs(lam_intercept - lam_intercept_R) < 0.005
+    assert np.abs(lam_intercept - lam_intercept_R) < 0.01
