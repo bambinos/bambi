@@ -451,6 +451,11 @@ class PyMCModel:
         model: PyMC model
         draws: int
             The number of samples to draw from the posterior distribution.
+        omit_offsets: bool
+            Omits offset terms in the ``InferenceData`` object returned when the model includes
+            group specific effects.
+        include_mean: bool
+            Compute the posterior of the mean response.
 
         Returns
         -------
