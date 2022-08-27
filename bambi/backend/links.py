@@ -36,7 +36,7 @@ def identity(x):
 
 
 def inverse_squared(x):
-    return at.inv(at.sqrt(x))
+    return at.inv(at.sqrt(x))  # pylint: disable=no-member
 
 
 def arctan_2(x):
