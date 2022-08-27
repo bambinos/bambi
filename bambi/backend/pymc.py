@@ -108,7 +108,7 @@ class PyMCModel:
         elif inference_method == "vi":
             result = self._run_vi(**kwargs)
         elif inference_method == "laplace":
-            result = self._run_laplace(draws)
+            result = self._run_laplace(draws, omit_offsets, include_mean)
         else:
             raise NotImplementedError(f"{inference_method} method has not been implemented")
 
@@ -349,10 +349,10 @@ class PyMCModel:
                     f"``mcmc``, ``nuts_numpyro`` or ``nuts_blackjax``"
                 )
 
-        idata = self._clean_mcmc_results(idata, omit_offsets, include_mean)
+        idata = self._clean_results(idata, omit_offsets, include_mean)
         return idata
 
-    def _clean_mcmc_results(self, idata, omit_offsets, include_mean):
+    def _clean_results(self, idata, omit_offsets, include_mean):
         for group in idata.groups():
             getattr(idata, group).attrs["modeling_interface"] = "bambi"
             getattr(idata, group).attrs["modeling_interface_version"] = version.__version__
@@ -438,7 +438,7 @@ class PyMCModel:
             self.vi_approx = pm.fit(**kwargs)
         return self.vi_approx
 
-    def _run_laplace(self, draws):
+    def _run_laplace(self, draws, omit_offsets, include_mean):
         """Fit a model using a Laplace approximation.
 
         Mainly for pedagogical use, provides reasonable results for approximately
@@ -473,7 +473,9 @@ class PyMCModel:
 
         samples = np.random.multivariate_normal(modes, cov, size=draws)
 
-        return _posterior_samples_to_idata(samples, self.model)
+        idata = _posterior_samples_to_idata(samples, self.model)
+        idata = self._clean_results(idata, omit_offsets, include_mean)
+        return idata
 
 
 def _posterior_samples_to_idata(samples, model):
