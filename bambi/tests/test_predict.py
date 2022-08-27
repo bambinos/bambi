@@ -346,7 +346,7 @@ def test_predict_include_group_specific():
     assert not np.isclose(
         idata_1.posterior["y_mean"].values,
         idata_2.posterior["y_mean"].values,
-    ).any()
+    ).all()
 
     # Since it's an intercept-only model, predictions are the same for all observations if
     # we drop group-specific terms.
