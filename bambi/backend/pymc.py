@@ -448,7 +448,6 @@ class PyMCModel:
 
         Parameters
         ----------
-        model: PyMC model
         draws: int
             The number of samples to draw from the posterior distribution.
         omit_offsets: bool
