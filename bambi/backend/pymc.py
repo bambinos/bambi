@@ -23,7 +23,7 @@ class PyMCModel:
         "cloglog": cloglog,
         "identity": identity,
         "inverse_squared": inverse_squared,
-        "inverse": at.inv,  # pylint: disable=no-member
+        "inverse": at.reciprocal,
         "log": at.exp,
         "logit": logit,
         "probit": probit,
