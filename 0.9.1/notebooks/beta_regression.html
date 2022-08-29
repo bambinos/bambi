@@ -1,0 +1,2166 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Beta Regression &#8212; Bambi 0.9.1 documentation</title>
+  <script>
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=9b1a4fa89bdd0e95b23b" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=9b1a4fa89bdd0e95b23b" rel="stylesheet">
+
+  
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/6.1.2/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=9b1a4fa89bdd0e95b23b">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/beta_regression';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Categorical Regression" href="categorical_regression.html" />
+    <link rel="prev" title="Negative Binomial Regression (Students absence example)" href="negative_binomial.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs..." aria-label="Search the docs..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fas fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="../_static/Bambi_logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="../_static/Bambi_logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  
+  <div class="col-lg-9 navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                <li class="nav-item">
+                    <a class="nav-link" href="getting_started.html">
+                        Getting Started
+                    </a>
+                </li>
+                
+
+                <li class="nav-item current active">
+                    <a class="nav-link" href="../examples.html">
+                        Examples
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../api_reference.html">
+                        API Reference
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../faq.html">
+                        Frequently Asked Questions
+                    </a>
+                </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      <div class="navbar-end-item navbar-end__search-button-container">
+        
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search">
+  <i class="fas fa-search"></i>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/bambinos/bambi" title="GitHub" class="nav-link" rel="noopener" target="_blank"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bambi/" title="PyPi" class="nav-link" rel="noopener" target="_blank"><span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  <div class="search-button-container--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search">
+  <i class="fas fa-search"></i>
+</button>
+  </div>
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fas fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                <li class="nav-item">
+                    <a class="nav-link" href="getting_started.html">
+                        Getting Started
+                    </a>
+                </li>
+                
+
+                <li class="nav-item current active">
+                    <a class="nav-link" href="../examples.html">
+                        Examples
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../api_reference.html">
+                        API Reference
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../faq.html">
+                        Frequently Asked Questions
+                    </a>
+                </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <span class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/bambinos/bambi" title="GitHub" class="nav-link" rel="noopener" target="_blank"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bambi/" title="PyPi" class="nav-link" rel="noopener" target="_blank"><span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="sidebar-start-items sidebar-primary__section">
+    <div class="sidebar-start-items__item">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+    </div>
+    <div class="sidebar-start-items__item">
+
+  
+
+  
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Versions navigation">
+    <div class="bd-toc-item active">
+        <ul class="current nav bd-sidenav">
+        <li class="toctree-l1 has-children">
+            <p class="caption"><span class="caption-text">Version</span></p>
+            <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox">
+            <label for="toctree-checkbox-1"> <i class="fas fa-chevron-down"></i></label>
+
+            <ul>
+                  
+                  <li><a href="../../main/index.html"> Development </a></li>
+                  
+
+                
+
+                  
+                    <li class="toctree-l2 current active"><a href="beta_regression.html">0.9.1 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.9.0/index.html">0.9.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.8.0/index.html">0.8.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.7.1/index.html">0.7.1</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.7.0/index.html">0.7.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.3/index.html">0.6.3</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.2/index.html">0.6.2</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.1/index.html">0.6.1</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.0/index.html">0.6.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.5.0/index.html">0.5.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.4.1/index.html">0.4.1</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.4.0/index.html">0.4.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.3.0/index.html">0.3.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.2.0/index.html">0.2.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.1.5/index.html">0.1.5</a></li>
+                  
+
+                
+
+            </ul>
+        </li>
+        </ul>
+    </div>
+  </nav>
+
+
+    </div>
+  </div>
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+      </div>
+      <main class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Beta-Regression">
+<h1>Beta Regression<a class="headerlink" href="#Beta-Regression" title="Permalink to this heading">#</a></h1>
+<p>This example has been contributed by Tyler James Burch (<a class="reference external" href="https://github.com/tjburch">&#64;tjburch</a> on GitHub).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">expit</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>In this example, we’ll look at using the <strong>Beta distribution</strong> for regression models. The Beta distribution is a probability distribution bounded on the interval [0, 1], which makes it well-suited to model probabilities or proportions. In fact, in much of the Bayesian literature, the Beta distribution is introduced as a prior distribution for the probability <span class="math notranslate nohighlight">\(p\)</span> parameter of the Binomial distribution (in fact, it’s the conjugate prior for the Binomial distribution).</p>
+<section id="Simulated-Beta-Distribution">
+<h2>Simulated Beta Distribution<a class="headerlink" href="#Simulated-Beta-Distribution" title="Permalink to this heading">#</a></h2>
+<p>To start getting an intuitive sense of the Beta distribution, we’ll model coin flipping probabilities. Say we grab all the coins out of our pocket, we might have some fresh from the mint, but we might also have some old ones. Due to the variation, some may be slightly biased toward heads or tails, and our goal is to model distribution of the probabilities of flipping heads for the coins in our pocket.</p>
+<p>Since we trust the mint, we’ll say the <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> are both large, we’ll use 1,000 for each, which gives a distribution spanning from 0.45 to 0.55.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">alpha</span> <span class="o">=</span> <span class="mi">1_000</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="mi">1_000</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10_000</span><span class="p">)</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;$p$&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_beta_regression_5_0.png" src="../_images/notebooks_beta_regression_5_0.png" />
+</div>
+</div>
+<p>Next, we’ll use Bambi to try to recover the parameters of the Beta distribution. Since we have no predictors, we can do a intercept-only model to try to recover them.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;probabilities&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">})</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;probabilities ~ 1&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;beta&quot;</span><span class="p">)</span>
+<span class="n">fitted</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, probabilities_kappa]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:02<00:00 Sampling 4 chains, 0 divergences]
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">fitted</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_beta_regression_8_0.png" src="../_images/notebooks_beta_regression_8_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">fitted</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>sd</th>
+      <th>hdi_3%</th>
+      <th>hdi_97%</th>
+      <th>mcse_mean</th>
+      <th>mcse_sd</th>
+      <th>ess_bulk</th>
+      <th>ess_tail</th>
+      <th>r_hat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>0.000</td>
+      <td>0.00</td>
+      <td>-0.000</td>
+      <td>0.001</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>3947.0</td>
+      <td>3081.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>probabilities_kappa</th>
+      <td>1988.336</td>
+      <td>28.22</td>
+      <td>1935.757</td>
+      <td>2041.255</td>
+      <td>0.444</td>
+      <td>0.314</td>
+      <td>4043.0</td>
+      <td>3007.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>The model fit, but clearly these parameters are not the ones that we used above. For Beta regression, we use a linear model for the mean, so we use the <span class="math notranslate nohighlight">\(\mu\)</span> and <span class="math notranslate nohighlight">\(\sigma\)</span> formulation. To link the two, we use</p>
+<p><span class="math notranslate nohighlight">\(\alpha = \mu \kappa\)</span></p>
+<p><span class="math notranslate nohighlight">\(\beta = (1-\mu)\kappa\)</span></p>
+<p>and <span class="math notranslate nohighlight">\(\kappa\)</span> is a function of the mean and variance,</p>
+<p><span class="math notranslate nohighlight">\(\kappa = \frac{\mu(1-\mu)}{\sigma^2} - 1\)</span></p>
+<p>Rather than <span class="math notranslate nohighlight">\(\sigma\)</span>, you’ll note Bambi returns <span class="math notranslate nohighlight">\(\kappa\)</span>. We’ll define a function to retrieve our original parameters.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">mukappa_to_alphabeta</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">kappa</span><span class="p">):</span>
+    <span class="c1"># Calculate alpha and beta</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">*</span> <span class="n">kappa</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">*</span> <span class="n">kappa</span>
+
+    <span class="c1"># Get mean values and 95% HDIs</span>
+    <span class="n">alpha_mean</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">alpha_hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">beta_mean</span> <span class="o">=</span> <span class="n">beta</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">beta_hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="k">return</span> <span class="n">alpha_mean</span><span class="p">,</span> <span class="n">alpha_hdi</span><span class="p">,</span> <span class="n">beta_mean</span><span class="p">,</span> <span class="n">beta_hdi</span>
+
+<span class="n">alpha</span><span class="p">,</span> <span class="n">alpha_hdi</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">beta_hdi</span> <span class="o">=</span> <span class="n">mukappa_to_alphabeta</span><span class="p">(</span>
+    <span class="n">expit</span><span class="p">(</span><span class="n">fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]),</span>
+    <span class="n">fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;probabilities_kappa&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Alpha - mean: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span><span class="si">}</span><span class="s2">, 95% HDI: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">alpha_hdi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">alpha_hdi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Beta - mean: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span><span class="si">}</span><span class="s2">, 95% HDI: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">beta_hdi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">beta_hdi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Alpha - mean: 994.0, 95% HDI: 968.0 - 1024.0
+Beta - mean: 994.0, 95% HDI: 968.0 - 1023.0
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">mukappa_to_alphabeta</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">kappa</span><span class="p">):</span>
+    <span class="c1"># Calculate alpha and beta</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">*</span> <span class="n">kappa</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">*</span> <span class="n">kappa</span>
+
+    <span class="c1"># Get mean values and 95% HDIs</span>
+    <span class="n">alpha_mean</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">alpha_hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">beta_mean</span> <span class="o">=</span> <span class="n">beta</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">beta_hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="k">return</span> <span class="n">alpha_mean</span><span class="p">,</span> <span class="n">alpha_hdi</span><span class="p">,</span> <span class="n">beta_mean</span><span class="p">,</span> <span class="n">beta_hdi</span>
+
+<span class="n">alpha</span><span class="p">,</span> <span class="n">alpha_hdi</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">beta_hdi</span> <span class="o">=</span> <span class="n">mukappa_to_alphabeta</span><span class="p">(</span>
+    <span class="n">expit</span><span class="p">(</span><span class="n">fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]),</span>
+    <span class="n">fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;probabilities_kappa&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Alpha - mean: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span><span class="si">}</span><span class="s2">, 95% HDI: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">alpha_hdi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">alpha_hdi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Beta - mean: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span><span class="si">}</span><span class="s2">, 95% HDI: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">beta_hdi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">beta_hdi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Alpha - mean: 994.0, 95% HDI: 968.0 - 1024.0
+Beta - mean: 994.0, 95% HDI: 968.0 - 1023.0
+</pre></div></div>
+</div>
+<p>We’ve managed to recover our parameters with an intercept-only model.</p>
+</section>
+<section id="Beta-Regression-with-Predictors">
+<h2>Beta Regression with Predictors<a class="headerlink" href="#Beta-Regression-with-Predictors" title="Permalink to this heading">#</a></h2>
+<p>Perhaps we have a little more information on the coins in our pocket. We notice that the coins have accumulated dirt on either side, which would shift the probability of getting a tails or heads. In reality, we would not know how much the dirt affects the probability distribution, we would like to recover that parameter. We’ll construct this toy example by saying that each micron of dirt shifts the <span class="math notranslate nohighlight">\(\alpha\)</span> parameter by 5.0. Further, the amount of dirt is distributed according to a Half
+Normal distribution with a standard deviation of 25 per side.</p>
+<p>We’ll start by looking at the difference in probability for a coin with a lot of dirt on either side.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">effect_per_micron</span> <span class="o">=</span> <span class="mf">5.0</span>
+
+<span class="c1"># Clean Coin</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="mi">1_000</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="mi">1_000</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10_000</span><span class="p">)</span>
+
+<span class="c1"># Add two std to tails side (heads more likely)</span>
+<span class="n">p_heads</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="n">alpha</span> <span class="o">+</span> <span class="mi">50</span> <span class="o">*</span> <span class="n">effect_per_micron</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10_000</span><span class="p">)</span>
+<span class="c1"># Add two std to heads side (tails more likely)</span>
+<span class="n">p_tails</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="n">alpha</span> <span class="o">-</span> <span class="mi">50</span> <span class="o">*</span> <span class="n">effect_per_micron</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10_000</span><span class="p">)</span>
+
+<span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Clean Coin&quot;</span><span class="p">)</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">p_heads</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Biased toward heads&quot;</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span><span class="s2">&quot;C1&quot;</span><span class="p">})</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">p_tails</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Biased toward tails&quot;</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span><span class="s2">&quot;C2&quot;</span><span class="p">})</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;$p$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">top</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mf">1.25</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_beta_regression_16_0.png" src="../_images/notebooks_beta_regression_16_0.png" />
+</div>
+</div>
+<p>Next, we’ll generate a toy dataset according to our specifications above. As an added foil, we will also assume that we’re limited in our measuring equipment, that we can only measure correctly to the nearest integer micron.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create amount of dirt on top and bottom</span>
+<span class="n">heads_bias_dirt</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">halfnorm</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">1_000</span><span class="p">)</span>
+<span class="n">tails_bias_dirt</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">halfnorm</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">1_000</span><span class="p">)</span>
+
+<span class="c1"># Create the probability per coin</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">1_000</span><span class="p">,</span> <span class="mi">1_000</span><span class="p">)</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">+</span> <span class="n">effect_per_micron</span> <span class="o">*</span> <span class="n">heads_bias_dirt</span> <span class="o">-</span> <span class="n">effect_per_micron</span> <span class="o">*</span> <span class="n">tails_bias_dirt</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">1_000</span><span class="p">,</span> <span class="mi">1_000</span><span class="p">)</span>
+
+<span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;p&quot;</span> <span class="p">:</span> <span class="n">p</span><span class="p">,</span>
+    <span class="s2">&quot;heads_bias_dirt&quot;</span> <span class="p">:</span> <span class="n">heads_bias_dirt</span><span class="o">.</span><span class="n">round</span><span class="p">(),</span>
+    <span class="s2">&quot;tails_bias_dirt&quot;</span> <span class="p">:</span> <span class="n">tails_bias_dirt</span><span class="o">.</span><span class="n">round</span><span class="p">()</span>
+<span class="p">})</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>p</th>
+      <th>heads_bias_dirt</th>
+      <th>tails_bias_dirt</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.476742</td>
+      <td>5.0</td>
+      <td>32.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.465821</td>
+      <td>12.0</td>
+      <td>20.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.474213</td>
+      <td>0.0</td>
+      <td>15.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.573222</td>
+      <td>54.0</td>
+      <td>5.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.490487</td>
+      <td>23.0</td>
+      <td>29.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Taking a look at our new dataset:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">kde</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;$p$&quot;</span><span class="p">)</span>
+
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;heads_bias_dirt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;heads_bias_dirt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Measured Dirt Biasing Toward Heads ($\mu m$)&quot;</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;tails_bias_dirt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;tails_bias_dirt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Measured Dirt Biasing Toward Tails ($\mu m$)&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_beta_regression_20_0.png" src="../_images/notebooks_beta_regression_20_0.png" />
+</div>
+</div>
+<p>Next we want to make a model to recover the effect per micron of dirt per side. So far, we’ve considered the biasing toward one side or another independently. A linear model might look something like this:</p>
+<p>$ p <span class="math">\text{ ~ Beta}`(:nbsphinx-math:</span>mu`, <span class="math">\sigma</span>)$</p>
+<p><span class="math notranslate nohighlight">\(logit(\mu) = \text{ Normal}( \alpha + \beta_h d_h + \beta_t d_t)\)</span></p>
+<p>Where <span class="math notranslate nohighlight">\(d_h\)</span> and <span class="math notranslate nohighlight">\(d_t\)</span> are the measured dirt (in microns) biasing the probability toward heads and tails respectively, <span class="math notranslate nohighlight">\(\beta_h\)</span> and <span class="math notranslate nohighlight">\(\beta_t\)</span> are coefficients for how much a micron of dirt affects each independent side, and <span class="math notranslate nohighlight">\(\alpha\)</span> is the intercept. Also note the logit link function used here, since our outcome is on the scale of 0-1, it makes sense that the link must also put our mean on that scale. Logit is the default link function, however Bambi supports the
+identity, probit, and cloglog links as well.</p>
+<p>In this toy example, we’ve constructed it such that dirt should not affect one side differently from another, so we can wrap those into one coefficient: <span class="math notranslate nohighlight">\(\beta = \beta_h = -\beta_t\)</span>. This makes the last line of the model:</p>
+<p><span class="math notranslate nohighlight">\(logit(\mu) = \text{ Normal}( \alpha + \beta \Delta d)\)</span></p>
+<p>where</p>
+<p><span class="math notranslate nohighlight">\(\Delta d = d_h - d_t\)</span></p>
+<p>Putting that into our dataset, then constructing this model in Bambi,</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;delta_d&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;heads_bias_dirt&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tails_bias_dirt&quot;</span><span class="p">]</span>
+<span class="n">dirt_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;p ~ delta_d&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;beta&quot;</span><span class="p">)</span>
+<span class="n">dirt_fitted</span> <span class="o">=</span> <span class="n">dirt_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">dirt_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dirt_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, delta_d, p_kappa]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:03<00:00 Sampling 4 chains, 0 divergences]
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">dirt_fitted</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>sd</th>
+      <th>hdi_3%</th>
+      <th>hdi_97%</th>
+      <th>mcse_mean</th>
+      <th>mcse_sd</th>
+      <th>ess_bulk</th>
+      <th>ess_tail</th>
+      <th>r_hat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>-0.003</td>
+      <td>0.001</td>
+      <td>-0.005</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>5312.0</td>
+      <td>3078.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>delta_d</th>
+      <td>0.005</td>
+      <td>0.000</td>
+      <td>0.005</td>
+      <td>0.005</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>4881.0</td>
+      <td>2684.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>p_kappa</th>
+      <td>1899.666</td>
+      <td>85.987</td>
+      <td>1732.301</td>
+      <td>2055.125</td>
+      <td>1.141</td>
+      <td>0.812</td>
+      <td>5688.0</td>
+      <td>3324.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_ppc</span><span class="p">(</span><span class="n">dirt_fitted</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_beta_regression_24_0.png" src="../_images/notebooks_beta_regression_24_0.png" />
+</div>
+</div>
+<p>Next, we’ll see if we can in fact recover the effect on <span class="math notranslate nohighlight">\(\alpha\)</span>. Remember that in order to return to <span class="math notranslate nohighlight">\(\alpha\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span> space, the linear equation passes through an inverse logit transformation, so we must apply this to the coefficient on <span class="math notranslate nohighlight">\(\Delta d\)</span> to get the effect on <span class="math notranslate nohighlight">\(\alpha\)</span>. The inverse logit is nicely defined in <code class="docutils literal notranslate"><span class="pre">scipy.special</span></code> as <code class="docutils literal notranslate"><span class="pre">expit</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mean_effect</span> <span class="o">=</span> <span class="n">expit</span><span class="p">(</span><span class="n">dirt_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">delta_d</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+<span class="n">hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">dirt_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">delta_d</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)</span>
+<span class="n">lower</span> <span class="o">=</span> <span class="n">expit</span><span class="p">(</span><span class="n">hdi</span><span class="o">.</span><span class="n">delta_d</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">upper</span> <span class="o">=</span> <span class="n">expit</span><span class="p">(</span><span class="n">hdi</span><span class="o">.</span><span class="n">delta_d</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean effect: </span><span class="si">{</span><span class="n">mean_effect</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;95% interval </span><span class="si">{</span><span class="n">lower</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">upper</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Mean effect: 0.5013
+95% interval 0.5013 - 0.5013
+</pre></div></div>
+</div>
+<p>The recovered effect is very close to the true effect of 0.5.</p>
+</section>
+<section id="Example---Revisiting-Baseball-Data">
+<h2>Example - Revisiting Baseball Data<a class="headerlink" href="#Example---Revisiting-Baseball-Data" title="Permalink to this heading">#</a></h2>
+<p>In the <a class="reference external" href="https://bambinos.github.io/bambi/main/notebooks/hierarchical_binomial_bambi.html">Hierarchical Logistic regression with Binomial family</a> notebook, we modeled baseball batting averages (times a player reached first via a hit per times at bat) via a Hierarchical Logisitic regression model. If we’re interested in league-wide effects, we could look at a Beta regression. We work off the assumption that the league-wide batting average follows a Beta distribution, and that individual
+player’s batting averages are samples from that distribution.</p>
+<p>First, load the Batting dataset again, and re-calculate batting average as hits/at-bat. In order to make sure that we have a sufficient sample, we’ll require at least 100 at-bats in order consider a batter. Last, we’ll focus on 1990-2018.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">batting</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;batting&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">batting</span><span class="p">[</span><span class="s2">&quot;batting_avg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batting</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">batting</span><span class="p">[</span><span class="s2">&quot;AB&quot;</span><span class="p">]</span>
+<span class="n">batting</span> <span class="o">=</span> <span class="n">batting</span><span class="p">[</span><span class="n">batting</span><span class="p">[</span><span class="s2">&quot;AB&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">]</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">batting</span><span class="p">[</span> <span class="p">(</span><span class="n">batting</span><span class="p">[</span><span class="s2">&quot;yearID&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1990</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">batting</span><span class="p">[</span><span class="s2">&quot;yearID&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2018</span><span class="p">)</span> <span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">batting_avg</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Batting Average&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Count&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_beta_regression_32_0.png" src="../_images/notebooks_beta_regression_32_0.png" />
+</div>
+</div>
+<p>If we’re interested in modeling the distribution of batting averages, we can start with an intercept-only model.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_avg</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;batting_avg ~ 1&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;beta&quot;</span><span class="p">)</span>
+<span class="n">avg_fitted</span> <span class="o">=</span> <span class="n">model_avg</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, batting_avg_kappa]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:02<00:00 Sampling 4 chains, 0 divergences]
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">avg_fitted</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>sd</th>
+      <th>hdi_3%</th>
+      <th>hdi_97%</th>
+      <th>mcse_mean</th>
+      <th>mcse_sd</th>
+      <th>ess_bulk</th>
+      <th>ess_tail</th>
+      <th>r_hat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>-1.038</td>
+      <td>0.002</td>
+      <td>-1.041</td>
+      <td>-1.035</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>3745.0</td>
+      <td>2913.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>batting_avg_kappa</th>
+      <td>152.524</td>
+      <td>2.003</td>
+      <td>148.859</td>
+      <td>156.326</td>
+      <td>0.032</td>
+      <td>0.023</td>
+      <td>3833.0</td>
+      <td>2598.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Looking at the posterior predictive,</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">model_avg</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">avg_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_ppc</span><span class="p">(</span><span class="n">avg_fitted</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_beta_regression_38_0.png" src="../_images/notebooks_beta_regression_38_0.png" />
+</div>
+</div>
+<p>This appears to fit reasonably well. If, for example, we were interested in simulating players, we could sample from this distribution.</p>
+<p>However, we can take this further. Say we’re interested in understanding how this distribution shifts if we know a player’s batting average in a previous year. We can condition the model on a player’s n-1 year, and use Beta regrssion to model that. Let’s construct that variable, and for sake of ease, we will ignore players without previous seasons.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add the player&#39;s batting average in the n-1 year</span>
+<span class="n">batting</span><span class="p">[</span><span class="s2">&quot;batting_avg_shift&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+    <span class="n">batting</span><span class="p">[</span><span class="s2">&quot;playerID&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">batting</span><span class="p">[</span><span class="s2">&quot;playerID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(),</span>
+    <span class="n">batting</span><span class="p">[</span><span class="s2">&quot;batting_avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="p">)</span>
+<span class="n">df_shift</span> <span class="o">=</span> <span class="n">batting</span><span class="p">[</span> <span class="p">(</span><span class="n">batting</span><span class="p">[</span><span class="s2">&quot;yearID&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1990</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">batting</span><span class="p">[</span><span class="s2">&quot;yearID&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2018</span><span class="p">)</span> <span class="p">]</span>
+<span class="n">df_shift</span> <span class="o">=</span> <span class="n">df_shift</span><span class="p">[</span><span class="o">~</span><span class="n">df_shift</span><span class="p">[</span><span class="s2">&quot;batting_avg_shift&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()]</span>
+<span class="n">df_shift</span><span class="p">[[</span><span class="s2">&quot;batting_avg_shift&quot;</span><span class="p">,</span><span class="s2">&quot;batting_avg&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>batting_avg_shift</th>
+      <th>batting_avg</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>batting_avg_shift</th>
+      <td>1.000000</td>
+      <td>0.229774</td>
+    </tr>
+    <tr>
+      <th>batting_avg</th>
+      <td>0.229774</td>
+      <td>1.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>There is a lot of variance in year-to-year batting averages, it’s not known to be incredibly predictive, and we see that here. A correlation coefficient of 0.23 is only lightly predictive. However, we can still use it in our model to get a better understanding. We’ll fit two models. First, we’ll refit the previous, intercept-only, model using this updated dataset so we have an apples-to-apples comparison. Then, we’ll fit a model using the previous year’s batting average as a predictor.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_avg</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;batting_avg ~ 1&quot;</span><span class="p">,</span> <span class="n">df_shift</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;beta&quot;</span><span class="p">)</span>
+<span class="n">avg_fitted</span> <span class="o">=</span> <span class="n">model_avg</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+
+<span class="n">model_lag</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;batting_avg ~ batting_avg_shift&quot;</span><span class="p">,</span> <span class="n">df_shift</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;beta&quot;</span><span class="p">)</span>
+<span class="n">lag_fitted</span> <span class="o">=</span> <span class="n">model_lag</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, batting_avg_kappa]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:01<00:00 Sampling 4 chains, 0 divergences]
+</div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, batting_avg_shift, batting_avg_kappa]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:02<00:00 Sampling 4 chains, 0 divergences]
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 3 seconds.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">lag_fitted</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean</th>
+      <th>sd</th>
+      <th>hdi_3%</th>
+      <th>hdi_97%</th>
+      <th>mcse_mean</th>
+      <th>mcse_sd</th>
+      <th>ess_bulk</th>
+      <th>ess_tail</th>
+      <th>r_hat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>-1.376</td>
+      <td>0.072</td>
+      <td>-1.515</td>
+      <td>-1.247</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>5275.0</td>
+      <td>3044.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>batting_avg_shift</th>
+      <td>1.354</td>
+      <td>0.275</td>
+      <td>0.850</td>
+      <td>1.873</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>5402.0</td>
+      <td>3106.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>batting_avg_kappa</th>
+      <td>135.771</td>
+      <td>9.640</td>
+      <td>117.762</td>
+      <td>153.337</td>
+      <td>0.141</td>
+      <td>0.100</td>
+      <td>4702.0</td>
+      <td>2753.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">compare</span><span class="p">({</span>
+    <span class="s2">&quot;intercept-only&quot;</span> <span class="p">:</span> <span class="n">avg_fitted</span><span class="p">,</span>
+    <span class="s2">&quot;lag-model&quot;</span><span class="p">:</span> <span class="n">lag_fitted</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>rank</th>
+      <th>elpd_loo</th>
+      <th>p_loo</th>
+      <th>elpd_diff</th>
+      <th>weight</th>
+      <th>se</th>
+      <th>dse</th>
+      <th>warning</th>
+      <th>scale</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>lag-model</th>
+      <td>0</td>
+      <td>784.914632</td>
+      <td>3.108452</td>
+      <td>0.000000</td>
+      <td>0.995738</td>
+      <td>14.535129</td>
+      <td>0.000000</td>
+      <td>False</td>
+      <td>log</td>
+    </tr>
+    <tr>
+      <th>intercept-only</th>
+      <td>1</td>
+      <td>774.082566</td>
+      <td>2.153033</td>
+      <td>10.832065</td>
+      <td>0.004262</td>
+      <td>15.343778</td>
+      <td>4.644965</td>
+      <td>False</td>
+      <td>log</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Adding the predictor results in a higher loo than the intercept-only model.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ppc</span><span class="o">=</span> <span class="n">model_lag</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">lag_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_ppc</span><span class="p">(</span><span class="n">lag_fitted</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">KeyboardInterrupt</span>                         Traceback (most recent call last)
+<span class="ansi-green-intense-fg ansi-bold">/home/osvaldo/proyectos/00_BM/bambi/docs/notebooks/beta_regression.ipynb Cell 47&#39;</span> in <span class="ansi-cyan-fg">&lt;cell line: 2&gt;</span><span class="ansi-blue-fg">()</span>
+<span class="ansi-green-intense-fg ansi-bold">      &lt;a href=&#39;vscode-notebook-cell:/home/osvaldo/proyectos/00_BM/bambi/docs/notebooks/beta_regression.ipynb#ch0000045?line=0&#39;&gt;1&lt;/a&gt;</span> ppc= model_lag.predict(lag_fitted, kind=&#34;pps&#34;)
+<span class="ansi-green-fg">----&gt; &lt;a href=&#39;vscode-notebook-cell:/home/osvaldo/proyectos/00_BM/bambi/docs/notebooks/beta_regression.ipynb#ch0000045?line=1&#39;&gt;2&lt;/a&gt;</span> az.plot_ppc(lag_fitted)
+
+File <span class="ansi-green-fg">~/proyectos/00_BM/arviz/arviz/plots/ppcplot.py:356</span>, in <span class="ansi-cyan-fg">plot_ppc</span><span class="ansi-blue-fg">(data, kind, alpha, mean, observed, color, colors, grid, figsize, textsize, data_pairs, var_names, filter_vars, coords, flatten, flatten_pp, num_pp_samples, random_seed, jitter, animated, animation_kwargs, legend, labeller, ax, backend, backend_kwargs, group, show)</span>
+<span class="ansi-green-intense-fg ansi-bold">    354</span> # TODO: Add backend kwargs
+<span class="ansi-green-intense-fg ansi-bold">    355</span> plot = get_plotting_function(&#34;plot_ppc&#34;, &#34;ppcplot&#34;, backend)
+<span class="ansi-green-fg">--&gt; 356</span> axes = plot(**ppcplot_kwargs)
+<span class="ansi-green-intense-fg ansi-bold">    357</span> return axes
+
+File <span class="ansi-green-fg">~/proyectos/00_BM/arviz/arviz/plots/backends/matplotlib/ppcplot.py:163</span>, in <span class="ansi-cyan-fg">plot_ppc</span><span class="ansi-blue-fg">(ax, length_plotters, rows, cols, figsize, animated, obs_plotters, pp_plotters, predictive_dataset, pp_sample_ix, kind, alpha, colors, textsize, mean, observed, jitter, total_pp_samples, legend, labeller, group, animation_kwargs, num_pp_samples, backend_kwargs, show)</span>
+<span class="ansi-green-intense-fg ansi-bold">    161</span> vals = np.array([vals]).flatten()
+<span class="ansi-green-intense-fg ansi-bold">    162</span> if dtype == &#34;f&#34;:
+<span class="ansi-green-fg">--&gt; 163</span>     pp_x, pp_density = kde(vals)
+<span class="ansi-green-intense-fg ansi-bold">    164</span>     pp_densities.append(pp_density)
+<span class="ansi-green-intense-fg ansi-bold">    165</span>     pp_xs.append(pp_x)
+
+File <span class="ansi-green-fg">~/proyectos/00_BM/arviz/arviz/stats/density_utils.py:502</span>, in <span class="ansi-cyan-fg">kde</span><span class="ansi-blue-fg">(x, circular, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">    499</span> else:
+<span class="ansi-green-intense-fg ansi-bold">    500</span>     kde_fun = _kde_linear
+<span class="ansi-green-fg">--&gt; 502</span> return kde_fun(x, **kwargs)
+
+File <span class="ansi-green-fg">~/proyectos/00_BM/arviz/arviz/stats/density_utils.py:588</span>, in <span class="ansi-cyan-fg">_kde_linear</span><span class="ansi-blue-fg">(x, bw, adaptive, extend, bound_correction, extend_fct, bw_fct, bw_return, custom_lims, cumulative, grid_len, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">    585</span> grid_counts, _, grid_edges = histogram(x, grid_len, (grid_min, grid_max))
+<span class="ansi-green-intense-fg ansi-bold">    587</span> # Bandwidth estimation
+<span class="ansi-green-fg">--&gt; 588</span> bw = bw_fct * _get_bw(x, bw, grid_counts, x_std, x_range)
+<span class="ansi-green-intense-fg ansi-bold">    590</span> # Density estimation
+<span class="ansi-green-intense-fg ansi-bold">    591</span> if adaptive:
+
+File <span class="ansi-green-fg">~/proyectos/00_BM/arviz/arviz/stats/density_utils.py:157</span>, in <span class="ansi-cyan-fg">_get_bw</span><span class="ansi-blue-fg">(x, bw, grid_counts, x_std, x_range)</span>
+<span class="ansi-green-intense-fg ansi-bold">    150</span>         raise ValueError(
+<span class="ansi-green-intense-fg ansi-bold">    151</span>             &#34;Unrecognized bandwidth method.\n&#34;
+<span class="ansi-green-intense-fg ansi-bold">    152</span>             f&#34;Input is: {bw_lower}.\n&#34;
+<span class="ansi-green-intense-fg ansi-bold">    153</span>             f&#34;Expected one of: {list(_BW_METHODS_LINEAR)}.&#34;
+<span class="ansi-green-intense-fg ansi-bold">    154</span>         )
+<span class="ansi-green-intense-fg ansi-bold">    156</span>     bw_fun = _BW_METHODS_LINEAR[bw_lower]
+<span class="ansi-green-fg">--&gt; 157</span>     bw = bw_fun(x, grid_counts=grid_counts, x_std=x_std, x_range=x_range)
+<span class="ansi-green-intense-fg ansi-bold">    158</span> else:
+<span class="ansi-green-intense-fg ansi-bold">    159</span>     raise ValueError(
+<span class="ansi-green-intense-fg ansi-bold">    160</span>         &#34;Unrecognized `bw` argument.\n&#34;
+<span class="ansi-green-intense-fg ansi-bold">    161</span>         &#34;Expected a positive numeric or one of the following strings:\n&#34;
+<span class="ansi-green-intense-fg ansi-bold">    162</span>         f&#34;{list(_BW_METHODS_LINEAR)}.&#34;
+<span class="ansi-green-intense-fg ansi-bold">    163</span>     )
+
+File <span class="ansi-green-fg">~/proyectos/00_BM/arviz/arviz/stats/density_utils.py:80</span>, in <span class="ansi-cyan-fg">_bw_experimental</span><span class="ansi-blue-fg">(x, grid_counts, x_std, x_range)</span>
+<span class="ansi-green-intense-fg ansi-bold">     78</span> def _bw_experimental(x, grid_counts=None, x_std=None, x_range=None):
+<span class="ansi-green-intense-fg ansi-bold">     79</span>     &#34;&#34;&#34;Experimental bandwidth estimator.&#34;&#34;&#34;
+<span class="ansi-green-fg">---&gt; 80</span>     bw_silverman = _bw_silverman(x, x_std=x_std)
+<span class="ansi-green-intense-fg ansi-bold">     81</span>     bw_isj = _bw_isj(x, grid_counts=grid_counts, x_range=x_range)
+<span class="ansi-green-intense-fg ansi-bold">     82</span>     return 0.5 * (bw_silverman + bw_isj)
+
+File <span class="ansi-green-fg">~/proyectos/00_BM/arviz/arviz/stats/density_utils.py:29</span>, in <span class="ansi-cyan-fg">_bw_silverman</span><span class="ansi-blue-fg">(x, x_std, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">     27</span> if x_std is None:
+<span class="ansi-green-intense-fg ansi-bold">     28</span>     x_std = np.std(x)
+<span class="ansi-green-fg">---&gt; 29</span> q75, q25 = np.percentile(x, [75, 25])
+<span class="ansi-green-intense-fg ansi-bold">     30</span> x_iqr = q75 - q25
+<span class="ansi-green-intense-fg ansi-bold">     31</span> a = min(x_std, x_iqr / 1.34)
+
+File <span class="ansi-green-fg">&lt;__array_function__ internals&gt;:5</span>, in <span class="ansi-cyan-fg">percentile</span><span class="ansi-blue-fg">(*args, **kwargs)</span>
+
+File <span class="ansi-green-fg">~/anaconda3/lib/python3.9/site-packages/numpy/lib/function_base.py:3867</span>, in <span class="ansi-cyan-fg">percentile</span><span class="ansi-blue-fg">(a, q, axis, out, overwrite_input, interpolation, keepdims)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3865</span> if not _quantile_is_valid(q):
+<span class="ansi-green-intense-fg ansi-bold">   3866</span>     raise ValueError(&#34;Percentiles must be in the range [0, 100]&#34;)
+<span class="ansi-green-fg">-&gt; 3867</span> return _quantile_unchecked(
+<span class="ansi-green-intense-fg ansi-bold">   3868</span>     a, q, axis, out, overwrite_input, interpolation, keepdims)
+
+File <span class="ansi-green-fg">~/anaconda3/lib/python3.9/site-packages/numpy/lib/function_base.py:3986</span>, in <span class="ansi-cyan-fg">_quantile_unchecked</span><span class="ansi-blue-fg">(a, q, axis, out, overwrite_input, interpolation, keepdims)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3983</span> def _quantile_unchecked(a, q, axis=None, out=None, overwrite_input=False,
+<span class="ansi-green-intense-fg ansi-bold">   3984</span>                         interpolation=&#39;linear&#39;, keepdims=False):
+<span class="ansi-green-intense-fg ansi-bold">   3985</span>     &#34;&#34;&#34;Assumes that q is in [0, 1], and is an ndarray&#34;&#34;&#34;
+<span class="ansi-green-fg">-&gt; 3986</span>     r, k = _ureduce(a, func=_quantile_ureduce_func, q=q, axis=axis, out=out,
+<span class="ansi-green-intense-fg ansi-bold">   3987</span>                     overwrite_input=overwrite_input,
+<span class="ansi-green-intense-fg ansi-bold">   3988</span>                     interpolation=interpolation)
+<span class="ansi-green-intense-fg ansi-bold">   3989</span>     if keepdims:
+<span class="ansi-green-intense-fg ansi-bold">   3990</span>         return r.reshape(q.shape + k)
+
+File <span class="ansi-green-fg">~/anaconda3/lib/python3.9/site-packages/numpy/lib/function_base.py:3564</span>, in <span class="ansi-cyan-fg">_ureduce</span><span class="ansi-blue-fg">(a, func, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">   3561</span> else:
+<span class="ansi-green-intense-fg ansi-bold">   3562</span>     keepdim = (1,) * a.ndim
+<span class="ansi-green-fg">-&gt; 3564</span> r = func(a, **kwargs)
+<span class="ansi-green-intense-fg ansi-bold">   3565</span> return r, keepdim
+
+File <span class="ansi-green-fg">~/anaconda3/lib/python3.9/site-packages/numpy/lib/function_base.py:4107</span>, in <span class="ansi-cyan-fg">_quantile_ureduce_func</span><span class="ansi-blue-fg">(***failed resolving arguments***)</span>
+<span class="ansi-green-intense-fg ansi-bold">   4104</span>     n = np.array(False, dtype=bool)
+<span class="ansi-green-intense-fg ansi-bold">   4106</span> weights_shape = indices.shape + (1,) * (ap.ndim - 1)
+<span class="ansi-green-fg">-&gt; 4107</span> weights_above = not_scalar(indices - indices_below).reshape(weights_shape)
+<span class="ansi-green-intense-fg ansi-bold">   4109</span> x_below = take(ap, indices_below, axis=0)
+<span class="ansi-green-intense-fg ansi-bold">   4110</span> x_above = take(ap, indices_above, axis=0)
+
+<span class="ansi-red-fg">KeyboardInterrupt</span>:
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_beta_regression_46_1.png" src="../_images/notebooks_beta_regression_46_1.png" />
+</div>
+</div>
+<p>The biggest question this helps us understand is, for each point of batting average in the previous year, how much better do we expect a player to be in the current year?</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mean_effect</span> <span class="o">=</span> <span class="n">lag_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<span class="n">hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">lag_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)</span>
+
+<span class="n">lower</span> <span class="o">=</span> <span class="n">expit</span><span class="p">(</span><span class="n">hdi</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<span class="n">upper</span> <span class="o">=</span> <span class="n">expit</span><span class="p">(</span><span class="n">hdi</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean effect: </span><span class="si">{</span><span class="n">expit</span><span class="p">(</span><span class="n">mean_effect</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;95% interval </span><span class="si">{</span><span class="n">lower</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">upper</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Mean effect: 0.7954
+95% interval 0.6970 - 0.8701
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">df_shift</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="p">,</span> <span class="n">lag_fitted</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="o">.</span><span class="n">batting_avg</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;goldenrod&quot;</span><span class="p">,</span> <span class="n">fill_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;alpha&quot;</span><span class="p">:</span><span class="mf">0.8</span><span class="p">})</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">df_shift</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="p">,</span> <span class="n">lag_fitted</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="o">.</span><span class="n">batting_avg</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.68</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;forestgreen&quot;</span><span class="p">,</span> <span class="n">fill_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;alpha&quot;</span><span class="p">:</span><span class="mf">0.8</span><span class="p">})</span>
+
+<span class="n">intercept</span> <span class="o">=</span> <span class="n">lag_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">Intercept</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">df_shift</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">df_shift</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">linear</span> <span class="o">=</span> <span class="n">mean_effect</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">intercept</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">expit</span><span class="p">(</span><span class="n">linear</span><span class="p">),</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Previous Year&#39;s Batting Average&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Batting Average&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_beta_regression_49_0.png" src="../_images/notebooks_beta_regression_49_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Last updated: Mon Jun 20 2022
+
+Python implementation: CPython
+Python version       : 3.9.7
+IPython version      : 8.3.0
+
+matplotlib: 3.5.1
+pandas    : 1.4.2
+numpy     : 1.21.5
+arviz     : 0.13.0.dev0
+scipy     : 1.7.3
+bambi     : 0.9.0
+sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
+[GCC 7.5.0]
+
+Watermark: 2.3.0
+
+</pre></div></div>
+</div>
+</section>
+</section>
+
+
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+  <a class='left-prev' id="prev-link" href="negative_binomial.html" title="previous page">
+      <i class="fas fa-angle-left"></i>
+      <div class="prev-next-info">
+          <p class="prev-next-subtitle">previous</p>
+          <p class="prev-next-title">Negative Binomial Regression (Students absence example)</p>
+      </div>
+  </a>
+  <a class='right-next' id="next-link" href="categorical_regression.html" title="next page">
+  <div class="prev-next-info">
+      <p class="prev-next-subtitle">next</p>
+      <p class="prev-next-title">Categorical Regression</p>
+  </div>
+  <i class="fas fa-angle-right"></i>
+  </a>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div class="tocsection onthispage">
+    <i class="fas fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Simulated-Beta-Distribution">
+   Simulated Beta Distribution
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Beta-Regression-with-Predictors">
+   Beta Regression with Predictors
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Example---Revisiting-Baseball-Data">
+   Example - Revisiting Baseball Data
+  </a>
+ </li>
+</ul>
+
+</nav>
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+<div class="tocsection sourcelink">
+    <a href="../_sources/notebooks/beta_regression.ipynb.txt">
+        <i class="fas fa-file-alt"></i> Show Source
+    </a>
+</div>
+
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=9b1a4fa89bdd0e95b23b"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+<p class="copyright">
+
+    &copy; Copyright 2022, The developers of Bambi.<br>
+
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.1.1.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+  </body>
+</html>

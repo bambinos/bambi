@@ -1,0 +1,1687 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bambi.models &#8212; Bambi 0.9.1 documentation</title>
+  <script>
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=9b1a4fa89bdd0e95b23b" rel="stylesheet">
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=9b1a4fa89bdd0e95b23b" rel="stylesheet">
+
+  
+  <link rel="stylesheet"
+    href="../../_static/vendor/fontawesome/6.1.2/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=9b1a4fa89bdd0e95b23b">
+
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/bambi/models';</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs..." aria-label="Search the docs..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fas fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../../index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="../../_static/Bambi_logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="../../_static/Bambi_logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  
+  <div class="col-lg-9 navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                <li class="nav-item">
+                    <a class="nav-link" href="../../notebooks/getting_started.html">
+                        Getting Started
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../../examples.html">
+                        Examples
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../../api_reference.html">
+                        API Reference
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../../faq.html">
+                        Frequently Asked Questions
+                    </a>
+                </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      <div class="navbar-end-item navbar-end__search-button-container">
+        
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search">
+  <i class="fas fa-search"></i>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <span class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/bambinos/bambi" title="GitHub" class="nav-link" rel="noopener" target="_blank"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bambi/" title="PyPi" class="nav-link" rel="noopener" target="_blank"><span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  <div class="search-button-container--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search">
+  <i class="fas fa-search"></i>
+</button>
+  </div>
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fas fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                <li class="nav-item">
+                    <a class="nav-link" href="../../notebooks/getting_started.html">
+                        Getting Started
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../../examples.html">
+                        Examples
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../../api_reference.html">
+                        API Reference
+                    </a>
+                </li>
+                
+
+                <li class="nav-item">
+                    <a class="nav-link" href="../../faq.html">
+                        Frequently Asked Questions
+                    </a>
+                </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <span class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle">
+    <a class="theme-switch" data-mode="light"><i class="fas fa-sun"></i></a>
+    <a class="theme-switch" data-mode="dark"><i class="far fa-moon"></i></a>
+    <a class="theme-switch" data-mode="auto"><i class="fas fa-adjust"></i></a>
+</span>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/bambinos/bambi" title="GitHub" class="nav-link" rel="noopener" target="_blank"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bambi/" title="PyPi" class="nav-link" rel="noopener" target="_blank"><span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="sidebar-start-items sidebar-primary__section">
+    <div class="sidebar-start-items__item">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+    </div>
+    <div class="sidebar-start-items__item">
+
+  
+
+  
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Versions navigation">
+    <div class="bd-toc-item active">
+        <ul class="current nav bd-sidenav">
+        <li class="toctree-l1 has-children">
+            <p class="caption"><span class="caption-text">Version</span></p>
+            <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox">
+            <label for="toctree-checkbox-1"> <i class="fas fa-chevron-down"></i></label>
+
+            <ul>
+                  
+                  <li><a href="../../../main/index.html"> Development </a></li>
+                  
+
+                
+
+                  
+                    <li class="toctree-l2 current active"><a href="models.html">0.9.1 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.9.0/index.html">0.9.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.8.0/index.html">0.8.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.7.1/index.html">0.7.1</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.7.0/index.html">0.7.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.6.3/index.html">0.6.3</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.6.2/index.html">0.6.2</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.6.1/index.html">0.6.1</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.6.0/index.html">0.6.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.5.0/index.html">0.5.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.4.1/index.html">0.4.1</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.4.0/index.html">0.4.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.3.0/index.html">0.3.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.2.0/index.html">0.2.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../../0.1.5/index.html">0.1.5</a></li>
+                  
+
+                
+
+            </ul>
+        </li>
+        </ul>
+    </div>
+  </nav>
+
+
+    </div>
+  </div>
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+      </div>
+      <main class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+  <h1>Source code for bambi.models</h1><div class="highlight"><pre>
+<span></span><span class="c1"># pylint: disable=no-name-in-module</span>
+<span class="c1"># pylint: disable=too-many-lines</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pymc</span> <span class="k">as</span> <span class="nn">pm</span>
+
+<span class="kn">from</span> <span class="nn">arviz.plots</span> <span class="kn">import</span> <span class="n">plot_posterior</span>
+
+<span class="kn">from</span> <span class="nn">formulae</span> <span class="kn">import</span> <span class="n">design_matrices</span>
+
+<span class="kn">from</span> <span class="nn">.backend</span> <span class="kn">import</span> <span class="n">PyMCModel</span>
+<span class="kn">from</span> <span class="nn">.defaults</span> <span class="kn">import</span> <span class="n">get_default_prior</span><span class="p">,</span> <span class="n">get_builtin_family</span>
+<span class="kn">from</span> <span class="nn">.families</span> <span class="kn">import</span> <span class="n">Family</span><span class="p">,</span> <span class="n">univariate</span><span class="p">,</span> <span class="n">multivariate</span>
+<span class="kn">from</span> <span class="nn">.priors</span> <span class="kn">import</span> <span class="n">Prior</span><span class="p">,</span> <span class="n">PriorScaler</span>
+<span class="kn">from</span> <span class="nn">.terms</span> <span class="kn">import</span> <span class="n">GroupSpecificTerm</span><span class="p">,</span> <span class="n">OffsetTerm</span><span class="p">,</span> <span class="n">ResponseTerm</span><span class="p">,</span> <span class="n">Term</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">listify</span><span class="p">,</span> <span class="n">extra_namespace</span>
+<span class="kn">from</span> <span class="nn">.version</span> <span class="kn">import</span> <span class="n">__version__</span>
+
+<span class="n">_log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;bambi&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Specification of model class.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    formula : str</span>
+<span class="sd">        A model description written using the formula syntax from the ``formulae`` library.</span>
+<span class="sd">    data : pandas.DataFrame or str</span>
+<span class="sd">        The dataset to use. Either a pandas ``DataFrame``, or the name of the file containing</span>
+<span class="sd">        the data, which will be passed to ``pd.read_csv()``.</span>
+<span class="sd">    family : str or bambi.families.Family</span>
+<span class="sd">        A specification of the model family (analogous to the family object in R). Either</span>
+<span class="sd">        a string, or an instance of class ``bambi.families.Family``. If a string is passed, a</span>
+<span class="sd">        family with the corresponding name must be defined in the defaults loaded at ``Model``</span>
+<span class="sd">        initialization. Valid pre-defined families are ``&quot;bernoulli&quot;``, ``&quot;beta&quot;``,</span>
+<span class="sd">        ``&quot;binomial&quot;``, ``&quot;categorical&quot;``, ``&quot;gamma&quot;``, ``&quot;gaussian&quot;``, ``&quot;negativebinomial&quot;``,</span>
+<span class="sd">        ``&quot;poisson&quot;``, ``&quot;t&quot;``, and ``&quot;wald&quot;``. Defaults to ``&quot;gaussian&quot;``.</span>
+<span class="sd">    priors : dict</span>
+<span class="sd">        Optional specification of priors for one or more terms. A dictionary where the keys are</span>
+<span class="sd">        the names of terms in the model, &quot;common&quot; or &quot;group_specific&quot; and the values are</span>
+<span class="sd">        instances of class ``Prior`` when ``automatic_priors`` is ``&quot;default&quot;``.</span>
+<span class="sd">    link : str</span>
+<span class="sd">        The name of the link function to use. Valid names are ``&quot;cloglog&quot;``, ``&quot;identity&quot;``,</span>
+<span class="sd">        ``&quot;inverse_squared&quot;``, ``&quot;inverse&quot;``, ``&quot;log&quot;``, ``&quot;logit&quot;``, ``&quot;probit&quot;``, and</span>
+<span class="sd">        ``&quot;softmax&quot;``. Not all the link functions can be used with all the families.</span>
+<span class="sd">    categorical : str or list</span>
+<span class="sd">        The names of any variables to treat as categorical. Can be either a single variable</span>
+<span class="sd">        name, or a list of names. If categorical is ``None``, the data type of the columns in</span>
+<span class="sd">        the ``data`` will be used to infer handling. In cases where numeric columns are</span>
+<span class="sd">        to be treated as categorical (e.g., group specific factors coded as numerical IDs),</span>
+<span class="sd">        explicitly passing variable names via this argument is recommended.</span>
+<span class="sd">    potentials : A list of 2-tuples.</span>
+<span class="sd">        Optional specification of potentials. A potential is an arbitrary expression added to the</span>
+<span class="sd">        likelihood, this is generally useful to add constrains to models, that are difficult to</span>
+<span class="sd">        express otherwise. The first term of a 2-tuple is the name of a variable in the model, the</span>
+<span class="sd">        second a lambda function expressing the desired constraint.</span>
+<span class="sd">        If a constraint involves n variables, you can pass n 2-tuples or pass a tuple which first</span>
+<span class="sd">        element is a n-tuple and second element is a lambda function with n arguments. The number</span>
+<span class="sd">        and order of the lambda function has to match the number and order of the variables names.</span>
+<span class="sd">    dropna : bool</span>
+<span class="sd">        When ``True``, rows with any missing values in either the predictors or outcome are</span>
+<span class="sd">        automatically dropped from the dataset in a listwise manner.</span>
+<span class="sd">    auto_scale : bool</span>
+<span class="sd">        If ``True`` (default), priors are automatically rescaled to the data</span>
+<span class="sd">        (to be weakly informative) any time default priors are used. Note that any priors</span>
+<span class="sd">        explicitly set by the user will always take precedence over default priors.</span>
+<span class="sd">    automatic_priors: str</span>
+<span class="sd">        An optional specification to compute automatic priors. ``&quot;default&quot;`` means to use</span>
+<span class="sd">        a method inspired on the R rstanarm library.</span>
+<span class="sd">    noncentered : bool</span>
+<span class="sd">        If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on</span>
+<span class="sd">        grouped parameters. If ``False``, naive (centered) parameterization is used.</span>
+<span class="sd">    priors_cor : dict</span>
+<span class="sd">        An optional value for eta in the LKJ prior for the correlation matrix of group-specific</span>
+<span class="sd">        terms. Keys in the dictionary indicate the groups, and values indicate the value of eta.</span>
+<span class="sd">        This is a very experimental feature. Defaults to ``None``, which means priors for the</span>
+<span class="sd">        group-specific terms are independent.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># pylint: disable=too-many-instance-attributes</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">formula</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="n">family</span><span class="o">=</span><span class="s2">&quot;gaussian&quot;</span><span class="p">,</span>
+        <span class="n">priors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">link</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">categorical</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">potentials</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">auto_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">automatic_priors</span><span class="o">=</span><span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="n">noncentered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">priors_cor</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="c1"># attributes that are set later</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">terms</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># build()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_backend_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># build() will loop over this, calling _set_priors()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_added_priors</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_design</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formula</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># _add_response()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">family</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># _add_response()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># _set_backend()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">priors_cor</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># _add_priors_cor()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">auto_scale</span> <span class="o">=</span> <span class="n">auto_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropna</span> <span class="o">=</span> <span class="n">dropna</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">noncentered</span> <span class="o">=</span> <span class="n">noncentered</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">potentials</span> <span class="o">=</span> <span class="n">potentials</span>
+
+        <span class="c1"># Read and clean data</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;python&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;data&#39; must be a string with a path to a .csv or a pandas DataFrame.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Convert &#39;object&#39; and explicitly asked columns to categorical.</span>
+        <span class="n">object_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="s2">&quot;object&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">cols_to_convert</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">object_cols</span> <span class="o">+</span> <span class="n">listify</span><span class="p">(</span><span class="n">categorical</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">cols_to_convert</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>  <span class="c1"># don&#39;t modify original data frame</span>
+            <span class="n">data</span><span class="p">[</span><span class="n">cols_to_convert</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">cols_to_convert</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+
+        <span class="c1"># Handle priors</span>
+        <span class="k">if</span> <span class="n">priors</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">priors</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">priors</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">priors</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">automatic_priors</span> <span class="o">=</span> <span class="n">automatic_priors</span>
+
+        <span class="c1"># Obtain design matrices and related objects.</span>
+        <span class="n">na_action</span> <span class="o">=</span> <span class="s2">&quot;drop&quot;</span> <span class="k">if</span> <span class="n">dropna</span> <span class="k">else</span> <span class="s2">&quot;error&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">formula</span> <span class="o">=</span> <span class="n">formula</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_design</span> <span class="o">=</span> <span class="n">design_matrices</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">na_action</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">extra_namespace</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">response</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;No outcome variable is set! &quot;</span>
+                <span class="s2">&quot;Please specify an outcome variable using the formula interface.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_family</span><span class="p">(</span><span class="n">family</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">priors</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_common</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="p">,</span> <span class="n">priors</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">group</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_group_specific</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="n">priors</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">priors_cor</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_priors_cor</span><span class="p">(</span><span class="n">priors_cor</span><span class="p">)</span>
+
+        <span class="c1"># Build priors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_priors</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Model.fit"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+        <span class="n">tune</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+        <span class="n">discard_tuned_samples</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">omit_offsets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">include_mean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">inference_method</span><span class="o">=</span><span class="s2">&quot;mcmc&quot;</span><span class="p">,</span>
+        <span class="n">init</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+        <span class="n">n_init</span><span class="o">=</span><span class="mi">50000</span><span class="p">,</span>
+        <span class="n">chains</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">cores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fit the model using PyMC.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        draws: int</span>
+<span class="sd">            The number of samples to draw from the posterior distribution. Defaults to 1000.</span>
+<span class="sd">        tune : int</span>
+<span class="sd">            Number of iterations to tune. Defaults to 1000. Samplers adjust the step sizes,</span>
+<span class="sd">            scalings or similar during tuning. These tuning samples are be drawn in addition to the</span>
+<span class="sd">            number specified in the ``draws`` argument, and will be discarded unless</span>
+<span class="sd">            ``discard_tuned_samples`` is set to ``False``.</span>
+<span class="sd">        discard_tuned_samples : bool</span>
+<span class="sd">            Whether to discard posterior samples of the tune interval. Defaults to ``True``.</span>
+<span class="sd">        omit_offsets: bool</span>
+<span class="sd">            Omits offset terms in the ``InferenceData`` object returned when the model includes</span>
+<span class="sd">            group specific effects. Defaults to ``True``.</span>
+<span class="sd">        include_mean: bool</span>
+<span class="sd">            Compute the posterior of the mean response. Defaults to ``False``.</span>
+<span class="sd">        inference_method: str</span>
+<span class="sd">            The method to use for fitting the model. By default, ``&quot;mcmc&quot;``. This automatically</span>
+<span class="sd">            assigns a MCMC method best suited for each kind of variables, like NUTS for continuous</span>
+<span class="sd">            variables and Metropolis for non-binary discrete ones. Alternatively, ``&quot;vi&quot;``, in</span>
+<span class="sd">            which case the model will be fitted using variational inference as implemented in PyMC</span>
+<span class="sd">            using the ``fit`` function.</span>
+<span class="sd">            Finally, ``&quot;laplace&quot;``, in which case a Laplace approximation is used and is not</span>
+<span class="sd">            recommended other than for pedagogical use.</span>
+<span class="sd">            To use the PyMC numpyro and blackjax samplers, use ``nuts_numpyro`` or ``nuts_blackjax``</span>
+<span class="sd">            respectively. Both methods will only work if you can use NUTS sampling, so your model</span>
+<span class="sd">            must be differentiable.</span>
+<span class="sd">        init: str</span>
+<span class="sd">            Initialization method. Defaults to ``&quot;auto&quot;``. The available methods are:</span>
+<span class="sd">            * auto: Use ``&quot;jitter+adapt_diag&quot;`` and if this method fails it uses ``&quot;adapt_diag&quot;``.</span>
+<span class="sd">            * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the</span>
+<span class="sd">            variance of the tuning samples. All chains use the test value (usually the prior mean)</span>
+<span class="sd">            as starting point.</span>
+<span class="sd">            * jitter+adapt_diag: Same as ``&quot;adapt_diag&quot;``, but use test value plus a uniform jitter</span>
+<span class="sd">            in [-1, 1] as starting point in each chain.</span>
+<span class="sd">            * advi+adapt_diag: Run ADVI and then adapt the resulting diagonal mass matrix based on</span>
+<span class="sd">            the sample variance of the tuning samples.</span>
+<span class="sd">            * advi+adapt_diag_grad: Run ADVI and then adapt the resulting diagonal mass matrix based</span>
+<span class="sd">            on the variance of the gradients during tuning. This is **experimental** and might be</span>
+<span class="sd">            removed in a future release.</span>
+<span class="sd">            * advi: Run ADVI to estimate posterior mean and diagonal mass matrix.</span>
+<span class="sd">            * advi_map: Initialize ADVI with MAP and use MAP as starting point.</span>
+<span class="sd">            * map: Use the MAP as starting point. This is strongly discouraged.</span>
+<span class="sd">            * adapt_full: Adapt a dense mass matrix using the sample covariances. All chains use the</span>
+<span class="sd">            test value (usually the prior mean) as starting point.</span>
+<span class="sd">            * jitter+adapt_full: Same as ``&quot;adapt_full&quot;``, but use test value plus a uniform jitter</span>
+<span class="sd">            in [-1, 1] as starting point in each chain.</span>
+<span class="sd">        n_init: int</span>
+<span class="sd">            Number of initialization iterations. Only works for ``&quot;advi&quot;`` init methods.</span>
+<span class="sd">        chains: int</span>
+<span class="sd">            The number of chains to sample. Running independent chains is important for some</span>
+<span class="sd">            convergence statistics and can also reveal multiple modes in the posterior. If ``None``,</span>
+<span class="sd">            then set to either ``cores`` or 2, whichever is larger.</span>
+<span class="sd">        cores : int</span>
+<span class="sd">            The number of chains to run in parallel. If ``None``, it is equal to the number of CPUs</span>
+<span class="sd">            in the system unless there are more than 4 CPUs, in which case it is set to 4.</span>
+<span class="sd">        random_seed : int or list of ints</span>
+<span class="sd">            A list is accepted if cores is greater than one.</span>
+<span class="sd">        **kwargs:</span>
+<span class="sd">            For other kwargs see the documentation for ``PyMC.sample()``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        An ArviZ ``InferenceData`` instance if inference_method is  ``&quot;mcmc&quot;`` (default),</span>
+<span class="sd">        &quot;nuts_numpyro&quot;, &quot;nuts_blackjax&quot; or &quot;laplace&quot;.</span>
+<span class="sd">        An ``Approximation`` object if  ``&quot;vi&quot;``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;method&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">method</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">inference_method</span> <span class="o">==</span> <span class="s2">&quot;vi&quot;</span><span class="p">:</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;method&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">method</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;the method argument has been deprecated, please use inference_method&quot;</span><span class="p">,</span>
+                    <span class="ne">FutureWarning</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">inference_method</span> <span class="o">=</span> <span class="n">method</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+
+        <span class="c1"># Tell user which event is being modeled</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="n">univariate</span><span class="o">.</span><span class="n">Bernoulli</span><span class="p">):</span>
+            <span class="n">_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Modeling the probability that </span><span class="si">%s</span><span class="s2">==</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">success</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">draws</span><span class="o">=</span><span class="n">draws</span><span class="p">,</span>
+            <span class="n">tune</span><span class="o">=</span><span class="n">tune</span><span class="p">,</span>
+            <span class="n">discard_tuned_samples</span><span class="o">=</span><span class="n">discard_tuned_samples</span><span class="p">,</span>
+            <span class="n">omit_offsets</span><span class="o">=</span><span class="n">omit_offsets</span><span class="p">,</span>
+            <span class="n">include_mean</span><span class="o">=</span><span class="n">include_mean</span><span class="p">,</span>
+            <span class="n">inference_method</span><span class="o">=</span><span class="n">inference_method</span><span class="p">,</span>
+            <span class="n">init</span><span class="o">=</span><span class="n">init</span><span class="p">,</span>
+            <span class="n">n_init</span><span class="o">=</span><span class="n">n_init</span><span class="p">,</span>
+            <span class="n">chains</span><span class="o">=</span><span class="n">chains</span><span class="p">,</span>
+            <span class="n">cores</span><span class="o">=</span><span class="n">cores</span><span class="p">,</span>
+            <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="Model.build"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set up the model for sampling/fitting.</span>
+
+<span class="sd">        Creates an instance of the underlying PyMC model and adds all the necessary terms to it.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">PyMCModel</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="o">=</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Model.set_priors"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.set_priors">[docs]</a>    <span class="k">def</span> <span class="nf">set_priors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">common</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group_specific</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set priors for one or more existing terms.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        priors: dict</span>
+<span class="sd">            Dictionary of priors to update. Keys are names of terms to update; values are the new</span>
+<span class="sd">            priors (either a ``Prior`` instance, or an int or float that scales the default priors).</span>
+<span class="sd">            Note that a tuple can be passed as the key, in which case the same prior will be applied</span>
+<span class="sd">            to all terms named in the tuple.</span>
+<span class="sd">        common: Prior, int, float or str</span>
+<span class="sd">            A prior specification to apply to all common terms included in the model.</span>
+<span class="sd">        group_specific: Prior, int, float or str</span>
+<span class="sd">            A prior specification to apply to all group specific terms included in the model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">([</span><span class="s2">&quot;priors&quot;</span><span class="p">,</span> <span class="s2">&quot;common&quot;</span><span class="p">,</span> <span class="s2">&quot;group_specific&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">priors</span><span class="p">,</span> <span class="n">common</span><span class="p">,</span> <span class="n">group_specific</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_added_priors</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="c1"># After updating, we need to rebuild priors.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_priors</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+    <span class="k">def</span> <span class="nf">_build_priors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Carry out all operations related to the construction and/or scaling of priors.&quot;&quot;&quot;</span>
+        <span class="c1"># Set custom priors that have been passed via `Model.set_priors()`</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_priors</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_added_priors</span><span class="p">)</span>
+
+        <span class="c1"># Prepare all priors</span>
+        <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">term</span><span class="o">.</span><span class="n">group_specific</span><span class="p">:</span>
+                <span class="n">kind</span> <span class="o">=</span> <span class="s2">&quot;group_specific&quot;</span>
+            <span class="k">elif</span> <span class="n">term</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;intercept&quot;</span><span class="p">:</span>
+                <span class="n">kind</span> <span class="o">=</span> <span class="s2">&quot;intercept&quot;</span>
+            <span class="k">elif</span> <span class="n">term</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;offset&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">kind</span> <span class="o">=</span> <span class="s2">&quot;common&quot;</span>
+            <span class="n">term</span><span class="o">.</span><span class="n">prior</span> <span class="o">=</span> <span class="n">prepare_prior</span><span class="p">(</span><span class="n">term</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_scale</span><span class="p">)</span>
+
+        <span class="c1"># Scale priors if there is at least one term in the model and auto_scale is True</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">terms</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">auto_scale</span><span class="p">:</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">automatic_priors</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="s2">&quot;default&quot;</span><span class="p">:</span>
+                <span class="n">scaler</span> <span class="o">=</span> <span class="n">PriorScaler</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> is not a valid method for default priors. Use &#39;default&#39;.&quot;</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scaler</span> <span class="o">=</span> <span class="n">scaler</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">scaler</span><span class="o">.</span><span class="n">scale</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_set_priors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">common</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">group_specific</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Internal version of ``set_priors()``, with same arguments.</span>
+
+<span class="sd">        Runs during ``Model._build_priors()``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># First, it constructs a `targets` dict where it store key-value (name-prior) pairs that</span>
+        <span class="c1"># are going to be updated. Finally, the update is done in the last for loop in this method.</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">common</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">targets</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">common</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">common_terms</span><span class="p">})</span>
+
+        <span class="k">if</span> <span class="n">group_specific</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">targets</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">group_specific</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_specific_terms</span><span class="p">})</span>
+
+        <span class="k">if</span> <span class="n">priors</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">priors</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">priors</span><span class="p">)</span>
+            <span class="c1"># Prepare priors for auxiliary parameters of the response</span>
+            <span class="n">family_prior</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">name</span><span class="p">:</span> <span class="n">priors</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">priors</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">priors</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="n">family_prior</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">prior</span> <span class="ow">in</span> <span class="n">family_prior</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                    <span class="n">prior</span><span class="o">.</span><span class="n">auto_scale</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">family_prior</span><span class="p">)</span>
+
+            <span class="c1"># Prepare priors for explanatory terms.</span>
+            <span class="k">for</span> <span class="n">names</span><span class="p">,</span> <span class="n">prior</span> <span class="ow">in</span> <span class="n">priors</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="c1"># In case we have tuple-keys, we loop through each of them.</span>
+                <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">listify</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No terms in model match &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
+                    <span class="n">targets</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">prior</span>
+
+        <span class="c1"># Set priors for explanatory terms.</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">prior</span> <span class="ow">in</span> <span class="n">targets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">prior</span> <span class="o">=</span> <span class="n">prior</span>
+
+    <span class="k">def</span> <span class="nf">_set_family</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">family</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">priors</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the Family of the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        family: str or bambi.families.Family</span>
+<span class="sd">            A specification of the model family (analogous to the family object in R). Either a</span>
+<span class="sd">            string, or an instance of class ``families.Family``. If a string is passed, a family</span>
+<span class="sd">            with the corresponding name must be defined in the defaults loaded at model</span>
+<span class="sd">            initialization.</span>
+<span class="sd">        link: str</span>
+<span class="sd">            The name of the link function to use. Valid names are ``&quot;cloglog&quot;``, ``&quot;identity&quot;``,</span>
+<span class="sd">            ``&quot;inverse_squared&quot;``, ``&quot;inverse&quot;``, ``&quot;log&quot;``, ``&quot;logit&quot;``, ``&quot;probit&quot;``, and</span>
+<span class="sd">            ``&quot;softmax&quot;``. Not all the link functions can be used with all the families.</span>
+<span class="sd">        priors: dict</span>
+<span class="sd">            A dictionary with specification of priors for the parameters in the family of</span>
+<span class="sd">            the response. Keys are names of other parameters than the mean in the family</span>
+<span class="sd">            (i.e. they cannot be equal to ``family.parent``) and values can be an instance of class</span>
+<span class="sd">            ``Prior``, a numeric value, or a string describing the width. In the numeric case,</span>
+<span class="sd">            the distribution specified in the defaults will be used, and the passed value will be</span>
+<span class="sd">            used to scale the appropriate variance parameter.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># If string, get builtin family</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">family</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">family</span> <span class="o">=</span> <span class="n">get_builtin_family</span><span class="p">(</span><span class="n">family</span><span class="p">)</span>
+
+        <span class="c1"># Always ensure family is indeed instance of Family</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">family</span><span class="p">,</span> <span class="n">Family</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;family&#39; must be a string or a Family object.&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Get the names of the auxiliary parameters in the family</span>
+        <span class="n">aux_params</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">priors</span><span class="p">)</span>
+
+        <span class="c1"># Check if any of the names of the auxiliary params match the names of terms in the model</span>
+        <span class="c1"># If that happens, raise an error.</span>
+        <span class="k">if</span> <span class="n">aux_params</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="p">:</span>
+            <span class="n">conflicts</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">aux_params</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">terms</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">conflicts</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;The prior name for </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">conflicts</span><span class="p">)</span><span class="si">}</span><span class="s2"> conflicts with the name of a &quot;</span>
+                    <span class="s2">&quot;parameter in the response distribution.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;Please rename the term(s) to prevent an unexpected behaviour.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Extract priors for auxiliary params</span>
+        <span class="n">priors</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">priors</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">aux_params</span><span class="p">}</span>
+
+        <span class="c1"># Update auxiliary parameters</span>
+        <span class="k">if</span> <span class="n">priors</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">prior</span> <span class="ow">in</span> <span class="n">priors</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prior</span><span class="p">,</span> <span class="n">Prior</span><span class="p">):</span>
+                    <span class="n">prior</span><span class="o">.</span><span class="n">auto_scale</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">priors</span><span class="p">)</span>
+
+        <span class="c1"># Override family&#39;s link if another is explicitly passed</span>
+        <span class="k">if</span> <span class="n">link</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">family</span><span class="o">.</span><span class="n">link</span> <span class="o">=</span> <span class="n">link</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">family</span> <span class="o">=</span> <span class="n">family</span>
+
+<div class="viewcode-block" id="Model.set_alias"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.set_alias">[docs]</a>    <span class="k">def</span> <span class="nf">set_alias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aliases</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set aliases for the terms and auxiliary parameters in the model</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        aliases: dict</span>
+<span class="sd">            A dictionary where key represents the original term name and the value is the alias.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">aliases</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;aliases&#39; must be a dictionary, not a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">aliases</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">aliases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">set_alias</span><span class="p">(</span><span class="n">alias</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">priors</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">set_alias</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">alias</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">set_alias</span><span class="p">(</span><span class="n">alias</span><span class="p">)</span>
+
+            <span class="c1"># Now add aliases for hyperpriors in group specific terms</span>
+            <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_specific_terms</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">term</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
+                    <span class="n">term</span><span class="o">.</span><span class="n">set_hyperprior_alias</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">alias</span><span class="p">)</span>
+
+        <span class="c1"># Model needs to be rebuilt after modifying aliases</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+    <span class="k">def</span> <span class="nf">_add_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">response</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a response (or outcome/dependent) variable to the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        response : formulae.ResponseMatrix</span>
+<span class="sd">            An instance of ``formulae.ResponseMatrix`` as returned by</span>
+<span class="sd">            ``formulae.design_matrices()``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">term</span><span class="o">.</span><span class="n">term</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;reference&quot;</span><span class="p">):</span>
+            <span class="n">reference</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">term</span><span class="o">.</span><span class="n">term</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reference</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">reference</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">reference</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="n">univariate</span><span class="o">.</span><span class="n">Bernoulli</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Index notation for response is only available for &#39;bernoulli&#39; family&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="n">univariate</span><span class="o">.</span><span class="n">Bernoulli</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;categoric&quot;</span> <span class="ow">and</span> <span class="n">response</span><span class="o">.</span><span class="n">levels</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">reference</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Categoric response must be binary for &#39;bernoulli&#39; family.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;numeric&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">design_matrix</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Numeric response must be all 0 and 1 for &#39;bernoulli&#39; family.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">response</span> <span class="o">=</span> <span class="n">ResponseTerm</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_add_common</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">common</span><span class="p">,</span> <span class="n">priors</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add common (a.k.a. fixed) terms to the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        common: formulae.CommonEffectsMatrix</span>
+<span class="sd">            Representation of the design matrix for the common effects of a model. It contains all</span>
+<span class="sd">            the necessary information to build the ``Term`` objects associated with each common</span>
+<span class="sd">            term in the model.</span>
+<span class="sd">        priors: dict</span>
+<span class="sd">            Optional specification of priors for one or more terms. A dictionary where the keys are</span>
+<span class="sd">            any of the names of the common terms in the model or ``&quot;common&quot;`` and the values are</span>
+<span class="sd">            either instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the</span>
+<span class="sd">            width of the priors on a standardized scale.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">common</span><span class="o">.</span><span class="n">terms</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">common</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">prior</span> <span class="o">=</span> <span class="n">priors</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">priors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;common&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prior</span><span class="p">,</span> <span class="n">Prior</span><span class="p">):</span>
+                <span class="n">any_hyperprior</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Prior</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">prior</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+                <span class="k">if</span> <span class="n">any_hyperprior</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Trying to set hyperprior on &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+                        <span class="s2">&quot;Can&#39;t set a hyperprior on common effects.&quot;</span>
+                    <span class="p">)</span>
+            <span class="k">if</span> <span class="n">term</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;offset&quot;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">OffsetTerm</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">Term</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_add_group_specific</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">group</span><span class="p">,</span> <span class="n">priors</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add group-specific (a.k.a. random) terms to the model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        group: formulae.GroupEffectsMatrix</span>
+<span class="sd">            Representation of the design matrix for the group specific effects of a model. It</span>
+<span class="sd">            contains all the necessary information to build the ``GroupSpecificTerm`` objects</span>
+<span class="sd">            associated with each group-specific term in the model.</span>
+<span class="sd">        priors: dict</span>
+<span class="sd">            Optional specification of priors for one or more terms. A dictionary where the keys are</span>
+<span class="sd">            any of the names of the group-specific terms in the model or ``&quot;group_specific&quot;`` and</span>
+<span class="sd">            the values are either instances of class ``Prior`` or ``int``, ``float``, or ``str``</span>
+<span class="sd">            that specify the width of the priors on a standardized scale.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">group</span><span class="o">.</span><span class="n">terms</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">prior</span> <span class="o">=</span> <span class="n">priors</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">priors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;group_specific&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">GroupSpecificTerm</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">prior</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_add_priors_cor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">priors</span><span class="p">):</span>
+        <span class="c1"># priors: dictionary. names are groups, values are the &quot;eta&quot; in the lkj prior</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_group_specific_groups</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">priors</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">priors_cor</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">=</span> <span class="n">priors</span><span class="p">[</span><span class="n">group</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The name </span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s2"> is not a group in any group-specific term.&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Model.plot_priors"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.plot_priors">[docs]</a>    <span class="k">def</span> <span class="nf">plot_priors</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">draws</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span>
+        <span class="n">var_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">textsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">hdi_prob</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">round_to</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">point_estimate</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+        <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;kde&quot;</span><span class="p">,</span>
+        <span class="n">bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">omit_offsets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">omit_group_specific</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Samples from the prior distribution and plots its marginals.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        draws: int</span>
+<span class="sd">            Number of draws to sample from the prior predictive distribution. Defaults to 5000.</span>
+<span class="sd">        var_names: str or list</span>
+<span class="sd">            A list of names of variables for which to compute the posterior predictive</span>
+<span class="sd">            distribution. Defaults to ``None`` which means to include both observed and</span>
+<span class="sd">            unobserved RVs.</span>
+<span class="sd">        random_seed: int</span>
+<span class="sd">            Seed for the random number generator.</span>
+<span class="sd">        figsize: tuple</span>
+<span class="sd">            Figure size. If ``None`` it will be defined automatically.</span>
+<span class="sd">        textsize: float</span>
+<span class="sd">            Text size scaling factor for labels, titles and lines. If ``None`` it will be</span>
+<span class="sd">            autoscaled based on ``figsize``.</span>
+<span class="sd">        hdi_prob: float or str</span>
+<span class="sd">            Plots highest density interval for chosen percentage of density.</span>
+<span class="sd">            Use ``&quot;hide&quot;`` to hide the highest density interval. Defaults to 0.94.</span>
+<span class="sd">        round_to: int</span>
+<span class="sd">            Controls formatting of floats. Defaults to 2 or the integer part, whichever is bigger.</span>
+<span class="sd">        point_estimate: str</span>
+<span class="sd">            Plot point estimate per variable. Values should be ``&quot;mean&quot;``, ``&quot;median&quot;``, ``&quot;mode&quot;``</span>
+<span class="sd">            or ``None``. Defaults to ``&quot;auto&quot;`` i.e. it falls back to default set in</span>
+<span class="sd">            ArviZ&#39;s rcParams.</span>
+<span class="sd">        kind: str</span>
+<span class="sd">            Type of plot to display (``&quot;kde&quot;`` or ``&quot;hist&quot;``) For discrete variables this argument</span>
+<span class="sd">            is ignored and a histogram is always used.</span>
+<span class="sd">        bins: integer or sequence or &quot;auto&quot;</span>
+<span class="sd">            Controls the number of bins, accepts the same keywords ``matplotlib.pyplot.hist()``</span>
+<span class="sd">            does. Only works if ``kind == &quot;hist&quot;``. If ``None`` (default) it will use ``&quot;auto&quot;``</span>
+<span class="sd">            for continuous variables and ``range(xmin, xmax + 1)`` for discrete variables.</span>
+<span class="sd">        omit_offsets: bool</span>
+<span class="sd">            Whether to omit offset terms in the plot. Defaults to ``True``.</span>
+<span class="sd">        omit_group_specific: bool</span>
+<span class="sd">            Whether to omit group specific effects in the plot. Defaults to ``True``.</span>
+<span class="sd">        ax: numpy array-like of matplotlib axes or bokeh figures</span>
+<span class="sd">            A 2D array of locations into which to plot the densities. If not supplied, ArviZ will</span>
+<span class="sd">            create its own array of plot areas (and return it).</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Passed as-is to ``matplotlib.pyplot.hist()`` or ``matplotlib.pyplot.plot()`` function</span>
+<span class="sd">            depending on the value of ``kind``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        axes: matplotlib axes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Cannot plot priors until model is built!! &quot;</span>
+                <span class="s2">&quot;Call .build() to build the model or .fit() to build and sample from the posterior.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">unobserved_rvs_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">flat_rvs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">unobserved</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">unobserved_RVs</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;Flat&quot;</span> <span class="ow">in</span> <span class="n">unobserved</span><span class="o">.</span><span class="fm">__str__</span><span class="p">():</span>
+                <span class="n">flat_rvs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">unobserved</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">unobserved_rvs_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">unobserved</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">var_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">var_names</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">get_default_varnames</span><span class="p">(</span>
+                <span class="n">unobserved_rvs_names</span><span class="p">,</span> <span class="n">include_transformed</span><span class="o">=</span><span class="kc">False</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">flat_rvs</span> <span class="o">=</span> <span class="p">[</span><span class="n">fv</span> <span class="k">for</span> <span class="n">fv</span> <span class="ow">in</span> <span class="n">flat_rvs</span> <span class="k">if</span> <span class="n">fv</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">]</span>
+            <span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">vn</span> <span class="k">for</span> <span class="n">vn</span> <span class="ow">in</span> <span class="n">var_names</span> <span class="k">if</span> <span class="n">vn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">flat_rvs</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">flat_rvs</span><span class="p">:</span>
+            <span class="n">_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;Variables </span><span class="si">%s</span><span class="s2"> have flat priors, and hence they are not plotted&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">flat_rvs</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">omit_offsets</span><span class="p">:</span>
+            <span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">var_names</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_offset&quot;</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">omit_group_specific</span><span class="p">:</span>
+            <span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">vn</span> <span class="k">for</span> <span class="n">vn</span> <span class="ow">in</span> <span class="n">var_names</span> <span class="k">if</span> <span class="n">vn</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_specific_terms</span><span class="p">]</span>
+
+        <span class="n">axes</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">var_names</span><span class="p">:</span>
+            <span class="c1"># Sort variable names so Intercept is in the beginning</span>
+            <span class="k">if</span> <span class="s2">&quot;Intercept&quot;</span> <span class="ow">in</span> <span class="n">var_names</span><span class="p">:</span>
+                <span class="n">var_names</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">var_names</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">var_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;Intercept&quot;</span><span class="p">)))</span>
+            <span class="n">pps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prior_predictive</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="n">draws</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="n">var_names</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">)</span>
+
+            <span class="n">axes</span> <span class="o">=</span> <span class="n">plot_posterior</span><span class="p">(</span>
+                <span class="n">pps</span><span class="p">,</span>
+                <span class="n">group</span><span class="o">=</span><span class="s2">&quot;prior&quot;</span><span class="p">,</span>
+                <span class="n">var_names</span><span class="o">=</span><span class="n">var_names</span><span class="p">,</span>
+                <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
+                <span class="n">textsize</span><span class="o">=</span><span class="n">textsize</span><span class="p">,</span>
+                <span class="n">hdi_prob</span><span class="o">=</span><span class="n">hdi_prob</span><span class="p">,</span>
+                <span class="n">round_to</span><span class="o">=</span><span class="n">round_to</span><span class="p">,</span>
+                <span class="n">point_estimate</span><span class="o">=</span><span class="n">point_estimate</span><span class="p">,</span>
+                <span class="n">kind</span><span class="o">=</span><span class="n">kind</span><span class="p">,</span>
+                <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span>
+                <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">axes</span></div>
+
+<div class="viewcode-block" id="Model.prior_predictive"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.prior_predictive">[docs]</a>    <span class="k">def</span> <span class="nf">prior_predictive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">omit_offsets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate samples from the prior predictive distribution.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        draws: int</span>
+<span class="sd">            Number of draws to sample from the prior predictive distribution. Defaults to 500.</span>
+<span class="sd">        var_names: str or list</span>
+<span class="sd">            A list of names of variables for which to compute the prior predictive distribution.</span>
+<span class="sd">            Defaults to ``None`` which means both observed and unobserved RVs.</span>
+<span class="sd">        random_seed: int</span>
+<span class="sd">            Seed for the random number generator.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        InferenceData</span>
+<span class="sd">            ``InferenceData`` object with the groups ``prior``, ``prior_predictive`` and</span>
+<span class="sd">            ``observed_data``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">var_names</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">unobserved_RVs</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">observed_RVs</span>
+            <span class="n">variables_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">]</span>
+            <span class="n">var_names</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">get_default_varnames</span><span class="p">(</span><span class="n">variables_names</span><span class="p">,</span> <span class="n">include_transformed</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">omit_offsets</span><span class="p">:</span>
+            <span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">var_names</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_offset&quot;</span><span class="p">)]</span>
+
+        <span class="n">idata</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">sample_prior_predictive</span><span class="p">(</span>
+            <span class="n">samples</span><span class="o">=</span><span class="n">draws</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="n">var_names</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;prior&quot;</span><span class="p">):</span>
+            <span class="n">to_drop</span> <span class="o">=</span> <span class="p">[</span><span class="n">dim</span> <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">idata</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">dims</span> <span class="k">if</span> <span class="n">dim</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_dim_0&quot;</span><span class="p">)]</span>
+            <span class="n">idata</span><span class="o">.</span><span class="n">prior</span> <span class="o">=</span> <span class="n">idata</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">to_drop</span><span class="p">)</span><span class="o">.</span><span class="n">reset_coords</span><span class="p">(</span><span class="n">to_drop</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">idata</span><span class="o">.</span><span class="n">groups</span><span class="p">():</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;modeling_interface&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bambi&quot;</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">group</span><span class="p">)</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;modeling_interface_version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">__version__</span>
+
+        <span class="k">return</span> <span class="n">idata</span></div>
+
+    <span class="c1"># pylint: disable=protected-access</span>
+<div class="viewcode-block" id="Model.predict"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_group_specific</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Predict method for Bambi models</span>
+
+<span class="sd">        Obtains in-sample and out-of-sample predictions from a fitted Bambi model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        idata: InferenceData</span>
+<span class="sd">            The ``InferenceData`` instance returned by ``.fit()``.</span>
+<span class="sd">        kind: str</span>
+<span class="sd">            Indicates the type of prediction required. Can be ``&quot;mean&quot;`` or ``&quot;pps&quot;``. The</span>
+<span class="sd">            first returns draws from the posterior distribution of the mean, while the latter</span>
+<span class="sd">            returns the draws from the posterior predictive distribution</span>
+<span class="sd">            (i.e. the posterior probability distribution for a new observation).</span>
+<span class="sd">            Defaults to ``&quot;mean&quot;``.</span>
+<span class="sd">        data: pandas.DataFrame or None</span>
+<span class="sd">            An optional data frame with values for the predictors that are used to obtain</span>
+<span class="sd">            out-of-sample predictions. If omitted, the original dataset is used.</span>
+<span class="sd">        include_group_specific: bool</span>
+<span class="sd">            If ``True`` make predictions including the group specific effects. Otherwise,</span>
+<span class="sd">            predictions are made with common effects only (i.e. group specific are set</span>
+<span class="sd">            to zero).</span>
+<span class="sd">        inplace: bool</span>
+<span class="sd">            If ``True`` it will modify ``idata`` in-place. Otherwise, it will return a copy of</span>
+<span class="sd">            ``idata`` with the predictions added. If ``kind=&quot;mean&quot;``, a new variable ending in</span>
+<span class="sd">            ``&quot;_mean&quot;`` is added to the ``posterior`` group. If ``kind=&quot;pps&quot;``, it appends a</span>
+<span class="sd">            ``posterior_predictive`` group to ``idata``. If any of these already exist, it will be</span>
+<span class="sd">            overwritten.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        InferenceData or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="s2">&quot;pps&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;kind&#39; must be one of &#39;mean&#39; or &#39;pps&#39;&quot;</span><span class="p">)</span>
+
+        <span class="n">linear_predictor</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">Z</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">x_offsets</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">chain_n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">))</span>
+        <span class="n">draw_n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">coords</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+        <span class="n">posterior</span> <span class="o">=</span> <span class="n">idata</span><span class="o">.</span><span class="n">posterior</span>
+        <span class="n">in_sample</span> <span class="o">=</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="n">idata</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">idata</span><span class="p">)</span>
+
+        <span class="c1"># Create design matrices</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">in_sample</span><span class="p">:</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">design_matrix</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">evaluate_new_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">design_matrix</span>
+
+            <span class="c1"># Add offset columns to their own design matrix</span>
+            <span class="c1"># Remove them from the common design matrix.</span>
+            <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_terms</span><span class="p">:</span>
+                <span class="n">term_slice</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">slices</span><span class="p">[</span><span class="n">term</span><span class="p">]</span>
+                <span class="n">x_offsets</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="n">term_slice</span><span class="p">])</span>
+                <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">term_slice</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">group</span> <span class="ow">and</span> <span class="n">include_group_specific</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">in_sample</span><span class="p">:</span>
+                <span class="n">Z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">design_matrix</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">Z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">evaluate_new_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">design_matrix</span>
+
+        <span class="c1"># Contribution due to common terms</span>
+        <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">beta_x_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">term_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">common_terms</span><span class="p">)</span>
+            <span class="n">response_dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">intercept_term</span><span class="p">:</span>
+                <span class="n">term_names</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Intercept&quot;</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">term_names</span><span class="p">:</span>
+                <span class="n">term_dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+                <span class="n">term_posterior</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                <span class="n">dims</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">term_posterior</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+
+                <span class="c1"># 1-dimensional predictors (a single slope or intercept)</span>
+                <span class="k">if</span> <span class="n">dims</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">}:</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="n">term_posterior</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">values</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+                <span class="c1"># 2-dimensional predictors (splines or categoricals)</span>
+                <span class="k">elif</span> <span class="n">dims</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">term_dims</span><span class="p">):</span>
+                    <span class="n">transpose_dims</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;samples&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">term_dims</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">term_posterior</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+                        <span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">transpose_dims</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">values</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+                <span class="c1"># Multivariate families, we need to consider the dimension of the response too</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="p">(</span><span class="n">multivariate</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span> <span class="n">multivariate</span><span class="o">.</span><span class="n">Multinomial</span><span class="p">)):</span>
+                    <span class="n">transpose_dims</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;samples&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">term_dims</span> <span class="o">+</span> <span class="n">response_dims</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">term_posterior</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+                        <span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">transpose_dims</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">values</span>
+                    <span class="p">)</span>
+                    <span class="c1"># When p = 1 values is of shape (samples_n, response_n).</span>
+                    <span class="c1"># We need it to be of shape (samples_n, 1, response_n)</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                        <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected dimensions in term </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="n">beta_x_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+            <span class="c1"># &#39;beta_x&#39; is of shape:</span>
+            <span class="c1"># * (chain_n * draw_n, p) for univariate</span>
+            <span class="c1"># * (chain_n * draw_n, p, response_n) for multivariate</span>
+            <span class="n">beta_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">beta_x_list</span><span class="p">)</span>
+
+            <span class="c1"># &#39;contribution&#39; is of shape:</span>
+            <span class="c1"># * (chain_n * draw_n, obs_n) for univariate</span>
+            <span class="c1"># * (chain_n * draw_n, obs_n, response_n) for multivariate</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">beta_x</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">contribution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">beta_x</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">contribution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">beta_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">beta_x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">contribution</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                    <span class="n">contribution</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">beta_x</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">chain_n</span><span class="p">,</span> <span class="n">draw_n</span><span class="p">)</span> <span class="o">+</span> <span class="n">contribution</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">contribution</span> <span class="o">=</span> <span class="n">contribution</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+            <span class="n">linear_predictor</span> <span class="o">+=</span> <span class="n">contribution</span>
+
+        <span class="c1"># If model contains offset, add directly to the linear predictor</span>
+        <span class="k">if</span> <span class="n">x_offsets</span><span class="p">:</span>
+            <span class="n">linear_predictor</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span><span class="n">x_offsets</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+
+        <span class="c1"># Contribution due to group-specific terms. Same comments than for beta_x apply here.</span>
+        <span class="k">if</span> <span class="n">Z</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">beta_z_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">term_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">group_specific_terms</span><span class="p">)</span>
+            <span class="n">response_dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">term_names</span><span class="p">:</span>
+                <span class="n">term_dims</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">)</span>
+                <span class="n">factor_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">term_dims</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;__factor_dim&quot;</span><span class="p">)]</span>
+                <span class="n">expr_dims</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">term_dims</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;__expr_dim&quot;</span><span class="p">)]</span>
+                <span class="n">term_posterior</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+                <span class="n">dims</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">term_posterior</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+
+                <span class="c1"># Group-specific term: len(dims) &lt; 3 does not exist.</span>
+                <span class="c1"># 1 dimensional predictors</span>
+                <span class="k">if</span> <span class="n">dims</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">expr_dims</span><span class="p">):</span>
+                    <span class="n">transpose_dims</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;samples&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">expr_dims</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">term_posterior</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+                        <span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">transpose_dims</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">values</span>
+                    <span class="p">)</span>
+                <span class="c1"># 2 dimensional predictors</span>
+                <span class="k">elif</span> <span class="n">dims</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">expr_dims</span> <span class="o">+</span> <span class="n">factor_dims</span><span class="p">):</span>
+                    <span class="n">transpose_dims</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;samples&quot;</span><span class="p">,</span> <span class="s2">&quot;coefs&quot;</span><span class="p">]</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">term_posterior</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+                        <span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">coefs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">factor_dims</span> <span class="o">+</span> <span class="n">expr_dims</span><span class="p">))</span>
+                        <span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">transpose_dims</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">values</span>
+                    <span class="p">)</span>
+                <span class="c1"># Multivariate families, need to consider dimensionality of the response</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="p">(</span><span class="n">multivariate</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span> <span class="n">multivariate</span><span class="o">.</span><span class="n">Multinomial</span><span class="p">)):</span>
+                    <span class="c1"># 1 dimensional predictors (there&#39;s no factor dimension)</span>
+                    <span class="k">if</span> <span class="n">dims</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">factor_dims</span> <span class="o">+</span> <span class="n">response_dims</span><span class="p">):</span>
+                        <span class="n">transpose_dims</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;samples&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">factor_dims</span> <span class="o">+</span> <span class="n">response_dims</span>
+                        <span class="n">values</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">term_posterior</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+                            <span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">transpose_dims</span><span class="p">)</span>
+                            <span class="o">.</span><span class="n">values</span>
+                        <span class="p">)</span>
+                    <span class="c1"># 2 dimensional predictors (there&#39;s a factor dimension)</span>
+                    <span class="k">elif</span> <span class="n">dims</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">expr_dims</span> <span class="o">+</span> <span class="n">factor_dims</span> <span class="o">+</span> <span class="n">response_dims</span><span class="p">):</span>
+                        <span class="n">transpose_dims</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;samples&quot;</span><span class="p">,</span> <span class="s2">&quot;coefs&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">response_dims</span>
+                        <span class="n">values</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="n">term_posterior</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+                            <span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">coefs</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">factor_dims</span> <span class="o">+</span> <span class="n">expr_dims</span><span class="p">))</span>
+                            <span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="o">*</span><span class="n">transpose_dims</span><span class="p">)</span>
+                            <span class="o">.</span><span class="n">values</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected dimensions in term </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected dimensions in term </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="n">beta_z_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+
+            <span class="c1"># &#39;beta_z&#39; is of shape:</span>
+            <span class="c1"># * (chain_n * draw_n, p) for univariate</span>
+            <span class="c1"># * (chain_n * draw_n, p, response_n) for multivariate models</span>
+            <span class="n">beta_z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">beta_z_list</span><span class="p">)</span>
+
+            <span class="c1"># &#39;contribution&#39; is of shape:</span>
+            <span class="c1"># * (chain_n * draw_n, obs_n) for univariate</span>
+            <span class="c1"># * (chain_n * draw_n, obs_n, response_n) for multivariate</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">beta_z</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">contribution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">beta_z</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">contribution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">beta_z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">beta_z</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]))</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">contribution</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                    <span class="n">contribution</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Z</span><span class="p">,</span> <span class="n">beta_z</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+            <span class="n">shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">chain_n</span><span class="p">,</span> <span class="n">draw_n</span><span class="p">)</span> <span class="o">+</span> <span class="n">contribution</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">contribution</span> <span class="o">=</span> <span class="n">contribution</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">shape</span><span class="p">)</span>
+            <span class="n">linear_predictor</span> <span class="o">+=</span> <span class="n">contribution</span>
+
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;mean&quot;</span><span class="p">:</span>
+            <span class="n">idata</span><span class="o">.</span><span class="n">posterior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posterior</span><span class="p">,</span> <span class="n">linear_predictor</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pps_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="p">,</span>
+                <span class="s2">&quot;posterior&quot;</span><span class="p">:</span> <span class="n">posterior</span><span class="p">,</span>
+                <span class="s2">&quot;linear_predictor&quot;</span><span class="p">:</span> <span class="n">linear_predictor</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">in_sample</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="n">univariate</span><span class="o">.</span><span class="n">Binomial</span><span class="p">):</span>
+                <span class="n">pps_kwargs</span><span class="p">[</span><span class="s2">&quot;trials&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">evaluate_new_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+            <span class="n">pps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="p">(</span><span class="o">**</span><span class="n">pps_kwargs</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="s2">&quot;posterior_predictive&quot;</span> <span class="ow">in</span> <span class="n">idata</span><span class="p">:</span>
+                <span class="k">del</span> <span class="n">idata</span><span class="o">.</span><span class="n">posterior_predictive</span>
+            <span class="n">idata</span><span class="o">.</span><span class="n">add_groups</span><span class="p">({</span><span class="s2">&quot;posterior_predictive&quot;</span><span class="p">:</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">pps</span><span class="p">}})</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;posterior_predictive&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;modeling_interface&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;bambi&quot;</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;posterior_predictive&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;modeling_interface_version&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">__version__</span>
+
+        <span class="k">if</span> <span class="n">inplace</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">idata</span></div>
+
+<div class="viewcode-block" id="Model.graph"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.graph">[docs]</a>    <span class="k">def</span> <span class="nf">graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">formatting</span><span class="o">=</span><span class="s2">&quot;plain&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;png&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Produce a graphviz Digraph from a built Bambi model.</span>
+
+<span class="sd">        Requires graphviz, which may be installed most easily with</span>
+<span class="sd">            ``conda install -c conda-forge python-graphviz``</span>
+
+<span class="sd">        Alternatively, you may install the ``graphviz`` binaries yourself, and then</span>
+<span class="sd">        ``pip install graphviz`` to get the python bindings.</span>
+<span class="sd">        See http://graphviz.readthedocs.io/en/stable/manual.html for more information.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        formatting: str</span>
+<span class="sd">            One of ``&quot;plain&quot;`` or ``&quot;plain_with_params&quot;``. Defaults to ``&quot;plain&quot;``.</span>
+<span class="sd">        name: str</span>
+<span class="sd">            Name of the figure to save. Defaults to ``None``, no figure is saved.</span>
+<span class="sd">        figsize: tuple</span>
+<span class="sd">            Maximum width and height of figure in inches. Defaults to ``None``, the figure size is</span>
+<span class="sd">            set automatically. If defined and the drawing is larger than the given size, the drawing</span>
+<span class="sd">            is uniformly scaled down so that it fits within the given size.  Only works if ``name``</span>
+<span class="sd">            is not ``None``.</span>
+<span class="sd">        dpi: int</span>
+<span class="sd">            Point per inch of the figure to save.</span>
+<span class="sd">            Defaults to 300. Only works if ``name`` is not ``None``.</span>
+<span class="sd">        fmt: str</span>
+<span class="sd">            Format of the figure to save.</span>
+<span class="sd">            Defaults to ``&quot;png&quot;``. Only works if ``name`` is not ``None``.</span>
+
+<span class="sd">        Example</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; model = Model(&quot;y ~ x + (1|z)&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; model.build()</span>
+<span class="sd">        &gt;&gt;&gt; model.graph()</span>
+
+<span class="sd">        &gt;&gt;&gt; model = Model(&quot;y ~ x + (1|z)&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; model.fit()</span>
+<span class="sd">        &gt;&gt;&gt; model.graph()</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;The model is empty. &quot;</span>
+                <span class="s2">&quot;Are you forgetting to first call .build() or .fit() on the Bambi model?&quot;</span>
+            <span class="p">)</span>
+
+        <span class="n">graphviz</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">model_to_graphviz</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">formatting</span><span class="o">=</span><span class="n">formatting</span><span class="p">)</span>
+
+        <span class="n">width</span><span class="p">,</span> <span class="n">height</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">figsize</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">figsize</span>
+
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">graphviz_</span> <span class="o">=</span> <span class="n">graphviz</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">graphviz_</span><span class="o">.</span><span class="n">graph_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">height</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
+            <span class="n">graphviz_</span><span class="o">.</span><span class="n">graph_attr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">dpi</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">dpi</span><span class="p">))</span>
+            <span class="n">graphviz_</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="n">fmt</span><span class="p">,</span> <span class="n">cleanup</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">graphviz</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_group_specific_groups</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">term_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_specific_terms</span><span class="p">:</span>
+            <span class="n">factor</span> <span class="o">=</span> <span class="n">term_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">factor</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+                <span class="n">groups</span><span class="p">[</span><span class="n">factor</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">term_name</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">groups</span><span class="p">[</span><span class="n">factor</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">term_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">groups</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">priors_common</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> ~ </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">prior</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">common_terms</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">intercept_term</span><span class="p">:</span>
+            <span class="n">term</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intercept_term</span>
+            <span class="n">priors_common</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">term</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> ~ </span><span class="si">{</span><span class="n">term</span><span class="o">.</span><span class="n">prior</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">priors_common</span>
+
+        <span class="n">priors_group</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> ~ </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">prior</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_specific_terms</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+
+        <span class="c1"># Prior for the correlation matrix in group-specific terms</span>
+        <span class="n">priors_cor</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> ~ LKJCorr(</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">)&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">priors_cor</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+
+        <span class="c1"># Priors for auxiliary parameters, e.g., standard deviation in normal linear model</span>
+        <span class="n">priors_aux</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> ~ </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+
+        <span class="c1"># Offsets</span>
+        <span class="n">offsets</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> ~ 1&quot;</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset_terms</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+
+        <span class="n">priors_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Common-level effects&quot;</span><span class="p">:</span> <span class="n">priors_common</span><span class="p">,</span>
+            <span class="s2">&quot;Group-level effects&quot;</span><span class="p">:</span> <span class="n">priors_group</span><span class="p">,</span>
+            <span class="s2">&quot;Group-level correlation&quot;</span><span class="p">:</span> <span class="n">priors_cor</span><span class="p">,</span>
+            <span class="s2">&quot;Offset effects&quot;</span><span class="p">:</span> <span class="n">offsets</span><span class="p">,</span>
+            <span class="s2">&quot;Auxiliary parameters&quot;</span><span class="p">:</span> <span class="n">priors_aux</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">priors_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">priors_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">values</span><span class="p">:</span>
+                <span class="n">priors_list</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">values</span><span class="p">)]</span>
+        <span class="n">priors_message</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">priors_list</span><span class="p">)</span>
+
+        <span class="n">str_list</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;Formula: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">formula</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;Family name: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;Link: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">link</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;Observations: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Priors:&quot;</span><span class="p">,</span>
+            <span class="n">priors_message</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">fit</span><span class="p">:</span>
+            <span class="n">extra_foot</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;------</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;* To see a plot of the priors call the .plot_priors() method.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;* To see a summary or plot of the posterior pass the object returned &quot;</span>
+                <span class="s2">&quot;by .fit() to az.summary() or az.plot_trace()</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">str_list</span> <span class="o">+=</span> <span class="p">[</span><span class="n">extra_foot</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">str_list</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">term_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return names of all terms in order of addition to model.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">common_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return dict of all common effects in model.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">k</span><span class="p">:</span> <span class="n">v</span>
+            <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">v</span><span class="o">.</span><span class="n">group_specific</span> <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;offset&quot;</span><span class="p">]</span>
+        <span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">group_specific_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return dict of all group specific effects in model.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">group_specific</span><span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">intercept_term</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the intercept term&quot;&quot;&quot;</span>
+        <span class="n">term</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">v</span><span class="o">.</span><span class="n">group_specific</span> <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;intercept&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">term</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">term</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">offset_terms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return dict of all offset effects in model.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">terms</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">v</span><span class="o">.</span><span class="n">group_specific</span> <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;offset&quot;</span>
+        <span class="p">}</span></div>
+
+
+<span class="k">def</span> <span class="nf">prepare_prior</span><span class="p">(</span><span class="n">prior</span><span class="p">,</span> <span class="n">kind</span><span class="p">,</span> <span class="n">auto_scale</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper function to correctly set default priors, auto scaling, etc.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    prior : Prior, float, or None.</span>
+<span class="sd">    kind : string</span>
+<span class="sd">        Accepted values are: ``&quot;intercept&quot;``, ``&quot;common&quot;``, or ``&quot;group_specific&quot;``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">prior</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">auto_scale</span><span class="p">:</span>
+        <span class="n">prior</span> <span class="o">=</span> <span class="n">get_default_prior</span><span class="p">(</span><span class="n">kind</span> <span class="o">+</span> <span class="s2">&quot;_flat&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prior</span><span class="p">,</span> <span class="n">Prior</span><span class="p">):</span>
+        <span class="n">prior</span><span class="o">.</span><span class="n">auto_scale</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">prior</span>
+        <span class="n">prior</span> <span class="o">=</span> <span class="n">get_default_prior</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span>
+        <span class="n">prior</span><span class="o">.</span><span class="n">scale</span> <span class="o">=</span> <span class="n">scale</span>
+    <span class="k">return</span> <span class="n">prior</span>
+</pre></div>
+
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/pydata-sphinx-theme.js?digest=9b1a4fa89bdd0e95b23b"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+<p class="copyright">
+
+    &copy; Copyright 2022, The developers of Bambi.<br>
+
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.1.1.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+  </body>
+</html>
