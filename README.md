@@ -77,9 +77,7 @@ The Bambi documentation can be found in the [official docs](https://bambinos.git
 
 ## Citation
 
-If you use Bambi and want to cite it please use [![arXiv](https://img.shields.io/badge/arXiv-2012.10754-b31b1b.svg)](https://arxiv.org/abs/2012.10754)
-
-Here is the citation in BibTeX format
+If you use Bambi and want to cite it please use
 
 ```
 @article{Capretto2022,
