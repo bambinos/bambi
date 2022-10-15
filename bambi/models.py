@@ -1050,9 +1050,9 @@ class Model:
             if "posterior_predictive" in idata:
                 del idata.posterior_predictive
             idata.add_groups({"posterior_predictive": pps})
-
-            getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
-            getattr(idata, "posterior_predictive").attrs["modeling_interface_version"] = __version__
+            idata.posterior_predictive = idata.posterior_predictive.assign_attrs(
+                modeling_interface="bambi", modeling_interface_version=__version__
+            )
 
         if inplace:
             return None
