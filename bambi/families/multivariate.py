@@ -1,5 +1,4 @@
 # pylint: disable=unused-argument
-from statistics import linear_regression
 import numpy as np
 import xarray as xr
 
@@ -32,6 +31,7 @@ class Categorical(MultivariateFamily):
 
         # The mean has the reference level in the dimension, a new name is needed
         mean = mean.rename({response_levels_dim: response_levels_dim_complete})
+        mean = mean.assign_coords({response_levels_dim_complete: model.response.levels})
 
         # Drop var/dim if already present
         if response_var in posterior.data_vars:
@@ -40,10 +40,7 @@ class Categorical(MultivariateFamily):
         if response_dim in posterior.dims:
             posterior = posterior.drop_dims(response_dim)
 
-        posterior[response_var] = mean.assign_coords(
-            {response_levels_dim_complete: model.response.levels}
-        )
-
+        posterior[response_var] = mean
         return posterior
 
     def posterior_predictive(self, model, posterior, linear_predictor):
@@ -95,17 +92,17 @@ class Multinomial(MultivariateFamily):
     SUPPORTED_LINKS = ["softmax"]
 
     def predict(self, model, posterior, linear_predictor):
-        # This is only 'softmax' for now.
-        # Last axis is the one where the response coord is inserted
-        # We need to append zeros for the reference category
-        shape = linear_predictor.shape
-        linear_predictor = np.concatenate([np.zeros(shape[:-1] + (1,)), linear_predictor], axis=-1)
-
-        mean = self.link.linkinv(linear_predictor, axis=-1)
-
-        obs_n = mean.shape[2]
         response_var = model.response.name + "_mean"
         response_dim = model.response.name + "_obs"
+        response_levels_dim = model.response.name + "_dim"
+        response_levels_dim_complete = model.response.name + "_mean_dim"
+
+        linear_predictor = linear_predictor.pad({response_levels_dim: (1, 0)}, constant_values=0)
+        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor, kwargs={"axis": -1})
+
+        # The mean has the reference level in the dimension, a new name is needed
+        mean = mean.rename({response_levels_dim: response_levels_dim_complete})
+        mean = mean.assign_coords({response_levels_dim_complete: model.response.levels})
 
         # Drop var/dim if already present
         if response_var in posterior.data_vars:
@@ -114,19 +111,18 @@ class Multinomial(MultivariateFamily):
         if response_dim in posterior.dims:
             posterior = posterior.drop_dims(response_dim)
 
-        response_levels_dim = model.response.name + "_mean_dim"
-        dims = ("chain", "draw", response_dim, response_levels_dim)
-        posterior[response_var] = (dims, mean)
-
-        posterior = posterior.assign_coords({response_levels_dim: model.response.levels})
-        posterior = posterior.assign_coords({response_dim: list(range(obs_n))})
+        posterior[response_var] = mean
         return posterior
 
     def posterior_predictive(self, model, posterior, linear_predictor):
-        shape = linear_predictor.shape
-        linear_predictor = np.concatenate([np.zeros(shape[:-1] + (1,)), linear_predictor], axis=-1)
+        response_dim = model.response.name + "_obs"
+        response_levels_dim = model.response.name + "_dim"
+        response_levels_dim_complete = model.response.name + "_mean_dim"
 
-        mean = self.link.linkinv(linear_predictor, axis=-1)
+        linear_predictor = linear_predictor.pad({response_levels_dim: (1, 0)}, constant_values=0)
+        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor, kwargs={"axis": -1})
+
+        mean = mean.to_numpy()
         shape = mean.shape
 
         mean = mean.reshape((mean.shape[0] * mean.shape[1], mean.shape[2], mean.shape[3]))
@@ -145,4 +141,13 @@ class Multinomial(MultivariateFamily):
 
         # Final shape is of (chain, draw, obs_n, response_n)
         pps = pps.reshape(shape)
+        pps = xr.DataArray(
+            pps,
+            coords={
+                "chain": np.arange(shape[0]),
+                "draw": np.arange(shape[1]),
+                response_dim: np.arange(obs_n),
+                response_levels_dim_complete: model.response.levels,
+            },
+        )
         return pps

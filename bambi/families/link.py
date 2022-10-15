@@ -63,7 +63,7 @@ def logit(mu):
     return special.logit(mu)  # pylint: disable=no-member
 
 
-def softmax(eta, axis=None):
+def softmax(eta, axis=-1):
     result = special.softmax(eta, axis=axis)  # pylint: disable=no-member
     result = force_within_unit_interval(result)
     return result
