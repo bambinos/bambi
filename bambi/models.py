@@ -814,7 +814,7 @@ class Model:
 
         # If model contains offset, add directly to the linear predictor
         if x_offsets:
-            linear_predictor += np.column_stack(x_offsets).sum(axis=1)[np.newaxis, np.newaxis, :]
+            linear_predictor += np.column_stack(x_offsets).sum(axis=1)[:, np.newaxis, np.newaxis]
 
         # Sort dimensions
         linear_predictor = linear_predictor.transpose(*linear_predictor_dims)
