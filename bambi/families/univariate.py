@@ -7,12 +7,12 @@ from .family import Family
 
 
 class UnivariateFamily(Family):
+
     def predict(self, model, posterior, linear_predictor):
         """Predict mean response"""
         response_var = model.response.name + "_mean"
         response_dim = model.response.name + "_obs"
-        obs_n = len(linear_predictor[response_dim])
-        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
+        #obs_n = len(linear_predictor[response_dim])
 
         # Drop var/dim if already present
         if response_var in posterior.data_vars:
@@ -21,9 +21,8 @@ class UnivariateFamily(Family):
         if response_dim in posterior.dims:
             posterior = posterior.drop_dims(response_dim)
 
-        dims = ("chain", "draw", response_dim)
-        posterior[response_var] = mean.transpose(*dims)
-        posterior = posterior.assign_coords({response_dim: list(range(obs_n))})
+        posterior[response_var] = xr.apply_ufunc(self.link.linkinv, linear_predictor)
+        #posterior = posterior.assign_coords({response_dim: list(range(obs_n))})
         return posterior
 
 
@@ -74,10 +73,10 @@ class Gaussian(UnivariateFamily):
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         "Sample from posterior predictive distribution"
-        mean = self.link.linkinv(linear_predictor)
-        sigma = posterior[model.response.name + "_sigma"].values
-        sigma = sigma[:, :, np.newaxis]
-        return np.random.normal(mean, sigma)
+        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
+        sigma = posterior[model.response.name + "_sigma"]
+        pps = xr.apply_ufunc(np.random.normal, mean, sigma)
+        return pps
 
 
 class NegativeBinomial(UnivariateFamily):

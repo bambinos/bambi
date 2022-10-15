@@ -976,12 +976,13 @@ class Model:
         # Prepare dims objects
         response_dim = self.response.name + "_obs"
         response_levels_dim = self.response.name + "_dim"
-        response_levels_dim_complete = self.response.name + "_mean_dim"
+        linear_predictor_dims = ("chain", "draw", response_dim)
         to_stack_dims = ("chain", "draw")
         design_matrix_dims = (response_dim, "__variables__")
 
         if isinstance(self.family, multivariate.MultivariateFamily):
             to_stack_dims = to_stack_dims + (response_levels_dim, )
+            linear_predictor_dims = linear_predictor_dims + (response_levels_dim, )
 
         # Create design matrices
         if self._design.common:
@@ -1024,6 +1025,13 @@ class Model:
         if x_offsets:
             linear_predictor += np.column_stack(x_offsets).sum(axis=1)[np.newaxis, np.newaxis, :]
 
+        # Sort dimensions
+        linear_predictor = linear_predictor.transpose(*linear_predictor_dims)
+        
+        # Add coordinates for the observation number
+        obs_n = len(linear_predictor[response_dim])
+        linear_predictor = linear_predictor.assign_coords({response_dim: list(range(obs_n))})
+
         if kind == "mean":
             idata.posterior = self.family.predict(self, posterior, linear_predictor)
         else:
@@ -1037,10 +1045,11 @@ class Model:
                 pps_kwargs["trials"] = self._design.response.evaluate_new_data(data)
 
             pps = self.family.posterior_predictive(**pps_kwargs)
+            pps = pps.to_dataset(name=self.response.name)
 
             if "posterior_predictive" in idata:
                 del idata.posterior_predictive
-            idata.add_groups({"posterior_predictive": {self.response.name: pps}})
+            idata.add_groups({"posterior_predictive": pps})
             getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
             getattr(idata, "posterior_predictive").attrs["modeling_interface_version"] = __version__
 
