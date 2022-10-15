@@ -1,5 +1,6 @@
 # pylint: disable=unused-argument
 import numpy as np
+import xarray as xr
 from scipy import stats
 
 from .family import Family
@@ -8,10 +9,10 @@ from .family import Family
 class UnivariateFamily(Family):
     def predict(self, model, posterior, linear_predictor):
         """Predict mean response"""
-        mean = self.link.linkinv(linear_predictor)
-        obs_n = mean.shape[-1]
         response_var = model.response.name + "_mean"
         response_dim = model.response.name + "_obs"
+        obs_n = len(linear_predictor[response_dim])
+        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
 
         # Drop var/dim if already present
         if response_var in posterior.data_vars:
@@ -21,7 +22,7 @@ class UnivariateFamily(Family):
             posterior = posterior.drop_dims(response_dim)
 
         dims = ("chain", "draw", response_dim)
-        posterior[response_var] = (dims, mean)
+        posterior[response_var] = mean.transpose(*dims)
         posterior = posterior.assign_coords({response_dim: list(range(obs_n))})
         return posterior
 
