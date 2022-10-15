@@ -7,12 +7,10 @@ from .family import Family
 
 
 class UnivariateFamily(Family):
-
     def predict(self, model, posterior, linear_predictor):
         """Predict mean response"""
         response_var = model.response.name + "_mean"
         response_dim = model.response.name + "_obs"
-        #obs_n = len(linear_predictor[response_dim])
 
         # Drop var/dim if already present
         if response_var in posterior.data_vars:
@@ -22,7 +20,6 @@ class UnivariateFamily(Family):
             posterior = posterior.drop_dims(response_dim)
 
         posterior[response_var] = xr.apply_ufunc(self.link.linkinv, linear_predictor)
-        #posterior = posterior.assign_coords({response_dim: list(range(obs_n))})
         return posterior
 
 
@@ -31,20 +28,19 @@ class Bernoulli(UnivariateFamily):
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         "Sample from posterior predictive distribution"
-        mean = self.link.linkinv(linear_predictor)
-        return np.random.binomial(1, mean)
+        mean = mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
+        return xr.apply_ufunc(np.random.binomial, 1, mean)
 
 
 class Beta(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "logit", "probit", "cloglog"]
 
     def posterior_predictive(self, model, posterior, linear_predictor):
-        mean = self.link.linkinv(linear_predictor)
-        kappa = posterior[model.response.name + "_kappa"].values
-        kappa = kappa[:, :, np.newaxis]
+        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
+        kappa = posterior[model.response.name + "_kappa"]
         alpha = mean * kappa
         beta = (1 - mean) * kappa
-        return np.random.beta(alpha, beta)
+        return xr.apply_ufunc(np.random.beta, alpha, beta)
 
 
 class Binomial(UnivariateFamily):
@@ -53,19 +49,18 @@ class Binomial(UnivariateFamily):
     def posterior_predictive(self, model, posterior, linear_predictor, trials=None):
         if trials is None:
             trials = model.response.data[:, 1]
-        mean = self.link.linkinv(linear_predictor)
-        return np.random.binomial(trials.squeeze(), mean)
+        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
+        return xr.apply_ufunc(np.random.binomial, trials.squeeze(), mean)
 
 
 class Gamma(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "log", "inverse"]
 
     def posterior_predictive(self, model, posterior, linear_predictor):
-        mean = self.link.linkinv(linear_predictor)
-        alpha = posterior[model.response.name + "_alpha"].values
-        alpha = alpha[:, :, np.newaxis]
+        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
+        alpha = posterior[model.response.name + "_alpha"]
         beta = alpha / mean
-        return np.random.gamma(alpha, 1 / beta)
+        return xr.apply_ufunc(np.random.gamma, alpha, 1 / beta)
 
 
 class Gaussian(UnivariateFamily):
@@ -75,19 +70,17 @@ class Gaussian(UnivariateFamily):
         "Sample from posterior predictive distribution"
         mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
         sigma = posterior[model.response.name + "_sigma"]
-        pps = xr.apply_ufunc(np.random.normal, mean, sigma)
-        return pps
+        return xr.apply_ufunc(np.random.normal, mean, sigma)
 
 
 class NegativeBinomial(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "log", "cloglog"]
 
     def posterior_predictive(self, model, posterior, linear_predictor):
-        mean = self.link.linkinv(linear_predictor)
-        n = posterior[model.response.name + "_alpha"].values
-        n = n[:, :, np.newaxis]
+        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
+        n = posterior[model.response.name + "_alpha"]
         p = n / (mean + n)
-        return np.random.negative_binomial(n, p)
+        return xr.apply_ufunc(np.random.negative_binomial, n, p)
 
 
 class Laplace(UnivariateFamily):
@@ -95,51 +88,47 @@ class Laplace(UnivariateFamily):
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         "Sample from posterior predictive distribution"
-        mean = self.link.linkinv(linear_predictor)
-        b = posterior[model.response.name + "_b"].values
-        b = b[:, :, np.newaxis]
-        return np.random.laplace(mean, b)
+        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
+        b = posterior[model.response.name + "_b"]
+        return xr.apply_ufunc(np.random.laplace, mean, b)
 
 
 class Poisson(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "log"]
 
     def posterior_predictive(self, model, posterior, linear_predictor):
-        mean = self.link.linkinv(linear_predictor)
-        return np.random.poisson(mean)
+        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
+        return xr.apply_ufunc(np.random.poisson, mean)
 
 
 class StudentT(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "log", "inverse"]
 
     def posterior_predictive(self, model, posterior, linear_predictor):
-        mean = self.link.linkinv(linear_predictor)
-        sigma = posterior[model.response.name + "_sigma"].values
-        sigma = sigma[:, :, np.newaxis]
+        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
+        sigma = posterior[model.response.name + "_sigma"]
 
         if isinstance(self.likelihood.priors["nu"], (int, float)):
             nu = self.likelihood.priors["nu"]
         else:
-            nu = posterior[model.response.name + "_nu"].values[:, :, np.newaxis]
+            nu = posterior[model.response.name + "_nu"]
 
-        return stats.t.rvs(nu, mean, sigma)
+        return xr.apply_ufunc(stats.t.rvs, nu, mean, sigma)
 
 
 class VonMises(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "tan_2"]
 
     def posterior_predictive(self, model, posterior, linear_predictor):
-        mean = self.link.linkinv(linear_predictor)
-        kappa = posterior[model.response.name + "_kappa"].values
-        kappa = kappa[:, :, np.newaxis]
-        return np.random.vonmises(mean, kappa)
+        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
+        kappa = posterior[model.response.name + "_kappa"]
+        return xr.apply_ufunc(np.random.vonmises, mean, kappa)
 
 
 class Wald(UnivariateFamily):
     SUPPORTED_LINKS = ["inverse", "inverse_squared", "identity", "log"]
 
     def posterior_predictive(self, model, posterior, linear_predictor):
-        mean = self.link.linkinv(linear_predictor)
-        lam = posterior[model.response.name + "_lam"].values
-        lam = lam[:, :, np.newaxis]
-        return np.random.wald(mean, lam)
+        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
+        lam = posterior[model.response.name + "_lam"]
+        return xr.apply_ufunc(np.random.wald, mean, lam)

@@ -981,8 +981,8 @@ class Model:
         design_matrix_dims = (response_dim, "__variables__")
 
         if isinstance(self.family, multivariate.MultivariateFamily):
-            to_stack_dims = to_stack_dims + (response_levels_dim, )
-            linear_predictor_dims = linear_predictor_dims + (response_levels_dim, )
+            to_stack_dims = to_stack_dims + (response_levels_dim,)
+            linear_predictor_dims = linear_predictor_dims + (response_levels_dim,)
 
         # Create design matrices
         if self._design.common:
@@ -1011,7 +1011,7 @@ class Model:
             if in_sample:
                 Z = self._design.group.design_matrix
             else:
-                Z = self._design.group.evaluate_new_data(data).design_matrix        
+                Z = self._design.group.evaluate_new_data(data).design_matrix
 
             # Create DataArray
             Z_terms = list(self.group_specific_terms)
@@ -1020,14 +1020,14 @@ class Model:
             # Add contribution due to the group specific terms
             Z = xr.DataArray(Z, dims=design_matrix_dims)
             linear_predictor += xr.dot(Z, u)
-        
+
         # If model contains offset, add directly to the linear predictor
         if x_offsets:
             linear_predictor += np.column_stack(x_offsets).sum(axis=1)[np.newaxis, np.newaxis, :]
 
         # Sort dimensions
         linear_predictor = linear_predictor.transpose(*linear_predictor_dims)
-        
+
         # Add coordinates for the observation number
         obs_n = len(linear_predictor[response_dim])
         linear_predictor = linear_predictor.assign_coords({response_dim: list(range(obs_n))})
@@ -1050,6 +1050,7 @@ class Model:
             if "posterior_predictive" in idata:
                 del idata.posterior_predictive
             idata.add_groups({"posterior_predictive": pps})
+
             getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
             getattr(idata, "posterior_predictive").attrs["modeling_interface_version"] = __version__
 
@@ -1057,7 +1058,6 @@ class Model:
             return None
         else:
             return idata
-        
 
     def graph(self, formatting="plain", name=None, figsize=None, dpi=300, fmt="png"):
         """
