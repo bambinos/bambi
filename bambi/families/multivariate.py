@@ -24,10 +24,10 @@ class Categorical(MultivariateFamily):
         response_levels_dim_complete = model.response.name + "_mean_dim"
 
         # This is only 'softmax' for now.
-        # Because of reference encoding, we need to padd with 0s for the last level of the
+        # Because of reference encoding, we need to padd with 0s for the first level of the
         # response variable
-        # (0, 1): 0 new levels on the left, 1 new level on the right
-        linear_predictor = linear_predictor.pad({response_levels_dim: (0, 1)}, constant_values=0)
+        # (1, 0): 1 new levels on the left, 0 new level on the right
+        linear_predictor = linear_predictor.pad({response_levels_dim: (1, 0)}, constant_values=0)
         mean = xr.apply_ufunc(self.link.linkinv, linear_predictor, kwargs={"axis": -1})
 
         # The mean has the reference level in the dimension, a new name is needed
@@ -50,23 +50,21 @@ class Categorical(MultivariateFamily):
         # https://stackoverflow.com/questions/34187130
         def draw_categorical_samples(probability_matrix, items):
             """
-            probability_matrix is a matrix of shape (n_levels, n_chain * n_draw)
+            probability_matrix is a matrix of shape (n_chain * n_draw, n_levels)
             """
-            cumsum = probability_matrix.cumsum(axis=0)
-            idx = np.random.rand(probability_matrix.shape[1])
-            idx = (cumsum < idx).sum(axis=0)
+            cumsum = probability_matrix.cumsum(axis=1)
+            idx = np.random.rand(probability_matrix.shape[0])[:, np.newaxis]
+            idx = (cumsum < idx).sum(axis=1)
             return items[idx]
 
         response_dim = model.response.name + "_obs"
         response_levels_dim = model.response.name + "_dim"
         response_levels_dim_complete = model.response.name + "_mean_dim"
 
-        linear_predictor = linear_predictor.pad({response_levels_dim: (0, 1)}, constant_values=0)
+        linear_predictor = linear_predictor.pad({response_levels_dim: (1, 0)}, constant_values=0)
         mean = xr.apply_ufunc(self.link.linkinv, linear_predictor, kwargs={"axis": -1})
         mean = mean.rename({response_levels_dim: response_levels_dim_complete})
         mean = mean.assign_coords({response_levels_dim_complete: model.response.levels})
-
-        print(mean)
 
         mean = mean.to_numpy()
         shape = mean.shape
@@ -77,9 +75,10 @@ class Categorical(MultivariateFamily):
 
         pps = np.empty((draws_n, obs_n), dtype=int)
         response_levels = np.arange(len(model.response.levels))
+
         for idx in range(obs_n):
-            pps[:, idx] = draw_categorical_samples(mean[:, idx, :].T, response_levels)
-       
+            pps[:, idx] = draw_categorical_samples(mean[:, idx, :], response_levels)
+
         pps = pps.reshape((shape[0], shape[1], obs_n))
         pps = xr.DataArray(
             pps,
