@@ -851,8 +851,7 @@ class Model:
             return idata
 
     def graph(self, formatting="plain", name=None, figsize=None, dpi=300, fmt="png"):
-        """
-        Produce a graphviz Digraph from a built Bambi model.
+        """Produce a graphviz Digraph from a built Bambi model.
 
         Requires graphviz, which may be installed most easily with
             ``conda install -c conda-forge python-graphviz``
