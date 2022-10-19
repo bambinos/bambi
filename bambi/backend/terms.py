@@ -48,7 +48,7 @@ class CommonTerm:
         if dims:
             coef = distribution(label, dims=dims, **args)
         else:
-            shape = None if data.shape[1] == 1 else data.shape
+            shape = None if data.shape[1] == 1 else data.shape[1]
             coef = distribution(label, shape=shape, **args)
             coef = at.atleast_1d(coef)  # If only a single numeric column it wont be 1d
 
