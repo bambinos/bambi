@@ -1,5 +1,8 @@
 import numpy as np
 
+from formulae.terms.call import Call
+from formulae.terms.call_resolver import get_function_from_module
+
 from bambi.families.multivariate import Categorical, Multinomial
 from bambi.families.univariate import Bernoulli
 from bambi.utils import extract_argument_names, extra_namespace
@@ -26,6 +29,7 @@ class ResponseTerm:
         self.success = None  # Not None for binary variables (either True or False)
         self.alias = None
         self.data = None
+        self.is_censored = False
 
         if self.categorical:
             if term.levels is None:
@@ -51,6 +55,8 @@ class ResponseTerm:
             self.data = term.design_matrix
         else:
             self.data = term.design_matrix
+
+        self.is_censored = is_censored_response(term.term)
 
         # We use pymc coords when the response is multi-categorical.
         # These help to give the appropriate shape to coefficients and make the resulting
@@ -340,3 +346,29 @@ def get_success_level(term):
         return intermediate_data._contrast.reference
 
     return levels[0]
+
+
+def is_single_component(term):
+    return len(term.term.components) == 1
+
+
+def extract_first_component(term):
+    return term.term.components[0]
+
+
+def is_call_component(component):
+    return isinstance(component, Call)
+
+
+def is_call_of_kind(call, kind):
+    function = get_function_from_module(call.call.callee, call.env)
+    return hasattr(function, "__metadata__") and function.__metadata__["kind"] == kind
+
+
+def is_censored_response(term):
+    if not is_single_component(term):
+        return False
+    component = extract_first_component(term)
+    if not is_call_component(component):
+        return False
+    return is_call_of_kind(component, "censored")

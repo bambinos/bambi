@@ -405,3 +405,14 @@ def test_data_is_copied():
         assert all(model.data.dtypes[:3] == "category")
 
     assert all(adults.dtypes[:3] == "object")
+
+
+def test_response_is_censored():
+    df = pd.DataFrame(
+        {
+            "x": [1, 2, 3, 4, 5],
+            "status": ["none", "right", "interval", "left", "none"],
+        }
+    )
+    dm = Model("censored(x, status) ~ 1", df)
+    assert dm.response.is_censored
