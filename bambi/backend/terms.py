@@ -48,7 +48,9 @@ class CommonTerm:
         if dims:
             coef = distribution(label, dims=dims, **args)
         else:
-            coef = distribution(label, shape=data.shape[1], **args)
+            shape = None if data.shape[1] == 1 else data.shape[1]
+            coef = distribution(label, shape=shape, **args)
+            coef = at.atleast_1d(coef)  # If only a single numeric column it wont be 1d
 
         # Prepends one dimension if response is multivariate categorical and predictor is 1d
         if response_dims and len(dims) == 1:
