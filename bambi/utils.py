@@ -118,6 +118,7 @@ def censored(*args):
     if right is not None:
         right = np.asarray(right)
         assert len(left) == len(right)
+        assert (right > left).all(), "Upper bound must be larger than lower bound"
 
     assert all(s in status_mapping for s in status), f"Statuses must be in {list(status_mapping)}"
     status = np.asarray([status_mapping[s] for s in status])
