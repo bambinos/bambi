@@ -21,7 +21,7 @@ class GroupSpecificTerm:
         A specification of the prior(s) to use. An instance of class ``priors.Prior``.
     """
 
-    hyperprior_alias = {}
+    _hyperprior_alias = {}
     coords = {}
 
     def __init__(self, term, prior):
@@ -64,8 +64,15 @@ class GroupSpecificTerm:
             vector[dummies[:, i] == 1] = i
         return vector
 
-    def set_hyperprior_alias(self, name, value):
-        self.hyperprior_alias.update({name: value})
+    @property
+    def hyperprior_alias(self):
+        return self._hyperprior_alias
+
+    @hyperprior_alias.setter
+    def hyperprior_alias(self, values):
+        assert all(isinstance(x, str) for x in values.keys())
+        assert all(isinstance(x, str) for x in values.values())
+        self._hyperprior_alias.update(values)
 
     @property
     def name(self):
