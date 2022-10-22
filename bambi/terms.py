@@ -1,11 +1,11 @@
 import numpy as np
 
+from formulae.terms.call import Call
+from formulae.terms.call_resolver import get_function_from_module
+
 from bambi.families.multivariate import Categorical, Multinomial
 from bambi.families.univariate import Bernoulli
 from bambi.utils import extract_argument_names, extra_namespace
-
-from formulae.terms.call import Call 
-from formulae.terms.call_resolver import get_function_from_module
 
 
 class ResponseTerm:

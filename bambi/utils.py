@@ -78,15 +78,15 @@ def extract_argument_names(expr, accepted_funcs):
 def censored(*args):
     """Construct array for censored response
 
-    The `args` argument must be of length 2 or 3. 
-    If it is of length 2, the first value has the values of the variable and the second value 
+    The `args` argument must be of length 2 or 3.
+    If it is of length 2, the first value has the values of the variable and the second value
     contains the censoring statuses.
 
     If it is of length 3, the first value represents either the value of the variable or the lower
     bound (depending on whether it's interval censoring or not). The second value represents the
     upper bound, only if it's interval censoring, and the third argument contains the censoring
     statuses.
-    
+
     Valid censoring statuses are
 
     * "left": left censoring
@@ -100,10 +100,10 @@ def censored(*args):
     Returns
     -------
     np.ndarray
-        Array of shape (n, 2) or (n, 3). The first case applies when a single value argument is 
+        Array of shape (n, 2) or (n, 3). The first case applies when a single value argument is
         passed, and the second case applies when two values are passed.
     """
-    STATUS_MAPPING = {"left": -1, "none": 0, "right": 1, "interval": 2}
+    status_mapping = {"left": -1, "none": 0, "right": 1, "interval": 2}
 
     if len(args) == 2:
         left, status = args
@@ -111,23 +111,24 @@ def censored(*args):
     elif len(args) == 3:
         left, right, status = args
     else:
-        raise
-    
+        raise ValueError("'censored' needs 2 or 3 argument values.")
+
     assert len(left) == len(status)
 
     if right is not None:
         right = np.asarray(right)
         assert len(left) == len(right)
 
-    assert all(s in STATUS_MAPPING for s in status), f"Statuses must be in {list(STATUS_MAPPING)}"
-    status = np.asarray([STATUS_MAPPING[s] for s in status])
-    
+    assert all(s in status_mapping for s in status), f"Statuses must be in {list(status_mapping)}"
+    status = np.asarray([status_mapping[s] for s in status])
+
     if right is not None:
         result = np.column_stack([left, right, status])
     else:
         result = np.column_stack([left, status])
-    
+
     return result
+
 
 censored.__metadata__ = {"kind": "censored"}
 
