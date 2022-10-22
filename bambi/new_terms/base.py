@@ -10,9 +10,10 @@ VALID_PRIORS = (Prior, int, float, NoneType)
 
 class BaseTerm(ABC):
     _alias = None
-    _prior = None
     _categorical = None
     _levels = None
+    _name = None
+    _prior = None
 
     @property
     @abstractmethod
@@ -33,6 +34,15 @@ class BaseTerm(ABC):
     @abstractmethod
     def shape(self):
         ...
+
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def term(self):
+        return self._term
 
     @property
     def alias(self):
