@@ -4,6 +4,9 @@ from bambi.families.multivariate import Categorical, Multinomial
 from bambi.families.univariate import Bernoulli
 from bambi.utils import extract_argument_names, extra_namespace
 
+from formulae.terms.call import Call 
+from formulae.terms.call_resolver import get_function_from_module
+
 
 class ResponseTerm:
     """Representation of a single response model term.
@@ -340,3 +343,14 @@ def get_success_level(term):
         return intermediate_data._contrast.reference
 
     return levels[0]
+
+
+def is_single_call(term):
+    is_len_one = len(term.term.term.components) == 1
+    is_call = isinstance(term.term.term.components[0], Call)
+    return is_len_one and is_call
+
+
+def is_call_of_kind(call, kind):
+    function = get_function_from_module(call.call.callee, call.env)
+    return hasattr(function, "__metadata__") and function.__metadata__["kind"] == kind
