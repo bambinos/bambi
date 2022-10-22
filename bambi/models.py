@@ -8,6 +8,7 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 import pymc as pm
+import xarray as xr
 
 from arviz.plots import plot_posterior
 
@@ -719,7 +720,6 @@ class Model:
 
         return idata
 
-    # pylint: disable=protected-access
     def predict(self, idata, kind="mean", data=None, inplace=True, include_group_specific=True):
         """Predict method for Bambi models
 
@@ -753,22 +753,27 @@ class Model:
         -------
         InferenceData or None
         """
-
-        if kind not in ["mean", "pps"]:
+        if kind not in ("mean", "pps"):
             raise ValueError("'kind' must be one of 'mean' or 'pps'")
 
         linear_predictor = 0
-        X = None
-        Z = None
         x_offsets = []
-
-        chain_n = len(idata.posterior.coords.get("chain"))
-        draw_n = len(idata.posterior.coords.get("draw"))
         posterior = idata.posterior
         in_sample = data is None
 
         if not inplace:
             idata = deepcopy(idata)
+
+        # Prepare dims objects
+        response_dim = self.response.name + "_obs"
+        response_levels_dim = self.response.name + "_dim"
+        linear_predictor_dims = ("chain", "draw", response_dim)
+        to_stack_dims = ("chain", "draw")
+        design_matrix_dims = (response_dim, "__variables__")
+
+        if isinstance(self.family, multivariate.MultivariateFamily):
+            to_stack_dims = to_stack_dims + (response_levels_dim,)
+            linear_predictor_dims = linear_predictor_dims + (response_levels_dim,)
 
         # Create design matrices
         if self._design.common:
@@ -777,12 +782,21 @@ class Model:
             else:
                 X = self._design.common.evaluate_new_data(data).design_matrix
 
-            # Add offset columns to their own design matrix
-            # Remove them from the common design matrix.
+            # Add offset columns to their own design matrix and remove then from common matrix
             for term in self.offset_terms:
                 term_slice = self._design.common.slices[term]
                 x_offsets.append(X[:, term_slice])
                 X = np.delete(X, term_slice, axis=1)
+
+            # Create DataArray
+            X_terms = list(self.common_terms)
+            if self.intercept_term:
+                X_terms.insert(0, "Intercept")
+            b = posterior[X_terms].to_stacked_array("__variables__", to_stack_dims)
+
+            # Add contribution due to the common terms
+            X = xr.DataArray(X, dims=design_matrix_dims)
+            linear_predictor += xr.dot(X, b)
 
         if self._design.group and include_group_specific:
             if in_sample:
@@ -790,150 +804,24 @@ class Model:
             else:
                 Z = self._design.group.evaluate_new_data(data).design_matrix
 
-        # Contribution due to common terms
-        if X is not None:
-            beta_x_list = []
-            term_names = list(self.common_terms)
-            response_dims = list(self.response.coords)
+            # Create DataArray
+            Z_terms = list(self.group_specific_terms)
+            u = posterior[Z_terms].to_stacked_array("__variables__", to_stack_dims)
 
-            if self.intercept_term:
-                term_names.insert(0, "Intercept")
-
-            for name in term_names:
-                term_dims = list(self.terms[name].coords)
-                term_posterior = posterior[name]
-                dims = set(term_posterior.coords)
-
-                # 1-dimensional predictors (a single slope or intercept)
-                if dims == {"chain", "draw"}:
-                    values = term_posterior.stack(samples=("chain", "draw")).values
-                    if len(values.shape) == 1:
-                        values = values[:, np.newaxis]
-                # 2-dimensional predictors (splines or categoricals)
-                elif dims == {"chain", "draw"}.union(term_dims):
-                    transpose_dims = ["samples"] + term_dims
-                    values = (
-                        term_posterior.stack(samples=("chain", "draw"))
-                        .transpose(*transpose_dims)
-                        .values
-                    )
-                    if len(values.shape) == 1:
-                        values = values[:, np.newaxis]
-                # Multivariate families, we need to consider the dimension of the response too
-                elif isinstance(self.family, (multivariate.Categorical, multivariate.Multinomial)):
-                    transpose_dims = ["samples"] + term_dims + response_dims
-                    values = (
-                        term_posterior.stack(samples=("chain", "draw"))
-                        .transpose(*transpose_dims)
-                        .values
-                    )
-                    # When p = 1 values is of shape (samples_n, response_n).
-                    # We need it to be of shape (samples_n, 1, response_n)
-                    if len(values.shape) == 2:
-                        values = values[:, np.newaxis, :]
-                else:
-                    raise ValueError(f"Unexpected dimensions in term {name}")
-
-                beta_x_list.append(values)
-
-            # 'beta_x' is of shape:
-            # * (chain_n * draw_n, p) for univariate
-            # * (chain_n * draw_n, p, response_n) for multivariate
-            beta_x = np.hstack(beta_x_list)
-
-            # 'contribution' is of shape:
-            # * (chain_n * draw_n, obs_n) for univariate
-            # * (chain_n * draw_n, obs_n, response_n) for multivariate
-            if len(beta_x.shape) == 2:
-                contribution = np.dot(X, beta_x.T).T
-            else:
-                contribution = np.zeros((beta_x.shape[0], X.shape[0], beta_x.shape[2]))
-                for i in range(contribution.shape[2]):
-                    contribution[:, :, i] = np.dot(X, beta_x[:, :, i].T).T
-
-            shape = (chain_n, draw_n) + contribution.shape[1:]
-            contribution = contribution.reshape(shape)
-            linear_predictor += contribution
+            # Add contribution due to the group specific terms
+            Z = xr.DataArray(Z, dims=design_matrix_dims)
+            linear_predictor += xr.dot(Z, u)
 
         # If model contains offset, add directly to the linear predictor
         if x_offsets:
-            linear_predictor += np.column_stack(x_offsets).sum(axis=1)[np.newaxis, np.newaxis, :]
+            linear_predictor += np.column_stack(x_offsets).sum(axis=1)[:, np.newaxis, np.newaxis]
 
-        # Contribution due to group-specific terms. Same comments than for beta_x apply here.
-        if Z is not None:
-            beta_z_list = []
-            term_names = list(self.group_specific_terms)
-            response_dims = list(self.response.coords)
+        # Sort dimensions
+        linear_predictor = linear_predictor.transpose(*linear_predictor_dims)
 
-            for name in term_names:
-                term_dims = list(self.terms[name].coords)
-                factor_dims = [c for c in term_dims if c.endswith("__factor_dim")]
-                expr_dims = [c for c in term_dims if c.endswith("__expr_dim")]
-                term_posterior = posterior[name]
-                dims = set(term_posterior.dims)
-
-                # Group-specific term: len(dims) < 3 does not exist.
-                # 1 dimensional predictors
-                if dims == {"chain", "draw"}.union(expr_dims):
-                    transpose_dims = ["samples"] + expr_dims
-                    values = (
-                        term_posterior.stack(samples=("chain", "draw"))
-                        .transpose(*transpose_dims)
-                        .values
-                    )
-                # 2 dimensional predictors
-                elif dims == {"chain", "draw"}.union(expr_dims + factor_dims):
-                    transpose_dims = ["samples", "coefs"]
-                    values = (
-                        term_posterior.stack(samples=("chain", "draw"))
-                        .stack(coefs=tuple(factor_dims + expr_dims))
-                        .transpose(*transpose_dims)
-                        .values
-                    )
-                # Multivariate families, need to consider dimensionality of the response
-                elif isinstance(self.family, (multivariate.Categorical, multivariate.Multinomial)):
-                    # 1 dimensional predictors (there's no factor dimension)
-                    if dims == {"chain", "draw"}.union(factor_dims + response_dims):
-                        transpose_dims = ["samples"] + factor_dims + response_dims
-                        values = (
-                            term_posterior.stack(samples=("chain", "draw"))
-                            .transpose(*transpose_dims)
-                            .values
-                        )
-                    # 2 dimensional predictors (there's a factor dimension)
-                    elif dims == {"chain", "draw"}.union(expr_dims + factor_dims + response_dims):
-                        transpose_dims = ["samples", "coefs"] + response_dims
-                        values = (
-                            term_posterior.stack(samples=("chain", "draw"))
-                            .stack(coefs=tuple(factor_dims + expr_dims))
-                            .transpose(*transpose_dims)
-                            .values
-                        )
-                    else:
-                        raise ValueError(f"Unexpected dimensions in term {name}")
-                else:
-                    raise ValueError(f"Unexpected dimensions in term {name}")
-
-                beta_z_list.append(values)
-
-            # 'beta_z' is of shape:
-            # * (chain_n * draw_n, p) for univariate
-            # * (chain_n * draw_n, p, response_n) for multivariate models
-            beta_z = np.hstack(beta_z_list)
-
-            # 'contribution' is of shape:
-            # * (chain_n * draw_n, obs_n) for univariate
-            # * (chain_n * draw_n, obs_n, response_n) for multivariate
-            if len(beta_z.shape) == 2:
-                contribution = np.dot(Z, beta_z.T).T
-            else:
-                contribution = np.zeros((beta_z.shape[0], Z.shape[0], beta_z.shape[2]))
-                for i in range(contribution.shape[2]):
-                    contribution[:, :, i] = np.dot(Z, beta_z[:, :, i].T).T
-
-            shape = (chain_n, draw_n) + contribution.shape[1:]
-            contribution = contribution.reshape(shape)
-            linear_predictor += contribution
+        # Add coordinates for the observation number
+        obs_n = len(linear_predictor[response_dim])
+        linear_predictor = linear_predictor.assign_coords({response_dim: list(range(obs_n))})
 
         if kind == "mean":
             idata.posterior = self.family.predict(self, posterior, linear_predictor)
@@ -948,12 +836,14 @@ class Model:
                 pps_kwargs["trials"] = self._design.response.evaluate_new_data(data)
 
             pps = self.family.posterior_predictive(**pps_kwargs)
+            pps = pps.to_dataset(name=self.response.name)
 
             if "posterior_predictive" in idata:
                 del idata.posterior_predictive
-            idata.add_groups({"posterior_predictive": {self.response.name: pps}})
-            getattr(idata, "posterior_predictive").attrs["modeling_interface"] = "bambi"
-            getattr(idata, "posterior_predictive").attrs["modeling_interface_version"] = __version__
+            idata.add_groups({"posterior_predictive": pps})
+            idata.posterior_predictive = idata.posterior_predictive.assign_attrs(
+                modeling_interface="bambi", modeling_interface_version=__version__
+            )
 
         if inplace:
             return None
@@ -961,8 +851,7 @@ class Model:
             return idata
 
     def graph(self, formatting="plain", name=None, figsize=None, dpi=300, fmt="png"):
-        """
-        Produce a graphviz Digraph from a built Bambi model.
+        """Produce a graphviz Digraph from a built Bambi model.
 
         Requires graphviz, which may be installed most easily with
             ``conda install -c conda-forge python-graphviz``
