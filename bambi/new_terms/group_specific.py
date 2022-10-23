@@ -2,56 +2,29 @@ import numpy as np
 
 import formulae.terms
 
-from bambi.new_terms.base import BaseTerm
+from bambi.new_terms.base import BaseTerm, VALID_PRIORS
+from bambi.priors.prior import Prior
 
-class GroupSpecificTerm:
-    # pylint: disable=too-many-instance-attributes
-    """Representation of a single (group specific) model term.
 
-    Parameters
-    ----------
-    name: str
-        Name of the term.
-    term: dict
-        A dictionary describing the components of the term. These can be found in
-        ``formulae.design_matrices().group.terms_info``
-    data: (DataFrame, Series, ndarray)
-        The term values.
-    prior: Prior
-        A specification of the prior(s) to use. An instance of class ``priors.Prior``.
-    """
-
+class GroupSpecificTerm(BaseTerm):  # pylint: disable=too-many-instance-attributes
     _hyperprior_alias = {}
     coords = {}
+    data = None
 
     def __init__(self, term, prior):
         self.term = term
         self.prior = prior
-
-        self._name = term.name
         self.data = np.squeeze(term.data)
-        self.kind = term.kind
-        self.groups = term.groups
-        self.levels = term.labels
-        self.grouper = term.factor.data
-        self.predictor = term.expr.data
         self.group_index = self.invert_dummies(self.grouper)
 
-        # Determine if the expression is categorical
-        if self.kind == "interaction":
-            if any(component.kind == "categoric" for component in self.term.expr.components):
-                self.categorical = True
-        else:
-            self.categorical = self.kind == "categoric"
-
-        # The group is _always_ added as a coordinate
+        # The group is _always_ added as a coordinate. Maybe there's a cleaner way,
         expr, factor = self.name.split("|")
         self.coords[factor + "__factor_dim"] = self.groups
 
         if self.categorical:
-            self.coords[expr + "__expr_dim"] = term.expr.levels
+            self.coords[expr + "__expr_dim"] = self.term.expr.levels
         elif self.predictor.ndim == 2 and self.predictor.shape[1] > 1:
-            self.coords[expr + "__expr_dim"] = [str(i) for i in range(self.predictor.shape[1])]
+            self.coords[expr + "__expr_dim"] = np.arange(self.predictor.shape[1])
 
     def invert_dummies(self, dummies):
         """
@@ -65,6 +38,64 @@ class GroupSpecificTerm:
         return vector
 
     @property
+    def term(self):
+        return self._term
+
+    @term.setter
+    def term(self, value):
+        assert isinstance(value, formulae.terms.terms.GroupSpecificTerm)
+        self._term = value
+
+    @property
+    def name(self):
+        return self.term.name
+
+    @property
+    def kind(self):
+        return self.term.kind
+
+    @property
+    def shape(self):
+        return self.data.shape
+
+    @property
+    def categorical(self):
+        # Determine if the expression is categorical
+        if self.kind == "interaction":
+            return any(component.kind == "categoric" for component in self.term.expr.components)
+        return self.kind == "categoric"
+
+    @property
+    def prior(self):
+        return self._prior
+
+    @prior.setter
+    def prior(self, value):
+        # This does not check which argument has hyperprior (must be dispersion?)
+        assert isinstance(value, VALID_PRIORS), f"Prior must be one of {VALID_PRIORS}"
+        if isinstance(value, Prior):
+            any_hyperprior = any(isinstance(x, Prior) for x in value.args.values())
+            if not any_hyperprior:
+                raise ValueError("Prior for group-specific terms must have hyperpriors")
+        self._prior = value
+
+    @property
+    def groups(self):
+        return self.term.groups
+
+    @property
+    def levels(self):
+        return self.term.labels
+
+    @property
+    def predictor(self):
+        return self.term.expr.data
+
+    @property
+    def grouper(self):
+        return self.term.factor.data
+
+    @property
     def hyperprior_alias(self):
         return self._hyperprior_alias
 
@@ -74,21 +105,6 @@ class GroupSpecificTerm:
         assert all(isinstance(x, str) for x in values.values())
         self._hyperprior_alias.update(values)
 
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def term(self):
-        return self._term
-
-    @term.setter
-    def term(self, value):
-        assert isinstance(value, formulae.terms.terms.GroupSpecificTerm)
-        self._term = value
-
-    def __str__(self):
+    def __str__(self):  # pylint: disable=signature-differs
         args = [f"groups: {self.groups}"]
         return super().__str__(args)
-
-# TODO: Priors! Make sure they're hierarchical
