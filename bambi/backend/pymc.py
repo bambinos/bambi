@@ -11,7 +11,7 @@ from bambi import version
 
 from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
 from bambi.backend.terms import CommonTerm, GroupSpecificTerm, InterceptTerm, ResponseTerm
-from bambi.families.multivariate import Categorical, Multinomial
+from bambi.families.multivariate import MultivariateFamily
 
 _log = logging.getLogger("bambi")
 
@@ -210,7 +210,7 @@ class PyMCModel:
             if predictor.ndim > 1:
                 for col in range(predictor.shape[1]):
                     self.mu += coef[:, col] * predictor[:, col]
-            elif isinstance(spec.family, (Categorical, Multinomial)):
+            elif isinstance(spec.family, MultivariateFamily):
                 self.mu += coef * predictor[:, np.newaxis]
             else:
                 self.mu += coef * predictor

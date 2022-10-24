@@ -17,23 +17,6 @@ class ResponseTerm(BaseTerm):
 
         self.is_censored = is_censored_response(self.term.term)
 
-        # We use pymc coords when the response is multi-categorical.
-        # These help to give the appropriate shape to coefficients and make the resulting
-        # InferenceData object much cleaner
-        self.coords = {}
-        if isinstance(family, Categorical):
-            name = self.name + "_dim"
-            self.coords[name] = [level for level in term.levels if level != self.reference]
-        elif isinstance(family, Multinomial):
-            name = self.name + "_dim"
-            labels = extract_argument_names(self.name, list(extra_namespace))
-            if labels:
-                self.levels = labels
-            else:
-                self.levels = [str(level) for level in range(self.data.shape[1])]
-            labels = self.levels[1:]
-            self.coords[name] = labels
-
     @property
     def term(self):
         return self._term
@@ -60,9 +43,18 @@ class ResponseTerm(BaseTerm):
 
     @property
     def levels(self):
+        # Some families, like Multinomial, override the levels attribute
+        if hasattr(self.family, "get_levels"):
+            return self.family.get_levels(self.term)
         if self.categorical:
             return self.term.levels
         return None
+
+    @property
+    def coords(self):
+        if hasattr(self.family, "get_coords"):
+            return self.family.get_coords(self.term)
+        return {}
 
     @property
     def binary(self):

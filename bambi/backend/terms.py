@@ -270,6 +270,9 @@ class ResponseTerm:
         # Get likelihood distribution
         dist = get_distribution(self.family.likelihood.name)
 
+        # TODO: There shouldn't be special cases handled here.
+        # They should happen in the family itself.
+
         # Handle some special cases
         if isinstance(self.family, Beta):
             # Beta distribution in PyMC uses alpha and beta, but we have mu and kappa.
