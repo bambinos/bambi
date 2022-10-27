@@ -270,22 +270,9 @@ class ResponseTerm:
         # Get likelihood distribution
         dist = get_distribution(self.family.likelihood.name)
 
-        # TODO: There shouldn't be special cases handled here.
-        # They should happen in the family itself.
-
+        # If needed, transform parameters
         if hasattr(self.family, "transform_backend_kwargs"):
             kwargs = self.family.transform_backend_kwargs(kwargs)
-
-
-        if isinstance(self.family, Gamma):
-            # Gamma distribution is specified using mu and sigma, but we request prior for alpha.
-            # We build sigma from mu and alpha.
-            sigma = kwargs["mu"] / (kwargs["alpha"] ** 0.5)
-            return dist(self.name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
-
-        if isinstance(self.family, Multinomial):
-            n = kwargs["observed"].sum(axis=1)
-            return dist(self.name, p=kwargs["p"], observed=kwargs["observed"], n=n)
 
         return dist(self.name, **kwargs)
 

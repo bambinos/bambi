@@ -86,6 +86,13 @@ class Gamma(UnivariateFamily):
         beta = alpha / mean
         return xr.apply_ufunc(np.random.gamma, alpha, 1 / beta)
 
+    def transform_backend_kwargs(kwargs):
+        # Gamma distribution is specified using mu and sigma, but we request prior for alpha.
+        # We build sigma from mu and alpha.
+        alpha = kwargs.pop("alpha")
+        kwargs["sigma"] = kwargs["mu"] / (alpha**0.5)
+        return kwargs
+
 
 class Gaussian(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "log", "inverse"]

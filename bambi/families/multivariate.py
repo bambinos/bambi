@@ -178,6 +178,10 @@ class Multinomial(MultivariateFamily):
             return labels
         return [str(level) for level in range(response.data.shape[1])]
 
+    def transform_backend_kwargs(kwargs):
+        kwargs["n"] = kwargs["observed"].sum(axis=1)
+        return kwargs
+
 
 # pylint: disable = protected-access
 def get_reference_level(term):
