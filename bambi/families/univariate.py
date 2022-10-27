@@ -31,6 +31,17 @@ class Bernoulli(UnivariateFamily):
         mean = mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
         return xr.apply_ufunc(np.random.binomial, 1, mean)
 
+    def get_data(self, response):
+        if response.term.design_matrix.ndim == 1:
+            return response.term.design_matrix
+        idx = response.levels.index(response.success)
+        return response.term.design_matrix[:, idx]
+
+    def get_success(self, response):
+        if response.categorical:
+            return get_success_level(response.term.term)
+        return 1
+
 
 class Beta(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "logit", "probit", "cloglog"]
@@ -132,3 +143,19 @@ class Wald(UnivariateFamily):
         mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
         lam = posterior[model.response.name + "_lam"]
         return xr.apply_ufunc(np.random.wald, mean, lam)
+
+
+# pylint: disable = protected-access
+def get_success_level(term):
+    if term.kind != "categoric":
+        return None
+
+    if term.levels is None:
+        return term.components[0].reference
+
+    levels = term.levels
+    intermediate_data = term.components[0]._intermediate_data
+    if hasattr(intermediate_data, "_contrast"):
+        return intermediate_data._contrast.reference
+
+    return levels[0]

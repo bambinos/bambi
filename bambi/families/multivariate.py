@@ -3,6 +3,7 @@ import numpy as np
 import xarray as xr
 
 from .family import Family
+from bambi.utils import extract_argument_names, extra_namespace
 
 
 class MultivariateFamily(Family):
@@ -87,6 +88,19 @@ class Categorical(MultivariateFamily):
         )
         return pps
 
+    def get_data(self, response):
+        return np.nonzero(response.term.design_matrix)[1]
+
+    def get_coords(self, response):
+        name = response.name + "_dim"
+        return {name: [level for level in response.levels if level != response.reference]}
+
+    def get_levels(self, response):
+        return response.term.levels
+
+    def get_reference(self, response):
+        return get_reference_level(response.term.term)
+
 
 class Multinomial(MultivariateFamily):
     SUPPORTED_LINKS = ["softmax"]
@@ -151,3 +165,31 @@ class Multinomial(MultivariateFamily):
             },
         )
         return pps
+
+    def get_coords(self, response):
+        # For the moment, it always uses the first column as reference.
+        name = response.name + "_dim"
+        labels = self.get_levels(response)
+        return {name: labels[1:]}
+
+    def get_levels(self, response):
+        labels = extract_argument_names(response.name, list(extra_namespace))
+        if labels:
+            return labels
+        return [str(level) for level in range(response.data.shape[1])]
+
+
+# pylint: disable = protected-access
+def get_reference_level(term):
+    if term.kind != "categoric":
+        return None
+
+    if term.levels is None:
+        return None
+
+    levels = term.levels
+    intermediate_data = term.components[0]._intermediate_data
+    if hasattr(intermediate_data, "_contrast"):
+        return intermediate_data._contrast.reference
+
+    return levels[0]
