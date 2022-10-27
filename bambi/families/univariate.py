@@ -53,6 +53,13 @@ class Beta(UnivariateFamily):
         beta = (1 - mean) * kappa
         return xr.apply_ufunc(np.random.beta, alpha, beta)
 
+    def transform_backend_kwargs(kwargs):
+        mu = kwargs.pop("mu")
+        kappa = kwargs.pop("kappa")
+        kwargs["alpha"] = mu * kappa
+        kwargs["beta"] = (1 - mu) * kappa
+        return kwargs
+
 
 class Binomial(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "logit", "probit", "cloglog"]
@@ -62,6 +69,12 @@ class Binomial(UnivariateFamily):
             trials = model.response.data[:, 1]
         mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
         return xr.apply_ufunc(np.random.binomial, trials.squeeze(), mean)
+
+    def transform_backend_kwargs(kwargs):
+        observed = kwargs.pop("observed")
+        kwargs["observed"] = observed[:, 0].squeeze()
+        kwargs["n"] = observed[:, 1].squeeze()
+        return kwargs
 
 
 class Gamma(UnivariateFamily):

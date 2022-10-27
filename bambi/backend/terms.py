@@ -273,19 +273,9 @@ class ResponseTerm:
         # TODO: There shouldn't be special cases handled here.
         # They should happen in the family itself.
 
-        # Handle some special cases
-        if isinstance(self.family, Beta):
-            # Beta distribution in PyMC uses alpha and beta, but we have mu and kappa.
-            # alpha = mu * kappa
-            # beta = (1 - mu) * kappa
-            alpha = kwargs["mu"] * kwargs["kappa"]
-            beta = (1 - kwargs["mu"]) * kwargs["kappa"]
-            return dist(self.name, alpha=alpha, beta=beta, observed=kwargs["observed"])
+        if hasattr(self.family, "transform_backend_kwargs"):
+            kwargs = self.family.transform_backend_kwargs(kwargs)
 
-        if isinstance(self.family, Binomial):
-            successes = kwargs["observed"][:, 0].squeeze()
-            trials = kwargs["observed"][:, 1].squeeze()
-            return dist(self.name, p=kwargs["p"], observed=successes, n=trials)
 
         if isinstance(self.family, Gamma):
             # Gamma distribution is specified using mu and sigma, but we request prior for alpha.
