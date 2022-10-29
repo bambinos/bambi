@@ -1,5 +1,7 @@
+import functools
 import logging
 import traceback
+
 from copy import deepcopy
 
 import numpy as np
@@ -28,7 +30,7 @@ class PyMCModel:
         "logit": logit,
         "probit": probit,
         "tan_2": arctan_2,
-        "softmax": at.nnet.softmax,
+        "softmax": functools.partial(at.nnet.softmax, axis=-1),
     }
 
     def __init__(self):

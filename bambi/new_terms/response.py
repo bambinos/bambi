@@ -1,17 +1,15 @@
-import numpy as np
-
 import formulae.terms
 
 from bambi.new_terms.base import BaseTerm
-from bambi.new_terms.utils import get_reference_level, is_censored_response
-from bambi.terms import get_success_level
+
+# from bambi.new_terms.utils import is_censored_response
 
 
 class ResponseTerm(BaseTerm):
     def __init__(self, term, family):
         self.term = term
         self.family = family
-        self.is_censored = is_censored_response(self.term.term)
+        # self.is_censored = is_censored_response(self.term.term)
 
     @property
     def term(self):
@@ -77,9 +75,6 @@ class ResponseTerm(BaseTerm):
             else:
                 extras += [f"reference: {self.reference}"]
         return super().__str__(extras)
-
-
-# TODO: Implement censored responses
 
 
 # Categorical

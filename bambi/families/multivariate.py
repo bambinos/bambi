@@ -1,8 +1,9 @@
 # pylint: disable=unused-argument
+import aesara.tensor as at
 import numpy as np
 import xarray as xr
 
-from .family import Family
+from bambi.families.family import Family
 from bambi.utils import extract_argument_names, extra_namespace
 
 
@@ -101,6 +102,16 @@ class Categorical(MultivariateFamily):
     def get_reference(self, response):
         return get_reference_level(response.term.term)
 
+    @staticmethod
+    def transform_backend_nu(nu, data):
+        # Add column of zeros to the linear predictor for the reference level (the first one)
+        shape = (data.shape[0], 1)
+
+        # The first line makes sure the intercept-only models work
+        nu = np.ones(shape) * nu  # (response_levels, ) -> (n, response_levels)
+        nu = at.concatenate([np.zeros(shape), nu], axis=1)
+        return nu
+
 
 class Multinomial(MultivariateFamily):
     SUPPORTED_LINKS = ["softmax"]
@@ -178,9 +189,20 @@ class Multinomial(MultivariateFamily):
             return labels
         return [str(level) for level in range(response.data.shape[1])]
 
+    @staticmethod
     def transform_backend_kwargs(kwargs):
         kwargs["n"] = kwargs["observed"].sum(axis=1)
         return kwargs
+
+    @staticmethod
+    def transform_backend_nu(nu, data):
+        # Add column of zeros to the linear predictor for the reference level (the first one)
+        shape = (data.shape[0], 1)
+
+        # The first line makes sure the intercept-only models work
+        nu = np.ones(shape) * nu  # (response_levels, ) -> (n, response_levels)
+        nu = at.concatenate([np.zeros(shape), nu], axis=1)
+        return nu
 
 
 # pylint: disable = protected-access

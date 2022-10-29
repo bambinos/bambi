@@ -53,6 +53,7 @@ class Beta(UnivariateFamily):
         beta = (1 - mean) * kappa
         return xr.apply_ufunc(np.random.beta, alpha, beta)
 
+    @staticmethod
     def transform_backend_kwargs(kwargs):
         mu = kwargs.pop("mu")
         kappa = kwargs.pop("kappa")
@@ -70,6 +71,7 @@ class Binomial(UnivariateFamily):
         mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
         return xr.apply_ufunc(np.random.binomial, trials.squeeze(), mean)
 
+    @staticmethod
     def transform_backend_kwargs(kwargs):
         observed = kwargs.pop("observed")
         kwargs["observed"] = observed[:, 0].squeeze()
@@ -86,6 +88,7 @@ class Gamma(UnivariateFamily):
         beta = alpha / mean
         return xr.apply_ufunc(np.random.gamma, alpha, 1 / beta)
 
+    @staticmethod
     def transform_backend_kwargs(kwargs):
         # Gamma distribution is specified using mu and sigma, but we request prior for alpha.
         # We build sigma from mu and alpha.
