@@ -1,11 +1,10 @@
 from abc import ABC, abstractmethod
-from types import NoneType
 
 from bambi.priors.prior import Prior
 from bambi.utils import spacify, multilinify
 
 
-VALID_PRIORS = (Prior, int, float, NoneType)
+VALID_PRIORS = (Prior, int, float, type(None))
 
 
 class BaseTerm(ABC):
