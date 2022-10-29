@@ -38,7 +38,7 @@ class ResponseTerm(BaseTerm):
     def levels(self):
         if hasattr(self.family, "get_levels"):
             return self.family.get_levels(self)
-        return None
+        return self.term.levels
 
     @property
     def categorical(self):

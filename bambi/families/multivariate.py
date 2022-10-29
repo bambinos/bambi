@@ -96,11 +96,8 @@ class Categorical(MultivariateFamily):
         name = response.name + "_dim"
         return {name: [level for level in response.levels if level != response.reference]}
 
-    def get_levels(self, response):
-        return response.term.levels
-
     def get_reference(self, response):
-        return get_reference_level(response.term.term)
+        return get_reference_level(response.term)
 
     @staticmethod
     def transform_backend_nu(nu, data):

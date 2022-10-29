@@ -37,9 +37,9 @@ class Bernoulli(UnivariateFamily):
         idx = response.levels.index(response.success)
         return response.term.data[:, idx]
 
-    def get_success(self, response):
+    def get_success_level(self, response):
         if response.categorical:
-            return get_success_level(response.term.term)
+            return get_success_level(response.term)
         return 1
 
 

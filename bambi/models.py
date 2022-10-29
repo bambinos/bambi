@@ -1,6 +1,5 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
-from email.headerregistry import Group
 import logging
 import warnings
 
