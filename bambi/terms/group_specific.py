@@ -2,7 +2,7 @@ import numpy as np
 
 import formulae.terms
 
-from bambi.new_terms.base import BaseTerm, VALID_PRIORS
+from bambi.terms.base import BaseTerm, VALID_PRIORS
 from bambi.priors.prior import Prior
 
 

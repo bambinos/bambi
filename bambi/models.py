@@ -1,5 +1,6 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
+from email.headerregistry import Group
 import logging
 import warnings
 
@@ -14,13 +15,13 @@ from arviz.plots import plot_posterior
 
 from formulae import design_matrices
 
-from .backend import PyMCModel
-from .defaults import get_default_prior, get_builtin_family
-from .families import Family, univariate, multivariate
-from .priors import Prior, PriorScaler
-from .terms import GroupSpecificTerm, OffsetTerm, ResponseTerm, Term
-from .utils import listify, extra_namespace
-from .version import __version__
+from bambi.backend import PyMCModel
+from bambi.defaults import get_default_prior, get_builtin_family
+from bambi.families import Family, univariate, multivariate
+from bambi.priors import Prior, PriorScaler
+from bambi.terms import CommonTerm, GroupSpecificTerm, OffsetTerm, ResponseTerm
+from bambi.utils import listify, extra_namespace
+from bambi.version import __version__
 
 _log = logging.getLogger("bambi")
 
@@ -327,9 +328,9 @@ class Model:
 
         # Prepare all priors
         for term in self.terms.values():
-            if term.group_specific:
+            if isinstance(term, GroupSpecificTerm):
                 kind = "group_specific"
-            elif term.kind == "intercept":
+            elif isinstance(term, CommonTerm) and term.kind == "intercept":
                 kind = "intercept"
             elif term.kind == "offset":
                 continue
@@ -461,16 +462,16 @@ class Model:
 
         for name, alias in aliases.items():
             if name in self.terms:
-                self.terms[name].set_alias(alias)
+                self.terms[name].alias = alias
             if name in self.family.likelihood.priors:
                 self.family.set_alias(name, alias)
             if name == self.response.name:
-                self.response.set_alias(alias)
+                self.response.alias = alias
 
             # Now add aliases for hyperpriors in group specific terms
             for term in self.group_specific_terms.values():
                 if name in term.prior.args:
-                    term.set_hyperprior_alias(name, alias)
+                    term.hyperprior_alias = {name: alias}
 
         # Model needs to be rebuilt after modifying aliases
         self.built = False
@@ -499,7 +500,7 @@ class Model:
             if response.kind == "numeric" and not all(np.isin(response.design_matrix, [0, 1])):
                 raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
 
-        self.response = ResponseTerm(response, self)
+        self.response = ResponseTerm(response, self.family)
         self.built = False
 
     def _add_common(self, common, priors):
@@ -530,7 +531,7 @@ class Model:
             if term.kind == "offset":
                 self.terms[name] = OffsetTerm(name, term, data)
             else:
-                self.terms[name] = Term(name, term, data, prior)
+                self.terms[name] = CommonTerm(term, prior)
 
     def _add_group_specific(self, group, priors):
         """Add group-specific (a.k.a. random) terms to the model.
@@ -548,9 +549,8 @@ class Model:
             that specify the width of the priors on a standardized scale.
         """
         for name, term in group.terms.items():
-            data = group[name]
             prior = priors.pop(name, priors.get("group_specific", None))
-            self.terms[name] = GroupSpecificTerm(name, term, data, prior)
+            self.terms[name] = GroupSpecificTerm(term, prior)
 
     def _add_priors_cor(self, priors):
         # priors: dictionary. names are groups, values are the "eta" in the lkj prior
@@ -981,18 +981,22 @@ class Model:
         return {
             k: v
             for (k, v) in self.terms.items()
-            if not v.group_specific and v.kind not in ["intercept", "offset"]
+            if not isinstance(v, GroupSpecificTerm) and v.kind not in ["intercept", "offset"]
         }
 
     @property
     def group_specific_terms(self):
         """Return dict of all group specific effects in model."""
-        return {k: v for (k, v) in self.terms.items() if v.group_specific}
+        return {k: v for (k, v) in self.terms.items() if isinstance(v, GroupSpecificTerm)}
 
     @property
     def intercept_term(self):
         """Return the intercept term"""
-        term = [v for v in self.terms.values() if not v.group_specific and v.kind == "intercept"]
+        term = [
+            v
+            for v in self.terms.values()
+            if not isinstance(v, GroupSpecificTerm) and v.kind == "intercept"
+        ]
         if term:
             return term[0]
         else:
@@ -1002,7 +1006,9 @@ class Model:
     def offset_terms(self):
         """Return dict of all offset effects in model."""
         return {
-            k: v for (k, v) in self.terms.items() if not v.group_specific and v.kind == "offset"
+            k: v
+            for (k, v) in self.terms.items()
+            if not isinstance(v, GroupSpecificTerm) and v.kind == "offset"
         }
 
 

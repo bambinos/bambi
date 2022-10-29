@@ -11,7 +11,7 @@ from formulae import design_matrices
 
 from bambi.data.datasets import load_data
 from bambi.models import Model
-from bambi.terms import Term, GroupSpecificTerm
+from bambi.terms import CommonTerm, GroupSpecificTerm
 from bambi.priors import Prior
 
 
@@ -63,7 +63,7 @@ def crossed_data():
 def test_term_init(diabetes_data):
     design = design_matrices("BMI", diabetes_data)
     term = design.common.terms["BMI"]
-    term = Term("BMI", term, design.common["BMI"])
+    term = CommonTerm(term, prior=None)
     assert term.name == "BMI"
     assert not term.categorical
     assert not term.group_specific
@@ -186,9 +186,9 @@ def test_model_term_classes():
 
     model = Model("y ~ x*g + (x|s)", data)
 
-    assert isinstance(model.terms["x"], Term)
-    assert isinstance(model.terms["g"], Term)
-    assert isinstance(model.terms["x:g"], Term)
+    assert isinstance(model.terms["x"], CommonTerm)
+    assert isinstance(model.terms["g"], CommonTerm)
+    assert isinstance(model.terms["x:g"], CommonTerm)
     assert isinstance(model.terms["1|s"], GroupSpecificTerm)
     assert isinstance(model.terms["x|s"], GroupSpecificTerm)
 

@@ -2,7 +2,7 @@ import numpy as np
 
 import formulae.terms
 
-from bambi.new_terms.base import BaseTerm
+from bambi.terms.base import BaseTerm
 
 
 class CommonTerm(BaseTerm):
@@ -38,7 +38,7 @@ class CommonTerm(BaseTerm):
 
     @term.setter
     def term(self, value):
-        assert isinstance(value, formulae.terms.terms.Term)
+        assert isinstance(value, (formulae.terms.terms.Term, formulae.terms.terms.Intercept))
         self._term = value
 
     @property

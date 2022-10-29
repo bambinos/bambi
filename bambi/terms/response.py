@@ -1,13 +1,13 @@
 import formulae.terms
 
-from bambi.new_terms.base import BaseTerm
+from bambi.terms.base import BaseTerm
 
 # from bambi.new_terms.utils import is_censored_response
 
 
 class ResponseTerm(BaseTerm):
-    def __init__(self, term, family):
-        self.term = term
+    def __init__(self, response, family):
+        self.term = response.term.term
         self.family = family
         # self.is_censored = is_censored_response(self.term.term)
 
@@ -17,12 +17,28 @@ class ResponseTerm(BaseTerm):
 
     @term.setter
     def term(self, value):
-        assert isinstance(value, formulae.terms.terms.Response)
+        assert isinstance(value, formulae.terms.terms.Term)
         self._term = value
+
+    @property
+    def data(self):
+        if hasattr(self.family, "get_data"):
+            return self.family.get_data(self)
+        return self.term.data
 
     @property
     def name(self):
         return self.term.name
+
+    @property
+    def shape(self):
+        return self.data.shape
+
+    @property
+    def levels(self):
+        if hasattr(self.family, "get_levels"):
+            return self.family.get_levels(self)
+        return None
 
     @property
     def categorical(self):
@@ -32,12 +48,6 @@ class ResponseTerm(BaseTerm):
     def reference(self):
         if hasattr(self.family, "get_reference"):
             return self.family.get_reference(self)
-        return None
-
-    @property
-    def levels(self):
-        if hasattr(self.family, "get_levels"):
-            return self.family.get_levels(self)
         return None
 
     @property
@@ -51,12 +61,6 @@ class ResponseTerm(BaseTerm):
         if hasattr(self.family, "get_success_level"):
             return self.family.get_success_level(self)
         return None
-
-    @property
-    def data(self):
-        if hasattr(self.family, "get_data"):
-            return self.family.get_data(self)
-        return self.term.design_matrix
 
     @property
     def binary(self):

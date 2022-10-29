@@ -59,13 +59,16 @@ class PriorScaler:
         if term.prior.name != "Normal":
             return
 
-        # As many zeros as columns in the data. It can be greater than 1 for categorical variables
-        mu = np.zeros(term.data.shape[1])
-        sigma = np.zeros(term.data.shape[1])
-
-        # Iterate over columns in the data
-        for i, x in enumerate(term.data.T):
-            sigma[i] = self.get_slope_sigma(x)
+        # It can be greater than 1 for categorical variables
+        if term.data.ndim == 1:
+            mu = 0
+            sigma = self.get_slope_sigma(term.data)
+        else:
+            mu = np.zeros(term.data.shape[1])
+            sigma = np.zeros(term.data.shape[1])
+            # Iterate over columns in the data
+            for i, value in enumerate(term.data.T):
+                sigma[i] = self.get_slope_sigma(value)
 
         # Save and set prior
         self.priors.update({term.name: {"mu": mu, "sigma": sigma}})
@@ -86,8 +89,8 @@ class PriorScaler:
             else:
                 data_as_common = term.predictor[:, None]
             sigma = np.zeros(data_as_common.shape[1])
-            for i, x in enumerate(data_as_common.T):
-                sigma[i] = self.get_slope_sigma(x)
+            for i, value in enumerate(data_as_common.T):
+                sigma[i] = self.get_slope_sigma(value)
         term.prior.args["sigma"].update(sigma=np.squeeze(np.atleast_1d(sigma)))
 
     def scale(self):

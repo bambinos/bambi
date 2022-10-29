@@ -32,10 +32,10 @@ class Bernoulli(UnivariateFamily):
         return xr.apply_ufunc(np.random.binomial, 1, mean)
 
     def get_data(self, response):
-        if response.term.design_matrix.ndim == 1:
-            return response.term.design_matrix
+        if response.term.data.ndim == 1:
+            return response.term.data
         idx = response.levels.index(response.success)
-        return response.term.design_matrix[:, idx]
+        return response.term.data[:, idx]
 
     def get_success(self, response):
         if response.categorical:
