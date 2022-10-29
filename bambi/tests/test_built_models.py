@@ -10,6 +10,7 @@ import pandas as pd
 from bambi import math
 from bambi.models import Model
 from bambi.priors import Prior
+from bambi.terms import GroupSpecificTerm
 
 
 @pytest.fixture(scope="module")
@@ -191,8 +192,12 @@ def test_many_common_many_group_specific(crossed_data):
     assert X0 == X1
 
     # check that models have same priors for common effects
-    priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
-    priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
+    priors0 = {
+        x.name: x.prior.args for x in model0.terms.values() if not isinstance(x, GroupSpecificTerm)
+    }
+    priors1 = {
+        x.name: x.prior.args for x in model1.terms.values() if not isinstance(x, GroupSpecificTerm)
+    }
     # check dictionary keys
     assert set(priors0) == set(priors1)
     # check dictionary values
@@ -297,16 +302,24 @@ def test_cell_means_with_many_group_specific_effects(crossed_data):
     assert X0 == X1
 
     # check that fit and add models have same priors for common effects
-    priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
-    priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
+    priors0 = {
+        x.name: x.prior.args for x in model0.terms.values() if not isinstance(x, GroupSpecificTerm)
+    }
+    priors1 = {
+        x.name: x.prior.args for x in model1.terms.values() if not isinstance(x, GroupSpecificTerm)
+    }
     assert set(priors0) == set(priors1)
 
     # check that fit and add models have same priors for group specific effects
     priors0 = {
-        x.name: x.prior.args["sigma"].args for x in model0.terms.values() if x.group_specific
+        x.name: x.prior.args["sigma"].args
+        for x in model0.terms.values()
+        if isinstance(x, GroupSpecificTerm)
     }
     priors1 = {
-        x.name: x.prior.args["sigma"].args for x in model1.terms.values() if x.group_specific
+        x.name: x.prior.args["sigma"].args
+        for x in model1.terms.values()
+        if isinstance(x, GroupSpecificTerm)
     }
     assert set(priors0) == set(priors1)
 
@@ -404,8 +417,12 @@ def test_poisson_regression(crossed_data):
     assert X0 == X1
 
     # check that models have same priors for common effects
-    priors0 = {x.name: x.prior.args for x in model0.terms.values() if not x.group_specific}
-    priors1 = {x.name: x.prior.args for x in model1.terms.values() if not x.group_specific}
+    priors0 = {
+        x.name: x.prior.args for x in model0.terms.values() if not isinstance(x, GroupSpecificTerm)
+    }
+    priors1 = {
+        x.name: x.prior.args for x in model1.terms.values() if not isinstance(x, GroupSpecificTerm)
+    }
     # check dictionary keys
     assert set(priors0) == set(priors1)
     # check dictionary values

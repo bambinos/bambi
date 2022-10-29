@@ -161,7 +161,8 @@ class PyMCModel:
             # Column vector of coefficients and design matrix
             coefs = at.concatenate(coefs)
 
-            data = np.hstack(columns)
+            # Design matrix
+            data = np.column_stack(columns)
 
             # If there's an intercept, center the data
             # Also store the design matrix without the intercept to uncenter the intercept later

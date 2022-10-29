@@ -23,8 +23,9 @@ class CommonTerm:
         self.term = term
         self.coords = self.term.coords.copy()
         # Make sure we use the alias, if there's one
-        if self.coords:
-            self.coords[self.name + "_dim"] = self.coords.pop(self.term.name + "_dim")
+        # NOTE: Could be handled in the term??
+        if self.coords and self.term.alias:
+            self.coords[self.term.alias + "_dim"] = self.coords.pop(self.term.name + "_dim")
 
     def build(self, spec):
         data = self.term.data
@@ -49,7 +50,12 @@ class CommonTerm:
         if dims:
             coef = distribution(label, dims=dims, **args)
         else:
-            shape = None if data.shape[1] == 1 else data.shape[1]
+            if data.ndim == 1:
+                shape = None
+            elif data.shape[1] == 1:
+                shape = None
+            else:
+                shape = data.shape[1]
             coef = distribution(label, shape=shape, **args)
             coef = at.atleast_1d(coef)  # If only a single numeric column it won't be 1D
 

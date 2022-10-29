@@ -7,24 +7,12 @@ from bambi.priors.prior import Prior
 
 
 class GroupSpecificTerm(BaseTerm):  # pylint: disable=too-many-instance-attributes
-    _hyperprior_alias = {}
-    coords = {}
-    data = None
-
     def __init__(self, term, prior):
+        self._hyperprior_alias = {}
         self.term = term
         self.prior = prior
         self.data = np.squeeze(term.data)
         self.group_index = self.invert_dummies(self.grouper)
-
-        # The group is _always_ added as a coordinate. Maybe there's a cleaner way,
-        expr, factor = self.name.split("|")
-        self.coords[factor + "__factor_dim"] = self.groups
-
-        if self.categorical:
-            self.coords[expr + "__expr_dim"] = self.term.expr.levels
-        elif self.predictor.ndim == 2 and self.predictor.shape[1] > 1:
-            self.coords[expr + "__expr_dim"] = np.arange(self.predictor.shape[1])
 
     def invert_dummies(self, dummies):
         """
@@ -45,6 +33,27 @@ class GroupSpecificTerm(BaseTerm):  # pylint: disable=too-many-instance-attribut
     def term(self, value):
         assert isinstance(value, formulae.terms.terms.GroupSpecificTerm)
         self._term = value
+
+    @property
+    def coords(self):
+        # The group is _always_ added as a coordinate. Maybe there's a cleaner way
+        coords = {}
+        expr, factor = self.name.split("|")
+        coords[factor + "__factor_dim"] = self.groups
+
+        if self.categorical:
+            coords[expr + "__expr_dim"] = self.term.expr.levels
+        elif self.predictor.ndim == 2 and self.predictor.shape[1] > 1:
+            coords[expr + "__expr_dim"] = np.arange(self.predictor.shape[1])
+        return coords
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        self._data = value
 
     @property
     def name(self):

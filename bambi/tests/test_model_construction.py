@@ -66,7 +66,7 @@ def test_term_init(diabetes_data):
     term = CommonTerm(term, prior=None)
     assert term.name == "BMI"
     assert not term.categorical
-    assert not term.group_specific
+    assert not isinstance(x, GroupSpecificTerm)
     assert term.levels is not None
     assert term.data.shape == (442, 1)
 

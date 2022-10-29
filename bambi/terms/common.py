@@ -8,9 +8,6 @@ from bambi.terms.base import BaseTerm
 class CommonTerm(BaseTerm):
     """A common model term."""
 
-    coords = {}
-    data = None
-
     def __init__(self, term, prior):
         self.term = term
         self.prior = prior
@@ -21,16 +18,6 @@ class CommonTerm(BaseTerm):
 
         if not self.categorical and self.kind != "intercept" and np.all(self.data == self.data[0]):
             raise ValueError(f"The term '{self.name}' is constant!")
-
-        # Obtain pymc coordinates, only for categorical components of a term.
-        # A categorical component can have up to two coordinates in the same model if it is
-        # includied with both reduced and full rank encodings.
-        if self.categorical:
-            name = self.name + "_dim"
-            self.coords[name] = self.levels
-        elif self.data.ndim > 1 and self.data.shape[1] > 1:
-            name = self.name + "_dim"
-            self.coords[name] = np.arange(self.data.shape[1])
 
     @property
     def term(self):
@@ -44,6 +31,28 @@ class CommonTerm(BaseTerm):
     @property
     def name(self):
         return self.term.name
+
+    @property
+    def coords(self):
+        # Obtain pymc coordinates, only for categorical components of a term.
+        # A categorical component can have up to two coordinates in the same model if it is
+        # includied with both reduced and full rank encodings.
+        coords = {}
+        if self.categorical:
+            name = self.name + "_dim"
+            coords[name] = self.levels
+        elif self.data.ndim > 1 and self.data.shape[1] > 1:
+            name = self.name + "_dim"
+            coords[name] = np.arange(self.data.shape[1])
+        return coords
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        self._data = value
 
     @property
     def kind(self):

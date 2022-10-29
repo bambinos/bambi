@@ -90,7 +90,7 @@ class Categorical(MultivariateFamily):
         return pps
 
     def get_data(self, response):
-        return np.nonzero(response.term.design_matrix)[1]
+        return np.nonzero(response.term.data)[1]
 
     def get_coords(self, response):
         name = response.name + "_dim"
