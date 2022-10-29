@@ -174,22 +174,23 @@ def test_many_common_many_group_specific(crossed_data):
 
     # check that common effect design matrices are the same,
     # even if term names / level names / order of columns is different
-    X0 = set(
-        [
-            tuple(t.data[:, lev])
-            for t in model0.common_terms.values()
-            for lev in range(len(t.levels))
-        ]
-    )
-    X1 = set(
-        [
-            tuple(t.data[:, lev])
-            for t in model1.common_terms.values()
-            for lev in range(len(t.levels))
-        ]
-    )
+    X0_list = []
+    X1_list = []
+    for term in model0.common_terms.values():
+        if term.levels is not None:
+            for level_idx in range(len(term.levels)):
+                X0_list.append(tuple(term.data[:, level_idx]))
+        else:
+            X0_list.append(tuple(term.data))
 
-    assert X0 == X1
+    for term in model1.common_terms.values():
+        if term.levels is not None:
+            for level_idx in range(len(term.levels)):
+                X1_list.append(tuple(term.data[:, level_idx]))
+        else:
+            X1_list.append(tuple(term.data))
+
+    assert set(X0_list) == set(X1_list)
 
     # check that models have same priors for common effects
     priors0 = {
@@ -399,22 +400,24 @@ def test_poisson_regression(crossed_data):
 
     # check that common effect design matrices are the same,
     # even if term names / level names / order of columns is different
-    X0 = set(
-        [
-            tuple(t.data[:, lev])
-            for t in model0.common_terms.values()
-            for lev in range(len(t.levels))
-        ]
-    )
-    X1 = set(
-        [
-            tuple(t.data[:, lev])
-            for t in model1.common_terms.values()
-            for lev in range(len(t.levels))
-        ]
-    )
 
-    assert X0 == X1
+    X0_list = []
+    X1_list = []
+    for term in model0.common_terms.values():
+        if term.levels is not None:
+            for level_idx in range(len(term.levels)):
+                X0_list.append(tuple(term.data[:, level_idx]))
+        else:
+            X0_list.append(tuple(term.data))
+
+    for term in model1.common_terms.values():
+        if term.levels is not None:
+            for level_idx in range(len(term.levels)):
+                X1_list.append(tuple(term.data[:, level_idx]))
+        else:
+            X1_list.append(tuple(term.data))
+
+    assert set(X0_list) == set(X1_list)
 
     # check that models have same priors for common effects
     priors0 = {

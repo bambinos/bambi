@@ -66,9 +66,8 @@ def test_term_init(diabetes_data):
     term = CommonTerm(term, prior=None)
     assert term.name == "BMI"
     assert not term.categorical
-    assert not isinstance(term, GroupSpecificTerm)
-    assert term.levels is not None
-    assert term.data.shape == (442, 1)
+    assert term.levels is None
+    assert term.data.shape == (442,)
 
 
 def test_distribute_group_specific_effect_over(diabetes_data):
@@ -149,12 +148,12 @@ def test_model_terms_levels_interaction(crossed_data):
     model = Model("Y ~ threecats*fourcats", crossed_data)
 
     assert model.terms["threecats:fourcats"].levels == [
-        "threecats[b]:fourcats[b]",
-        "threecats[b]:fourcats[c]",
-        "threecats[b]:fourcats[d]",
-        "threecats[c]:fourcats[b]",
-        "threecats[c]:fourcats[c]",
-        "threecats[c]:fourcats[d]",
+        "b, b",
+        "b, c",
+        "b, d",
+        "c, b",
+        "c, c",
+        "c, d",
     ]
 
 
@@ -169,7 +168,7 @@ def test_model_terms_levels():
         }
     )
     model = Model("y ~ x + z + time + (time|subject)", data)
-    assert model.terms["z"].levels == ["z[Group 2]", "z[Group 3]"]
+    assert model.terms["z"].levels == ["Group 2", "Group 3"]
     assert model.terms["1|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
     assert model.terms["time|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
 

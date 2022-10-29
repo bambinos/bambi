@@ -183,23 +183,27 @@ def test_set_priors():
     )
     model = Model("y ~ x + (1|g)", data)
     prior = Prior("Uniform", lower=0, upper=50)
+    gp_prior = Prior("Normal", mu=0, sigma=Prior("Normal", mu=0, sigma=1))
 
     # Common
     model.set_priors(common=prior)
     assert model.terms["x"].prior == prior
 
     # Group-specific
-    model.set_priors(group_specific=prior)
-    assert model.terms["1|g"].prior == prior
+    with pytest.raises(ValueError, match="must have hyperpriors"):
+        model.set_priors(group_specific=prior)
+
+    model.set_priors(group_specific=gp_prior)
+    assert model.terms["1|g"].prior == gp_prior
 
     # By name
     model = Model("y ~ x + (1|g)", data)
     model.set_priors(priors={"Intercept": prior})
     model.set_priors(priors={"x": prior})
-    model.set_priors(priors={"1|g": prior})
+    model.set_priors(priors={"1|g": gp_prior})
     assert model.terms["Intercept"].prior == prior
     assert model.terms["x"].prior == prior
-    assert model.terms["1|g"].prior == prior
+    assert model.terms["1|g"].prior == gp_prior
 
 
 def test_set_prior_with_tuple():
