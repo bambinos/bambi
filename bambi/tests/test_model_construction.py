@@ -406,6 +406,7 @@ def test_data_is_copied():
     assert all(adults.dtypes[:3] == "object")
 
 
+@pytest.mark.skip(reason="Censored still not ported")
 def test_response_is_censored():
     df = pd.DataFrame(
         {
