@@ -3,8 +3,7 @@ import pymc as pm
 import aesara.tensor as at
 
 from bambi.backend.utils import has_hyperprior, get_distribution
-from bambi.families.multivariate import Categorical, Multinomial
-from bambi.families.univariate import Beta, Binomial, Gamma
+from bambi.families.multivariate import MultivariateFamily
 from bambi.priors import Prior
 
 
@@ -22,7 +21,11 @@ class CommonTerm:
 
     def __init__(self, term):
         self.term = term
-        self.coords = self.get_coords()
+        self.coords = self.term.coords.copy()
+        # Make sure we use the alias, if there's one
+        # NOTE: Could be handled in the term??
+        if self.coords and self.term.alias:
+            self.coords[self.term.alias + "_dim"] = self.coords.pop(self.term.name + "_dim")
 
     def build(self, spec):
         data = self.term.data
@@ -33,10 +36,9 @@ class CommonTerm:
 
         # Dims of the response variable
         response_dims = []
-        if isinstance(spec.family, (Categorical, Multinomial)):
+        if isinstance(spec.family, MultivariateFamily):
             response_dims = list(spec.response.coords)
             response_dims_n = len(spec.response.coords[response_dims[0]])
-
             # Arguments may be of shape (a,) but we need them to be of shape (a, b)
             # a: length of predictor coordinates
             # b: length of response coordinates
@@ -48,26 +50,20 @@ class CommonTerm:
         if dims:
             coef = distribution(label, dims=dims, **args)
         else:
-            shape = None if data.shape[1] == 1 else data.shape[1]
+            if data.ndim == 1:
+                shape = None
+            elif data.shape[1] == 1:
+                shape = None
+            else:
+                shape = data.shape[1]
             coef = distribution(label, shape=shape, **args)
-            coef = at.atleast_1d(coef)  # If only a single numeric column it wont be 1d
+            coef = at.atleast_1d(coef)  # If only a single numeric column it won't be 1D
 
-        # Prepends one dimension if response is multivariate categorical and predictor is 1d
+        # Prepends one dimension if response is multivariate and the predictor is 1D
         if response_dims and len(dims) == 1:
             coef = coef[np.newaxis, :]
 
         return coef, data
-
-    def get_coords(self):
-        coords = {}
-        if self.term.categorical:
-            name = self.name + "_dim"
-            coords[name] = self.term.term.levels
-        # Not categorical but multi-column, like when we use splines
-        elif self.term.data.shape[1] > 1:
-            name = self.name + "_dim"
-            coords[name] = list(range(self.term.data.shape[1]))
-        return coords
 
     @property
     def name(self):
@@ -99,11 +95,11 @@ class GroupSpecificTerm:
         label = self.name
         dist = self.term.prior.name
         kwargs = self.term.prior.args
-        predictor = self.term.predictor.squeeze()
+        predictor = np.squeeze(self.term.predictor)
 
         # Dims of the response variable (e.g. categorical)
         response_dims = []
-        if isinstance(spec.family, (Categorical, Multinomial)):
+        if isinstance(spec.family, MultivariateFamily):
             response_dims = list(spec.response.coords)
 
         dims = list(self.coords) + response_dims
@@ -115,23 +111,17 @@ class GroupSpecificTerm:
         return coef, predictor
 
     def get_coords(self):
-        coords = {}
+        coords = self.term.coords.copy()
+        # If there's no alias, return the coords from the underlying term
+        if not self.term.alias:
+            return coords
 
-        # Use the name of the alias if there's an alias
-        if self.term.alias:
-            expr, factor = self.term.alias, self.term.alias
-        else:
-            expr, factor = self.term.name.split("|")
-
-        # The group is always a coordinate we add to the model.
-        coords[factor + "__factor_dim"] = self.term.groups
-
-        if self.term.categorical:
-            levels = self.term.term.expr.levels
-            coords[expr + "__expr_dim"] = levels
-        elif self.term.predictor.ndim == 2 and self.term.predictor.shape[1] > 1:
-            coords[expr + "__expr_dim"] = [str(i) for i in range(self.term.predictor.shape[1])]
-        return coords
+        # If there's an alias, create a coords where the name is based on the alias
+        new_coords = {}
+        for key, value in coords.items():
+            _, kind = key.split("__")
+            new_coords[self.term.alias + kind] = value
+        return new_coords
 
     def build_distribution(self, dist, label, **kwargs):
         """Build and return a PyMC Distribution."""
@@ -181,14 +171,11 @@ class InterceptTerm:
     def build(self, spec):
         dist = get_distribution(self.term.prior.name)
         label = self.name
-        # Pre-pends one dimension if response is multi-categorical
-        if isinstance(spec.family, (Categorical, Multinomial)):
+        # Prepends one dimension if response is multivariate
+        if isinstance(spec.family, MultivariateFamily):
             dims = list(spec.response.coords)
             dist = dist(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:
-            # NOTE: Intercept only models with shape=1 don't work anymore
-            #       It seems that 'shape=1' is not needed anymore?
-            # dist = dist(label, shape=1, **self.term.prior.args)
             dist = dist(label, **self.term.prior.args)
         return dist
 
@@ -223,7 +210,7 @@ class ResponseTerm:
             A dictionary where names are names of inverse link functions and values are functions
             that can operate with Aesara tensors.
         """
-        data = self.term.data.squeeze()
+        data = np.squeeze(self.term.data)
 
         # Take the inverse link function that maps from linear predictor to the mean of likelihood
         if self.family.link.name in invlinks:
@@ -231,11 +218,8 @@ class ResponseTerm:
         else:
             linkinv = self.family.link.linkinv_backend
 
-        # Add column of zeros to the linear predictor for the reference level (the first one)
-        if isinstance(self.family, (Categorical, Multinomial)):
-            # Make sure intercept-only models work
-            nu = np.ones((data.shape[0], 1)) * nu
-            nu = at.concatenate([np.zeros((data.shape[0], 1)), nu], axis=1)
+        if hasattr(self.family, "transform_backend_nu"):
+            nu = self.family.transform_backend_nu(nu, data)
 
         # Add mean parameter and observed data
         kwargs = {self.family.likelihood.parent: linkinv(nu), "observed": data}
@@ -268,31 +252,15 @@ class ResponseTerm:
 
     def build_response_distribution(self, kwargs):
         # Get likelihood distribution
-        dist = get_distribution(self.family.likelihood.name)
+        if self.family.likelihood.dist:
+            dist = self.family.likelihood.dist
+        else:
+            dist = get_distribution(self.family.likelihood.name)
 
-        # Handle some special cases
-        if isinstance(self.family, Beta):
-            # Beta distribution in PyMC uses alpha and beta, but we have mu and kappa.
-            # alpha = mu * kappa
-            # beta = (1 - mu) * kappa
-            alpha = kwargs["mu"] * kwargs["kappa"]
-            beta = (1 - kwargs["mu"]) * kwargs["kappa"]
-            return dist(self.name, alpha=alpha, beta=beta, observed=kwargs["observed"])
-
-        if isinstance(self.family, Binomial):
-            successes = kwargs["observed"][:, 0].squeeze()
-            trials = kwargs["observed"][:, 1].squeeze()
-            return dist(self.name, p=kwargs["p"], observed=successes, n=trials)
-
-        if isinstance(self.family, Gamma):
-            # Gamma distribution is specified using mu and sigma, but we request prior for alpha.
-            # We build sigma from mu and alpha.
-            sigma = kwargs["mu"] / (kwargs["alpha"] ** 0.5)
-            return dist(self.name, mu=kwargs["mu"], sigma=sigma, observed=kwargs["observed"])
-
-        if isinstance(self.family, Multinomial):
-            n = kwargs["observed"].sum(axis=1)
-            return dist(self.name, p=kwargs["p"], observed=kwargs["observed"], n=n)
+        # Families can implement specific transformations of parameters that are passed to the
+        # likelihood function
+        if hasattr(self.family, "transform_backend_kwargs"):
+            kwargs = self.family.transform_backend_kwargs(kwargs)
 
         return dist(self.name, **kwargs)
 

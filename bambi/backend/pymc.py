@@ -1,5 +1,7 @@
+import functools
 import logging
 import traceback
+
 from copy import deepcopy
 
 import numpy as np
@@ -11,7 +13,7 @@ from bambi import version
 
 from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
 from bambi.backend.terms import CommonTerm, GroupSpecificTerm, InterceptTerm, ResponseTerm
-from bambi.families.multivariate import Categorical, Multinomial
+from bambi.families.multivariate import MultivariateFamily
 
 _log = logging.getLogger("bambi")
 
@@ -28,7 +30,7 @@ class PyMCModel:
         "logit": logit,
         "probit": probit,
         "tan_2": arctan_2,
-        "softmax": at.nnet.softmax,
+        "softmax": functools.partial(at.nnet.softmax, axis=-1),
     }
 
     def __init__(self):
@@ -159,7 +161,8 @@ class PyMCModel:
             # Column vector of coefficients and design matrix
             coefs = at.concatenate(coefs)
 
-            data = np.hstack(columns)
+            # Design matrix
+            data = np.column_stack(columns)
 
             # If there's an intercept, center the data
             # Also store the design matrix without the intercept to uncenter the intercept later
@@ -210,7 +213,7 @@ class PyMCModel:
             if predictor.ndim > 1:
                 for col in range(predictor.shape[1]):
                     self.mu += coef[:, col] * predictor[:, col]
-            elif isinstance(spec.family, (Categorical, Multinomial)):
+            elif isinstance(spec.family, MultivariateFamily):
                 self.mu += coef * predictor[:, np.newaxis]
             else:
                 self.mu += coef * predictor

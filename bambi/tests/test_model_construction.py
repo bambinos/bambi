@@ -5,14 +5,16 @@ from os.path import dirname, join
 import arviz as az
 import numpy as np
 import pandas as pd
+import pymc as pm
 import pytest
 
 from formulae import design_matrices
 
 from bambi.data.datasets import load_data
 from bambi.models import Model
-from bambi.terms import Term, GroupSpecificTerm
+from bambi.terms import CommonTerm, GroupSpecificTerm
 from bambi.priors import Prior
+from bambi.families import Family, Likelihood
 
 
 @pytest.fixture(scope="module")
@@ -63,12 +65,11 @@ def crossed_data():
 def test_term_init(diabetes_data):
     design = design_matrices("BMI", diabetes_data)
     term = design.common.terms["BMI"]
-    term = Term("BMI", term, design.common["BMI"])
+    term = CommonTerm(term, prior=None)
     assert term.name == "BMI"
     assert not term.categorical
-    assert not term.group_specific
-    assert term.levels is not None
-    assert term.data.shape == (442, 1)
+    assert term.levels is None
+    assert term.data.shape == (442,)
 
 
 def test_distribute_group_specific_effect_over(diabetes_data):
@@ -149,12 +150,12 @@ def test_model_terms_levels_interaction(crossed_data):
     model = Model("Y ~ threecats*fourcats", crossed_data)
 
     assert model.terms["threecats:fourcats"].levels == [
-        "threecats[b]:fourcats[b]",
-        "threecats[b]:fourcats[c]",
-        "threecats[b]:fourcats[d]",
-        "threecats[c]:fourcats[b]",
-        "threecats[c]:fourcats[c]",
-        "threecats[c]:fourcats[d]",
+        "b, b",
+        "b, c",
+        "b, d",
+        "c, b",
+        "c, c",
+        "c, d",
     ]
 
 
@@ -169,7 +170,7 @@ def test_model_terms_levels():
         }
     )
     model = Model("y ~ x + z + time + (time|subject)", data)
-    assert model.terms["z"].levels == ["z[Group 2]", "z[Group 3]"]
+    assert model.terms["z"].levels == ["Group 2", "Group 3"]
     assert model.terms["1|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
     assert model.terms["time|subject"].groups == [f"Subject {x}" for x in range(1, 6)]
 
@@ -186,9 +187,9 @@ def test_model_term_classes():
 
     model = Model("y ~ x*g + (x|s)", data)
 
-    assert isinstance(model.terms["x"], Term)
-    assert isinstance(model.terms["g"], Term)
-    assert isinstance(model.terms["x:g"], Term)
+    assert isinstance(model.terms["x"], CommonTerm)
+    assert isinstance(model.terms["g"], CommonTerm)
+    assert isinstance(model.terms["x:g"], CommonTerm)
     assert isinstance(model.terms["1|s"], GroupSpecificTerm)
     assert isinstance(model.terms["x|s"], GroupSpecificTerm)
 
@@ -407,6 +408,7 @@ def test_data_is_copied():
     assert all(adults.dtypes[:3] == "object")
 
 
+@pytest.mark.skip(reason="Censored still not ported")
 def test_response_is_censored():
     df = pd.DataFrame(
         {
@@ -416,3 +418,17 @@ def test_response_is_censored():
     )
     dm = Model("censored(x, status) ~ 1", df)
     assert dm.response.is_censored
+
+
+def test_custom_likelihood_function():
+    df = pd.DataFrame({"y": [1, 2, 3, 4, 5], "x": [1, 1, 2, 2, 3]})
+
+    def CustomGaussian(*args, **kwargs):
+        return pm.Normal(*args, **kwargs)
+
+    sigma_prior = Prior("HalfNormal", sigma=1)
+    likelihood = Likelihood("CustomGaussian", parent="mu", dist=CustomGaussian, sigma=sigma_prior)
+    family = Family("custom_gaussian", likelihood, "identity")
+    model = Model("y ~ x", df, family=family)
+    _ = model.fit()
+    assert model.backend.model.observed_RVs[0].str_repr() == "y ~ N(f(Intercept, x), y_sigma)"

@@ -24,6 +24,7 @@ def test_cloglog():
     assert (x > 0).all() and (x < 1).all()
 
 
+@pytest.mark.skip(reason="Censored still not ported")
 def test_censored():
     df = pd.DataFrame(
         {

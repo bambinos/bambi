@@ -32,30 +32,33 @@ class Likelihood:
 
     Parameters
     ----------
-    name: str
+    name : str
         Name of the likelihood function. Must be a valid PyMC distribution name.
-    parent: str
+    parent : str
         Optional specification of the name of the mean parameter in the likelihood.
         This is the parameter whose transformation is modeled by the linear predictor.
-    kwargs:
+    dist : pymc.distributions.distribution.DistributionMeta
+        Optional custom PyMC distribution that will be used to compute the likelihood.
+    kwargs :
         Keyword arguments that indicate prior distributions for auxiliary parameters in the
         likelihood.
     """
 
     DISTRIBUTIONS = DISTRIBUTIONS
 
-    def __init__(self, name, parent=None, **kwargs):
+    def __init__(self, name, parent=None, dist=None, **kwargs):
         if name in self.DISTRIBUTIONS:
             self.name = name
             self.parent = parent
             self.priors = self._check_priors(kwargs)
+            self.dist = None
         else:
-            # On your own risk
+            # At your own risk
             self.name = name
-            # Check priors passed are in fact of class Prior
             check_all_are_priors(kwargs)
             self.priors = kwargs
             self.parent = parent
+            self.dist = dist
 
     @property
     def parent(self):
