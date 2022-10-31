@@ -1148,13 +1148,13 @@ Name: prog, dtype: int64
 <section id="Model-1">
 <h3>Model 1<a class="headerlink" href="#Model-1" title="Permalink to this heading">#</a></h3>
 <div class="math notranslate nohighlight">
-\[\log{Y_i} = \beta_1 \text{Academic}_i + \beta_2 \text{General}_i + \beta_3 \text{Vocational}_i + \beta_4 \text{Math_std}_i\]</div>
+\[\log{Y_i} = \beta_1 \text{Academic}_i + \beta_2 \text{General}_i + \beta_3 \text{Vocational}_i + \beta_4 \text{Math\_std}_i\]</div>
 </section>
 <section id="Model-2">
 <h3>Model 2<a class="headerlink" href="#Model-2" title="Permalink to this heading">#</a></h3>
 <div class="math notranslate nohighlight">
-\[\log{Y_i} = \beta_1 \text{Academic}_i + \beta_2 \text{General}_i + \beta_3 \text{Vocational}_i + \beta_4 \text{Math_std}_i
-            + \beta_5 \text{General}_i \cdot \text{Math_std}_i + \beta_6 \text{Vocational}_i \cdot \text{Math_std}_i\]</div>
+\[\log{Y_i} = \beta_1 \text{Academic}_i + \beta_2 \text{General}_i + \beta_3 \text{Vocational}_i + \beta_4 \text{Math\_std}_i
+            + \beta_5 \text{General}_i \cdot \text{Math\_std}_i + \beta_6 \text{Vocational}_i \cdot \text{Math\_std}_i\]</div>
 <p>In both cases we have the following dummy variables</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\text{Academic}_i =
@@ -1183,7 +1183,7 @@ Name: prog, dtype: int64
 <p>and <span class="math notranslate nohighlight">\(Y\)</span> represents the days of absence.</p>
 <p>So, for example, the first model for a student under the Vocational program reduces to</p>
 <div class="math notranslate nohighlight">
-\[\log{Y_i} = \beta_3 + \beta_4 \text{Math_std}_i\]</div>
+\[\log{Y_i} = \beta_3 + \beta_4 \text{Math\_std}_i\]</div>
 <p>And one last thing to note is we’ve decided not to inclide an intercept term, that’s why you don’t see any <span class="math notranslate nohighlight">\(\beta_0\)</span> above. This choice allows us to represent the effect of each program directly with <span class="math notranslate nohighlight">\(\beta_1\)</span>, <span class="math notranslate nohighlight">\(\beta_2\)</span>, and <span class="math notranslate nohighlight">\(\beta_3\)</span>.</p>
 </section>
 </section>
@@ -1208,7 +1208,7 @@ Name: prog, dtype: int64
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
+Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [prog, scale(math), daysabs_alpha]
 </pre></div></div>
 </div>
@@ -1224,6 +1224,9 @@ NUTS: [prog, scale(math), daysabs_alpha]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -1234,8 +1237,8 @@ NUTS: [prog, scale(math), daysabs_alpha]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:08<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:06&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1243,7 +1246,7 @@ NUTS: [prog, scale(math), daysabs_alpha]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 9 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 7 seconds.
 </pre></div></div>
 </div>
 </section>
@@ -1266,7 +1269,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
+Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [prog, scale(math), prog:scale(math), daysabs_alpha]
 </pre></div></div>
 </div>
@@ -1282,6 +1285,9 @@ NUTS: [prog, scale(math), prog:scale(math), daysabs_alpha]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -1292,8 +1298,8 @@ NUTS: [prog, scale(math), prog:scale(math), daysabs_alpha]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:09<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:06&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1301,7 +1307,7 @@ NUTS: [prog, scale(math), prog:scale(math), daysabs_alpha]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 9 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 7 seconds.
 </pre></div></div>
 </div>
 </section>
@@ -1354,62 +1360,62 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>prog[Academic]</th>
-      <td>1.887</td>
+      <td>1.890</td>
       <td>0.083</td>
-      <td>1.728</td>
-      <td>2.035</td>
+      <td>1.735</td>
+      <td>2.039</td>
+      <td>0.002</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>5600.0</td>
-      <td>3477.0</td>
+      <td>2001.0</td>
+      <td>1611.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog[General]</th>
-      <td>2.341</td>
-      <td>0.165</td>
-      <td>2.053</td>
-      <td>2.680</td>
-      <td>0.002</td>
-      <td>0.002</td>
-      <td>6190.0</td>
-      <td>3329.0</td>
+      <td>2.340</td>
+      <td>0.172</td>
+      <td>2.021</td>
+      <td>2.654</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>1805.0</td>
+      <td>1498.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog[Vocational]</th>
-      <td>1.051</td>
-      <td>0.114</td>
-      <td>0.841</td>
-      <td>1.269</td>
+      <td>1.052</td>
+      <td>0.118</td>
+      <td>0.838</td>
+      <td>1.280</td>
       <td>0.002</td>
-      <td>0.001</td>
-      <td>5565.0</td>
-      <td>2890.0</td>
+      <td>0.002</td>
+      <td>2559.0</td>
+      <td>1843.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>scale(math)</th>
-      <td>-0.152</td>
-      <td>0.066</td>
+      <td>-0.153</td>
+      <td>0.063</td>
       <td>-0.281</td>
-      <td>-0.034</td>
+      <td>-0.041</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>5437.0</td>
-      <td>3514.0</td>
+      <td>2294.0</td>
+      <td>1662.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>daysabs_alpha</th>
-      <td>1.020</td>
-      <td>0.106</td>
-      <td>0.817</td>
-      <td>1.209</td>
+      <td>1.016</td>
+      <td>0.102</td>
+      <td>0.833</td>
+      <td>1.216</td>
+      <td>0.002</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>5989.0</td>
-      <td>3033.0</td>
+      <td>3429.0</td>
+      <td>1680.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1462,85 +1468,85 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
     <tr>
       <th>prog[Academic]</th>
       <td>1.879</td>
-      <td>0.086</td>
-      <td>1.721</td>
-      <td>2.044</td>
+      <td>0.085</td>
+      <td>1.724</td>
+      <td>2.038</td>
+      <td>0.002</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>4258.0</td>
-      <td>3465.0</td>
+      <td>2541.0</td>
+      <td>1530.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog[General]</th>
-      <td>2.343</td>
-      <td>0.169</td>
-      <td>2.021</td>
-      <td>2.657</td>
+      <td>2.342</td>
+      <td>0.165</td>
+      <td>2.025</td>
+      <td>2.662</td>
+      <td>0.003</td>
       <td>0.002</td>
-      <td>0.002</td>
-      <td>4726.0</td>
-      <td>2938.0</td>
+      <td>2576.0</td>
+      <td>1553.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog[Vocational]</th>
       <td>0.985</td>
-      <td>0.125</td>
-      <td>0.745</td>
-      <td>1.209</td>
+      <td>0.126</td>
+      <td>0.756</td>
+      <td>1.230</td>
+      <td>0.003</td>
       <td>0.002</td>
-      <td>0.001</td>
-      <td>4256.0</td>
-      <td>3084.0</td>
+      <td>2059.0</td>
+      <td>1378.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>scale(math)</th>
-      <td>-0.195</td>
-      <td>0.081</td>
-      <td>-0.341</td>
-      <td>-0.037</td>
+      <td>-0.192</td>
+      <td>0.079</td>
+      <td>-0.340</td>
+      <td>-0.040</td>
+      <td>0.002</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>3283.0</td>
-      <td>3305.0</td>
+      <td>1835.0</td>
+      <td>1518.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog:scale(math)[General]</th>
-      <td>0.013</td>
-      <td>0.170</td>
-      <td>-0.295</td>
-      <td>0.348</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>4001.0</td>
-      <td>2938.0</td>
+      <td>0.014</td>
+      <td>0.168</td>
+      <td>-0.308</td>
+      <td>0.324</td>
+      <td>0.004</td>
+      <td>0.004</td>
+      <td>2135.0</td>
+      <td>1421.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>prog:scale(math)[Vocational]</th>
-      <td>0.195</td>
-      <td>0.165</td>
-      <td>-0.123</td>
-      <td>0.490</td>
+      <td>0.197</td>
+      <td>0.156</td>
+      <td>-0.067</td>
+      <td>0.519</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>3245.0</td>
-      <td>3067.0</td>
+      <td>2266.0</td>
+      <td>1632.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>daysabs_alpha</th>
-      <td>1.018</td>
+      <td>1.019</td>
       <td>0.104</td>
-      <td>0.823</td>
-      <td>1.216</td>
+      <td>0.837</td>
+      <td>1.223</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>4199.0</td>
-      <td>3081.0</td>
+      <td>2579.0</td>
+      <td>1415.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1680,21 +1686,20 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Mon Jun 20 2022
+Last updated: Mon Oct 31 2022
 
 Python implementation: CPython
-Python version       : 3.9.7
-IPython version      : 8.3.0
+Python version       : 3.10.4
+IPython version      : 8.5.0
 
-bambi     : 0.9.0
-numpy     : 1.21.5
-arviz     : 0.13.0.dev0
-matplotlib: 3.5.1
-sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
-[GCC 7.5.0]
-pandas    : 1.4.2
+sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
+matplotlib: 3.5.3
+arviz     : 0.12.1
+bambi     : 0.9.1
+pandas    : 1.4.4
+numpy     : 1.23.4
 
-Watermark: 2.3.0
+Watermark: 2.3.1
 
 </pre></div></div>
 </div>

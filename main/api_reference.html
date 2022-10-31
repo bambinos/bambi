@@ -909,7 +909,7 @@ transforms the linear model prediction to the mean parameter of the likelihood f
 
 <dl class="py class">
 <dt class="sig sig-object py" id="bambi.families.Likelihood">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.families.</span></span><span class="sig-name descname"><span class="pre">Likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/families/likelihood.html#Likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.families.Likelihood" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.families.</span></span><span class="sig-name descname"><span class="pre">Likelihood</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/families/likelihood.html#Likelihood"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.families.Likelihood" title="Permalink to this definition">#</a></dt>
 <dd><p>Representation of a Likelihood function for a Bambi model.</p>
 <p>Notes:
 * <code class="docutils literal notranslate"><span class="pre">parent</span></code> must not be in <code class="docutils literal notranslate"><span class="pre">kwargs</span></code>.
@@ -920,6 +920,7 @@ transforms the linear model prediction to the mean parameter of the likelihood f
 <li><p><strong>name</strong> (<em>str</em>) – Name of the likelihood function. Must be a valid PyMC distribution name.</p></li>
 <li><p><strong>parent</strong> (<em>str</em>) – Optional specification of the name of the mean parameter in the likelihood.
 This is the parameter whose transformation is modeled by the linear predictor.</p></li>
+<li><p><strong>dist</strong> (<em>pymc.distributions.distribution.DistributionMeta</em>) – Optional custom PyMC distribution that will be used to compute the likelihood.</p></li>
 <li><p><strong>kwargs</strong> – Keyword arguments that indicate prior distributions for auxiliary parameters in the
 likelihood.</p></li>
 </ul>
