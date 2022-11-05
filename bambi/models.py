@@ -386,7 +386,7 @@ class Model:
         for name, prior in targets.items():
             self.terms[name].prior = prior
 
-    def _set_family(self, family, link, priors):
+    def  _set_family(self, family, link, priors):
         """Set the Family of the model.
 
         Parameters
