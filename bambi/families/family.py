@@ -1,18 +1,22 @@
 from bambi.families.link import Link
 
+from typing import Dict, Union
+
 
 class Family:
     """A specification of model family.
 
     Parameters
     ----------
-    name: str
+    name : str
         The name of the family. It can be any string.
-    likelihood: Likelihood
+    likelihood : Likelihood
         A ``bambi.families.Likelihood`` instance specifying the model likelihood function.
-    link: str or Link
-        The name of the link function or a ``bambi.families.Link`` instance. The link function
-        transforms the linear model prediction to the mean parameter of the likelihood function.
+    link : Dict[str, Union[str, Link]
+        The link function that's used for every parameter in the likelihood function. 
+        Keys are the names of the parameters and values are the link functions. 
+        These can be a ``str`` with a name or a ``bambi.families.Link`` instance. 
+        The link function transforms the linear predictors. 
 
     Examples
     --------
@@ -45,7 +49,7 @@ class Family:
         "tan_2",
     ]
 
-    def __init__(self, name, likelihood, link):
+    def __init__(self, name, likelihood, link: Dict[str, Union[str, Link]]) :
         self.name = name
         self.likelihood = likelihood
         self.link = link
@@ -56,18 +60,23 @@ class Family:
         return self._link
 
     @link.setter
-    def link(self, x):
-        if isinstance(x, str):
-            self.check_string_link(x)
-            self._link = Link(x)
-        elif isinstance(x, Link):
-            self._link = x
-        else:
-            raise ValueError(".link must be set to a string or a Link instance.")
+    def link(self, value):
+        assert isinstance(value, dict), "Link functions must be specified with a 'dict'"
+        links = {}
+        for param_name, param_value in value.items():
+            if isinstance(param_value, str):
+                param_link = self.check_string_link(value)
+            elif isinstance(value, Link):
+                param_link = param_value
+            else:
+                raise ValueError(".link must be set to a string or a Link instance.")
+            links[param_name] = param_link
+        return links
 
-    def check_string_link(self, link):
-        if not link in self.SUPPORTED_LINKS:
-            raise ValueError(f"Link '{link}' cannot be used with family '{self.name}'")
+    def check_string_link(self, name):
+        if not name in self.SUPPORTED_LINKS:
+            raise ValueError(f"Link '{name}' cannot be used with family '{self.name}'")
+        return Link(name)
 
     def set_alias(self, name, alias):
         """Set alias for an auxiliary variable of the family
