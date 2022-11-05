@@ -103,7 +103,6 @@ class Model:
         # attributes that are set later
         self.terms = {}
         self.built = False  # build()
-        self._backend_name = None
 
         # build() will loop over this, calling _set_priors()
         self._added_priors = {}
