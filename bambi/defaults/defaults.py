@@ -42,135 +42,118 @@ BUILTIN_FAMILIES = {
     "bernoulli": {
         "likelihood": {
             "name": "Bernoulli",
-            "args": {},
+            "params": ["p"],
             "parent": "p",
         },
-        "link": "logit",
+        "link": {"p": "logit"},
         "family": Bernoulli,
     },
     "beta": {
         "likelihood": {
             "name": "Beta",
-            "args": {
-                "kappa": "HalfCauchy"
-            },
+            "params": ["mu", "kappa"],
             "parent": "mu",
         },
-        "link": "logit",
+        "link": {"mu": "logit", "kappa": "log"},
         "family": Beta,
     },
     "binomial": {
         "likelihood": {
             "name": "Binomial",
-            "args": {},
+            "params": ["p"],
             "parent": "p",
         },
-        "link": "logit",
+        "link": {"p": "logit"},
         "family": Binomial,
     },
     "categorical": {
         "likelihood": {
             "name": "Categorical",
-            "args": {},
+            "params": ["p"],
             "parent": "p",
         },
-        "link": "softmax",
+        "link": {"p": "softmax"},
         "family": Categorical,
     },
     "gamma": {
         "likelihood": {
             "name": "Gamma",
-            "args": {
-                "alpha": "HalfCauchy"
-            },
+            "params": ["mu", "alpha"],
             "parent": "mu",
         },
-        "link": "inverse",
+        "link": {"mu": "inverse", "alpha": "log"},
         "family": Gamma,
     },
     "gaussian": {
         "likelihood": {
             "name": "Normal",
-            "args": {
-                "sigma": "HalfNormal"
-            },
+            "params": ["mu", "sigma"],
             "parent": "mu",
         },
-        "link": "identity",
+        "link": {"mu": "identity", "sigma": "log"},
         "family": Gaussian,
     },
     "multinomial": {
         "likelihood": {
             "name": "Multinomial",
-            "args": {},
+            "params": {},
             "parent": "p"
         },
-        "link": "softmax",
+        "link": {"p": "softmax"},
         "family": Multinomial,
     },
     "negativebinomial": {
         "likelihood": {
             "name": "NegativeBinomial",
-            "args": {
-                "alpha": "HalfCauchy"
-            },
+            "params": ["mu", "alpha"],
             "parent": "mu",
         },
-        "link": "log",
+        "link": {"mu": "log", "alpha": "log"},
         "family": NegativeBinomial,
     },
     "laplace": {
         "likelihood": {
             "name": "Laplace",
-            "args": {
-                "b": "HalfNormal"
-            },
+            "params": ["mu", "b"],
             "parent": "mu",
         },
-        "link": "identity",
+        "link": {"mu": "identity", "b": "log"},
         "family": Laplace,
     },
     "poisson": {
         "likelihood": {
             "name": "Poisson",
-            "args": {},
+            "params": ["mu"],
             "parent": "mu",
         },
-        "link": "log",
+        "link": {"mu": "log"},
         "family": Poisson,
     },
     "t": {
         "likelihood": {
             "name": "StudentT",
-            "args": {
-                "sigma": "HalfNormal",
-                "nu": "Gamma"
-            },
+            "params": ["mu", "sigma", "nu"],
             "parent": "mu",
         },
-        "link": "identity",
+        "link": {"mu": "identity", "sigma": "log", "nu": "log"},
         "family": StudentT,
     },
     "vonmises": {
         "likelihood": {
             "name": "VonMises",
-            "args": {
-                "kappa": "HalfNormal"
-            },
+            "params": ["mu", "kappa"],
             "parent": "mu",
         },
-        "link": "tan_2",
+        "link": {"mu": "tan_2", "kappa": "log"},
         "family": VonMises,
     },
     "wald": {
         "likelihood": {
             "name": "Wald",
-            "args": {
-                "lam": "HalfCauchy"
-            },
+            "params": ["mu", "lam"],
             "parent": "mu",
         },
-        "link": "inverse_squared",
+        "link": {"mu": "inverse_squared", "lam": "log"},
         "family": Wald,
     },
 }
@@ -211,9 +194,10 @@ def generate_prior(dist, **kwargs):
     return prior
 
 
-def generate_likelihood(name, args, parent):
+def generate_likelihood(name, params, parent):
     """Generate a Likelihood instance.
 
+    FIXME
     Parameters
     ----------
     name: str
@@ -231,8 +215,8 @@ def generate_likelihood(name, args, parent):
     bambi.Likelihood
         The likelihood instance.
     """
-    priors = {k: generate_prior(v) for k, v in args.items()}
-    return Likelihood(name, parent, **priors)
+    #priors = {k: generate_prior(v) for k, v in args.items()}
+    return Likelihood(name, params, parent)
 
 
 def generate_family(name, likelihood, link, family):

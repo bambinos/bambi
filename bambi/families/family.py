@@ -20,7 +20,7 @@ class Family:
 
     Examples
     --------
-
+    FIXME
     >>> import bambi as bmb
 
     Replicate the Gaussian built-in family.
@@ -65,13 +65,13 @@ class Family:
         links = {}
         for param_name, param_value in value.items():
             if isinstance(param_value, str):
-                param_link = self.check_string_link(value)
+                param_link = self.check_string_link(param_value)
             elif isinstance(value, Link):
                 param_link = param_value
             else:
                 raise ValueError(".link must be set to a string or a Link instance.")
             links[param_name] = param_link
-        return links
+        self._link = links
 
     def check_string_link(self, name):
         if not name in self.SUPPORTED_LINKS:
@@ -91,12 +91,12 @@ class Family:
         self.aliases.update({name: alias})
 
     def __str__(self):
-        msg_list = [f"Response distribution: {self.likelihood.name}", f"Link: {self.link.name}"]
-        if self.likelihood.priors:
-            priors_msg = "\n  ".join([f"{k} ~ {v}" for k, v in self.likelihood.priors.items()])
-            msg_list += [f"Priors:\n  {priors_msg}"]
-        msg = "\n".join(msg_list)
-        return msg
+        msg_list = [
+            f"Family: {self.name}",
+            f"Likelihood: {self.likelihood}", 
+            f"Link: {self.link}"
+        ]
+        return "\n".join(msg_list)
 
     def __repr__(self):
         return self.__str__()
