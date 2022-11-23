@@ -133,4 +133,13 @@ def censored(*args):
 
 censored.__metadata__ = {"kind": "censored"}
 
-extra_namespace = {"c": c, "censored": censored}
+extra_namespace = {
+    "c": c,
+    "censored": censored,
+    "log": np.log,
+    "log2": np.log2,
+    "log10": np.log10,
+    "exp": np.exp,
+    "exp2": np.exp2,
+    "abs": np.abs,
+}
