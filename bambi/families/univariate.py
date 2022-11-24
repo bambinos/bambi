@@ -31,7 +31,7 @@ class AsymmetricLaplace(UnivariateFamily):
         mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
         b = posterior[model.response.name + "_b"]
         kappa = posterior[model.response.name + "_kappa"]
-        return xr.apply_ufunc(stats.laplace_asymmetric, kappa=kappa, loc=mean, scale=b)
+        return xr.apply_ufunc(stats.laplace_asymmetric, kappa, mean, b)
 
 
 class Bernoulli(UnivariateFamily):
