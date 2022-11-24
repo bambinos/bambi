@@ -2,6 +2,7 @@ from bambi.families import Likelihood
 from bambi.priors import Prior
 
 from bambi.families.univariate import (
+    AsymmetricLaplace,
     Bernoulli,
     Beta,
     Binomial,
@@ -19,6 +20,7 @@ from bambi.families.multivariate import Categorical, Multinomial
 
 # Default parameters for PyMC distributions
 SETTINGS_DISTRIBUTIONS = {
+    "AsymmetricLaplace": {"mu": 0, "b": 1, "kappa": 1},
     "Bernoulli": {"p": 0.5},
     "Beta": {"alpha": 1, "beta": 1},
     "Binomial": {"n": 1, "p": 0.5},
@@ -39,6 +41,19 @@ SETTINGS_DISTRIBUTIONS = {
 
 # fmt: off
 BUILTIN_FAMILIES = {
+    "asymmetriclaplace": {
+        "likelihood": {
+            "name": "AsymmetricLaplace",
+            "args": {
+                "b": "HalfNormal",
+                "kappa" : "HalfNormal",
+            },
+            "parent": "mu",
+        },
+        "link": "identity",
+        "family": AsymmetricLaplace,
+    },
+
     "bernoulli": {
         "likelihood": {
             "name": "Bernoulli",

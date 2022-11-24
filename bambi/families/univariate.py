@@ -23,6 +23,17 @@ class UnivariateFamily(Family):
         return posterior
 
 
+class AsymmetricLaplace(UnivariateFamily):
+    SUPPORTED_LINKS = ["identity", "log", "inverse"]
+
+    def posterior_predictive(self, model, posterior, linear_predictor):
+        "Sample from posterior predictive distribution"
+        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
+        b = posterior[model.response.name + "_b"]
+        kappa = posterior[model.response.name + "_kappa"]
+        return xr.apply_ufunc(stats.laplace_asymmetric, kappa=kappa, loc=mean, scale=b)
+
+
 class Bernoulli(UnivariateFamily):
     SUPPORTED_LINKS = ["identity", "logit", "probit", "cloglog"]
 

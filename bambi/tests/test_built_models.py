@@ -544,6 +544,24 @@ def test_vonmises_regression():
     Model("y ~ x", data, family="vonmises").fit(draws=10, tune=10)
 
 
+def test_quantile_regression():
+    x = np.random.uniform(2, 10, 100)
+    y = 2 * x + np.random.normal(0, 0.6 * x**0.75)
+    data = pd.DataFrame({"x": x, "y": y})
+    bmb_model0 = Model("y ~ x", data, family="asymmetriclaplace", priors={"kappa": 9})
+    idata0 = bmb_model0.fit()
+    bmb_model0.predict(idata0)
+
+    bmb_model1 = Model("y ~ x", data, family="asymmetriclaplace", priors={"kappa": 0.1})
+    idata1 = bmb_model1.fit()
+    bmb_model1.predict(idata1)
+
+    assert np.all(
+        idata0.posterior["y_mean"].mean(("chain", "draw"))
+        > idata1.posterior["y_mean"].mean(("chain", "draw"))
+    )
+
+
 def test_plot_priors(crossed_data):
     model = Model("Y ~ 0 + threecats", crossed_data)
     # Priors cannot be plotted until model is built.
