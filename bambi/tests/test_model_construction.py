@@ -290,6 +290,7 @@ def test_hyperprior_on_common_effect():
 @pytest.mark.parametrize(
     "family",
     [
+        "asymmetriclaplace",
         "gaussian",
         "negativebinomial",
         "bernoulli",
@@ -315,6 +316,7 @@ def test_links():
     )
 
     FAMILIES = {
+        "asymmetriclaplace": ["identity", "log", "inverse"],
         "bernoulli": ["identity", "logit", "probit", "cloglog"],
         "beta": ["identity", "logit", "probit", "cloglog"],
         "gamma": ["identity", "inverse", "log"],

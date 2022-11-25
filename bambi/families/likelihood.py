@@ -7,6 +7,7 @@ from bambi.utils import multilinify, spacify
 DistSettings = namedtuple("DistSettings", ["params", "parent", "args"])
 
 DISTRIBUTIONS = {
+    "AsymetricLaplace": DistSettings(params=("mu", "b"), parent="mu", args=("b", "kappa")),
     "Bernoulli": DistSettings(params=("p",), parent="p", args=None),
     "Beta": DistSettings(params=("mu", "kappa"), parent="mu", args=("kappa",)),
     "Binomial": DistSettings(params=("p",), parent="p", args=None),
