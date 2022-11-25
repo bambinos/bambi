@@ -1,5 +1,6 @@
 # pylint: disable = protected-access
 # pylint: disable = too-many-function-args
+# pylint: disable = too-many-nested-blocks
 from statistics import mode
 
 import arviz as az
@@ -7,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from formulae.terms.call import Call
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
@@ -96,14 +98,20 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
     for term in terms.values():
         if hasattr(term, "components"):
             for component in term.components:
-                name = component.name
-                if name not in data_dict:
-                    # For numeric predictors, select the mean.
-                    if component.kind == "numeric":
-                        data_dict[name] = np.mean(data[name])
-                    # For categoric predictors, select the most frequent level.
-                    elif component.kind == "categoric":
-                        data_dict[name] = mode(data[name])
+                # If the component is a function call, use the argument names
+                if isinstance(component, Call):
+                    names = [arg.name for arg in component.call.args]
+                else:
+                    names = [component.name]
+
+                for name in names:
+                    if name not in data_dict:
+                        # For numeric predictors, select the mean.
+                        if component.kind == "numeric":
+                            data_dict[name] = np.mean(data[name])
+                        # For categoric predictors, select the most frequent level.
+                        elif component.kind == "categoric":
+                            data_dict[name] = mode(data[name])
 
     cap_data = pd.DataFrame(data_dict)
 
