@@ -499,7 +499,7 @@ def _posterior_samples_to_idata(samples, model):
     -------
     An ArviZ's InferenceData object.
     """
-    initial_point = model.initial_point(seed=None)
+    initial_point = model.initial_point()
     variables = model.value_vars
 
     var_info = {}
