@@ -55,7 +55,7 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
     # Obtain data for main variable
     main_values = make_main_values(data[main], grid_n)
     main_n = len(main_values)
-    
+
     # If available, obtain groups for grouping variable
     if group:
         group_values = make_group_values(data[group], groups_n)
@@ -67,7 +67,7 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
         panel_n = len(panel_values)
 
     data_dict = {main: main_values}
-    
+
     if group and not panel:
         main_values = np.tile(main_values, group_n)
         group_values = np.repeat(group_values, main_n)
@@ -87,7 +87,6 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
             panel_values = np.repeat(panel_values, main_n * group_n)
             data_dict.update({main: main_values, group: group_values, panel: panel_values})
 
- 
     # Construct dictionary of terms that are in the model
     terms = {}
     if model._design.common:
@@ -95,7 +94,7 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
 
     if model._design.group:
         terms.update(model._design.group.terms)
-    
+
     # Get default values for each variable in the model
     for term in terms.values():
         if hasattr(term, "components"):
@@ -123,8 +122,15 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
 
 
 def plot_cap(
-    model, idata, covariates, use_hdi=True, hdi_prob=None, transforms=None, legend=True, ax=None, 
-    fig_kwargs=None
+    model,
+    idata,
+    covariates,
+    use_hdi=True,
+    hdi_prob=None,
+    transforms=None,
+    legend=True,
+    ax=None,
+    fig_kwargs=None,
 ):
     """Plot Conditional Adjusted Predictions
 
@@ -212,7 +218,7 @@ def plot_cap(
 
     main = covariates.get("horizontal")
     if is_numeric_dtype(cap_data[main]):
-        ax = _plot_cap_numeric(
+        axes = _plot_cap_numeric(
             covariates, cap_data, y_hat_mean, y_hat_bounds, transforms, legend, axes
         )
     elif is_categorical_dtype(cap_data[main]) or is_string_dtype(cap_data[main]):
@@ -220,7 +226,7 @@ def plot_cap(
     else:
         raise ValueError("Main covariate must be numeric or categoric.")
 
-    ax.set(xlabel=main, ylabel=model.response.name)
+    # ax.set(xlabel=main, ylabel=model.response.name)
     return fig, ax
 
 
@@ -249,7 +255,7 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
                 color=f"C{i}",
             )
 
-        if False: #legend:
+        if False:  # legend:
             handles = [
                 (
                     Line2D([], [], color=f"C{i}", solid_capstyle="butt"),
@@ -294,9 +300,21 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
                     color=f"C{i}",
                 )
                 ax.set(title=f"{panel} = {pnl}")
-
-
-    return ax
+        else:
+            for ax, pnl in zip(axes.ravel(), panels):
+                for i, grp in enumerate(groups):
+                    idx = ((cap_data[panel] == pnl) & (cap_data[color] == grp)).to_numpy()
+                    values_main = transform_main(cap_data.loc[idx, main])
+                    ax.plot(values_main, y_hat_mean[idx], color=f"C{i}", solid_capstyle="butt")
+                    ax.fill_between(
+                        values_main,
+                        y_hat_bounds[0][idx],
+                        y_hat_bounds[1][idx],
+                        alpha=0.3,
+                        color=f"C{i}",
+                    )
+                    ax.set(title=f"{panel} = {pnl}")
+    return axes
 
 
 def _plot_cap_categoric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, ax):
@@ -343,6 +361,7 @@ def make_main_values(x, grid_n):
     elif is_string_dtype(x) or is_categorical_dtype(x):
         return np.unique(x)
     raise ValueError("Main covariate must be numeric or categoric.")
+
 
 def make_group_values(x, groups_n):
     if is_string_dtype(x) or is_categorical_dtype(x):
