@@ -4,7 +4,6 @@
 from statistics import mode
 
 import arviz as az
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -155,8 +154,8 @@ def plot_cap(
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to ``None``.
     ax : matplotlib.axes._subplots.AxesSubplot, optional
-        A matplotlib axes object. If None, this function instantiates a new axes object.
-        Defaults to ``None``.
+        A matplotlib axes object or a sequence of them. If None, this function instantiates a
+        new axes object. Defaults to ``None``.
 
     Returns
     -------
@@ -192,7 +191,6 @@ def plot_cap(
     if transforms is None:
         transforms = {}
 
-    # If passed, use transformation
     response_transform = transforms.get(model.response.name, identity)
 
     y_hat = response_transform(idata.posterior[f"{model.response.name}_mean"])
@@ -222,12 +220,14 @@ def plot_cap(
             covariates, cap_data, y_hat_mean, y_hat_bounds, transforms, legend, axes
         )
     elif is_categorical_dtype(cap_data[main]) or is_string_dtype(cap_data[main]):
-        ax = _plot_cap_categoric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, axes)
+        axes = _plot_cap_categoric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, axes)
     else:
         raise ValueError("Main covariate must be numeric or categoric.")
 
-    # ax.set(xlabel=main, ylabel=model.response.name)
-    return fig, ax
+    for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
+        ax.set(xlabel=main, ylabel=model.response.name)
+
+    return fig, axes
 
 
 def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms, legend, axes):
@@ -241,10 +241,10 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
         ax.fill_between(values_main, y_hat_bounds[0], y_hat_bounds[1], alpha=0.8)
     elif "color" in covariates and not "panel" in covariates:
         ax = axes[0]
-        group = covariates.get("color")
-        groups = get_unique_levels(cap_data[group])
-        for i, grp in enumerate(groups):
-            idx = (cap_data[group] == grp).to_numpy()
+        color = covariates.get("color")
+        colors = get_unique_levels(cap_data[color])
+        for i, clr in enumerate(colors):
+            idx = (cap_data[color] == clr).to_numpy()
             values_main = transform_main(cap_data.loc[idx, main])
             ax.plot(values_main, y_hat_mean[idx], color=f"C{i}", solid_capstyle="butt")
             ax.fill_between(
@@ -253,24 +253,6 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
                 y_hat_bounds[1][idx],
                 alpha=0.3,
                 color=f"C{i}",
-            )
-
-        if False:  # legend:
-            handles = [
-                (
-                    Line2D([], [], color=f"C{i}", solid_capstyle="butt"),
-                    Patch(color=f"C{i}", alpha=0.3, lw=1),
-                )
-                for i in range(len(groups))
-            ]
-            ax.legend(
-                handles,
-                tuple(groups),
-                title=group,
-                handlelength=1.3,
-                handleheight=1,
-                bbox_to_anchor=(1.03, 0.5),
-                loc="center left",
             )
     elif not "color" in covariates and "panel" in covariates:
         panel = covariates.get("panel")
@@ -281,12 +263,11 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
             ax.plot(values_main, y_hat_mean[idx], solid_capstyle="butt")
             ax.fill_between(values_main, y_hat_bounds[0][idx], y_hat_bounds[1][idx], alpha=0.3)
             ax.set(title=f"{panel} = {pnl}")
-
     elif "color" in covariates and "panel" in covariates:
         color = covariates.get("color")
         panel = covariates.get("panel")
+        colors = get_unique_levels(cap_data[color])
         panels = get_unique_levels(cap_data[panel])
-        groups = get_unique_levels(cap_data[color])
         if color == panel:
             for i, (ax, pnl) in enumerate(zip(axes.ravel(), panels)):
                 idx = (cap_data[panel] == pnl).to_numpy()
@@ -302,8 +283,8 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
                 ax.set(title=f"{panel} = {pnl}")
         else:
             for ax, pnl in zip(axes.ravel(), panels):
-                for i, grp in enumerate(groups):
-                    idx = ((cap_data[panel] == pnl) & (cap_data[color] == grp)).to_numpy()
+                for i, clr in enumerate(colors):
+                    idx = ((cap_data[panel] == pnl) & (cap_data[color] == clr)).to_numpy()
                     values_main = transform_main(cap_data.loc[idx, main])
                     ax.plot(values_main, y_hat_mean[idx], color=f"C{i}", solid_capstyle="butt")
                     ax.fill_between(
@@ -314,41 +295,85 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
                         color=f"C{i}",
                     )
                     ax.set(title=f"{panel} = {pnl}")
+
+    if "color" in covariates and legend:
+        handles = [
+            (
+                Line2D([], [], color=f"C{i}", solid_capstyle="butt"),
+                Patch(color=f"C{i}", alpha=0.3, lw=1),
+            )
+            for i in range(len(colors))
+        ]
+        for ax in axes.ravel():
+            ax.legend(
+                handles, tuple(colors), title=color, handlelength=1.3, handleheight=1, loc="best"
+            )
     return axes
 
 
-def _plot_cap_categoric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, ax):
-    main = covariates[0]
+def _plot_cap_categoric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, axes):
+    main = covariates.get("horizontal")
     main_levels = get_unique_levels(cap_data[main])
     main_levels_n = len(main_levels)
     idxs_main = np.arange(main_levels_n)
 
+    if "color" in covariates:
+        color = covariates.get("color")
+        colors = get_unique_levels(cap_data[color])
+        colors_n = len(colors)
+        offset_bounds = get_group_offset(colors_n)
+        colors_offset = np.linspace(-offset_bounds, offset_bounds, colors_n)
+
+    if "panel" in covariates:
+        panel = covariates.get("panel")
+        panels = get_unique_levels(cap_data[panel])
+
     if len(covariates) == 1:
+        ax = axes[0]
         ax.scatter(idxs_main, y_hat_mean)
         ax.vlines(idxs_main, y_hat_bounds[0], y_hat_bounds[1])
-    else:
-        group = covariates[1]
-        group_levels = get_unique_levels(cap_data[group])
-        group_levels_n = len(group_levels)
-        offset_bounds = get_group_offset(group_levels_n)
-        offset_groups = np.linspace(-offset_bounds, offset_bounds, group_levels_n)
-
-        for i, grp in enumerate(group_levels):
-            idx = (cap_data[group] == grp).values
-            idxs = idxs_main + offset_groups[i]
+    elif "color" in covariates and not "panel" in covariates:
+        ax = axes[0]
+        for i, clr in enumerate(colors):
+            idx = (cap_data[color] == clr).to_numpy()
+            idxs = idxs_main + colors_offset[i]
             ax.scatter(idxs, y_hat_mean[idx], color=f"C{i}")
             ax.vlines(idxs, y_hat_bounds[0][idx], y_hat_bounds[1][idx], color=f"C{i}")
+    elif not "color" in covariates and "panel" in covariates:
+        for ax, pnl in zip(axes.ravel(), panels):
+            idx = (cap_data[panel] == pnl).to_numpy()
+            ax.scatter(idxs_main, y_hat_mean[idx])
+            ax.vlines(idxs_main, y_hat_bounds[0][idx], y_hat_bounds[1][idx])
+            ax.set(title=f"{panel} = {pnl}")
+    elif "color" in covariates and "panel" in covariates:
+        if color == panel:
+            for i, (ax, pnl) in enumerate(zip(axes.ravel(), panels)):
+                idx = (cap_data[panel] == pnl).to_numpy()
+                idxs = idxs_main + colors_offset[i]
+                ax.scatter(idxs, y_hat_mean[idx], color=f"C{i}")
+                ax.vlines(idxs, y_hat_bounds[0][idx], y_hat_bounds[1][idx], color=f"C{i}")
+                ax.set(title=f"{panel} = {pnl}")
+        else:
+            for ax, pnl in zip(axes.ravel(), panels):
+                for i, clr in enumerate(colors):
+                    idx = ((cap_data[panel] == pnl) & (cap_data[color] == clr)).to_numpy()
+                    idxs = idxs_main + colors_offset[i]
+                    ax.scatter(idxs, y_hat_mean[idx], color=f"C{i}")
+                    ax.vlines(idxs, y_hat_bounds[0][idx], y_hat_bounds[1][idx], color=f"C{i}")
+                    ax.set(title=f"{panel} = {pnl}")
 
-        if legend:
-            handles = [
-                Line2D([], [], c=f"C{i}", marker="o", label=level)
-                for i, level in enumerate(group_levels)
-            ]
-            ax.legend(handles=handles, title=group, bbox_to_anchor=(1.03, 0.5), loc="center left")
+    if "color" in covariates and legend:
+        handles = [
+            Line2D([], [], c=f"C{i}", marker="o", label=level) for i, level in enumerate(colors)
+        ]
+        for ax in axes.ravel():
+            ax.legend(handles=handles, title=color, loc="best")
 
-    ax.set_xticks(idxs_main)
-    ax.set_xticklabels(main_levels)
-    return ax
+    for ax in axes.ravel():
+        ax.set_xticks(idxs_main)
+        ax.set_xticklabels(main_levels)
+
+    return axes
 
 
 def identity(x):
