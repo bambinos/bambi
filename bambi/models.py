@@ -17,6 +17,7 @@ from formulae import design_matrices
 from bambi.backend import PyMCModel
 from bambi.defaults import get_default_prior, get_builtin_family
 from bambi.families import Family, univariate, multivariate
+from bambi.formula import Formula
 from bambi.priors import Prior, PriorScaler
 from bambi.terms import CommonTerm, GroupSpecificTerm, OffsetTerm, ResponseTerm
 from bambi.utils import listify, extra_namespace
@@ -108,12 +109,12 @@ class Model:
         self._added_priors = {}
 
         self._design = None
-        self.formula = None
         self.response = None  # _add_response()
         self.family = None  # _add_response()
         self.backend = None  # _set_backend()
         self.priors_cor = {}  # _add_priors_cor()
 
+        self.formula = formula
         self.auto_scale = auto_scale
         self.dropna = dropna
         self.noncentered = noncentered
@@ -145,6 +146,10 @@ class Model:
         # Obtain design matrices and related objects.
         na_action = "drop" if dropna else "error"
         self.formula = formula
+
+        # TODO: Update here. We need a mapping of Names to DesignMatrices objects now.
+        # Only after we set the family... this is because we need to know what are the 
+        # names of the auxiliary parameters
         self._design = design_matrices(formula, data, na_action, 1, extra_namespace)
 
         if self._design.response is None:
@@ -915,6 +920,19 @@ class Model:
                 groups[factor].append(term_name)
         return groups
 
+    @property
+    def formula(self):
+        return self._formula
+    
+    @formula.setter
+    def formula(self, value):
+        if isinstance(value, str):
+            self._formula = Formula(value)
+        elif isinstance(value, Formula):
+            self._formula = Formula
+        else:
+            raise ValueError(".formula must be instance of 'str' or 'bambi.Formula'")
+     
     def __str__(self):
         priors_common = [f"    {t.name} ~ {t.prior}" for t in self.common_terms.values()]
         if self.intercept_term:

@@ -12,7 +12,7 @@ class Family:
         The name of the family. It can be any string.
     likelihood : Likelihood
         A ``bambi.families.Likelihood`` instance specifying the model likelihood function.
-    link : Dict[str, Union[str, Link]
+    link : Dict[str, Union[str, Link]]
         The link function that's used for every parameter in the likelihood function. 
         Keys are the names of the parameters and values are the link functions. 
         These can be a ``str`` with a name or a ``bambi.families.Link`` instance. 
