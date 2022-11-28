@@ -32,9 +32,7 @@ class Prior:
         # The backend expect numpy arrays, so make sure all numeric values are represented as such.
         kwargs_ = {}
         for key, val in kwargs.items():
-            if isinstance(val, (int, float)):
-                val = np.array(val)
-            elif isinstance(val, np.ndarray):
+            if isinstance(val, np.ndarray):
                 val = val.squeeze()
             kwargs_[key] = val
         self.args.update(kwargs_)
