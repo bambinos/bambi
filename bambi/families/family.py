@@ -13,10 +13,10 @@ class Family:
     likelihood : Likelihood
         A ``bambi.families.Likelihood`` instance specifying the model likelihood function.
     link : Dict[str, Union[str, Link]]
-        The link function that's used for every parameter in the likelihood function. 
-        Keys are the names of the parameters and values are the link functions. 
-        These can be a ``str`` with a name or a ``bambi.families.Link`` instance. 
-        The link function transforms the linear predictors. 
+        The link function that's used for every parameter in the likelihood function.
+        Keys are the names of the parameters and values are the link functions.
+        These can be a ``str`` with a name or a ``bambi.families.Link`` instance.
+        The link function transforms the linear predictors.
 
     Examples
     --------
@@ -49,7 +49,7 @@ class Family:
         "tan_2",
     ]
 
-    def __init__(self, name, likelihood, link: Dict[str, Union[str, Link]]) :
+    def __init__(self, name, likelihood, link: Dict[str, Union[str, Link]]):
         self.name = name
         self.likelihood = likelihood
         self.link = link
@@ -66,10 +66,10 @@ class Family:
         for param_name, param_value in value.items():
             if isinstance(param_value, str):
                 param_link = self.check_string_link(param_value)
-            elif isinstance(value, Link):
+            elif isinstance(param_value, Link):
                 param_link = param_value
             else:
-                raise ValueError(".link must be set to a string or a Link instance.")
+                raise ValueError("'.link' must be set to a string or a Link instance.")
             links[param_name] = param_link
         self._link = links
 
@@ -91,11 +91,7 @@ class Family:
         self.aliases.update({name: alias})
 
     def __str__(self):
-        msg_list = [
-            f"Family: {self.name}",
-            f"Likelihood: {self.likelihood}", 
-            f"Link: {self.link}"
-        ]
+        msg_list = [f"Family: {self.name}", f"Likelihood: {self.likelihood}", f"Link: {self.link}"]
         return "\n".join(msg_list)
 
     def __repr__(self):

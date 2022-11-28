@@ -230,7 +230,7 @@ def generate_likelihood(name, params, parent):
     bambi.Likelihood
         The likelihood instance.
     """
-    #priors = {k: generate_prior(v) for k, v in args.items()}
+    # priors = {k: generate_prior(v) for k, v in args.items()}
     return Likelihood(name, params, parent)
 
 

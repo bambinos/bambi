@@ -16,11 +16,12 @@ from formulae import design_matrices
 
 from bambi.backend import PyMCModel
 from bambi.defaults import get_default_prior, get_builtin_family
+from bambi.model_components import ConstantComponent, DistributionalComponent
 from bambi.families import Family, univariate, multivariate
 from bambi.formula import Formula
 from bambi.priors import Prior, PriorScaler
 from bambi.terms import CommonTerm, GroupSpecificTerm, OffsetTerm, ResponseTerm
-from bambi.utils import listify, extra_namespace
+from bambi.utils import listify, extra_namespace, clean_formula_lhs, get_auxiliary_parameters
 from bambi.version import __version__
 
 _log = logging.getLogger("bambi")
@@ -29,13 +30,11 @@ _log = logging.getLogger("bambi")
 class Model:
     """Specification of model class.
 
-    Parameters
     ----------
     formula : str
         A model description written using the formula syntax from the ``formulae`` library.
-    data : pandas.DataFrame or str
-        The dataset to use. Either a pandas ``DataFrame``, or the name of the file containing
-        the data, which will be passed to ``pd.read_csv()``.
+    data : pandas.DataFrame
+        The dataset to use.
     family : str or bambi.families.Family
         A specification of the model family (analogous to the family object in R). Either
         a string, or an instance of class ``bambi.families.Family``. If a string is passed, a
@@ -102,38 +101,26 @@ class Model:
         priors_cor=None,
     ):
         # attributes that are set later
-        self.terms = {}
+        self.terms = {}  # TODO REMOVE
+        self.components = {}  # Constant and Distributional components
         self.built = False  # build()
 
         # build() will loop over this, calling _set_priors()
         self._added_priors = {}
 
-        self._design = None
-        self.response = None  # _add_response()
         self.family = None  # _add_response()
         self.backend = None  # _set_backend()
         self.priors_cor = {}  # _add_priors_cor()
 
-        self.formula = formula
         self.auto_scale = auto_scale
+        self.automatic_priors = automatic_priors
         self.dropna = dropna
+        self.formula = formula
         self.noncentered = noncentered
         self.potentials = potentials
 
-        # Read and clean data
-        if isinstance(data, str):
-            data = pd.read_csv(data, sep=None, engine="python")
-        elif not isinstance(data, pd.DataFrame):
-            raise ValueError("'data' must be a string with a path to a .csv or a pandas DataFrame.")
-
-        # Convert 'object' and explicitly asked columns to categorical.
-        object_cols = list(data.select_dtypes("object").columns)
-        cols_to_convert = list(set(object_cols + listify(categorical)))
-        if cols_to_convert:
-            data = data.copy()  # don't modify original data frame
-            data[cols_to_convert] = data[cols_to_convert].apply(lambda x: x.astype("category"))
-
-        self.data = data
+        # Some columns are converted to categorical
+        self.data = with_categorical_cols(data, categorical)
 
         # Handle priors
         if priors is None:
@@ -141,33 +128,69 @@ class Model:
         else:
             priors = deepcopy(priors)
 
-        self.automatic_priors = automatic_priors
-
         # Obtain design matrices and related objects.
         na_action = "drop" if dropna else "error"
+
+        # Create family
+        self._set_family(family, link)
+
+        # Create formula
         self.formula = formula
 
-        # TODO: Update here. We need a mapping of Names to DesignMatrices objects now.
-        # Only after we set the family... this is because we need to know what are the 
-        # names of the auxiliary parameters
-        self._design = design_matrices(formula, data, na_action, 1, extra_namespace)
-
-        if self._design.response is None:
+        ## Main component
+        design = design_matrices(self.formula.main, data, na_action, 1, extra_namespace)
+        if design.response is None:
             raise ValueError(
                 "No outcome variable is set! "
                 "Please specify an outcome variable using the formula interface."
             )
 
-        self._set_family(family, link, priors)
-        self._add_response(self._design.response)
+        # This response_name allows to grab the response component from the `.components` dict
+        self.response_name = design.response.name
+        if self.response_name in priors:
+            response_prior = priors[self.response_name]
+        else:
+            response_prior = priors
 
-        if self._design.common:
-            self._add_common(self._design.common, priors)
+        self.components[self.response_name] = DistributionalComponent(
+            design, response_prior, self.response_name, "data", self
+        )
 
-        if self._design.group:
-            self._add_group_specific(self._design.group, priors)
+        auxiliary_parameters = list(get_auxiliary_parameters(self.family))
 
-        if priors_cor:
+        ## Other components
+        ### Distributional
+        for name, formula in zip(self.formula.additionals_lhs, self.formula.additionals):
+            # Check 'name' is part of parameter values
+            if name not in auxiliary_parameters:
+                raise ValueError(
+                    f"'{name}' is not a parameter of the family."
+                    f"Available parameters: {auxiliary_parameters}."
+                )
+
+            # Create design matrix, only for the response part
+            design = design_matrices(
+                clean_formula_lhs(formula), data, na_action, 1, extra_namespace
+            )
+
+            # If priors were not passed, pass an empty dictionary
+            component_prior = priors.get(name, {})
+
+            # Create distributional component
+            self.components[name] = DistributionalComponent(
+                design, component_prior, name, "parameter", self
+            )
+
+            # Remove parameter name from the list
+            auxiliary_parameters.remove(name)
+
+        ### Constant
+        for name in auxiliary_parameters:
+            component_prior = priors.get(name, None)
+            self.components[name] = ConstantComponent(name, component_prior, self)
+
+        # FIXME disabled for now...
+        if False and priors_cor:
             self._add_priors_cor(priors_cor)
 
         # Build priors
@@ -201,12 +224,12 @@ class Model:
             ``discard_tuned_samples`` is set to ``False``.
         discard_tuned_samples : bool
             Whether to discard posterior samples of the tune interval. Defaults to ``True``.
-        omit_offsets: bool
+        omit_offsets : bool
             Omits offset terms in the ``InferenceData`` object returned when the model includes
             group specific effects. Defaults to ``True``.
-        include_mean: bool
+        include_mean : bool
             Compute the posterior of the mean response. Defaults to ``False``.
-        inference_method: str
+        inference_method : str
             The method to use for fitting the model. By default, ``"mcmc"``. This automatically
             assigns a MCMC method best suited for each kind of variables, like NUTS for continuous
             variables and Metropolis for non-binary discrete ones. Alternatively, ``"vi"``, in
@@ -217,7 +240,7 @@ class Model:
             To use the PyMC numpyro and blackjax samplers, use ``nuts_numpyro`` or ``nuts_blackjax``
             respectively. Both methods will only work if you can use NUTS sampling, so your model
             must be differentiable.
-        init: str
+        init : str
             Initialization method. Defaults to ``"auto"``. The available methods are:
             * auto: Use ``"jitter+adapt_diag"`` and if this method fails it uses ``"adapt_diag"``.
             * adapt_diag: Start with a identity mass matrix and then adapt a diagonal based on the
@@ -237,9 +260,9 @@ class Model:
             test value (usually the prior mean) as starting point.
             * jitter+adapt_full: Same as ``"adapt_full"``, but use test value plus a uniform jitter
             in [-1, 1] as starting point in each chain.
-        n_init: int
+        n_init : int
             Number of initialization iterations. Only works for ``"advi"`` init methods.
-        chains: int
+        chains : int
             The number of chains to sample. Running independent chains is important for some
             convergence statistics and can also reveal multiple modes in the posterior. If ``None``,
             then set to either ``cores`` or 2, whichever is larger.
@@ -248,7 +271,7 @@ class Model:
             in the system unless there are more than 4 CPUs, in which case it is set to 4.
         random_seed : int or list of ints
             A list is accepted if cores is greater than one.
-        **kwargs:
+        **kwargs :
             For other kwargs see the documentation for ``PyMC.sample()``.
 
         Returns
@@ -273,10 +296,11 @@ class Model:
 
         # Tell user which event is being modeled
         if isinstance(self.family, univariate.Bernoulli):
+            response = self.components[self.response_name]
             _log.info(
                 "Modeling the probability that %s==%s",
-                self.response.name,
-                str(self.response.success),
+                response.response_term.name,
+                str(response.response_term.success),
             )
 
         return self.backend.run(
@@ -330,6 +354,7 @@ class Model:
         self._set_priors(**self._added_priors)
 
         # Prepare all priors
+        # FIXME! There is no `self.terms` anymore
         for term in self.terms.values():
             if isinstance(term, GroupSpecificTerm):
                 kind = "group_specific"
@@ -391,27 +416,22 @@ class Model:
         for name, prior in targets.items():
             self.terms[name].prior = prior
 
-    def  _set_family(self, family, link, priors):
+    def _set_family(self, family, link):
         """Set the Family of the model.
+
+        FIXME
 
         Parameters
         ----------
-        family: str or bambi.families.Family
+        family : str or bambi.families.Family
             A specification of the model family (analogous to the family object in R). Either a
             string, or an instance of class ``families.Family``. If a string is passed, a family
             with the corresponding name must be defined in the defaults loaded at model
             initialization.
-        link: str
+        link : str
             The name of the link function to use. Valid names are ``"cloglog"``, ``"identity"``,
             ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, ``"probit"``, and
             ``"softmax"``. Not all the link functions can be used with all the families.
-        priors: dict
-            A dictionary with specification of priors for the parameters in the family of
-            the response. Keys are names of other parameters than the mean in the family
-            (i.e. they cannot be equal to ``family.parent``) and values can be an instance of class
-            ``Prior``, a numeric value, or a string describing the width. In the numeric case,
-            the distribution specified in the defaults will be used, and the passed value will be
-            used to scale the appropriate variance parameter.
         """
 
         # If string, get builtin family
@@ -422,33 +442,17 @@ class Model:
         if not isinstance(family, Family):
             raise ValueError("'family' must be a string or a Family object.")
 
-        # Get the names of the auxiliary parameters in the family
-        aux_params = list(family.likelihood.priors)
-
-        # Check if any of the names of the auxiliary params match the names of terms in the model
-        # If that happens, raise an error.
-        if aux_params and self._design.common:
-            conflicts = [name for name in aux_params if name in self._design.common.terms]
-            if conflicts:
-                raise ValueError(
-                    f"The prior name for {', '.join(conflicts)} conflicts with the name of a "
-                    "parameter in the response distribution.\n"
-                    "Please rename the term(s) to prevent an unexpected behaviour."
-                )
-
-        # Extract priors for auxiliary params
-        priors = {k: v for k, v in priors.items() if k in aux_params}
-
-        # Update auxiliary parameters
-        if priors:
-            for prior in priors.values():
-                if isinstance(prior, Prior):
-                    prior.auto_scale = False
-            family.likelihood.priors.update(priors)
-
         # Override family's link if another is explicitly passed
+        # If `link` is string, we assume it wants to override only the `parent` parameter
         if link is not None:
-            family.link = link
+            if isinstance(link, str):
+                links = family.link.copy()
+                links[family.likelihood.parent] = link
+            elif isinstance(link, dict):
+                links = link
+            else:
+                raise ValueError("'link' must be of type 'str' or 'dict'.")
+            family.link = links
 
         self.family = family
 
@@ -460,6 +464,7 @@ class Model:
         aliases: dict
             A dictionary where key represents the original term name and the value is the alias.
         """
+        # FIXME no `self.terms` anymore
         if not isinstance(aliases, dict):
             raise ValueError(f"'aliases' must be a dictionary, not a {type(aliases)}.")
 
@@ -478,82 +483,6 @@ class Model:
 
         # Model needs to be rebuilt after modifying aliases
         self.built = False
-
-    def _add_response(self, response):
-        """Add a response (or outcome/dependent) variable to the model.
-
-        Parameters
-        ----------
-        response : formulae.ResponseMatrix
-            An instance of ``formulae.ResponseMatrix`` as returned by
-            ``formulae.design_matrices()``.
-        """
-
-        if hasattr(response.term.term.components[0], "reference"):
-            reference = response.term.term.components[0].reference
-        else:
-            reference = None
-
-        if reference is not None and not isinstance(self.family, univariate.Bernoulli):
-            raise ValueError("Index notation for response is only available for 'bernoulli' family")
-
-        if isinstance(self.family, univariate.Bernoulli):
-            if response.kind == "categoric" and response.levels is None and reference is None:
-                raise ValueError("Categoric response must be binary for 'bernoulli' family.")
-            if response.kind == "numeric" and not all(np.isin(response.design_matrix, [0, 1])):
-                raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
-
-        self.response = ResponseTerm(response, self.family)
-        self.built = False
-
-    def _add_common(self, common, priors):
-        """Add common (a.k.a. fixed) terms to the model.
-
-        Parameters
-        ----------
-        common: formulae.CommonEffectsMatrix
-            Representation of the design matrix for the common effects of a model. It contains all
-            the necessary information to build the ``Term`` objects associated with each common
-            term in the model.
-        priors: dict
-            Optional specification of priors for one or more terms. A dictionary where the keys are
-            any of the names of the common terms in the model or ``"common"`` and the values are
-            either instances of class ``Prior`` or ``int``, ``float``, or ``str`` that specify the
-            width of the priors on a standardized scale.
-        """
-        for name, term in common.terms.items():
-            data = common[name]
-            prior = priors.pop(name, priors.get("common", None))
-            if isinstance(prior, Prior):
-                any_hyperprior = any(isinstance(x, Prior) for x in prior.args.values())
-                if any_hyperprior:
-                    raise ValueError(
-                        f"Trying to set hyperprior on '{name}'. "
-                        "Can't set a hyperprior on common effects."
-                    )
-            if term.kind == "offset":
-                self.terms[name] = OffsetTerm(name, term, data)
-            else:
-                self.terms[name] = CommonTerm(term, prior)
-
-    def _add_group_specific(self, group, priors):
-        """Add group-specific (a.k.a. random) terms to the model.
-
-        Parameters
-        ----------
-        group: formulae.GroupEffectsMatrix
-            Representation of the design matrix for the group specific effects of a model. It
-            contains all the necessary information to build the ``GroupSpecificTerm`` objects
-            associated with each group-specific term in the model.
-        priors: dict
-            Optional specification of priors for one or more terms. A dictionary where the keys are
-            any of the names of the group-specific terms in the model or ``"group_specific"`` and
-            the values are either instances of class ``Prior`` or ``int``, ``float``, or ``str``
-            that specify the width of the priors on a standardized scale.
-        """
-        for name, term in group.terms.items():
-            prior = priors.pop(name, priors.get("group_specific", None))
-            self.terms[name] = GroupSpecificTerm(term, prior)
 
     def _add_priors_cor(self, priors):
         # priors: dictionary. names are groups, values are the "eta" in the lkj prior
@@ -923,17 +852,18 @@ class Model:
     @property
     def formula(self):
         return self._formula
-    
+
     @formula.setter
     def formula(self, value):
         if isinstance(value, str):
             self._formula = Formula(value)
         elif isinstance(value, Formula):
-            self._formula = Formula
+            self._formula = value
         else:
-            raise ValueError(".formula must be instance of 'str' or 'bambi.Formula'")
-     
+            raise ValueError("'.formula' must be instance of 'str' or 'bambi.Formula'")
+
     def __str__(self):
+        return "Model"
         priors_common = [f"    {t.name} ~ {t.prior}" for t in self.common_terms.values()]
         if self.intercept_term:
             term = self.intercept_term
@@ -989,11 +919,13 @@ class Model:
     @property
     def term_names(self):
         """Return names of all terms in order of addition to model."""
+        # FIXME no self.terms anymore
         return list(self.terms)
 
     @property
     def common_terms(self):
         """Return dict of all common effects in model."""
+        # FIXME no self.terms anymore
         return {
             k: v
             for (k, v) in self.terms.items()
@@ -1002,11 +934,13 @@ class Model:
 
     @property
     def group_specific_terms(self):
+        # FIXME no self.terms anymore
         """Return dict of all group specific effects in model."""
         return {k: v for (k, v) in self.terms.items() if isinstance(v, GroupSpecificTerm)}
 
     @property
     def intercept_term(self):
+        # FIXME no self.terms anymore
         """Return the intercept term"""
         term = [
             v
@@ -1020,6 +954,7 @@ class Model:
 
     @property
     def offset_terms(self):
+        # FIXME no self.terms anymore
         """Return dict of all offset effects in model."""
         return {
             k: v
@@ -1046,3 +981,13 @@ def prepare_prior(prior, kind, auto_scale):
         prior = get_default_prior(kind)
         prior.scale = scale
     return prior
+
+
+def with_categorical_cols(data, columns):
+    # Convert 'object' and explicitly asked columns to categorical.
+    object_columns = list(data.select_dtypes("object").columns)
+    to_convert = list(set(object_columns + listify(columns)))
+    if to_convert:
+        data = data.copy()  # don't modify original data frame
+        data[to_convert] = data[to_convert].apply(lambda x: x.astype("category"))
+    return data

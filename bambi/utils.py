@@ -143,3 +143,25 @@ extra_namespace = {
     "exp2": np.exp2,
     "abs": np.abs,
 }
+
+
+def clean_formula_lhs(x):
+    """Remove the left hand side of a model formula and the tilde.
+
+    Parameters
+    ----------
+    x : str
+        A model formula that has '~' in it.
+
+    Returns
+    -------
+    str
+        The right hand side of the model formula
+    """
+    assert "~" in x
+    position = x.find("~")
+    return x[position + 1 :]
+
+
+def get_auxiliary_parameters(family):
+    return set(family.likelihood.params) - {family.likelihood.parent}

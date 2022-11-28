@@ -13,8 +13,7 @@ class OffsetTerm:
 
     group_specific = False
 
-    def __init__(self, name, term, data):
-        self.name = name
+    def __init__(self, term, data):
         self.data = data.squeeze()
         self.kind = "offset"
         self.term = term
@@ -23,6 +22,10 @@ class OffsetTerm:
 
     def set_alias(self, value):
         self.alias = value
+
+    @property
+    def name(self):
+        return self.term.name
 
     def __str__(self):
         args = [f"name: {self.name}", f"shape: {self.data.shape}"]

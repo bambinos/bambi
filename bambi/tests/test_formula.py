@@ -5,9 +5,9 @@ import bambi as bmb
 
 def test_regular_formula():
     f1 = bmb.Formula("y ~ x1 + x2")
-    assert f1.formula == "y ~ x1 + x2"
-    assert f1.additional_formulas == tuple()
-    assert f1.additional_formulas_lhs == list()
+    assert f1.main == "y ~ x1 + x2"
+    assert f1.additionals == tuple()
+    assert f1.additionals_lhs == list()
 
 
 def test_additional_empty_response():
@@ -24,8 +24,8 @@ def test_access_additional_names():
     f1 = bmb.Formula("y ~ x")
     f2 = bmb.Formula("y ~ x1", "sigma ~ 1", "gamma ~ x")
 
-    assert f1.additional_formulas_lhs == []
-    assert f2.additional_formulas_lhs == ["sigma", "gamma"]
+    assert f1.additionals_lhs == []
+    assert f2.additionals_lhs == ["sigma", "gamma"]
 
 
 def test_formula_str():
