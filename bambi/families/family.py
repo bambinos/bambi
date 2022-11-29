@@ -1,4 +1,5 @@
 from bambi.families.link import Link
+from bambi.utils import get_auxiliary_parameters
 
 from typing import Dict, Union
 
@@ -54,6 +55,7 @@ class Family:
         self.likelihood = likelihood
         self.link = link
         self.aliases = {}
+        self.default_priors = {}
 
     @property
     def link(self):
@@ -89,6 +91,18 @@ class Family:
             The new name for the variable
         """
         self.aliases.update({name: alias})
+
+    def set_default_priors(self, priors):
+        """Set default priors for non-parent parameters
+
+        Parameters
+        ----------
+        priors : dict
+            The keys are the names of non-parent parameters and the values are their default priors.
+        """
+        auxiliary_parameters = get_auxiliary_parameters(self)
+        priors = {k: v for k, v in priors.items() if k in auxiliary_parameters}
+        self.default_priors.update(priors)
 
     def __str__(self):
         msg_list = [f"Family: {self.name}", f"Likelihood: {self.likelihood}", f"Link: {self.link}"]

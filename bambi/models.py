@@ -189,7 +189,9 @@ class Model:
         ### Constant
         for name in auxiliary_parameters:
             component_prior = priors.get(name, None)
-            self.components[name] = ConstantComponent(name, component_prior, self)
+            self.components[name] = ConstantComponent(
+                name, component_prior, self.response_name, self
+            )
 
         # FIXME disabled for now...
         if False and priors_cor:
@@ -356,20 +358,23 @@ class Model:
         self._set_priors(**self._added_priors)
 
         # Prepare all priors
-        for component in self.components.values():
-            if isinstance(component, DistributionalComponent):
-                for term in component.terms.values():
-                    if isinstance(term, GroupSpecificTerm):
-                        kind = "group_specific"
-                    elif isinstance(term, CommonTerm) and term.kind == "intercept":
-                        kind = "intercept"
-                    elif term.kind == "offset":
-                        continue
-                    else:
-                        kind = "common"
-                    term.prior = prepare_prior(term.prior, kind, self.auto_scale)
-        # NOTE: What about priors for auxiliary parameters?
-        #       They don't come with the family anymore...
+        for component in self.distributional_components.values():
+            for term in component.terms.values():
+                if isinstance(term, GroupSpecificTerm):
+                    kind = "group_specific"
+                elif isinstance(term, CommonTerm) and term.kind == "intercept":
+                    kind = "intercept"
+                elif term.kind == "offset":
+                    continue
+                else:
+                    kind = "common"
+                term.prior = prepare_prior(term.prior, kind, self.auto_scale)
+
+        for name, component in self.constant_components.items():
+            if isinstance(component.prior, Prior):
+                component.prior.auto_scale = False
+            else:
+                component.prior = self.family.default_priors[name]
 
         # Scale priors if there is at least one term in the model and auto_scale is True
         # NOTE: Removed the `method` argument
@@ -396,15 +401,13 @@ class Model:
 
             # The only distributional component is the response term
             if len(self.distributional_components) == 1:
-                # Is there any auxiliary parameter?
                 for name, component in self.constant_components:
                     prior = priors.pop(name)
                     if prior:
                         component.update_prior(prior)
-                # Pass all the rest to the response component
+                # Pass all the other priors to the response component
                 self.response_component.update_prior(priors)
-            # There are more than one distributional components. Must pass nested dictionaries.
-            # For distributional componens.
+            # There are more than one distributional components.
             else:
                 for name, component in self.components.items():
                     prior = priors.get(name)
@@ -414,8 +417,6 @@ class Model:
     def _set_family(self, family, link):
         """Set the Family of the model.
 
-        FIXME only the docstring
-
         Parameters
         ----------
         family : str or bambi.families.Family
@@ -423,7 +424,7 @@ class Model:
             string, or an instance of class ``families.Family``. If a string is passed, a family
             with the corresponding name must be defined in the defaults loaded at model
             initialization.
-        link : str
+        link : Union[str, Dict[str, str]]
             The name of the link function to use. Valid names are ``"cloglog"``, ``"identity"``,
             ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, ``"probit"``, and
             ``"softmax"``. Not all the link functions can be used with all the families.
@@ -480,6 +481,7 @@ class Model:
         self.built = False
 
     def _add_priors_cor(self, priors):
+        # FIXME
         # priors: dictionary. names are groups, values are the "eta" in the lkj prior
         groups = self._get_group_specific_groups()
         for group in groups:
@@ -986,7 +988,7 @@ def prepare_prior(prior, kind, auto_scale):
     else:
         scale = prior
         prior = get_default_prior(kind)
-        prior.scale = scale
+        prior.scale = scale  # FIXME this is never used!
     return prior
 
 

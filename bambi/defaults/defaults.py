@@ -39,19 +39,20 @@ SETTINGS_DISTRIBUTIONS = {
     "Wald": {"mu": 1, "lam": 1},
 }
 
+# NOTE: We change the structure and gain a new argument, "default_priors".
+#       Default priors are not attributes of the likelihood or the link anymore.
+#       They're an optional attribute in the families.
 # fmt: off
 BUILTIN_FAMILIES = {
     "asymmetriclaplace": {
         "likelihood": {
             "name": "AsymmetricLaplace",
-            "args": {
-                "b": "HalfNormal",
-                "kappa" : "HalfNormal",
-            },
+            "params": ["mu", "b", "kappa"],
             "parent": "mu",
         },
-        "link": "identity",
+        "link": {"mu": "identity", "b": "log", "kappa": "log"},
         "family": AsymmetricLaplace,
+        "default_priors": {"b": "HalfNormal", "kappa": "HalfNormal"}
     },
 
     "bernoulli": {
@@ -61,7 +62,7 @@ BUILTIN_FAMILIES = {
             "parent": "p",
         },
         "link": {"p": "logit"},
-        "family": Bernoulli,
+        "family": Bernoulli
     },
     "beta": {
         "likelihood": {
@@ -71,6 +72,7 @@ BUILTIN_FAMILIES = {
         },
         "link": {"mu": "logit", "kappa": "log"},
         "family": Beta,
+        "default_priors": {"kappa": "HalfCauchy"},
     },
     "binomial": {
         "likelihood": {
@@ -98,6 +100,7 @@ BUILTIN_FAMILIES = {
         },
         "link": {"mu": "inverse", "alpha": "log"},
         "family": Gamma,
+        "default_priors": {"alpha": "HalfCauchy"},
     },
     "gaussian": {
         "likelihood": {
@@ -107,6 +110,7 @@ BUILTIN_FAMILIES = {
         },
         "link": {"mu": "identity", "sigma": "log"},
         "family": Gaussian,
+        "default_priors": {"sigma": "HalfNormal"}
     },
     "multinomial": {
         "likelihood": {
@@ -125,6 +129,7 @@ BUILTIN_FAMILIES = {
         },
         "link": {"mu": "log", "alpha": "log"},
         "family": NegativeBinomial,
+        "default_priors": {"alpha": "HalfCauchy"},
     },
     "laplace": {
         "likelihood": {
@@ -134,6 +139,7 @@ BUILTIN_FAMILIES = {
         },
         "link": {"mu": "identity", "b": "log"},
         "family": Laplace,
+        "default_priors": {"b": "HalfNormal"},
     },
     "poisson": {
         "likelihood": {
@@ -152,6 +158,7 @@ BUILTIN_FAMILIES = {
         },
         "link": {"mu": "identity", "sigma": "log", "nu": "log"},
         "family": StudentT,
+        "default_priors": {"sigma": "HalfNormal", "nu": "Gamma"},
     },
     "vonmises": {
         "likelihood": {
@@ -161,6 +168,7 @@ BUILTIN_FAMILIES = {
         },
         "link": {"mu": "tan_2", "kappa": "log"},
         "family": VonMises,
+        "default_priors": {"kappa": "HalfNormal"},
     },
     "wald": {
         "likelihood": {
@@ -170,6 +178,7 @@ BUILTIN_FAMILIES = {
         },
         "link": {"mu": "inverse_squared", "lam": "log"},
         "family": Wald,
+        "default_priors": {"lam": "HalfCauchy"},
     },
 }
 # fmt: on
@@ -234,19 +243,21 @@ def generate_likelihood(name, params, parent):
     return Likelihood(name, params, parent)
 
 
-def generate_family(name, likelihood, link, family):
+def generate_family(name, likelihood, link, family, default_priors=None):
     """Generate a Bambi family.
 
     Parameters
     ----------
-    name: str
+    name : str
         The name of the family.
     likelihood: bambi.Likelihood
         A representation of the likelihood function that corresponds to the family being created.
-    link: bambi.Link
+    link : bambi.Link
         A representation of the link function that corresponds to the family being created.
-    family: subclass of bambi.Family
+    family : subclass of bambi.Family
         A subclass of bambi.Family that generates the instance of the desired family.
+    default_priors : dict
+        Default priors for non-parent parameters.
 
     Returns
     -------
@@ -254,7 +265,10 @@ def generate_family(name, likelihood, link, family):
         The family instance.
     """
     likelihood = generate_likelihood(**likelihood)
-    return family(name, likelihood, link)
+    family = family(name, likelihood, link)
+    if default_priors:
+        family.set_default_priors({k: generate_prior(v) for k, v in default_priors.items()})
+    return family
 
 
 def get_default_prior(term_type):

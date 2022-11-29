@@ -201,54 +201,51 @@ class ResponseTerm:
         self.term = term
         self.family = family
 
-    def build(self, nu, invlinks):
+    def build(self, pymc_backend, bmb_model):
         """Create and return the response distribution for the PyMC model.
 
-        nu : aesara.tensor.var.TensorVariable
-            The linear predictor in the PyMC model.
+        FIXME
+        pymc_backend : bambi.backend.PyMCModel
+            The object with all the bakcend information
         invlinks : dict
             A dictionary where names are names of inverse link functions and values are functions
             that can operate with Aesara tensors.
         """
         data = np.squeeze(self.term.data)
+        parent = self.family.likelihood.parent
 
-        # Take the inverse link function that maps from linear predictor to the mean of likelihood
-        if self.family.link.name in invlinks:
-            linkinv = invlinks[self.family.link.name]
-        else:
-            linkinv = self.family.link.linkinv_backend
+        # The linear predictor for the parent parameter (usually the mean)
+        nu = pymc_backend.distributional_components[self.term.name].output
 
         if hasattr(self.family, "transform_backend_nu"):
             nu = self.family.transform_backend_nu(nu, data)
 
-        # Add mean parameter and observed data
-        kwargs = {self.family.likelihood.parent: linkinv(nu), "observed": data}
-
         # Add auxiliary parameters
-        kwargs = self.build_auxiliary_parameters(kwargs)
+        kwargs = {}
+
+        # Constant parameters. No link function is used.
+        for name, component in pymc_backend.constant_components.items():
+            kwargs[name] = component.output
+
+        # Distributional parameters. A link funciton is used.
+        for name, component in pymc_backend.distributional_components.items():
+            if name == self.term.name:
+                continue
+            linkinv = get_linkinv(self.family.link[name], pymc_backend.INVLINKS)
+            kwargs[name] = pm.Deterministic(name, linkinv(component.output))
+
+        # Take the inverse link function that maps from linear predictor to the parent of likelihood
+        linkinv = get_linkinv(self.family.link[parent], pymc_backend.INVLINKS)
+
+        # Add parent parameter and observed data
+        # NOTE: Should we add a pm.Deterministic here?
+        kwargs[parent] = linkinv(nu)
+        kwargs["observed"] = data
 
         # Build the response distribution
         dist = self.build_response_distribution(kwargs)
 
         return dist
-
-    def build_auxiliary_parameters(self, kwargs):
-        # Build priors for the auxiliary parameters in the likelihood (e.g. sigma in Gaussian)
-        if self.family.likelihood.priors:
-            for key, value in self.family.likelihood.priors.items():
-
-                # Use the alias if there's one
-                if key in self.family.aliases:
-                    label = self.family.aliases[key]
-                else:
-                    label = f"{self.name}_{key}"
-
-                if isinstance(value, Prior):
-                    dist = get_distribution(value.name)
-                    kwargs[key] = dist(label, **value.args)
-                else:
-                    kwargs[key] = value
-        return kwargs
 
     def build_response_distribution(self, kwargs):
         # Get likelihood distribution
@@ -269,3 +266,23 @@ class ResponseTerm:
         if self.term.alias:
             return self.term.alias
         return self.term.name
+
+
+def get_linkinv(link, invlinks):
+    """Get
+
+    Parameters
+    ----------
+    link : bmb.Link
+        _description_
+
+    invlinks : dict
+        Keys are names of link functions. Values are the built-in link functions.
+    """
+    # If the name is in the backend, get it from there
+    if link.name in invlinks:
+        invlink = invlinks[link.name]
+    # If not, use whatever is in `linkinv_backend`
+    else:
+        invlink = invlinks.linkinv_backend
+    return invlink

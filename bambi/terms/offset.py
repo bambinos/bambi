@@ -1,3 +1,4 @@
+# FIXME must sublcass BaseTerm
 class OffsetTerm:
     """Representation of a single offset term.
 
