@@ -120,6 +120,7 @@ class Model:
         self.potentials = potentials
 
         # Some columns are converted to categorical
+        # NOTE: Removed the option to read from a CSV
         self.data = with_categorical_cols(data, categorical)
 
         # Handle priors
@@ -353,31 +354,27 @@ class Model:
         """Carry out all operations related to the construction and/or scaling of priors."""
         # Set custom priors that have been passed via `Model.set_priors()`
         self._set_priors(**self._added_priors)
-        return
 
         # Prepare all priors
-        # FIXME! There is no `self.terms` anymore
-        for term in self.terms.values():
-            if isinstance(term, GroupSpecificTerm):
-                kind = "group_specific"
-            elif isinstance(term, CommonTerm) and term.kind == "intercept":
-                kind = "intercept"
-            elif term.kind == "offset":
-                continue
-            else:
-                kind = "common"
-            term.prior = prepare_prior(term.prior, kind, self.auto_scale)
+        for component in self.components.values():
+            if isinstance(component, DistributionalComponent):
+                for term in component.terms.values():
+                    if isinstance(term, GroupSpecificTerm):
+                        kind = "group_specific"
+                    elif isinstance(term, CommonTerm) and term.kind == "intercept":
+                        kind = "intercept"
+                    elif term.kind == "offset":
+                        continue
+                    else:
+                        kind = "common"
+                    term.prior = prepare_prior(term.prior, kind, self.auto_scale)
+        # NOTE: What about priors for auxiliary parameters?
+        #       They don't come with the family anymore...
 
         # Scale priors if there is at least one term in the model and auto_scale is True
+        # NOTE: Removed the `method` argument
         if self.terms and self.auto_scale:
-            method = self.automatic_priors
-            if method == "default":
-                scaler = PriorScaler(self)
-            else:
-                raise ValueError(
-                    f"{method} is not a valid method for default priors. Use 'default'."
-                )
-            self.scaler = scaler
+            self.scaler = PriorScaler(self)
             self.scaler.scale()
 
     def _set_priors(self, priors=None, common=None, group_specific=None):
