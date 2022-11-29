@@ -156,6 +156,7 @@ class Model:
             design, response_prior, self.response_name, "data", self
         )
 
+        # Get auxiliary parameters, so we add either distributional components or constant ones
         auxiliary_parameters = list(get_auxiliary_parameters(self.family))
 
         ## Other components
@@ -352,6 +353,7 @@ class Model:
         """Carry out all operations related to the construction and/or scaling of priors."""
         # Set custom priors that have been passed via `Model.set_priors()`
         self._set_priors(**self._added_priors)
+        return
 
         # Prepare all priors
         # FIXME! There is no `self.terms` anymore
@@ -383,43 +385,39 @@ class Model:
 
         Runs during ``Model._build_priors()``.
         """
-        # First, it constructs a `targets` dict where it store key-value (name-prior) pairs that
-        # are going to be updated. Finally, the update is done in the last for loop in this method.
-        targets = {}
-
+        # 'common' and 'group_specific' only apply to the response component
         if common is not None:
-            targets.update({name: common for name in self.common_terms})
+            for term in self.response_component.common_terms.values():
+                term.prior = common
 
         if group_specific is not None:
-            targets.update({name: group_specific for name in self.group_specific_terms})
+            for term in self.response_component.group_specific_terms.values():
+                term.prior = group_specific
 
         if priors is not None:
             priors = deepcopy(priors)
-            # Prepare priors for auxiliary parameters of the response
-            family_prior = {
-                name: priors.pop(name) for name in self.family.likelihood.priors if name in priors
-            }
-            if family_prior:
-                for prior in family_prior.values():
-                    prior.auto_scale = False
-                self.family.likelihood.priors.update(family_prior)
 
-            # Prepare priors for explanatory terms.
-            for names, prior in priors.items():
-                # In case we have tuple-keys, we loop through each of them.
-                for name in listify(names):
-                    if name not in self.terms:
-                        raise ValueError(f"No terms in model match '{name}'.")
-                    targets[name] = prior
-
-        # Set priors for explanatory terms.
-        for name, prior in targets.items():
-            self.terms[name].prior = prior
+            # The only distributional component is the response term
+            if len(self.distributional_components) == 1:
+                # Is there any auxiliary parameter?
+                for name, component in self.constant_components:
+                    prior = priors.pop(name)
+                    if prior:
+                        component.update_prior(prior)
+                # Pass all the rest to the response component
+                self.response_component.update_prior(priors)
+            # There are more than one distributional components. Must pass nested dictionaries.
+            # For distributional componens.
+            else:
+                for name, component in self.components.items():
+                    prior = priors.get(name)
+                    if prior:
+                        component.update_prior(prior)
 
     def _set_family(self, family, link):
         """Set the Family of the model.
 
-        FIXME
+        FIXME only the docstring
 
         Parameters
         ----------
@@ -961,6 +959,18 @@ class Model:
             for (k, v) in self.terms.items()
             if not isinstance(v, GroupSpecificTerm) and v.kind == "offset"
         }
+
+    @property
+    def response_component(self):
+        return self.components[self.response_name]
+
+    @property
+    def constant_components(self):
+        return {k: v for k, v in self.components.items() if isinstance(v, ConstantComponent)}
+
+    @property
+    def distributional_components(self):
+        return {k: v for k, v in self.components.items() if isinstance(v, DistributionalComponent)}
 
 
 def prepare_prior(prior, kind, auto_scale):

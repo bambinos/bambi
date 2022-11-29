@@ -1,5 +1,5 @@
 class OffsetTerm:
-    """Representation of a single offset  term.
+    """Representation of a single offset term.
 
     Parameters
     ----------

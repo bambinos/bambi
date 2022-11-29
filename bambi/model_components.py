@@ -11,6 +11,9 @@ class ConstantComponent:
         self.prior = prior
         self.spec = spec
 
+    def update_priors(self, value):
+        self.prior = value
+
 
 class DistributionalComponent:
     """_summary_
@@ -37,7 +40,7 @@ class DistributionalComponent:
             self.add_group_specific_terms(priors)
 
         if self.design.response:
-            self.add_response_term(priors)
+            self.add_response_term()
 
     def add_common_terms(self, priors):
         for name, term in self.design.common.terms.items():
@@ -85,6 +88,17 @@ class DistributionalComponent:
 
         self.response_term = ResponseTerm(response, self.spec.family)
 
+    def update_priors(self, priors):
+        """Update priors
+
+        Parameters
+        ----------
+        priors : dict
+            Names are terms, values a priors.
+        """
+        for name, value in priors.items():
+            self.terms[name].prior = value
+
     def build_priors(self):
         ...
 
@@ -92,12 +106,32 @@ class DistributionalComponent:
         ...
 
     @property
+    def intercept_term(self):
+        """Return the intercept term in a model component."""
+        term = [
+            v for v in self.terms.values() if isinstance(v, CommonTerm) and v.kind == "intercept"
+        ]
+        if term:
+            return term[0]
+
+    @property
     def common_terms(self):
-        ...
+        """Return dict of all common effects in the model component."""
+        return {
+            k: v
+            for (k, v) in self.terms.items()
+            if isinstance(v, CommonTerm) and v.kind != "intercept"
+        }
 
     @property
     def group_specific_terms(self):
-        ...
+        """Return dict of all group specific effects in model component."""
+        return {k: v for (k, v) in self.terms.items() if isinstance(v, GroupSpecificTerm)}
+
+    @property
+    def offset_terms(self):
+        """Return dict of all offset effects in model."""
+        return {k: v for (k, v) in self.terms.items() if isinstance(v, OffsetTerm)}
 
     @property
     def suffix(self):
