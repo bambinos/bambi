@@ -106,6 +106,17 @@ class DistributionalComponent:
         ...
 
     @property
+    def group_specific_groups(self):
+        groups = {}
+        for term_name in self.group_specific_terms:
+            factor = term_name.split("|")[1]
+            if factor not in groups:
+                groups[factor] = [term_name]
+            else:
+                groups[factor].append(term_name)
+        return groups
+
+    @property
     def intercept_term(self):
         """Return the intercept term in a model component."""
         term = [

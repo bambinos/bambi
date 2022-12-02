@@ -22,8 +22,6 @@ class CommonTerm:
     def __init__(self, term):
         self.term = term
         self.coords = self.term.coords.copy()
-        # Make sure we use the alias, if there's one
-        # NOTE: Could be handled in the term??
         if self.coords and self.term.alias:
             self.coords[self.term.alias + "_dim"] = self.coords.pop(self.term.name + "_dim")
 
@@ -229,16 +227,16 @@ class ResponseTerm:
 
         # Distributional parameters. A link funciton is used.
         for name, component in pymc_backend.distributional_components.items():
+            # The response is added later
             if name == self.term.name:
                 continue
             linkinv = get_linkinv(self.family.link[name], pymc_backend.INVLINKS)
-            kwargs[name] = pm.Deterministic(name, linkinv(component.output))
+            kwargs[name] = pm.Deterministic(f"{self.term.name}_{name}", linkinv(component.output))
 
         # Take the inverse link function that maps from linear predictor to the parent of likelihood
         linkinv = get_linkinv(self.family.link[parent], pymc_backend.INVLINKS)
 
         # Add parent parameter and observed data
-        # NOTE: Should we add a pm.Deterministic here?
         kwargs[parent] = linkinv(nu)
         kwargs["observed"] = data
 
@@ -269,7 +267,8 @@ class ResponseTerm:
 
 
 def get_linkinv(link, invlinks):
-    """Get
+    """Get...?
+    FIXME
 
     Parameters
     ----------

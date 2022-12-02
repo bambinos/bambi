@@ -336,14 +336,14 @@ class Model:
 
         Parameters
         ----------
-        priors: dict
+        priors : dict
             Dictionary of priors to update. Keys are names of terms to update; values are the new
             priors (either a ``Prior`` instance, or an int or float that scales the default priors).
             Note that a tuple can be passed as the key, in which case the same prior will be applied
             to all terms named in the tuple.
-        common: Prior, int, float or str
+        common : Prior, int, float or str
             A prior specification to apply to all common terms included in the model.
-        group_specific: Prior, int, float or str
+        group_specific : Prior, int, float or str
             A prior specification to apply to all group specific terms included in the model.
         """
         kwargs = dict(zip(["priors", "common", "group_specific"], [priors, common, group_specific]))
@@ -835,16 +835,6 @@ class Model:
             graphviz_.render(filename=name, format=fmt, cleanup=True)
 
         return graphviz
-
-    def _get_group_specific_groups(self):
-        groups = {}
-        for term_name in self.group_specific_terms:
-            factor = term_name.split("|")[1]
-            if factor not in groups:
-                groups[factor] = [term_name]
-            else:
-                groups[factor].append(term_name)
-        return groups
 
     @property
     def formula(self):
