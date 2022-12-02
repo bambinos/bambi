@@ -789,10 +789,10 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
-<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
+import bambi as bmb
+import numpy as np
+import pandas as pd
 </pre></div>
 </div>
 </div>
@@ -800,7 +800,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
 </pre></div>
 </div>
 </div>
@@ -812,14 +812,14 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Read in a tab-delimited file containing our data</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="s2">&quot;data/my_data.txt&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Read in a tab-delimited file containing our data
+data = pd.read_table(&quot;data/my_data.txt&quot;, sep=&quot;\t&quot;)
 
-<span class="c1"># Initialize the model</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;y ~ x + z&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+# Initialize the model
+model = bmb.Model(&quot;y ~ x + z&quot;, data)
 
-<span class="c1"># Inspect model object</span>
-<span class="n">model</span>
+# Inspect model object
+model
 </pre></div>
 </div>
 </div>
@@ -923,8 +923,8 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data/rrr_long.csv&quot;</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = pd.read_csv(&quot;data/rrr_long.csv&quot;)
+data.head(10)
 </pre></div>
 </div>
 </div>
@@ -1080,8 +1080,8 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Number of rows with missing values</span>
-<span class="n">data</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Number of rows with missing values
+data.isna().any(axis=1).sum()
 </pre></div>
 </div>
 </div>
@@ -1099,8 +1099,8 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Common (or fixed) effects only</span>
-<span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + age + gender&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Common (or fixed) effects only
+bmb.Model(&quot;value ~ condition + age + gender&quot;, data, dropna=True)
 </pre></div>
 </div>
 </div>
@@ -1137,8 +1137,8 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Common effects and group specific (or random) intercepts for subject</span>
-<span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + age + gender + (1|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Common effects and group specific (or random) intercepts for subject
+bmb.Model(&quot;value ~ condition + age + gender + (1|uid)&quot;, data, dropna=True)
 </pre></div>
 </div>
 </div>
@@ -1178,9 +1178,9 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Multiple, complex group specific effects with both</span>
-<span class="c1"># group specific slopes and group specific intercepts</span>
-<span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Multiple, complex group specific effects with both
+# group specific slopes and group specific intercepts
+bmb.Model(&quot;value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)&quot;, data, dropna=True)
 </pre></div>
 </div>
 </div>
@@ -1238,8 +1238,8 @@ subject, plus N-1 condition slopes (each coded with respect to the first, omitte
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + age + gender + (1|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model = bmb.Model(&quot;value ~ condition + age + gender + (1|uid)&quot;, data, dropna=True)
+results = model.fit()
 </pre></div>
 </div>
 </div>
@@ -1305,8 +1305,8 @@ the <a class="reference external" href="https://www.pymc.io/projects/docs/en/sta
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + age + gender + (1|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model = bmb.Model(&quot;value ~ condition + age + gender + (1|uid)&quot;, data, dropna=True)
+model.build()
 </pre></div>
 </div>
 </div>
@@ -1323,7 +1323,7 @@ Automatically removing 33/6940 rows from the dataset.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model.plot_priors();
 </pre></div>
 </div>
 </div>
@@ -1347,12 +1347,12 @@ are available, it’s a good idea to use them.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># A Laplace prior with mean of 0 and scale of 10</span>
-<span class="n">my_favorite_prior</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Laplace&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="o">=</span><span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;HalfNormal&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># A Laplace prior with mean of 0 and scale of 10
+my_favorite_prior = bmb.Prior(&quot;Laplace&quot;, mu=0, b=bmb.Prior(&quot;HalfNormal&quot;, sigma=1))
 
-<span class="c1"># Set the prior when adding a term to the model; more details on this below.</span>
-<span class="n">priors</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;1|uid&quot;</span><span class="p">:</span> <span class="n">my_favorite_prior</span><span class="p">}</span>
-<span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + (1|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+# Set the prior when adding a term to the model; more details on this below.
+priors = {&quot;1|uid&quot;: my_favorite_prior}
+bmb.Model(&quot;value ~ condition + (1|uid)&quot;, data, priors=priors, dropna=True)
 </pre></div>
 </div>
 </div>
@@ -1391,10 +1391,10 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subject_sd</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;HalfCauchy&quot;</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
-<span class="n">subject_prior</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sd</span><span class="o">=</span><span class="n">subject_sd</span><span class="p">)</span>
-<span class="n">priors</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;1|uid&quot;</span><span class="p">:</span> <span class="n">subject_prior</span><span class="p">}</span>
-<span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + (1|uid)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>subject_sd = bmb.Prior(&quot;HalfCauchy&quot;, beta=5)
+subject_prior = bmb.Prior(&quot;Normal&quot;, mu=0, sd=subject_sd)
+priors = {&quot;1|uid&quot;: subject_prior}
+bmb.Model(&quot;value ~ condition + (1|uid)&quot;, data, priors=priors, dropna=True)
 </pre></div>
 </div>
 </div>
@@ -1439,9 +1439,9 @@ correlation scale that Bambi uses for default priors. This means that if your ou
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;admissions&quot;</span><span class="p">)</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;admit ~ gre + gpa + rank&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = bmb.load_data(&quot;admissions&quot;)
+model = bmb.Model(&quot;admit ~ gre + gpa + rank&quot;, data, family=&quot;bernoulli&quot;)
+results = model.fit()
 </pre></div>
 </div>
 </div>
@@ -1554,39 +1554,39 @@ built-in Bernoulli family could be constructed on-the-fly:</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from scipy import special
 
-<span class="c1"># Construct likelihood distribution ------------------------------</span>
-<span class="c1"># This must use a valid PyMC distribution name.</span>
-<span class="c1"># &#39;parent&#39; is the name of the variable that represents the mean of the distribution.</span>
-<span class="c1"># The mean of the Bernoulli family is given by &#39;p&#39;.</span>
-<span class="n">likelihood</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Likelihood</span><span class="p">(</span><span class="s2">&quot;Bernoulli&quot;</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="s2">&quot;p&quot;</span><span class="p">)</span>
+# Construct likelihood distribution ------------------------------
+# This must use a valid PyMC distribution name.
+# &#39;parent&#39; is the name of the variable that represents the mean of the distribution.
+# The mean of the Bernoulli family is given by &#39;p&#39;.
+likelihood = bmb.Likelihood(&quot;Bernoulli&quot;, parent=&quot;p&quot;)
 
-<span class="c1"># Set link function ----------------------------------------------</span>
-<span class="c1"># There are two alternative approaches.</span>
-<span class="c1"># 1. Pass a name that is known by Bambi</span>
-<span class="n">link</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Link</span><span class="p">(</span><span class="s2">&quot;logit&quot;</span><span class="p">)</span>
+# Set link function ----------------------------------------------
+# There are two alternative approaches.
+# 1. Pass a name that is known by Bambi
+link = bmb.Link(&quot;logit&quot;)
 
-<span class="c1"># 2. Build everything from scratch</span>
-<span class="c1"># link: A function that maps the response to the linear predictor</span>
-<span class="c1"># linkinv: A function that maps the linear predictor to the response</span>
-<span class="c1"># linkinv_backend: A function that maps the linear predictor to the response</span>
-<span class="c1">#                  that works with Aesara tensors.</span>
-<span class="c1">#                  bmb.math.sigmoid is a Aesara tensor function wrapped by PyMC and Bambi</span>
-<span class="n">link</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Link</span><span class="p">(</span>
-    <span class="s2">&quot;my_logit&quot;</span><span class="p">,</span>
-    <span class="n">link</span><span class="o">=</span><span class="n">special</span><span class="o">.</span><span class="n">expit</span><span class="p">,</span>
-    <span class="n">linkinv</span><span class="o">=</span><span class="n">special</span><span class="o">.</span><span class="n">logit</span><span class="p">,</span>
-    <span class="n">linkinv_backend</span><span class="o">=</span><span class="n">bmb</span><span class="o">.</span><span class="n">math</span><span class="o">.</span><span class="n">sigmoid</span>
-<span class="p">)</span>
+# 2. Build everything from scratch
+# link: A function that maps the response to the linear predictor
+# linkinv: A function that maps the linear predictor to the response
+# linkinv_backend: A function that maps the linear predictor to the response
+#                  that works with Aesara tensors.
+#                  bmb.math.sigmoid is a Aesara tensor function wrapped by PyMC and Bambi
+link = bmb.Link(
+    &quot;my_logit&quot;,
+    link=special.expit,
+    linkinv=special.logit,
+    linkinv_backend=bmb.math.sigmoid
+)
 
-<span class="c1"># Construct the family -------------------------------------------</span>
-<span class="c1"># Families are defined by a name, a Likelihood and a Link.</span>
-<span class="n">family</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Family</span><span class="p">(</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">,</span> <span class="n">link</span><span class="p">)</span>
+# Construct the family -------------------------------------------
+# Families are defined by a name, a Likelihood and a Link.
+family = bmb.Family(&quot;bernoulli&quot;, likelihood, link)
 
-<span class="c1"># Now it&#39;s business as usual</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;admit ~ gre + gpa + rank&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">family</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+# Now it&#39;s business as usual
+model = bmb.Model(&quot;admit ~ gre + gpa + rank&quot;, data, family=family)
+results = model.fit()
 </pre></div>
 </div>
 </div>
@@ -1652,7 +1652,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(results, compact=False);
 </pre></div>
 </div>
 </div>
@@ -1672,7 +1672,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(results)
 </pre></div>
 </div>
 </div>
@@ -1768,8 +1768,8 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># show the names of all variables stored in the InferenceData object</span>
-<span class="nb">list</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># show the names of all variables stored in the InferenceData object
+list(results.posterior.data_vars)
 </pre></div>
 </div>
 </div>
@@ -1791,7 +1791,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>type(model.backend.model)
 </pre></div>
 </div>
 </div>
@@ -1808,7 +1808,7 @@ pymc.model.Model
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model.backend.model
 </pre></div>
 </div>
 </div>
@@ -1828,7 +1828,7 @@ $$
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">observed_RVs</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model.backend.model.observed_RVs
 </pre></div>
 </div>
 </div>
@@ -1845,7 +1845,7 @@ $$
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">unobserved_RVs</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model.backend.model.unobserved_RVs
 </pre></div>
 </div>
 </div>

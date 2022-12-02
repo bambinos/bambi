@@ -766,11 +766,11 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
-<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
+import bambi as bmb
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 </pre></div>
 </div>
 </div>
@@ -778,8 +778,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1111</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
+np.random.seed(1111)
 </pre></div>
 </div>
 </div>
@@ -788,24 +788,24 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">size</span> <span class="o">=</span> <span class="mi">100</span>
-<span class="n">true_intercept</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">true_slope</span> <span class="o">=</span> <span class="mi">2</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>size = 100
+true_intercept = 1
+true_slope = 2
 
-<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
-<span class="c1"># y = a + b*x</span>
-<span class="n">true_regression_line</span> <span class="o">=</span> <span class="n">true_intercept</span> <span class="o">+</span> <span class="n">true_slope</span> <span class="o">*</span> <span class="n">x</span>
-<span class="c1"># add noise</span>
-<span class="n">y</span> <span class="o">=</span> <span class="n">true_regression_line</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">)</span>
+x = np.linspace(0, 1, size)
+# y = a + b*x
+true_regression_line = true_intercept + true_slope * x
+# add noise
+y = true_regression_line + np.random.normal(scale=0.5, size=size)
 
-<span class="c1"># Add outliers</span>
-<span class="n">x_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
-<span class="n">y_out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">9</span><span class="p">])</span>
+# Add outliers
+x_out = np.append(x, [0.1, 0.15, 0.2])
+y_out = np.append(y, [8, 6, 9])
 
-<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x_out</span><span class="p">,</span>
-    <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">y_out</span>
-<span class="p">})</span>
+data = pd.DataFrame({
+    &quot;x&quot;: x_out,
+    &quot;y&quot;: y_out
+})
 </pre></div>
 </div>
 </div>
@@ -814,11 +814,11 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Generated data and underlying model&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_out</span><span class="p">,</span> <span class="n">y_out</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;sampled data&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">true_regression_line</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;true regression line&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = plt.figure(figsize=(7, 7))
+ax = fig.add_subplot(111, xlabel=&quot;x&quot;, ylabel=&quot;y&quot;, title=&quot;Generated data and underlying model&quot;)
+ax.plot(x_out, y_out, &quot;x&quot;, label=&quot;sampled data&quot;)
+ax.plot(x, true_regression_line, label=&quot;true regression line&quot;, lw=2.0)
+plt.legend(loc=0);
 </pre></div>
 </div>
 </div>
@@ -834,10 +834,10 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note, &quot;gaussian&quot; is the default argument for family. Added to be explicit.</span>
-<span class="n">gauss_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;y ~ x&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;gaussian&quot;</span><span class="p">)</span>
-<span class="n">gauss_fitted</span> <span class="o">=</span> <span class="n">gauss_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
-<span class="n">gauss_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">gauss_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Note, &quot;gaussian&quot; is the default argument for family. Added to be explicit.
+gauss_model = bmb.Model(&quot;y ~ x&quot;, data, family=&quot;gaussian&quot;)
+gauss_fitted = gauss_model.fit(draws=2000)
+gauss_model.predict(gauss_fitted, kind=&quot;pps&quot;)
 </pre></div>
 </div>
 </div>
@@ -890,7 +890,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">gauss_fitted</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(gauss_fitted)
 </pre></div>
 </div>
 </div>
@@ -975,24 +975,24 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-<span class="c1"># Plot Data</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_out</span><span class="p">,</span> <span class="n">y_out</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
-<span class="c1"># Plot recovered linear regression</span>
-<span class="n">x_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">x_out</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">x_out</span><span class="p">),</span> <span class="mi">2000</span><span class="p">)</span>
-<span class="n">y_pred</span> <span class="o">=</span> <span class="n">gauss_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">*</span> <span class="n">x_range</span> <span class="o">+</span> <span class="n">gauss_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">Intercept</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_range</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span>
-         <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
-         <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Recovered regression line&quot;</span>
-        <span class="p">)</span>
-<span class="c1"># Plot HDIs</span>
-<span class="k">for</span> <span class="n">interval</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.38</span><span class="p">,</span> <span class="mf">0.68</span><span class="p">]:</span>
-    <span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">x_out</span><span class="p">,</span> <span class="n">gauss_fitted</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
-                <span class="n">hdi_prob</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;firebrick&quot;</span><span class="p">)</span>
-<span class="c1"># Plot true regression line</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">true_regression_line</span><span class="p">,</span>
-        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;True regression line&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plt.figure(figsize=(7, 5))
+# Plot Data
+plt.plot(x_out, y_out, &quot;x&quot;, label=&quot;data&quot;)
+# Plot recovered linear regression
+x_range = np.linspace(min(x_out), max(x_out), 2000)
+y_pred = gauss_fitted.posterior.x.mean().item() * x_range + gauss_fitted.posterior.Intercept.mean().item()
+plt.plot(x_range, y_pred,
+         color=&quot;black&quot;,linestyle=&quot;--&quot;,
+         label=&quot;Recovered regression line&quot;
+        )
+# Plot HDIs
+for interval in [0.38, 0.68]:
+    az.plot_hdi(x_out, gauss_fitted.posterior_predictive.y,
+                hdi_prob=interval, color=&quot;firebrick&quot;)
+# Plot true regression line
+plt.plot(x, true_regression_line,
+        label=&quot;True regression line&quot;, lw=2.0, color=&quot;black&quot;)
+plt.legend(loc=0);
 <br/></pre></div>
 </div>
 </div>
@@ -1012,24 +1012,24 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">normal_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100_000</span><span class="p">)</span>
-<span class="n">t_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_t</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100_000</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>normal_data = np.random.normal(loc=0, scale=1, size=100_000)
+t_data = np.random.standard_t(df=1, size=100_000)
 
-<span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mf">0.15</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">normal_data</span><span class="p">,</span>
-         <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-         <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
-         <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Normal&quot;</span>
-        <span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">t_data</span><span class="p">,</span>
-         <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span><span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-         <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
-         <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Student T&quot;</span>
-        <span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Probability density&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span>
+bins = np.arange(-8,8,0.15)
+plt.hist(normal_data,
+         bins=bins, density=True,
+         alpha=0.6,
+         label=&quot;Normal&quot;
+        )
+plt.hist(t_data,
+         bins=bins,density=True,
+         alpha=0.6,
+         label=&quot;Student T&quot;
+        )
+plt.xlabel(&quot;x&quot;)
+plt.ylabel(&quot;Probability density&quot;)
+plt.xlim(-8,8)
+plt.legend();
 </pre></div>
 </div>
 </div>
@@ -1047,26 +1047,26 @@ distribution decrease. In the limit of <span class="math notranslate nohighlight
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mf">0.15</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">ndof</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">]:</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>bins = np.arange(-8,8,0.15)
+for ndof in [0.1, 1, 10]:
 
-    <span class="n">t_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">standard_t</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">ndof</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100_000</span><span class="p">)</span>
+    t_data = np.random.standard_t(df=ndof, size=100_000)
 
-    <span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">t_data</span><span class="p">,</span>
-             <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span><span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-             <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;$</span><span class="se">\\</span><span class="s2">nu = </span><span class="si">{</span><span class="n">ndof</span><span class="si">}</span><span class="s2">$&quot;</span><span class="p">,</span>
-             <span class="n">histtype</span><span class="o">=</span><span class="s2">&quot;step&quot;</span>
-            <span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">normal_data</span><span class="p">,</span>
-         <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-         <span class="n">histtype</span><span class="o">=</span><span class="s2">&quot;step&quot;</span><span class="p">,</span>
-         <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Normal&quot;</span>
-        <span class="p">)</span>
+    plt.hist(t_data,
+             bins=bins,density=True,
+             label=f&quot;$\\nu = {ndof}$&quot;,
+             histtype=&quot;step&quot;
+            )
+plt.hist(normal_data,
+         bins=bins, density=True,
+         histtype=&quot;step&quot;,
+         label=&quot;Normal&quot;
+        )
 
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Probability density&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span>
+plt.xlabel(&quot;x&quot;)
+plt.ylabel(&quot;Probability density&quot;)
+plt.xlim(-6,6)
+plt.legend();
 </pre></div>
 </div>
 </div>
@@ -1082,9 +1082,9 @@ distribution decrease. In the limit of <span class="math notranslate nohighlight
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;y ~ x&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;t&quot;</span><span class="p">)</span>
-<span class="n">t_fitted</span> <span class="o">=</span> <span class="n">t_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
-<span class="n">t_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">t_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>t_model = bmb.Model(&quot;y ~ x&quot;, data, family=&quot;t&quot;)
+t_fitted = t_model.fit(draws=2000)
+t_model.predict(t_fitted, kind=&quot;pps&quot;)
 </pre></div>
 </div>
 </div>
@@ -1137,7 +1137,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">t_fitted</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(t_fitted)
 </pre></div>
 </div>
 </div>
@@ -1234,19 +1234,19 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_slope_intercept</span><span class="p">(</span><span class="n">mod</span><span class="p">):</span>
-    <span class="k">return</span> <span class="p">(</span>
-        <span class="n">mod</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span>
-        <span class="n">mod</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">Intercept</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-    <span class="p">)</span>
-<span class="n">gauss_slope</span><span class="p">,</span> <span class="n">gauss_int</span> <span class="o">=</span> <span class="n">get_slope_intercept</span><span class="p">(</span><span class="n">gauss_fitted</span><span class="p">)</span>
-<span class="n">t_slope</span><span class="p">,</span> <span class="n">t_int</span> <span class="o">=</span> <span class="n">get_slope_intercept</span><span class="p">(</span><span class="n">t_fitted</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def get_slope_intercept(mod):
+    return (
+        mod.posterior.x.mean().item(),
+        mod.posterior.Intercept.mean().item()
+    )
+gauss_slope, gauss_int = get_slope_intercept(gauss_fitted)
+t_slope, t_int = get_slope_intercept(t_fitted)
 
-<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s2">&quot;Model&quot;</span><span class="p">:[</span><span class="s2">&quot;True&quot;</span><span class="p">,</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span><span class="s2">&quot;T&quot;</span><span class="p">],</span>
-    <span class="s2">&quot;Slope&quot;</span><span class="p">:[</span><span class="mi">2</span><span class="p">,</span> <span class="n">gauss_slope</span><span class="p">,</span> <span class="n">t_slope</span><span class="p">],</span>
-    <span class="s2">&quot;Intercept&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="n">gauss_int</span><span class="p">,</span> <span class="n">t_int</span><span class="p">]</span>
-<span class="p">})</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Model&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">decimals</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+pd.DataFrame({
+    &quot;Model&quot;:[&quot;True&quot;,&quot;Normal&quot;,&quot;T&quot;],
+    &quot;Slope&quot;:[2, gauss_slope, t_slope],
+    &quot;Intercept&quot;: [1, gauss_int, t_int]
+}).set_index(&quot;Model&quot;).T.round(decimals=2)
 </pre></div>
 </div>
 </div>
@@ -1301,24 +1301,24 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-<span class="c1"># Plot Data</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_out</span><span class="p">,</span> <span class="n">y_out</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
-<span class="c1"># Plot recovered robust linear regression</span>
-<span class="n">x_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">x_out</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">x_out</span><span class="p">),</span> <span class="mi">2000</span><span class="p">)</span>
-<span class="n">y_pred</span> <span class="o">=</span> <span class="n">t_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="o">*</span> <span class="n">x_range</span> <span class="o">+</span> <span class="n">t_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">Intercept</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_range</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span>
-         <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span>
-         <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Recovered regression line&quot;</span>
-        <span class="p">)</span>
-<span class="c1"># Plot HDIs</span>
-<span class="k">for</span> <span class="n">interval</span> <span class="ow">in</span> <span class="p">[</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.38</span><span class="p">,</span> <span class="mf">0.68</span><span class="p">]:</span>
-    <span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">x_out</span><span class="p">,</span> <span class="n">t_fitted</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
-                <span class="n">hdi_prob</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;firebrick&quot;</span><span class="p">)</span>
-<span class="c1"># Plot true regression line</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">true_regression_line</span><span class="p">,</span>
-        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;true regression line&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plt.figure(figsize=(7, 5))
+# Plot Data
+plt.plot(x_out, y_out, &quot;x&quot;, label=&quot;data&quot;)
+# Plot recovered robust linear regression
+x_range = np.linspace(min(x_out), max(x_out), 2000)
+y_pred = t_fitted.posterior.x.mean().item() * x_range + t_fitted.posterior.Intercept.mean().item()
+plt.plot(x_range, y_pred,
+         color=&quot;black&quot;,linestyle=&quot;--&quot;,
+         label=&quot;Recovered regression line&quot;
+        )
+# Plot HDIs
+for interval in [0.05, 0.38, 0.68]:
+    az.plot_hdi(x_out, t_fitted.posterior_predictive.y,
+                hdi_prob=interval, color=&quot;firebrick&quot;)
+# Plot true regression line
+plt.plot(x, true_regression_line,
+        label=&quot;true regression line&quot;, lw=2.0, color=&quot;black&quot;)
+plt.legend(loc=0);
 </pre></div>
 </div>
 </div>
@@ -1336,12 +1336,12 @@ differences (especially given a relatively small number of samples).</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">models</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;gaussian&quot;</span><span class="p">:</span> <span class="n">gauss_fitted</span><span class="p">,</span>
-    <span class="s2">&quot;Student T&quot;</span><span class="p">:</span> <span class="n">t_fitted</span>
-<span class="p">}</span>
-<span class="n">df_compare</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
-<span class="n">df_compare</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>models = {
+    &quot;gaussian&quot;: gauss_fitted,
+    &quot;Student T&quot;: t_fitted
+}
+df_compare = az.compare(models)
+df_compare
 </pre></div>
 </div>
 </div>
@@ -1421,7 +1421,7 @@ differences (especially given a relatively small number of samples).</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_compare</span><span class="p">(</span><span class="n">df_compare</span><span class="p">,</span> <span class="n">insample_dev</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_compare(df_compare, insample_dev=False);
 </pre></div>
 </div>
 </div>
@@ -1437,8 +1437,8 @@ differences (especially given a relatively small number of samples).</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
-<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
+%watermark -n -u -v -iv -w
 </pre></div>
 </div>
 </div>

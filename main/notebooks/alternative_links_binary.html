@@ -764,14 +764,14 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
-<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
+import bambi as bmb
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
-<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">expit</span> <span class="k">as</span> <span class="n">invlogit</span>
-<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">norm</span>
+from scipy.special import expit as invlogit
+from scipy.stats import norm
 </pre></div>
 </div>
 </div>
@@ -779,8 +779,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
+np.random.seed(1234)
 </pre></div>
 </div>
 </div>
@@ -840,8 +840,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">invcloglog</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def invcloglog(x):
+    return 1 - np.exp(-np.exp(x))
 </pre></div>
 </div>
 </div>
@@ -849,25 +849,25 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>x = np.linspace(-5, 5, num=200)
 
-<span class="c1"># inverse of the logit function</span>
-<span class="n">logit</span> <span class="o">=</span> <span class="n">invlogit</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+# inverse of the logit function
+logit = invlogit(x)
 
-<span class="c1"># cumulative density function of standard gaussian</span>
-<span class="n">probit</span> <span class="o">=</span> <span class="n">norm</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+# cumulative density function of standard gaussian
+probit = norm.cdf(x)
 
-<span class="c1"># inverse of the cloglog function</span>
-<span class="n">cloglog</span> <span class="o">=</span> <span class="n">invcloglog</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+# inverse of the cloglog function
+cloglog = invcloglog(x)
 
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">logit</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Logit&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">probit</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Probit&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">cloglog</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C2&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CLogLog&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$x$&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;$\pi$&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span>
+plt.plot(x, logit, color=&quot;C0&quot;, lw=2, label=&quot;Logit&quot;)
+plt.plot(x, probit, color=&quot;C1&quot;, lw=2, label=&quot;Probit&quot;)
+plt.plot(x, cloglog, color=&quot;C2&quot;, lw=2, label=&quot;CLogLog&quot;)
+plt.axvline(0, c=&quot;k&quot;, alpha=0.5, ls=&quot;--&quot;)
+plt.axhline(0.5, c=&quot;k&quot;, alpha=0.5, ls=&quot;--&quot;)
+plt.xlabel(r&quot;$x$&quot;)
+plt.ylabel(r&quot;$\pi$&quot;)
+plt.legend();
 </pre></div>
 </div>
 </div>
@@ -932,11 +932,11 @@ other words, the logit function has heavier tails than the probit.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">1.6907</span><span class="p">,</span> <span class="mf">1.7242</span><span class="p">,</span> <span class="mf">1.7552</span><span class="p">,</span> <span class="mf">1.7842</span><span class="p">,</span> <span class="mf">1.8113</span><span class="p">,</span> <span class="mf">1.8369</span><span class="p">,</span> <span class="mf">1.8610</span><span class="p">,</span> <span class="mf">1.8839</span><span class="p">])</span>
-<span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">59</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">56</span><span class="p">,</span> <span class="mi">63</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">62</span><span class="p">,</span> <span class="mi">60</span><span class="p">])</span>
-<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">6</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">52</span><span class="p">,</span> <span class="mi">53</span><span class="p">,</span> <span class="mi">61</span><span class="p">,</span> <span class="mi">60</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>x = np.array([1.6907, 1.7242, 1.7552, 1.7842, 1.8113, 1.8369, 1.8610, 1.8839])
+n = np.array([59, 60, 62, 56, 63, 59, 62, 60])
+y = np.array([6, 13, 18, 28, 52, 53, 61, 60])
 
-<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="n">n</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">})</span>
+data = pd.DataFrame({&quot;x&quot;: x, &quot;n&quot;: n, &quot;y&quot;: y})
 </pre></div>
 </div>
 </div>
@@ -949,7 +949,7 @@ other words, the logit function has heavier tails than the probit.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">formula</span> <span class="o">=</span> <span class="s2">&quot;p(y, n) ~ x&quot;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>formula = &quot;p(y, n) ~ x&quot;
 </pre></div>
 </div>
 </div>
@@ -960,8 +960,8 @@ other words, the logit function has heavier tails than the probit.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_logit</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;binomial&quot;</span><span class="p">)</span>
-<span class="n">idata_logit</span> <span class="o">=</span> <span class="n">model_logit</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_logit = bmb.Model(formula, data, family=&quot;binomial&quot;)
+idata_logit = model_logit.fit(draws=2000)
 </pre></div>
 </div>
 </div>
@@ -1017,8 +1017,8 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_probit</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;binomial&quot;</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s2">&quot;probit&quot;</span><span class="p">)</span>
-<span class="n">idata_probit</span> <span class="o">=</span> <span class="n">model_probit</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_probit = bmb.Model(formula, data, family=&quot;binomial&quot;, link=&quot;probit&quot;)
+idata_probit = model_probit.fit(draws=2000)
 </pre></div>
 </div>
 </div>
@@ -1074,8 +1074,8 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_cloglog</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;binomial&quot;</span><span class="p">,</span> <span class="n">link</span><span class="o">=</span><span class="s2">&quot;cloglog&quot;</span><span class="p">)</span>
-<span class="n">idata_cloglog</span> <span class="o">=</span> <span class="n">model_cloglog</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_cloglog = bmb.Model(formula, data, family=&quot;binomial&quot;, link=&quot;cloglog&quot;)
+idata_cloglog = model_cloglog.fit(draws=2000)
 </pre></div>
 </div>
 </div>
@@ -1133,16 +1133,16 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="n">seq</span><span class="p">):</span>
-    <span class="c1"># Create a data frame with the new data</span>
-    <span class="n">new_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">seq</span><span class="p">})</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def get_predictions(model, idata, seq):
+    # Create a data frame with the new data
+    new_data = pd.DataFrame({&quot;x&quot;: seq})
 
-    <span class="c1"># Predict probability of dying using out of sample data</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">new_data</span><span class="p">)</span>
+    # Predict probability of dying using out of sample data
+    model.predict(idata, data=new_data)
 
-    <span class="c1"># Get posterior mean across all chains and draws</span>
-    <span class="n">mu</span> <span class="o">=</span> <span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;p(y, n)_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">mu</span>
+    # Get posterior mean across all chains and draws
+    mu = idata.posterior[&quot;p(y, n)_mean&quot;].mean((&quot;chain&quot;, &quot;draw&quot;))
+    return mu
 </pre></div>
 </div>
 </div>
@@ -1150,11 +1150,11 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x_seq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">1.6</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>x_seq = np.linspace(1.6, 2, num=200)
 
-<span class="n">mu_logit</span> <span class="o">=</span> <span class="n">get_predictions</span><span class="p">(</span><span class="n">model_logit</span><span class="p">,</span> <span class="n">idata_logit</span><span class="p">,</span> <span class="n">x_seq</span><span class="p">)</span>
-<span class="n">mu_probit</span> <span class="o">=</span> <span class="n">get_predictions</span><span class="p">(</span><span class="n">model_probit</span><span class="p">,</span> <span class="n">idata_probit</span><span class="p">,</span> <span class="n">x_seq</span><span class="p">)</span>
-<span class="n">mu_cloglog</span> <span class="o">=</span> <span class="n">get_predictions</span><span class="p">(</span><span class="n">model_cloglog</span><span class="p">,</span> <span class="n">idata_cloglog</span><span class="p">,</span> <span class="n">x_seq</span><span class="p">)</span>
+mu_logit = get_predictions(model_logit, idata_logit, x_seq)
+mu_probit = get_predictions(model_probit, idata_probit, x_seq)
+mu_cloglog = get_predictions(model_cloglog, idata_cloglog, x_seq)
 </pre></div>
 </div>
 </div>
@@ -1162,14 +1162,14 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">/</span> <span class="n">n</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">edgecolors</span> <span class="o">=</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_seq</span><span class="p">,</span> <span class="n">mu_logit</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Logit&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_seq</span><span class="p">,</span> <span class="n">mu_probit</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Probit&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_seq</span><span class="p">,</span> <span class="n">mu_cloglog</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;CLogLog&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Dose $\log_</span><span class="si">{10}</span><span class="s2">CS_2mgl^{-1}$&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Probability of death&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plt.scatter(x, y / n, c = &quot;white&quot;, edgecolors = &quot;black&quot;, s=100)
+plt.plot(x_seq, mu_logit, lw=2, label=&quot;Logit&quot;)
+plt.plot(x_seq, mu_probit, lw=2, label=&quot;Probit&quot;)
+plt.plot(x_seq, mu_cloglog, lw=2, label=&quot;CLogLog&quot;)
+plt.axhline(0.5, c=&quot;k&quot;, alpha=0.5, ls=&quot;--&quot;)
+plt.xlabel(r&quot;Dose $\log_{10}CS_2mgl^{-1}$&quot;)
+plt.ylabel(&quot;Probability of death&quot;)
+plt.legend();
 </pre></div>
 </div>
 </div>
@@ -1187,8 +1187,8 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
-<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
+%watermark -n -u -v -iv -w
 </pre></div>
 </div>
 </div>

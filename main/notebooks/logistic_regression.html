@@ -763,11 +763,11 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
-<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
+import bambi as bmb
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 </pre></div>
 </div>
 </div>
@@ -775,8 +775,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
-<span class="n">SEED</span> <span class="o">=</span> <span class="mi">7355608</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
+SEED = 7355608
 </pre></div>
 </div>
 </div>
@@ -787,8 +787,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;ANES&quot;</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = bmb.load_data(&quot;ANES&quot;)
+data.head()
 </pre></div>
 </div>
 </div>
@@ -861,7 +861,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;vote&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data[&quot;vote&quot;].value_counts()
 </pre></div>
 </div>
 </div>
@@ -883,7 +883,7 @@ Name: vote, dtype: int64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;party_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data[&quot;party_id&quot;].value_counts()
 </pre></div>
 </div>
 </div>
@@ -904,15 +904,15 @@ Name: party_id, dtype: int64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">key</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;party_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)))</span>
-<span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">df</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;party_id&quot;</span><span class="p">):</span>
-    <span class="n">ax</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="n">label</span><span class="p">]]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">])</span>
-    <span class="n">ax</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="n">label</span><span class="p">]]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="mi">18</span><span class="p">,</span> <span class="mi">90</span><span class="p">])</span>
-    <span class="n">ax</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="n">label</span><span class="p">]]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Age&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="n">label</span><span class="p">]]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Frequency&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="n">label</span><span class="p">]]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
-    <span class="n">ax</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="n">label</span><span class="p">]]</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig, ax = plt.subplots(1, 3, figsize=(10, 4), sharey=True, constrained_layout=True)
+key = dict(zip(data[&quot;party_id&quot;].unique(), range(3)))
+for label, df in data.groupby(&quot;party_id&quot;):
+    ax[key[label]].hist(df[&quot;age&quot;])
+    ax[key[label]].set_xlim([18, 90])
+    ax[key[label]].set_xlabel(&quot;Age&quot;)
+    ax[key[label]].set_ylabel(&quot;Frequency&quot;)
+    ax[key[label]].set_title(label)
+    ax[key[label]].axvline(df[&quot;age&quot;].mean(), color=&quot;C1&quot;)
 </pre></div>
 </div>
 </div>
@@ -928,7 +928,7 @@ Name: party_id, dtype: int64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;vote&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;party_id&quot;</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pd.crosstab(data[&quot;vote&quot;], data[&quot;party_id&quot;])
 </pre></div>
 </div>
 </div>
@@ -998,8 +998,8 @@ Name: party_id, dtype: int64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">clinton_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;vote&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;clinton&quot;</span><span class="p">,</span> <span class="s2">&quot;trump&quot;</span><span class="p">]),</span> <span class="p">:]</span>
-<span class="n">clinton_data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>clinton_data = data.loc[data[&quot;vote&quot;].isin([&quot;clinton&quot;, &quot;trump&quot;]), :]
+clinton_data.head()
 </pre></div>
 </div>
 </div>
@@ -1121,8 +1121,8 @@ pick one of the events to model, but will inform you which one it picked when yo
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">clinton_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;vote[&#39;clinton&#39;] ~ party_id + party_id:age&quot;</span><span class="p">,</span> <span class="n">clinton_data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">)</span>
-<span class="n">clinton_fitted</span> <span class="o">=</span> <span class="n">clinton_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>clinton_model = bmb.Model(&quot;vote[&#39;clinton&#39;] ~ party_id + party_id:age&quot;, clinton_data, family=&quot;bernoulli&quot;)
+clinton_fitted = clinton_model.fit(draws=2000, target_accept=0.85, random_seed=SEED)
 </pre></div>
 </div>
 </div>
@@ -1177,7 +1177,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">clinton_model</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>clinton_model
 </pre></div>
 </div>
 </div>
@@ -1208,7 +1208,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">clinton_model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>clinton_model.plot_priors();
 </pre></div>
 </div>
 </div>
@@ -1224,7 +1224,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">clinton_fitted</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(clinton_fitted, compact=False);
 </pre></div>
 </div>
 </div>
@@ -1239,7 +1239,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">clinton_fitted</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(clinton_fitted)
 </pre></div>
 </div>
 </div>
@@ -1367,7 +1367,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">clinton_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">clinton_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>clinton_model.predict(clinton_fitted, kind=&quot;pps&quot;)
 </pre></div>
 </div>
 </div>
@@ -1375,7 +1375,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">plot_separation</span><span class="p">(</span><span class="n">clinton_fitted</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;vote&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span><span class="mf">0.5</span><span class="p">));</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>ax = az.plot_separation(clinton_fitted, y=&#39;vote&#39;, figsize=(9,0.5));
 </pre></div>
 </div>
 </div>
@@ -1396,8 +1396,8 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># compute pointwise LOO</span>
-<span class="n">loo</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">clinton_fitted</span><span class="p">,</span> <span class="n">pointwise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># compute pointwise LOO
+loo = az.loo(clinton_fitted, pointwise=True)
 </pre></div>
 </div>
 </div>
@@ -1405,8 +1405,8 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># plot kappa values</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_khat</span><span class="p">(</span><span class="n">loo</span><span class="o">.</span><span class="n">pareto_k</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># plot kappa values
+az.plot_khat(loo.pareto_k);
 </pre></div>
 </div>
 </div>
@@ -1425,17 +1425,17 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">plot_khat</span><span class="p">(</span><span class="n">loo</span><span class="o">.</span><span class="n">pareto_k</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
-<span class="n">sorted_kappas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">loo</span><span class="o">.</span><span class="n">pareto_k</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>ax = az.plot_khat(loo.pareto_k.values.ravel())
+sorted_kappas = np.sort(loo.pareto_k.values.ravel())
 
-<span class="c1"># find observation where the kappa value exceeds the threshold</span>
-<span class="n">threshold</span> <span class="o">=</span> <span class="n">sorted_kappas</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;orange&quot;</span><span class="p">)</span>
-<span class="n">influential_observations</span> <span class="o">=</span> <span class="n">clinton_data</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[</span><span class="n">loo</span><span class="o">.</span><span class="n">pareto_k</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+# find observation where the kappa value exceeds the threshold
+threshold = sorted_kappas[-1:]
+ax.axhline(threshold, ls=&quot;--&quot;, color=&quot;orange&quot;)
+influential_observations = clinton_data.reset_index()[loo.pareto_k.values &gt;= threshold].index
 
-<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">influential_observations</span><span class="p">:</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">loo</span><span class="o">.</span><span class="n">pareto_k</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;baseline&quot;</span><span class="p">)</span>
+for x in influential_observations:
+    y = loo.pareto_k.values[x]
+    ax.text(x, y + 0.01, str(x), ha=&quot;center&quot;, va=&quot;baseline&quot;)
 </pre></div>
 </div>
 </div>
@@ -1450,7 +1450,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">clinton_data</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[</span><span class="n">loo</span><span class="o">.</span><span class="n">pareto_k</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>clinton_data.reset_index()[loo.pareto_k.values &gt;= threshold]
 </pre></div>
 </div>
 </div>
@@ -1501,16 +1501,16 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">plot_khat</span><span class="p">(</span><span class="n">loo</span><span class="o">.</span><span class="n">pareto_k</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>ax = az.plot_khat(loo.pareto_k)
 
-<span class="c1"># find observation where the kappa value exceeds the threshold</span>
-<span class="n">threshold</span> <span class="o">=</span> <span class="n">sorted_kappas</span><span class="p">[</span><span class="o">-</span><span class="mi">6</span><span class="p">:]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;orange&quot;</span><span class="p">)</span>
-<span class="n">influential_observations</span> <span class="o">=</span> <span class="n">clinton_data</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[</span><span class="n">loo</span><span class="o">.</span><span class="n">pareto_k</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
+# find observation where the kappa value exceeds the threshold
+threshold = sorted_kappas[-6:].min()
+ax.axhline(threshold, ls=&quot;--&quot;, color=&quot;orange&quot;)
+influential_observations = clinton_data.reset_index()[loo.pareto_k.values &gt;= threshold].index
 
-<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">influential_observations</span><span class="p">:</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">loo</span><span class="o">.</span><span class="n">pareto_k</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">x</span><span class="p">]</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;baseline&quot;</span><span class="p">)</span>
+for x in influential_observations:
+    y = loo.pareto_k.values[x]
+    ax.text(x, y + 0.01, str(x), ha=&quot;center&quot;, va=&quot;baseline&quot;)
 </pre></div>
 </div>
 </div>
@@ -1525,7 +1525,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">clinton_data</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[</span><span class="n">loo</span><span class="o">.</span><span class="n">pareto_k</span><span class="o">.</span><span class="n">values</span><span class="o">&gt;=</span><span class="n">threshold</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>clinton_data.reset_index()[loo.pareto_k.values&gt;=threshold]
 </pre></div>
 </div>
 </div>
@@ -1610,7 +1610,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">clinton_data</span><span class="p">[</span><span class="n">clinton_data</span><span class="o">.</span><span class="n">age</span><span class="o">&gt;</span><span class="mi">80</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>clinton_data[clinton_data.age&gt;80]
 </pre></div>
 </div>
 </div>
@@ -1694,7 +1694,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">clinton_data</span><span class="p">[(</span><span class="n">clinton_data</span><span class="o">.</span><span class="n">vote</span> <span class="o">==</span><span class="s1">&#39;clinton&#39;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">clinton_data</span><span class="o">.</span><span class="n">party_id</span> <span class="o">==</span> <span class="s1">&#39;republican&#39;</span><span class="p">)]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>clinton_data[(clinton_data.vote ==&#39;clinton&#39;) &amp; (clinton_data.party_id == &#39;republican&#39;)]
 </pre></div>
 </div>
 </div>
@@ -1767,20 +1767,20 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.patheffects</span> <span class="k">as</span> <span class="nn">pe</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import matplotlib.patheffects as pe
 
-<span class="n">ax</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">plot_separation</span><span class="p">(</span><span class="n">clinton_fitted</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;vote&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+ax = az.plot_separation(clinton_fitted, y=&quot;vote&quot;, figsize=(9, 0.5))
 
-<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">influential_observations</span><span class="p">))</span>
+y = np.random.uniform(0.1, 0.5, size=len(influential_observations))
 
-<span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">influential_observations</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-    <span class="n">text</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">clinton_data</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
-        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
-        <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span><span class="n">pe</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)]</span>
-    <span class="p">)</span>
+for x, y in zip(influential_observations, y):
+    text = str(x)
+    x = x / len(clinton_data)
+    ax.scatter(x, y, marker=&quot;+&quot;, s=50, color=&quot;red&quot;, zorder=3)
+    ax.text(
+        x, y + 0.1, text, color=&quot;white&quot;, ha=&quot;center&quot;, va=&quot;bottom&quot;,
+        path_effects=[pe.withStroke(linewidth=2, foreground=&quot;black&quot;)]
+    )
 </pre></div>
 </div>
 </div>
@@ -1795,7 +1795,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">clinton_data</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[</span><span class="n">loo</span><span class="o">.</span><span class="n">pareto_k</span><span class="o">.</span><span class="n">values</span><span class="o">&gt;=</span><span class="n">threshold</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>clinton_data.reset_index()[loo.pareto_k.values&gt;=threshold]
 </pre></div>
 </div>
 </div>
@@ -1884,8 +1884,8 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parties</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;democrat&quot;</span><span class="p">,</span> <span class="s2">&quot;independent&quot;</span><span class="p">,</span> <span class="s2">&quot;republican&quot;</span><span class="p">]</span>
-<span class="n">dem</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">rep</span> <span class="o">=</span> <span class="p">[</span><span class="n">clinton_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;party_id:age&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;party_id:age_dim&quot;</span><span class="p">:</span><span class="n">party</span><span class="p">})</span> <span class="k">for</span> <span class="n">party</span> <span class="ow">in</span> <span class="n">parties</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>parties = [&quot;democrat&quot;, &quot;independent&quot;, &quot;republican&quot;]
+dem, ind, rep = [clinton_fitted.posterior[&quot;party_id:age&quot;].sel({&quot;party_id:age_dim&quot;:party}) for party in parties]
 </pre></div>
 </div>
 </div>
@@ -1894,10 +1894,10 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">dem</span><span class="p">,</span> <span class="n">ind</span><span class="p">,</span> <span class="n">rep</span><span class="p">]):</span>
-    <span class="n">az</span><span class="o">.</span><span class="n">plot_dist</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;party_id:age_dim&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_, ax = plt.subplots()
+for idx, x in enumerate([dem, ind, rep]):
+    az.plot_dist(x, label=x[&quot;party_id:age_dim&quot;].item(), plot_kwargs={&quot;color&quot;: f&quot;C{idx}&quot;}, ax=ax)
+ax.legend(loc=&quot;upper left&quot;);
 </pre></div>
 </div>
 </div>
@@ -1914,7 +1914,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">dem</span> <span class="o">&gt;</span> <span class="n">rep</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>(dem &gt; rep).mean().item()
 </pre></div>
 </div>
 </div>
@@ -1932,7 +1932,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">dem</span> <span class="o">&gt;</span> <span class="n">ind</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>(dem &gt; ind).mean().item()
 </pre></div>
 </div>
 </div>
@@ -1950,7 +1950,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">ind</span> <span class="o">&gt;</span> <span class="n">rep</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>(ind &gt; rep).mean().item()
 </pre></div>
 </div>
 </div>
@@ -1968,7 +1968,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">dem</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>(dem &gt; 0).mean().item()
 </pre></div>
 </div>
 </div>
@@ -1986,7 +1986,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">rep</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>(rep &lt; 0).mean().item()
 </pre></div>
 </div>
 </div>
@@ -2004,7 +2004,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">ind</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>(ind &lt; 0).mean().item()
 </pre></div>
 </div>
 </div>
@@ -2028,12 +2028,12 @@ to answer probability questions that involve both of them. The fact that logical
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">age</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">91</span><span class="p">)</span>
-<span class="n">new_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-    <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">age</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
-    <span class="s2">&quot;party_id&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">([</span><span class="s2">&quot;democrat&quot;</span><span class="p">,</span> <span class="s2">&quot;republican&quot;</span><span class="p">,</span> <span class="s2">&quot;independent&quot;</span><span class="p">],</span> <span class="nb">len</span><span class="p">(</span><span class="n">age</span><span class="p">))</span>
-<span class="p">})</span>
-<span class="n">new_data</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>age = np.arange(18, 91)
+new_data = pd.DataFrame({
+    &quot;age&quot;: np.tile(age, 3),
+    &quot;party_id&quot;: np.repeat([&quot;democrat&quot;, &quot;republican&quot;, &quot;independent&quot;], len(age))
+})
+new_data
 </pre></div>
 </div>
 </div>
@@ -2130,7 +2130,7 @@ to answer probability questions that involve both of them. The fact that logical
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">clinton_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">clinton_fitted</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">new_data</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>clinton_model.predict(clinton_fitted, data=new_data)
 </pre></div>
 </div>
 </div>
@@ -2138,8 +2138,8 @@ to answer probability questions that involve both of them. The fact that logical
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Select a sample of posterior values for the mean probability of voting for Clinton</span>
-<span class="n">vote_posterior</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">clinton_fitted</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">2000</span><span class="p">)[</span><span class="s2">&quot;vote_mean&quot;</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Select a sample of posterior values for the mean probability of voting for Clinton
+vote_posterior = az.extract_dataset(clinton_fitted, num_samples=2000)[&quot;vote_mean&quot;]
 </pre></div>
 </div>
 </div>
@@ -2148,17 +2148,17 @@ to answer probability questions that involve both of them. The fact that logical
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_, ax = plt.subplots(figsize=(7, 5))
 
-<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">party</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s2">&quot;democrat&quot;</span><span class="p">,</span> <span class="s2">&quot;republican&quot;</span><span class="p">,</span> <span class="s2">&quot;independent&quot;</span><span class="p">]):</span>
-    <span class="c1"># Which rows in new_data correspond to party?</span>
-    <span class="n">idx</span> <span class="o">=</span> <span class="n">new_data</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">new_data</span><span class="p">[</span><span class="s2">&quot;party_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">party</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">age</span><span class="p">,</span> <span class="n">vote_posterior</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.04</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+for i, party in enumerate([&quot;democrat&quot;, &quot;republican&quot;, &quot;independent&quot;]):
+    # Which rows in new_data correspond to party?
+    idx = new_data.index[new_data[&quot;party_id&quot;] == party].tolist()
+    ax.plot(age, vote_posterior[idx], alpha=0.04, color=f&quot;C{i}&quot;)
 
-<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;P(vote=&#39;clinton&#39; | age)&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Age&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">90</span><span class="p">);</span>
+ax.set_ylabel(&quot;P(vote=&#39;clinton&#39; | age)&quot;)
+ax.set_xlabel(&quot;Age&quot;, fontsize=15)
+ax.set_ylim(0, 1)
+ax.set_xlim(18, 90);
 </pre></div>
 </div>
 </div>
@@ -2177,8 +2177,8 @@ to answer probability questions that involve both of them. The fact that logical
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
-<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
+%watermark -n -u -v -iv -w
 </pre></div>
 </div>
 </div>

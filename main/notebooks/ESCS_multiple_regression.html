@@ -763,13 +763,13 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
-<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span>
-<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
+import bambi as bmb
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+import xarray as xr
 </pre></div>
 </div>
 </div>
@@ -777,8 +777,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
-<span class="n">SEED</span> <span class="o">=</span> <span class="mi">7355608</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
+SEED = 7355608
 </pre></div>
 </div>
 </div>
@@ -789,8 +789,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;ESCS&quot;</span><span class="p">)</span>
-<span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">describe</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = bmb.load_data(&quot;ESCS&quot;)
+np.round(data.describe(), 2)
 </pre></div>
 </div>
 </div>
@@ -961,7 +961,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;drugs&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">();</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data[&quot;drugs&quot;].hist();
 </pre></div>
 </div>
 </div>
@@ -985,7 +985,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_pair</span><span class="p">(</span><span class="n">data</span><span class="p">[[</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="s2">&quot;c&quot;</span><span class="p">,</span> <span class="s2">&quot;e&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;n&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s2">&quot;list&quot;</span><span class="p">),</span> <span class="n">marginals</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">textsize</span><span class="o">=</span><span class="mi">24</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_pair(data[[&quot;o&quot;, &quot;c&quot;, &quot;e&quot;, &quot;a&quot;, &quot;n&quot;]].to_dict(&quot;list&quot;), marginals=True, textsize=24);
 </pre></div>
 </div>
 </div>
@@ -1006,8 +1006,8 @@ confirmed when we analyze the convergence of the chains).</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;drugs ~ o + c + e + a + n&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-<span class="n">fitted</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">init</span><span class="o">=</span><span class="s2">&quot;adapt_diag&quot;</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model = bmb.Model(&quot;drugs ~ o + c + e + a + n&quot;, data)
+fitted = model.fit(tune=2000, draws=2000, init=&quot;adapt_diag&quot;, random_seed=SEED)
 </pre></div>
 </div>
 </div>
@@ -1064,7 +1064,7 @@ Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model.plot_priors();
 </pre></div>
 </div>
 </div>
@@ -1079,8 +1079,8 @@ Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Normal priors on the coefficients</span>
-<span class="p">{</span><span class="n">x</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">args</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">terms</span><span class="o">.</span><span class="n">values</span><span class="p">()}</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Normal priors on the coefficients
+{x.name: x.prior.args for x in model.terms.values()}
 </pre></div>
 </div>
 </div>
@@ -1102,8 +1102,8 @@ Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># HalfStudentT prior on the residual standard deviation</span>
-<span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">priors</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># HalfStudentT prior on the residual standard deviation
+model.family.likelihood.priors
 </pre></div>
 </div>
 </div>
@@ -1121,7 +1121,7 @@ Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model
 </pre></div>
 </div>
 </div>
@@ -1162,7 +1162,7 @@ the partial correlation scale!</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">fitted</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(fitted);
 </pre></div>
 </div>
 </div>
@@ -1180,7 +1180,7 @@ we would be concerned about the convergence of the chains.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">fitted</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(fitted)
 </pre></div>
 </div>
 </div>
@@ -1315,7 +1315,7 @@ we would be concerned about the convergence of the chains.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">samples</span> <span class="o">=</span> <span class="n">fitted</span><span class="o">.</span><span class="n">posterior</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>samples = fitted.posterior
 </pre></div>
 </div>
 </div>
@@ -1326,46 +1326,46 @@ manually.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># the names of the predictors</span>
-<span class="n">varnames</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">,</span> <span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># the names of the predictors
+varnames = [&#39;o&#39;, &#39;c&#39;, &#39;e&#39;, &#39;a&#39;, &#39;n&#39;]
 
-<span class="c1"># compute the needed statistics like R-squared when each predictor is response and all the</span>
-<span class="c1"># other predictors are the predictor</span>
+# compute the needed statistics like R-squared when each predictor is response and all the
+# other predictors are the predictor
 
-<span class="c1"># x_matrix = common effects design matrix (excluding intercept/constant term)</span>
-<span class="n">terms</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">common_terms</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;Intercept&quot;</span><span class="p">]</span>
-<span class="n">x_matrix</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">x</span><span class="o">.</span><span class="n">levels</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">]</span>
-<span class="n">x_matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">x_matrix</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">x_matrix</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">varnames</span>
+# x_matrix = common effects design matrix (excluding intercept/constant term)
+terms = [t for t in model.common_terms.values() if t.name != &quot;Intercept&quot;]
+x_matrix = [pd.DataFrame(x.data, columns=x.levels) for x in terms]
+x_matrix = pd.concat(x_matrix, axis=1)
+x_matrix.columns = varnames
 
-<span class="n">dm_statistics</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;r2_x&#39;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
-        <span class="p">{</span>
-            <span class="n">x</span><span class="p">:</span> <span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span>
-                <span class="n">endog</span><span class="o">=</span><span class="n">x_matrix</span><span class="p">[</span><span class="n">x</span><span class="p">],</span>
-                <span class="n">exog</span><span class="o">=</span><span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">x_matrix</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
-                <span class="k">if</span> <span class="s2">&quot;Intercept&quot;</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">term_names</span>
-                <span class="k">else</span> <span class="n">x_matrix</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-            <span class="p">)</span>
-            <span class="o">.</span><span class="n">fit</span><span class="p">()</span>
-            <span class="o">.</span><span class="n">rsquared</span>
-            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">x_matrix</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-        <span class="p">}</span>
-    <span class="p">),</span>
-    <span class="s1">&#39;sigma_x&#39;</span><span class="p">:</span> <span class="n">x_matrix</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span>
-    <span class="s1">&#39;mean_x&#39;</span><span class="p">:</span> <span class="n">x_matrix</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
-<span class="p">}</span>
+dm_statistics = {
+    &#39;r2_x&#39;: pd.Series(
+        {
+            x: sm.OLS(
+                endog=x_matrix[x],
+                exog=sm.add_constant(x_matrix.drop(x, axis=1))
+                if &quot;Intercept&quot; in model.term_names
+                else x_matrix.drop(x, axis=1),
+            )
+            .fit()
+            .rsquared
+            for x in list(x_matrix.columns)
+        }
+    ),
+    &#39;sigma_x&#39;: x_matrix.std(),
+    &#39;mean_x&#39;: x_matrix.mean(axis=0),
+}
 
-<span class="n">r2_x</span> <span class="o">=</span> <span class="n">dm_statistics</span><span class="p">[</span><span class="s1">&#39;r2_x&#39;</span><span class="p">]</span>
-<span class="n">sd_x</span> <span class="o">=</span> <span class="n">dm_statistics</span><span class="p">[</span><span class="s1">&#39;sigma_x&#39;</span><span class="p">]</span>
-<span class="n">r2_y</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([</span><span class="n">sm</span><span class="o">.</span><span class="n">OLS</span><span class="p">(</span><span class="n">endog</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;drugs&#39;</span><span class="p">],</span>
-                         <span class="n">exog</span><span class="o">=</span><span class="n">sm</span><span class="o">.</span><span class="n">add_constant</span><span class="p">(</span><span class="n">data</span><span class="p">[[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">varnames</span> <span class="k">if</span> <span class="n">p</span> <span class="o">!=</span> <span class="n">x</span><span class="p">]]))</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span><span class="o">.</span><span class="n">rsquared</span>
-                  <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">varnames</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="n">varnames</span><span class="p">)</span>
-<span class="n">sd_y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;drugs&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+r2_x = dm_statistics[&#39;r2_x&#39;]
+sd_x = dm_statistics[&#39;sigma_x&#39;]
+r2_y = pd.Series([sm.OLS(endog=data[&#39;drugs&#39;],
+                         exog=sm.add_constant(data[[p for p in varnames if p != x]])).fit().rsquared
+                  for x in varnames], index=varnames)
+sd_y = data[&#39;drugs&#39;].std()
 
-<span class="c1"># compute the products to multiply each slope with to produce the partial correlations</span>
-<span class="n">slope_constant</span> <span class="o">=</span> <span class="p">(</span><span class="n">sd_x</span><span class="p">[</span><span class="n">varnames</span><span class="p">]</span> <span class="o">/</span> <span class="n">sd_y</span><span class="p">)</span> <span class="o">*</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">r2_x</span><span class="p">[</span><span class="n">varnames</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">r2_y</span><span class="p">))</span> <span class="o">**</span> <span class="mf">0.5</span>
-<span class="n">slope_constant</span>
+# compute the products to multiply each slope with to produce the partial correlations
+slope_constant = (sd_x[varnames] / sd_y) * ((1 - r2_x[varnames]) / (1 - r2_y)) ** 0.5
+slope_constant
 </pre></div>
 </div>
 </div>
@@ -1388,7 +1388,7 @@ dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pcorr_samples</span> <span class="o">=</span> <span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="n">varnames</span><span class="p">]</span> <span class="o">*</span> <span class="n">slope_constant</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pcorr_samples = (samples[varnames] * slope_constant)
 </pre></div>
 </div>
 </div>
@@ -1397,11 +1397,11 @@ dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Pass the same axes to az.plot_kde to have all the densities in the same plot</span>
-<span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pcorr_samples</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
-    <span class="n">az</span><span class="o">.</span><span class="n">plot_dist</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="sa">f</span><span class="s1">&#39;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">},</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Pass the same axes to az.plot_kde to have all the densities in the same plot
+_, ax = plt.subplots()
+for idx, (k, v) in enumerate(pcorr_samples.items()):
+    az.plot_dist(v, label=k, plot_kwargs={&#39;color&#39;:f&#39;C{idx}&#39;}, ax=ax)
+ax.axvline(x=0, color=&#39;k&#39;, linestyle=&#39;--&#39;);
 </pre></div>
 </div>
 </div>
@@ -1417,7 +1417,7 @@ dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pcorr_samples</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pcorr_samples.mean()
 </pre></div>
 </div>
 </div>
@@ -1795,10 +1795,10 @@ Data variables:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pcorr_samples</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
-    <span class="n">az</span><span class="o">.</span><span class="n">plot_dist</span><span class="p">(</span><span class="n">v</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="sa">f</span><span class="s1">&#39;C</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">},</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">80</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_, ax = plt.subplots()
+for idx, (k, v) in enumerate(pcorr_samples.items()):
+    az.plot_dist(v ** 2, label=k, plot_kwargs={&#39;color&#39;:f&#39;C{idx}&#39;}, ax=ax)
+ax.set_ylim(0, 80);
 </pre></div>
 </div>
 </div>
@@ -1814,7 +1814,7 @@ Data variables:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">pcorr_samples</span><span class="p">[</span><span class="s1">&#39;o&#39;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">&gt;</span> <span class="n">pcorr_samples</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>(pcorr_samples[&#39;o&#39;] ** 2 &gt; pcorr_samples[&#39;c&#39;] ** 2).mean().item()
 </pre></div>
 </div>
 </div>
@@ -1834,8 +1834,8 @@ probabilities involving at least two of these parameters, one has to use the joi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sq_partial_c</span> <span class="o">=</span> <span class="n">pcorr_samples</span><span class="p">[</span><span class="s1">&#39;c&#39;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
-<span class="n">sq_partial_o</span> <span class="o">=</span> <span class="n">pcorr_samples</span><span class="p">[</span><span class="s1">&#39;o&#39;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>sq_partial_c = pcorr_samples[&#39;c&#39;] ** 2
+sq_partial_o = pcorr_samples[&#39;o&#39;] ** 2
 </pre></div>
 </div>
 </div>
@@ -1843,11 +1843,11 @@ probabilities involving at least two of these parameters, one has to use the joi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">colors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">sq_partial_c</span> <span class="o">&gt;</span> <span class="n">sq_partial_o</span><span class="p">,</span> <span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="s2">&quot;C0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>colors = np.where(sq_partial_c &gt; sq_partial_o, &quot;C1&quot;, &quot;C0&quot;).flatten().tolist()
 
-<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">sq_partial_o</span><span class="p">,</span> <span class="n">sq_partial_c</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">colors</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Openness to experience&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Conscientiousness&quot;</span><span class="p">);</span>
+plt.scatter(sq_partial_o, sq_partial_c, c=colors)
+plt.xlabel(&quot;Openness to experience&quot;)
+plt.ylabel(&quot;Conscientiousness&quot;);
 </pre></div>
 </div>
 </div>
@@ -1863,7 +1863,7 @@ probabilities involving at least two of these parameters, one has to use the joi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">xr</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">sq_partial_c</span><span class="p">,</span> <span class="n">sq_partial_o</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>xr.corr(sq_partial_c, sq_partial_o).item()
 </pre></div>
 </div>
 </div>
@@ -1882,8 +1882,8 @@ probabilities involving at least two of these parameters, one has to use the joi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pc_df</span> <span class="o">=</span> <span class="n">pcorr_samples</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">()</span>
-<span class="p">(</span><span class="n">pc_df</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">idxmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">pc_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pc_df = pcorr_samples.to_dataframe()
+(pc_df**2).idxmax(axis=1).value_counts() / len(pc_df.index)
 </pre></div>
 </div>
 </div>
@@ -1904,7 +1904,7 @@ dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">pcorr_samples</span><span class="p">[</span><span class="s1">&#39;a&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>(np.abs(pcorr_samples[&#39;a&#39;]) &gt; 0.3).mean().item()
 </pre></div>
 </div>
 </div>
@@ -1926,8 +1926,8 @@ dtype: float64
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
-<span class="n">fitted</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>posterior_predictive = model.predict(fitted, kind=&quot;pps&quot;)
+fitted
 </pre></div>
 </div>
 </div>
@@ -4338,7 +4338,7 @@ dl.xr-attrs {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_ppc</span><span class="p">(</span><span class="n">fitted</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_ppc(fitted);
 </pre></div>
 </div>
 </div>
@@ -4353,8 +4353,8 @@ dl.xr-attrs {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
-<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
+%watermark -n -u -v -iv -w
 </pre></div>
 </div>
 </div>

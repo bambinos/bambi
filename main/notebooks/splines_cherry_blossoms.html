@@ -764,11 +764,11 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
-<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
+import bambi as bmb
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 </pre></div>
 </div>
 </div>
@@ -776,8 +776,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
-<span class="n">SEED</span> <span class="o">=</span> <span class="mi">7355608</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
+SEED = 7355608
 </pre></div>
 </div>
 </div>
@@ -789,8 +789,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;cherry_blossoms&quot;</span><span class="p">)</span>
-<span class="n">data</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = bmb.load_data(&quot;cherry_blossoms&quot;)
+data
 </pre></div>
 </div>
 </div>
@@ -923,8 +923,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;doy&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">shape</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = data.dropna(subset=[&quot;doy&quot;]).reset_index(drop=True)
+data.shape
 </pre></div>
 </div>
 </div>
@@ -945,14 +945,14 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># We create a function because this plot is going to be used again later</span>
-<span class="k">def</span> <span class="nf">plot_scatter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">)):</span>
-    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;doy&quot;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Day of the first bloom per year&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Year&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Days of the first bloom&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">ax</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># We create a function because this plot is going to be used again later
+def plot_scatter(data, figsize=(10, 6)):
+    _, ax = plt.subplots(figsize=figsize)
+    ax.scatter(data[&quot;year&quot;], data[&quot;doy&quot;], alpha=0.4, s=30)
+    ax.set_title(&quot;Day of the first bloom per year&quot;)
+    ax.set_xlabel(&quot;Year&quot;)
+    ax.set_ylabel(&quot;Days of the first bloom&quot;)
+    return ax
 </pre></div>
 </div>
 </div>
@@ -960,7 +960,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_scatter</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_scatter(data);
 </pre></div>
 </div>
 </div>
@@ -981,8 +981,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_knots</span> <span class="o">=</span> <span class="mi">15</span>
-<span class="n">knots</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">num_knots</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>num_knots = 15
+knots = np.quantile(data[&quot;year&quot;], np.linspace(0, 1, num_knots))
 </pre></div>
 </div>
 </div>
@@ -990,10 +990,10 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_knots</span><span class="p">(</span><span class="n">knots</span><span class="p">,</span> <span class="n">ax</span><span class="p">):</span>
-    <span class="k">for</span> <span class="n">knot</span> <span class="ow">in</span> <span class="n">knots</span><span class="p">:</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">knot</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;0.1&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">ax</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def plot_knots(knots, ax):
+    for knot in knots:
+        ax.axvline(knot, color=&quot;0.1&quot;, alpha=0.4)
+    return ax
 </pre></div>
 </div>
 </div>
@@ -1001,8 +1001,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">plot_scatter</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">plot_knots</span><span class="p">(</span><span class="n">knots</span><span class="p">,</span> <span class="n">ax</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>ax = plot_scatter(data)
+plot_knots(knots, ax);
 </pre></div>
 </div>
 </div>
@@ -1037,20 +1037,20 @@ w_j &amp; \sim \text{Normal}(0, 10)\\
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># We only pass the internal knots to the `bs()` function.</span>
-<span class="n">iknots</span> <span class="o">=</span> <span class="n">knots</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># We only pass the internal knots to the `bs()` function.
+iknots = knots[1:-1]
 
-<span class="c1"># Define dictionary of priors</span>
-<span class="n">priors</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;Intercept&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
-    <span class="s2">&quot;common&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
-    <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Exponential&quot;</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="p">}</span>
+# Define dictionary of priors
+priors = {
+    &quot;Intercept&quot;: bmb.Prior(&quot;Normal&quot;, mu=100, sigma=10),
+    &quot;common&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=10),
+    &quot;sigma&quot;: bmb.Prior(&quot;Exponential&quot;, lam=1)
+}
 
-<span class="c1"># Define model</span>
-<span class="c1"># The intercept=True means the basis also spans the intercept, as originally done in the book example.</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;doy ~ bs(year, knots=iknots, intercept=True)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">)</span>
-<span class="n">model</span>
+# Define model
+# The intercept=True means the basis also spans the intercept, as originally done in the book example.
+model = bmb.Model(&quot;doy ~ bs(year, knots=iknots, intercept=True)&quot;, data, priors=priors)
+model
 </pre></div>
 </div>
 </div>
@@ -1078,20 +1078,20 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_spline_basis</span><span class="p">(</span><span class="n">basis</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">)):</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">basis</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">year</span><span class="o">=</span><span class="n">year</span><span class="p">)</span>
-        <span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="n">var_name</span><span class="o">=</span><span class="s2">&quot;basis_idx&quot;</span><span class="p">,</span> <span class="n">value_name</span><span class="o">=</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
-    <span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def plot_spline_basis(basis, year, figsize=(10, 6)):
+    df = (
+        pd.DataFrame(basis)
+        .assign(year=year)
+        .melt(&quot;year&quot;, var_name=&quot;basis_idx&quot;, value_name=&quot;value&quot;)
+    )
 
-    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+    _, ax = plt.subplots(figsize=figsize)
 
-    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">basis_idx</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">basis_idx</span> <span class="o">==</span> <span class="n">idx</span><span class="p">]</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">])</span>
+    for idx in df.basis_idx.unique():
+        d = df[df.basis_idx == idx]
+        ax.plot(d[&quot;year&quot;], d[&quot;value&quot;])
 
-    <span class="k">return</span> <span class="n">ax</span>
+    return ax
 </pre></div>
 </div>
 </div>
@@ -1100,9 +1100,9 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">B</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="p">[</span><span class="s2">&quot;bs(year, knots = iknots, intercept = True)&quot;</span><span class="p">]</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">plot_spline_basis</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-<span class="n">plot_knots</span><span class="p">(</span><span class="n">knots</span><span class="p">,</span> <span class="n">ax</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>B = model._design.common[&quot;bs(year, knots = iknots, intercept = True)&quot;]
+ax = plot_spline_basis(B, data[&quot;year&quot;].values)
+plot_knots(knots, ax);
 </pre></div>
 </div>
 </div>
@@ -1121,8 +1121,8 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The seed is to make results reproducible</span>
-<span class="n">idata</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># The seed is to make results reproducible
+idata = model.fit(random_seed=SEED)
 </pre></div>
 </div>
 </div>
@@ -1180,7 +1180,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(idata)
 </pre></div>
 </div>
 </div>
@@ -1456,7 +1456,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">idata</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(idata);
 </pre></div>
 </div>
 </div>
@@ -1472,12 +1472,12 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">posterior_stacked</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">idata</span><span class="p">)</span>
-<span class="n">wp</span> <span class="o">=</span> <span class="n">posterior_stacked</span><span class="p">[</span><span class="s2">&quot;bs(year, knots = iknots, intercept = True)&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>posterior_stacked = az.extract_dataset(idata)
+wp = posterior_stacked[&quot;bs(year, knots = iknots, intercept = True)&quot;].mean(&quot;sample&quot;).values
 
-<span class="n">ax</span> <span class="o">=</span> <span class="n">plot_spline_basis</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">wp</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">wp</span><span class="o">.</span><span class="n">T</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">plot_knots</span><span class="p">(</span><span class="n">knots</span><span class="p">,</span> <span class="n">ax</span><span class="p">);</span>
+ax = plot_spline_basis(B * wp.T, data[&quot;year&quot;].values)
+ax.plot(data.year.values, np.dot(B, wp.T), color=&quot;black&quot;, lw=3)
+plot_knots(knots, ax);
 </pre></div>
 </div>
 </div>
@@ -1496,36 +1496,36 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_predictions</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
-    <span class="c1"># Create a test dataset with observations spanning the whole range of year</span>
-    <span class="n">new_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">data</span><span class="o">.</span><span class="n">year</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">num</span><span class="o">=</span><span class="mi">500</span><span class="p">)})</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def plot_predictions(data, idata, model):
+    # Create a test dataset with observations spanning the whole range of year
+    new_data = pd.DataFrame({&quot;year&quot;: np.linspace(data.year.min(), data.year.max(), num=500)})
 
-    <span class="c1"># Predict the day of first blossom</span>
-    <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">new_data</span><span class="p">)</span>
+    # Predict the day of first blossom
+    model.predict(idata, data=new_data)
 
-    <span class="n">posterior_stacked</span> <span class="o">=</span>  <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">idata</span><span class="p">)</span>
-    <span class="c1"># Extract these predictions</span>
-    <span class="n">y_hat</span> <span class="o">=</span> <span class="n">posterior_stacked</span><span class="p">[</span><span class="s2">&quot;doy_mean&quot;</span><span class="p">]</span>
+    posterior_stacked =  az.extract_dataset(idata)
+    # Extract these predictions
+    y_hat = posterior_stacked[&quot;doy_mean&quot;]
 
-    <span class="c1"># Compute the mean of the predictions, plotted as a single line.</span>
-    <span class="n">y_hat_mean</span> <span class="o">=</span> <span class="n">y_hat</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">)</span>
+    # Compute the mean of the predictions, plotted as a single line.
+    y_hat_mean = y_hat.mean(&quot;sample&quot;)
 
-    <span class="c1"># Compute 94% credible intervals for the predictions, plotted as bands</span>
-    <span class="n">hdi_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">y_hat</span><span class="p">,</span> <span class="p">[</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.97</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    # Compute 94% credible intervals for the predictions, plotted as bands
+    hdi_data = np.quantile(y_hat, [0.03, 0.97], axis=1)
 
-    <span class="c1"># Plot obserevd data</span>
-    <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_scatter</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    # Plot obserevd data
+    ax = plot_scatter(data)
 
-    <span class="c1"># Plot predicted line</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">new_data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span> <span class="n">y_hat_mean</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;firebrick&quot;</span><span class="p">)</span>
+    # Plot predicted line
+    ax.plot(new_data[&quot;year&quot;], y_hat_mean, color=&quot;firebrick&quot;)
 
-    <span class="c1"># Plot credibility bands</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">new_data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span> <span class="n">hdi_data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">hdi_data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;firebrick&quot;</span><span class="p">)</span>
+    # Plot credibility bands
+    ax.fill_between(new_data[&quot;year&quot;], hdi_data[0], hdi_data[1], alpha=0.4, color=&quot;firebrick&quot;)
 
-    <span class="c1"># Add knots</span>
-    <span class="n">plot_knots</span><span class="p">(</span><span class="n">knots</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span>
+    # Add knots
+    plot_knots(knots, ax)
 
-    <span class="k">return</span> <span class="n">ax</span>
+    return ax
 </pre></div>
 </div>
 </div>
@@ -1533,7 +1533,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_predictions</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="n">model</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_predictions(data, idata, model);
 </pre></div>
 </div>
 </div>
@@ -1556,7 +1556,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">design_matrix</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>np.round(model._design.common.design_matrix, 3)
 </pre></div>
 </div>
 </div>
@@ -1580,7 +1580,7 @@ array([[1.   , 1.   , 0.   , ..., 0.   , 0.   , 0.   ],
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">design_matrix</span><span class="o">.</span><span class="n">shape</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model._design.common.design_matrix.shape
 </pre></div>
 </div>
 </div>
@@ -1599,7 +1599,7 @@ array([[1.   , 1.   , 0.   , ..., 0.   , 0.   , 0.   ],
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">design_matrix</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>np.linalg.matrix_rank(model._design.common.design_matrix)
 </pre></div>
 </div>
 </div>
@@ -1620,9 +1620,9 @@ array([[1.   , 1.   , 0.   , ..., 0.   , 0.   , 0.   ],
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note we use the same priors</span>
-<span class="n">model_new</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;doy ~ bs(year, knots=iknots)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">)</span>
-<span class="n">idata_new</span> <span class="o">=</span> <span class="n">model_new</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="mi">7355608</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Note we use the same priors
+model_new = bmb.Model(&quot;doy ~ bs(year, knots=iknots)&quot;, data, priors=priors)
+idata_new = model_new.fit(random_seed=7355608)
 </pre></div>
 </div>
 </div>
@@ -1676,7 +1676,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata_new</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(idata_new)
 </pre></div>
 </div>
 </div>
@@ -1946,7 +1946,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">sampling_time</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>idata.posterior.sampling_time
 </pre></div>
 </div>
 </div>
@@ -1963,7 +1963,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_new</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">sampling_time</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>idata_new.posterior.sampling_time
 </pre></div>
 </div>
 </div>
@@ -1982,7 +1982,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_predictions</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">idata_new</span><span class="p">,</span> <span class="n">model_new</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_predictions(data, idata_new, model_new);
 </pre></div>
 </div>
 </div>
@@ -1998,9 +1998,9 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">models_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Original&quot;</span><span class="p">:</span> <span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;New&quot;</span><span class="p">:</span> <span class="n">idata_new</span><span class="p">}</span>
-<span class="n">df_compare</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">models_dict</span><span class="p">)</span>
-<span class="n">df_compare</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>models_dict = {&quot;Original&quot;: idata, &quot;New&quot;: idata_new}
+df_compare = az.compare(models_dict)
+df_compare
 </pre></div>
 </div>
 </div>
@@ -2071,7 +2071,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_compare</span><span class="p">(</span><span class="n">df_compare</span><span class="p">,</span> <span class="n">insample_dev</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_compare(df_compare, insample_dev=False);
 </pre></div>
 </div>
 </div>
@@ -2087,9 +2087,9 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute pointwise LOO</span>
-<span class="n">loo_1</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">pointwise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">loo_2</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">loo</span><span class="p">(</span><span class="n">idata_new</span><span class="p">,</span> <span class="n">pointwise</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Compute pointwise LOO
+loo_1 = az.loo(idata, pointwise=True)
+loo_2 = az.loo(idata_new, pointwise=True)
 </pre></div>
 </div>
 </div>
@@ -2097,8 +2097,8 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># plot kappa values</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_khat</span><span class="p">(</span><span class="n">loo_1</span><span class="o">.</span><span class="n">pareto_k</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># plot kappa values
+az.plot_khat(loo_1.pareto_k);
 </pre></div>
 </div>
 </div>
@@ -2113,7 +2113,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_khat</span><span class="p">(</span><span class="n">loo_2</span><span class="o">.</span><span class="n">pareto_k</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_khat(loo_2.pareto_k);
 </pre></div>
 </div>
 </div>
@@ -2132,8 +2132,8 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
-<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
+%watermark -n -u -v -iv -w
 </pre></div>
 </div>
 </div>

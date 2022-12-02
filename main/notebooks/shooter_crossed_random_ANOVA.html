@@ -763,11 +763,11 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
-<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
+import bambi as bmb
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 </pre></div>
 </div>
 </div>
@@ -775,8 +775,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
-<span class="n">SEED</span> <span class="o">=</span> <span class="mi">1234</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
+SEED = 1234
 </pre></div>
 </div>
 </div>
@@ -794,8 +794,8 @@ Subjects receive points for correct and timely responses in each trial; subjects
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shooter</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;data/shooter.csv&quot;</span><span class="p">,</span> <span class="n">na_values</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
-<span class="n">shooter</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>shooter = pd.read_csv(&quot;data/shooter.csv&quot;, na_values=&quot;.&quot;)
+shooter.head(10)
 </pre></div>
 </div>
 </div>
@@ -941,7 +941,7 @@ Subjects receive points for correct and timely responses in each trial; subjects
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">crosstab</span><span class="p">(</span><span class="n">shooter</span><span class="p">[</span><span class="s2">&quot;subject&quot;</span><span class="p">],</span> <span class="p">[</span><span class="n">shooter</span><span class="p">[</span><span class="s2">&quot;target&quot;</span><span class="p">],</span> <span class="n">shooter</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">]])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pd.crosstab(shooter[&quot;subject&quot;], [shooter[&quot;target&quot;], shooter[&quot;object&quot;]])
 </pre></div>
 </div>
 </div>
@@ -1909,7 +1909,7 @@ more convenient for us by allowing us to use some fairly standard distributional
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shooter</span><span class="p">[</span><span class="s2">&quot;rate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1000.0</span> <span class="o">/</span> <span class="n">shooter</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>shooter[&quot;rate&quot;] = 1000.0 / shooter[&quot;time&quot;]
 </pre></div>
 </div>
 </div>
@@ -1917,7 +1917,7 @@ more convenient for us by allowing us to use some fairly standard distributional
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">shooter</span><span class="p">[</span><span class="s2">&quot;rate&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">());</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plt.hist(shooter[&quot;rate&quot;].dropna());
 </pre></div>
 </div>
 </div>
@@ -1940,12 +1940,12 @@ equivalent, to the main effects). This is the standard coding used in ANOVA.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subj_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
-    <span class="s2">&quot;rate ~ S(race) * S(object) + (S(race) * S(object) | subject)&quot;</span><span class="p">,</span>
-    <span class="n">shooter</span><span class="p">,</span>
-    <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span>
-<span class="p">)</span>
-<span class="n">subj_fitted</span> <span class="o">=</span> <span class="n">subj_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>subj_model = bmb.Model(
+    &quot;rate ~ S(race) * S(object) + (S(race) * S(object) | subject)&quot;,
+    shooter,
+    dropna=True
+)
+subj_fitted = subj_model.fit(random_seed=SEED)
 </pre></div>
 </div>
 </div>
@@ -2000,7 +2000,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subj_model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>subj_model.plot_priors();
 </pre></div>
 </div>
 </div>
@@ -2017,7 +2017,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">subj_fitted</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(subj_fitted);
 </pre></div>
 </div>
 </div>
@@ -2033,7 +2033,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">subj_fitted</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(subj_fitted)
 </pre></div>
 </div>
 </div>
@@ -2220,12 +2220,12 @@ are interested in talking about, and that we could have just as easily and justi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stim_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
-    <span class="s2">&quot;rate ~ S(race) * S(object) + (S(race) * S(object) | subject) + (S(object) | target)&quot;</span><span class="p">,</span>
-    <span class="n">shooter</span><span class="p">,</span>
-    <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span>
-<span class="p">)</span>
-<span class="n">stim_fitted</span> <span class="o">=</span> <span class="n">stim_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>stim_model = bmb.Model(
+    &quot;rate ~ S(race) * S(object) + (S(race) * S(object) | subject) + (S(object) | target)&quot;,
+    shooter,
+    dropna=True
+)
+stim_fitted = stim_model.fit(random_seed=SEED)
 </pre></div>
 </div>
 </div>
@@ -2280,7 +2280,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">stim_fitted</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(stim_fitted);
 </pre></div>
 </div>
 </div>
@@ -2295,7 +2295,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">stim_fitted</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(stim_fitted)
 </pre></div>
 </div>
 </div>
@@ -2476,7 +2476,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">stim_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;S(race):S(object)&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>(stim_fitted.posterior[&quot;S(race):S(object)&quot;] &lt; 0).mean()
 </pre></div>
 </div>
 </div>
@@ -2853,22 +2853,22 @@ easier to confuse with a gun, so subjects take longer to decide on the correct r
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">shooter</span><span class="p">[</span><span class="s2">&quot;shoot_or_not&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shooter</span><span class="p">[</span><span class="s2">&quot;response&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>shooter[&quot;shoot_or_not&quot;] = shooter[&quot;response&quot;].astype(str)
 
-<span class="c1"># armed targets</span>
-<span class="n">new_values</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;correct&quot;</span><span class="p">:</span> <span class="s2">&quot;shoot&quot;</span><span class="p">,</span> <span class="s2">&quot;incorrect&quot;</span><span class="p">:</span> <span class="s2">&quot;dontshoot&quot;</span><span class="p">,</span> <span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">}</span>
-<span class="n">shooter</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">shooter</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;gun&quot;</span><span class="p">,</span> <span class="s2">&quot;shoot_or_not&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">shooter</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">shooter</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;gun&quot;</span><span class="p">,</span> <span class="s2">&quot;response&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">new_values</span><span class="p">)</span>
-<span class="p">)</span>
+# armed targets
+new_values = {&quot;correct&quot;: &quot;shoot&quot;, &quot;incorrect&quot;: &quot;dontshoot&quot;, &quot;timeout&quot;: np.nan}
+shooter.loc[shooter[&quot;object&quot;] == &quot;gun&quot;, &quot;shoot_or_not&quot;] = (
+    shooter.loc[shooter[&quot;object&quot;] == &quot;gun&quot;, &quot;response&quot;].astype(str).replace(new_values)
+)
 
-<span class="c1"># unarmed targets</span>
-<span class="n">new_values</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;correct&quot;</span><span class="p">:</span> <span class="s2">&quot;dontshoot&quot;</span><span class="p">,</span> <span class="s2">&quot;incorrect&quot;</span><span class="p">:</span> <span class="s2">&quot;shoot&quot;</span><span class="p">,</span> <span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">}</span>
-<span class="n">shooter</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">shooter</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;nogun&quot;</span><span class="p">,</span> <span class="s2">&quot;shoot_or_not&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="n">shooter</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">shooter</span><span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;nogun&quot;</span><span class="p">,</span> <span class="s2">&quot;response&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">new_values</span><span class="p">)</span>
-<span class="p">)</span>
+# unarmed targets
+new_values = {&quot;correct&quot;: &quot;dontshoot&quot;, &quot;incorrect&quot;: &quot;shoot&quot;, &quot;timeout&quot;: np.nan}
+shooter.loc[shooter[&quot;object&quot;] == &quot;nogun&quot;, &quot;shoot_or_not&quot;] = (
+    shooter.loc[shooter[&quot;object&quot;] == &quot;nogun&quot;, &quot;response&quot;].astype(str).replace(new_values)
+)
 
-<span class="c1"># view result</span>
-<span class="n">shooter</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+# view result
+shooter.head(20)
 </pre></div>
 </div>
 </div>
@@ -3156,19 +3156,19 @@ easier to confuse with a gun, so subjects take longer to decide on the correct r
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stim_response_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
-    <span class="s2">&quot;shoot_or_not[shoot] ~ S(race)*S(object) + (S(race)*S(object) | subject) + (S(object) | target)&quot;</span><span class="p">,</span>
-    <span class="n">shooter</span><span class="p">,</span>
-    <span class="n">family</span><span class="o">=</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">,</span>
-    <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span>
-<span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>stim_response_model = bmb.Model(
+    &quot;shoot_or_not[shoot] ~ S(race)*S(object) + (S(race)*S(object) | subject) + (S(object) | target)&quot;,
+    shooter,
+    family=&quot;bernoulli&quot;,
+    dropna=True
+)
 
-<span class="c1"># Note we increased target_accept from default 0.8 to 0.9 because there were divergences</span>
-<span class="n">stim_response_fitted</span> <span class="o">=</span> <span class="n">stim_response_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
-    <span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
-    <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
-    <span class="n">random_seed</span><span class="o">=</span><span class="n">SEED</span>
-<span class="p">)</span>
+# Note we increased target_accept from default 0.8 to 0.9 because there were divergences
+stim_response_fitted = stim_response_model.fit(
+    draws=2000,
+    target_accept=0.9,
+    random_seed=SEED
+)
 </pre></div>
 </div>
 </div>
@@ -3224,7 +3224,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">stim_response_fitted</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(stim_response_fitted);
 </pre></div>
 </div>
 </div>
@@ -3240,7 +3240,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">stim_response_fitted</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(stim_response_fitted)
 </pre></div>
 </div>
 </div>
@@ -3421,7 +3421,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">stim_response_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;S(race)&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>(stim_response_fitted.posterior[&quot;S(race)&quot;] &lt; 0).mean()
 </pre></div>
 </div>
 </div>
@@ -3788,8 +3788,8 @@ array(0.070875)</pre><div class='xr-wrap' style='display:none'><div class='xr-he
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
-<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
+%watermark -n -u -v -iv -w
 </pre></div>
 </div>
 </div>

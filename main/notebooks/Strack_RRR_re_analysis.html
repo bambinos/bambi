@@ -763,13 +763,13 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">glob</span> <span class="kn">import</span> <span class="n">glob</span>
-<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">basename</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>from glob import glob
+from os.path import basename
 
-<span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
-<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+import arviz as az
+import bambi as bmb
+import numpy as np
+import pandas as pd
 </pre></div>
 </div>
 </div>
@@ -777,7 +777,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
 </pre></div>
 </div>
 </div>
@@ -794,26 +794,26 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">DL_PATH</span> <span class="o">=</span> <span class="s1">&#39;data/facial_feedback/*csv&#39;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>DL_PATH = &#39;data/facial_feedback/*csv&#39;
 
-<span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
-<span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">,</span> <span class="s1">&#39;cond_id&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;correct_c1&#39;</span><span class="p">,</span> <span class="s1">&#39;correct_c2&#39;</span><span class="p">,</span> <span class="s1">&#39;correct_c3&#39;</span><span class="p">,</span> <span class="s1">&#39;correct_c4&#39;</span><span class="p">,</span>
-           <span class="s1">&#39;correct_total&#39;</span><span class="p">,</span> <span class="s1">&#39;rating_t1&#39;</span><span class="p">,</span> <span class="s1">&#39;rating_t2&#39;</span><span class="p">,</span> <span class="s1">&#39;rating_c1&#39;</span><span class="p">,</span> <span class="s1">&#39;rating_c2&#39;</span><span class="p">,</span> <span class="s1">&#39;rating_c3&#39;</span><span class="p">,</span>
-           <span class="s1">&#39;rating_c4&#39;</span><span class="p">,</span> <span class="s1">&#39;self_perf&#39;</span><span class="p">,</span> <span class="s1">&#39;comprehension&#39;</span><span class="p">,</span> <span class="s1">&#39;awareness&#39;</span><span class="p">,</span> <span class="s1">&#39;transcript&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">,</span>
-           <span class="s1">&#39;student&#39;</span><span class="p">,</span> <span class="s1">&#39;occupation&#39;</span><span class="p">]</span>
+dfs = []
+columns = [&#39;subject&#39;, &#39;cond_id&#39;, &#39;condition&#39;, &#39;correct_c1&#39;, &#39;correct_c2&#39;, &#39;correct_c3&#39;, &#39;correct_c4&#39;,
+           &#39;correct_total&#39;, &#39;rating_t1&#39;, &#39;rating_t2&#39;, &#39;rating_c1&#39;, &#39;rating_c2&#39;, &#39;rating_c3&#39;,
+           &#39;rating_c4&#39;, &#39;self_perf&#39;, &#39;comprehension&#39;, &#39;awareness&#39;, &#39;transcript&#39;, &#39;age&#39;, &#39;gender&#39;,
+           &#39;student&#39;, &#39;occupation&#39;]
 
-<span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">study</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">DL_PATH</span><span class="p">)):</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">study</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;latin1&#39;</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">22</span><span class="p">]</span>
-    <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span>
-    <span class="c1"># Add study name</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;study&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span>
-    <span class="c1"># Some sites used the same subject id numbering schemes, so prepend with study to create unique ids.</span>
-    <span class="c1"># Note that if we don&#39;t do this, Bambi would have no way of distinguishing two subjects who share</span>
-    <span class="c1"># the same id, which would hose our results.</span>
-    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;uid&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;subject&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">+</span> <span class="n">count</span>
-    <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">,</span>  <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+count = 0
+for idx, study in enumerate(glob(DL_PATH)):
+    data = pd.read_csv(study, encoding=&#39;latin1&#39;, skiprows=2, header=None, index_col=False).iloc[:, :22]
+    data.columns = columns
+    # Add study name
+    data[&#39;study&#39;] = idx
+    # Some sites used the same subject id numbering schemes, so prepend with study to create unique ids.
+    # Note that if we don&#39;t do this, Bambi would have no way of distinguishing two subjects who share
+    # the same id, which would hose our results.
+    data[&#39;uid&#39;] = data[&#39;subject&#39;].astype(float) + count
+    dfs.append(data)
+data = pd.concat(dfs, axis=0).apply(pd.to_numeric,  errors=&#39;coerce&#39;, axis=1)
 </pre></div>
 </div>
 </div>
@@ -822,7 +822,7 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data.head()
 </pre></div>
 </div>
 </div>
@@ -1006,12 +1006,12 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Keep only subjects who (i) respond appropriately on all trials,</span>
-<span class="c1"># (ii) understand the cartoons, and (iii) don&#39;t report any awareness</span>
-<span class="c1"># of the hypothesis or underlying theory.</span>
-<span class="n">valid</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s1">&#39;correct_total==4 and comprehension==1 and awareness==0&#39;</span><span class="p">)</span>
-<span class="n">long</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;uid&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;study&#39;</span><span class="p">,</span> <span class="s1">&#39;self_perf&#39;</span><span class="p">],</span>
-               <span class="p">[</span><span class="s1">&#39;rating_c1&#39;</span><span class="p">,</span> <span class="s1">&#39;rating_c2&#39;</span><span class="p">,</span> <span class="s1">&#39;rating_c3&#39;</span><span class="p">,</span> <span class="s1">&#39;rating_c4&#39;</span><span class="p">],</span> <span class="n">var_name</span><span class="o">=</span><span class="s1">&#39;stimulus&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Keep only subjects who (i) respond appropriately on all trials,
+# (ii) understand the cartoons, and (iii) don&#39;t report any awareness
+# of the hypothesis or underlying theory.
+valid = data.query(&#39;correct_total==4 and comprehension==1 and awareness==0&#39;)
+long = pd.melt(valid, [&#39;uid&#39;, &#39;condition&#39;, &#39;gender&#39;, &#39;age&#39;, &#39;study&#39;, &#39;self_perf&#39;],
+               [&#39;rating_c1&#39;, &#39;rating_c2&#39;, &#39;rating_c3&#39;, &#39;rating_c4&#39;], var_name=&#39;stimulus&#39;)
 </pre></div>
 </div>
 </div>
@@ -1019,7 +1019,7 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">long</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>long
 </pre></div>
 </div>
 </div>
@@ -1198,16 +1198,16 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize the model, passing in the dataset we want to use.</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;value ~ condition + (1|uid)&quot;</span><span class="p">,</span> <span class="n">long</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Initialize the model, passing in the dataset we want to use.
+model = bmb.Model(&quot;value ~ condition + (1|uid)&quot;, long, dropna=True)
 
-<span class="c1"># Set a custom prior on group specific factor variances—just for illustration</span>
-<span class="n">group_specific_sd</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;HalfNormal&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">group_specific_prior</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">group_specific_sd</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">set_priors</span><span class="p">(</span><span class="n">group_specific</span><span class="o">=</span><span class="n">group_specific_prior</span><span class="p">)</span>
+# Set a custom prior on group specific factor variances—just for illustration
+group_specific_sd = bmb.Prior(&quot;HalfNormal&quot;, sigma=10)
+group_specific_prior = bmb.Prior(&quot;Normal&quot;, mu=0, sigma=group_specific_sd)
+model.set_priors(group_specific=group_specific_prior)
 
-<span class="c1"># Fit the model, drawing 1,000 MCMC draws per chain</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+# Fit the model, drawing 1,000 MCMC draws per chain
+results = model.fit(draws=1000)
 </pre></div>
 </div>
 </div>
@@ -1266,7 +1266,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model.plot_priors();
 </pre></div>
 </div>
 </div>
@@ -1282,10 +1282,10 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
-              <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;condition&quot;</span><span class="p">,</span> <span class="s2">&quot;value_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;1|uid_sigma&quot;</span><span class="p">],</span>
-              <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(results,
+              var_names=[&quot;Intercept&quot;, &quot;condition&quot;, &quot;value_sigma&quot;, &quot;1|uid_sigma&quot;],
+              compact=False,
+);
 </pre></div>
 </div>
 </div>
@@ -1301,7 +1301,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;1|uid_sigma&#39;</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(results, var_names=[&#39;Intercept&#39;, &#39;condition&#39;, &#39;value_sigma&#39;, &#39;1|uid_sigma&#39;])
 </pre></div>
 </div>
 </div>
@@ -1409,19 +1409,19 @@ with this by adding specific intercepts for the 4 stimuli. We’ll model the sti
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
-    <span class="s2">&quot;value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)&quot;</span><span class="p">,</span>
-    <span class="n">long</span><span class="p">,</span>
-    <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model = bmb.Model(
+    &quot;value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)&quot;,
+    long,
+    dropna=True,
+)
 
-<span class="n">group_specific_sd</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;HalfNormal&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">group_specific_prior</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">group_specific_sd</span><span class="p">)</span>
-<span class="n">model</span><span class="o">.</span><span class="n">set_priors</span><span class="p">(</span><span class="n">group_specific</span><span class="o">=</span><span class="n">group_specific_prior</span><span class="p">)</span>
+group_specific_sd = bmb.Prior(&quot;HalfNormal&quot;, sigma=10)
+group_specific_prior = bmb.Prior(&quot;Normal&quot;, mu=0, sigma=group_specific_sd)
+model.set_priors(group_specific=group_specific_prior)
 
-<span class="c1"># Not we use 2000 samples for tuning and increase the taget_accept to 0.99.</span>
-<span class="c1"># The default values result in divergences.</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.99</span><span class="p">)</span>
+# Not we use 2000 samples for tuning and increase the taget_accept to 0.99.
+# The default values result in divergences.
+results = model.fit(draws=1000, tune=2000, target_accept=0.99)
 </pre></div>
 </div>
 </div>
@@ -1476,12 +1476,12 @@ There was 1 divergence after tuning. Increase `target_accept` or reparameterize.
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span>
-              <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Intercept&#39;</span><span class="p">,</span> <span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">,</span> <span class="s1">&#39;condition&#39;</span><span class="p">,</span> <span class="s1">&#39;value_sigma&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;1|study&#39;</span><span class="p">,</span> <span class="s1">&#39;1|stimulus&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|study&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|stimulus&#39;</span><span class="p">,</span>
-                        <span class="s1">&#39;1|study_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;1|stimulus_sigma&#39;</span><span class="p">,</span> <span class="s1">&#39;condition|study_sigma&#39;</span><span class="p">,</span>
-                        <span class="p">],</span>
-              <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(results,
+              var_names=[&#39;Intercept&#39;, &#39;age&#39;, &#39;gender&#39;, &#39;condition&#39;, &#39;value_sigma&#39;,
+                        &#39;1|study&#39;, &#39;1|stimulus&#39;, &#39;condition|study&#39;, &#39;condition|stimulus&#39;,
+                        &#39;1|study_sigma&#39;, &#39;1|stimulus_sigma&#39;, &#39;condition|study_sigma&#39;,
+                        ],
+              compact=True);
 </pre></div>
 </div>
 </div>
@@ -1502,8 +1502,8 @@ sample, the gender of the experimenter, or any of the hundreds of others of betw
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
-<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
+%watermark -n -u -v -iv -w
 </pre></div>
 </div>
 </div>

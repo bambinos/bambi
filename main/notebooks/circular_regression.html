@@ -763,13 +763,13 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
-<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
-<span class="kn">from</span> <span class="nn">matplotlib.lines</span> <span class="kn">import</span> <span class="n">Line2D</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
+import bambi as bmb
+from matplotlib.lines import Line2D
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from scipy import stats
 </pre></div>
 </div>
 </div>
@@ -777,7 +777,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-white&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-white&quot;)
 </pre></div>
 </div>
 </div>
@@ -789,14 +789,14 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
-<span class="n">mus</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span>  <span class="o">-</span><span class="mf">2.5</span><span class="p">]</span>
-<span class="n">kappas</span> <span class="o">=</span> <span class="p">[</span><span class="mf">.001</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span>  <span class="mi">3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]</span>
-<span class="k">for</span> <span class="n">mu</span><span class="p">,</span> <span class="n">kappa</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">mus</span><span class="p">,</span> <span class="n">kappas</span><span class="p">):</span>
-    <span class="n">pdf</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">vonmises</span><span class="o">.</span><span class="n">pdf</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">mu</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;$\mu$ = </span><span class="si">{}</span><span class="s1">, $\kappa$ = </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">kappa</span><span class="p">))</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">([])</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">1</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>x = np.linspace(-np.pi, np.pi, 200)
+mus = [0., 0., 0.,  -2.5]
+kappas = [.001, 0.5,  3, 0.5]
+for mu, kappa in zip(mus, kappas):
+    pdf = stats.vonmises.pdf(x, kappa, loc=mu)
+    plt.plot(x, pdf, label=r&#39;$\mu$ = {}, $\kappa$ = {}&#39;.format(mu, kappa))
+plt.yticks([])
+plt.legend(loc=1);
 </pre></div>
 </div>
 </div>
@@ -812,10 +812,10 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">arctan</span><span class="p">(</span><span class="n">u</span><span class="p">))</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Reals&quot;</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Radians&quot;</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>u = np.linspace(-12, 12, 200)
+plt.plot(u, 2*np.arctan(u))
+plt.xlabel(&quot;Reals&quot;)
+plt.ylabel(&quot;Radians&quot;);
 </pre></div>
 </div>
 </div>
@@ -831,8 +831,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;periwinkles&quot;</span><span class="p">)</span>
-<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = bmb.load_data(&quot;periwinkles&quot;)
+data.head()
 </pre></div>
 </div>
 </div>
@@ -898,11 +898,11 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_vm</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;direction ~ distance&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;vonmises&quot;</span><span class="p">)</span>
-<span class="n">idata_vm</span> <span class="o">=</span> <span class="n">model_vm</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">include_mean</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_vm = bmb.Model(&quot;direction ~ distance&quot;, data, family=&quot;vonmises&quot;)
+idata_vm = model_vm.fit(include_mean=True)
 
-<span class="n">model_n</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;direction ~ distance&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-<span class="n">idata_n</span> <span class="o">=</span> <span class="n">model_n</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">include_mean</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+model_n = bmb.Model(&quot;direction ~ distance&quot;, data)
+idata_n = model_n.fit(include_mean=True)
 </pre></div>
 </div>
 </div>
@@ -996,7 +996,7 @@ The acceptance probability does not match the target. It is 0.8855, but should b
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata_vm</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;~direction_mean&quot;</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(idata_vm, var_names=[&quot;~direction_mean&quot;])
 </pre></div>
 </div>
 </div>
@@ -1079,23 +1079,23 @@ The acceptance probability does not match the target. It is 0.8855, but should b
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">posterior_mean</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">families</span><span class="o">.</span><span class="n">link</span><span class="o">.</span><span class="n">tan_2</span><span class="p">(</span><span class="n">idata_vm</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;direction_mean&quot;</span><span class="p">])</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">posterior_mean</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">)))</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">posterior_mean</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_, ax = plt.subplots(1,2, figsize=(8, 4), sharey=True)
+posterior_mean = bmb.families.link.tan_2(idata_vm.posterior[&quot;direction_mean&quot;])
+ax[0].plot(data.distance, posterior_mean.mean((&quot;chain&quot;, &quot;draw&quot;)))
+az.plot_hdi(data.distance, posterior_mean, ax=ax[0])
 
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span> <span class="s2">&quot;k.&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Distance travelled (in m)&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Direction of travel (radians)&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;VonMises Family&quot;</span><span class="p">)</span>
+ax[0].plot(data.distance, data.direction, &quot;k.&quot;)
+ax[0].set_xlabel(&quot;Distance travelled (in m)&quot;)
+ax[0].set_ylabel(&quot;Direction of travel (radians)&quot;)
+ax[0].set_title(&quot;VonMises Family&quot;)
 
-<span class="n">posterior_mean</span> <span class="o">=</span> <span class="n">idata_n</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;direction_mean&quot;</span><span class="p">]</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">posterior_mean</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">)))</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">posterior_mean</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+posterior_mean = idata_n.posterior[&quot;direction_mean&quot;]
+ax[1].plot(data.distance, posterior_mean.mean((&quot;chain&quot;, &quot;draw&quot;)))
+az.plot_hdi(data.distance, posterior_mean, ax=ax[1])
 
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">distance</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span> <span class="s2">&quot;k.&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Distance travelled (in m)&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Normal Family&quot;</span><span class="p">);</span>
+ax[1].plot(data.distance, data.direction, &quot;k.&quot;)
+ax[1].set_xlabel(&quot;Distance travelled (in m)&quot;)
+ax[1].set_title(&quot;Normal Family&quot;);
 </pre></div>
 </div>
 </div>
@@ -1114,27 +1114,27 @@ The acceptance probability does not match the target. It is 0.8855, but should b
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-<span class="n">ax0</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">121</span><span class="p">)</span>
-<span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">122</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;polar&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig = plt.figure(figsize=(12, 5))
+ax0 = plt.subplot(121)
+ax1 = plt.subplot(122, projection=&#39;polar&#39;)
 
-<span class="n">model_vm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata_vm</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
-<span class="n">pp_samples</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">idata_vm</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;posterior_predictive&quot;</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">200</span><span class="p">)[</span><span class="s2">&quot;direction&quot;</span><span class="p">]</span>
-<span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;C0&quot;</span> <span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="s2">&quot;C1&quot;</span><span class="p">]</span>
+model_vm.predict(idata_vm, kind=&quot;pps&quot;)
+pp_samples = az.extract_dataset(idata_vm, group=&quot;posterior_predictive&quot;, num_samples=200)[&quot;direction&quot;]
+colors = [&quot;C0&quot; , &quot;k&quot;, &quot;C1&quot;]
 
-<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">circ</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">((</span><span class="n">ax0</span><span class="p">,</span> <span class="n">ax1</span><span class="p">),</span> <span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;radians&quot;</span><span class="p">,</span> <span class="n">colors</span><span class="p">)):</span>
-    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">pp_samples</span><span class="p">:</span>
-        <span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>  <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span><span class="n">colors</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">},</span> <span class="n">is_circular</span><span class="o">=</span><span class="n">circ</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
-    <span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">idata_vm</span><span class="o">.</span><span class="n">observed_data</span><span class="p">[</span><span class="s2">&quot;direction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span><span class="n">colors</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;lw&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">},</span> <span class="n">is_circular</span><span class="o">=</span><span class="n">circ</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
-    <span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">idata_vm</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="p">[</span><span class="s2">&quot;direction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-                <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span><span class="n">colors</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="s2">&quot;ls&quot;</span><span class="p">:</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="s2">&quot;lw&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">},</span> <span class="n">is_circular</span><span class="o">=</span><span class="n">circ</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+for ax, circ in zip((ax0, ax1), (False, &quot;radians&quot;, colors)):
+    for s in pp_samples:
+        az.plot_kde(s.values,  plot_kwargs={&quot;color&quot;:colors[0], &quot;alpha&quot;: 0.25}, is_circular=circ, ax=ax)
+    az.plot_kde(idata_vm.observed_data[&quot;direction&quot;].values,
+                plot_kwargs={&quot;color&quot;:colors[1], &quot;lw&quot;:3}, is_circular=circ, ax=ax)
+    az.plot_kde(idata_vm.posterior_predictive[&quot;direction&quot;].values,
+                plot_kwargs={&quot;color&quot;:colors[2], &quot;ls&quot;:&quot;--&quot;, &quot;lw&quot;:3}, is_circular=circ, ax=ax)
 
-<span class="n">custom_lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">colors</span><span class="p">]</span>
+custom_lines = [Line2D([0], [0], color=c) for c in colors]
 
-<span class="n">ax0</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">custom_lines</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;posterior_predictive&quot;</span><span class="p">,</span> <span class="s2">&quot;Observed&quot;</span><span class="p">,</span> <span class="s1">&#39;mean posterior predictive&#39;</span><span class="p">])</span>
-<span class="n">ax0</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Directions (radians)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">18</span><span class="p">);</span>
+ax0.legend(custom_lines, [&quot;posterior_predictive&quot;, &quot;Observed&quot;, &#39;mean posterior predictive&#39;])
+ax0.set_yticks([])
+fig.suptitle(&quot;Directions (radians)&quot;, fontsize=18);
 </pre></div>
 </div>
 </div>
@@ -1157,8 +1157,8 @@ are usually modelled with the help of sin and cosine functions. You can read mor
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
-<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
+%watermark -n -u -v -iv -w
 </pre></div>
 </div>
 </div>

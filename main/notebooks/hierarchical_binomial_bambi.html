@@ -774,13 +774,13 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
-<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
+import bambi as bmb
+import matplotlib.pyplot as plt
+import numpy as np
 
-<span class="kn">from</span> <span class="nn">matplotlib.lines</span> <span class="kn">import</span> <span class="n">Line2D</span>
-<span class="kn">from</span> <span class="nn">matplotlib.patches</span> <span class="kn">import</span> <span class="n">Patch</span>
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 </pre></div>
 </div>
 </div>
@@ -788,8 +788,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
-<span class="n">random_seed</span> <span class="o">=</span> <span class="mi">1234</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
+random_seed = 1234
 </pre></div>
 </div>
 </div>
@@ -799,15 +799,15 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;batting&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>df = bmb.load_data(&quot;batting&quot;)
 
-<span class="c1"># Then clean some of the data</span>
-<span class="n">df</span><span class="p">[</span><span class="s2">&quot;AB&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;AB&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
-<span class="n">df</span><span class="p">[</span><span class="s2">&quot;batting_avg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;AB&quot;</span><span class="p">]</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;yearID&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">2016</span><span class="p">]</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">15</span><span class="p">]</span>
-<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+# Then clean some of the data
+df[&quot;AB&quot;] = df[&quot;AB&quot;].replace(0, np.nan)
+df = df.dropna()
+df[&quot;batting_avg&quot;] = df[&quot;H&quot;] / df[&quot;AB&quot;]
+df = df[df[&quot;yearID&quot;] &gt;= 2016]
+df = df.iloc[0:15]
+df.head(5)
 </pre></div>
 </div>
 </div>
@@ -999,8 +999,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">BLUE</span> <span class="o">=</span> <span class="s2">&quot;#2a5674&quot;</span>
-<span class="n">RED</span> <span class="o">=</span> <span class="s2">&quot;#b13f64&quot;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>BLUE = &quot;#2a5674&quot;
+RED = &quot;#b13f64&quot;
 </pre></div>
 </div>
 </div>
@@ -1008,58 +1008,58 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_, ax = plt.subplots(figsize=(10, 6))
 
-<span class="c1"># Customize x limits.</span>
-<span class="c1"># This adds space on the left side to indicate percentage of hits.</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">120</span><span class="p">,</span> <span class="mi">320</span><span class="p">)</span>
+# Customize x limits.
+# This adds space on the left side to indicate percentage of hits.
+ax.set_xlim(-120, 320)
 
-<span class="c1"># Add dots for the times at bat and the number of hits</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;AB&quot;</span><span class="p">],</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)),</span> <span class="n">s</span><span class="o">=</span><span class="mi">140</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">],</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)),</span> <span class="n">s</span><span class="o">=</span><span class="mi">140</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">RED</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+# Add dots for the times at bat and the number of hits
+ax.scatter(df[&quot;AB&quot;], list(range(15)), s=140, color=BLUE, zorder=10)
+ax.scatter(df[&quot;H&quot;], list(range(15)), s=140, color=RED, zorder=10)
 
-<span class="c1"># Also a line connecting them</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)),</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;AB&quot;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#b3b3b3&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+# Also a line connecting them
+ax.hlines(list(range(15)), df[&quot;AB&quot;], df[&quot;H&quot;], color=&quot;#b3b3b3&quot;, lw=4)
 
-<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.4</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#a3a3a3&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)),</span> <span class="o">-</span><span class="mi">110</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#b3b3b3&quot;</span><span class="p">,</span> <span class="n">capstyle</span><span class="o">=</span><span class="s2">&quot;round&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="mi">60</span> <span class="o">*</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;batting_avg&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">110</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)),</span> <span class="n">s</span><span class="o">=</span><span class="mi">28</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">RED</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+ax.axvline(ls=&quot;--&quot;, lw=1.4, color=&quot;#a3a3a3&quot;)
+ax.hlines(list(range(15)), -110, -50, lw=6, color=&quot;#b3b3b3&quot;, capstyle=&quot;round&quot;)
+ax.scatter(60 * df[&quot;batting_avg&quot;] - 110, list(range(15)), s=28, color=RED, zorder=10)
 
-<span class="c1"># Add the percentage of hits</span>
-<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">):</span>
-    <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;batting_avg&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="si">}</span><span class="s2">%&quot;</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#333&quot;</span><span class="p">)</span>
+# Add the percentage of hits
+for j in range(15):
+    text = f&quot;{round(df[&#39;batting_avg&#39;].iloc[j] * 100)}%&quot;
+    ax.text(-12, j, text, ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=14, color=&quot;#333&quot;)
 
-<span class="c1"># Customize tick positions and labels</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">15</span><span class="p">)))</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;playerID&quot;</span><span class="p">])</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+# Customize tick positions and labels
+ax.yaxis.set_ticks(list(range(15)))
+ax.yaxis.set_ticklabels(df[&quot;playerID&quot;])
+ax.xaxis.set_ticks(range(0, 400, 100))
 
-<span class="c1"># Create handles for the legend (just dots and labels)</span>
-<span class="n">handles</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">Line2D</span><span class="p">(</span>
-        <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;At Bat&quot;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;None&quot;</span><span class="p">,</span> <span class="n">markeredgewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">markerfacecolor</span><span class="o">=</span><span class="n">RED</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">12</span>
-    <span class="p">),</span>
-    <span class="n">Line2D</span><span class="p">(</span>
-        <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hits&quot;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;None&quot;</span><span class="p">,</span> <span class="n">markeredgewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">markerfacecolor</span><span class="o">=</span><span class="n">BLUE</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">13</span>
-    <span class="p">)</span>
-<span class="p">]</span>
+# Create handles for the legend (just dots and labels)
+handles = [
+    Line2D(
+        [0], [0], label=&quot;At Bat&quot;, marker=&quot;o&quot;, color=&quot;None&quot;, markeredgewidth=0,
+        markerfacecolor=RED, markersize=12
+    ),
+    Line2D(
+        [0], [0], label=&quot;Hits&quot;, marker=&quot;o&quot;, color=&quot;None&quot;, markeredgewidth=0,
+        markerfacecolor=BLUE, markersize=13
+    )
+]
 
-<span class="c1"># Add legend on top-right corner</span>
-<span class="n">legend</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
-    <span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">,</span>
-    <span class="n">loc</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
-    <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
-    <span class="n">handletextpad</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
-    <span class="n">frameon</span><span class="o">=</span><span class="kc">True</span>
-<span class="p">)</span>
+# Add legend on top-right corner
+legend = ax.legend(
+    handles=handles,
+    loc=1,
+    fontsize=14,
+    handletextpad=0.4,
+    frameon=True
+)
 
-<span class="c1"># Finally add labels and a title</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Count&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Player&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;How often do batters hit the ball?&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">);</span>
+# Finally add labels and a title
+ax.set_xlabel(&quot;Count&quot;, fontsize=14)
+ax.set_ylabel(&quot;Player&quot;, fontsize=14)
+ax.set_title(&quot;How often do batters hit the ball?&quot;, fontsize=20);
 </pre></div>
 </div>
 </div>
@@ -1094,8 +1094,8 @@ a maximum-likelihood estimation approach. Nonetheless, they can also impact the 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_non_hierarchical</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;p(H, AB) ~ 0 + playerID&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;binomial&quot;</span><span class="p">)</span>
-<span class="n">model_non_hierarchical</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_non_hierarchical = bmb.Model(&quot;p(H, AB) ~ 0 + playerID&quot;, df, family=&quot;binomial&quot;)
+model_non_hierarchical
 </pre></div>
 </div>
 </div>
@@ -1119,7 +1119,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_non_hierarchical</span> <span class="o">=</span> <span class="n">model_non_hierarchical</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>idata_non_hierarchical = model_non_hierarchical.fit(random_seed=random_seed)
 </pre></div>
 </div>
 </div>
@@ -1173,7 +1173,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">idata_non_hierarchical</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(idata_non_hierarchical, compact=False);
 </pre></div>
 </div>
 </div>
@@ -1206,8 +1206,8 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_hierarchical</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;p(H, AB) ~ 1 + (1|playerID)&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;binomial&quot;</span><span class="p">)</span>
-<span class="n">model_hierarchical</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_hierarchical = bmb.Model(&quot;p(H, AB) ~ 1 + (1|playerID)&quot;, df, family=&quot;binomial&quot;)
+model_hierarchical
 </pre></div>
 </div>
 </div>
@@ -1233,7 +1233,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_hierarchical</span> <span class="o">=</span> <span class="n">model_hierarchical</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>idata_hierarchical = model_hierarchical.fit(random_seed=random_seed)
 </pre></div>
 </div>
 </div>
@@ -1294,8 +1294,8 @@ There were 18 divergences after tuning. Increase `target_accept` or reparameteri
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_prior</span> <span class="o">=</span> <span class="n">model_hierarchical</span><span class="o">.</span><span class="n">prior_predictive</span><span class="p">()</span>
-<span class="n">prior</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">idata_prior</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;prior_predictive&quot;</span><span class="p">)[</span><span class="s2">&quot;p(H, AB)&quot;</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>idata_prior = model_hierarchical.prior_predictive()
+prior = az.extract_dataset(idata_prior, group=&quot;prior_predictive&quot;)[&quot;p(H, AB)&quot;]
 </pre></div>
 </div>
 </div>
@@ -1305,35 +1305,35 @@ There were 18 divergences after tuning. Increase `target_accept` or reparameteri
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># We define this function because this plot is going to be repeated below.</span>
-<span class="k">def</span> <span class="nf">plot_prior_predictive</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">prior</span><span class="p">):</span>
-    <span class="n">AB</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;AB&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-    <span class="n">H</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># We define this function because this plot is going to be repeated below.
+def plot_prior_predictive(df, prior):
+    AB = df[&quot;AB&quot;].values
+    H = df[&quot;H&quot;].values
 
-    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="s2">&quot;col&quot;</span><span class="p">)</span>
+    fig, axes = plt.subplots(5, 3, figsize=(10, 6), sharex=&quot;col&quot;)
 
-    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">axes</span><span class="o">.</span><span class="n">ravel</span><span class="p">()):</span>
-        <span class="n">pps</span> <span class="o">=</span> <span class="n">prior</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;p(H, AB)_dim_0&quot;</span><span class="p">:</span><span class="n">idx</span><span class="p">})</span>
-        <span class="n">ab</span> <span class="o">=</span> <span class="n">AB</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-        <span class="n">h</span> <span class="o">=</span> <span class="n">H</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-        <span class="n">hist</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">pps</span> <span class="o">/</span> <span class="n">ab</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#a3a3a3&quot;</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">h</span> <span class="o">/</span> <span class="n">ab</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">RED</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labelsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    for idx, ax in enumerate(axes.ravel()):
+        pps = prior.sel({&quot;p(H, AB)_dim_0&quot;:idx})
+        ab = AB[idx]
+        h = H[idx]
+        hist = ax.hist(pps / ab, bins=25, color=&quot;#a3a3a3&quot;)
+        ax.axvline(h / ab, color=RED, lw=2)
+        ax.set_yticks([])
+        ax.tick_params(labelsize=12)
 
-    <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.025</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.975</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.125</span><span class="p">)</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
-        <span class="n">handles</span><span class="o">=</span><span class="p">[</span><span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Observed proportion&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">RED</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)],</span>
-        <span class="n">handlelength</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
-        <span class="n">handletextpad</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
-        <span class="n">borderaxespad</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="n">fontsize</span><span class="o">=</span><span class="mi">11</span><span class="p">,</span>
-        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.975</span><span class="p">,</span> <span class="mf">0.92</span><span class="p">),</span>
-        <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;right&quot;</span>
+    fig.subplots_adjust(left=0.025, right=0.975, hspace=0.05, wspace=0.05, bottom=0.125)
+    fig.legend(
+        handles=[Line2D([0], [0], label=&quot;Observed proportion&quot;, color=RED, linewidth=2)],
+        handlelength=1.5,
+        handletextpad=0.8,
+        borderaxespad=0,
+        frameon=True,
+        fontsize=11,
+        bbox_to_anchor=(0.975, 0.92),
+        loc=&quot;right&quot;
 
-    <span class="p">)</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.025</span><span class="p">,</span> <span class="s2">&quot;Prior probability of hitting&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;baseline&quot;</span><span class="p">)</span>
+    )
+    fig.text(0.5, 0.025, &quot;Prior probability of hitting&quot;, fontsize=15, ha=&quot;center&quot;, va=&quot;baseline&quot;)
 </pre></div>
 </div>
 </div>
@@ -1341,7 +1341,7 @@ There were 18 divergences after tuning. Increase `target_accept` or reparameteri
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_prior_predictive</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">prior</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_prior_predictive(df, prior)
 </pre></div>
 </div>
 </div>
@@ -1366,12 +1366,12 @@ There were 18 divergences after tuning. Increase `target_accept` or reparameteri
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">priors</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;Intercept&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-    <span class="s2">&quot;1|playerID&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;HalfNormal&quot;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
-<span class="p">}</span>
-<span class="n">model_hierarchical</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;p(H, AB) ~ 1 + (1|playerID)&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;binomial&quot;</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">)</span>
-<span class="n">model_hierarchical</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>priors = {
+    &quot;Intercept&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=1),
+    &quot;1|playerID&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=bmb.Prior(&quot;HalfNormal&quot;, sigma=1))
+}
+model_hierarchical = bmb.Model(&quot;p(H, AB) ~ 1 + (1|playerID)&quot;, df, family=&quot;binomial&quot;, priors=priors)
+model_hierarchical
 </pre></div>
 </div>
 </div>
@@ -1398,10 +1398,10 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_hierarchical</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
-<span class="n">idata_prior</span> <span class="o">=</span> <span class="n">model_hierarchical</span><span class="o">.</span><span class="n">prior_predictive</span><span class="p">()</span>
-<span class="n">prior</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">idata_prior</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;prior_predictive&quot;</span><span class="p">)[</span><span class="s2">&quot;p(H, AB)&quot;</span><span class="p">]</span>
-<span class="n">plot_prior_predictive</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">prior</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_hierarchical.build()
+idata_prior = model_hierarchical.prior_predictive()
+prior = az.extract_dataset(idata_prior, group=&quot;prior_predictive&quot;)[&quot;p(H, AB)&quot;]
+plot_prior_predictive(df, prior)
 </pre></div>
 </div>
 </div>
@@ -1426,7 +1426,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_hierarchical</span> <span class="o">=</span> <span class="n">model_hierarchical</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>idata_hierarchical = model_hierarchical.fit(random_seed=random_seed)
 </pre></div>
 </div>
 </div>
@@ -1483,7 +1483,7 @@ There were 11 divergences after tuning. Increase `target_accept` or reparameteri
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata_hierarchical</span> <span class="o">=</span> <span class="n">model_hierarchical</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="n">random_seed</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>idata_hierarchical = model_hierarchical.fit(tune=2000, draws=2000, target_accept=0.95, random_seed=random_seed)
 </pre></div>
 </div>
 </div>
@@ -1536,8 +1536,8 @@ Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;1|playerID&quot;</span><span class="p">,</span> <span class="s2">&quot;1|playerID_sigma&quot;</span><span class="p">]</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">idata_hierarchical</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="n">var_names</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>var_names = [&quot;Intercept&quot;, &quot;1|playerID&quot;, &quot;1|playerID_sigma&quot;]
+az.plot_trace(idata_hierarchical, var_names=var_names, compact=False);
 </pre></div>
 </div>
 </div>
@@ -1559,8 +1559,8 @@ Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_non_hierarchical</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata_non_hierarchical</span><span class="p">)</span>
-<span class="n">model_hierarchical</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata_hierarchical</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_non_hierarchical.predict(idata_non_hierarchical)
+model_hierarchical.predict(idata_hierarchical)
 </pre></div>
 </div>
 </div>
@@ -1569,37 +1569,37 @@ Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_, ax = plt.subplots(figsize = (8, 8))
 
-<span class="c1"># Add vertical line for the global probability of hitting</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;AB&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+# Add vertical line for the global probability of hitting
+ax.axvline(x=(df[&quot;H&quot;] / df[&quot;AB&quot;]).mean(), ls=&quot;--&quot;, color=&quot;black&quot;, alpha=0.5)
 
-<span class="c1"># Create forestplot with ArviZ, only for the mean.</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_forest</span><span class="p">(</span>
-    <span class="p">[</span><span class="n">idata_non_hierarchical</span><span class="p">,</span> <span class="n">idata_hierarchical</span><span class="p">],</span>
-    <span class="n">var_names</span><span class="o">=</span><span class="s2">&quot;p(H, AB)_mean&quot;</span><span class="p">,</span>
-    <span class="n">combined</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-    <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;#666666&quot;</span><span class="p">,</span> <span class="n">RED</span><span class="p">],</span>
-    <span class="n">linewidth</span><span class="o">=</span><span class="mf">2.6</span><span class="p">,</span>
-    <span class="n">markersize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
-    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span>
-<span class="p">)</span>
+# Create forestplot with ArviZ, only for the mean.
+az.plot_forest(
+    [idata_non_hierarchical, idata_hierarchical],
+    var_names=&quot;p(H, AB)_mean&quot;,
+    combined=True,
+    colors=[&quot;#666666&quot;, RED],
+    linewidth=2.6,
+    markersize=8,
+    ax=ax
+)
 
-<span class="c1"># Create custom y axis tick labels</span>
-<span class="n">ylabels</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;H: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">h</span><span class="p">)</span><span class="si">}</span><span class="s2">, AB: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">ab</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">ab</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;AB&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)]</span>
-<span class="n">ylabels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">ylabels</span><span class="p">))</span>
+# Create custom y axis tick labels
+ylabels = [f&quot;H: {round(h)}, AB: {round(ab)}&quot; for h, ab in zip(df[&quot;H&quot;].values, df[&quot;AB&quot;].values)]
+ylabels = list(reversed(ylabels))
 
-<span class="c1"># Put the labels for the y axis in the mid of the original location of the tick marks.</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">ylabels</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+# Put the labels for the y axis in the mid of the original location of the tick marks.
+ax.set_yticklabels(ylabels, ha=&quot;right&quot;)
 
-<span class="c1"># Create legend</span>
-<span class="n">handles</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">Patch</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Non-hierarchical&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;#666666&quot;</span><span class="p">),</span>
-    <span class="n">Patch</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;Hierarchical&quot;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">RED</span><span class="p">),</span>
-    <span class="n">Line2D</span><span class="p">([</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Mean probability&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
-<span class="p">]</span>
+# Create legend
+handles = [
+    Patch(label=&quot;Non-hierarchical&quot;, facecolor=&quot;#666666&quot;),
+    Patch(label=&quot;Hierarchical&quot;, facecolor=RED),
+    Line2D([0], [0], label=&quot;Mean probability&quot;, ls=&quot;--&quot;, color=&quot;black&quot;, alpha=0.5)
+]
 
-<span class="n">legend</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">);</span>
+legend = ax.legend(handles=handles, loc=4, fontsize=14, frameon=True, framealpha=0.8);
 </pre></div>
 </div>
 </div>
@@ -1617,8 +1617,8 @@ Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
-<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
+%watermark -n -u -v -iv -w
 </pre></div>
 </div>
 </div>

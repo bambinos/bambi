@@ -763,11 +763,11 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
-<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
+import bambi as bmb
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 </pre></div>
 </div>
 </div>
@@ -775,8 +775,8 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
-<span class="n">SEED</span> <span class="o">=</span> <span class="mi">7355608</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
+SEED = 7355608
 </pre></div>
 </div>
 </div>
@@ -789,8 +789,8 @@ day is a baseline, and sleep deprivation started after day 3. The subjects in th
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;sleepstudy&quot;</span><span class="p">)</span>
-<span class="n">data</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = bmb.load_data(&quot;sleepstudy&quot;)
+data
 </pre></div>
 </div>
 </div>
@@ -903,29 +903,29 @@ day is a baseline, and sleep deprivation started after day 3. The subjects in th
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.075</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.975</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.075</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.925</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.03</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def plot_data(data):
+    fig, axes = plt.subplots(2, 9, figsize=(16, 7.5), sharey=True, sharex=True, dpi=300, constrained_layout=False)
+    fig.subplots_adjust(left=0.075, right=0.975, bottom=0.075, top=0.925, wspace=0.03)
 
-    <span class="n">axes_flat</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    axes_flat = axes.ravel()
 
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">subject</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Subject&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()):</span>
-        <span class="n">ax</span> <span class="o">=</span> <span class="n">axes_flat</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">idx</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Subject&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">subject</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-        <span class="n">days</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;Days&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
-        <span class="n">reaction</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;Reaction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    for i, subject in enumerate(data[&quot;Subject&quot;].unique()):
+        ax = axes_flat[i]
+        idx = data.index[data[&quot;Subject&quot;] == subject].tolist()
+        days = data.loc[idx, &quot;Days&quot;].values
+        reaction = data.loc[idx, &quot;Reaction&quot;].values
 
-        <span class="c1"># Plot observed data points</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">days</span><span class="p">,</span> <span class="n">reaction</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">,</span> <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+        # Plot observed data points
+        ax.scatter(days, reaction, color=&quot;C0&quot;, ec=&quot;black&quot;, alpha=0.7)
 
-        <span class="c1"># Add a title</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Subject: </span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+        # Add a title
+        ax.set_title(f&quot;Subject: {subject}&quot;, fontsize=14)
 
-    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">])</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="s2">&quot;Days&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;Reaction time (ms)&quot;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
+    ax.xaxis.set_ticks([0, 2, 4, 6, 8])
+    fig.text(0.5, 0.02, &quot;Days&quot;, fontsize=14)
+    fig.text(0.03, 0.5, &quot;Reaction time (ms)&quot;, rotation=90, fontsize=14, va=&quot;center&quot;)
 
-    <span class="k">return</span> <span class="n">axes</span>
+    return axes
 </pre></div>
 </div>
 </div>
@@ -933,7 +933,7 @@ day is a baseline, and sleep deprivation started after day 3. The subjects in th
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_data</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_data(data);
 </pre></div>
 </div>
 </div>
@@ -968,7 +968,7 @@ subject-specific intercepts are added implicitly. We could suppress them by addi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;Reaction ~ 1 + Days + (Days | Subject)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model = bmb.Model(&quot;Reaction ~ 1 + Days + (Days | Subject)&quot;, data)
 </pre></div>
 </div>
 </div>
@@ -977,7 +977,7 @@ subject-specific intercepts are added implicitly. We could suppress them by addi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model
 </pre></div>
 </div>
 </div>
@@ -1010,7 +1010,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">idata</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>idata = model.fit(draws=2000, random_seed=SEED)
 </pre></div>
 </div>
 </div>
@@ -1067,7 +1067,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;Days&quot;</span><span class="p">],</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;stats&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(idata, var_names=[&quot;Intercept&quot;, &quot;Days&quot;], kind=&quot;stats&quot;)
 </pre></div>
 </div>
 </div>
@@ -1129,7 +1129,7 @@ better at reaction times. Looks like they took this as a serious challenge!</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1|Subject&quot;</span><span class="p">,</span> <span class="s2">&quot;Days|Subject&quot;</span><span class="p">]);</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(idata, var_names=[&quot;1|Subject&quot;, &quot;Days|Subject&quot;]);
 </pre></div>
 </div>
 </div>
@@ -1151,19 +1151,19 @@ better at reaction times. Looks like they took this as a serious challenge!</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#  extract a subsample from the posterior and stack the chain and draw dims</span>
-<span class="n">posterior</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>#  extract a subsample from the posterior and stack the chain and draw dims
+posterior = az.extract_dataset(idata, num_samples=500)
 
-<span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="n">posterior</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="s2">&quot;1|Subject&quot;</span><span class="p">,</span> <span class="s2">&quot;Days|Subject&quot;</span><span class="p">,</span>
-                       <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;Subject__factor_dim&quot;</span><span class="p">,</span>
-                       <span class="n">add_guide</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                       <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+_, ax = plt.subplots()
+posterior.plot.scatter(&quot;1|Subject&quot;, &quot;Days|Subject&quot;,
+                       hue=&quot;Subject__factor_dim&quot;,
+                       add_guide=False,
+                       ax=ax)
 
-<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="s2">&quot;0.25&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="s2">&quot;0.25&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Subject-specific intercept&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Subject-specific slope&quot;</span><span class="p">);</span>
+ax.axhline(c=&quot;0.25&quot;, ls=&quot;--&quot;)
+ax.axvline(c=&quot;0.25&quot;, ls=&quot;--&quot;)
+ax.set_xlabel(&quot;Subject-specific intercept&quot;)
+ax.set_ylabel(&quot;Subject-specific slope&quot;);
 </pre></div>
 </div>
 </div>
@@ -1181,26 +1181,26 @@ better at reaction times. Looks like they took this as a serious challenge!</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Obtain the posterior of the mean</span>
-<span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Obtain the posterior of the mean
+model.predict(idata)
 
-<span class="c1"># Plot the data</span>
-<span class="n">axes</span> <span class="o">=</span> <span class="n">plot_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+# Plot the data
+axes = plot_data(data)
 
 
-<span class="c1"># Take the posterior of the mean reaction time</span>
-<span class="n">reaction_mean</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">idata</span><span class="p">)[</span><span class="s2">&quot;Reaction_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+# Take the posterior of the mean reaction time
+reaction_mean = az.extract_dataset(idata)[&quot;Reaction_mean&quot;].values
 
-<span class="k">for</span> <span class="n">subject</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Subject&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span> <span class="n">axes</span><span class="o">.</span><span class="n">ravel</span><span class="p">()):</span>
+for subject, ax in zip(data[&quot;Subject&quot;].unique(), axes.ravel()):
 
-    <span class="n">idx</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Subject&quot;</span><span class="p">]</span><span class="o">==</span> <span class="n">subject</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-    <span class="n">days</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;Days&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    idx = data.index[data[&quot;Subject&quot;]== subject].tolist()
+    days = data.loc[idx, &quot;Days&quot;].values
 
-    <span class="c1"># Plot highest density interval / credibility interval</span>
-    <span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">days</span><span class="p">,</span> <span class="n">reaction_mean</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    # Plot highest density interval / credibility interval
+    az.plot_hdi(days, reaction_mean[idx].T[np.newaxis], color=&quot;C0&quot;, ax=ax)
 
-    <span class="c1"># Plot mean regression line</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">days</span><span class="p">,</span> <span class="n">reaction_mean</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">)</span>
+    # Plot mean regression line
+    ax.plot(days, reaction_mean[idx].mean(axis=1), color=&quot;C0&quot;)
 </pre></div>
 </div>
 </div>
@@ -1215,8 +1215,8 @@ better at reaction times. Looks like they took this as a serious challenge!</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
-<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
+%watermark -n -u -v -iv -w
 </pre></div>
 </div>
 </div>
