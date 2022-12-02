@@ -112,6 +112,7 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
                         # For categoric predictors, select the most frequent level.
                         elif component.kind == "categoric":
                             data_dict[name] = mode(data[name])
+
     cap_data = pd.DataFrame(data_dict)
 
     # Make sure new types are same types than the original columns
