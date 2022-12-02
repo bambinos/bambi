@@ -7,7 +7,7 @@ from bambi.terms import CommonTerm, GroupSpecificTerm, OffsetTerm, ResponseTerm
 
 class ConstantComponent:
     def __init__(self, name, prior, response_name, spec):
-        self.name = with_suffix(name, response_name)
+        self.name = with_suffix(response_name, name)
         self.prior = prior
         self.spec = spec
 

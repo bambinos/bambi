@@ -65,20 +65,30 @@ class Family:
     def link(self, value):
         assert isinstance(value, dict), "Link functions must be specified with a 'dict'"
         links = {}
-        for param_name, param_value in value.items():
-            if isinstance(param_value, str):
-                param_link = self.check_string_link(param_value)
-            elif isinstance(param_value, Link):
-                param_link = param_value
+        for param_name, link_name in value.items():
+            if isinstance(link_name, str):
+                param_link = self.check_string_link(link_name, param_name)
+            elif isinstance(link_name, Link):
+                param_link = link_name
             else:
                 raise ValueError("'.link' must be set to a string or a Link instance.")
             links[param_name] = param_link
         self._link = links
 
-    def check_string_link(self, name):
-        if not name in self.SUPPORTED_LINKS:
-            raise ValueError(f"Link '{name}' cannot be used with family '{self.name}'")
-        return Link(name)
+    def check_string_link(self, link_name, param_name):
+        # Distributional families
+        # NOTE: Perhaps this has to be always the case?
+        if isinstance(self.SUPPORTED_LINKS, dict):
+            supported_links = self.SUPPORTED_LINKS[param_name]
+            if not link_name in supported_links:
+                raise ValueError(
+                    f"Link '{link_name}' cannot be used for '{param_name}' with family "
+                    f"'{self.name}'"
+                )
+        else:
+            if not link_name in self.SUPPORTED_LINKS:
+                raise ValueError(f"Link '{link_name}' cannot be used with family '{self.name}'")
+        return Link(link_name)
 
     def set_alias(self, name, alias):
         """Set alias for an auxiliary variable of the family

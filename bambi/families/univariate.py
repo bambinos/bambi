@@ -55,7 +55,7 @@ class Bernoulli(UnivariateFamily):
 
 
 class Beta(UnivariateFamily):
-    SUPPORTED_LINKS = ["identity", "logit", "probit", "cloglog"]
+    SUPPORTED_LINKS = {"mu": ["logit", "probit", "cloglog"], "kappa": ["log"]}
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
