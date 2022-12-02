@@ -1,5 +1,6 @@
 # pylint: disable = protected-access
 # pylint: disable = too-many-function-args
+# pylint: disable = too-many-nested-blocks
 from statistics import mode
 
 import arviz as az
@@ -7,6 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from formulae.terms.call import Call
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
@@ -96,14 +98,20 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
     for term in terms.values():
         if hasattr(term, "components"):
             for component in term.components:
-                name = component.name
-                if name not in data_dict:
-                    # For numeric predictors, select the mean.
-                    if component.kind == "numeric":
-                        data_dict[name] = np.mean(data[name])
-                    # For categoric predictors, select the most frequent level.
-                    elif component.kind == "categoric":
-                        data_dict[name] = mode(data[name])
+                # If the component is a function call, use the argument names
+                if isinstance(component, Call):
+                    names = [arg.name for arg in component.call.args]
+                else:
+                    names = [component.name]
+
+                for name in names:
+                    if name not in data_dict:
+                        # For numeric predictors, select the mean.
+                        if component.kind == "numeric":
+                            data_dict[name] = np.mean(data[name])
+                        # For categoric predictors, select the most frequent level.
+                        elif component.kind == "categoric":
+                            data_dict[name] = mode(data[name])
 
     cap_data = pd.DataFrame(data_dict)
 
@@ -113,7 +121,9 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
     return cap_data
 
 
-def plot_cap(model, idata, covariates, use_hdi=True, hdi_prob=None, legend=True, ax=None):
+def plot_cap(
+    model, idata, covariates, use_hdi=True, hdi_prob=None, transforms=None, legend=True, ax=None
+):
     """Plot Conditional Adjusted Predictions
 
     Parameters
@@ -133,6 +143,9 @@ def plot_cap(model, idata, covariates, use_hdi=True, hdi_prob=None, legend=True,
         Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
     legend : bool, optional
         Whether to automatically include a legend in the plot. Defaults to ``True``.
+    transforms : dict, optional
+        Transformations that are applied to each of the variables being plotted. The keys are the
+        name of the variables, and the values are functions to be applied. Defaults to ``None``.
     ax : matplotlib.axes._subplots.AxesSubplot, optional
         A matplotlib axes object. If None, this function instantiates a new axes object.
         Defaults to ``None``.
@@ -161,7 +174,13 @@ def plot_cap(model, idata, covariates, use_hdi=True, hdi_prob=None, legend=True,
     if not 0 < hdi_prob < 1:
         raise ValueError(f"'hdi_prob' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
 
-    y_hat = idata.posterior[f"{model.response.name}_mean"]
+    if transforms is None:
+        transforms = {}
+
+    # If passed, use transformation
+    response_transform = transforms.get(model.response.name, identity)
+
+    y_hat = response_transform(idata.posterior[f"{model.response.name}_mean"])
     y_hat_mean = y_hat.mean(("chain", "draw"))
 
     if use_hdi:
@@ -178,7 +197,9 @@ def plot_cap(model, idata, covariates, use_hdi=True, hdi_prob=None, legend=True,
 
     main = covariates[0]
     if is_numeric_dtype(cap_data[main]):
-        ax = _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, ax)
+        ax = _plot_cap_numeric(
+            covariates, cap_data, y_hat_mean, y_hat_bounds, transforms, legend, ax
+        )
     elif is_categorical_dtype(cap_data[main]) or is_string_dtype(cap_data[main]):
         ax = _plot_cap_categoric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, ax)
     else:
@@ -188,20 +209,24 @@ def plot_cap(model, idata, covariates, use_hdi=True, hdi_prob=None, legend=True,
     return fig, ax
 
 
-def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, ax):
+def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms, legend, ax):
+    main = covariates[0]
+    # Extract transform
+    transform_main = transforms.get(main, identity)
     if len(covariates) == 1:
-        main = covariates[0]
-        ax.plot(cap_data[main], y_hat_mean, solid_capstyle="butt")
-        ax.fill_between(cap_data[main], y_hat_bounds[0], y_hat_bounds[1], alpha=0.5)
+        values_main = transform_main(cap_data[main])
+        ax.plot(values_main, y_hat_mean, solid_capstyle="butt")
+        ax.fill_between(values_main, y_hat_bounds[0], y_hat_bounds[1], alpha=0.5)
     else:
-        main, group = covariates
+        group = covariates[1]
         groups = get_unique_levels(cap_data[group])
 
         for i, grp in enumerate(groups):
             idx = (cap_data[group] == grp).values
-            ax.plot(cap_data.loc[idx, main], y_hat_mean[idx], color=f"C{i}", solid_capstyle="butt")
+            values_main = transform_main(cap_data.loc[idx, main])
+            ax.plot(values_main, y_hat_mean[idx], color=f"C{i}", solid_capstyle="butt")
             ax.fill_between(
-                cap_data.loc[idx, main],
+                values_main,
                 y_hat_bounds[0][idx],
                 y_hat_bounds[1][idx],
                 alpha=0.3,
@@ -261,3 +286,7 @@ def _plot_cap_categoric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, 
     ax.set_xticks(idxs_main)
     ax.set_xticklabels(main_levels)
     return ax
+
+
+def identity(x):
+    return x
