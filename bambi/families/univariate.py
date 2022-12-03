@@ -24,7 +24,11 @@ class UnivariateFamily(Family):
 
 
 class AsymmetricLaplace(UnivariateFamily):
-    SUPPORTED_LINKS = ["identity", "log", "inverse"]
+    SUPPORTED_LINKS = {
+        "mu": ["identity", "log", "inverse"],
+        "b": ["log"],
+        "q": ["logit", "probit", "cloglog"],
+    }
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         "Sample from posterior predictive distribution"
@@ -35,7 +39,7 @@ class AsymmetricLaplace(UnivariateFamily):
 
 
 class Bernoulli(UnivariateFamily):
-    SUPPORTED_LINKS = ["identity", "logit", "probit", "cloglog"]
+    SUPPORTED_LINKS = {"p": ["identity", "logit", "probit", "cloglog"]}
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         "Sample from posterior predictive distribution"
@@ -74,7 +78,7 @@ class Beta(UnivariateFamily):
 
 
 class Binomial(UnivariateFamily):
-    SUPPORTED_LINKS = ["identity", "logit", "probit", "cloglog"]
+    SUPPORTED_LINKS = {"p": ["identity", "logit", "probit", "cloglog"]}
 
     def posterior_predictive(self, model, posterior, linear_predictor, trials=None):
         if trials is None:
@@ -91,7 +95,7 @@ class Binomial(UnivariateFamily):
 
 
 class Gamma(UnivariateFamily):
-    SUPPORTED_LINKS = ["identity", "log", "inverse"]
+    SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "alpha": ["log"]}
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
@@ -109,7 +113,7 @@ class Gamma(UnivariateFamily):
 
 
 class Gaussian(UnivariateFamily):
-    SUPPORTED_LINKS = ["identity", "log", "inverse"]
+    SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "sigma": ["log"]}
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         "Sample from posterior predictive distribution"
@@ -119,7 +123,7 @@ class Gaussian(UnivariateFamily):
 
 
 class NegativeBinomial(UnivariateFamily):
-    SUPPORTED_LINKS = ["identity", "log", "cloglog"]
+    SUPPORTED_LINKS = {"mu": ["identity", "log", "cloglog"], "alpha": ["log"]}
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
@@ -129,7 +133,7 @@ class NegativeBinomial(UnivariateFamily):
 
 
 class Laplace(UnivariateFamily):
-    SUPPORTED_LINKS = ["identity", "log", "inverse"]
+    SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "b": ["log"]}
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         "Sample from posterior predictive distribution"
@@ -139,7 +143,7 @@ class Laplace(UnivariateFamily):
 
 
 class Poisson(UnivariateFamily):
-    SUPPORTED_LINKS = ["identity", "log"]
+    SUPPORTED_LINKS = {"mu": ["identity", "log"]}
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
@@ -147,7 +151,7 @@ class Poisson(UnivariateFamily):
 
 
 class StudentT(UnivariateFamily):
-    SUPPORTED_LINKS = ["identity", "log", "inverse"]
+    SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "sigma": ["log"], "nu": ["log"]}
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
@@ -162,7 +166,7 @@ class StudentT(UnivariateFamily):
 
 
 class VonMises(UnivariateFamily):
-    SUPPORTED_LINKS = ["identity", "tan_2"]
+    SUPPORTED_LINKS = {"mu": ["identity", "tan_2"], "kappa": ["log"]}
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
@@ -171,7 +175,7 @@ class VonMises(UnivariateFamily):
 
 
 class Wald(UnivariateFamily):
-    SUPPORTED_LINKS = ["inverse", "inverse_squared", "identity", "log"]
+    SUPPORTED_LINKS = {"mu": ["inverse", "inverse_squared", "identity", "log"], "lam": ["log"]}
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)

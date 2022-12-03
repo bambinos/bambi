@@ -16,7 +16,7 @@ class MultivariateFamily(Family):
 
 
 class Categorical(MultivariateFamily):
-    SUPPORTED_LINKS = ["softmax"]
+    SUPPORTED_LINKS = {"p": ["softmax"]}
 
     def predict(self, model, posterior, linear_predictor):
         response_var = model.response.name + "_mean"
@@ -111,7 +111,7 @@ class Categorical(MultivariateFamily):
 
 
 class Multinomial(MultivariateFamily):
-    SUPPORTED_LINKS = ["softmax"]
+    SUPPORTED_LINKS = {"p": ["softmax"]}
 
     def predict(self, model, posterior, linear_predictor):
         response_var = model.response.name + "_mean"
