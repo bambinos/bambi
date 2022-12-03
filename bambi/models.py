@@ -332,7 +332,7 @@ class Model:
                 kind = "common"
             term.prior = prepare_prior(term.prior, kind, self.auto_scale)
 
-        # Scale priors if there is at least one term in the model and auto_scale is True        
+        # Scale priors if there is at least one term in the model and auto_scale is True
         if self.terms and self.auto_scale:
             self.scaler = PriorScaler(self)
             self.scaler.scale()
