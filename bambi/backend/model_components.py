@@ -135,10 +135,21 @@ class DistributionalComponent:
             else:
                 self.output += coef * predictor
 
+    def build_response(self, pymc_backend, bmb_model):
+        # Extract the response term from the Bambi family
+        response_term = bmb_model.response_component.response_term
 
-# Here for historical reasons, not supposed to work now
+        # Add coordinates to the PyMC model. They're used if it is a distributional model.
+        dim_name = f"{response_term.name}_obs"
+        dim_value = np.arange(response_term.shape[0])
+        pymc_backend.model.add_coords({dim_name: dim_value})
+
+        # Create and build the response term
+        response_term = ResponseTerm(response_term, bmb_model.family)
+        response_term.build(pymc_backend, bmb_model)
 
 
+# NOTE: Here for historical reasons, not supposed to work now at least for now
 def add_lkj(backend, terms, eta=1):
     """Add correlated prior for group-specific effects.
 

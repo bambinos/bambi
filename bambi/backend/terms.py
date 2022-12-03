@@ -226,12 +226,16 @@ class ResponseTerm:
             kwargs[name] = component.output
 
         # Distributional parameters. A link funciton is used.
+        # NOTE: What about multidimensional responses?
+        dims = (self.term.name + "_obs",)
         for name, component in pymc_backend.distributional_components.items():
             # The response is added later
             if name == self.term.name:
                 continue
             linkinv = get_linkinv(self.family.link[name], pymc_backend.INVLINKS)
-            kwargs[name] = pm.Deterministic(f"{self.term.name}_{name}", linkinv(component.output))
+            kwargs[name] = pm.Deterministic(
+                f"{self.term.name}_{name}", linkinv(component.output), dims=dims
+            )
 
         # Take the inverse link function that maps from linear predictor to the parent of likelihood
         linkinv = get_linkinv(self.family.link[parent], pymc_backend.INVLINKS)
@@ -239,6 +243,7 @@ class ResponseTerm:
         # Add parent parameter and observed data
         kwargs[parent] = linkinv(nu)
         kwargs["observed"] = data
+        kwargs["dims"] = (self.term.name + "_obs",)
 
         # Build the response distribution
         dist = self.build_response_distribution(kwargs)

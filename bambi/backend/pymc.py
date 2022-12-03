@@ -12,7 +12,6 @@ import aesara.tensor as at
 from bambi import version
 
 from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
-from bambi.backend.terms import ResponseTerm
 from bambi.backend.model_components import ConstantComponent, DistributionalComponent
 from bambi.families.multivariate import MultivariateFamily
 
@@ -121,11 +120,11 @@ class PyMCModel:
 
         Parameters
         ----------
-        spec : bambi.Model
+        spec : bambi.Modelf
             The model.
         """
-        response_term = ResponseTerm(spec.response_component.response_term, spec.family)
-        response_term.build(self, spec)
+        response_component = self.components[spec.response_name]
+        response_component.build_response(self, spec)
 
     def build_potentials(self, spec):
         """Add potentials to the PyMC model.
@@ -252,9 +251,13 @@ class PyMCModel:
         idata.posterior = idata.posterior.drop_vars(vars_to_drop)
         idata.posterior = idata.posterior.drop_dims(dims_to_drop)
 
+        dims_original = list(self.model.coords)
+
+        # Discard dims that are in the model but unused in the posterior
+        dims_original = [dim for dim in dims_original if dim in idata.posterior.dims]
+
         # This does not add any new coordinate, it just changes the order so the ones
         # ending in "__factor_dim" are placed after the others.
-        dims_original = list(self.model.coords)
         dims_group = [c for c in dims_original if c.endswith("__factor_dim")]
 
         # Keep the original order in dims_original

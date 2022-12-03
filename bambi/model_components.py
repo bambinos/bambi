@@ -44,15 +44,15 @@ class DistributionalComponent:
 
     def add_common_terms(self, priors):
         for name, term in self.design.common.terms.items():
-            name_with_suffix = with_suffix(name, self.suffix)
-            term.name = name_with_suffix  # Update the name of the term
+            name_with_prefix = with_prefix(name, self.suffix)
+            term.name = name_with_prefix  # Update the name of the term
             data = self.design.common[name]
             prior = priors.pop(name, priors.get("common", None))
             if isinstance(prior, Prior):
                 any_hyperprior = any(isinstance(x, Prior) for x in prior.args.values())
                 if any_hyperprior:
                     raise ValueError(
-                        f"Trying to set hyperprior on '{name_with_suffix}'. "
+                        f"Trying to set hyperprior on '{name_with_prefix}'. "
                         "Can't set a hyperprior on common effects."
                     )
             if term.kind == "offset":
@@ -157,4 +157,10 @@ class DistributionalComponent:
 def with_suffix(value, suffix):
     if suffix:
         return f"{value}_{suffix}"
+    return value
+
+
+def with_prefix(value, prefix):
+    if prefix:
+        return f"{prefix}_{value}"
     return value
