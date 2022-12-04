@@ -546,6 +546,14 @@ class Model:
             else:
                 raise KeyError(f"The name {group} is not a group in any group-specific term.")
 
+    def _check_built(self):
+        # Checks if model is built, raises ValueError if not
+        if not self.built:
+            raise ValueError(
+                "Model is not built yet! "
+                "Call .build() to build the model or .fit() to build and sample from the posterior."
+            )
+
     def plot_priors(
         self,
         draws=5000,
@@ -611,11 +619,7 @@ class Model:
         -------
         axes: matplotlib axes
         """
-        if not self.built:
-            raise ValueError(
-                "Cannot plot priors until model is built!! "
-                "Call .build() to build the model or .fit() to build and sample from the posterior."
-            )
+        self._check_built()
 
         unobserved_rvs_names = []
         flat_rvs = []
@@ -683,6 +687,8 @@ class Model:
             ``InferenceData`` object with the groups ``prior``, ``prior_predictive`` and
             ``observed_data``.
         """
+        self._check_built()
+
         if var_names is None:
             variables = self.backend.model.unobserved_RVs + self.backend.model.observed_RVs
             variables_names = [v.name for v in variables]

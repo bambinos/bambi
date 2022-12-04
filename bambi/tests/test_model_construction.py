@@ -103,6 +103,12 @@ def test_model_init_bad_data():
         Model("y ~ x", {"x": 1})
 
 
+def test_unbuilt_model(diabetes_data):
+    model = Model("Y ~ AGE", data=diabetes_data)
+    with pytest.raises(ValueError):
+        model._check_built()
+
+
 def test_model_categorical_argument():
     data = pd.DataFrame(
         {
