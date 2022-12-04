@@ -32,9 +32,9 @@ class Model:
     ----------
     formula : str
         A model description written using the formula syntax from the ``formulae`` library.
-    data : pandas.DataFrame or str
-        The dataset to use. Either a pandas ``DataFrame``, or the name of the file containing
-        the data, which will be passed to ``pd.read_csv()``.
+    data : pandas.DataFrame
+        A pandas dataframe containing the data on which the model will be fit, with column
+        names matching variables defined in the formula.
     family : str or bambi.families.Family
         A specification of the model family (analogous to the family object in R). Either
         a string, or an instance of class ``bambi.families.Family``. If a string is passed, a
@@ -118,10 +118,8 @@ class Model:
         self.potentials = potentials
 
         # Read and clean data
-        if isinstance(data, str):
-            data = pd.read_csv(data, sep=None, engine="python")
-        elif not isinstance(data, pd.DataFrame):
-            raise ValueError("'data' must be a string with a path to a .csv or a pandas DataFrame.")
+        if not isinstance(data, pd.DataFrame):
+            raise ValueError("'data' must be a pandas DataFrame.")
 
         # Convert 'object' and explicitly asked columns to categorical.
         object_cols = list(data.select_dtypes("object").columns)
