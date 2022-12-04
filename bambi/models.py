@@ -44,8 +44,9 @@ class Model:
         ``"poisson"``, ``"t"``, and ``"wald"``. Defaults to ``"gaussian"``.
     priors : dict
         Optional specification of priors for one or more terms. A dictionary where the keys are
-        the names of terms in the model, "common" or "group_specific" and the values are
-        instances of class ``Prior`` when ``automatic_priors`` is ``"default"``.
+        the names of terms in the model, "common," or "group_specific" and the values are
+        instances of class ``Prior``. If priors are unset, uses automatic priors inspired by
+        the R rstanarm library.
     link : str
         The name of the link function to use. Valid names are ``"cloglog"``, ``"identity"``,
         ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, ``"probit"``, and
@@ -71,9 +72,6 @@ class Model:
         If ``True`` (default), priors are automatically rescaled to the data
         (to be weakly informative) any time default priors are used. Note that any priors
         explicitly set by the user will always take precedence over default priors.
-    automatic_priors: str
-        An optional specification to compute automatic priors. ``"default"`` means to use
-        a method inspired on the R rstanarm library.
     noncentered : bool
         If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on
         grouped parameters. If ``False``, naive (centered) parameterization is used.
@@ -96,7 +94,6 @@ class Model:
         potentials=None,
         dropna=False,
         auto_scale=True,
-        automatic_priors="default",
         noncentered=True,
         priors_cor=None,
     ):
@@ -140,8 +137,6 @@ class Model:
             priors = {}
         else:
             priors = deepcopy(priors)
-
-        self.automatic_priors = automatic_priors
 
         # Obtain design matrices and related objects.
         na_action = "drop" if dropna else "error"
@@ -339,14 +334,7 @@ class Model:
 
         # Scale priors if there is at least one term in the model and auto_scale is True
         if self.terms and self.auto_scale:
-            method = self.automatic_priors
-            if method == "default":
-                scaler = PriorScaler(self)
-            else:
-                raise ValueError(
-                    f"{method} is not a valid method for default priors. Use 'default'."
-                )
-            self.scaler = scaler
+            self.scaler = PriorScaler(self)
             self.scaler.scale()
 
     def _set_priors(self, priors=None, common=None, group_specific=None):
