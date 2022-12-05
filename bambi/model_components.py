@@ -44,7 +44,6 @@ class DistributionalComponent:
             self.add_response_term()
 
     def add_common_terms(self, priors):
-        prefix = self.response_name if self.response_kind == "parameter" else ""
         for name, term in self.design.common.terms.items():
             prior = priors.pop(name, priors.get("common", None))
             if isinstance(prior, Prior):
@@ -56,15 +55,14 @@ class DistributionalComponent:
                     )
 
             if term.kind == "offset":
-                self.terms[name] = OffsetTerm(term, term.data, prefix)
+                self.terms[name] = OffsetTerm(term, term.data, self.prefix)
             else:
-                self.terms[name] = CommonTerm(term, prior, prefix)
+                self.terms[name] = CommonTerm(term, prior, self.prefix)
 
     def add_group_specific_terms(self, priors):
-        prefix = self.response_name if self.response_kind == "parameter" else ""
         for name, term in self.design.group.terms.items():
             prior = priors.pop(name, priors.get("group_specific", None))
-            self.terms[name] = GroupSpecificTerm(term, prior, prefix)
+            self.terms[name] = GroupSpecificTerm(term, prior, self.prefix)
 
     def add_response_term(self):
         """Add a response (or outcome/dependent) variable to the model."""

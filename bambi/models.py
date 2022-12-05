@@ -101,7 +101,6 @@ class Model:
         priors_cor=None,
     ):
         # attributes that are set later
-        self.terms = {}  # TODO REMOVE
         self.components = {}  # Constant and Distributional components
         self.built = False  # build()
 
@@ -378,7 +377,7 @@ class Model:
 
         # Scale priors if there is at least one term in the model and auto_scale is True
         # NOTE: Removed the `method` argument
-        if self.terms and self.auto_scale:
+        if self.auto_scale:
             self.scaler = PriorScaler(self)
             self.scaler.scale()
 
