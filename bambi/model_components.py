@@ -75,7 +75,7 @@ class DistributionalComponent:
 
         # NOTE: This is a historical feature.
         # I'm not sure how many family specific checks we should add in this type of places now
-        if reference is not None and not isinstance(self.family, univariate.Bernoulli):
+        if reference is not None and not isinstance(self.spec.family, univariate.Bernoulli):
             raise ValueError("Index notation for response is only available for 'bernoulli' family")
 
         if isinstance(self.spec.family, univariate.Bernoulli):
