@@ -14,18 +14,21 @@ class OffsetTerm:
 
     group_specific = False
 
-    def __init__(self, term, data):
+    def __init__(self, term, data, prefix):
         self.data = data.squeeze()
         self.kind = "offset"
         self.term = term
         self.alias = None
         self.coords = {}
+        self.prefix = prefix
 
     def set_alias(self, value):
         self.alias = value
 
     @property
     def name(self):
+        if self.prefix:
+            return f"{self.prefix}_{self.term.name}"
         return self.term.name
 
     def __str__(self):

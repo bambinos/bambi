@@ -30,9 +30,9 @@ class DistributionalComponent:
         self.spec = spec
 
         if self.response_kind == "data":
-            self.suffix = ""
+            self.prefix = ""
         else:
-            self.suffix = response_name
+            self.prefix = response_name
 
         if self.design.common:
             self.add_common_terms(priors)
@@ -44,28 +44,27 @@ class DistributionalComponent:
             self.add_response_term()
 
     def add_common_terms(self, priors):
+        prefix = self.response_name if self.response_kind == "parameter" else ""
         for name, term in self.design.common.terms.items():
-            name_with_prefix = with_prefix(name, self.suffix)
-            term.name = name_with_prefix  # Update the name of the term
-            data = self.design.common[name]
             prior = priors.pop(name, priors.get("common", None))
             if isinstance(prior, Prior):
                 any_hyperprior = any(isinstance(x, Prior) for x in prior.args.values())
                 if any_hyperprior:
                     raise ValueError(
-                        f"Trying to set hyperprior on '{name_with_prefix}'. "
+                        f"Trying to set hyperprior on '{name}'. "
                         "Can't set a hyperprior on common effects."
                     )
+
             if term.kind == "offset":
-                self.terms[name] = OffsetTerm(term, data)
+                self.terms[name] = OffsetTerm(term, term.data, prefix)
             else:
-                self.terms[name] = CommonTerm(term, prior)
+                self.terms[name] = CommonTerm(term, prior, prefix)
 
     def add_group_specific_terms(self, priors):
+        prefix = self.response_name if self.response_kind == "parameter" else ""
         for name, term in self.design.group.terms.items():
-            term.name = with_suffix(name, self.suffix)
             prior = priors.pop(name, priors.get("group_specific", None))
-            self.terms[name] = GroupSpecificTerm(term, prior)
+            self.terms[name] = GroupSpecificTerm(term, prior, prefix)
 
     def add_response_term(self):
         """Add a response (or outcome/dependent) variable to the model."""
@@ -100,12 +99,6 @@ class DistributionalComponent:
         for name, value in priors.items():
             self.terms[name].prior = value
 
-    def build_priors(self):
-        ...
-
-    def set_alias(self):
-        ...
-
     def predict(self, idata, data=None, include_group_specific=True):
         linear_predictor = 0
         x_offsets = []
@@ -137,9 +130,9 @@ class DistributionalComponent:
                 X = np.delete(X, term_slice, axis=1)
 
             # Create DataArray
-            X_terms = [with_prefix(name, self.suffix) for name in self.common_terms]
+            X_terms = [with_prefix(name, self.prefix) for name in self.common_terms]
             if self.intercept_term:
-                X_terms.insert(0, with_prefix("Intercept", self.suffix))
+                X_terms.insert(0, with_prefix("Intercept", self.prefix))
             b = posterior[X_terms].to_stacked_array("__variables__", to_stack_dims)
 
             # Add contribution due to the common terms
@@ -153,7 +146,7 @@ class DistributionalComponent:
                 Z = self.design.group.evaluate_new_data(data).design_matrix
 
             # Create DataArray
-            Z_terms = [with_prefix(name, self.suffix) for name in self.group_specific_terms]
+            Z_terms = [with_prefix(name, self.prefix) for name in self.group_specific_terms]
             u = posterior[Z_terms].to_stacked_array("__variables__", to_stack_dims)
 
             # Add contribution due to the group specific terms
@@ -229,15 +222,6 @@ class DistributionalComponent:
     def offset_terms(self):
         """Return dict of all offset effects in model."""
         return {k: v for (k, v) in self.terms.items() if isinstance(v, OffsetTerm)}
-
-    @property
-    def suffix(self):
-        return self._suffix
-
-    @suffix.setter
-    def suffix(self, value):
-        assert isinstance(value, str), "'.suffix' must be a string"
-        self._suffix = value
 
 
 def with_suffix(value, suffix):
