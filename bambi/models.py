@@ -880,11 +880,7 @@ class Model:
         >>> model.graph()
 
         """
-        if self.backend is None:
-            raise ValueError(
-                "The model is empty. "
-                "Are you forgetting to first call .build() or .fit() on the Bambi model?"
-            )
+        self._check_built()
 
         graphviz = pm.model_to_graphviz(model=self.backend.model, formatting=formatting)
 
