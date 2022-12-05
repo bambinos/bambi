@@ -1,6 +1,7 @@
 import numpy as np
 import xarray as xr
 
+from bambi.defaults import get_default_prior
 from bambi.families import univariate, multivariate
 from bambi.priors import Prior
 from bambi.terms import CommonTerm, GroupSpecificTerm, OffsetTerm, ResponseTerm
@@ -86,6 +87,18 @@ class DistributionalComponent:
                 raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
 
         self.response_term = ResponseTerm(response, self.spec.family)
+
+    def build_priors(self):
+        for term in self.terms.values():
+            if isinstance(term, GroupSpecificTerm):
+                kind = "group_specific"
+            elif isinstance(term, CommonTerm) and term.kind == "intercept":
+                kind = "intercept"
+            elif term.kind == "offset":
+                continue
+            else:
+                kind = "common"
+            term.prior = prepare_prior(term.prior, kind, self.spec.auto_scale)
 
     def update_priors(self, priors):
         """Update priors
@@ -233,3 +246,23 @@ def with_prefix(value, prefix):
     if prefix:
         return f"{prefix}_{value}"
     return value
+
+
+def prepare_prior(prior, kind, auto_scale):
+    """Helper function to correctly set default priors, auto scaling, etc.
+
+    Parameters
+    ----------
+    prior : Prior, float, or None.
+    kind : string
+        Accepted values are: ``"intercept"``, ``"common"``, or ``"group_specific"``.
+    """
+    if prior is None and not auto_scale:
+        prior = get_default_prior(kind + "_flat")
+    if isinstance(prior, Prior):
+        prior.auto_scale = False
+    else:
+        scale = prior
+        prior = get_default_prior(kind)
+        prior.scale = scale  # FIXME this is never used!
+    return prior

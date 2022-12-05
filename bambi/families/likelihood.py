@@ -1,6 +1,5 @@
 from collections import namedtuple
 
-from bambi.priors import Prior
 from bambi.utils import multilinify, spacify
 
 

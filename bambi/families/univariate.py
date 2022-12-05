@@ -3,7 +3,7 @@ import numpy as np
 import xarray as xr
 from scipy import stats
 
-from .family import Family
+from bambi.families.family import Family
 
 
 class UnivariateFamily(Family):

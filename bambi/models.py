@@ -8,19 +8,17 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 import pymc as pm
-import xarray as xr
 
 from arviz.plots import plot_posterior
 
 from formulae import design_matrices
 
 from bambi.backend import PyMCModel
-from bambi.defaults import get_default_prior, get_builtin_family
+from bambi.defaults import get_builtin_family
 from bambi.model_components import ConstantComponent, DistributionalComponent
-from bambi.families import Family, univariate, multivariate
+from bambi.families import Family, univariate
 from bambi.formula import Formula
 from bambi.priors import Prior, PriorScaler
-from bambi.terms import CommonTerm, GroupSpecificTerm, OffsetTerm, ResponseTerm
 from bambi.utils import listify, extra_namespace, clean_formula_lhs, get_auxiliary_parameters
 from bambi.version import __version__
 
@@ -119,7 +117,6 @@ class Model:
         self.potentials = potentials
 
         # Some columns are converted to categorical
-        # NOTE: Removed the option to read from a CSV
         self.data = with_categorical_cols(data, categorical)
 
         # Handle priors
@@ -133,9 +130,6 @@ class Model:
 
         # Create family
         self._set_family(family, link)
-
-        # Create formula
-        self.formula = formula
 
         ## Main component
         design = design_matrices(self.formula.main, data, na_action, 1, extra_namespace)
@@ -358,16 +352,7 @@ class Model:
 
         # Prepare all priors
         for component in self.distributional_components.values():
-            for term in component.terms.values():
-                if isinstance(term, GroupSpecificTerm):
-                    kind = "group_specific"
-                elif isinstance(term, CommonTerm) and term.kind == "intercept":
-                    kind = "intercept"
-                elif term.kind == "offset":
-                    continue
-                else:
-                    kind = "common"
-                term.prior = prepare_prior(term.prior, kind, self.auto_scale)
+            component.build_priors()
 
         for name, component in self.constant_components.items():
             if isinstance(component.prior, Prior):
@@ -376,7 +361,6 @@ class Model:
                 component.prior = self.family.default_priors[name]
 
         # Scale priors if there is at least one term in the model and auto_scale is True
-        # NOTE: Removed the `method` argument
         if self.auto_scale:
             self.scaler = PriorScaler(self)
             self.scaler.scale()
@@ -461,8 +445,6 @@ class Model:
         """
         if not isinstance(aliases, dict):
             raise ValueError(f"'aliases' must be a dictionary, not a {type(aliases)}.")
-
-        auxiliary_parameters = list(get_auxiliary_parameters(self.family))
 
         # If the response is the only distributional component, assume keys are the names of the
         # terms and the values are their aliases.
@@ -730,15 +712,11 @@ class Model:
 
         # Only if requested predict the predictive distribution
         if kind == "pps":
-            posterior = ...
-            linear_predictor = ...
             in_sample = ...
-            pps_kwargs = {
-                "model": self,
-                "posterior": posterior,
-                "linear_predictor": linear_predictor,
-            }
+            posterior = idata.posterior
+            pps_kwargs = {"model": self, "posterior": posterior}
 
+            # FIXME
             if not in_sample and isinstance(self.family, univariate.Binomial):
                 pps_kwargs["trials"] = self._design.response.evaluate_new_data(data)
 
@@ -898,26 +876,6 @@ class Model:
     @property
     def distributional_components(self):
         return {k: v for k, v in self.components.items() if isinstance(v, DistributionalComponent)}
-
-
-def prepare_prior(prior, kind, auto_scale):
-    """Helper function to correctly set default priors, auto scaling, etc.
-
-    Parameters
-    ----------
-    prior : Prior, float, or None.
-    kind : string
-        Accepted values are: ``"intercept"``, ``"common"``, or ``"group_specific"``.
-    """
-    if prior is None and not auto_scale:
-        prior = get_default_prior(kind + "_flat")
-    if isinstance(prior, Prior):
-        prior.auto_scale = False
-    else:
-        scale = prior
-        prior = get_default_prior(kind)
-        prior.scale = scale  # FIXME this is never used!
-    return prior
 
 
 def with_categorical_cols(data, columns):
