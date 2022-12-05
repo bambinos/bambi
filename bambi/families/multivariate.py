@@ -17,6 +17,21 @@ class MultivariateFamily(Family):
 
 class Categorical(MultivariateFamily):
     SUPPORTED_LINKS = {"p": ["softmax"]}
+    UFUNC_KWARGS = {"axis": -1}
+
+    def transform_linear_predictor(self, model, linear_predictor):
+        response_levels_dim = model.response_name + "_dim"
+        linear_predictor = linear_predictor.pad({response_levels_dim: (1, 0)}, constant_values=0)
+        return linear_predictor
+
+    def transform_coords(self, model, mean):
+        # The mean has the reference level in the dimension, a new name is needed
+        response_levels_dim = model.response_name + "_dim"
+        response_levels_dim_complete = model.response_name + "_mean_dim"
+        levels_complete = model.response_component.term.levels
+        mean = mean.rename({response_levels_dim: response_levels_dim_complete})
+        mean = mean.assign_coords({response_levels_dim_complete: levels_complete})
+        return mean
 
     def predict(self, model, posterior, linear_predictor):
         response_var = model.response.name + "_mean"

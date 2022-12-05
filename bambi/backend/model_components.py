@@ -212,7 +212,6 @@ def add_lkj(backend, terms, eta=1):
         for name, values in term.coords.items():
             if name not in backend.model.coords:
                 backend.model.add_coords({name: values})
-        backend.coords.update(**term.coords)
 
         predictor = term.predictor.squeeze()
         delta = term.predictor.shape[1]

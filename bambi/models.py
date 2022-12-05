@@ -685,76 +685,22 @@ class Model:
         if kind not in ("mean", "pps"):
             raise ValueError("'kind' must be one of 'mean' or 'pps'")
 
-        linear_predictor = 0
-        x_offsets = []
-        posterior = idata.posterior
-        in_sample = data is None
-
         if not inplace:
             idata = deepcopy(idata)
 
-        # Prepare dims objects
-        response_dim = self.response.name + "_obs"
-        response_levels_dim = self.response.name + "_dim"
-        linear_predictor_dims = ("chain", "draw", response_dim)
-        to_stack_dims = ("chain", "draw")
-        design_matrix_dims = (response_dim, "__variables__")
-
-        if isinstance(self.family, multivariate.MultivariateFamily):
-            to_stack_dims = to_stack_dims + (response_levels_dim,)
-            linear_predictor_dims = linear_predictor_dims + (response_levels_dim,)
-
-        # Create design matrices
-        if self._design.common:
-            if in_sample:
-                X = self._design.common.design_matrix
+        # Always predict the mean response
+        for name, component in self.distributional_components.items():
+            if name == self.response_name:
+                name = f"{self.response_name}_mean"
             else:
-                X = self._design.common.evaluate_new_data(data).design_matrix
+                name = f"{self.response_name}_{name}"
+            idata.posterior[name] = component.predict(idata, data, include_group_specific)
 
-            # Add offset columns to their own design matrix and remove then from common matrix
-            for term in self.offset_terms:
-                term_slice = self._design.common.slices[term]
-                x_offsets.append(X[:, term_slice])
-                X = np.delete(X, term_slice, axis=1)
-
-            # Create DataArray
-            X_terms = list(self.common_terms)
-            if self.intercept_term:
-                X_terms.insert(0, "Intercept")
-            b = posterior[X_terms].to_stacked_array("__variables__", to_stack_dims)
-
-            # Add contribution due to the common terms
-            X = xr.DataArray(X, dims=design_matrix_dims)
-            linear_predictor += xr.dot(X, b)
-
-        if self._design.group and include_group_specific:
-            if in_sample:
-                Z = self._design.group.design_matrix
-            else:
-                Z = self._design.group.evaluate_new_data(data).design_matrix
-
-            # Create DataArray
-            Z_terms = list(self.group_specific_terms)
-            u = posterior[Z_terms].to_stacked_array("__variables__", to_stack_dims)
-
-            # Add contribution due to the group specific terms
-            Z = xr.DataArray(Z, dims=design_matrix_dims)
-            linear_predictor += xr.dot(Z, u)
-
-        # If model contains offset, add directly to the linear predictor
-        if x_offsets:
-            linear_predictor += np.column_stack(x_offsets).sum(axis=1)[:, np.newaxis, np.newaxis]
-
-        # Sort dimensions
-        linear_predictor = linear_predictor.transpose(*linear_predictor_dims)
-
-        # Add coordinates for the observation number
-        obs_n = len(linear_predictor[response_dim])
-        linear_predictor = linear_predictor.assign_coords({response_dim: list(range(obs_n))})
-
-        if kind == "mean":
-            idata.posterior = self.family.predict(self, posterior, linear_predictor)
-        else:
+        # Only if requested predict the predictive distribution
+        if kind == "pps":
+            posterior = ...
+            linear_predictor = ...
+            in_sample = ...
             pps_kwargs = {
                 "model": self,
                 "posterior": posterior,
@@ -765,7 +711,7 @@ class Model:
                 pps_kwargs["trials"] = self._design.response.evaluate_new_data(data)
 
             pps = self.family.posterior_predictive(**pps_kwargs)
-            pps = pps.to_dataset(name=self.response.name)
+            pps = pps.to_dataset(name=self.response_name)
 
             if "posterior_predictive" in idata:
                 del idata.posterior_predictive

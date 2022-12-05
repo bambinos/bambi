@@ -1,4 +1,5 @@
 import numpy as np
+import xarray as xr
 
 from bambi.families import univariate, multivariate
 from bambi.priors import Prior
@@ -104,6 +105,91 @@ class DistributionalComponent:
 
     def set_alias(self):
         ...
+
+    def predict(self, idata, data=None, include_group_specific=True):
+        linear_predictor = 0
+        x_offsets = []
+        posterior = idata.posterior
+        in_sample = data is None
+        family = self.spec.family
+
+        # Prepare dims objects
+        response_dim = self.spec.response_name + "_obs"
+        response_levels_dim = self.spec.response_name + "_dim"
+        linear_predictor_dims = ("chain", "draw", response_dim)
+        to_stack_dims = ("chain", "draw")
+        design_matrix_dims = (response_dim, "__variables__")
+
+        if isinstance(self.spec.family, multivariate.MultivariateFamily):
+            to_stack_dims = to_stack_dims + (response_levels_dim,)
+            linear_predictor_dims = linear_predictor_dims + (response_levels_dim,)
+
+        if self.design.common:
+            if in_sample:
+                X = self.design.common.design_matrix
+            else:
+                X = self.design.common.evaluate_new_data(data).design_matrix
+
+            # Add offset columns to their own design matrix and remove then from common matrix
+            for term in self.offset_terms:
+                term_slice = self.design.common.slices[term]
+                x_offsets.append(X[:, term_slice])
+                X = np.delete(X, term_slice, axis=1)
+
+            # Create DataArray
+            X_terms = [with_prefix(name, self.suffix) for name in self.common_terms]
+            if self.intercept_term:
+                X_terms.insert(0, with_prefix("Intercept", self.suffix))
+            b = posterior[X_terms].to_stacked_array("__variables__", to_stack_dims)
+
+            # Add contribution due to the common terms
+            X = xr.DataArray(X, dims=design_matrix_dims)
+            linear_predictor += xr.dot(X, b)
+
+        if self.design.group and include_group_specific:
+            if in_sample:
+                Z = self.design.group.design_matrix
+            else:
+                Z = self.design.group.evaluate_new_data(data).design_matrix
+
+            # Create DataArray
+            Z_terms = [with_prefix(name, self.suffix) for name in self.group_specific_terms]
+            u = posterior[Z_terms].to_stacked_array("__variables__", to_stack_dims)
+
+            # Add contribution due to the group specific terms
+            Z = xr.DataArray(Z, dims=design_matrix_dims)
+            linear_predictor += xr.dot(Z, u)
+
+        # If model contains offsets, add them directly to the linear predictor
+        if x_offsets:
+            linear_predictor += np.column_stack(x_offsets).sum(axis=1)[:, np.newaxis, np.newaxis]
+
+        # Sort dimensions
+        linear_predictor = linear_predictor.transpose(*linear_predictor_dims)
+
+        # Add coordinates for the observation number
+        obs_n = len(linear_predictor[response_dim])
+        linear_predictor = linear_predictor.assign_coords({response_dim: list(range(obs_n))})
+
+        if hasattr(family, "transform_linear_predictor"):
+            linear_predictor = family.transform_linear_predictor(self.spec, linear_predictor)
+
+        if hasattr(family, "UFUNC_KWARGS"):
+            ufunc_kwargs = family.UFUNC_KWARGS
+        else:
+            ufunc_kwargs = {}
+
+        if self.response_kind == "data":
+            linkinv = family.link[family.likelihood.parent].linkinv
+        else:
+            linkinv = family.link[self.response_name].linkinv
+
+        response = xr.apply_ufunc(linkinv, linear_predictor, kwargs=ufunc_kwargs)
+
+        if hasattr(family, "transform_coords"):
+            response = family.transform_coords(self.spec, response)
+
+        return response
 
     @property
     def group_specific_groups(self):
