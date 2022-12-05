@@ -11,6 +11,7 @@ class ConstantComponent:
         self.name = with_suffix(response_name, name)
         self.prior = prior
         self.spec = spec
+        self.alias = None
 
     def update_priors(self, value):
         self.prior = value

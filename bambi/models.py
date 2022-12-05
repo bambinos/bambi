@@ -459,22 +459,55 @@ class Model:
         aliases: dict
             A dictionary where key represents the original term name and the value is the alias.
         """
-        # FIXME no `self.terms` anymore
         if not isinstance(aliases, dict):
             raise ValueError(f"'aliases' must be a dictionary, not a {type(aliases)}.")
 
-        for name, alias in aliases.items():
-            if name in self.terms:
-                self.terms[name].alias = alias
-            if name in self.family.likelihood.priors:
-                self.family.set_alias(name, alias)
-            if name == self.response.name:
-                self.response.alias = alias
+        auxiliary_parameters = list(get_auxiliary_parameters(self.family))
+
+        # If the response is the only distributional component, assume keys are the names of the
+        # terms and the values are their aliases.
+        # Otherwise, assume keys are the names of the components, and the values are dictionaries
+        # like above
+        if len(self.distributional_components) == 1:
+            for name, alias in aliases.items():
+                if name in self.response_component.terms:
+                    self.response_component.terms[name].alias = alias
+
+                # Check constant components
+                if name in self.constant_components:
+                    self.constant_components[name].alias = alias
+
+                # Check response name
+                if name == self.response_name:
+                    self.response_component.response_term.alias = alias
 
             # Now add aliases for hyperpriors in group specific terms
-            for term in self.group_specific_terms.values():
+            for term in self.response_component.group_specific_terms.values():
                 if name in term.prior.args:
                     term.hyperprior_alias = {name: alias}
+        # More than a single distributional component
+        # FIXME: It's ambiguous how to set the alias for "response" and its parameters
+        # {"y": {"Intercept": "a", "Bla bla": "b"}}
+        # {"y": "NEW_NAME"}
+        else:
+            for component_name, component_aliases in aliases.items():
+                # First, handle constant components.
+                if component_name in self.constant_components:
+                    assert isinstance(component_aliases, str)
+                    self.constant_components[component_name].alias = component_aliases
+                elif component_name == self.response_name:
+                    self.response_component.response_term.alias = component_aliases
+                else:
+                    assert isinstance(component_aliases, dict)
+                    assert component_name in self.distributional_components
+                    component = self.distributional_components[component_name]
+                    for name, alias in component_aliases.items():
+                        if name in component.terms:
+                            component.terms[name].alias = alias
+
+                    for term in component.group_specific_terms.values():
+                        if name in term.prior.args:
+                            term.hyperprior_alias = {name: alias}
 
         # Model needs to be rebuilt after modifying aliases
         self.built = False
@@ -510,40 +543,40 @@ class Model:
 
         Parameters
         ----------
-        draws: int
+        draws : int
             Number of draws to sample from the prior predictive distribution. Defaults to 5000.
-        var_names: str or list
+        var_names : str or list
             A list of names of variables for which to compute the posterior predictive
             distribution. Defaults to ``None`` which means to include both observed and
             unobserved RVs.
-        random_seed: int
+        random_seed : int
             Seed for the random number generator.
-        figsize: tuple
+        figsize : tuple
             Figure size. If ``None`` it will be defined automatically.
-        textsize: float
+        textsize : float
             Text size scaling factor for labels, titles and lines. If ``None`` it will be
             autoscaled based on ``figsize``.
-        hdi_prob: float or str
+        hdi_prob : float or str
             Plots highest density interval for chosen percentage of density.
             Use ``"hide"`` to hide the highest density interval. Defaults to 0.94.
-        round_to: int
+        round_to : int
             Controls formatting of floats. Defaults to 2 or the integer part, whichever is bigger.
-        point_estimate: str
+        point_estimate : str
             Plot point estimate per variable. Values should be ``"mean"``, ``"median"``, ``"mode"``
             or ``None``. Defaults to ``"auto"`` i.e. it falls back to default set in
             ArviZ's rcParams.
-        kind: str
+        kind : str
             Type of plot to display (``"kde"`` or ``"hist"``) For discrete variables this argument
             is ignored and a histogram is always used.
-        bins: integer or sequence or "auto"
+        bins : integer or sequence or "auto"
             Controls the number of bins, accepts the same keywords ``matplotlib.pyplot.hist()``
             does. Only works if ``kind == "hist"``. If ``None`` (default) it will use ``"auto"``
             for continuous variables and ``range(xmin, xmax + 1)`` for discrete variables.
-        omit_offsets: bool
+        omit_offsets : bool
             Whether to omit offset terms in the plot. Defaults to ``True``.
-        omit_group_specific: bool
+        omit_group_specific : bool
             Whether to omit group specific effects in the plot. Defaults to ``True``.
-        ax: numpy array-like of matplotlib axes or bokeh figures
+        ax : numpy array-like of matplotlib axes or bokeh figures
             A 2D array of locations into which to plot the densities. If not supplied, ArviZ will
             create its own array of plot areas (and return it).
         **kwargs
@@ -853,46 +886,6 @@ class Model:
         """Return names of all terms in order of addition to model."""
         # FIXME no self.terms anymore
         return list(self.terms)
-
-    @property
-    def common_terms(self):
-        """Return dict of all common effects in model."""
-        # FIXME no self.terms anymore
-        return {
-            k: v
-            for (k, v) in self.terms.items()
-            if not isinstance(v, GroupSpecificTerm) and v.kind not in ["intercept", "offset"]
-        }
-
-    @property
-    def group_specific_terms(self):
-        # FIXME no self.terms anymore
-        """Return dict of all group specific effects in model."""
-        return {k: v for (k, v) in self.terms.items() if isinstance(v, GroupSpecificTerm)}
-
-    @property
-    def intercept_term(self):
-        # FIXME no self.terms anymore
-        """Return the intercept term"""
-        term = [
-            v
-            for v in self.terms.values()
-            if not isinstance(v, GroupSpecificTerm) and v.kind == "intercept"
-        ]
-        if term:
-            return term[0]
-        else:
-            return None
-
-    @property
-    def offset_terms(self):
-        # FIXME no self.terms anymore
-        """Return dict of all offset effects in model."""
-        return {
-            k: v
-            for (k, v) in self.terms.items()
-            if not isinstance(v, GroupSpecificTerm) and v.kind == "offset"
-        }
 
     @property
     def response_component(self):
