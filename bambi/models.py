@@ -599,7 +599,12 @@ class Model:
             var_names = [name for name in var_names if not name.endswith("_offset")]
 
         if omit_group_specific:
-            var_names = [vn for vn in var_names if vn not in self.group_specific_terms]
+            group_specific_var_names = [
+                name
+                for component in self.components.values()
+                for name in component.group_specific_terms
+            ]
+            var_names = [name for name in var_names if name not in group_specific_var_names]
 
         axes = None
         if var_names:
@@ -652,10 +657,6 @@ class Model:
         idata = pm.sample_prior_predictive(
             samples=draws, var_names=var_names, model=self.backend.model, random_seed=random_seed
         )
-
-        if hasattr(idata, "prior"):
-            to_drop = [dim for dim in idata.prior.dims if dim.endswith("_dim_0")]
-            idata.prior = idata.prior.squeeze(to_drop).reset_coords(to_drop, drop=True)
 
         for group in idata.groups():
             getattr(idata, group).attrs["modeling_interface"] = "bambi"
@@ -716,7 +717,7 @@ class Model:
             posterior = idata.posterior
             pps_kwargs = {"model": self, "posterior": posterior}
 
-            # FIXME
+            # FIXME where should this happen?
             if not in_sample and isinstance(self.family, univariate.Binomial):
                 pps_kwargs["trials"] = self._design.response.evaluate_new_data(data)
 
