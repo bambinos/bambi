@@ -6,6 +6,9 @@ import xarray as xr
 from bambi.families.family import Family
 from bambi.utils import extract_argument_names, extra_namespace
 
+# FIXME : All the places using `model.response_name` to access the name of the response
+#         we need to consider the alias
+
 
 class MultivariateFamily(Family):
     def predict(self, model, posterior, linear_predictor):
@@ -26,41 +29,14 @@ class Categorical(MultivariateFamily):
 
     def transform_coords(self, model, mean):
         # The mean has the reference level in the dimension, a new name is needed
-        response_levels_dim = model.response_name + "_dim"
+        response_levels_dim = model.response_name + "_dim"  # FIXME : Use aliases
         response_levels_dim_complete = model.response_name + "_mean_dim"
-        levels_complete = model.response_component.term.levels
+        levels_complete = model.response_component.response_term.levels
         mean = mean.rename({response_levels_dim: response_levels_dim_complete})
         mean = mean.assign_coords({response_levels_dim_complete: levels_complete})
         return mean
 
-    def predict(self, model, posterior, linear_predictor):
-        response_var = model.response.name + "_mean"
-        response_dim = model.response.name + "_obs"
-        response_levels_dim = model.response.name + "_dim"
-        response_levels_dim_complete = model.response.name + "_mean_dim"
-
-        # This is only 'softmax' for now.
-        # Because of reference encoding, we need to padd with 0s for the first level of the
-        # response variable
-        # (1, 0): 1 new levels on the left, 0 new level on the right
-        linear_predictor = linear_predictor.pad({response_levels_dim: (1, 0)}, constant_values=0)
-        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor, kwargs={"axis": -1})
-
-        # The mean has the reference level in the dimension, a new name is needed
-        mean = mean.rename({response_levels_dim: response_levels_dim_complete})
-        mean = mean.assign_coords({response_levels_dim_complete: model.response.levels})
-
-        # Drop var/dim if already present
-        if response_var in posterior.data_vars:
-            posterior = posterior.drop_vars(response_var)
-
-        if response_dim in posterior.dims:
-            posterior = posterior.drop_dims(response_dim)
-
-        posterior[response_var] = mean
-        return posterior
-
-    def posterior_predictive(self, model, posterior, linear_predictor):
+    def posterior_predictive(self, model, posterior):
         # https://stackoverflow.com/questions/34187130
         def draw_categorical_samples(probability_matrix, items):
             """
@@ -71,14 +47,9 @@ class Categorical(MultivariateFamily):
             idx = (cumsum < idx).sum(axis=1)
             return items[idx]
 
-        response_dim = model.response.name + "_obs"
-        response_levels_dim = model.response.name + "_dim"
-        response_levels_dim_complete = model.response.name + "_mean_dim"
-
-        linear_predictor = linear_predictor.pad({response_levels_dim: (1, 0)}, constant_values=0)
-        mean = xr.apply_ufunc(self.link.linkinv, linear_predictor, kwargs={"axis": -1})
-        mean = mean.rename({response_levels_dim: response_levels_dim_complete})
-        mean = mean.assign_coords({response_levels_dim_complete: model.response.levels})
+        response_dim = model.response_name + "_obs"
+        response_levels = np.arange(len(model.response_component.response_term.levels))
+        mean = posterior[model.response_name + "_mean"]
 
         mean = mean.to_numpy()
         shape = mean.shape
@@ -88,8 +59,6 @@ class Categorical(MultivariateFamily):
         obs_n = mean.shape[1]
 
         pps = np.empty((draws_n, obs_n), dtype=int)
-        response_levels = np.arange(len(model.response.levels))
-
         for idx in range(obs_n):
             pps[:, idx] = draw_categorical_samples(mean[:, idx, :], response_levels)
 

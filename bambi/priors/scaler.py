@@ -49,7 +49,7 @@ class PriorScaler:
             if isinstance(sigma, ConstantComponent) and sigma.prior.auto_scale:
                 sigma.prior = Prior("HalfStudentT", nu=4, sigma=self.response_std)
         elif isinstance(self.model.family, VonMises):
-            kappa = self.models.components["kappa"]
+            kappa = self.model.components["kappa"]
             if isinstance(kappa, ConstantComponent) and kappa.prior.auto_scale:
                 kappa.prior = Prior("HalfStudentT", nu=4, sigma=self.response_std)
 
