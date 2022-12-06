@@ -165,3 +165,9 @@ def clean_formula_lhs(x):
 
 def get_auxiliary_parameters(family):
     return set(family.likelihood.params) - {family.likelihood.parent}
+
+
+def get_aliased_name(term):
+    if term.alias:
+        return term.alias
+    return term.name

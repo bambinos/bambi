@@ -5,8 +5,6 @@ import warnings
 
 from copy import deepcopy
 
-import numpy as np
-import pandas as pd
 import pymc as pm
 
 from arviz.plots import plot_posterior
@@ -19,7 +17,13 @@ from bambi.model_components import ConstantComponent, DistributionalComponent
 from bambi.families import Family, univariate
 from bambi.formula import Formula
 from bambi.priors import Prior, PriorScaler
-from bambi.utils import listify, extra_namespace, clean_formula_lhs, get_auxiliary_parameters
+from bambi.utils import (
+    clean_formula_lhs,
+    extra_namespace,
+    get_aliased_name,
+    get_auxiliary_parameters,
+    listify,
+)
 from bambi.version import __version__
 
 _log = logging.getLogger("bambi")
@@ -440,45 +444,44 @@ class Model:
 
         Parameters
         ----------
-        aliases: dict
+        aliases : dict
             A dictionary where key represents the original term name and the value is the alias.
         """
         if not isinstance(aliases, dict):
             raise ValueError(f"'aliases' must be a dictionary, not a {type(aliases)}.")
 
-        # If the response is the only distributional component, assume keys are the names of the
-        # terms and the values are their aliases.
-        # Otherwise, assume keys are the names of the components, and the values are dictionaries
-        # like above
+        response_name = get_aliased_name(self.response_component.response_term)
+
+        # If there is a single distributional component (the response)
+        #   * Keys are the names of the terms and the values are their aliases.
+        # If there are multiple distributional components
+        #   * Keys are the name of the components responses
+        #     * If it's a constant component, the value must be a string
+        #     * If it's a distributional component, the value must be a dictionary
+        #        * Here, names are term names, and values are their aliases
+        #     * There's unavoidable redundancy in the response name
+        #       {"y": {"y": "alias"}, "sigma": {"sigma": "alias"}}
         if len(self.distributional_components) == 1:
             for name, alias in aliases.items():
+                assert isinstance(alias, str)
                 if name in self.response_component.terms:
                     self.response_component.terms[name].alias = alias
 
-                # Check constant components
                 if name in self.constant_components:
                     self.constant_components[name].alias = alias
 
-                # Check response name
-                if name == self.response_name:
+                if name == response_name:
                     self.response_component.response_term.alias = alias
 
-            # Now add aliases for hyperpriors in group specific terms
-            for term in self.response_component.group_specific_terms.values():
-                if name in term.prior.args:
-                    term.hyperprior_alias = {name: alias}
-        # More than a single distributional component
-        # FIXME: It's ambiguous how to set the alias for "response" and its parameters
-        # {"y": {"Intercept": "a", "Bla bla": "b"}}
-        # {"y": "NEW_NAME"}
+                # Now add aliases for hyperpriors in group specific terms
+                for term in self.response_component.group_specific_terms.values():
+                    if name in term.prior.args:
+                        term.hyperprior_alias = {name: alias}
         else:
             for component_name, component_aliases in aliases.items():
-                # First, handle constant components.
                 if component_name in self.constant_components:
                     assert isinstance(component_aliases, str)
                     self.constant_components[component_name].alias = component_aliases
-                elif component_name == self.response_name:
-                    self.response_component.response_term.alias = component_aliases
                 else:
                     assert isinstance(component_aliases, dict)
                     assert component_name in self.distributional_components
@@ -487,9 +490,13 @@ class Model:
                         if name in component.terms:
                             component.terms[name].alias = alias
 
-                    for term in component.group_specific_terms.values():
-                        if name in term.prior.args:
-                            term.hyperprior_alias = {name: alias}
+                        # Useful for non-response distributional components
+                        if name == component.response_name:
+                            component.alias = alias
+
+                        for term in component.group_specific_terms.values():
+                            if name in term.prior.args:
+                                term.hyperprior_alias = {name: alias}
 
         # Model needs to be rebuilt after modifying aliases
         self.built = False
@@ -703,12 +710,14 @@ class Model:
         if not inplace:
             idata = deepcopy(idata)
 
+        response_name = get_aliased_name(self.response_component.response_term)
+
         # Always predict the mean response
         for name, component in self.distributional_components.items():
             if name == self.response_name:
-                name = f"{self.response_name}_mean"
+                name = f"{response_name}_mean"
             else:
-                name = f"{self.response_name}_{name}"
+                name = f"{response_name}_{name}"
             idata.posterior[name] = component.predict(idata, data, include_group_specific)
 
         # Only if requested predict the predictive distribution

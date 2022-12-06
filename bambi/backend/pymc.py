@@ -14,6 +14,7 @@ from bambi import version
 from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
 from bambi.backend.model_components import ConstantComponent, DistributionalComponent
 from bambi.families.multivariate import MultivariateFamily
+from bambi.utils import get_aliased_name
 
 _log = logging.getLogger("bambi")
 
@@ -67,6 +68,7 @@ class PyMCModel:
             for name, component in spec.distributional_components.items():
                 self.components[name] = DistributionalComponent(component)
                 self.components[name].build(self, spec)
+
             self.build_response(spec)
             self.build_potentials(spec)
 
@@ -278,7 +280,7 @@ class PyMCModel:
 
                 common_terms = []
                 for term in bambi_component.common_terms.values():
-                    common_terms.append(get_backend_name(term))
+                    common_terms.append(get_aliased_name(term))
 
                 response_coords = self.spec.response_component.response_term.coords
                 if response_coords:
@@ -289,7 +291,7 @@ class PyMCModel:
 
                 posterior = idata.posterior.stack(samples=dims)
                 coefs = np.vstack([np.atleast_2d(posterior[name].values) for name in common_terms])
-                name = get_backend_name(bambi_component.intercept_term)
+                name = get_aliased_name(bambi_component.intercept_term)
                 center_factor = np.dot(X.mean(0), coefs).reshape(shape)
                 idata.posterior[name] = idata.posterior[name] - center_factor
 
@@ -485,9 +487,3 @@ def add_lkj(backend, terms, eta=1):
 
     # TO DO: Add correlations
     return mu
-
-
-def get_backend_name(term):
-    if term.alias:
-        return term.alias
-    return term.name

@@ -54,7 +54,6 @@ class Family:
         self.name = name
         self.likelihood = likelihood
         self.link = link
-        self.aliases = {}
         self.default_priors = {}
 
     @property
@@ -83,18 +82,6 @@ class Family:
                 f"'{self.name}'"
             )
         return Link(link_name)
-
-    def set_alias(self, name, alias):
-        """Set alias for an auxiliary variable of the family
-
-        Parameters
-        ----------
-        name: str
-            The name of the variable
-        alias: str
-            The new name for the variable
-        """
-        self.aliases.update({name: alias})
 
     def set_default_priors(self, priors):
         """Set default priors for non-parent parameters

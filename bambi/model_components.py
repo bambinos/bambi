@@ -5,6 +5,7 @@ from bambi.defaults import get_default_prior
 from bambi.families import univariate, multivariate
 from bambi.priors import Prior
 from bambi.terms import CommonTerm, GroupSpecificTerm, OffsetTerm, ResponseTerm
+from bambi.utils import get_aliased_name
 
 
 class ConstantComponent:
@@ -25,10 +26,10 @@ class DistributionalComponent:
 
     def __init__(self, design, priors, response_name, response_kind, spec):
         self.terms = {}
+        self.alias = None
         self.design = design
         self.response_name = response_name
         self.response_kind = response_kind
-        self.response_term = None
         self.spec = spec
 
         if self.response_kind == "data":
@@ -86,7 +87,7 @@ class DistributionalComponent:
             if response.kind == "numeric" and not all(np.isin(response.design_matrix, [0, 1])):
                 raise ValueError("Numeric response must be all 0 and 1 for 'bernoulli' family.")
 
-        self.response_term = ResponseTerm(response, self.spec.family)
+        self.terms[response.name] = ResponseTerm(response, self.spec.family)
 
     def build_priors(self):
         for term in self.terms.values():
@@ -94,7 +95,7 @@ class DistributionalComponent:
                 kind = "group_specific"
             elif isinstance(term, CommonTerm) and term.kind == "intercept":
                 kind = "intercept"
-            elif term.kind == "offset":
+            elif hasattr(term, "kind") and term.kind == "offset":
                 continue
             else:
                 kind = "common"
@@ -119,8 +120,13 @@ class DistributionalComponent:
         family = self.spec.family
 
         # Prepare dims objects
-        response_dim = self.spec.response_name + "_obs"
-        response_levels_dim = self.spec.response_name + "_dim"
+        if self.response_kind == "data":
+            response_name = get_aliased_name(self.response_term)
+        else:
+            response_name = self.response_name if self.alias is None else self.alias
+
+        response_dim = response_name + "_obs"
+        response_levels_dim = response_name + "_dim"
         linear_predictor_dims = ("chain", "draw", response_dim)
         to_stack_dims = ("chain", "draw")
         design_matrix_dims = (response_dim, "__variables__")
@@ -142,9 +148,9 @@ class DistributionalComponent:
                 X = np.delete(X, term_slice, axis=1)
 
             # Create DataArray
-            X_terms = [with_prefix(name, self.prefix) for name in self.common_terms]
+            X_terms = [get_aliased_name(term) for term in self.common_terms.values()]
             if self.intercept_term:
-                X_terms.insert(0, with_prefix("Intercept", self.prefix))
+                X_terms.insert(0, get_aliased_name(self.intercept_term))
             b = posterior[X_terms].to_stacked_array("__variables__", to_stack_dims)
 
             # Add contribution due to the common terms
@@ -158,7 +164,7 @@ class DistributionalComponent:
                 Z = self.design.group.evaluate_new_data(data).design_matrix
 
             # Create DataArray
-            Z_terms = [with_prefix(name, self.prefix) for name in self.group_specific_terms]
+            Z_terms = [get_aliased_name(term) for term in self.group_specific_terms.values()]
             u = posterior[Z_terms].to_stacked_array("__variables__", to_stack_dims)
 
             # Add contribution due to the group specific terms
@@ -209,12 +215,17 @@ class DistributionalComponent:
 
     @property
     def intercept_term(self):
-        """Return the intercept term in a model component."""
-        term = [
-            v for v in self.terms.values() if isinstance(v, CommonTerm) and v.kind == "intercept"
-        ]
-        if term:
-            return term[0]
+        """Return the intercept term in the model component."""
+        for term in self.terms.values():
+            if isinstance(term, CommonTerm) and term.kind == "intercept":
+                return term
+
+    @property
+    def response_term(self):
+        """Returns the response term in the model component"""
+        for term in self.terms.values():
+            if isinstance(term, ResponseTerm):
+                return term
 
     @property
     def common_terms(self):
@@ -239,12 +250,6 @@ class DistributionalComponent:
 def with_suffix(value, suffix):
     if suffix:
         return f"{value}_{suffix}"
-    return value
-
-
-def with_prefix(value, prefix):
-    if prefix:
-        return f"{prefix}_{value}"
     return value
 
 

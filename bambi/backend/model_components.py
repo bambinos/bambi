@@ -5,6 +5,7 @@ import pymc as pm
 from bambi.backend.terms import CommonTerm, GroupSpecificTerm, InterceptTerm, ResponseTerm
 from bambi.backend.utils import get_distribution
 from bambi.families.multivariate import MultivariateFamily
+from bambi.utils import get_aliased_name
 
 
 class ConstantComponent:
@@ -14,8 +15,8 @@ class ConstantComponent:
 
     def build(self, pymc_backend, bmb_model):
         with pymc_backend.model:
-            if self.component.name in bmb_model.family.aliases:
-                label = bmb_model.family.aliases[self.component.name]
+            if self.component.alias:
+                label = self.component.alias
             else:
                 label = self.component.name
             dist = get_distribution(self.component.prior.name)
@@ -140,7 +141,8 @@ class DistributionalComponent:
         response_term = bmb_model.response_component.response_term
 
         # Add coordinates to the PyMC model. They're used if it is a distributional model.
-        dim_name = f"{response_term.name}_obs"
+        response_name = get_aliased_name(response_term)
+        dim_name = f"{response_name}_obs"
         dim_value = np.arange(response_term.shape[0])
         pymc_backend.model.add_coords({dim_name: dim_value})
 
