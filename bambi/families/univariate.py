@@ -87,7 +87,7 @@ class Gamma(UnivariateFamily):
 
     def posterior_predictive(self, model, posterior, linear_predictor):
         mean = xr.apply_ufunc(self.link.linkinv, linear_predictor)
-        alpha = posterior[model.response.name + "_alpha"]
+        alpha = posterior[model.response_name + "_alpha"]
         beta = alpha / mean
         return xr.apply_ufunc(np.random.gamma, alpha, 1 / beta)
 
@@ -106,7 +106,7 @@ class Gaussian(UnivariateFamily):
     def posterior_predictive(self, model, posterior):
         "Sample from posterior predictive distribution"
         mean = posterior[model.response_name + "_mean"]
-        sigma = posterior[model.response.name + "_sigma"]
+        sigma = posterior[model.response_name + "_sigma"]
         return xr.apply_ufunc(np.random.normal, mean, sigma)
 
 
@@ -126,7 +126,7 @@ class Laplace(UnivariateFamily):
     def posterior_predictive(self, model, posterior, linear_predictor):
         "Sample from posterior predictive distribution"
         mean = posterior[model.response_name + "_mean"]
-        b = posterior[model.response.name + "_b"]
+        b = posterior[model.response_name + "_b"]
         return xr.apply_ufunc(np.random.laplace, mean, b)
 
 
