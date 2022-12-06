@@ -16,7 +16,7 @@ class CommonTerm:
 
     Parameters
     ----------
-    term: bambi.terms.Term
+    term : bambi.terms.Term
         An object representing a common effects term.
     """
 
@@ -36,8 +36,8 @@ class CommonTerm:
         # Dims of the response variable
         response_dims = []
         if isinstance(spec.family, MultivariateFamily):
-            response_dims = list(spec.response.coords)
-            response_dims_n = len(spec.response.coords[response_dims[0]])
+            response_dims = list(spec.response_component.response_term.coords)
+            response_dims_n = len(spec.response_component.response_term.coords[response_dims[0]])
             # Arguments may be of shape (a,) but we need them to be of shape (a, b)
             # a: length of predictor coordinates
             # b: length of response coordinates
@@ -99,7 +99,7 @@ class GroupSpecificTerm:
         # Dims of the response variable (e.g. categorical)
         response_dims = []
         if isinstance(spec.family, MultivariateFamily):
-            response_dims = list(spec.response.coords)
+            response_dims = list(spec.response_component.response_term.coords)
 
         dims = list(self.coords) + response_dims
         # Squeeze ensures we don't have a shape of (n, 1) when we mean (n, )
@@ -172,7 +172,7 @@ class InterceptTerm:
         label = self.name
         # Prepends one dimension if response is multivariate
         if isinstance(spec.family, MultivariateFamily):
-            dims = list(spec.response.coords)
+            dims = list(spec.response_component.response_term.coords)
             dist = dist(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:
             dist = dist(label, **self.term.prior.args)
