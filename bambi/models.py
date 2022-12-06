@@ -608,7 +608,7 @@ class Model:
         if omit_group_specific:
             group_specific_var_names = [
                 name
-                for component in self.components.values()
+                for component in self.distributional_components.values()
                 for name in component.group_specific_terms
             ]
             var_names = [name for name in var_names if name not in group_specific_var_names]
