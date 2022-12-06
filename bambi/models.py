@@ -710,15 +710,16 @@ class Model:
         if not inplace:
             idata = deepcopy(idata)
 
-        response_name = get_aliased_name(self.response_component.response_term)
+        response_aliased_name = get_aliased_name(self.response_component.response_term)
 
         # Always predict the mean response
         for name, component in self.distributional_components.items():
             if name == self.response_name:
-                name = f"{response_name}_mean"
+                var_name = f"{response_aliased_name}_mean"
             else:
-                name = f"{response_name}_{name}"
-            idata.posterior[name] = component.predict(idata, data, include_group_specific)
+                component_aliased_name = component.alias if component.alias else name
+                var_name = f"{response_aliased_name}_{component_aliased_name}"
+            idata.posterior[var_name] = component.predict(idata, data, include_group_specific)
 
         # Only if requested predict the predictive distribution
         if kind == "pps":

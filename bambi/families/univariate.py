@@ -8,19 +8,7 @@ from bambi.families.family import Family
 
 class UnivariateFamily(Family):
     def predict(self, model, posterior, linear_predictor):
-        """Predict mean response"""
-        response_var = model.response_name + "_mean"
-        response_dim = model.response_name + "_obs"
-
-        # Drop var/dim if already present
-        if response_var in posterior.data_vars:
-            posterior = posterior.drop_vars(response_var)
-
-        if response_dim in posterior.dims:
-            posterior = posterior.drop_dims(response_dim)
-
-        posterior[response_var] = xr.apply_ufunc(self.link.linkinv, linear_predictor)
-        return posterior
+        return NotImplemented
 
 
 class AsymmetricLaplace(UnivariateFamily):

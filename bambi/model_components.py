@@ -120,11 +120,7 @@ class DistributionalComponent:
         family = self.spec.family
 
         # Prepare dims objects
-        if self.response_kind == "data":
-            response_name = get_aliased_name(self.response_term)
-        else:
-            response_name = self.response_name if self.alias is None else self.alias
-
+        response_name = get_aliased_name(self.spec.response_component.response_term)
         response_dim = response_name + "_obs"
         response_levels_dim = response_name + "_dim"
         linear_predictor_dims = ("chain", "draw", response_dim)
@@ -182,6 +178,7 @@ class DistributionalComponent:
         obs_n = len(linear_predictor[response_dim])
         linear_predictor = linear_predictor.assign_coords({response_dim: list(range(obs_n))})
 
+        # Handle more special cases
         if hasattr(family, "transform_linear_predictor"):
             linear_predictor = family.transform_linear_predictor(self.spec, linear_predictor)
 
