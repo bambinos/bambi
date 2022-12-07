@@ -144,8 +144,8 @@ class StudentT(UnivariateFamily):
     def posterior_predictive(self, model, posterior):
         mean = posterior[model.response_name + "_mean"]
         sigma = posterior[model.response_name + "_sigma"]
-
         nu_component = model.components["nu"]
+        
         # Constant component with fixed value
         if hasattr(nu_component, "prior") and isinstance(nu_component.prior, (int, float)):
             nu = nu_component.prior
