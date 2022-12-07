@@ -19,8 +19,13 @@ class ConstantComponent:
                 label = self.component.alias
             else:
                 label = self.component.name
-            dist = get_distribution(self.component.prior.name)
-            self.output = dist(label, **self.component.prior.args)
+            # It's set to a constant value
+            if isinstance(self.component.prior, (int, float)):
+                self.output = self.component.prior
+            # Set to a distribution
+            else:
+                dist = get_distribution(self.component.prior.name)
+                self.output = dist(label, **self.component.prior.args)
 
 
 class DistributionalComponent:

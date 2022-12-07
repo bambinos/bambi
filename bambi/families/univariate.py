@@ -145,9 +145,11 @@ class StudentT(UnivariateFamily):
         mean = posterior[model.response_name + "_mean"]
         sigma = posterior[model.response_name + "_sigma"]
 
-        # FIXME: The likelihood does not have information about the priors anymore
-        if isinstance(self.likelihood.priors["nu"], (int, float)):
-            nu = self.likelihood.priors["nu"]
+        nu_component = model.components["nu"]
+        # Constant component with fixed value
+        if hasattr(nu_component, "prior") and isinstance(nu_component.prior, (int, float)):
+            nu = nu_component.prior
+        # Either constant or distributional, but non-constant value
         else:
             nu = posterior[model.response_name + "_nu"]
 

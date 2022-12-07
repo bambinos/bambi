@@ -361,6 +361,8 @@ class Model:
         for name, component in self.constant_components.items():
             if isinstance(component.prior, Prior):
                 component.prior.auto_scale = False
+            elif isinstance(component.prior, (int, float)):
+                continue
             else:
                 component.prior = self.family.default_priors[name]
 

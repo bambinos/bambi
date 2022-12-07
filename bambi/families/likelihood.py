@@ -16,7 +16,7 @@ DISTRIBUTIONS = {
     "NegativeBinomial": DistSettings(params=("mu", "alpha"), parent="mu"),
     "Laplace": DistSettings(params=("mu", "b"), parent="mu"),
     "Poisson": DistSettings(params=("mu",), parent="mu"),
-    "StudentT": DistSettings(params=("mu", "sigma"), parent="mu"),
+    "StudentT": DistSettings(params=("mu", "sigma", "nu"), parent="mu"),
     "VonMises": DistSettings(params=("mu", "kappa"), parent="mu"),
     "Wald": DistSettings(params=("mu", "lam"), parent="mu"),
 }
@@ -89,43 +89,3 @@ class Likelihood:
 
     def __repr__(self):
         return self.__str__()
-
-
-# def _check_priors(self, priors):
-#     args = [param for param in self.params if param != self.parent]
-#     if not args:
-#         args = None
-
-#     # The function requires priors but none were passed
-#     if priors == {} and args is not None:
-#         raise ValueError(f"'{self.name}' requires priors for the parameters {args}.")
-
-#     # The function does not require priors, but at least one was passed
-#     if priors != {} and args is None:
-#         raise ValueError(f"'{self.name}' does not require any additional priors.")
-
-#     # The function requires priors, priors were passed, but they differ from the required
-#     if priors and args:
-#         difference = set(args) - set(priors)
-#         if len(difference):
-#             raise ValueError(f"'{self.name}' misses priors for the parameters {difference}")
-
-#         # And check priors passed are in fact of class Prior
-#         check_all_are_priors(priors)
-
-#     return priors
-
-# def check_all_are_priors(priors):
-#     """Checks if values in the supplied dictionary are all valid prior objects
-
-#     An object is a valid prior if
-#     * It is an instance of bambi.priors.Prior
-#     * It is a number
-
-#     Parameters
-#     ----------
-#     priors: dict
-#         A dictionary whose values are tested to be valid priors
-#     """
-#     if any(not isinstance(prior, (Prior, int, float)) for prior in priors.values()):
-#         raise ValueError("Prior distributions must be a 'Prior' instance or a numeric value")

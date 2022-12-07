@@ -16,6 +16,7 @@ class ConstantComponent:
         self.alias = None
 
     def update_priors(self, value):
+        print("hey")
         self.prior = value
 
 
