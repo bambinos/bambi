@@ -10,7 +10,38 @@
 
 ### Deprecation
 
-# Changelog
+## 0.X.X
+
+### New features
+
+### Maintenance and fixes
+
+### Documentation
+
+### Deprecation
+
+## 0.9.1
+
+### New features
+
+* Add support for jax sampling via numpyro and blackjax samplers (#526)
+* Add Laplace family (#524)
+* Improve Laplace computation and integration (#555 and #563)
+
+### Maintenance and fixes
+
+* Ensure order variable is preserved when ploting priors (#529)
+* Treat offset accordingly (#534)
+* Refactor tests to share data generation code (#531)
+
+### Documentation
+
+* Update documentation following good inferencedata practices (#537)
+* Add logos to repo and docs (#542)
+
+### Deprecation
+
+* Deprecate method argument in favor of inference_method (#554)
 
 ## 0.9.0
 
