@@ -10,15 +10,31 @@
 
 ### Deprecation
 
-## 0.X.X
+## 0.9.2
 
 ### New features
 
+* Implement `censored()` (#581)
+* Add `Formula` class (#585)
+* Add common numpy transforms to extra_namespace (#589)
+* Add `AsymmetricLaplace` family for Quantile Regression (#591)
+* Add 'transforms' argument to `plot_cap()` (#594)
+* Add panel covariates to `plot_cap()` and make it more flexible (#596)
+
 ### Maintenance and fixes
+
+* Reimplemented predictions to make better usage of xarray data structures (#573)
+* Keep 0 dimensional parameters as 0 dimensional instead of 1 dimensional (#575)
+* Refactor terms for modularity and extensibility (#582)
+* Remove seed argument from `model.initial_point()` (#592)
+* Add build check function on prior predictive and plot prior (#605)
 
 ### Documentation
 
 ### Deprecation
+
+* Remove `automatic_priors` argument from `Model` (#603)
+* Remove string option for data input in `Model` (#604)
 
 ## 0.9.1
 
