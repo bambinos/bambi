@@ -31,6 +31,8 @@
 
 ### Documentation
 
+* Add quantile regression example (#608)
+
 ### Deprecation
 
 * Remove `automatic_priors` argument from `Model` (#603)
