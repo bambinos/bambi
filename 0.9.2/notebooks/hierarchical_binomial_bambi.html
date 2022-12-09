@@ -1,0 +1,1808 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Hierarchical Logistic regression with Binomial family &#8212; Bambi 0.9.2 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../_static/styles/bootstrap.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=796348d33e8b1d947c94" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94">
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/hierarchical_binomial_bambi';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Regression for Binary responses: Alternative link functions" href="alternative_links_binary.html" />
+    <link rel="prev" title="Logistic Regression and Model Comparison with Bambi and ArviZ" href="model_comparison.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="docsearch:language" content="en">
+  </head>
+  
+  
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="180" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__primary" id="__primary">
+  <label class="overlay overlay-primary" for="__primary"></label>
+
+  
+  <input type="checkbox" class="sidebar-toggle" name="__secondary" id="__secondary">
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+      
+<form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs..." aria-label="Search the docs..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+    </div>
+  </div>
+
+  
+  <nav class="bd-header navbar navbar-expand-lg bd-navbar" id="navbar-main"><div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+      <span class="fa-solid fa-bars"></span>
+  </label>
+  <div id="navbar-start">
+    
+    
+  
+
+
+<a class="navbar-brand logo" href="../index.html">
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <img src="../_static/Bambi_logo.png" class="logo__image only-light" alt="Logo image">
+    <img src="../_static/Bambi_logo.png" class="logo__image only-dark" alt="Logo image">
+  
+  
+</a>
+    
+  </div>
+
+  
+  <div class="col-lg-9 navbar-header-items">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="getting_started.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../examples.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api_reference.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../faq.html">
+                        Frequently Asked Questions
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+        <div class="navbar-end-item navbar-persistent--container">
+          
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+        </div>
+      
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/bambinos/bambi" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bambi/" title="PyPi" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+
+
+  
+  
+    <div class="navbar-persistent--mobile">
+<button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-toggle="tooltip">
+  <i class="fa-solid fa-magnifying-glass"></i>
+</button>
+    </div>
+  
+
+  
+  <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+  </label>
+  
+
+</div>
+  </nav>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+      
+      <div class="navbar-center-item">
+        <nav class="navbar-nav">
+    <p class="sidebar-header-items__title" role="heading" aria-level="1" aria-label="Site Navigation">
+        Site Navigation
+    </p>
+    <ul id="navbar-main-elements" class="navbar-nav">
+        
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="getting_started.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item current active">
+                      <a class="nav-link nav-internal" href="../examples.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api_reference.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../faq.html">
+                        Frequently Asked Questions
+                      </a>
+                    </li>
+                
+    </ul>
+</nav>
+      </div>
+      
+      </div>
+    
+
+    
+    
+    <div class="sidebar-header-items__end">
+      
+      <div class="navbar-end-item">
+        <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+</button>
+      </div>
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/bambinos/bambi" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bambi/" title="PyPi" class="nav-link" rel="noopener" target="_blank" data-toggle="tooltip"><span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  
+  <div class="sidebar-start-items sidebar-primary__section">
+    <div class="sidebar-start-items__item">
+<div id="searchbox"></div>
+    </div>
+    <div class="sidebar-start-items__item">
+
+  
+
+  
+
+<nav class="bd-links" id="bd-docs-nav" aria-label="Versions navigation">
+    <div class="bd-toc-item active">
+        <ul class="current nav bd-sidenav">
+        <li class="toctree-l1 has-children">
+            <p class="caption"><span class="caption-text">Version</span></p>
+            <input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox">
+            <label for="toctree-checkbox-1"> <i class="fas fa-chevron-down"></i></label>
+
+            <ul>
+                  
+                  <li><a href="../../main/index.html"> Development </a></li>
+                  
+
+                
+
+                  
+                    <li class="toctree-l2 current active"><a href="hierarchical_binomial_bambi.html">0.9.2 (latest)</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.9.1/index.html">0.9.1</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.9.0/index.html">0.9.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.8.0/index.html">0.8.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.7.1/index.html">0.7.1</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.7.0/index.html">0.7.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.3/index.html">0.6.3</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.2/index.html">0.6.2</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.1/index.html">0.6.1</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.6.0/index.html">0.6.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.5.0/index.html">0.5.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.4.1/index.html">0.4.1</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.4.0/index.html">0.4.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.3.0/index.html">0.3.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.2.0/index.html">0.2.0</a></li>
+                  
+
+                
+
+                
+
+                  
+                    <li><a href="../../0.1.5/index.html">0.1.5</a></li>
+                  
+
+                
+
+            </ul>
+        </li>
+        </ul>
+    </div>
+  </nav>
+
+
+    </div>
+  </div>
+  
+
+  
+  <div class="sidebar-end-items sidebar-primary__section">
+    <div class="sidebar-end-items__item">
+    </div>
+  </div>
+
+  
+  <div id="rtd-footer-container"></div>
+
+      </div>
+      <main id="main-content" class="bd-main">
+        
+        
+        <div class="bd-content">
+          <div class="bd-article-container">
+            
+            <div class="bd-header-article">
+                
+            </div>
+            
+            
+            <article class="bd-article" role="main">
+              
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars and line breaks on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+    white-space: pre;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+</style>
+<section id="Hierarchical-Logistic-regression-with-Binomial-family">
+<h1>Hierarchical Logistic regression with Binomial family<a class="headerlink" href="#Hierarchical-Logistic-regression-with-Binomial-family" title="Permalink to this heading">#</a></h1>
+<p>This notebook shows how to build a hierarchical logistic regression model with the Binomial family in Bambi.</p>
+<p>This example is based on the <a class="reference external" href="https://ericmjl.github.io/bayesian-analysis-recipes/notebooks/hierarchical-baseball/">Hierarchical baseball</a> article in <a class="reference external" href="https://ericmjl.github.io/bayesian-analysis-recipes/">Bayesian Analysis Recipes</a>, a collection of articles on how to do Bayesian data analysis with PyMC3 made by <a class="reference external" href="https://ericmjl.github.io/">Eric Ma</a>.</p>
+<section id="Problem-description">
+<h2>Problem description<a class="headerlink" href="#Problem-description" title="Permalink to this heading">#</a></h2>
+<p>Extracted from the original work:</p>
+<blockquote>
+<div><p>Baseball players have many metrics measured for them. Let’s say we are on a baseball team, and would like to quantify player performance, one metric being their batting average (defined by how many times a batter hit a pitched ball, divided by the number of times they were up for batting (“at bat”)). How would you go about this task?</p>
+</div></blockquote>
+</section>
+<section id="Load-libraries-and-data">
+<h2>Load libraries and data<a class="headerlink" href="#Load-libraries-and-data" title="Permalink to this heading">#</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
+import bambi as bmb
+import matplotlib.pyplot as plt
+import numpy as np
+
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
+random_seed = 1234
+</pre></div>
+</div>
+</div>
+<p>We first need some measurements of batting data. Today we’re going to use data from the <a class="reference external" href="https://github.com/chadwickbureau/baseballdatabank">Baseball Databank</a>. It is a compilation of historical baseball data in a convenient, tidy format, distributed under Open Data terms.</p>
+<p>This repository contains several datasets in the form of <code class="docutils literal notranslate"><span class="pre">.csv</span></code> files. This example is going to use the <code class="docutils literal notranslate"><span class="pre">Batting.csv</span></code> file, which can be loaded directly with Bambi in a convenient way.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>df = bmb.load_data(&quot;batting&quot;)
+
+# Then clean some of the data
+df[&quot;AB&quot;] = df[&quot;AB&quot;].replace(0, np.nan)
+df = df.dropna()
+df[&quot;batting_avg&quot;] = df[&quot;H&quot;] / df[&quot;AB&quot;]
+df = df[df[&quot;yearID&quot;] &gt;= 2016]
+df = df.iloc[0:15]
+df.head(5)
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>playerID</th>
+      <th>yearID</th>
+      <th>stint</th>
+      <th>teamID</th>
+      <th>lgID</th>
+      <th>G</th>
+      <th>AB</th>
+      <th>R</th>
+      <th>H</th>
+      <th>2B</th>
+      <th>...</th>
+      <th>SB</th>
+      <th>CS</th>
+      <th>BB</th>
+      <th>SO</th>
+      <th>IBB</th>
+      <th>HBP</th>
+      <th>SH</th>
+      <th>SF</th>
+      <th>GIDP</th>
+      <th>batting_avg</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>101348</th>
+      <td>abadfe01</td>
+      <td>2016</td>
+      <td>1</td>
+      <td>MIN</td>
+      <td>AL</td>
+      <td>39</td>
+      <td>1.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>101350</th>
+      <td>abreujo02</td>
+      <td>2016</td>
+      <td>1</td>
+      <td>CHA</td>
+      <td>AL</td>
+      <td>159</td>
+      <td>624.0</td>
+      <td>67</td>
+      <td>183</td>
+      <td>32</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>2.0</td>
+      <td>47</td>
+      <td>125.0</td>
+      <td>7.0</td>
+      <td>15.0</td>
+      <td>0.0</td>
+      <td>9.0</td>
+      <td>21.0</td>
+      <td>0.293269</td>
+    </tr>
+    <tr>
+      <th>101352</th>
+      <td>ackledu01</td>
+      <td>2016</td>
+      <td>1</td>
+      <td>NYA</td>
+      <td>AL</td>
+      <td>28</td>
+      <td>61.0</td>
+      <td>6</td>
+      <td>9</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>8</td>
+      <td>9.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.147541</td>
+    </tr>
+    <tr>
+      <th>101353</th>
+      <td>adamecr01</td>
+      <td>2016</td>
+      <td>1</td>
+      <td>COL</td>
+      <td>NL</td>
+      <td>121</td>
+      <td>225.0</td>
+      <td>25</td>
+      <td>49</td>
+      <td>7</td>
+      <td>...</td>
+      <td>2.0</td>
+      <td>3.0</td>
+      <td>24</td>
+      <td>47.0</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>3.0</td>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>0.217778</td>
+    </tr>
+    <tr>
+      <th>101355</th>
+      <td>adamsma01</td>
+      <td>2016</td>
+      <td>1</td>
+      <td>SLN</td>
+      <td>NL</td>
+      <td>118</td>
+      <td>297.0</td>
+      <td>37</td>
+      <td>74</td>
+      <td>18</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>25</td>
+      <td>81.0</td>
+      <td>1.0</td>
+      <td>2.0</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>0.249158</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 23 columns</p>
+</div></div>
+</div>
+<p>From all the columns above, we’re going to use the following:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">playerID</span></code>: Unique identification for the player.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AB</span></code>: Number of times the player was up for batting.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">H</span></code>: Number of times the player hit the ball while batting.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">batting_avg</span></code>: Simply ratio between <code class="docutils literal notranslate"><span class="pre">H</span></code> and <code class="docutils literal notranslate"><span class="pre">AB</span></code>.</p></li>
+</ul>
+</section>
+<section id="Explore-our-data">
+<h2>Explore our data<a class="headerlink" href="#Explore-our-data" title="Permalink to this heading">#</a></h2>
+<p>It’s always good to explore the data before starting to write down our models. This is very useful to gain a good understanding of the distribution of the variables and their relationships, and even anticipate some problems that may occur during the sampling process.</p>
+<p>The following graph summarizes the percentage of hits, as well as the number of times the players were up for batting and the number of times they hit the ball.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>BLUE = &quot;#2a5674&quot;
+RED = &quot;#b13f64&quot;
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_, ax = plt.subplots(figsize=(10, 6))
+
+# Customize x limits.
+# This adds space on the left side to indicate percentage of hits.
+ax.set_xlim(-120, 320)
+
+# Add dots for the times at bat and the number of hits
+ax.scatter(df[&quot;AB&quot;], list(range(15)), s=140, color=BLUE, zorder=10)
+ax.scatter(df[&quot;H&quot;], list(range(15)), s=140, color=RED, zorder=10)
+
+# Also a line connecting them
+ax.hlines(list(range(15)), df[&quot;AB&quot;], df[&quot;H&quot;], color=&quot;#b3b3b3&quot;, lw=4)
+
+ax.axvline(ls=&quot;--&quot;, lw=1.4, color=&quot;#a3a3a3&quot;)
+ax.hlines(list(range(15)), -110, -50, lw=6, color=&quot;#b3b3b3&quot;, capstyle=&quot;round&quot;)
+ax.scatter(60 * df[&quot;batting_avg&quot;] - 110, list(range(15)), s=28, color=RED, zorder=10)
+
+# Add the percentage of hits
+for j in range(15):
+    text = f&quot;{round(df[&#39;batting_avg&#39;].iloc[j] * 100)}%&quot;
+    ax.text(-12, j, text, ha=&quot;right&quot;, va=&quot;center&quot;, fontsize=14, color=&quot;#333&quot;)
+
+# Customize tick positions and labels
+ax.yaxis.set_ticks(list(range(15)))
+ax.yaxis.set_ticklabels(df[&quot;playerID&quot;])
+ax.xaxis.set_ticks(range(0, 400, 100))
+
+# Create handles for the legend (just dots and labels)
+handles = [
+    Line2D(
+        [0], [0], label=&quot;At Bat&quot;, marker=&quot;o&quot;, color=&quot;None&quot;, markeredgewidth=0,
+        markerfacecolor=RED, markersize=12
+    ),
+    Line2D(
+        [0], [0], label=&quot;Hits&quot;, marker=&quot;o&quot;, color=&quot;None&quot;, markeredgewidth=0,
+        markerfacecolor=BLUE, markersize=13
+    )
+]
+
+# Add legend on top-right corner
+legend = ax.legend(
+    handles=handles,
+    loc=1,
+    fontsize=14,
+    handletextpad=0.4,
+    frameon=True
+)
+
+# Finally add labels and a title
+ax.set_xlabel(&quot;Count&quot;, fontsize=14)
+ax.set_ylabel(&quot;Player&quot;, fontsize=14)
+ax.set_title(&quot;How often do batters hit the ball?&quot;, fontsize=20);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_hierarchical_binomial_bambi_10_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_10_0.png" />
+</div>
+</div>
+<p>The first thing one can see is that the number of times players were up for batting varies quite a lot. Some players have been there for very few times, while there are others who have been there hundreds of times. We can also note the percentage of hits is usually a number between 12% and 29%.</p>
+<p>There are two players, <strong>alberma01</strong> and <strong>abadfe01</strong>, who had only one chance to bat. The first one hit the ball, while the latter missed. That’s why <strong>alberma01</strong> as a 100% hit percentage, while <strong>abadfe01</strong> has 0%. There’s another player, <strong>aguilje01</strong>, who has a success record of 0% because he missed all the few opportunities he had to bat. These extreme situations, where the empirical estimation lives in the boundary of the parameter space, are associated with estimation problems when using
+a maximum-likelihood estimation approach. Nonetheless, they can also impact the sampling process, especially when using wide priors.</p>
+<p>As a final note, <strong>abreujo02</strong>, has been there for batting 624 times, and thus the grey dot representing this number does not appear in the plot.</p>
+</section>
+<section id="Non-hierarchical-model">
+<h2>Non-hierarchical model<a class="headerlink" href="#Non-hierarchical-model" title="Permalink to this heading">#</a></h2>
+<p>Let’s get started with a simple cell-means logistic regression for <span class="math notranslate nohighlight">\(p_i\)</span>, the probability of hitting the ball for the player <span class="math notranslate nohighlight">\(i\)</span></p>
+<div class="math notranslate nohighlight">
+\[\begin{array}{lr}
+    \displaystyle \text{logit}(p_i) = \beta_i &amp; \text{with } i = 0, \cdots, 14
+\end{array}\]</div>
+<p>Where</p>
+<div class="math notranslate nohighlight">
+\[\beta_i \sim \text{Normal}(0, \ \sigma_{\beta}),\]</div>
+<p><span class="math notranslate nohighlight">\(\sigma_{\beta}\)</span> is a common constant for all the players, and <span class="math notranslate nohighlight">\(\text{logit}(p_i) = \log\left(\frac{p_i}{1 - p_i}\right)\)</span>.</p>
+<p>Specifying this model is quite simple in Bambi thanks to its formula interface.</p>
+<p>First of all, note this is a Binomial family and the response involves both the number of hits (<code class="docutils literal notranslate"><span class="pre">H</span></code>) and the number of times at bat (<code class="docutils literal notranslate"><span class="pre">AB</span></code>). We use the <code class="docutils literal notranslate"><span class="pre">p(x,</span> <span class="pre">n)</span></code> function for the response term. This just tells Bambi we want to model the proportion resulting from dividing <code class="docutils literal notranslate"><span class="pre">x</span></code> over <code class="docutils literal notranslate"><span class="pre">n</span></code>.</p>
+<p>The right-hand side of the formula is <code class="docutils literal notranslate"><span class="pre">&quot;0</span> <span class="pre">+</span> <span class="pre">playerID&quot;</span></code>. This means the model includes a coefficient for each player ID, but does not include a global intercept.</p>
+<p>Finally, using the Binomial family is as easy as passing <code class="docutils literal notranslate"><span class="pre">family=&quot;binomial&quot;</span></code>. By default, the link function for this family is <code class="docutils literal notranslate"><span class="pre">link=&quot;logit&quot;</span></code>, so there’s nothing to change there.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_non_hierarchical = bmb.Model(&quot;p(H, AB) ~ 0 + playerID&quot;, df, family=&quot;binomial&quot;)
+model_non_hierarchical
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Formula: p(H, AB) ~ 0 + playerID
+Family name: Binomial
+Link: logit
+Observations: 15
+Priors:
+  Common-level effects
+    playerID ~ Normal(mu: [0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.], sigma: [10.0223 10.0223 10.0223 10.0223 10.0223 10.0223 10.0223 10.0223 10.0223
+ 10.0223 10.0223 10.0223 10.0223 10.0223 10.0223])
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>idata_non_hierarchical = model_non_hierarchical.fit(random_seed=random_seed)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [playerID]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:03<00:00 Sampling 4 chains, 0 divergences]
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.
+</pre></div></div>
+</div>
+<p>Next we observe the posterior of the coefficient for each player. The <code class="docutils literal notranslate"><span class="pre">compact=False</span></code> argument means we want separated panels for each player.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(idata_non_hierarchical, compact=False);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_hierarchical_binomial_bambi_17_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_17_0.png" />
+</div>
+</div>
+<p>So far so good! The traceplots indicate the sampler worked well.</p>
+<p>Now, let’s keep this posterior aside for later use and let’s fit the hierarchical version.</p>
+</section>
+<section id="Hierarchical-model">
+<h2>Hierarchical model<a class="headerlink" href="#Hierarchical-model" title="Permalink to this heading">#</a></h2>
+<p>This model incorporates a group-specific intercept for each player:</p>
+<div class="math notranslate nohighlight">
+\[\begin{array}{lr}
+    \displaystyle \text{logit}(p_i) = \alpha + \gamma_i &amp; \text{with } i = 0, \cdots, 14
+\end{array}\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{array}{c}
+    \alpha \sim \text{Normal}(0, \ \sigma_{\alpha}) \\
+    \gamma_i \sim \text{Normal}(0, \ \sigma_{\gamma}) \\
+    \sigma_{\gamma} \sim \text{HalfNormal}(\tau_{\gamma})
+\end{array}\end{split}\]</div>
+<p>The group-specific terms are indicated with the <code class="docutils literal notranslate"><span class="pre">|</span></code> operator in the formula. In this case, since there is an intercept for each player, we write <code class="docutils literal notranslate"><span class="pre">1|playerID</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_hierarchical = bmb.Model(&quot;p(H, AB) ~ 1 + (1|playerID)&quot;, df, family=&quot;binomial&quot;)
+model_hierarchical
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Formula: p(H, AB) ~ 1 + (1|playerID)
+Family name: Binomial
+Link: logit
+Observations: 15
+Priors:
+  Common-level effects
+    Intercept ~ Normal(mu: 0, sigma: 2.5)
+
+  Group-level effects
+    1|playerID ~ Normal(mu: 0, sigma: HalfNormal(sigma: 2.5))
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>idata_hierarchical = model_hierarchical.fit(random_seed=random_seed)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:03<00:00 Sampling 4 chains, 70 divergences]
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 5 seconds.
+There was 1 divergence after tuning. Increase `target_accept` or reparameterize.
+There were 4 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 47 divergences after tuning. Increase `target_accept` or reparameterize.
+The acceptance probability does not match the target. It is 0.701, but should be close to 0.8. Try to increase the number of tuning steps.
+There were 18 divergences after tuning. Increase `target_accept` or reparameterize.
+</pre></div></div>
+</div>
+<p>And there we got several divergences… What can we do?</p>
+<p>One thing we could try is to increase <code class="docutils literal notranslate"><span class="pre">target_accept</span></code> as suggested in the message above, but there are so many divergences that instead we are going to first take a look at the prior predictive distribution to check whether our priors are too informative or too wide.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Model</span></code> instance has a method called <code class="docutils literal notranslate"><span class="pre">prior_predictive()</span></code> that generates samples from the prior predictive distribution. It returns an <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object that contains the values of the prior predictive distribution.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>idata_prior = model_hierarchical.prior_predictive()
+prior = az.extract_dataset(idata_prior, group=&quot;prior_predictive&quot;)[&quot;p(H, AB)&quot;]
+</pre></div>
+</div>
+</div>
+<p>If we inspect the DataArray, we see there are 500 draws (<code class="docutils literal notranslate"><span class="pre">sample</span></code>) for each of the 15 players (<code class="docutils literal notranslate"><span class="pre">p(H,</span> <span class="pre">AB)_dim_0</span></code>)</p>
+<p>Let’s plot these distributions together with the observed proportion of hits for every player here.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># We define this function because this plot is going to be repeated below.
+def plot_prior_predictive(df, prior):
+    AB = df[&quot;AB&quot;].values
+    H = df[&quot;H&quot;].values
+
+    fig, axes = plt.subplots(5, 3, figsize=(10, 6), sharex=&quot;col&quot;)
+
+    for idx, ax in enumerate(axes.ravel()):
+        pps = prior.sel({&quot;p(H, AB)_dim_0&quot;:idx})
+        ab = AB[idx]
+        h = H[idx]
+        hist = ax.hist(pps / ab, bins=25, color=&quot;#a3a3a3&quot;)
+        ax.axvline(h / ab, color=RED, lw=2)
+        ax.set_yticks([])
+        ax.tick_params(labelsize=12)
+
+    fig.subplots_adjust(left=0.025, right=0.975, hspace=0.05, wspace=0.05, bottom=0.125)
+    fig.legend(
+        handles=[Line2D([0], [0], label=&quot;Observed proportion&quot;, color=RED, linewidth=2)],
+        handlelength=1.5,
+        handletextpad=0.8,
+        borderaxespad=0,
+        frameon=True,
+        fontsize=11,
+        bbox_to_anchor=(0.975, 0.92),
+        loc=&quot;right&quot;
+
+    )
+    fig.text(0.5, 0.025, &quot;Prior probability of hitting&quot;, fontsize=15, ha=&quot;center&quot;, va=&quot;baseline&quot;)
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plot_prior_predictive(df, prior)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_22567/4289598508.py:17: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
+  fig.subplots_adjust(left=0.025, right=0.975, hspace=0.05, wspace=0.05, bottom=0.125)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_hierarchical_binomial_bambi_29_1.png" src="../_images/notebooks_hierarchical_binomial_bambi_29_1.png" />
+</div>
+</div>
+<p>Indeed, priors are too wide! Let’s use tighter priors and see what’s the result</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>priors = {
+    &quot;Intercept&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=1),
+    &quot;1|playerID&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=bmb.Prior(&quot;HalfNormal&quot;, sigma=1))
+}
+model_hierarchical = bmb.Model(&quot;p(H, AB) ~ 1 + (1|playerID)&quot;, df, family=&quot;binomial&quot;, priors=priors)
+model_hierarchical
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Formula: p(H, AB) ~ 1 + (1|playerID)
+Family name: Binomial
+Link: logit
+Observations: 15
+Priors:
+  Common-level effects
+    Intercept ~ Normal(mu: 0, sigma: 1)
+
+  Group-level effects
+    1|playerID ~ Normal(mu: 0, sigma: HalfNormal(sigma: 1))
+</pre></div></div>
+</div>
+<p>Now let’s check the prior predictive distribution for these new priors.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_hierarchical.build()
+idata_prior = model_hierarchical.prior_predictive()
+prior = az.extract_dataset(idata_prior, group=&quot;prior_predictive&quot;)[&quot;p(H, AB)&quot;]
+plot_prior_predictive(df, prior)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_22567/4289598508.py:17: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
+  fig.subplots_adjust(left=0.025, right=0.975, hspace=0.05, wspace=0.05, bottom=0.125)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_hierarchical_binomial_bambi_33_1.png" src="../_images/notebooks_hierarchical_binomial_bambi_33_1.png" />
+</div>
+</div>
+<p>Definetely it looks much better. Now the priors tend to have a symmetric shape with a mode at 0.5, with substantial probability on the whole domain.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>idata_hierarchical = model_hierarchical.fit(random_seed=random_seed)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:03<00:00 Sampling 4 chains, 20 divergences]
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.
+There were 7 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 2 divergences after tuning. Increase `target_accept` or reparameterize.
+There were 11 divergences after tuning. Increase `target_accept` or reparameterize.
+</pre></div></div>
+</div>
+<p>Let’s try with increasing <code class="docutils literal notranslate"><span class="pre">target_accept</span></code> and the number of <code class="docutils literal notranslate"><span class="pre">tune</span></code> samples.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>idata_hierarchical = model_hierarchical.fit(tune=2000, draws=2000, target_accept=0.95, random_seed=random_seed)
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 4 jobs)
+NUTS: [Intercept, 1|playerID_sigma, 1|playerID_offset]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+  <progress value='16000' class='' max='16000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [16000/16000 00:10<00:00 Sampling 4 chains, 0 divergences]
+</div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws total) took 11 seconds.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>var_names = [&quot;Intercept&quot;, &quot;1|playerID&quot;, &quot;1|playerID_sigma&quot;]
+az.plot_trace(idata_hierarchical, var_names=var_names, compact=False);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_hierarchical_binomial_bambi_38_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_38_0.png" />
+</div>
+</div>
+<p>Let’s jump onto the next section where we plot and compare the probability of hit for the players using both models.</p>
+</section>
+<section id="Compare-predictions">
+<h2>Compare predictions<a class="headerlink" href="#Compare-predictions" title="Permalink to this heading">#</a></h2>
+<p>Now we’re going to plot the distribution of the probability of hit for each player, using both models.</p>
+<p>But before doing that, we need to obtain the posterior in that scale. We could manually take the posterior of the coefficients, compute the linear predictor, and transform that to the probability scale. But that’s a lot of work!</p>
+<p>Fortunately, Bambi models have a method called <code class="docutils literal notranslate"><span class="pre">.predict()</span></code> that we can use to predict in the probability scale. By default, it modifies in-place the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object we pass to it. Then, the posterior samples can be found in the variable <code class="docutils literal notranslate"><span class="pre">p(H,</span> <span class="pre">AB)_mean</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_non_hierarchical.predict(idata_non_hierarchical)
+model_hierarchical.predict(idata_hierarchical)
+</pre></div>
+</div>
+</div>
+<p>Let’s create a forestplot using the posteriors obtained with both models so we can compare them very easily .</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_, ax = plt.subplots(figsize = (8, 8))
+
+# Add vertical line for the global probability of hitting
+ax.axvline(x=(df[&quot;H&quot;] / df[&quot;AB&quot;]).mean(), ls=&quot;--&quot;, color=&quot;black&quot;, alpha=0.5)
+
+# Create forestplot with ArviZ, only for the mean.
+az.plot_forest(
+    [idata_non_hierarchical, idata_hierarchical],
+    var_names=&quot;p(H, AB)_mean&quot;,
+    combined=True,
+    colors=[&quot;#666666&quot;, RED],
+    linewidth=2.6,
+    markersize=8,
+    ax=ax
+)
+
+# Create custom y axis tick labels
+ylabels = [f&quot;H: {round(h)}, AB: {round(ab)}&quot; for h, ab in zip(df[&quot;H&quot;].values, df[&quot;AB&quot;].values)]
+ylabels = list(reversed(ylabels))
+
+# Put the labels for the y axis in the mid of the original location of the tick marks.
+ax.set_yticklabels(ylabels, ha=&quot;right&quot;)
+
+# Create legend
+handles = [
+    Patch(label=&quot;Non-hierarchical&quot;, facecolor=&quot;#666666&quot;),
+    Patch(label=&quot;Hierarchical&quot;, facecolor=RED),
+    Line2D([0], [0], label=&quot;Mean probability&quot;, ls=&quot;--&quot;, color=&quot;black&quot;, alpha=0.5)
+]
+
+legend = ax.legend(handles=handles, loc=4, fontsize=14, frameon=True, framealpha=0.8);
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_hierarchical_binomial_bambi_44_0.png" src="../_images/notebooks_hierarchical_binomial_bambi_44_0.png" />
+</div>
+</div>
+<p>One of the first things one can see is that not only the center of the distributions varies but also their dispersion. Those posteriors that are very wide are associated with players who have batted only once or few times, while tighter posteriors correspond to players who batted several times.</p>
+<p>Players who have extreme empirical proportions have similar extreme posteriors under the non-hierarchical model. However, under the hierarchical model, these distributions are now <strong>shrunk towards the global mean</strong>. Extreme values are very unlikely under the hierarchical model.</p>
+<p>And finally, paraphrasing Eric, there’s nothing ineherently right or wrong about shrinkage and hierarchical models. Whether this is reasonable or not depends on our prior knowledge about the problem. And to me, after having seen the hit rates of the other players, it is much more reasonable to shrink extreme posteriors based on very few data points towards the global mean rather than just let them concentrate around 0 or 1.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
+%watermark -n -u -v -iv -w
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Last updated: Mon Jun 20 2022
+
+Python implementation: CPython
+Python version       : 3.9.7
+IPython version      : 8.3.0
+
+bambi     : 0.9.0
+arviz     : 0.13.0.dev0
+matplotlib: 3.5.1
+numpy     : 1.21.5
+sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
+[GCC 7.5.0]
+
+Watermark: 2.3.0
+
+</pre></div></div>
+</div>
+</section>
+<section id="Footnotes">
+<h2>Footnotes<a class="headerlink" href="#Footnotes" title="Permalink to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p>By default, the <code class="docutils literal notranslate"><span class="pre">.predict()</span></code> method obtains the posterior for the mean of the likelihood distribution. This mean would be <span class="math notranslate nohighlight">\(np\)</span> for the Binomial family. However, since <span class="math notranslate nohighlight">\(n\)</span> varies from observation to observation, it returns the value of <span class="math notranslate nohighlight">\(p\)</span>, as if it was a Bernoulli family.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.predict()</span></code>just appends <code class="docutils literal notranslate"><span class="pre">_mean</span></code> to the name of the response to indicate it is the posterior of the mean.</p></li>
+</ol>
+</section>
+</section>
+
+
+            </article>
+            
+            
+            
+            <footer class="bd-footer-article">
+                <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+  <a class='left-prev' id="prev-link" href="model_comparison.html" title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+          <p class="prev-next-subtitle">previous</p>
+          <p class="prev-next-title">Logistic Regression and Model Comparison with Bambi and ArviZ</p>
+      </div>
+  </a>
+  <a class='right-next' id="next-link" href="alternative_links_binary.html" title="next page">
+  <div class="prev-next-info">
+      <p class="prev-next-subtitle">next</p>
+      <p class="prev-next-title">Regression for Binary responses: Alternative link functions</p>
+  </div>
+  <i class="fa-solid fa-angle-right"></i>
+  </a>
+</div>
+            </footer>
+            
+          </div>
+          
+          
+          
+            <div class="bd-sidebar-secondary bd-toc">
+              
+<div class="toc-item">
+  
+<div class="tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+</div>
+<nav id="bd-toc-nav" class="page-toc">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Problem-description">
+   Problem description
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Load-libraries-and-data">
+   Load libraries and data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Explore-our-data">
+   Explore our data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Non-hierarchical-model">
+   Non-hierarchical model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Hierarchical-model">
+   Hierarchical model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Compare-predictions">
+   Compare predictions
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#Footnotes">
+   Footnotes
+  </a>
+ </li>
+</ul>
+
+</nav>
+</div>
+
+<div class="toc-item">
+  
+<div id="searchbox"></div>
+</div>
+
+<div class="toc-item">
+  
+</div>
+
+<div class="toc-item">
+  
+<div class="tocsection sourcelink">
+    <a href="../_sources/notebooks/hierarchical_binomial_bambi.ipynb.txt">
+        <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+</div>
+
+</div>
+
+            </div>
+          
+          
+        </div>
+        <footer class="bd-footer-content">
+          <div class="bd-footer-content__inner">
+            
+          </div>
+        </footer>
+        
+      </main>
+    </div>
+  </div>
+
+  
+    
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=796348d33e8b1d947c94"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=796348d33e8b1d947c94"></script>
+
+  <footer class="bd-footer"><div class="bd-footer__inner container">
+  
+  <div class="footer-item">
+    
+<p class="copyright">
+
+    &copy; Copyright 2022, The developers of Bambi.<br>
+
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    <p class="theme-version">
+    Built with the
+    <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">
+        PyData Sphinx Theme
+    </a>
+    0.12.0.
+</p>
+  </div>
+  
+  <div class="footer-item">
+    
+<p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 5.3.0.<br>
+</p>
+
+  </div>
+  
+</div>
+  </footer>
+  </body>
+</html>
