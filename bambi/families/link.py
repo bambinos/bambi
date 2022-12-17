@@ -139,7 +139,7 @@ class Link:
         function in GLM jargon. Does not need to be specified when ``name`` is a known name.
     linkinv_backend: function
         Same than ``linkinv`` but must be something that works with PyMC backend (i.e. it must
-        work with Aesara tensors). Does not need to be specified when ``name`` is a known
+        work with PyTensor tensors). Does not need to be specified when ``name`` is a known
         name.
     """
 

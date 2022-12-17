@@ -1,4 +1,7 @@
-import aesara.tensor as at
+try:
+    import pytensor.tensor as pt
+except ModuleNotFoundError:
+    import aesara.tensor as pt
 import pymc as pm
 
 
@@ -17,5 +20,5 @@ def has_hyperprior(kwargs):
     return (
         "sigma" in kwargs
         and "observed" not in kwargs
-        and isinstance(kwargs["sigma"], at.TensorVariable)
+        and isinstance(kwargs["sigma"], pt.TensorVariable)
     )
