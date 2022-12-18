@@ -1,7 +1,4 @@
-try:
-    import pytensor.tensor as pt
-except ModuleNotFoundError:
-    import aesara.tensor as pt
+import pytensor.tensor as pt
 import pymc as pm
 
 

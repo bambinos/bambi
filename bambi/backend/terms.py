@@ -1,10 +1,7 @@
 import numpy as np
 import pymc as pm
 
-try:
-    import pytensor.tensor as pt
-except ModuleNotFoundError:
-    import aesara.tensor as pt
+import pytensor.tensor as pt
 
 from bambi.backend.utils import has_hyperprior, get_distribution
 from bambi.families.multivariate import MultivariateFamily
