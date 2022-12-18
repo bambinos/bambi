@@ -1,5 +1,5 @@
 # pylint: disable=unused-argument
-import aesara.tensor as pt
+import pytensor.tensor as pt
 import numpy as np
 import xarray as xr
 
