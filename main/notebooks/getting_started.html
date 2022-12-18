@@ -1579,8 +1579,8 @@ link = bmb.Link(&quot;logit&quot;)
 # link: A function that maps the response to the linear predictor
 # linkinv: A function that maps the linear predictor to the response
 # linkinv_backend: A function that maps the linear predictor to the response
-#                  that works with Aesara tensors.
-#                  bmb.math.sigmoid is a Aesara tensor function wrapped by PyMC and Bambi
+#                  that works with PyTensor tensors.
+#                  bmb.math.sigmoid is a PyTensor tensor function wrapped by PyMC and Bambi
 link = bmb.Link(
     &quot;my_logit&quot;,
     link=special.expit,
@@ -1647,7 +1647,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </pre></div></div>
 </div>
 <p>The above example produces results identical to simply setting <code class="docutils literal notranslate"><span class="pre">family='bernoulli'</span></code>.</p>
-<p>One complication in specifying a custom <code class="docutils literal notranslate"><span class="pre">Family</span></code> is that one must pass both a link function and an inverse link function which must be able to operate over Aesara tensors rather than numpy arrays, so you’ll probably need to rely on tensor operations provided in <code class="docutils literal notranslate"><span class="pre">aesara.tensor</span></code> (many of which are also wrapped by PyMC) when defining a new link.</p>
+<p>One complication in specifying a custom <code class="docutils literal notranslate"><span class="pre">Family</span></code> is that one must pass both a link function and an inverse link function which must be able to operate over PyTensor tensors rather than numpy arrays, so you’ll probably need to rely on tensor operations provided in <code class="docutils literal notranslate"><span class="pre">aesara.tensor</span></code> (many of which are also wrapped by PyMC) when defining a new link.</p>
 </section>
 <section id="Results">
 <h2>Results<a class="headerlink" href="#Results" title="Permalink to this heading">#</a></h2>
