@@ -1,6 +1,10 @@
 import numpy as np
 import pymc as pm
-import aesara.tensor as at
+
+try:
+    import pytensor.tensor as pt
+except ModuleNotFoundError:
+    import aesara.tensor as pt
 
 from bambi.backend.utils import has_hyperprior, get_distribution
 from bambi.families.multivariate import MultivariateFamily
@@ -57,7 +61,7 @@ class CommonTerm:
             else:
                 shape = data.shape[1]
             coef = distribution(label, shape=shape, **args)
-            coef = at.atleast_1d(coef)  # If only a single numeric column it won't be 1D
+            coef = pt.atleast_1d(coef)  # If only a single numeric column it won't be 1D
 
         # Prepends one dimension if response is multivariate and the predictor is 1D
         if response_dims and len(dims) == 1:
@@ -204,11 +208,11 @@ class ResponseTerm:
     def build(self, nu, invlinks):
         """Create and return the response distribution for the PyMC model.
 
-        nu : aesara.tensor.var.TensorVariable
+        nu : pytensor.tensor.var.TensorVariable
             The linear predictor in the PyMC model.
         invlinks : dict
             A dictionary where names are names of inverse link functions and values are functions
-            that can operate with Aesara tensors.
+            that can operate with PyTensor tensors.
         """
         data = np.squeeze(self.term.data)
 
