@@ -10,6 +10,7 @@ import pymc as pm
 import pytensor.tensor as pt
 from pytensor.tensor.special import softmax
 
+
 from bambi import version
 
 from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
