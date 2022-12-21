@@ -10,6 +10,12 @@
 
 ### Deprecation
 
+## 0.9.3
+
+### Maintenance and fixes
+
+* Update to PyMC >= 5, which means we use PyTensor instead of Aesara now (#613, #614)
+
 ## 0.9.2
 
 ### New features
