@@ -7,12 +7,9 @@ from copy import deepcopy
 import numpy as np
 import pymc as pm
 
-try:
-    import pytensor.tensor as pt
-    from pytensor.tensor.special import softmax
-except ModuleNotFoundError:
-    import aesara.tensor as pt
-    from aesara.tensor.nnet import softmax
+import pytensor.tensor as pt
+from pytensor.tensor.special import softmax
+
 
 from bambi import version
 
