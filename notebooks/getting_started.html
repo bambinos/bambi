@@ -1186,8 +1186,8 @@ Automatically removing 33/6940 rows from the dataset.
 <h2>Specifying priors<a class="headerlink" href="#Specifying-priors" title="Permalink to this heading">#</a></h2>
 <p>Bayesian inference requires one to specify prior probability distributions that represent the analyst’s belief (in advance of seeing the data) about the likely values of the model parameters. In practice, analysts often lack sufficient information to formulate well-defined priors, and instead opt to use “weakly informative” priors that mainly serve to keep the model from exploring completely pathological parts of the parameter space (e.g., when defining a prior on the distribution of human
 heights, a value of 3,000 cms should be assigned a probability of exactly 0).</p>
-<p>By default, Bambi will intelligently generate weakly informative priors for all model terms, by loosely scaling them to the observed data. Currently, Bambi uses a methodology very similar to the one described in the documentation of the R package <code class="docutils literal notranslate"><span class="pre">`rstanarm</span></code> &lt;<a class="reference external" href="https://mc-stan.org/rstanarm/articles/priors.html">https://mc-stan.org/rstanarm/articles/priors.html</a>&gt;`__. While the default priors will behave well in most typical settings, there are many cases where an analyst will want to specify their own priors–and in general, when informative priors
-are available, it’s a good idea to use them.</p>
+<p>By default, Bambi will intelligently generate weakly informative priors for all model terms, by loosely scaling them to the observed data. Currently, Bambi uses a methodology very similar to the one described in the documentation of the R package <a class="reference external" href="https://mc-stan.org/rstanarm/articles/priors.html">rstanarm</a>. While the default priors will behave well in most typical settings, there are many cases where an analyst will want to specify their own priors–and in general, when informative priors are
+available, it’s a good idea to use them.</p>
 <p>Fortunately, Bambi is built on top of PyMC, which means that we can seamlessly use any of the over 40 <code class="docutils literal notranslate"><span class="pre">Distribution</span></code> classes defined in PyMC. We can specify such priors in Bambi using the <code class="docutils literal notranslate"><span class="pre">Prior</span></code> class, which initializes with a <code class="docutils literal notranslate"><span class="pre">name</span></code> argument (which must map on exactly to the name of a valid PyMC <code class="docutils literal notranslate"><span class="pre">Distribution</span></code>) followed by any of the parameters accepted by the corresponding <code class="docutils literal notranslate"><span class="pre">distribution</span></code>. For example:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
@@ -1513,7 +1513,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </section>
 <section id="Summarizing">
 <h2>Summarizing<a class="headerlink" href="#Summarizing" title="Permalink to this heading">#</a></h2>
-<p>If you prefer numerical summaries of the posterior estimates, you can use the <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code> function from <a class="reference external" href="https://arviz-devs.github.io/arviz/generated/arviz.summary.html#arviz.summary">ArviZ</a> which provides a pandas DataFrame with some key summary and diagnostics info on the model parameters, such as the 94% highest posterior density intervals:</p>
+<p>If you prefer numerical summaries of the posterior estimates, you can use the <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code> function from <a class="reference external" href="https://arviz-devs.github.io/arviz/generated/arviz.summary.html#arviz.summary">ArviZ</a> which provides a pandas DataFrame with some key summary and diagnostics info on the model parameters, such as the 94% highest posterior density intervals</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
@@ -1628,7 +1628,7 @@ list(results.posterior.data_vars)
 [&#39;Intercept&#39;, &#39;gre&#39;, &#39;gpa&#39;, &#39;rank&#39;]
 </pre></div></div>
 </div>
-<p>You can find detailed, worked examples of fitting Bambi models and working with the results in the example notebooks <a class="reference external" href="bambi/examples.html">here</a>.</p>
+<p>You can find detailed, worked examples of fitting Bambi models and working with the results in the example notebooks <a class="reference external" href="../examples.html">here</a>.</p>
 </section>
 <section id="Accessing-back-end-objects">
 <h2>Accessing back-end objects<a class="headerlink" href="#Accessing-back-end-objects" title="Permalink to this heading">#</a></h2>
