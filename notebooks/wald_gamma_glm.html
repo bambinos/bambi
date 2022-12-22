@@ -609,10 +609,10 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
-import bambi as bmb
-import matplotlib.pyplot as plt
-import numpy as np
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 </pre></div>
 </div>
 </div>
@@ -620,8 +620,8 @@ import numpy as np
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
-np.random.seed(1234)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -632,8 +632,8 @@ np.random.seed(1234)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = bmb.load_data(&quot;carclaims&quot;)
-data.head()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;carclaims&quot;</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -760,7 +760,7 @@ data.head()
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = data[data[&quot;claimcst0&quot;] &gt; 0]
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -769,7 +769,7 @@ data.head()
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data[data[&quot;claimcst0&quot;] &gt; 15000].shape[0]
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">15000</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -786,9 +786,9 @@ data.head()
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>plt.hist(data[data[&quot;claimcst0&quot;] &lt;= 15000][&quot;claimcst0&quot;], bins=30)
-plt.title(&quot;Distribution of claim amount&quot;)
-plt.xlabel(&quot;Claim amount ($)&quot;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">15000</span><span class="p">][</span><span class="s2">&quot;claimcst0&quot;</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Distribution of claim amount&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Claim amount ($)&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -845,8 +845,8 @@ y_i \sim \text{Gamma}(\mu_i, \sigma_i), &amp; g(\mu_i) = \mathbf{x}_i^T\beta, &a
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_wald = bmb.Model(&quot;claimcst0 ~ C(agecat) + gender + area&quot;, data, family = &quot;wald&quot;, link = &quot;log&quot;)
-fitted_wald = model_wald.fit(tune=2000, target_accept=0.9)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_wald</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;claimcst0 ~ C(agecat) + gender + area&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s2">&quot;wald&quot;</span><span class="p">,</span> <span class="n">link</span> <span class="o">=</span> <span class="s2">&quot;log&quot;</span><span class="p">)</span>
+<span class="n">fitted_wald</span> <span class="o">=</span> <span class="n">model_wald</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -899,7 +899,7 @@ Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(fitted_wald);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">fitted_wald</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -914,7 +914,7 @@ Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(fitted_wald)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">fitted_wald</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1123,14 +1123,14 @@ Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_gamma = bmb.Model(
-    &quot;claimcst0 ~ agecat + gender + area&quot;,
-    data,
-    family=&quot;gamma&quot;,
-    link=&quot;log&quot;,
-    categorical=&quot;agecat&quot;,
-)
-fitted_gamma = model_gamma.fit(tune=2000, target_accept=0.9)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_gamma</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+    <span class="s2">&quot;claimcst0 ~ agecat + gender + area&quot;</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">family</span><span class="o">=</span><span class="s2">&quot;gamma&quot;</span><span class="p">,</span>
+    <span class="n">link</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
+    <span class="n">categorical</span><span class="o">=</span><span class="s2">&quot;agecat&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fitted_gamma</span> <span class="o">=</span> <span class="n">model_gamma</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1183,7 +1183,7 @@ Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(fitted_gamma);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">fitted_gamma</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1198,7 +1198,7 @@ Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(fitted_gamma)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">fitted_gamma</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1407,9 +1407,9 @@ Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>models = {&quot;wald&quot;: fitted_wald, &quot;gamma&quot;: fitted_gamma}
-df_compare = az.compare(models)
-df_compare
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">models</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;wald&quot;</span><span class="p">:</span> <span class="n">fitted_wald</span><span class="p">,</span> <span class="s2">&quot;gamma&quot;</span><span class="p">:</span> <span class="n">fitted_gamma</span><span class="p">}</span>
+<span class="n">df_compare</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">models</span><span class="p">)</span>
+<span class="n">df_compare</span>
 </pre></div>
 </div>
 </div>
@@ -1480,7 +1480,7 @@ df_compare
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_compare(df_compare, insample_dev=False);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_compare</span><span class="p">(</span><span class="n">df_compare</span><span class="p">,</span> <span class="n">insample_dev</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1496,8 +1496,8 @@ df_compare
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
-%watermark -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
 </pre></div>
 </div>
 </div>

@@ -614,13 +614,13 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
-import bambi as bmb
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import pymc as pm
-import seaborn as sns
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pymc</span> <span class="k">as</span> <span class="nn">pm</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
 </pre></div>
 </div>
 </div>
@@ -628,11 +628,11 @@ import seaborn as sns
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
-np.random.default_rng(8924)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">8924</span><span class="p">)</span>
 
-%load_ext autoreload
-%autoreload 2
+<span class="o">%</span><span class="k">load_ext</span> autoreload
+<span class="o">%</span><span class="k">autoreload</span> 2
 </pre></div>
 </div>
 </div>
@@ -644,12 +644,12 @@ np.random.default_rng(8924)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Get radon data
-path = &quot;https://raw.githubusercontent.com/pymc-devs/pymc-examples/main/examples/data/srrs2.dat&quot;
-radon_df = pd.read_csv(path)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get radon data</span>
+<span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/pymc-devs/pymc-examples/main/examples/data/srrs2.dat&quot;</span>
+<span class="n">radon_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
 
-# Get city data
-city_df = pd.read_csv(pm.get_data(&quot;cty.dat&quot;))
+<span class="c1"># Get city data</span>
+<span class="n">city_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">pm</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="s2">&quot;cty.dat&quot;</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -657,8 +657,8 @@ city_df = pd.read_csv(pm.get_data(&quot;cty.dat&quot;))
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>display(radon_df.head())
-print(radon_df.shape[0])
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">radon_df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">radon_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -845,8 +845,8 @@ print(radon_df.shape[0])
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>display(city_df.head())
-print(city_df.shape[0])
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">display</span><span class="p">(</span><span class="n">city_df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">city_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -952,38 +952,38 @@ print(city_df.shape[0])
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Strip spaces from column names
-radon_df.columns = radon_df.columns.map(str.strip)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Strip spaces from column names</span>
+<span class="n">radon_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">radon_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">strip</span><span class="p">)</span>
 
-# Filter to keep observations for &quot;MN&quot; state only
-df = radon_df[radon_df.state == &quot;MN&quot;].copy()
-city_mn_df = city_df[city_df.st == &quot;MN&quot;].copy()
+<span class="c1"># Filter to keep observations for &quot;MN&quot; state only</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">radon_df</span><span class="p">[</span><span class="n">radon_df</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="s2">&quot;MN&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">city_mn_df</span> <span class="o">=</span> <span class="n">city_df</span><span class="p">[</span><span class="n">city_df</span><span class="o">.</span><span class="n">st</span> <span class="o">==</span> <span class="s2">&quot;MN&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-# Compute fips
-df[&quot;fips&quot;] = 1_000 * df.stfips + df.cntyfips
-city_mn_df[&quot;fips&quot;] = 1_000 * city_mn_df.stfips + city_mn_df.ctfips
+<span class="c1"># Compute fips</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;fips&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1_000</span> <span class="o">*</span> <span class="n">df</span><span class="o">.</span><span class="n">stfips</span> <span class="o">+</span> <span class="n">df</span><span class="o">.</span><span class="n">cntyfips</span>
+<span class="n">city_mn_df</span><span class="p">[</span><span class="s2">&quot;fips&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1_000</span> <span class="o">*</span> <span class="n">city_mn_df</span><span class="o">.</span><span class="n">stfips</span> <span class="o">+</span> <span class="n">city_mn_df</span><span class="o">.</span><span class="n">ctfips</span>
 
-# Merge data
-df = df.merge(city_mn_df[[&quot;fips&quot;, &quot;Uppm&quot;]], on=&quot;fips&quot;)
-df = df.drop_duplicates(subset=&quot;idnum&quot;)
+<span class="c1"># Merge data</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">city_mn_df</span><span class="p">[[</span><span class="s2">&quot;fips&quot;</span><span class="p">,</span> <span class="s2">&quot;Uppm&quot;</span><span class="p">]],</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;fips&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s2">&quot;idnum&quot;</span><span class="p">)</span>
 
-# Clean county names
-df.county = df.county.map(str.strip)
+<span class="c1"># Clean county names</span>
+<span class="n">df</span><span class="o">.</span><span class="n">county</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">county</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">strip</span><span class="p">)</span>
 
-# Compute log(radon + 0.1)
-df[&quot;log_radon&quot;] = np.log(df[&quot;activity&quot;] + 0.1)
+<span class="c1"># Compute log(radon + 0.1)</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;log_radon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.1</span><span class="p">)</span>
 
-# Compute log of Uranium
-df[&quot;log_u&quot;] = np.log(df[&quot;Uppm&quot;])
+<span class="c1"># Compute log of Uranium</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;log_u&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Uppm&quot;</span><span class="p">])</span>
 
-# Let&#39;s map floor. 0 -&gt; Basement and 1 -&gt; Floor
-df[&quot;floor&quot;] = df[&quot;floor&quot;].map({0: &quot;Basement&quot;, 1: &quot;Floor&quot;})
+<span class="c1"># Let&#39;s map floor. 0 -&gt; Basement and 1 -&gt; Floor</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;floor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;floor&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">({</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;Basement&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;Floor&quot;</span><span class="p">})</span>
 
-# Sort values by floor
-df = df.sort_values(by=&quot;floor&quot;)
+<span class="c1"># Sort values by floor</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;floor&quot;</span><span class="p">)</span>
 
-# Reset index
-df = df.reset_index(drop=True)
+<span class="c1"># Reset index</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -996,10 +996,10 @@ df = df.reset_index(drop=True)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_, ax = plt.subplots()
-sns.histplot(x=&quot;activity&quot;, alpha=0.2, stat=&quot;density&quot;, element=&quot;step&quot;, common_norm=False, data=df, ax=ax)
-sns.kdeplot(x=&quot;activity&quot;, data=df, ax=ax, cut=0)
-ax.set(title=&quot;Density of Radon&quot;, xlabel=&quot;Radon&quot;, ylabel=&quot;Density&quot;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;activity&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="s2">&quot;step&quot;</span><span class="p">,</span> <span class="n">common_norm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">kdeplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;activity&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">cut</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Density of Radon&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Radon&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Density&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1015,10 +1015,10 @@ ax.set(title=&quot;Density of Radon&quot;, xlabel=&quot;Radon&quot;, ylabel=&quo
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_, ax = plt.subplots()
-sns.histplot(x=&quot;log_radon&quot;, alpha=0.2, stat=&quot;density&quot;, element=&quot;step&quot;, common_norm=False, data=df, ax=ax)
-sns.kdeplot(x=&quot;log_radon&quot;, data=df, ax=ax)
-ax.set(title=&quot;Density of log(Radon + 0.1)&quot;, xlabel=&quot;$\log(Radon + 0.1)$&quot;, ylabel=&quot;Density&quot;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;log_radon&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="s2">&quot;step&quot;</span><span class="p">,</span> <span class="n">common_norm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">kdeplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;log_radon&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Density of log(Radon + 0.1)&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;$\log(Radon + 0.1)$&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Density&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1034,13 +1034,13 @@ ax.set(title=&quot;Density of log(Radon + 0.1)&quot;, xlabel=&quot;$\log(Radon +
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_, ax = plt.subplots()
-sns.histplot(
-    x=&quot;log_radon&quot;, hue=&quot;floor&quot;, alpha=0.2, stat=&quot;density&quot;, element=&quot;step&quot;,
-    common_norm=False, data=df, ax=ax
-)
-sns.kdeplot(x=&quot;log_radon&quot;, hue=&quot;floor&quot;, common_norm=False, data=df, ax=ax)
-ax.set(title=&quot;Density of log(Radon + 0.1)&quot;, xlabel=&quot;$\log + 0.1$&quot;, ylabel=&quot;Density&quot;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="s2">&quot;log_radon&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;floor&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">stat</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">,</span> <span class="n">element</span><span class="o">=</span><span class="s2">&quot;step&quot;</span><span class="p">,</span>
+    <span class="n">common_norm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span>
+<span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">kdeplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;log_radon&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;floor&quot;</span><span class="p">,</span> <span class="n">common_norm</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Density of log(Radon + 0.1)&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;$\log + 0.1$&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Density&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1057,8 +1057,8 @@ ax.set(title=&quot;Density of log(Radon + 0.1)&quot;, xlabel=&quot;$\log + 0.1$&
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>n_counties = df[&quot;county&quot;].unique().size
-print(f&quot;Number of counties: {n_counties}&quot;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">n_counties</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;county&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">size</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of counties: </span><span class="si">{</span><span class="n">n_counties</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1075,21 +1075,21 @@ Number of counties: 85
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>log_radon_county_agg  = (
-    df
-    .groupby([&quot;county&quot;, &quot;floor&quot;], as_index=False)
-    .agg(
-        log_radon_mean=(&quot;log_radon&quot;, &quot;mean&quot;),
-        n_obs=(&quot;log_radon&quot;, &quot;count&quot;)
-    )
-)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">log_radon_county_agg</span>  <span class="o">=</span> <span class="p">(</span>
+    <span class="n">df</span>
+    <span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;county&quot;</span><span class="p">,</span> <span class="s2">&quot;floor&quot;</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+        <span class="n">log_radon_mean</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;log_radon&quot;</span><span class="p">,</span> <span class="s2">&quot;mean&quot;</span><span class="p">),</span>
+        <span class="n">n_obs</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;log_radon&quot;</span><span class="p">,</span> <span class="s2">&quot;count&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
 
-fig, ax= plt.subplots(nrows=1, ncols=2, figsize=(12, 6), layout=&quot;constrained&quot;)
-sns.boxplot(x=&quot;floor&quot;, y=&quot;log_radon_mean&quot;, data=log_radon_county_agg, ax=ax[0])
-ax[0].set(title=&quot;log(Radon + 0.1) Mean per County&quot;, ylabel=&quot;$\log + 0.1$&quot;)
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;constrained&quot;</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;floor&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;log_radon_mean&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">log_radon_county_agg</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;log(Radon + 0.1) Mean per County&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;$\log + 0.1$&quot;</span><span class="p">)</span>
 
-sns.boxplot(x=&quot;floor&quot;, y=&quot;n_obs&quot;, data=log_radon_county_agg, ax=ax[1])
-ax[1].set(title=&quot;Number of Observations&quot;, xlabel=&quot;floor&quot;, ylabel=&quot;Number of observations&quot;);
+<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;floor&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;n_obs&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">log_radon_county_agg</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Number of Observations&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;floor&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Number of observations&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1108,7 +1108,7 @@ ax[1].set(title=&quot;Number of Observations&quot;, xlabel=&quot;floor&quot;, yl
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>assert df.query(&quot;county == &#39;YELLOW MEDICINE&#39; and floor == &#39;Floor&#39;&quot;).empty
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;county == &#39;YELLOW MEDICINE&#39; and floor == &#39;Floor&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">empty</span>
 </pre></div>
 </div>
 </div>
@@ -1154,14 +1154,14 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># A dictionary with the priors we pass to the model initialization
-pooled_priors = {
-    &quot;floor&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=10),
-    &quot;sigma&quot;: bmb.Prior(&quot;Exponential&quot;, lam=1),
-}
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># A dictionary with the priors we pass to the model initialization</span>
+<span class="n">pooled_priors</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;floor&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Exponential&quot;</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="p">}</span>
 
-pooled_model = bmb.Model(&quot;log_radon ~ 0 + floor&quot;, df, priors=pooled_priors)
-pooled_model
+<span class="n">pooled_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;log_radon ~ 0 + floor&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">pooled_priors</span><span class="p">)</span>
+<span class="n">pooled_model</span>
 </pre></div>
 </div>
 </div>
@@ -1189,8 +1189,8 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pooled_model.build()
-pooled_model.graph()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pooled_model</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="n">pooled_model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1206,7 +1206,7 @@ pooled_model.graph()
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pooled_results = pooled_model.fit()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pooled_results</span> <span class="o">=</span> <span class="n">pooled_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1260,8 +1260,8 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(data=pooled_results, compact=True, chain_prop={&quot;ls&quot;: &quot;-&quot;})
-plt.suptitle(&quot;Pooled Model Trace&quot;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">pooled_results</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chain_prop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ls&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">})</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Pooled Model Trace&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1277,8 +1277,8 @@ plt.suptitle(&quot;Pooled Model Trace&quot;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>pooled_summary = az.summary(data=pooled_results)
-pooled_summary
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pooled_summary</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">pooled_results</span><span class="p">)</span>
+<span class="n">pooled_summary</span>
 </pre></div>
 </div>
 </div>
@@ -1363,34 +1363,34 @@ pooled_summary
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>_, ax = plt.subplots()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 
-(
-    pooled_summary[&quot;mean&quot;]
-    .iloc[:-1]
-    .reset_index()
-    .assign(floor = lambda x: x[&quot;index&quot;].str.slice(6, -1).str.strip())
-    .merge(
-        right=df.groupby([&quot;floor&quot;])[&quot;log_radon&quot;].mean(),
-        left_on=&quot;floor&quot;,
-        right_index=True
-    )
-    .rename(columns={
-        &quot;mean&quot;: &quot;posterior mean&quot;,
-        &quot;log_radon&quot;: &quot;sample mean&quot;
-    })
-    .melt(
-        id_vars=&quot;floor&quot;,
-        value_vars=[&quot;posterior mean&quot;, &quot;sample mean&quot;]
-    )
-    .pipe((sns.barplot, &quot;data&quot;),
-        x=&quot;floor&quot;,
-        y=&quot;value&quot;,
-        hue=&quot;variable&quot;,
-        ax=ax
-    )
-)
-ax.set(title=&quot;log(Radon + 0.1) Mean per Floor - Pooled Model&quot;, ylabel=&quot;$\log + 0.1$&quot;);
+<span class="p">(</span>
+    <span class="n">pooled_summary</span><span class="p">[</span><span class="s2">&quot;mean&quot;</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">floor</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="o">.</span><span class="n">merge</span><span class="p">(</span>
+        <span class="n">right</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;floor&quot;</span><span class="p">])[</span><span class="s2">&quot;log_radon&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+        <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;floor&quot;</span><span class="p">,</span>
+        <span class="n">right_index</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;mean&quot;</span><span class="p">:</span> <span class="s2">&quot;posterior mean&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;log_radon&quot;</span><span class="p">:</span> <span class="s2">&quot;sample mean&quot;</span>
+    <span class="p">})</span>
+    <span class="o">.</span><span class="n">melt</span><span class="p">(</span>
+        <span class="n">id_vars</span><span class="o">=</span><span class="s2">&quot;floor&quot;</span><span class="p">,</span>
+        <span class="n">value_vars</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;posterior mean&quot;</span><span class="p">,</span> <span class="s2">&quot;sample mean&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="o">.</span><span class="n">pipe</span><span class="p">((</span><span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+        <span class="n">x</span><span class="o">=</span><span class="s2">&quot;floor&quot;</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="s2">&quot;value&quot;</span><span class="p">,</span>
+        <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;variable&quot;</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;log(Radon + 0.1) Mean per Floor - Pooled Model&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;$\log + 0.1$&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1416,31 +1416,31 @@ to. We pool all the counties into a single estimate, or in other words, we perfo
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Note we create a new data set.
-# One observation per group is enough to obtain posterior predictive samples for that group
-# The more observations we create, the more posterior predictive samples from the same distribution
-# we obtain.
-new_data = pd.DataFrame({&quot;floor&quot;: [&quot;Basement&quot;, &quot;Floor&quot;]})
-pooled_model.predict(pooled_results, kind=&quot;pps&quot;, data=new_data)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note we create a new data set.</span>
+<span class="c1"># One observation per group is enough to obtain posterior predictive samples for that group</span>
+<span class="c1"># The more observations we create, the more posterior predictive samples from the same distribution</span>
+<span class="c1"># we obtain.</span>
+<span class="n">new_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;floor&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Basement&quot;</span><span class="p">,</span> <span class="s2">&quot;Floor&quot;</span><span class="p">]})</span>
+<span class="n">pooled_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">pooled_results</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">new_data</span><span class="p">)</span>
 
-# Stack chains and draws and extract posterior predictive samples
-pps = az.extract_dataset(pooled_results, group=&quot;posterior_predictive&quot;)[&quot;log_radon&quot;].values
+<span class="c1"># Stack chains and draws and extract posterior predictive samples</span>
+<span class="n">pps</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">pooled_results</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;posterior_predictive&quot;</span><span class="p">)[</span><span class="s2">&quot;log_radon&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
-# Inverse transform the posterior predictive samples
-pps = np.exp(pps) - 0.1
+<span class="c1"># Inverse transform the posterior predictive samples</span>
+<span class="n">pps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">pps</span><span class="p">)</span> <span class="o">-</span> <span class="mf">0.1</span>
 
-fig, ax = plt.subplots(nrows=2, ncols=2, figsize=(12, 6), layout=&quot;constrained&quot;)
-ax = ax.flatten()
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">layout</span><span class="o">=</span><span class="s2">&quot;constrained&quot;</span><span class="p">)</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
 
-sns.histplot(x=pps[0].flatten(), stat=&quot;density&quot;, color=&quot;C0&quot;, ax=ax[0])
-ax[0].set(title=&quot;Basement (Posterior Predictive Distribution)&quot;, xlabel=&quot;radon&quot;, ylabel=&quot;Density&quot;)
-sns.histplot(x=&quot;activity&quot;, data=df.query(&quot;floor == &#39;Basement&#39;&quot;), stat=&quot;density&quot;, ax=ax[2])
-ax[2].set(title=&quot;Basement (Sample Distribution)&quot;, xlim=ax[0].get_xlim(), xlabel=&quot;radon&quot;, ylabel=&quot;Density&quot;)
+<span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">pps</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">stat</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Basement (Posterior Predictive Distribution)&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;radon&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Density&quot;</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;activity&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;floor == &#39;Basement&#39;&quot;</span><span class="p">),</span> <span class="n">stat</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Basement (Sample Distribution)&quot;</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">(),</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;radon&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Density&quot;</span><span class="p">)</span>
 
-sns.histplot(x=pps[1].flatten(), stat=&quot;density&quot;, color=&quot;C1&quot;, ax=ax[1])
-ax[1].set(title=&quot;Floor (Posterior Predictive Distribution)&quot;, xlabel=&quot;radon&quot;, ylabel=&quot;Density&quot;)
-sns.histplot(x=&quot;activity&quot;, data=df.query(&quot;floor == &#39;Floor&#39;&quot;), stat=&quot;density&quot;, color=&quot;C1&quot;, ax=ax[3])
-ax[3].set(title=&quot;Floor (Sample Distribution)&quot;, xlim=ax[1].get_xlim(), xlabel=&quot;radon&quot;, ylabel=&quot;Density&quot;);
+<span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">pps</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="n">stat</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Floor (Posterior Predictive Distribution)&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;radon&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Density&quot;</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;activity&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;floor == &#39;Floor&#39;&quot;</span><span class="p">),</span> <span class="n">stat</span><span class="o">=</span><span class="s2">&quot;density&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Floor (Sample Distribution)&quot;</span><span class="p">,</span> <span class="n">xlim</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">(),</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;radon&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Density&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1456,7 +1456,7 @@ ax[3].set(title=&quot;Floor (Sample Distribution)&quot;, xlim=ax[1].get_xlim(), 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>np.median(a=pps, axis=1)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">pps</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1473,7 +1473,7 @@ array([3.73843077, 2.08995068])
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>df.groupby([&quot;floor&quot;])[&quot;activity&quot;].median()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;floor&quot;</span><span class="p">])[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1532,13 +1532,13 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>unpooled_priors = {
-    &quot;county:floor&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=10),
-    &quot;sigma&quot;: bmb.Prior(&quot;Exponential&quot;, lam=1),
-}
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unpooled_priors</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;county:floor&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Exponential&quot;</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="p">}</span>
 
-unpooled_model = bmb.Model(&quot;log_radon ~ 0 + county:floor&quot;, df, priors=unpooled_priors)
-unpooled_model
+<span class="n">unpooled_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;log_radon ~ 0 + county:floor&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">unpooled_priors</span><span class="p">)</span>
+<span class="n">unpooled_model</span>
 </pre></div>
 </div>
 </div>
@@ -1564,7 +1564,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>unpooled_results = unpooled_model.fit()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unpooled_results</span> <span class="o">=</span> <span class="n">unpooled_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1617,7 +1617,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>unpooled_model.graph()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unpooled_model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1634,8 +1634,8 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(data=unpooled_results, compact=True, chain_prop={&quot;ls&quot;: &quot;-&quot;})
-plt.suptitle(&quot;Un-Pooled Model Trace&quot;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">unpooled_results</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chain_prop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ls&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">})</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Un-Pooled Model Trace&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1651,7 +1651,7 @@ plt.suptitle(&quot;Un-Pooled Model Trace&quot;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_forest(data=unpooled_results, figsize=(6, 32), r_hat=True, combined=True, textsize=8);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_forest</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">unpooled_results</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span> <span class="n">r_hat</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">combined</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">textsize</span><span class="o">=</span><span class="mi">8</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1668,7 +1668,7 @@ plt.suptitle(&quot;Un-Pooled Model Trace&quot;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>unpooled_summary = az.summary(data=unpooled_results)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unpooled_summary</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">unpooled_results</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1677,41 +1677,41 @@ plt.suptitle(&quot;Un-Pooled Model Trace&quot;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Get county and floor names from summary table
-var_mapping = (
-    unpooled_summary
-    .iloc[:-1]
-    .reset_index(drop=False)[&quot;index&quot;].str.slice(13, -1).str.split(&quot;,&quot;).apply(pd.Series)
-)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get county and floor names from summary table</span>
+<span class="n">var_mapping</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">unpooled_summary</span>
+    <span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="s2">&quot;index&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">slice</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span>
+<span class="p">)</span>
 
-var_mapping.rename(columns={0: &quot;county&quot;, 1: &quot;floor&quot;}, inplace=True)
-var_mapping[&quot;county&quot;] = var_mapping[&quot;county&quot;].str.strip()
-var_mapping[&quot;floor&quot;] = var_mapping[&quot;floor&quot;].str.strip()
-var_mapping.index = unpooled_summary.iloc[:-1].index
+<span class="n">var_mapping</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;county&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;floor&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">var_mapping</span><span class="p">[</span><span class="s2">&quot;county&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">var_mapping</span><span class="p">[</span><span class="s2">&quot;county&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="n">var_mapping</span><span class="p">[</span><span class="s2">&quot;floor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">var_mapping</span><span class="p">[</span><span class="s2">&quot;floor&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<span class="n">var_mapping</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">unpooled_summary</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
 
-# Merge with observed values
-unpooled_summary_2 = pd.concat([var_mapping, unpooled_summary.iloc[:-1]], axis=1)
+<span class="c1"># Merge with observed values</span>
+<span class="n">unpooled_summary_2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">var_mapping</span><span class="p">,</span> <span class="n">unpooled_summary</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-fig, ax = plt.subplots(figsize=(7, 6))
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
 
-(
-    unpooled_summary_2
-    .merge(right=log_radon_county_agg, on=[&quot;county&quot;, &quot;floor&quot;], how=&quot;left&quot;)
-    .pipe(
-        (sns.scatterplot, &quot;data&quot;),
-        x=&quot;log_radon_mean&quot;,
-        y=&quot;mean&quot;,
-        hue=&quot;floor&quot;,
-        ax=ax
-    )
-)
-ax.axline(xy1=(1, 1), slope=1, color=&quot;black&quot;, linestyle=&quot;--&quot;, label=&quot;diagonal&quot;)
-ax.legend()
-ax.set(
-    title=&quot;log(Radon + 0.1) Mean per County (Unpooled Model)&quot;,
-    xlabel=&quot;observed (sample)&quot;,
-    ylabel=&quot;prediction&quot;,
-);
+<span class="p">(</span>
+    <span class="n">unpooled_summary_2</span>
+    <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">right</span><span class="o">=</span><span class="n">log_radon_county_agg</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;county&quot;</span><span class="p">,</span> <span class="s2">&quot;floor&quot;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">pipe</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">),</span>
+        <span class="n">x</span><span class="o">=</span><span class="s2">&quot;log_radon_mean&quot;</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+        <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;floor&quot;</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axline</span><span class="p">(</span><span class="n">xy1</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">slope</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;diagonal&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;log(Radon + 0.1) Mean per County (Unpooled Model)&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;observed (sample)&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span>
+<span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1789,20 +1789,20 @@ u_j &amp;= \text{Intercept specific to the county } j \\
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># We can add the hyper-priors inside the prior dictionary parameter of the model constructor
-partial_pooling_priors = {
-    &quot;Intercept&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=10),
-    &quot;1|county&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=bmb.Prior(&quot;Exponential&quot;, lam=1)),
-    &quot;sigma&quot;: bmb.Prior(&quot;Exponential&quot;, lam=1),
-}
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># We can add the hyper-priors inside the prior dictionary parameter of the model constructor</span>
+<span class="n">partial_pooling_priors</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Intercept&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="s2">&quot;1|county&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Exponential&quot;</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="mi">1</span><span class="p">)),</span>
+    <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Exponential&quot;</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="p">}</span>
 
-partial_pooling_model = bmb.Model(
-    formula=&quot;log_radon ~ 1 + (1|county)&quot;,
-    data=df,
-    priors=partial_pooling_priors,
-    noncentered=False
-)
-partial_pooling_model
+<span class="n">partial_pooling_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+    <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;log_radon ~ 1 + (1|county)&quot;</span><span class="p">,</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">priors</span><span class="o">=</span><span class="n">partial_pooling_priors</span><span class="p">,</span>
+    <span class="n">noncentered</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="n">partial_pooling_model</span>
 </pre></div>
 </div>
 </div>
@@ -1832,7 +1832,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>partial_pooling_results = partial_pooling_model.fit()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">partial_pooling_results</span> <span class="o">=</span> <span class="n">partial_pooling_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1886,7 +1886,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>partial_pooling_model.graph()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">partial_pooling_model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1903,8 +1903,8 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(data=partial_pooling_results, compact=True, chain_prop={&quot;ls&quot;: &quot;-&quot;})
-plt.suptitle(&quot;Partial Pooling Model Trace&quot;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">partial_pooling_results</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chain_prop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ls&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">})</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Partial Pooling Model Trace&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1924,27 +1924,27 @@ plt.suptitle(&quot;Partial Pooling Model Trace&quot;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>partial_pooling_model.predict(partial_pooling_results, kind=&quot;pps&quot;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">partial_pooling_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">partial_pooling_results</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
 
-# Stack chains and draws. pps stands for posterior predictive samples
-pps = az.extract_dataset(partial_pooling_results, group=&quot;posterior_predictive&quot;)[&quot;log_radon&quot;].values
+<span class="c1"># Stack chains and draws. pps stands for posterior predictive samples</span>
+<span class="n">pps</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">partial_pooling_results</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;posterior_predictive&quot;</span><span class="p">)[</span><span class="s2">&quot;log_radon&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
-pps_df = pd.DataFrame(data=pps).assign(county=df[&quot;county&quot;])
-y_pred = pps_df.groupby(&quot;county&quot;).mean().mean(axis=1)
-y_sample = df.groupby(&quot;county&quot;)[&quot;log_radon&quot;].mean()
+<span class="n">pps_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">pps</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">county</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;county&quot;</span><span class="p">])</span>
+<span class="n">y_pred</span> <span class="o">=</span> <span class="n">pps_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;county&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">y_sample</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;county&quot;</span><span class="p">)[</span><span class="s2">&quot;log_radon&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 
-fig, ax = plt.subplots(figsize=(8, 7))
-sns.regplot(x=y_sample, y=y_pred, ax=ax)
-ax.axline(xy1=(1, 1), slope=1, color=&quot;black&quot;, linestyle=&quot;--&quot;, label=&quot;diagonal&quot;)
-ax.axhline(y=y_pred.mean(), color=&quot;C3&quot;, linestyle=&quot;--&quot;, label=&quot;predicted global mean&quot;)
-ax.legend(loc=&quot;lower right&quot;)
-ax.set(
-    title=&quot;log(Radon + 0.1) Mean per County (Partial Pooling Model)&quot;,
-    xlabel=&quot;observed (sample)&quot;,
-    ylabel=&quot;prediction&quot;,
-    xlim=(0.3, 2.7),
-    ylim=(0.3, 2.7),
-);
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">regplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">y_sample</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axline</span><span class="p">(</span><span class="n">xy1</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">slope</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;diagonal&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">y_pred</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C3&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;predicted global mean&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;lower right&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;log(Radon + 0.1) Mean per County (Partial Pooling Model)&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;observed (sample)&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span>
+    <span class="n">xlim</span><span class="o">=</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">2.7</span><span class="p">),</span>
+    <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">2.7</span><span class="p">),</span>
+<span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -2017,20 +2017,20 @@ u_k &amp;= \text{Intercept specific to the county } k \\
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>varying_intercept_priors = {
-    &quot;floor&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=10),
-    &quot;1|county&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=bmb.Prior(&quot;Exponential&quot;, lam=1)),
-    &quot;sigma&quot;: bmb.Prior(&quot;Exponential&quot;, lam=1),
-}
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_priors</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;floor&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="s2">&quot;1|county&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Exponential&quot;</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="mi">1</span><span class="p">)),</span>
+    <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Exponential&quot;</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="p">}</span>
 
-varying_intercept_model = bmb.Model(
-    formula=&quot;log_radon ~ 0 + floor + (1|county)&quot;,
-    data=df,
-    priors=varying_intercept_priors,
-    noncentered=False
- )
+<span class="n">varying_intercept_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+    <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;log_radon ~ 0 + floor + (1|county)&quot;</span><span class="p">,</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">priors</span><span class="o">=</span><span class="n">varying_intercept_priors</span><span class="p">,</span>
+    <span class="n">noncentered</span><span class="o">=</span><span class="kc">False</span>
+ <span class="p">)</span>
 
-varying_intercept_model
+<span class="n">varying_intercept_model</span>
 </pre></div>
 </div>
 </div>
@@ -2059,7 +2059,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>varying_intercept_results = varying_intercept_model.fit()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_results</span> <span class="o">=</span> <span class="n">varying_intercept_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -2113,7 +2113,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>varying_intercept_model.graph()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -2129,8 +2129,8 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(data=varying_intercept_results, compact=True, chain_prop={&quot;ls&quot;: &quot;-&quot;});
-plt.suptitle(&quot;Varying Intercepts Model Trace&quot;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">varying_intercept_results</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chain_prop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ls&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">});</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Varying Intercepts Model Trace&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -2204,20 +2204,20 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>varying_intercept_slope_priors = {
-    &quot;floor&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=10),
-    &quot;floor|county&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=bmb.Prior(&quot;Exponential&quot;, lam=1)),
-    &quot;sigma&quot;: bmb.Prior(&quot;Exponential&quot;, lam=1),
-}
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_slope_priors</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;floor&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="s2">&quot;floor|county&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Exponential&quot;</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="mi">1</span><span class="p">)),</span>
+    <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Exponential&quot;</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="p">}</span>
 
-varying_intercept_slope_model = bmb.Model(
-    formula=&quot;log_radon ~ 0 + floor + (0 + floor|county)&quot;,
-    data=df,
-    priors=varying_intercept_slope_priors,
-    noncentered=True
- )
+<span class="n">varying_intercept_slope_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+    <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;log_radon ~ 0 + floor + (0 + floor|county)&quot;</span><span class="p">,</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">priors</span><span class="o">=</span><span class="n">varying_intercept_slope_priors</span><span class="p">,</span>
+    <span class="n">noncentered</span><span class="o">=</span><span class="kc">True</span>
+ <span class="p">)</span>
 
-varying_intercept_slope_model
+<span class="n">varying_intercept_slope_model</span>
 </pre></div>
 </div>
 </div>
@@ -2247,11 +2247,11 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>varying_intercept_slope_results = varying_intercept_slope_model.fit(
-    draws=2000,
-    tune=2000,
-    target_accept=0.9
-)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_slope_results</span> <span class="o">=</span> <span class="n">varying_intercept_slope_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+    <span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+    <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2305,7 +2305,7 @@ Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>varying_intercept_slope_model.graph()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_slope_model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -2321,13 +2321,13 @@ Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>var_names = [&quot;floor&quot;, &quot;floor|county&quot;, &quot;floor|county_sigma&quot;, &quot;log_radon_sigma&quot;]
-az.plot_trace(
-    data=varying_intercept_slope_results,
-    var_names=var_names,
-    compact=True,
-    chain_prop={&quot;ls&quot;: &quot;-&quot;}
-);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;floor&quot;</span><span class="p">,</span> <span class="s2">&quot;floor|county&quot;</span><span class="p">,</span> <span class="s2">&quot;floor|county_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;log_radon_sigma&quot;</span><span class="p">]</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">varying_intercept_slope_results</span><span class="p">,</span>
+    <span class="n">var_names</span><span class="o">=</span><span class="n">var_names</span><span class="p">,</span>
+    <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">chain_prop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ls&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">}</span>
+<span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -2395,21 +2395,21 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>covariate_priors = {
-    &quot;floor&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=10),
-    &quot;log_u&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=10),
-    &quot;floor|county&quot;: bmb.Prior(&quot;Normal&quot;, mu=0, sigma=bmb.Prior(&quot;Exponential&quot;, lam=1)),
-    &quot;sigma&quot;: bmb.Prior(&quot;Exponential&quot;, lam=1),
-}
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">covariate_priors</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;floor&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="s2">&quot;log_u&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+    <span class="s2">&quot;floor|county&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Normal&quot;</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Exponential&quot;</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="mi">1</span><span class="p">)),</span>
+    <span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;Exponential&quot;</span><span class="p">,</span> <span class="n">lam</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="p">}</span>
 
-covariate_model = bmb.Model(
-    formula=&quot;log_radon ~ 0 + floor + log_u + (0 + floor|county)&quot;,
-    data=df,
-    priors=covariate_priors,
-    noncentered=True
- )
+<span class="n">covariate_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+    <span class="n">formula</span><span class="o">=</span><span class="s2">&quot;log_radon ~ 0 + floor + log_u + (0 + floor|county)&quot;</span><span class="p">,</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+    <span class="n">priors</span><span class="o">=</span><span class="n">covariate_priors</span><span class="p">,</span>
+    <span class="n">noncentered</span><span class="o">=</span><span class="kc">True</span>
+ <span class="p">)</span>
 
-covariate_model
+<span class="n">covariate_model</span>
 </pre></div>
 </div>
 </div>
@@ -2439,11 +2439,11 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>covariate_results = covariate_model.fit(
-    draws=2000,
-    tune=2000,
-    target_accept=0.9
-)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">covariate_results</span> <span class="o">=</span> <span class="n">covariate_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+    <span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+    <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.9</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -2497,7 +2497,7 @@ There were 2 divergences after tuning. Increase `target_accept` or reparameteriz
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>covariate_model.graph()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">covariate_model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -2512,13 +2512,13 @@ There were 2 divergences after tuning. Increase `target_accept` or reparameteriz
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>var_names = [&quot;floor&quot;, &quot;log_u&quot;, &quot;floor|county&quot;, &quot;floor|county_sigma&quot;, &quot;log_radon_sigma&quot;]
-az.plot_trace(
-    data=covariate_results,
-    var_names=var_names,
-    compact=True,
-    chain_prop={&quot;ls&quot;: &quot;-&quot;}
-);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;floor&quot;</span><span class="p">,</span> <span class="s2">&quot;log_u&quot;</span><span class="p">,</span> <span class="s2">&quot;floor|county&quot;</span><span class="p">,</span> <span class="s2">&quot;floor|county_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;log_radon_sigma&quot;</span><span class="p">]</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">=</span><span class="n">covariate_results</span><span class="p">,</span>
+    <span class="n">var_names</span><span class="o">=</span><span class="n">var_names</span><span class="p">,</span>
+    <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">chain_prop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ls&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">}</span>
+<span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -2534,22 +2534,22 @@ az.plot_trace(
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># get log_u values per county
-log_u_sample = df.groupby([&quot;county&quot;])[&quot;log_u&quot;].mean().values
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># get log_u values per county</span>
+<span class="n">log_u_sample</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;county&quot;</span><span class="p">])[</span><span class="s2">&quot;log_u&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">values</span>
 
-# compute the slope posterior samples
-log_u_slope = covariate_results.posterior[&quot;log_u&quot;].values[..., None] * log_u_sample
+<span class="c1"># compute the slope posterior samples</span>
+<span class="n">log_u_slope</span> <span class="o">=</span> <span class="n">covariate_results</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;log_u&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">log_u_sample</span>
 
-# Compute the posterior for the floor coefficient when it is Basement
-intercepts = (
-    covariate_results.posterior.sel(floor_dim=&quot;Basement&quot;)[&quot;floor&quot;]
-    + covariate_results.posterior.sel(floor__expr_dim=&quot;Basement&quot;)[&quot;floor|county&quot;]
-).values
+<span class="c1"># Compute the posterior for the floor coefficient when it is Basement</span>
+<span class="n">intercepts</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">covariate_results</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">floor_dim</span><span class="o">=</span><span class="s2">&quot;Basement&quot;</span><span class="p">)[</span><span class="s2">&quot;floor&quot;</span><span class="p">]</span>
+    <span class="o">+</span> <span class="n">covariate_results</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">floor__expr_dim</span><span class="o">=</span><span class="s2">&quot;Basement&quot;</span><span class="p">)[</span><span class="s2">&quot;floor|county&quot;</span><span class="p">]</span>
+<span class="p">)</span><span class="o">.</span><span class="n">values</span>
 
-y_predicted = (intercepts + log_u_slope).reshape(8000, n_counties).T
+<span class="n">y_predicted</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercepts</span> <span class="o">+</span> <span class="n">log_u_slope</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">8000</span><span class="p">,</span> <span class="n">n_counties</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
-# reduce the intercepts posterior samples to the mean per county
-mean_intercept = intercepts.mean(axis=2)[..., None] + log_u_slope
+<span class="c1"># reduce the intercepts posterior samples to the mean per county</span>
+<span class="n">mean_intercept</span> <span class="o">=</span> <span class="n">intercepts</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">log_u_slope</span>
 </pre></div>
 </div>
 </div>
@@ -2557,44 +2557,44 @@ mean_intercept = intercepts.mean(axis=2)[..., None] + log_u_slope
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig, ax = plt.subplots()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 
-y_predicted_bounds = np.quantile(y_predicted, q=[0.03, 0.96], axis=1)
+<span class="n">y_predicted_bounds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">y_predicted</span><span class="p">,</span> <span class="n">q</span><span class="o">=</span><span class="p">[</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.96</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-sns.scatterplot(
-    x=log_u_sample,
-    y=y_predicted.mean(axis=1),
-    alpha=0.8,
-    color=&quot;C0&quot;,
-    s=50,
-    label=&quot;Mean county-intercept&quot;,
-    ax=ax
-)
-ax.vlines(log_u_sample, y_predicted_bounds[0], y_predicted_bounds[1], color=&quot;C1&quot;, alpha=0.5)
+<span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">log_u_sample</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">y_predicted</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">,</span>
+    <span class="n">s</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Mean county-intercept&quot;</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">log_u_sample</span><span class="p">,</span> <span class="n">y_predicted_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y_predicted_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 
-az.plot_hdi(
-    x=log_u_sample,
-    y=mean_intercept,
-    color=&quot;black&quot;,
-    fill_kwargs={&quot;alpha&quot;: 0.1, &quot;label&quot;: &quot;Mean intercept HPD&quot;},
-    ax=ax
-)
+<span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">log_u_sample</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">mean_intercept</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">fill_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Mean intercept HPD&quot;</span><span class="p">},</span>
+    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span>
+<span class="p">)</span>
 
-sns.lineplot(
-    x=log_u_sample,
-    y=mean_intercept.reshape(8000, n_counties).mean(axis=0),
-    color=&quot;black&quot;,
-    alpha=0.6,
-    label=&quot;Mean intercept&quot;,
-    ax=ax
-)
+<span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="n">log_u_sample</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">mean_intercept</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">8000</span><span class="p">,</span> <span class="n">n_counties</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Mean intercept&quot;</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span>
+<span class="p">)</span>
 
-ax.legend(loc=&quot;upper left&quot;)
-ax.set(
-    title=&quot;County Intercepts (Covariance Model)&quot;,
-    xlabel=&quot;County-level log uranium&quot;,
-    ylabel=&quot;Intercept estimate&quot;
-);
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;County Intercepts (Covariance Model)&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;County-level log uranium&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Intercept estimate&quot;</span>
+<span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -2617,28 +2617,28 @@ ax.set(
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># generate posterior predictive samples
-pooled_model.predict(pooled_results, kind=&quot;pps&quot;)
-unpooled_model.predict(unpooled_results, kind=&quot;pps&quot;)
-partial_pooling_model.predict(partial_pooling_results, kind=&quot;pps&quot;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># generate posterior predictive samples</span>
+<span class="n">pooled_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">pooled_results</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
+<span class="n">unpooled_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">unpooled_results</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
+<span class="n">partial_pooling_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">partial_pooling_results</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
 
-# stack chain and draw values
-pooled_pps = az.extract_dataset(pooled_results, group=&quot;posterior_predictive&quot;)[&quot;log_radon&quot;].values
-unpooled_pps = az.extract_dataset(unpooled_results, group=&quot;posterior_predictive&quot;)[&quot;log_radon&quot;].values
-partial_pooling_pps = az.extract_dataset(partial_pooling_results, group=&quot;posterior_predictive&quot;)[&quot;log_radon&quot;].values
+<span class="c1"># stack chain and draw values</span>
+<span class="n">pooled_pps</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">pooled_results</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;posterior_predictive&quot;</span><span class="p">)[</span><span class="s2">&quot;log_radon&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">unpooled_pps</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">unpooled_results</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;posterior_predictive&quot;</span><span class="p">)[</span><span class="s2">&quot;log_radon&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">partial_pooling_pps</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">partial_pooling_results</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;posterior_predictive&quot;</span><span class="p">)[</span><span class="s2">&quot;log_radon&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
-# Generate predictions per county
-pooled_pps_df = pd.DataFrame(data=pooled_pps).assign(county=df[&quot;county&quot;])
-y_pred_pooled = pooled_pps_df.groupby(&quot;county&quot;).mean().mean(axis=1)
+<span class="c1"># Generate predictions per county</span>
+<span class="n">pooled_pps_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">pooled_pps</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">county</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;county&quot;</span><span class="p">])</span>
+<span class="n">y_pred_pooled</span> <span class="o">=</span> <span class="n">pooled_pps_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;county&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-unpooled_pps_df = pd.DataFrame(data=unpooled_pps).assign(county=df[&quot;county&quot;])
-y_pred_unpooled = unpooled_pps_df.groupby(&quot;county&quot;).mean().mean(axis=1)
+<span class="n">unpooled_pps_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">unpooled_pps</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">county</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;county&quot;</span><span class="p">])</span>
+<span class="n">y_pred_unpooled</span> <span class="o">=</span> <span class="n">unpooled_pps_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;county&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-partial_pooling_pps_df = pd.DataFrame(data=partial_pooling_pps).assign(county=df[&quot;county&quot;])
-y_pred_partial_pooling = partial_pooling_pps_df.groupby(&quot;county&quot;).mean().mean(axis=1)
+<span class="n">partial_pooling_pps_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">partial_pooling_pps</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">county</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;county&quot;</span><span class="p">])</span>
+<span class="n">y_pred_partial_pooling</span> <span class="o">=</span> <span class="n">partial_pooling_pps_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;county&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-# observed values
-y_sample = df.groupby(&quot;county&quot;)[&quot;log_radon&quot;].mean()
+<span class="c1"># observed values</span>
+<span class="n">y_sample</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;county&quot;</span><span class="p">)[</span><span class="s2">&quot;log_radon&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -2646,25 +2646,25 @@ y_sample = df.groupby(&quot;county&quot;)[&quot;log_radon&quot;].mean()
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig, ax = plt.subplots(figsize=(8, 8))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
 
-sns.regplot(x=y_sample, y=y_pred_pooled, label=&quot;pooled&quot;, color=&quot;C0&quot;, ax=ax)
-sns.regplot(x=y_sample, y=y_pred_unpooled, label=&quot;unpooled&quot;, color=&quot;C1&quot;, ax=ax)
-sns.regplot(x=y_sample, y=y_pred_partial_pooling, label=&quot;partial pooling&quot;, color=&quot;C2&quot;, ax=ax)
-ax.axhline(y=df[&quot;log_radon&quot;].mean(), color=&quot;C0&quot;, linestyle=&quot;--&quot;, label=&quot;sample mean&quot;)
-ax.axline(xy1=(1, 1), slope=1, color=&quot;black&quot;, linestyle=&quot;--&quot;, label=&quot;diagonal&quot;)
-ax.axhline(
-    y=y_pred_partial_pooling.mean(), color=&quot;C3&quot;,
-    linestyle=&quot;--&quot;, label=&quot;predicted global mean (partial pooling)&quot;
-)
-ax.legend(loc=&quot;upper center&quot;, bbox_to_anchor=(0.5, -0.1), ncol=2)
-ax.set(
-    title=&quot;log(Radon + 0.1) Mean per County - Model Comparison&quot;,
-    xlabel=&quot;observed (sample)&quot;,
-    ylabel=&quot;prediction&quot;,
-    xlim=(0.2, 2.8),
-    ylim=(0.2, 2.8),
-);
+<span class="n">sns</span><span class="o">.</span><span class="n">regplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">y_sample</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y_pred_pooled</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;pooled&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">regplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">y_sample</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y_pred_unpooled</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;unpooled&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">regplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">y_sample</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y_pred_partial_pooling</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;partial pooling&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C2&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;log_radon&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;sample mean&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axline</span><span class="p">(</span><span class="n">xy1</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">slope</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;diagonal&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">y_pred_partial_pooling</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C3&quot;</span><span class="p">,</span>
+    <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;predicted global mean (partial pooling)&quot;</span>
+<span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper center&quot;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">),</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">&quot;log(Radon + 0.1) Mean per County - Model Comparison&quot;</span><span class="p">,</span>
+    <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;observed (sample)&quot;</span><span class="p">,</span>
+    <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;prediction&quot;</span><span class="p">,</span>
+    <span class="n">xlim</span><span class="o">=</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">),</span>
+    <span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">2.8</span><span class="p">),</span>
+<span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -2684,8 +2684,8 @@ ax.set(
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[50]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
-%watermark -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
 </pre></div>
 </div>
 </div>

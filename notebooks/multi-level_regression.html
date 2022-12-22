@@ -609,12 +609,12 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
-import bambi as bmb
-import numpy as np
-import matplotlib.pyplot as plt
-import statsmodels.api as sm
-import xarray as xr
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">statsmodels.api</span> <span class="k">as</span> <span class="nn">sm</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 </pre></div>
 </div>
 </div>
@@ -631,8 +631,8 @@ import xarray as xr
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
-SEED = 7355608
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+<span class="n">SEED</span> <span class="o">=</span> <span class="mi">7355608</span>
 </pre></div>
 </div>
 </div>
@@ -646,9 +646,9 @@ SEED = 7355608
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Load up data from statsmodels
-data = sm.datasets.get_rdataset(&quot;dietox&quot;, &quot;geepack&quot;).data
-data.describe()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load up data from statsmodels</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">datasets</span><span class="o">.</span><span class="n">get_rdataset</span><span class="p">(</span><span class="s2">&quot;dietox&quot;</span><span class="p">,</span> <span class="s2">&quot;geepack&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
+<span class="n">data</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -778,8 +778,8 @@ include a main effect for the variable <code class="docutils literal notranslate
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model = bmb.Model(&quot;Weight ~ Time + (Time|Pig)&quot;, data)
-results = model.fit()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;Weight ~ Time + (Time|Pig)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -833,7 +833,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span>
 </pre></div>
 </div>
 </div>
@@ -868,7 +868,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model.plot_priors();
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -885,12 +885,12 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Plot posteriors
-az.plot_trace(
-    results,
-    var_names=[&quot;Intercept&quot;, &quot;Time&quot;, &quot;1|Pig&quot;, &quot;Time|Pig&quot;, &quot;Weight_sigma&quot;],
-    compact=True,
-);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot posteriors</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span>
+    <span class="n">results</span><span class="p">,</span>
+    <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;1|Pig&quot;</span><span class="p">,</span> <span class="s2">&quot;Time|Pig&quot;</span><span class="p">,</span> <span class="s2">&quot;Weight_sigma&quot;</span><span class="p">],</span>
+    <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -912,7 +912,7 @@ az.plot_trace(
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(results, var_names=[&quot;Intercept&quot;, &quot;Time&quot;, &quot;1|Pig_sigma&quot;, &quot;Time|Pig_sigma&quot;, &quot;Weight_sigma&quot;])
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;1|Pig_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;Time|Pig_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;Weight_sigma&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -1024,27 +1024,27 @@ az.plot_trace(
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># The ID of the first pig is &#39;4601&#39;
-data_0 = data[data[&quot;Pig&quot;] == 4601][[&quot;Time&quot;, &quot;Weight&quot;]]
-time = np.array([1, 12])
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The ID of the first pig is &#39;4601&#39;</span>
+<span class="n">data_0</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Pig&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4601</span><span class="p">][[</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="s2">&quot;Weight&quot;</span><span class="p">]]</span>
+<span class="n">time</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
 
-posterior = az.extract_dataset(results)
-intercept_common = posterior[&quot;Intercept&quot;]
-slope_common = posterior[&quot;Time&quot;]
+<span class="n">posterior</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<span class="n">intercept_common</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]</span>
+<span class="n">slope_common</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">]</span>
 
-intercept_specific_0 = posterior[&quot;1|Pig&quot;].sel(Pig__factor_dim=&quot;4601&quot;)
-slope_specific_0 = posterior[&quot;Time|Pig&quot;].sel(Pig__factor_dim=&quot;4601&quot;)
+<span class="n">intercept_specific_0</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;1|Pig&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">Pig__factor_dim</span><span class="o">=</span><span class="s2">&quot;4601&quot;</span><span class="p">)</span>
+<span class="n">slope_specific_0</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Time|Pig&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">Pig__factor_dim</span><span class="o">=</span><span class="s2">&quot;4601&quot;</span><span class="p">)</span>
 
-a = (intercept_common + intercept_specific_0)
-b = (slope_common + slope_specific_0)
+<span class="n">a</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercept_common</span> <span class="o">+</span> <span class="n">intercept_specific_0</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">slope_common</span> <span class="o">+</span> <span class="n">slope_specific_0</span><span class="p">)</span>
 
-# make time a DataArray so we can get automatic broadcasting
-time_xi = xr.DataArray(time)
-plt.plot(time_xi, (a + b * time_xi).T, color=&quot;C1&quot;, lw=0.1)
-plt.plot(time_xi, a.mean() + b.mean() * time_xi, color=&quot;black&quot;)
-plt.scatter(data_0[&quot;Time&quot;], data_0[&quot;Weight&quot;], zorder=2)
-plt.ylabel(&quot;Weight (kg)&quot;)
-plt.xlabel(&quot;Time (weeks)&quot;);
+<span class="c1"># make time a DataArray so we can get automatic broadcasting</span>
+<span class="n">time_xi</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_xi</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">time_xi</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_xi</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">b</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">*</span> <span class="n">time_xi</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data_0</span><span class="p">[</span><span class="s2">&quot;Time&quot;</span><span class="p">],</span> <span class="n">data_0</span><span class="p">[</span><span class="s2">&quot;Weight&quot;</span><span class="p">],</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Weight (kg)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Time (weeks)&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1060,14 +1060,14 @@ plt.xlabel(&quot;Time (weeks)&quot;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>intercept_group_specific = posterior[&quot;1|Pig&quot;]
-slope_group_specific = posterior[&quot;Time|Pig&quot;]
-a = intercept_common.mean() + intercept_group_specific.mean(&quot;sample&quot;)
-b = slope_common.mean() + slope_group_specific.mean(&quot;sample&quot;)
-time_xi = xr.DataArray(time)
-plt.plot(time_xi, (a + b * time_xi).T, color=&quot;C1&quot;, alpha=0.7, lw=0.8)
-plt.ylabel(&quot;Weight (kg)&quot;)
-plt.xlabel(&quot;Time (weeks)&quot;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">intercept_group_specific</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;1|Pig&quot;</span><span class="p">]</span>
+<span class="n">slope_group_specific</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Time|Pig&quot;</span><span class="p">]</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">intercept_common</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">intercept_group_specific</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">slope_common</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">+</span> <span class="n">slope_group_specific</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">)</span>
+<span class="n">time_xi</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">time_xi</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span> <span class="o">*</span> <span class="n">time_xi</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Weight (kg)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Time (weeks)&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1088,11 +1088,11 @@ plt.xlabel(&quot;Time (weeks)&quot;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_forest(
-    results,
-    var_names=[&quot;Intercept&quot;, &quot;Time&quot;],
-    figsize=(8, 2),
-);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_forest</span><span class="p">(</span>
+    <span class="n">results</span><span class="p">,</span>
+    <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;Time&quot;</span><span class="p">],</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+<span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1108,7 +1108,7 @@ plt.xlabel(&quot;Time (weeks)&quot;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_posterior(results, var_names=[&quot;Intercept&quot;, &quot;Time&quot;], ref_val=0, rope=[-1, 1]);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">,</span> <span class="s2">&quot;Time&quot;</span><span class="p">],</span> <span class="n">ref_val</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">rope</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
 </pre></div>
 </div>
 </div>
@@ -1123,8 +1123,8 @@ plt.xlabel(&quot;Time (weeks)&quot;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
-%watermark -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
 </pre></div>
 </div>
 </div>

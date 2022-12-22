@@ -610,13 +610,13 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
-import bambi as bmb
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-from scipy import stats
-from scipy.special import expit
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">expit</span>
 </pre></div>
 </div>
 </div>
@@ -624,7 +624,7 @@ from scipy.special import expit
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -637,11 +637,11 @@ from scipy.special import expit
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>alpha = 1_000
-beta = 1_000
-p = np.random.beta(alpha, beta, size=10_000)
-az.plot_kde(p)
-plt.xlabel(&quot;$p$&quot;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">alpha</span> <span class="o">=</span> <span class="mi">1_000</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="mi">1_000</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10_000</span><span class="p">)</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;$p$&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -657,9 +657,9 @@ plt.xlabel(&quot;$p$&quot;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = pd.DataFrame({&quot;probabilities&quot;: p})
-model = bmb.Model(&quot;probabilities ~ 1&quot;, data, family=&quot;beta&quot;)
-fitted = model.fit()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;probabilities&quot;</span><span class="p">:</span> <span class="n">p</span><span class="p">})</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;probabilities ~ 1&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;beta&quot;</span><span class="p">)</span>
+<span class="n">fitted</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -712,7 +712,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(fitted);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">fitted</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -727,7 +727,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(fitted)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">fitted</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -804,26 +804,26 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def mukappa_to_alphabeta(mu, kappa):
-    # Calculate alpha and beta
-    alpha = mu * kappa
-    beta = (1 - mu) * kappa
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">mukappa_to_alphabeta</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">kappa</span><span class="p">):</span>
+    <span class="c1"># Calculate alpha and beta</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">*</span> <span class="n">kappa</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">*</span> <span class="n">kappa</span>
 
-    # Get mean values and 95% HDIs
-    alpha_mean = alpha.mean((&quot;chain&quot;, &quot;draw&quot;)).item()
-    alpha_hdi = az.hdi(alpha, hdi_prob=.95)[&quot;x&quot;].values
-    beta_mean = beta.mean((&quot;chain&quot;, &quot;draw&quot;)).item()
-    beta_hdi = az.hdi(beta, hdi_prob=.95)[&quot;x&quot;].values
+    <span class="c1"># Get mean values and 95% HDIs</span>
+    <span class="n">alpha_mean</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">alpha_hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">beta_mean</span> <span class="o">=</span> <span class="n">beta</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">beta_hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
-    return alpha_mean, alpha_hdi, beta_mean, beta_hdi
+    <span class="k">return</span> <span class="n">alpha_mean</span><span class="p">,</span> <span class="n">alpha_hdi</span><span class="p">,</span> <span class="n">beta_mean</span><span class="p">,</span> <span class="n">beta_hdi</span>
 
-alpha, alpha_hdi, beta, beta_hdi = mukappa_to_alphabeta(
-    expit(fitted.posterior[&quot;Intercept&quot;]),
-    fitted.posterior[&quot;probabilities_kappa&quot;]
-)
+<span class="n">alpha</span><span class="p">,</span> <span class="n">alpha_hdi</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">beta_hdi</span> <span class="o">=</span> <span class="n">mukappa_to_alphabeta</span><span class="p">(</span>
+    <span class="n">expit</span><span class="p">(</span><span class="n">fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]),</span>
+    <span class="n">fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;probabilities_kappa&quot;</span><span class="p">]</span>
+<span class="p">)</span>
 
-print(f&quot;Alpha - mean: {np.round(alpha)}, 95% HDI: {np.round(alpha_hdi[0])} - {np.round(alpha_hdi[1])}&quot;)
-print(f&quot;Beta - mean: {np.round(beta)}, 95% HDI: {np.round(beta_hdi[0])} - {np.round(beta_hdi[1])}&quot;)
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Alpha - mean: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span><span class="si">}</span><span class="s2">, 95% HDI: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">alpha_hdi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">alpha_hdi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Beta - mean: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span><span class="si">}</span><span class="s2">, 95% HDI: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">beta_hdi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">beta_hdi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -840,26 +840,26 @@ Beta - mean: 994.0, 95% HDI: 968.0 - 1023.0
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>def mukappa_to_alphabeta(mu, kappa):
-    # Calculate alpha and beta
-    alpha = mu * kappa
-    beta = (1 - mu) * kappa
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">mukappa_to_alphabeta</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">kappa</span><span class="p">):</span>
+    <span class="c1"># Calculate alpha and beta</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">mu</span> <span class="o">*</span> <span class="n">kappa</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mu</span><span class="p">)</span> <span class="o">*</span> <span class="n">kappa</span>
 
-    # Get mean values and 95% HDIs
-    alpha_mean = alpha.mean((&quot;chain&quot;, &quot;draw&quot;)).item()
-    alpha_hdi = az.hdi(alpha, hdi_prob=.95)[&quot;x&quot;].values
-    beta_mean = beta.mean((&quot;chain&quot;, &quot;draw&quot;)).item()
-    beta_hdi = az.hdi(beta, hdi_prob=.95)[&quot;x&quot;].values
+    <span class="c1"># Get mean values and 95% HDIs</span>
+    <span class="n">alpha_mean</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">alpha_hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">beta_mean</span> <span class="o">=</span> <span class="n">beta</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+    <span class="n">beta_hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
-    return alpha_mean, alpha_hdi, beta_mean, beta_hdi
+    <span class="k">return</span> <span class="n">alpha_mean</span><span class="p">,</span> <span class="n">alpha_hdi</span><span class="p">,</span> <span class="n">beta_mean</span><span class="p">,</span> <span class="n">beta_hdi</span>
 
-alpha, alpha_hdi, beta, beta_hdi = mukappa_to_alphabeta(
-    expit(fitted.posterior[&quot;Intercept&quot;]),
-    fitted.posterior[&quot;probabilities_kappa&quot;]
-)
+<span class="n">alpha</span><span class="p">,</span> <span class="n">alpha_hdi</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">beta_hdi</span> <span class="o">=</span> <span class="n">mukappa_to_alphabeta</span><span class="p">(</span>
+    <span class="n">expit</span><span class="p">(</span><span class="n">fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">]),</span>
+    <span class="n">fitted</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;probabilities_kappa&quot;</span><span class="p">]</span>
+<span class="p">)</span>
 
-print(f&quot;Alpha - mean: {np.round(alpha)}, 95% HDI: {np.round(alpha_hdi[0])} - {np.round(alpha_hdi[1])}&quot;)
-print(f&quot;Beta - mean: {np.round(beta)}, 95% HDI: {np.round(beta_hdi[0])} - {np.round(beta_hdi[1])}&quot;)
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Alpha - mean: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">alpha</span><span class="p">)</span><span class="si">}</span><span class="s2">, 95% HDI: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">alpha_hdi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">alpha_hdi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Beta - mean: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">beta</span><span class="p">)</span><span class="si">}</span><span class="s2">, 95% HDI: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">beta_hdi</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">beta_hdi</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -883,23 +883,23 @@ Normal distribution with a standard deviation of 25 per side.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>effect_per_micron = 5.0
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">effect_per_micron</span> <span class="o">=</span> <span class="mf">5.0</span>
 
-# Clean Coin
-alpha = 1_000
-beta = 1_000
-p = np.random.beta(alpha, beta, size=10_000)
+<span class="c1"># Clean Coin</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="mi">1_000</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="mi">1_000</span>
+<span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10_000</span><span class="p">)</span>
 
-# Add two std to tails side (heads more likely)
-p_heads = np.random.beta(alpha + 50 * effect_per_micron, beta, size=10_000)
-# Add two std to heads side (tails more likely)
-p_tails = np.random.beta(alpha - 50 * effect_per_micron, beta, size=10_000)
+<span class="c1"># Add two std to tails side (heads more likely)</span>
+<span class="n">p_heads</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="n">alpha</span> <span class="o">+</span> <span class="mi">50</span> <span class="o">*</span> <span class="n">effect_per_micron</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10_000</span><span class="p">)</span>
+<span class="c1"># Add two std to heads side (tails more likely)</span>
+<span class="n">p_tails</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="n">alpha</span> <span class="o">-</span> <span class="mi">50</span> <span class="o">*</span> <span class="n">effect_per_micron</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10_000</span><span class="p">)</span>
 
-az.plot_kde(p, label=&quot;Clean Coin&quot;)
-az.plot_kde(p_heads, label=&quot;Biased toward heads&quot;, plot_kwargs={&quot;color&quot;:&quot;C1&quot;})
-az.plot_kde(p_tails, label=&quot;Biased toward tails&quot;, plot_kwargs={&quot;color&quot;:&quot;C2&quot;})
-plt.xlabel(&quot;$p$&quot;)
-plt.ylim(top=plt.ylim()[1]*1.25);
+<span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Clean Coin&quot;</span><span class="p">)</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">p_heads</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Biased toward heads&quot;</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span><span class="s2">&quot;C1&quot;</span><span class="p">})</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_kde</span><span class="p">(</span><span class="n">p_tails</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Biased toward tails&quot;</span><span class="p">,</span> <span class="n">plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span><span class="s2">&quot;C2&quot;</span><span class="p">})</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;$p$&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="n">top</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mf">1.25</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -915,23 +915,23 @@ plt.ylim(top=plt.ylim()[1]*1.25);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Create amount of dirt on top and bottom
-heads_bias_dirt = stats.halfnorm(loc=0, scale=25).rvs(size=1_000)
-tails_bias_dirt = stats.halfnorm(loc=0, scale=25).rvs(size=1_000)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create amount of dirt on top and bottom</span>
+<span class="n">heads_bias_dirt</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">halfnorm</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">1_000</span><span class="p">)</span>
+<span class="n">tails_bias_dirt</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">halfnorm</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">1_000</span><span class="p">)</span>
 
-# Create the probability per coin
-alpha = np.repeat(1_000, 1_000)
-alpha = alpha + effect_per_micron * heads_bias_dirt - effect_per_micron * tails_bias_dirt
-beta = np.repeat(1_000, 1_000)
+<span class="c1"># Create the probability per coin</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">1_000</span><span class="p">,</span> <span class="mi">1_000</span><span class="p">)</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span> <span class="o">+</span> <span class="n">effect_per_micron</span> <span class="o">*</span> <span class="n">heads_bias_dirt</span> <span class="o">-</span> <span class="n">effect_per_micron</span> <span class="o">*</span> <span class="n">tails_bias_dirt</span>
+<span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="mi">1_000</span><span class="p">,</span> <span class="mi">1_000</span><span class="p">)</span>
 
-p = np.random.beta(alpha, beta)
+<span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">beta</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">)</span>
 
-df = pd.DataFrame({
-    &quot;p&quot; : p,
-    &quot;heads_bias_dirt&quot; : heads_bias_dirt.round(),
-    &quot;tails_bias_dirt&quot; : tails_bias_dirt.round()
-})
-df.head()
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;p&quot;</span> <span class="p">:</span> <span class="n">p</span><span class="p">,</span>
+    <span class="s2">&quot;heads_bias_dirt&quot;</span> <span class="p">:</span> <span class="n">heads_bias_dirt</span><span class="o">.</span><span class="n">round</span><span class="p">(),</span>
+    <span class="s2">&quot;tails_bias_dirt&quot;</span> <span class="p">:</span> <span class="n">tails_bias_dirt</span><span class="o">.</span><span class="n">round</span><span class="p">()</span>
+<span class="p">})</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1003,15 +1003,15 @@ df.head()
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig,ax = plt.subplots(1,3, figsize=(16,5))
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
 
-df[&quot;p&quot;].plot.kde(ax=ax[0])
-ax[0].set_xlabel(&quot;$p$&quot;)
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;p&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">kde</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;$p$&quot;</span><span class="p">)</span>
 
-df[&quot;heads_bias_dirt&quot;].plot.hist(ax=ax[1], bins=np.arange(0,df[&quot;heads_bias_dirt&quot;].max()))
-ax[1].set_xlabel(&quot;Measured Dirt Biasing Toward Heads ($\mu m$)&quot;)
-df[&quot;tails_bias_dirt&quot;].plot.hist(ax=ax[2], bins=np.arange(0,df[&quot;tails_bias_dirt&quot;].max()))
-ax[2].set_xlabel(&quot;Measured Dirt Biasing Toward Tails ($\mu m$)&quot;);
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;heads_bias_dirt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;heads_bias_dirt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Measured Dirt Biasing Toward Heads ($\mu m$)&quot;</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;tails_bias_dirt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;tails_bias_dirt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()))</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Measured Dirt Biasing Toward Tails ($\mu m$)&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1036,10 +1036,10 @@ identity, probit, and cloglog links as well.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>df[&quot;delta_d&quot;] = df[&quot;heads_bias_dirt&quot;] - df[&quot;tails_bias_dirt&quot;]
-dirt_model = bmb.Model(&quot;p ~ delta_d&quot;, df, family=&quot;beta&quot;)
-dirt_fitted = dirt_model.fit()
-dirt_model.predict(dirt_fitted, kind=&quot;pps&quot;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;delta_d&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;heads_bias_dirt&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;tails_bias_dirt&quot;</span><span class="p">]</span>
+<span class="n">dirt_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;p ~ delta_d&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;beta&quot;</span><span class="p">)</span>
+<span class="n">dirt_fitted</span> <span class="o">=</span> <span class="n">dirt_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+<span class="n">dirt_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">dirt_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1092,7 +1092,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(dirt_fitted)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">dirt_fitted</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1175,7 +1175,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_ppc(dirt_fitted);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_ppc</span><span class="p">(</span><span class="n">dirt_fitted</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1191,12 +1191,12 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mean_effect = expit(dirt_fitted.posterior.delta_d.mean())
-hdi = az.hdi(dirt_fitted.posterior.delta_d, hdi_prob=.95)
-lower = expit(hdi.delta_d[0])
-upper = expit(hdi.delta_d[1])
-print(f&quot;Mean effect: {mean_effect.item():.4f}&quot;)
-print(f&quot;95% interval {lower.item():.4f} - {upper.item():.4f}&quot;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mean_effect</span> <span class="o">=</span> <span class="n">expit</span><span class="p">(</span><span class="n">dirt_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">delta_d</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+<span class="n">hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">dirt_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">delta_d</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)</span>
+<span class="n">lower</span> <span class="o">=</span> <span class="n">expit</span><span class="p">(</span><span class="n">hdi</span><span class="o">.</span><span class="n">delta_d</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">upper</span> <span class="o">=</span> <span class="n">expit</span><span class="p">(</span><span class="n">hdi</span><span class="o">.</span><span class="n">delta_d</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean effect: </span><span class="si">{</span><span class="n">mean_effect</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;95% interval </span><span class="si">{</span><span class="n">lower</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">upper</span><span class="o">.</span><span class="n">item</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1220,7 +1220,7 @@ player’s batting averages are samples from that distribution.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>batting = bmb.load_data(&quot;batting&quot;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">batting</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;batting&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1228,9 +1228,9 @@ player’s batting averages are samples from that distribution.</p>
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>batting[&quot;batting_avg&quot;] = batting[&quot;H&quot;] / batting[&quot;AB&quot;]
-batting = batting[batting[&quot;AB&quot;] &gt; 100]
-df = batting[ (batting[&quot;yearID&quot;] &gt; 1990) &amp; (batting[&quot;yearID&quot;] &lt; 2018) ]
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">batting</span><span class="p">[</span><span class="s2">&quot;batting_avg&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batting</span><span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">batting</span><span class="p">[</span><span class="s2">&quot;AB&quot;</span><span class="p">]</span>
+<span class="n">batting</span> <span class="o">=</span> <span class="n">batting</span><span class="p">[</span><span class="n">batting</span><span class="p">[</span><span class="s2">&quot;AB&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">]</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">batting</span><span class="p">[</span> <span class="p">(</span><span class="n">batting</span><span class="p">[</span><span class="s2">&quot;yearID&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1990</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">batting</span><span class="p">[</span><span class="s2">&quot;yearID&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2018</span><span class="p">)</span> <span class="p">]</span>
 </pre></div>
 </div>
 </div>
@@ -1238,9 +1238,9 @@ df = batting[ (batting[&quot;yearID&quot;] &gt; 1990) &amp; (batting[&quot;yearI
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>df.batting_avg.hist(bins=30)
-plt.xlabel(&quot;Batting Average&quot;)
-plt.ylabel(&quot;Count&quot;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">batting_avg</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Batting Average&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Count&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1256,8 +1256,8 @@ plt.ylabel(&quot;Count&quot;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_avg = bmb.Model(&quot;batting_avg ~ 1&quot;, df, family=&quot;beta&quot;)
-avg_fitted = model_avg.fit()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_avg</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;batting_avg ~ 1&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;beta&quot;</span><span class="p">)</span>
+<span class="n">avg_fitted</span> <span class="o">=</span> <span class="n">model_avg</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1310,7 +1310,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(avg_fitted)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">avg_fitted</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1382,7 +1382,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>posterior_predictive = model_avg.predict(avg_fitted, kind=&quot;pps&quot;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">posterior_predictive</span> <span class="o">=</span> <span class="n">model_avg</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">avg_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1390,7 +1390,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_ppc(avg_fitted);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_ppc</span><span class="p">(</span><span class="n">avg_fitted</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1407,15 +1407,15 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Add the player&#39;s batting average in the n-1 year
-batting[&quot;batting_avg_shift&quot;] = np.where(
-    batting[&quot;playerID&quot;] == batting[&quot;playerID&quot;].shift(),
-    batting[&quot;batting_avg&quot;].shift(),
-    np.nan
-)
-df_shift = batting[ (batting[&quot;yearID&quot;] &gt; 1990) &amp; (batting[&quot;yearID&quot;] &lt; 2018) ]
-df_shift = df_shift[~df_shift[&quot;batting_avg_shift&quot;].isna()]
-df_shift[[&quot;batting_avg_shift&quot;,&quot;batting_avg&quot;]].corr()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add the player&#39;s batting average in the n-1 year</span>
+<span class="n">batting</span><span class="p">[</span><span class="s2">&quot;batting_avg_shift&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+    <span class="n">batting</span><span class="p">[</span><span class="s2">&quot;playerID&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">batting</span><span class="p">[</span><span class="s2">&quot;playerID&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(),</span>
+    <span class="n">batting</span><span class="p">[</span><span class="s2">&quot;batting_avg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shift</span><span class="p">(),</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+<span class="p">)</span>
+<span class="n">df_shift</span> <span class="o">=</span> <span class="n">batting</span><span class="p">[</span> <span class="p">(</span><span class="n">batting</span><span class="p">[</span><span class="s2">&quot;yearID&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1990</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">batting</span><span class="p">[</span><span class="s2">&quot;yearID&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">2018</span><span class="p">)</span> <span class="p">]</span>
+<span class="n">df_shift</span> <span class="o">=</span> <span class="n">df_shift</span><span class="p">[</span><span class="o">~</span><span class="n">df_shift</span><span class="p">[</span><span class="s2">&quot;batting_avg_shift&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()]</span>
+<span class="n">df_shift</span><span class="p">[[</span><span class="s2">&quot;batting_avg_shift&quot;</span><span class="p">,</span><span class="s2">&quot;batting_avg&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1466,11 +1466,11 @@ df_shift[[&quot;batting_avg_shift&quot;,&quot;batting_avg&quot;]].corr()
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_avg = bmb.Model(&quot;batting_avg ~ 1&quot;, df_shift, family=&quot;beta&quot;)
-avg_fitted = model_avg.fit()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_avg</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;batting_avg ~ 1&quot;</span><span class="p">,</span> <span class="n">df_shift</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;beta&quot;</span><span class="p">)</span>
+<span class="n">avg_fitted</span> <span class="o">=</span> <span class="n">model_avg</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 
-model_lag = bmb.Model(&quot;batting_avg ~ batting_avg_shift&quot;, df_shift, family=&quot;beta&quot;)
-lag_fitted = model_lag.fit()
+<span class="n">model_lag</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;batting_avg ~ batting_avg_shift&quot;</span><span class="p">,</span> <span class="n">df_shift</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;beta&quot;</span><span class="p">)</span>
+<span class="n">lag_fitted</span> <span class="o">=</span> <span class="n">model_lag</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1561,7 +1561,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(lag_fitted)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">lag_fitted</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1644,10 +1644,10 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.compare({
-    &quot;intercept-only&quot; : avg_fitted,
-    &quot;lag-model&quot;: lag_fitted
-})
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">compare</span><span class="p">({</span>
+    <span class="s2">&quot;intercept-only&quot;</span> <span class="p">:</span> <span class="n">avg_fitted</span><span class="p">,</span>
+    <span class="s2">&quot;lag-model&quot;</span><span class="p">:</span> <span class="n">lag_fitted</span>
+<span class="p">})</span>
 </pre></div>
 </div>
 </div>
@@ -1719,8 +1719,8 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>ppc= model_lag.predict(lag_fitted, kind=&quot;pps&quot;)
-az.plot_ppc(lag_fitted);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ppc</span><span class="o">=</span> <span class="n">model_lag</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">lag_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_ppc</span><span class="p">(</span><span class="n">lag_fitted</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1835,13 +1835,13 @@ File <span class="ansi-green-fg">~/anaconda3/lib/python3.9/site-packages/numpy/l
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>mean_effect = lag_fitted.posterior.batting_avg_shift.mean().item()
-hdi = az.hdi(lag_fitted.posterior.batting_avg_shift, hdi_prob=.95)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mean_effect</span> <span class="o">=</span> <span class="n">lag_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<span class="n">hdi</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">lag_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.95</span><span class="p">)</span>
 
-lower = expit(hdi.batting_avg_shift[0]).item()
-upper = expit(hdi.batting_avg_shift[1]).item()
-print(f&quot;Mean effect: {expit(mean_effect):.4f}&quot;)
-print(f&quot;95% interval {lower:.4f} - {upper:.4f}&quot;)
+<span class="n">lower</span> <span class="o">=</span> <span class="n">expit</span><span class="p">(</span><span class="n">hdi</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<span class="n">upper</span> <span class="o">=</span> <span class="n">expit</span><span class="p">(</span><span class="n">hdi</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mean effect: </span><span class="si">{</span><span class="n">expit</span><span class="p">(</span><span class="n">mean_effect</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;95% interval </span><span class="si">{</span><span class="n">lower</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">upper</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1858,15 +1858,15 @@ Mean effect: 0.7954
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_hdi(df_shift.batting_avg_shift, lag_fitted.posterior_predictive.batting_avg, hdi_prob=0.95, color=&quot;goldenrod&quot;, fill_kwargs={&quot;alpha&quot;:0.8})
-az.plot_hdi(df_shift.batting_avg_shift, lag_fitted.posterior_predictive.batting_avg, hdi_prob=.68, color=&quot;forestgreen&quot;, fill_kwargs={&quot;alpha&quot;:0.8})
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">df_shift</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="p">,</span> <span class="n">lag_fitted</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="o">.</span><span class="n">batting_avg</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;goldenrod&quot;</span><span class="p">,</span> <span class="n">fill_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;alpha&quot;</span><span class="p">:</span><span class="mf">0.8</span><span class="p">})</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">df_shift</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="p">,</span> <span class="n">lag_fitted</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="o">.</span><span class="n">batting_avg</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">.68</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;forestgreen&quot;</span><span class="p">,</span> <span class="n">fill_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;alpha&quot;</span><span class="p">:</span><span class="mf">0.8</span><span class="p">})</span>
 
-intercept = lag_fitted.posterior.Intercept.values.mean()
-x = np.linspace(df_shift.batting_avg_shift.min(), df_shift.batting_avg_shift.max(),100)
-linear = mean_effect * x + intercept
-plt.plot(x, expit(linear), c=&quot;black&quot;)
-plt.xlabel(&quot;Previous Year&#39;s Batting Average&quot;)
-plt.ylabel(&quot;Batting Average&quot;);
+<span class="n">intercept</span> <span class="o">=</span> <span class="n">lag_fitted</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">Intercept</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">df_shift</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">df_shift</span><span class="o">.</span><span class="n">batting_avg_shift</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">linear</span> <span class="o">=</span> <span class="n">mean_effect</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">intercept</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">expit</span><span class="p">(</span><span class="n">linear</span><span class="p">),</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Previous Year&#39;s Batting Average&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Batting Average&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1881,8 +1881,8 @@ plt.ylabel(&quot;Batting Average&quot;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
-%watermark -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
 </pre></div>
 </div>
 </div>

@@ -634,16 +634,16 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
-import bambi as bmb
-import matplotlib.pyplot as plt
-import matplotlib.lines as mlines
-import numpy as np
-import pandas as pd
-import seaborn as sns
-import warnings
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.lines</span> <span class="k">as</span> <span class="nn">mlines</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
-from scipy.special import expit as invlogit
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">expit</span> <span class="k">as</span> <span class="n">invlogit</span>
 </pre></div>
 </div>
 </div>
@@ -651,9 +651,9 @@ from scipy.special import expit as invlogit
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Disable a FutureWarning in ArviZ at the moment of running the notebook
-az.style.use(&quot;arviz-darkgrid&quot;)
-warnings.simplefilter(action=&#39;ignore&#39;, category=FutureWarning)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Disable a FutureWarning in ArviZ at the moment of running the notebook</span>
+<span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -661,7 +661,7 @@ warnings.simplefilter(action=&#39;ignore&#39;, category=FutureWarning)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = bmb.load_data(&quot;adults&quot;)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;adults&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -669,8 +669,8 @@ warnings.simplefilter(action=&#39;ignore&#39;, category=FutureWarning)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data.info()
-data.head()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -773,10 +773,10 @@ memory usage: 1.2+ MB
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>categorical_cols = data.columns[data.dtypes == object].tolist()
-for col in categorical_cols:
-    data[col] = data[col].astype(&quot;category&quot;)
-data.info()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">categorical_cols</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">dtypes</span> <span class="o">==</span> <span class="nb">object</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">categorical_cols</span><span class="p">:</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -804,18 +804,18 @@ memory usage: 604.7 KB
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Just a utilitary function to truncate labels and avoid overlapping in plots
-def truncate_labels(ticklabels, width=8):
-    def truncate(label, width):
-        if len(label) &gt; width - 3:
-            return label[0 : (width - 4)] + &quot;...&quot;
-        else:
-            return label
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Just a utilitary function to truncate labels and avoid overlapping in plots</span>
+<span class="k">def</span> <span class="nf">truncate_labels</span><span class="p">(</span><span class="n">ticklabels</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">truncate</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">width</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">label</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">width</span> <span class="o">-</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">label</span><span class="p">[</span><span class="mi">0</span> <span class="p">:</span> <span class="p">(</span><span class="n">width</span> <span class="o">-</span> <span class="mi">4</span><span class="p">)]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">label</span>
 
-    labels = [x.get_text() for x in ticklabels]
-    labels = [truncate(lbl, width) for lbl in labels]
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ticklabels</span><span class="p">]</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">truncate</span><span class="p">(</span><span class="n">lbl</span><span class="p">,</span> <span class="n">width</span><span class="p">)</span> <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">]</span>
 
-    return labels
+    <span class="k">return</span> <span class="n">labels</span>
 </pre></div>
 </div>
 </div>
@@ -823,18 +823,18 @@ def truncate_labels(ticklabels, width=8):
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig, axes = plt.subplots(3, 2, figsize=(12, 15))
-sns.countplot(x=&quot;income&quot;, color=&quot;C0&quot;, data=data, ax=axes[0, 0], saturation=1)
-sns.countplot(x=&quot;sex&quot;, color=&quot;C0&quot;, data=data, ax=axes[0, 1], saturation=1);
-sns.countplot(x=&quot;race&quot;, color=&quot;C0&quot;, data=data, ax=axes[1, 0], saturation=1);
-axes[1, 0].set_xticklabels(truncate_labels(axes[1, 0].get_xticklabels()))
-axes[1, 1].hist(data[&quot;age&quot;], bins=20);
-axes[1, 1].set_xlabel(&quot;Age&quot;)
-axes[1, 1].set_ylabel(&quot;Count&quot;)
-axes[2, 0].hist(data[&quot;hs_week&quot;], bins=20);
-axes[2, 0].set_xlabel(&quot;Hours of work / week&quot;)
-axes[2, 0].set_ylabel(&quot;Count&quot;)
-axes[2, 1].axis(&#39;off&#39;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;income&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">saturation</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;sex&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">saturation</span><span class="o">=</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;race&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">saturation</span><span class="o">=</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">truncate_labels</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()))</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">20</span><span class="p">);</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Age&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Count&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;hs_week&quot;</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">20</span><span class="p">);</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Hours of work / week&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Count&quot;</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -859,12 +859,12 @@ axes[2, 1].axis(&#39;off&#39;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data = data[data[&quot;race&quot;].isin([&quot;Black&quot;, &quot;White&quot;])]
-data[&quot;race&quot;] = data[&quot;race&quot;].cat.remove_unused_categories()
-age_bins = [17, 25, 35, 45, 65, 90]
-data[&quot;age_binned&quot;] = pd.cut(data[&quot;age&quot;], age_bins)
-hours_bins = [0, 20, 40, 60, 100]
-data[&quot;hs_week_binned&quot;] = pd.cut(data[&quot;hs_week&quot;], hours_bins)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;race&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;Black&quot;</span><span class="p">,</span> <span class="s2">&quot;White&quot;</span><span class="p">])]</span>
+<span class="n">data</span><span class="p">[</span><span class="s2">&quot;race&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;race&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cat</span><span class="o">.</span><span class="n">remove_unused_categories</span><span class="p">()</span>
+<span class="n">age_bins</span> <span class="o">=</span> <span class="p">[</span><span class="mi">17</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">65</span><span class="p">,</span> <span class="mi">90</span><span class="p">]</span>
+<span class="n">data</span><span class="p">[</span><span class="s2">&quot;age_binned&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">],</span> <span class="n">age_bins</span><span class="p">)</span>
+<span class="n">hours_bins</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">100</span><span class="p">]</span>
+<span class="n">data</span><span class="p">[</span><span class="s2">&quot;hs_week_binned&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;hs_week&quot;</span><span class="p">],</span> <span class="n">hours_bins</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -872,13 +872,13 @@ data[&quot;hs_week_binned&quot;] = pd.cut(data[&quot;hs_week&quot;], hours_bins)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>fig, axes = plt.subplots(3, 2, figsize=(12, 15))
-sns.countplot(x=&quot;income&quot;, color=&quot;C0&quot;, data=data, ax=axes[0, 0])
-sns.countplot(x=&quot;sex&quot;, hue=&quot;income&quot;, data=data, ax=axes[0, 1])
-sns.countplot(x=&quot;race&quot;, hue=&quot;income&quot;, data=data, ax=axes[1, 0])
-sns.countplot(x=&quot;age_binned&quot;, hue=&quot;income&quot;, data=data, ax=axes[1, 1])
-sns.countplot(x=&quot;hs_week_binned&quot;, hue=&quot;income&quot;, data=data, ax=axes[2, 0])
-axes[2, 1].axis(&quot;off&quot;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;income&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;sex&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;income&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;race&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;income&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;age_binned&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;income&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;hs_week_binned&quot;</span><span class="p">,</span> <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;income&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -901,19 +901,19 @@ axes[2, 1].axis(&quot;off&quot;);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>age_mean = np.mean(data[&quot;age&quot;])
-age_std = np.std(data[&quot;age&quot;])
-hs_mean = np.mean(data[&quot;hs_week&quot;])
-hs_std = np.std(data[&quot;hs_week&quot;])
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">age_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">])</span>
+<span class="n">age_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">])</span>
+<span class="n">hs_mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;hs_week&quot;</span><span class="p">])</span>
+<span class="n">hs_std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;hs_week&quot;</span><span class="p">])</span>
 
-data[&quot;age&quot;] = (data[&quot;age&quot;] - age_mean) / age_std
-data[&quot;age2&quot;] = data[&quot;age&quot;] ** 2
-data[&quot;age3&quot;] = data[&quot;age&quot;] ** 3
-data[&quot;hs_week&quot;] = (data[&quot;hs_week&quot;] - hs_mean) / hs_std
-data[&quot;hs_week2&quot;] = data[&quot;hs_week&quot;] ** 2
-data[&quot;hs_week3&quot;] = data[&quot;hs_week&quot;] ** 3
+<span class="n">data</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">age_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">age_std</span>
+<span class="n">data</span><span class="p">[</span><span class="s2">&quot;age2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="n">data</span><span class="p">[</span><span class="s2">&quot;age3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">3</span>
+<span class="n">data</span><span class="p">[</span><span class="s2">&quot;hs_week&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;hs_week&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">hs_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">hs_std</span>
+<span class="n">data</span><span class="p">[</span><span class="s2">&quot;hs_week2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;hs_week&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="n">data</span><span class="p">[</span><span class="s2">&quot;hs_week3&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;hs_week&quot;</span><span class="p">]</span> <span class="o">**</span> <span class="mi">3</span>
 
-data = data.drop(columns=[&quot;age_binned&quot;, &quot;hs_week_binned&quot;])
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;age_binned&quot;</span><span class="p">,</span> <span class="s2">&quot;hs_week_binned&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
@@ -922,7 +922,7 @@ data = data.drop(columns=[&quot;age_binned&quot;, &quot;hs_week_binned&quot;])
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>data.head()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1079,8 +1079,8 @@ X_4 &amp;=
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model1 = bmb.Model(&quot;income[&#39;&gt;50K&#39;] ~ sex + race + age + hs_week&quot;, data, family=&quot;bernoulli&quot;)
-fitted1 = model1.fit(draws=1000)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model1</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;income[&#39;&gt;50K&#39;] ~ sex + race + age + hs_week&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">)</span>
+<span class="n">fitted1</span> <span class="o">=</span> <span class="n">model1</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1137,8 +1137,8 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(fitted1);
-az.summary(fitted1)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">fitted1</span><span class="p">);</span>
+<span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">fitted1</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1262,8 +1262,8 @@ az.summary(fitted1)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model2 = bmb.Model(&quot;income[&#39;&gt;50K&#39;] ~ sex + race + age + age2 + hs_week + hs_week2&quot;, data, family=&quot;bernoulli&quot;)
-fitted2 = model2.fit()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model2</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;income[&#39;&gt;50K&#39;] ~ sex + race + age + age2 + hs_week + hs_week2&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">)</span>
+<span class="n">fitted2</span> <span class="o">=</span> <span class="n">model2</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1320,8 +1320,8 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(fitted2);
-az.summary(fitted2)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">fitted2</span><span class="p">);</span>
+<span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">fitted2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1469,12 +1469,12 @@ az.summary(fitted2)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model3 = bmb.Model(
-    &quot;income[&#39;&gt;50K&#39;] ~ age + age2 + age3 + hs_week + hs_week2 + hs_week3 + sex + race&quot;,
-    data,
-    family=&quot;bernoulli&quot;
-)
-fitted3 = model3.fit(draws=1000)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model3</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
+    <span class="s2">&quot;income[&#39;&gt;50K&#39;] ~ age + age2 + age3 + hs_week + hs_week2 + hs_week3 + sex + race&quot;</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">family</span><span class="o">=</span><span class="s2">&quot;bernoulli&quot;</span>
+<span class="p">)</span>
+<span class="n">fitted3</span> <span class="o">=</span> <span class="n">model3</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1531,8 +1531,8 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(fitted3);
-az.summary(fitted3)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">fitted3</span><span class="p">);</span>
+<span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">fitted3</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1699,13 +1699,13 @@ other options within the function <a class="reference external" href="https://ar
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>models_dict = {
-    &quot;model1&quot;: fitted1,
-    &quot;model2&quot;: fitted2,
-    &quot;model3&quot;: fitted3
-}
-df_compare = az.compare(models_dict)
-df_compare
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">models_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;model1&quot;</span><span class="p">:</span> <span class="n">fitted1</span><span class="p">,</span>
+    <span class="s2">&quot;model2&quot;</span><span class="p">:</span> <span class="n">fitted2</span><span class="p">,</span>
+    <span class="s2">&quot;model3&quot;</span><span class="p">:</span> <span class="n">fitted3</span>
+<span class="p">}</span>
+<span class="n">df_compare</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">compare</span><span class="p">(</span><span class="n">models_dict</span><span class="p">)</span>
+<span class="n">df_compare</span>
 </pre></div>
 </div>
 </div>
@@ -1788,7 +1788,7 @@ df_compare
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_compare(df_compare, insample_dev=False);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_compare</span><span class="p">(</span><span class="n">df_compare</span><span class="p">,</span> <span class="n">insample_dev</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1811,37 +1811,37 @@ achieve with this dataset. If you want, you could also try to add other predicto
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>HS_WEEK = (40 - hs_mean) / hs_std
-AGE = (np.linspace(18, 75) - age_mean) / age_std
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">HS_WEEK</span> <span class="o">=</span> <span class="p">(</span><span class="mi">40</span> <span class="o">-</span> <span class="n">hs_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">hs_std</span>
+<span class="n">AGE</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="mi">75</span><span class="p">)</span> <span class="o">-</span> <span class="n">age_mean</span><span class="p">)</span> <span class="o">/</span> <span class="n">age_std</span>
 
-fig, ax = plt.subplots()
-handles = []
-i = 0
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">handles</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
 
-for race in [&quot;Black&quot;, &quot;White&quot;]:
-    for sex in [&quot;Female&quot;, &quot;Male&quot;]:
-        color = f&quot;C{i}&quot;
-        label = f&quot;{race} - {sex}&quot;
-        handles.append(mlines.Line2D([], [], color=color, label=label, lw=3))
+<span class="k">for</span> <span class="n">race</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Black&quot;</span><span class="p">,</span> <span class="s2">&quot;White&quot;</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">sex</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Female&quot;</span><span class="p">,</span> <span class="s2">&quot;Male&quot;</span><span class="p">]:</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">race</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">sex</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mlines</span><span class="o">.</span><span class="n">Line2D</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">3</span><span class="p">))</span>
 
-        new_data = pd.DataFrame({
-            &quot;sex&quot;: [sex] * len(AGE),
-            &quot;race&quot;: [race] * len(AGE),
-            &quot;age&quot;: AGE,
-            &quot;age2&quot;: AGE ** 2,
-            &quot;hs_week&quot;: [HS_WEEK] * len(AGE),
-            &quot;hs_week2&quot;: [HS_WEEK ** 2] * len(AGE),
-        })
-        new_idata = model2.predict(fitted2, data=new_data, inplace=False)
-        mean = new_idata.posterior[&quot;income_mean&quot;].values
+        <span class="n">new_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+            <span class="s2">&quot;sex&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">sex</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">AGE</span><span class="p">),</span>
+            <span class="s2">&quot;race&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">race</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">AGE</span><span class="p">),</span>
+            <span class="s2">&quot;age&quot;</span><span class="p">:</span> <span class="n">AGE</span><span class="p">,</span>
+            <span class="s2">&quot;age2&quot;</span><span class="p">:</span> <span class="n">AGE</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">&quot;hs_week&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">HS_WEEK</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">AGE</span><span class="p">),</span>
+            <span class="s2">&quot;hs_week2&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">HS_WEEK</span> <span class="o">**</span> <span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">AGE</span><span class="p">),</span>
+        <span class="p">})</span>
+        <span class="n">new_idata</span> <span class="o">=</span> <span class="n">model2</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">fitted2</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">new_data</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">new_idata</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;income_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
-        az.plot_hdi(AGE * age_std + age_mean, mean, ax=ax, color=color)
-        az.plot_hdi(AGE * age_std + age_mean, mean, ax=ax, color=color, hdi_prob=0.5)
-        i += 1
+        <span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">AGE</span> <span class="o">*</span> <span class="n">age_std</span> <span class="o">+</span> <span class="n">age_mean</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">AGE</span> <span class="o">*</span> <span class="n">age_std</span> <span class="o">+</span> <span class="n">age_mean</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">hdi_prob</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 
-ax.set_xlabel(&quot;Age&quot;)
-ax.set_ylabel(&quot;P(Income &gt; $50K)&quot;)
-ax.legend(handles=handles, loc=&quot;upper left&quot;);
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Age&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;P(Income &gt; $50K)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1875,8 +1875,8 @@ We know it’s going to take a couple of hours to fit all those models :)</p></l
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
-%watermark -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
 </pre></div>
 </div>
 </div>

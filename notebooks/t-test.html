@@ -609,11 +609,11 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>import arviz as az
-import bambi as bmb
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 </pre></div>
 </div>
 </div>
@@ -621,8 +621,8 @@ import pandas as pd
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.style.use(&quot;arviz-darkgrid&quot;)
-np.random.seed(1234)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -634,9 +634,9 @@ np.random.seed(1234)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>a = np.random.normal(6, 2.5, 160)
-b = np.random.normal(8, 2, 120)
-df = pd.DataFrame({&quot;Group&quot;: [&quot;a&quot;] * 160 + [&quot;b&quot;] * 120, &quot;Val&quot;: np.hstack([a, b])})
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mi">160</span><span class="p">)</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">120</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;Group&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;a&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">160</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">120</span><span class="p">,</span> <span class="s2">&quot;Val&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">])})</span>
 </pre></div>
 </div>
 </div>
@@ -644,7 +644,7 @@ df = pd.DataFrame({&quot;Group&quot;: [&quot;a&quot;] * 160 + [&quot;b&quot;] * 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>df.head()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -709,7 +709,7 @@ df = pd.DataFrame({&quot;Group&quot;: [&quot;a&quot;] * 160 + [&quot;b&quot;] * 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_violin({&quot;a&quot;: a, &quot;b&quot;: b});
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_violin</span><span class="p">({</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="n">a</span><span class="p">,</span> <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="n">b</span><span class="p">});</span>
 </pre></div>
 </div>
 </div>
@@ -744,8 +744,8 @@ df = pd.DataFrame({&quot;Group&quot;: [&quot;a&quot;] * 160 + [&quot;b&quot;] * 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_1 = bmb.Model(&quot;Val ~ Group&quot;, df)
-results_1 = model_1.fit()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_1</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;Val ~ Group&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+<span class="n">results_1</span> <span class="o">=</span> <span class="n">model_1</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -799,7 +799,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_1
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_1</span>
 </pre></div>
 </div>
 </div>
@@ -829,7 +829,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_1.plot_priors();
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_1</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -845,7 +845,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(results_1, kind=&quot;rank_vlines&quot;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results_1</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;rank_vlines&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -860,7 +860,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(results_1)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results_1</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -945,7 +945,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_posterior(results_1, var_names=&quot;Group&quot;, ref_val=0);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">results_1</span><span class="p">,</span> <span class="n">var_names</span><span class="o">=</span><span class="s2">&quot;Group&quot;</span><span class="p">,</span> <span class="n">ref_val</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -961,8 +961,8 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Probabiliy that posterior is &gt; 0
-(results_1.posterior[&quot;Group&quot;] &gt; 0).mean().item()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Probabiliy that posterior is &gt; 0</span>
+<span class="p">(</span><span class="n">results_1</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Group&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1000,8 +1000,8 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_2 = bmb.Model(&quot;Val ~ 0 + Group&quot;, df)
-results_2 = model_2.fit()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_2</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;Val ~ 0 + Group&quot;</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+<span class="n">results_2</span> <span class="o">=</span> <span class="n">model_2</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1055,7 +1055,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_2
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_2</span>
 </pre></div>
 </div>
 </div>
@@ -1084,7 +1084,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>model_2.plot_priors();
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_2</span><span class="o">.</span><span class="n">plot_priors</span><span class="p">();</span>
 </pre></div>
 </div>
 </div>
@@ -1100,7 +1100,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.plot_trace(results_2, kind=&quot;rank_vlines&quot;);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results_2</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;rank_vlines&quot;</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1115,7 +1115,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>az.summary(results_2)
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results_2</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1199,9 +1199,9 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>post_group = results_2.posterior[&quot;Group&quot;]
-diff = post_group.sel(Group_dim=&quot;b&quot;) - post_group.sel(Group_dim=&quot;a&quot;)
-az.plot_posterior(diff, ref_val=0);
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">post_group</span> <span class="o">=</span> <span class="n">results_2</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;Group&quot;</span><span class="p">]</span>
+<span class="n">diff</span> <span class="o">=</span> <span class="n">post_group</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">Group_dim</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">post_group</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">Group_dim</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">)</span>
+<span class="n">az</span><span class="o">.</span><span class="n">plot_posterior</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">ref_val</span><span class="o">=</span><span class="mi">0</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1217,8 +1217,8 @@ az.plot_posterior(diff, ref_val=0);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Probabiliy that posterior is &gt; 0
-(post_group &gt; 0).mean().item()
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Probabiliy that posterior is &gt; 0</span>
+<span class="p">(</span><span class="n">post_group</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -1235,8 +1235,8 @@ az.plot_posterior(diff, ref_val=0);
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%load_ext watermark
-%watermark -n -u -v -iv -w
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
+<span class="o">%</span><span class="k">watermark</span> -n -u -v -iv -w
 </pre></div>
 </div>
 </div>
