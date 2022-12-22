@@ -142,10 +142,6 @@ smv_released_pattern = r"^refs/tags/.*$"
 # Tags like 0.0.1, 0.5.1 are kept
 # smv_tag_whitelist = r'^\d+\.\d+\.\d+S'
 
-# sphinx-multiversion options
-smv_rebuild_tags = False
-smv_tag_whitelist = r"^\d+\.\d+.\d+$"
-
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
