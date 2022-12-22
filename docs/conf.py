@@ -53,7 +53,7 @@ nbsphinx_execute = "never"
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
-html_sidebars = {"**": ["searchbox.html", "versioning.html"]}
+html_sidebars = {"**": ["searchbox.html"]}
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
