@@ -46,7 +46,6 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.mathjax",
     "nbsphinx",
-    "sphinx_multiversion",
 ]
 
 nbsphinx_execute = "never"
