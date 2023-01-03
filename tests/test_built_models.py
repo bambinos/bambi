@@ -521,7 +521,7 @@ def test_prior_predictive(crossed_data):
         family="poisson",
     )
     model.build()
-    pps = model.prior_predictive(draws=500)
+    pps = model.prior_predictive(draws=500, random_seed=1234)
 
     keys = ["Intercept", "threecats", "continuous", "dummy"]
     shapes = [(1, 500), (1, 500, 2), (1, 500), (1, 500)]
@@ -532,10 +532,10 @@ def test_prior_predictive(crossed_data):
     assert pps.prior_predictive["count"].shape == (1, 500, 120)
     assert pps.observed_data["count"].shape == (120,)
 
-    pps = model.prior_predictive(draws=500, var_names=["count"])
+    pps = model.prior_predictive(draws=500, var_names=["count"], random_seed=1234)
     assert pps.groups() == ["prior_predictive", "observed_data"]
 
-    pps = model.prior_predictive(draws=500, var_names=["Intercept"])
+    pps = model.prior_predictive(draws=500, var_names=["Intercept"], random_seed=1234)
     assert pps.groups() == ["prior", "observed_data"]
 
 

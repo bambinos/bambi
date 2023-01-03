@@ -21,7 +21,7 @@ def test_non_distributional_model(my_data):
     model.predict(idata)
 
     assert list(idata.posterior.coords) == ["chain", "draw", "y_obs"]
-    assert set(idata.posterior.data_vars) == {"Intercept", "x", "y_mean", "y_sigma"}
+    assert set(idata.posterior.data_vars) == {"Intercept", "x", "y_mean", "sigma"}
     assert list(idata.posterior["y_mean"].coords) == ["chain", "draw", "y_obs"]
 
     # Model with alises
