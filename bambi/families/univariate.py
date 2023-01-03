@@ -5,6 +5,8 @@ from scipy import stats
 
 from bambi.families.family import Family
 
+# FIXME Constant parameters in posterior predictive sampling
+
 
 class UnivariateFamily(Family):
     def predict(self, model, posterior, linear_predictor):
@@ -15,6 +17,7 @@ class AsymmetricLaplace(UnivariateFamily):
     SUPPORTED_LINKS = {
         "mu": ["identity", "log", "inverse"],
         "b": ["log"],
+        "kappa": ["log"],
         "q": ["logit", "probit", "cloglog"],
     }
 
@@ -23,7 +26,7 @@ class AsymmetricLaplace(UnivariateFamily):
         mean = posterior[model.response_name + "_mean"]
         b = posterior[model.response_name + "_b"]
         kappa = posterior[model.response_name + "_kappa"]
-        return xr.apply_ufunc(stats.laplace_asymmetric, kappa, mean, b)
+        return xr.apply_ufunc(stats.laplace_asymmetric.rvs, kappa, mean, b)
 
 
 class Bernoulli(UnivariateFamily):
