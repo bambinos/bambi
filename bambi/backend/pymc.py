@@ -7,7 +7,9 @@ from copy import deepcopy
 import numpy as np
 import pymc as pm
 
-import aesara.tensor as at
+import pytensor.tensor as pt
+from pytensor.tensor.special import softmax
+
 
 from bambi import version
 
@@ -26,12 +28,12 @@ class PyMCModel:
         "cloglog": cloglog,
         "identity": identity,
         "inverse_squared": inverse_squared,
-        "inverse": at.reciprocal,
-        "log": at.exp,
+        "inverse": pt.reciprocal,
+        "log": pt.exp,
         "logit": logit,
         "probit": probit,
         "tan_2": arctan_2,
-        "softmax": functools.partial(at.nnet.softmax, axis=-1),
+        "softmax": functools.partial(softmax, axis=-1),
     }
 
     def __init__(self):
@@ -447,7 +449,7 @@ def add_lkj(backend, terms, eta=1):
     )
 
     coefs_offset = pm.Normal("_LKJ_" + grouper + "_offset", mu=0, sigma=1, shape=(rows, cols))
-    coefs = at.dot(lkj_decomp, coefs_offset).T
+    coefs = pt.dot(lkj_decomp, coefs_offset).T
 
     ## Separate group-specific terms
     start = 0

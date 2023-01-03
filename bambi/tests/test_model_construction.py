@@ -98,18 +98,15 @@ def test_distribute_group_specific_effect_over(diabetes_data):
     assert model.terms["C(age_grp)|BMI"].data.shape == (442, 489)
 
 
-def test_model_init_from_filename():
-    data_dir = join(dirname(__file__), "data")
-    filename = join(data_dir, "diabetes.txt")
-    model = Model("BP ~ BMI", filename)
-    assert isinstance(model.data, pd.DataFrame)
-    assert model.data.shape == (442, 11)
-    assert "BMI" in model.data.columns
-
-
 def test_model_init_bad_data():
     with pytest.raises(ValueError):
         Model("y ~ x", {"x": 1})
+
+
+def test_unbuilt_model(diabetes_data):
+    model = Model("Y ~ AGE", data=diabetes_data)
+    with pytest.raises(ValueError):
+        model._check_built()
 
 
 def test_model_categorical_argument():

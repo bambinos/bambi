@@ -22,7 +22,7 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: 3.9
       # statsmodels is needed to build docs for old releases
       - name: Install Dependencies
         run: |
@@ -42,9 +42,8 @@ jobs:
       - name: Remove and build documentation from scratch
         run: |
           rm -rd docs/_build/html
-          sphinx-multiversion docs docs/_build/html
+          sphinx-build docs docs/_build/html
           touch docs/_build/html/.nojekyll
-          cp docs/_assets/gh-pages-redirect.html docs/_build/html/index.html
 
       - name: Publish Docs to gh-pages
         # We pin to the SHA, not the tag, for security reasons.

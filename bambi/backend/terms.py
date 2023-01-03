@@ -1,6 +1,7 @@
 import numpy as np
 import pymc as pm
-import aesara.tensor as at
+
+import pytensor.tensor as pt
 
 from bambi.backend.utils import has_hyperprior, get_distribution
 from bambi.families.multivariate import MultivariateFamily
@@ -56,7 +57,7 @@ class CommonTerm:
             else:
                 shape = data.shape[1]
             coef = distribution(label, shape=shape, **args)
-            coef = at.atleast_1d(coef)  # If only a single numeric column it won't be 1D
+            coef = pt.atleast_1d(coef)  # If only a single numeric column it won't be 1D
 
         # Prepends one dimension if response is multivariate and the predictor is 1D
         if response_dims and len(dims) == 1:
@@ -208,7 +209,7 @@ class ResponseTerm:
             The object with all the bakcend information
         invlinks : dict
             A dictionary where names are names of inverse link functions and values are functions
-            that can operate with Aesara tensors.
+            that can operate with PyTensor tensors.
         """
         data = np.squeeze(self.term.data)
         parent = self.family.likelihood.parent

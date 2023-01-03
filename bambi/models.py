@@ -6,6 +6,7 @@ import warnings
 from copy import deepcopy
 
 import pymc as pm
+import pandas as pd
 
 from arviz.plots import plot_posterior
 
@@ -36,7 +37,8 @@ class Model:
     formula : str
         A model description written using the formula syntax from the ``formulae`` library.
     data : pandas.DataFrame
-        The dataset to use.
+        A pandas dataframe containing the data on which the model will be fit, with column
+        names matching variables defined in the formula.
     family : str or bambi.families.Family
         A specification of the model family (analogous to the family object in R). Either
         a string, or an instance of class ``bambi.families.Family``. If a string is passed, a
@@ -46,8 +48,9 @@ class Model:
         ``"poisson"``, ``"t"``, and ``"wald"``. Defaults to ``"gaussian"``.
     priors : dict
         Optional specification of priors for one or more terms. A dictionary where the keys are
-        the names of terms in the model, "common" or "group_specific" and the values are
-        instances of class ``Prior`` when ``automatic_priors`` is ``"default"``.
+        the names of terms in the model, "common," or "group_specific" and the values are
+        instances of class ``Prior``. If priors are unset, uses automatic priors inspired by
+        the R rstanarm library.
     link : str
         The name of the link function to use. Valid names are ``"cloglog"``, ``"identity"``,
         ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, ``"probit"``, and
@@ -73,9 +76,6 @@ class Model:
         If ``True`` (default), priors are automatically rescaled to the data
         (to be weakly informative) any time default priors are used. Note that any priors
         explicitly set by the user will always take precedence over default priors.
-    automatic_priors: str
-        An optional specification to compute automatic priors. ``"default"`` means to use
-        a method inspired on the R rstanarm library.
     noncentered : bool
         If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on
         grouped parameters. If ``False``, naive (centered) parameterization is used.
@@ -98,7 +98,6 @@ class Model:
         potentials=None,
         dropna=False,
         auto_scale=True,
-        automatic_priors="default",
         noncentered=True,
         priors_cor=None,
     ):
@@ -114,11 +113,14 @@ class Model:
         self.priors_cor = {}  # _add_priors_cor()
 
         self.auto_scale = auto_scale
-        self.automatic_priors = automatic_priors
         self.dropna = dropna
         self.formula = formula
         self.noncentered = noncentered
         self.potentials = potentials
+
+        # Read and clean data
+        if not isinstance(data, pd.DataFrame):
+            raise ValueError("'data' must be a pandas DataFrame.")
 
         # Some columns are converted to categorical
         self.data = with_categorical_cols(data, categorical)
@@ -513,6 +515,14 @@ class Model:
             else:
                 raise KeyError(f"The name {group} is not a group in any group-specific term.")
 
+    def _check_built(self):
+        # Checks if model is built, raises ValueError if not
+        if not self.built:
+            raise ValueError(
+                "Model is not built yet! "
+                "Call .build() to build the model or .fit() to build and sample from the posterior."
+            )
+
     def plot_priors(
         self,
         draws=5000,
@@ -578,11 +588,7 @@ class Model:
         -------
         axes: matplotlib axes
         """
-        if not self.built:
-            raise ValueError(
-                "Cannot plot priors until model is built!! "
-                "Call .build() to build the model or .fit() to build and sample from the posterior."
-            )
+        self._check_built()
 
         unobserved_rvs_names = []
         flat_rvs = []
@@ -655,6 +661,8 @@ class Model:
             ``InferenceData`` object with the groups ``prior``, ``prior_predictive`` and
             ``observed_data``.
         """
+        self._check_built()
+
         if var_names is None:
             variables = self.backend.model.unobserved_RVs + self.backend.model.observed_RVs
             variables_names = [v.name for v in variables]
@@ -787,11 +795,7 @@ class Model:
         >>> model.graph()
 
         """
-        if self.backend is None:
-            raise ValueError(
-                "The model is empty. "
-                "Are you forgetting to first call .build() or .fit() on the Bambi model?"
-            )
+        self._check_built()
 
         graphviz = pm.model_to_graphviz(model=self.backend.model, formatting=formatting)
 

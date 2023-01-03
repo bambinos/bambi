@@ -1,5 +1,5 @@
 # pylint: disable=unused-argument
-import aesara.tensor as at
+import pytensor.tensor as pt
 import numpy as np
 import xarray as xr
 
@@ -90,7 +90,7 @@ class Categorical(MultivariateFamily):
 
         # The first line makes sure the intercept-only models work
         nu = np.ones(shape) * nu  # (response_levels, ) -> (n, response_levels)
-        nu = at.concatenate([np.zeros(shape), nu], axis=1)
+        nu = pt.concatenate([np.zeros(shape), nu], axis=1)
         return nu
 
 
@@ -182,7 +182,7 @@ class Multinomial(MultivariateFamily):
 
         # The first line makes sure the intercept-only models work
         nu = np.ones(shape) * nu  # (response_levels, ) -> (n, response_levels)
-        nu = at.concatenate([np.zeros(shape), nu], axis=1)
+        nu = pt.concatenate([np.zeros(shape), nu], axis=1)
         return nu
 
 

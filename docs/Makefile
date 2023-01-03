@@ -3,7 +3,7 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    = # "-W" treats warnings as errors
-SPHINXBUILD   ?= sphinx-multiversion
+SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = .
 BUILDDIR      ?= _build
 
