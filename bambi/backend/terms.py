@@ -285,7 +285,6 @@ def get_linkinv(link, invlinks):
     ----------
     link : bmb.Link
         _description_
-
     invlinks : dict
         Keys are names of link functions. Values are the built-in link functions.
     """
@@ -294,5 +293,5 @@ def get_linkinv(link, invlinks):
         invlink = invlinks[link.name]
     # If not, use whatever is in `linkinv_backend`
     else:
-        invlink = invlinks.linkinv_backend
+        invlink = link.linkinv_backend
     return invlink

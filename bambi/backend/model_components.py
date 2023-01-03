@@ -1,6 +1,7 @@
-import aesara.tensor as at
 import numpy as np
 import pymc as pm
+
+from pytensor import tensor as pt
 
 from bambi.backend.terms import CommonTerm, GroupSpecificTerm, InterceptTerm, ResponseTerm
 from bambi.backend.utils import get_distribution
@@ -85,7 +86,7 @@ class DistributionalComponent:
                 columns.append(data)
 
             # Column vector of coefficients and design matrix
-            coefs = at.concatenate(coefs)
+            coefs = pt.concatenate(coefs)
 
             # Design matrix
             data = np.column_stack(columns)
@@ -97,7 +98,7 @@ class DistributionalComponent:
                 data = data - data.mean(0)
 
             # Add term to linear predictor
-            self.output += at.dot(data, coefs)
+            self.output += pt.dot(data, coefs)
 
     def build_group_specific_terms(self, pymc_backend, bmb_model):
         """Add group-specific (random or varying) terms to the PyMC model.
@@ -156,7 +157,7 @@ class DistributionalComponent:
         response_term.build(pymc_backend, bmb_model)
 
 
-# NOTE: Here for historical reasons, not supposed to work now at least for now
+# NOTE: Here for historical reasons, not supposed to work now pt least for now
 def add_lkj(backend, terms, eta=1):
     """Add correlated prior for group-specific effects.
 
@@ -207,7 +208,7 @@ def add_lkj(backend, terms, eta=1):
     )
 
     coefs_offset = pm.Normal("_LKJ_" + grouper + "_offset", mu=0, sigma=1, shape=(rows, cols))
-    coefs = at.dot(lkj_decomp, coefs_offset).T
+    coefs = pt.dot(lkj_decomp, coefs_offset).T
 
     ## Separate group-specific terms
     start = 0
