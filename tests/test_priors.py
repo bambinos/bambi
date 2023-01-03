@@ -31,71 +31,81 @@ def test_prior_class():
 
 
 def test_likelihood_class():
-    # A recognized likelihood
-    sigma = Prior("HalfNormal", sigma=100)
-    likelihood = Likelihood("Normal", parent="mu", sigma=sigma)
-
-    for name in ["name", "priors", "parent"]:
+    # Likelihood with recognized name
+    likelihood = Likelihood("Normal", ["mu", "sigma"], "mu")
+    for name in ["name", "params", "parent", "dist"]:
         assert hasattr(likelihood, name)
 
     # A likelihood with unrecognized name
     # The class is not going to complain. Whether "Magic" works in PyMC is up to the user.
-    likelihood = Likelihood("Magic", parent="Wizard", sigma=sigma)
-    for name in ["name", "priors", "parent"]:
+    likelihood = Likelihood("Magic", ["Wizard", "Witcher"], "Wizard")
+    for name in ["name", "params", "parent", "dist"]:
         assert hasattr(likelihood, name)
 
 
 def test_likelihood_bad_parent():
-    with pytest.raises(ValueError):
-        Likelihood("Normal", parent="Mu", sigma=Prior("HalfNormal", sigma=100))
+    with pytest.raises(
+        ValueError, match="'Mu' is not a valid parameter for the likelihood 'Normal'"
+    ):
+        Likelihood("Normal", params=["mu", "sigma"], parent="Mu")
 
-    with pytest.raises(ValueError):
+    with pytest.raises(
+        ValueError, match="'Mu' is not a valid parameter for the likelihood 'Normal'"
+    ):
+        Likelihood("Normal", parent="Mu")
+
+    with pytest.raises(
+        ValueError, match="'mu' is not a valid parameter for the likelihood 'Bernoulli'"
+    ):
+        Likelihood("Bernoulli", params=["p"], parent="mu")
+
+    with pytest.raises(
+        ValueError, match="'mu' is not a valid parameter for the likelihood 'Bernoulli'"
+    ):
         Likelihood("Bernoulli", parent="mu")
 
 
 def test_likelihood_parent_inferred():
-    sigma = Prior("HalfNormal", sigma=100)
-    lh1 = Likelihood("Normal", parent="mu", sigma=sigma)
-    lh2 = Likelihood("Normal", sigma=sigma)
+    lh1 = Likelihood("Normal", parent="mu")
+    lh2 = Likelihood("Normal")
     assert lh1.parent == lh2.parent
 
 
-def test_likelihood_bad_priors():
-    sigma = Prior("HalfNormal", sigma=100)
-    # Required prior is missing
-    with pytest.raises(ValueError):
-        Likelihood("Normal", parent="mu")
-
-    # Prior is not a prior
-    with pytest.raises(ValueError):
-        Likelihood("Normal", parent="mu", sigma="HalfNormal")
-
-    # Passing unnecessary priors
-    with pytest.raises(ValueError):
-        Likelihood("Bernoulli", sigma=sigma)
-
-    # Passed priors, but not the one needed
-    with pytest.raises(ValueError):
-        Likelihood("Gamma", sigma=sigma)
-
-
 def test_family_class():
-    cheese = Prior("CheeseWhiz", holes=0, taste=-10)
-    likelihood = Likelihood("Cheese", parent="holes", cheese=cheese)
+    likelihood = Likelihood("Cheese", params=["holes", "milk"], parent="holes")
     family = Family("cheese", likelihood=likelihood, link="logit")
 
     for name in ["name", "likelihood", "link"]:
         assert hasattr(family, name)
 
 
-def test_auto_scale(diabetes_data):
+def test_family_bad_priors():
+    rng = np.random.default_rng(121195)
+    data = pd.DataFrame(
+        {
+            "y": rng.normal(size=100),
+            "x": rng.normal(size=100),
+            "g": rng.choice(["A", "B"], size=100),
+        }
+    )
+    likelihood = Likelihood("Normal", params=["mu", "sigma"], parent="mu")
+    family = Family("MyNormal", likelihood, "identity")
+    # Required prior is missing
+    with pytest.raises(ValueError, match="The component 'sigma' needs a prior."):
+        Model("y ~ x", data, family=family)
 
+    # Prior is not a prior
+    with pytest.raises(ValueError, match="'Whatever' is not a valid prior."):
+        Model("y ~ x", data, family=family, priors={"sigma": "Whatever"})
+
+
+def test_auto_scale(diabetes_data):
     # By default, should scale everything except custom Prior() objects
     priors = {"S1": 0.3, "BP": Prior("Cauchy", alpha=1, beta=17.5)}
     model = Model("BMI ~ S1 + S2 + BP", diabetes_data, priors=priors)
-    p1 = model.terms["S1"].prior
-    p2 = model.terms["S2"].prior
-    p3 = model.terms["BP"].prior
+    p1 = model.response_component.terms["S1"].prior
+    p2 = model.response_component.terms["S2"].prior
+    p3 = model.response_component.terms["BP"].prior
     assert p1.name == p2.name == "Normal"
     assert 0 < p1.args["sigma"] < 1
     assert p2.args["sigma"] > p1.args["sigma"]
@@ -106,9 +116,9 @@ def test_auto_scale(diabetes_data):
     # Prior has no effect, and prior for BP has effect.
     priors = {"S1": 0.3, "BP": Prior("Cauchy", alpha=1, beta=17.5)}
     model = Model("BMI ~ S1 + S2 + BP", diabetes_data, priors=priors, auto_scale=False)
-    p1_off = model.terms["S1"].prior
-    p2_off = model.terms["S2"].prior
-    p3_off = model.terms["BP"].prior
+    p1_off = model.response_component.terms["S1"].prior
+    p2_off = model.response_component.terms["S2"].prior
+    p3_off = model.response_component.terms["BP"].prior
     assert p1_off.name == "Normal"
     assert p2_off.name == "Flat"
     assert p1_off.args["sigma"] == 1
@@ -136,14 +146,18 @@ def test_prior_eq():
 
 
 def test_family_link_unsupported():
-    cheese = Prior("CheeseWhiz", holes=0, taste=-10)
-    likelihood = Likelihood("Cheese", parent="holes", cheese=cheese)
+    prior = Prior("CheeseWhiz", holes=0, taste=-10)
+    likelihood = Likelihood("Cheese", parent="holes", params=["holes", "milk"])
     family = Family("cheese", likelihood=likelihood, link="cloglog")
-    with pytest.raises(ValueError):
+    family.set_default_priors({"milk": prior})
+    with pytest.raises(
+        ValueError, match="Link 'Empty' cannot be used for 'holes' with family 'cheese'"
+    ):
         family.link = "Empty"
 
 
 def test_custom_link():
+    rng = np.random.default_rng(121195)
     likelihood = Likelihood("Bernoulli", parent="p")
     link = Link(
         "my_logit", link=special.expit, linkinv=special.logit, linkinv_backend=pm.math.sigmoid
@@ -153,11 +167,12 @@ def test_custom_link():
     data = pd.DataFrame(
         {
             "y": [0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
-            "x1": np.random.uniform(size=10),
-            "x2": np.random.uniform(size=10),
+            "x1": rng.uniform(size=10),
+            "x2": rng.uniform(size=10),
         }
     )
     model = Model("y ~ x1 + x2", data, family=family)
+    model.build()
 
 
 def test_family_bad_type():
@@ -174,11 +189,14 @@ def test_family_bad_type():
 
 
 def test_set_priors():
+    # NOTE I'm not sure if this test is OK. 'prior' and 'gp_prior' still point to the same
+    #      object and that's why the `.auto_scale` attribute is updated in both..
+    rng = np.random.default_rng(121195)
     data = pd.DataFrame(
         {
-            "y": np.random.normal(size=100),
-            "x": np.random.normal(size=100),
-            "g": np.random.choice(["A", "B"], size=100),
+            "y": rng.normal(size=100),
+            "x": rng.normal(size=100),
+            "g": rng.choice(["A", "B"], size=100),
         }
     )
     model = Model("y ~ x + (1|g)", data)
@@ -187,158 +205,127 @@ def test_set_priors():
 
     # Common
     model.set_priors(common=prior)
-    assert model.terms["x"].prior == prior
+    assert model.response_component.terms["x"].prior == prior
 
     # Group-specific
     with pytest.raises(ValueError, match="must have hyperpriors"):
         model.set_priors(group_specific=prior)
 
     model.set_priors(group_specific=gp_prior)
-    assert model.terms["1|g"].prior == gp_prior
+    assert model.response_component.terms["1|g"].prior == gp_prior
 
     # By name
     model = Model("y ~ x + (1|g)", data)
     model.set_priors(priors={"Intercept": prior})
     model.set_priors(priors={"x": prior})
     model.set_priors(priors={"1|g": gp_prior})
-    assert model.terms["Intercept"].prior == prior
-    assert model.terms["x"].prior == prior
-    assert model.terms["1|g"].prior == gp_prior
-
-
-def test_set_prior_with_tuple():
-    data = pd.DataFrame(
-        {
-            "y": np.random.normal(size=100),
-            "x": np.random.normal(size=100),
-            "z": np.random.normal(size=100),
-        }
-    )
-    prior = Prior("Uniform", lower=0, upper=50)
-    model = Model("y ~ x + z", data)
-    model.set_priors(priors={("x", "z"): prior})
-
-    # Prior is set to auto_scale=False when it set in the model
-    prior.auto_scale = False
-    assert model.terms["x"].prior == prior
-    assert model.terms["z"].prior == prior
+    assert model.response_component.terms["Intercept"].prior == prior
+    assert model.response_component.terms["x"].prior == prior
+    assert model.response_component.terms["1|g"].prior == gp_prior
 
 
 def test_set_prior_unexisting_term():
+    rng = np.random.default_rng(121195)
     data = pd.DataFrame(
         {
-            "y": np.random.normal(size=100),
-            "x": np.random.normal(size=100),
+            "y": rng.normal(size=100),
+            "x": rng.normal(size=100),
         }
     )
     prior = Prior("Uniform", lower=0, upper=50)
     model = Model("y ~ x", data)
-    with pytest.raises(ValueError):
-        model.set_priors(priors={("x", "z"): prior})
+    with pytest.raises(KeyError):
+        model.set_priors(priors={"z": prior})
 
 
 def test_response_prior():
-    data = pd.DataFrame({"y": np.random.randint(3, 10, size=50), "x": np.random.normal(size=50)})
+    rng = np.random.default_rng(121195)
+    data = pd.DataFrame({"y": rng.integers(3, 10, size=50), "x": rng.normal(size=50)})
 
     priors = {"sigma": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data, priors=priors)
     priors["sigma"].auto_scale = False  # the one in the model is set to False
-    assert model.family.likelihood.priors["sigma"] == priors["sigma"]
+    assert model.constant_components["sigma"].prior == priors["sigma"]
 
     priors = {"alpha": Prior("Uniform", lower=1, upper=20)}
     model = Model("y ~ x", data, family="negativebinomial", priors=priors)
     priors["alpha"].auto_scale = False
-    assert model.family.likelihood.priors["alpha"] == priors["alpha"]
+    assert model.constant_components["alpha"].prior == priors["alpha"]
 
     priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data, family="gamma", priors=priors)
     priors["alpha"].auto_scale = False
-    assert model.family.likelihood.priors["alpha"] == priors["alpha"]
+    assert model.constant_components["alpha"].prior == priors["alpha"]
 
     priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data, family="gamma", priors=priors)
     priors["alpha"].auto_scale = False
-    assert model.family.likelihood.priors["alpha"] == priors["alpha"]
+    assert model.constant_components["alpha"].prior == priors["alpha"]
 
 
 def test_set_response_prior():
-    data = pd.DataFrame({"y": np.random.randint(3, 10, size=50), "x": np.random.normal(size=50)})
+    rng = np.random.default_rng(121195)
+    data = pd.DataFrame({"y": rng.integers(3, 10, size=50), "x": rng.normal(size=50)})
 
     priors = {"sigma": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data)
     model.set_priors(priors)
-    assert model.family.likelihood.priors["sigma"] == Prior("Uniform", False, lower=0, upper=50)
+    assert model.constant_components["sigma"].prior == Prior("Uniform", False, lower=0, upper=50)
 
     priors = {"alpha": Prior("Uniform", lower=1, upper=20)}
     model = Model("y ~ x", data, family="negativebinomial")
     model.set_priors(priors)
-    assert model.family.likelihood.priors["alpha"] == Prior("Uniform", False, lower=1, upper=20)
+    assert model.constant_components["alpha"].prior == Prior("Uniform", False, lower=1, upper=20)
 
     priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
     model = Model("y ~ x", data, family="gamma")
     model.set_priors(priors)
-    assert model.family.likelihood.priors["alpha"] == Prior("Uniform", False, lower=0, upper=50)
-
-
-def test_response_prior_fail():
-    data = pd.DataFrame(
-        {"y": np.random.randint(3, 10, size=50), "sigma": np.random.normal(size=50)}
-    )
-
-    priors = {"sigma": Prior("Uniform", lower=0, upper=50)}
-    with pytest.raises(ValueError):
-        Model("y ~ sigma", data, priors=priors)
-
-    data.rename(columns={"sigma": "alpha"}, inplace=True)
-    priors = {"alpha": Prior("Uniform", lower=0, upper=50)}
-    with pytest.raises(ValueError):
-        Model("y ~ alpha", data, family="negativebinomial", priors=priors)
-
-    with pytest.raises(ValueError):
-        Model("y ~ alpha", data, family="gamma", priors=priors)
+    assert model.constant_components["alpha"].prior == Prior("Uniform", False, lower=0, upper=50)
 
 
 def test_prior_shape():
+    rng = np.random.default_rng(121195)
     data = pd.DataFrame(
         {
-            "score": np.random.normal(size=100),
-            "q": np.random.choice(["1", "2", "3", "4", "5"], size=100),
-            "s": np.random.choice(["a", "b", "c"], size=100),
-            "g": np.random.choice(["A", "B", "C"], size=100),
+            "score": rng.normal(size=100),
+            "q": rng.choice(["1", "2", "3", "4", "5"], size=100),
+            "s": rng.choice(["a", "b", "c"], size=100),
+            "g": rng.choice(["A", "B", "C"], size=100),
         }
     )
 
     model = Model("score ~ 0 + q", data)
-    assert model.terms["q"].prior.args["mu"].shape == (5,)
-    assert model.terms["q"].prior.args["sigma"].shape == (5,)
+    assert model.response_component.terms["q"].prior.args["mu"].shape == (5,)
+    assert model.response_component.terms["q"].prior.args["sigma"].shape == (5,)
 
     model = Model("score ~ q", data)
-    assert model.terms["q"].prior.args["mu"].shape == (4,)
-    assert model.terms["q"].prior.args["sigma"].shape == (4,)
+    assert model.response_component.terms["q"].prior.args["mu"].shape == (4,)
+    assert model.response_component.terms["q"].prior.args["sigma"].shape == (4,)
 
     model = Model("score ~ 0 + q:s", data)
-    assert model.terms["q:s"].prior.args["mu"].shape == (15,)
-    assert model.terms["q:s"].prior.args["sigma"].shape == (15,)
+    assert model.response_component.terms["q:s"].prior.args["mu"].shape == (15,)
+    assert model.response_component.terms["q:s"].prior.args["sigma"].shape == (15,)
 
     # "s" is automatically added to ensure full rank matrix
     model = Model("score ~ q:s", data)
-    assert model.terms["Intercept"].prior.args["mu"].shape == ()
-    assert model.terms["Intercept"].prior.args["sigma"].shape == ()
+    assert model.response_component.terms["Intercept"].prior.args["mu"].shape == ()
+    assert model.response_component.terms["Intercept"].prior.args["sigma"].shape == ()
 
-    assert model.terms["s"].prior.args["mu"].shape == (2,)
-    assert model.terms["s"].prior.args["sigma"].shape == (2,)
+    assert model.response_component.terms["s"].prior.args["mu"].shape == (2,)
+    assert model.response_component.terms["s"].prior.args["sigma"].shape == (2,)
 
-    assert model.terms["q:s"].prior.args["mu"].shape == (12,)
-    assert model.terms["q:s"].prior.args["sigma"].shape == (12,)
+    assert model.response_component.terms["q:s"].prior.args["mu"].shape == (12,)
+    assert model.response_component.terms["q:s"].prior.args["sigma"].shape == (12,)
 
 
 def test_set_priors_but_intercept():
+    rng = np.random.default_rng(121195)
     df = pd.DataFrame(
         {
             "y": [0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
-            "z": np.random.normal(size=10),
-            "x1": np.random.uniform(size=10),
-            "x2": np.random.uniform(size=10),
+            "z": rng.normal(size=10),
+            "x1": rng.uniform(size=10),
+            "x2": rng.uniform(size=10),
             "g": ["A"] * 5 + ["B"] * 5,
         }
     )

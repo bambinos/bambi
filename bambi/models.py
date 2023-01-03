@@ -188,9 +188,7 @@ class Model:
         ### Constant
         for name in auxiliary_parameters:
             component_prior = priors.get(name, None)
-            self.components[name] = ConstantComponent(
-                name, component_prior, self.response_name, self
-            )
+            self.components[name] = ConstantComponent(name, component_prior, self)
 
         # FIXME disabled for now...
         if False and priors_cor:
@@ -365,8 +363,13 @@ class Model:
                 component.prior.auto_scale = False
             elif isinstance(component.prior, (int, float)):
                 continue
+            elif component.prior is not None:
+                raise ValueError(f"'{component.prior}' is not a valid prior.")
             else:
-                component.prior = self.family.default_priors[name]
+                default_prior = self.family.default_priors.get(name, None)
+                if default_prior is None:
+                    raise ValueError(f"The component '{name}' needs a prior.")
+                component.prior = default_prior
 
         # Scale priors if there is at least one term in the model and auto_scale is True
         if self.auto_scale:
@@ -392,18 +395,18 @@ class Model:
 
             # The only distributional component is the response term
             if len(self.distributional_components) == 1:
-                for name, component in self.constant_components:
-                    prior = priors.pop(name)
+                for name, component in self.constant_components.items():
+                    prior = priors.pop(name) if name in priors else None
                     if prior:
-                        component.update_prior(prior)
+                        component.update_priors(prior)
                 # Pass all the other priors to the response component
-                self.response_component.update_prior(priors)
+                self.response_component.update_priors(priors)
             # There are more than one distributional components.
             else:
                 for name, component in self.components.items():
                     prior = priors.get(name)
                     if prior:
-                        component.update_prior(prior)
+                        component.update_priors(prior)
 
     def _set_family(self, family, link):
         """Set the Family of the model.

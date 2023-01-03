@@ -62,20 +62,27 @@ class Family:
 
     @link.setter
     def link(self, value):
-        assert isinstance(value, dict), "Link functions must be specified with a 'dict'"
+        # The name of the link function. It's applied to the parent parameter of the likelihood
+        if isinstance(value, (str, Link)):
+            value = {self.likelihood.parent: value}
         links = {}
-        for param_name, link_name in value.items():
-            if isinstance(link_name, str):
-                param_link = self.check_string_link(link_name, param_name)
-            elif isinstance(link_name, Link):
-                param_link = link_name
+        for name, link in value.items():
+            if isinstance(link, str):
+                link = self.check_string_link(link, name)
+            elif isinstance(link, Link):
+                pass
             else:
                 raise ValueError("'.link' must be set to a string or a Link instance.")
-            links[param_name] = param_link
+            links[name] = link
         self._link = links
 
     def check_string_link(self, link_name, param_name):
-        supported_links = self.SUPPORTED_LINKS[param_name]
+        # When you instantiate Family directly
+        if isinstance(self.SUPPORTED_LINKS, list):
+            supported_links = self.SUPPORTED_LINKS
+        else:
+            supported_links = self.SUPPORTED_LINKS[param_name]
+
         if not link_name in supported_links:
             raise ValueError(
                 f"Link '{link_name}' cannot be used for '{param_name}' with family "

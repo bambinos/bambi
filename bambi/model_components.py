@@ -9,14 +9,14 @@ from bambi.utils import get_aliased_name
 
 
 class ConstantComponent:
-    def __init__(self, name, prior, response_name, spec):
-        self.name = with_suffix(response_name, name)
+    def __init__(self, name, prior, spec):
+        # self.name = with_suffix(response_name, name)
+        self.name = name
         self.prior = prior
         self.spec = spec
         self.alias = None
 
     def update_priors(self, value):
-        print("hey")
         self.prior = value
 
 
@@ -245,10 +245,10 @@ class DistributionalComponent:
         return {k: v for (k, v) in self.terms.items() if isinstance(v, OffsetTerm)}
 
 
-def with_suffix(value, suffix):
-    if suffix:
-        return f"{value}_{suffix}"
-    return value
+# def with_suffix(value, suffix):
+#     if suffix:
+#         return f"{value}_{suffix}"
+#     return value
 
 
 def prepare_prior(prior, kind, auto_scale):
