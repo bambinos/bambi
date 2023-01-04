@@ -24,6 +24,8 @@ from bambi.utils import (
     get_aliased_name,
     get_auxiliary_parameters,
     listify,
+    indentify,
+    wrapify,
 )
 from bambi.version import __version__
 
@@ -79,11 +81,6 @@ class Model:
     noncentered : bool
         If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on
         grouped parameters. If ``False``, naive (centered) parameterization is used.
-    priors_cor : dict
-        An optional value for eta in the LKJ prior for the correlation matrix of group-specific
-        terms. Keys in the dictionary indicate the groups, and values indicate the value of eta.
-        This is a very experimental feature. Defaults to ``None``, which means priors for the
-        group-specific terms are independent.
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -99,7 +96,6 @@ class Model:
         dropna=False,
         auto_scale=True,
         noncentered=True,
-        priors_cor=None,
     ):
         # attributes that are set later
         self.components = {}  # Constant and Distributional components
@@ -110,7 +106,6 @@ class Model:
 
         self.family = None  # _add_response()
         self.backend = None  # _set_backend()
-        self.priors_cor = {}  # _add_priors_cor()
 
         self.auto_scale = auto_scale
         self.dropna = dropna
@@ -126,10 +121,7 @@ class Model:
         self.data = with_categorical_cols(data, categorical)
 
         # Handle priors
-        if priors is None:
-            priors = {}
-        else:
-            priors = deepcopy(priors)
+        priors = {} if priors is None else deepcopy(priors)
 
         # Obtain design matrices and related objects.
         na_action = "drop" if dropna else "error"
@@ -161,7 +153,7 @@ class Model:
 
         ## Other components
         ### Distributional
-        for name, formula in zip(self.formula.additionals_lhs, self.formula.additionals):
+        for name, extra_formula in zip(self.formula.additionals_lhs, self.formula.additionals):
             # Check 'name' is part of parameter values
             if name not in auxiliary_parameters:
                 raise ValueError(
@@ -171,7 +163,7 @@ class Model:
 
             # Create design matrix, only for the response part
             design = design_matrices(
-                clean_formula_lhs(formula), data, na_action, 1, extra_namespace
+                clean_formula_lhs(extra_formula), data, na_action, 1, extra_namespace
             )
 
             # If priors were not passed, pass an empty dictionary
@@ -189,10 +181,6 @@ class Model:
         for name in auxiliary_parameters:
             component_prior = priors.get(name, None)
             self.components[name] = ConstantComponent(name, component_prior, self)
-
-        # FIXME disabled for now...
-        if False and priors_cor:
-            self._add_priors_cor(priors_cor)
 
         # Build priors
         self._build_priors()
@@ -345,8 +333,7 @@ class Model:
         """
         kwargs = dict(zip(["priors", "common", "group_specific"], [priors, common, group_specific]))
         self._added_priors.update(kwargs)
-        # After updating, we need to rebuild priors.
-        self._build_priors()
+        self._build_priors()  # After updating, we need to rebuild priors.
         self.built = False
 
     def _build_priors(self):
@@ -468,7 +455,7 @@ class Model:
         #        * Here, names are term names, and values are their aliases
         #     * There's unavoidable redundancy in the response name
         #       {"y": {"y": "alias"}, "sigma": {"sigma": "alias"}}
-        if len(self.distributional_components) == 1:
+        if len(self.distributional_components) == 1:  # pylint: disable=too-many-nested-blocks
             for name, alias in aliases.items():
                 assert isinstance(alias, str)
                 if name in self.response_component.terms:
@@ -507,16 +494,6 @@ class Model:
 
         # Model needs to be rebuilt after modifying aliases
         self.built = False
-
-    def _add_priors_cor(self, priors):
-        # FIXME
-        # priors: dictionary. names are groups, values are the "eta" in the lkj prior
-        groups = self._get_group_specific_groups()
-        for group in groups:
-            if group in priors:
-                self.priors_cor[group] = priors[group]
-            else:
-                raise KeyError(f"The name {group} is not a group in any group-specific term.")
 
     def _check_built(self):
         # Checks if model is built, raises ValueError if not
@@ -771,19 +748,19 @@ class Model:
 
         Parameters
         ----------
-        formatting: str
+        formatting : str
             One of ``"plain"`` or ``"plain_with_params"``. Defaults to ``"plain"``.
-        name: str
+        name : str
             Name of the figure to save. Defaults to ``None``, no figure is saved.
-        figsize: tuple
+        figsize : tuple
             Maximum width and height of figure in inches. Defaults to ``None``, the figure size is
             set automatically. If defined and the drawing is larger than the given size, the drawing
             is uniformly scaled down so that it fits within the given size.  Only works if ``name``
             is not ``None``.
-        dpi: int
+        dpi : int
             Point per inch of the figure to save.
             Defaults to 300. Only works if ``name`` is not ``None``.
-        fmt: str
+        fmt : str
             Format of the figure to save.
             Defaults to ``"png"``. Only works if ``name`` is not ``None``.
 
@@ -826,64 +803,68 @@ class Model:
             raise ValueError("'.formula' must be instance of 'str' or 'bambi.Formula'")
 
     def __str__(self):
-        return "Model"
-        priors_common = [f"    {t.name} ~ {t.prior}" for t in self.common_terms.values()]
-        if self.intercept_term:
-            term = self.intercept_term
-            priors_common = [f"    {term.name} ~ {term.prior}"] + priors_common
+        # Empty list with the output components
+        output_list = []
 
-        priors_group = [f"    {t.name} ~ {t.prior}" for t in self.group_specific_terms.values()]
+        # Build header
+        parent_name = self.family.likelihood.parent
+        formulas = self.formula.get_all_formulas()
+        family_name = self.family.name
 
-        # Prior for the correlation matrix in group-specific terms
-        priors_cor = [f"    {k} ~ LKJCorr({v})" for k, v in self.priors_cor.items()]
+        links = [
+            f"{key} = {value.name}"
+            for key, value in self.family.link.items()
+            if key == parent_name or key in self.distributional_components
+        ]
+        observations = self.response_component.response_term.data.shape[0]
 
-        # Priors for auxiliary parameters, e.g., standard deviation in normal linear model
-        priors_aux = [f"    {k} ~ {v}" for k, v in self.family.likelihood.priors.items()]
-
-        # Offsets
-        offsets = [f"    {t.name} ~ 1" for t in self.offset_terms.values()]
-
-        priors_dict = {
-            "Common-level effects": priors_common,
-            "Group-level effects": priors_group,
-            "Group-level correlation": priors_cor,
-            "Offset effects": offsets,
-            "Auxiliary parameters": priors_aux,
+        header_dict = {
+            "Formula: ": formulas,
+            "Family: ": family_name,
+            "Link: ": links,
+            "Observations: ": str(observations),
+            "Priors: ": "",
         }
 
-        priors_list = []
-        for group, values in priors_dict.items():
-            if values:
-                priors_list += ["\n".join([f"  {group}"] + values)]
-        priors_message = "\n\n".join(priors_list)
+        width = 16
+        spacer = "\n" + " " * width
+        for key, value in header_dict.items():
+            output_list.append(key.rjust(width) + spacer.join(listify(value)))
 
-        str_list = [
-            f"Formula: {self.formula}",
-            f"Family name: {self.family.name.capitalize()}",
-            f"Link: {self.family.link.name}",
-            f"Observations: {self.response.data.shape[0]}",
-            "Priors:",
-            priors_message,
-        ]
-        if self.backend and self.backend.fit:
-            extra_foot = (
-                "------\n"
-                "* To see a plot of the priors call the .plot_priors() method.\n"
-                "* To see a summary or plot of the posterior pass the object returned "
-                "by .fit() to az.summary() or az.plot_trace()\n"
+        # Build priors section
+        priors_dict = {parent_name: make_priors_summary(self.response_component)}
+
+        if self.constant_components:
+            aux_str = "\n".join(
+                [prior_repr(component) for component in self.constant_components.values()]
             )
-            str_list += [extra_foot]
+            aux_str = "Auxiliary parameters\n" + wrapify(indentify(aux_str, 4), 100, 4)
+            priors_dict[parent_name] = priors_dict[parent_name] + "\n" + aux_str
 
-        return "\n".join(str_list)
+        for name, component in self.distributional_components.items():
+            if component.response_kind == "data":
+                continue
+            priors_dict[name] = make_priors_summary(component)
+
+        for key, value in priors_dict.items():
+            priors_dict[key] = indentify(value, 4)
+
+        for key, value in priors_dict.items():
+            output_list.append(indentify(f"target = {key}" + "\n" + value, 4))
+
+        if self.backend and self.backend.fit:
+            foot_list = [
+                "------",
+                "* To see a plot of the priors call the .plot_priors() method.",
+                "* To see a summary or plot of the posterior pass the object returned by .fit() to "
+                "az.summary() or az.plot_trace()",
+            ]
+            output_list.append(foot_list)
+
+        return "\n".join(output_list)
 
     def __repr__(self):
         return self.__str__()
-
-    @property
-    def term_names(self):
-        """Return names of all terms in order of addition to model."""
-        # FIXME no self.terms anymore
-        return list(self.terms)
 
     @property
     def response_component(self):
@@ -906,3 +887,33 @@ def with_categorical_cols(data, columns):
         data = data.copy()  # don't modify original data frame
         data[to_convert] = data[to_convert].apply(lambda x: x.astype("category"))
     return data
+
+
+def prior_repr(term):
+    return f"{term.name} ~ {term.prior}"
+
+
+def make_priors_summary(component: DistributionalComponent):
+    # Common effects
+    priors_common = [prior_repr(term) for term in component.common_terms.values()]
+    if component.intercept_term:
+        priors_common.insert(0, prior_repr(component.intercept_term))
+
+    # Group-specific effects
+    priors_group = [prior_repr(term) for term in component.group_specific_terms.values()]
+
+    # Offsets
+    offsets = [f"{term.name} ~ 1" for term in component.offset_terms.values()]
+
+    priors_dict = {
+        "Common-level effects": priors_common,
+        "Group-level effects": priors_group,
+        "Offset effects": offsets,
+    }
+
+    priors_list = []
+    for group, priors in priors_dict.items():
+        if priors:
+            priors_list.append(group + "\n" + wrapify(indentify("\n".join(priors), 4), 100, 4))
+
+    return "\n\n".join(priors_list)

@@ -4,7 +4,7 @@ import numpy as np
 
 from scipy import special
 
-from bambi.utils import multilinify, spacify
+from bambi.utils import multilinify, indentify
 
 
 def force_within_unit_interval(x):
@@ -161,7 +161,7 @@ class Link:
 
     def __str__(self):
         args = [f"name: {self.name}", f"link: {self.link}", f"linkinv: {self.linkinv}"]
-        return f"{self.__class__.__name__}({spacify(multilinify(args))}\n)"
+        return f"{self.__class__.__name__}({indentify(multilinify(args))}\n)"
 
     def __repr__(self):
         return self.__str__()

@@ -1,6 +1,6 @@
 from collections import namedtuple
 
-from bambi.utils import multilinify, spacify
+from bambi.utils import multilinify, indentify
 
 
 DistSettings = namedtuple("DistSettings", ["params", "parent"])
@@ -85,7 +85,7 @@ class Likelihood:
     def __str__(self):
         args = [("name", self.name), ("params", self.params), ("parent", self.parent)]
         args = [f"{arg[0]}: {arg[1]}" for arg in args]
-        return f"{self.__class__.__name__}({spacify(multilinify(args))}\n)"
+        return f"{self.__class__.__name__}({indentify(multilinify(args))}\n)"
 
     def __repr__(self):
         return self.__str__()

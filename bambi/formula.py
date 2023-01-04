@@ -68,6 +68,9 @@ class Formula:
 
         self.additionals_lhs.append(response.term.name)
 
+    def get_all_formulas(self):
+        return [self.main] + list(self.additionals)
+
     def __str__(self):
         formulas = [self.main] + list(self.additionals)
         middle = ", ".join(formulas)

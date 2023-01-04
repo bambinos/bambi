@@ -1,4 +1,5 @@
 import ast
+import textwrap
 
 import numpy as np
 
@@ -14,7 +15,7 @@ def listify(obj):
         return obj if isinstance(obj, (list, tuple, type(None))) else [obj]
 
 
-def spacify(string, n=2):
+def indentify(string: str, n: int = 2) -> str:
     """Add spaces to the beginning of each line in a multi-line string."""
     space = n * " "
     return space + space.join(string.splitlines(True))
@@ -24,6 +25,18 @@ def multilinify(sequence, sep=","):
     """Make a multi-line string out of a sequence of strings."""
     sep += "\n"
     return "\n" + sep.join(sequence)
+
+
+def wrapify(string, width=100, indentation=2):
+    l = string.splitlines(True)
+    wrapper = textwrap.TextWrapper(width=width)
+    for idx, line in enumerate(l):
+        if len(line) > width:
+            leading_spaces = len(line) - len(line.lstrip(" "))
+            wrapper.subsequent_indent = " " * (leading_spaces + indentation)
+            wrapped = wrapper.wrap(line)
+            l[idx] = "\n".join(wrapped) + "\n"
+    return "".join(l)
 
 
 def c(*args):  # pylint: disable=invalid-name
