@@ -9,9 +9,8 @@ from bambi.utils import get_aliased_name
 
 
 class ConstantComponent:
-    def __init__(self, name, prior, spec):
-        # self.name = with_suffix(response_name, name)
-        self.name = name
+    def __init__(self, name, prior, response_name, spec):
+        self.name = with_suffix(response_name, name)
         self.prior = prior
         self.spec = spec
         self.alias = None
@@ -128,6 +127,12 @@ class DistributionalComponent:
         to_stack_dims = ("chain", "draw")
         design_matrix_dims = (response_dim, "__variables__")
 
+        if self.response_term:
+            response_var = f"{response_name}_mean"
+        else:
+            component_name = self.alias if self.alias else self.response_name
+            response_var = f"{response_name}_{component_name}"
+
         if isinstance(self.spec.family, multivariate.MultivariateFamily):
             to_stack_dims = to_stack_dims + (response_levels_dim,)
             linear_predictor_dims = linear_predictor_dims + (response_levels_dim,)
@@ -198,7 +203,16 @@ class DistributionalComponent:
         if hasattr(family, "transform_coords"):
             response = family.transform_coords(self.spec, response)
 
-        return response
+        # Drop var/dim if already present. Needed for out-of-sample predicitons.
+        if response_var in posterior.data_vars:
+            posterior = posterior.drop_vars(response_var)
+
+        if response_dim in posterior.dims:
+            posterior = posterior.drop_dims(response_dim)
+
+        # 'idata' is always modified in place.
+        posterior[response_var] = response
+        idata.posterior = posterior
 
     @property
     def group_specific_groups(self):
@@ -233,7 +247,7 @@ class DistributionalComponent:
         return {
             k: v
             for (k, v) in self.terms.items()
-            if isinstance(v, CommonTerm) and v.kind != "intercept"
+            if isinstance(v, CommonTerm) and not isinstance(v, OffsetTerm) and v.kind != "intercept"
         }
 
     @property
@@ -272,3 +286,9 @@ def prepare_prior(prior, kind, auto_scale):
     else:
         raise ValueError("'prior' must be instance of Prior or None.")
     return prior
+
+
+def with_suffix(value, suffix):
+    if suffix:
+        return f"{value}_{suffix}"
+    return value

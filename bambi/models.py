@@ -130,7 +130,7 @@ class Model:
         self._set_family(family, link)
 
         ## Main component
-        design = design_matrices(self.formula.main, data, na_action, 1, extra_namespace)
+        design = design_matrices(self.formula.main, self.data, na_action, 1, extra_namespace)
         if design.response is None:
             raise ValueError(
                 "No outcome variable is set! "
@@ -163,7 +163,7 @@ class Model:
 
             # Create design matrix, only for the response part
             design = design_matrices(
-                clean_formula_lhs(extra_formula), data, na_action, 1, extra_namespace
+                clean_formula_lhs(extra_formula), self.data, na_action, 1, extra_namespace
             )
 
             # If priors were not passed, pass an empty dictionary
@@ -180,7 +180,9 @@ class Model:
         ### Constant
         for name in auxiliary_parameters:
             component_prior = priors.get(name, None)
-            self.components[name] = ConstantComponent(name, component_prior, self)
+            self.components[name] = ConstantComponent(
+                name, component_prior, self.response_name, self
+            )
 
         # Build priors
         self._build_priors()
@@ -703,13 +705,8 @@ class Model:
         response_aliased_name = get_aliased_name(self.response_component.response_term)
 
         # ALWAYS predict the mean response
-        for name, component in self.distributional_components.items():
-            if name == self.response_name:
-                var_name = f"{response_aliased_name}_mean"
-            else:
-                component_aliased_name = component.alias if component.alias else name
-                var_name = f"{response_aliased_name}_{component_aliased_name}"
-            idata.posterior[var_name] = component.predict(idata, data, include_group_specific)
+        for component in self.distributional_components.values():
+            component.predict(idata, data, include_group_specific)
 
         # Only if requested predict the predictive distribution
         if kind == "pps":

@@ -10,8 +10,9 @@ from bambi import load_data
 
 @pytest.fixture(scope="module")
 def data_numeric_xy():
-    x = np.random.uniform(size=100)
-    y = x + np.random.normal(scale=0.5, size=100)
+    rng = np.random.default_rng(121195)
+    x = rng.uniform(size=100)
+    y = x + rng.normal(scale=0.5, size=100)
     data = pd.DataFrame({"y": y, "x": x})
     return data
 
@@ -19,16 +20,17 @@ def data_numeric_xy():
 @pytest.fixture(scope="module")
 def data_bernoulli():
     # Taken from https://juanitorduz.github.io/glm_pymc3/
+    rng = np.random.default_rng(121195)
     n = 250
-    x1 = np.random.normal(loc=0.0, scale=2.0, size=n)
-    x2 = np.random.normal(loc=0.0, scale=2.0, size=n)
+    x1 = rng.normal(loc=0.0, scale=2.0, size=n)
+    x2 = rng.normal(loc=0.0, scale=2.0, size=n)
     intercept = -0.5
     beta_x1 = 1
     beta_x2 = -1
     beta_interaction = 2
     z = intercept + beta_x1 * x1 + beta_x2 * x2 + beta_interaction * x1 * x2
     p = 1 / (1 + np.exp(-z))
-    y = np.random.binomial(n=1, p=p, size=n)
+    y = rng.binomial(n=1, p=p, size=n)
     df = pd.DataFrame(dict(x1=x1, x2=x2, y=y))
     return df
 
@@ -40,20 +42,20 @@ def data_beta():
 
 @pytest.fixture(scope="module")
 def data_gamma():
+    rng = np.random.default_rng(121195)
     N = 200
-    x = np.random.uniform(-1, 1, N)
-    a = 0.5
-    b = 1.1
-    shape = 10
-    y = np.random.gamma(shape, np.exp(a + b * x) / shape, N)
+    a, b, shape = 0.5, 1.1, 10
+    x = rng.uniform(-1, 1, N)
+    y = rng.gamma(shape, np.exp(a + b * x) / shape, N)
     data = pd.DataFrame({"x": x, "y": y})
     return data
 
 
 @pytest.fixture(scope="module")
 def data_count():
+    rng = np.random.default_rng(121195)
     data = pd.DataFrame(
-        {"y": np.random.poisson(list(range(10)) * 10), "x": np.random.uniform(size=100)}
+        {"y": rng.poisson(list(range(10)) * 10), "x": rng.uniform(size=100)}
     )
     return data
 
@@ -69,14 +71,16 @@ def inhaler():
 def test_predict_bernoulli(data_bernoulli):
     data = data_bernoulli
     model = Model("y ~ x1*x2", data, family="bernoulli")
-    idata = model.fit(tune=100, draws=100, target_accept=0.90)
+    idata = model.fit(tune=100, draws=100, target_accept=0.9)
 
+    # In sample prediction
     model.predict(idata, kind="mean")
     model.predict(idata, kind="pps")
 
     assert (0 < idata.posterior["y_mean"]).all() & (idata.posterior["y_mean"] < 1).all()
     assert (idata.posterior_predictive["y"].isin([0, 1])).all()
 
+    # Out of sample prediction
     model.predict(idata, kind="mean", data=data.iloc[:20, :])
     model.predict(idata, kind="pps", data=data.iloc[:20, :])
 
@@ -358,6 +362,7 @@ def test_predict_include_group_specific():
 
 def test_predict_offset():
     # Simple case
+    
     data = load_data("carclaims")
     model = Model("numclaims ~ offset(np.log(exposure))", data, family="poisson", link="log")
     idata = model.fit(tune=100, draws=100, chains=2, random_seed=1234)
@@ -365,14 +370,15 @@ def test_predict_offset():
     model.predict(idata, kind="pps")
 
     # More complex case
+    rng = np.random.default_rng(121195)
     data = pd.DataFrame(
         {
-            "y": np.random.poisson(20, size=100),
-            "x": np.random.normal(size=100),
+            "y": rng.poisson(20, size=100),
+            "x": rng.normal(size=100),
             "group": np.tile(np.arange(10), 10),
         }
     )
-    data["time"] = data["y"] - np.random.normal(loc=1, size=100)
+    data["time"] = data["y"] - rng.normal(loc=1, size=100)
     model = Model("y ~ offset(np.log(time)) + x + (1 | group)", data, family="poisson")
     idata = model.fit(tune=100, draws=100, chains=2, target_accept=0.9, random_seed=1234)
     model.predict(idata, kind="pps")

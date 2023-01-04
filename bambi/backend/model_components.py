@@ -101,12 +101,7 @@ class DistributionalComponent:
         We have linear predictors of the form 'X @ b + Z @ u'.
         This creates the 'u' parameter vector in PyMC, computes `Z @ u`, and adds it to ``self.mu``.
         """
-        terms = [
-            term
-            for term in self.component.group_specific_terms.values()
-            if term.name.split("|")[1] not in bmb_model.priors_cor
-        ]
-        for term in terms:
+        for term in self.component.group_specific_terms.values():
             group_specific_term = GroupSpecificTerm(term, bmb_model.noncentered)
 
             # Add coords
