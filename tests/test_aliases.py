@@ -17,16 +17,16 @@ def test_non_distributional_model(my_data):
     # Plain model
     formula = Formula("y ~ x")
     model = Model(formula, my_data)
-    idata = model.fit(chains=1, tune=100, draws=100)
+    idata = model.fit(tune=100, draws=100)
     model.predict(idata)
 
     assert list(idata.posterior.coords) == ["chain", "draw", "y_obs"]
-    assert set(idata.posterior.data_vars) == {"Intercept", "x", "y_mean", "sigma"}
+    assert set(idata.posterior.data_vars) == {"Intercept", "x", "y_mean", "y_sigma"}
     assert list(idata.posterior["y_mean"].coords) == ["chain", "draw", "y_obs"]
 
     # Model with alises
     model.set_alias({"Intercept": "a", "x": "b", "sigma": "s", "y": "response"})
-    idata = model.fit(chains=1, tune=100, draws=100)
+    idata = model.fit(tune=100, draws=100)
     model.predict(idata)
     assert list(idata.posterior.coords) == ["chain", "draw", "response_obs"]
     assert set(idata.posterior.data_vars) == {"a", "b", "response_mean", "s"}
@@ -36,7 +36,7 @@ def test_non_distributional_model(my_data):
 def test_distributional_model(my_data):
     formula = Formula("y ~ x", "sigma ~ x")
     model = Model(formula, my_data)
-    idata = model.fit(chains=1, tune=100, draws=100)
+    idata = model.fit(tune=100, draws=100)
     model.predict(idata)
 
     assert list(idata.posterior.coords) == ["chain", "draw", "y_obs"]
@@ -56,7 +56,7 @@ def test_distributional_model(my_data):
         "sigma": {"Intercept": "sigma_a", "x": "sigma_b", "sigma": "s"},
     }
     model.set_alias(aliases)
-    idata = model.fit(chains=1, tune=100, draws=100)
+    idata = model.fit(tune=100, draws=100)
     model.predict(idata)
 
     assert list(idata.posterior.coords) == ["chain", "draw", "response_obs"]
@@ -75,7 +75,7 @@ def test_distributional_model(my_data):
 
 def test_non_distributional_model_with_categories(anes):
     model = Model("vote[clinton] ~ age + age:party_id", anes, family="bernoulli")
-    idata = model.fit(chains=1, tune=100, draws=100)
+    idata = model.fit(tune=100, draws=100)
     model.predict(idata)
     assert list(idata.posterior.coords) == ["chain", "draw", "age:party_id_dim", "vote_obs"]
     assert set(idata.posterior.data_vars) == {"Intercept", "age", "age:party_id", "vote_mean"}
@@ -84,7 +84,7 @@ def test_non_distributional_model_with_categories(anes):
     assert set(idata.posterior["age:party_id_dim"].values) == {"independent", "republican"}
 
     model.set_alias({"age": "β", "Intercept": "α", "age:party_id": "γ", "vote": "y"})
-    idata = model.fit(chains=1, tune=100, draws=100)
+    idata = model.fit(tune=100, draws=100)
     model.predict(idata)
     assert list(idata.posterior.coords) == ["chain", "draw", "γ_dim", "y_obs"]
     assert set(idata.posterior.data_vars) == {"α", "β", "γ", "y_mean"}
