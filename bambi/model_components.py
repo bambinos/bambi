@@ -59,7 +59,7 @@ class DistributionalComponent:
                     )
 
             if term.kind == "offset":
-                self.terms[name] = OffsetTerm(term, term.data, self.prefix)
+                self.terms[name] = OffsetTerm(term, self.prefix)
             else:
                 self.terms[name] = CommonTerm(term, prior, self.prefix)
 

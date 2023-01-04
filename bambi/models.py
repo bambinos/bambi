@@ -702,7 +702,7 @@ class Model:
 
         response_aliased_name = get_aliased_name(self.response_component.response_term)
 
-        # Always predict the mean response
+        # ALWAYS predict the mean response
         for name, component in self.distributional_components.items():
             if name == self.response_name:
                 var_name = f"{response_aliased_name}_mean"
@@ -713,16 +713,11 @@ class Model:
 
         # Only if requested predict the predictive distribution
         if kind == "pps":
-            in_sample = ...
-            posterior = idata.posterior
-            pps_kwargs = {"model": self, "posterior": posterior}
+            required_kwargs = {"model": self, "posterior": idata.posterior}
+            optional_kwargs = {"data": data}
 
-            # FIXME where should this happen?
-            if not in_sample and isinstance(self.family, univariate.Binomial):
-                pps_kwargs["trials"] = self._design.response.evaluate_new_data(data)
-
-            pps = self.family.posterior_predictive(**pps_kwargs)
-            pps = pps.to_dataset(name=self.response_name)
+            pps = self.family.posterior_predictive(**required_kwargs, **optional_kwargs)
+            pps = pps.to_dataset(name=response_aliased_name)
 
             if "posterior_predictive" in idata:
                 del idata.posterior_predictive
@@ -895,7 +890,9 @@ def prior_repr(term):
 
 def make_priors_summary(component: DistributionalComponent):
     # Common effects
-    priors_common = [prior_repr(term) for term in component.common_terms.values()]
+    priors_common = [
+        prior_repr(term) for term in component.common_terms.values() if term.kind != "offset"
+    ]
     if component.intercept_term:
         priors_common.insert(0, prior_repr(component.intercept_term))
 

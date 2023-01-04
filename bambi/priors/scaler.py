@@ -103,7 +103,7 @@ class PriorScaler:
 
         # Scale common terms
         for term in self.response_component.common_terms.values():
-            if term.prior.auto_scale:
+            if hasattr(term.prior, "auto_scale") and term.prior.auto_scale:
                 self.scale_common(term)
 
         # Scale intercept

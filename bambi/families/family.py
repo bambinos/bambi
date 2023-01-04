@@ -1,7 +1,7 @@
+from typing import Dict, Union
+
 from bambi.families.link import Link
 from bambi.utils import get_auxiliary_parameters
-
-from typing import Dict, Union
 
 
 class Family:

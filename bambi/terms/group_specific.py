@@ -117,6 +117,6 @@ class GroupSpecificTerm(BaseTerm):  # pylint: disable=too-many-instance-attribut
         assert all(isinstance(x, str) for x in values.values())
         self._hyperprior_alias.update(values)
 
-    def __str__(self):  # pylint: disable=signature-differs
+    def __str__(self):
         args = [f"groups: {self.groups}"]
-        return super().__str__(args)
+        return self.make_str(args)

@@ -63,7 +63,7 @@ class BaseTerm(ABC):
     def ndim(self):
         return len(self.shape)
 
-    def __str__(self, extras=None):
+    def make_str(self, extras=None):
         args = [
             f"name: {self.name}",
             f"prior: {self.prior}",
@@ -80,6 +80,9 @@ class BaseTerm(ABC):
         if extras:
             args += extras
         return f"{self.__class__.__name__}({indentify(multilinify(args))}\n)"
+
+    def __str__(self):
+        return self.make_str()
 
     def __repr__(self):
         return self.__str__()

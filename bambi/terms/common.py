@@ -78,8 +78,8 @@ class CommonTerm(BaseTerm):
     def levels(self):
         return self.term.levels
 
-    def __str__(self):  # pylint: disable=signature-differs
+    def __str__(self):
         args = []
         if self.coords:
             args = [f"coords: {self.coords}"]
-        return super().__str__(args)
+        return self.make_str(args)
