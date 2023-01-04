@@ -80,9 +80,9 @@ class GroupSpecificTerm:
 
     Parameters
     ----------
-    term: bambi.terms.GroupSpecificTerm
+    term : bambi.terms.GroupSpecificTerm
         An object representing a group specific effects term.
-    noncentered: bool
+    noncentered : bool
         Specifies if we use non-centered parametrization of group-specific effects.
     """
 
@@ -161,7 +161,7 @@ class InterceptTerm:
 
     Parameters
     ----------
-    term: bambi.terms.Term
+    term : bambi.terms.Term
         An object representing the intercept. This has ``.kind == "intercept"``
     """
 
@@ -204,12 +204,17 @@ class ResponseTerm:
     def build(self, pymc_backend, bmb_model):
         """Create and return the response distribution for the PyMC model.
 
-        FIXME
+        Parameters
+        ----------
         pymc_backend : bambi.backend.PyMCModel
-            The object with all the bakcend information
-        invlinks : dict
-            A dictionary where names are names of inverse link functions and values are functions
-            that can operate with PyTensor tensors.
+            The object with all the backend information
+        bmb_model : bambi.Model
+            The Bambi model instance
+
+        Returns
+        -------
+        dist : pm.Distribution
+            The response distribution
         """
         data = np.squeeze(self.term.data)
         parent = self.family.likelihood.parent
@@ -278,15 +283,19 @@ class ResponseTerm:
 
 
 def get_linkinv(link, invlinks):
-    """Get...?
-    FIXME
+    """Get the inverse of the link function as needed by PyMC
 
     Parameters
     ----------
     link : bmb.Link
-        _description_
+        A link function object. It may contain the linkinv function that the backend uses.
     invlinks : dict
         Keys are names of link functions. Values are the built-in link functions.
+
+    Returns
+    -------
+        callable
+        The link function
     """
     # If the name is in the backend, get it from there
     if link.name in invlinks:

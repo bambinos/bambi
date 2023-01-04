@@ -28,15 +28,15 @@ def multilinify(sequence, sep=","):
 
 
 def wrapify(string, width=100, indentation=2):
-    l = string.splitlines(True)
+    lines = string.splitlines(True)
     wrapper = textwrap.TextWrapper(width=width)
-    for idx, line in enumerate(l):
+    for idx, line in enumerate(lines):
         if len(line) > width:
             leading_spaces = len(line) - len(line.lstrip(" "))
             wrapper.subsequent_indent = " " * (leading_spaces + indentation)
             wrapped = wrapper.wrap(line)
-            l[idx] = "\n".join(wrapped) + "\n"
-    return "".join(l)
+            lines[idx] = "\n".join(wrapped) + "\n"
+    return "".join(lines)
 
 
 def c(*args):  # pylint: disable=invalid-name

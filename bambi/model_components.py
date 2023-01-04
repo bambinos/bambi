@@ -217,6 +217,7 @@ class DistributionalComponent:
         for term in self.terms.values():
             if isinstance(term, CommonTerm) and term.kind == "intercept":
                 return term
+        return None
 
     @property
     def response_term(self):
@@ -224,6 +225,7 @@ class DistributionalComponent:
         for term in self.terms.values():
             if isinstance(term, ResponseTerm):
                 return term
+        return None
 
     @property
     def common_terms(self):
@@ -245,27 +247,28 @@ class DistributionalComponent:
         return {k: v for (k, v) in self.terms.items() if isinstance(v, OffsetTerm)}
 
 
-# def with_suffix(value, suffix):
-#     if suffix:
-#         return f"{value}_{suffix}"
-#     return value
-
-
 def prepare_prior(prior, kind, auto_scale):
-    """Helper function to correctly set default priors, auto scaling, etc.
+    """Helper function to correctly set default priors and auto scaling
 
     Parameters
     ----------
-    prior : Prior, float, or None.
+    prior : Prior or None
+        The prior.
     kind : string
         Accepted values are: ``"intercept"``, ``"common"``, or ``"group_specific"``.
+
+    Returns
+    -------
+    prior : Prior
+        The prior.
     """
-    if prior is None and not auto_scale:
-        prior = get_default_prior(kind + "_flat")
-    if isinstance(prior, Prior):
+    if prior is None:
+        if auto_scale:
+            prior = get_default_prior(kind)
+        else:
+            prior = get_default_prior(kind + "_flat")
+    elif isinstance(prior, Prior):
         prior.auto_scale = False
     else:
-        scale = prior
-        prior = get_default_prior(kind)
-        prior.scale = scale  # FIXME this is never used!
+        raise ValueError("'prior' must be instance of Prior or None.")
     return prior

@@ -1,5 +1,4 @@
 import numpy as np
-import pymc as pm
 
 from pytensor import tensor as pt
 
@@ -14,7 +13,7 @@ class ConstantComponent:
         self.component = component
         self.output = 0
 
-    def build(self, pymc_backend, bmb_model):
+    def build(self, pymc_backend, bmb_model):  # pylint: disable = unused-argument
         with pymc_backend.model:
             if self.component.alias:
                 label = self.component.alias
@@ -34,28 +33,24 @@ class DistributionalComponent:
         self.component = component
         self.output = 0
         self.has_intercept = self.component.intercept_term is not None
+        self.design_matrix_without_intercept = None
 
     def build(self, pymc_backend, bmb_model):
         with pymc_backend.model:
-            self.build_intercept(pymc_backend, bmb_model)
-            self.build_offsets(pymc_backend, bmb_model)
+            self.build_intercept(bmb_model)
+            self.build_offsets()
             self.build_common_terms(pymc_backend, bmb_model)
             self.build_group_specific_terms(pymc_backend, bmb_model)
 
-    def build_intercept(self, pymc_backend, bmb_model):
+    def build_intercept(self, bmb_model):
         if self.has_intercept:
             self.output += InterceptTerm(self.component.intercept_term).build(bmb_model)
 
-    def build_offsets(self, pymc_backend, bmb_model):
+    def build_offsets(self):
         """Add intercept term to the PyMC model.
 
         We have linear predictors of the form 'X @ b + Z @ u'. This is technically part of
         'X @ b' but it is added separately for convenience reasons.
-
-        Parameters
-        ----------
-        spec : bambi.Model
-            The model.
         """
         for offset in self.component.offset_terms.values():
             self.output += offset.data.squeeze()
@@ -106,15 +101,6 @@ class DistributionalComponent:
         We have linear predictors of the form 'X @ b + Z @ u'.
         This creates the 'u' parameter vector in PyMC, computes `Z @ u`, and adds it to ``self.mu``.
         """
-        # Add group specific terms that have prior for their correlation matrix
-        if False:  # FIXME
-            for group, eta in bmb_model.priors_cor.items():
-                # pylint: disable=protected-access
-                terms = [
-                    bmb_model.terms[name] for name in bmb_model._get_group_specific_groups()[group]
-                ]
-                self.mu += add_lkj(self, terms, eta)
-
         terms = [
             term
             for term in self.component.group_specific_terms.values()
@@ -157,93 +143,93 @@ class DistributionalComponent:
         response_term.build(pymc_backend, bmb_model)
 
 
-# NOTE: Here for historical reasons, not supposed to work now pt least for now
-def add_lkj(backend, terms, eta=1):
-    """Add correlated prior for group-specific effects.
+# # NOTE: Here for historical reasons, not supposed to work now at least for now
+# def add_lkj(backend, terms, eta=1):
+#     """Add correlated prior for group-specific effects.
 
-    This function receives a list of group-specific terms that share their `grouper`, constructs
-    a multivariate Normal prior with LKJ prior on the correlation matrix, and adds the necessary
-    variables to the model. It uses a non-centered parametrization.
+#     This function receives a list of group-specific terms that share their `grouper`, constructs
+#     a multivariate Normal prior with LKJ prior on the correlation matrix, and adds the necessary
+#     variables to the model. It uses a non-centered parametrization.
 
-    Parameters
-    ----------
-    terms: list
-        A list of terms that share a common grouper (i.e. ``1|Group`` and ``Variable|Group`` in
-        formula notation).
-    eta: num
-        The value for the eta parameter in the LKJ distribution.
+#     Parameters
+#     ----------
+#     terms: list
+#         A list of terms that share a common grouper (i.e. ``1|Group`` and ``Variable|Group`` in
+#         formula notation).
+#     eta: num
+#         The value for the eta parameter in the LKJ distribution.
 
-    Parameters
-    ----------
-    mu
-        The contribution to the linear predictor of the roup-specific terms in ``terms``.
-    """
+#     Parameters
+#     ----------
+#     mu
+#         The contribution to the linear predictor of the roup-specific terms in ``terms``.
+#     """
 
-    # Parameters
-    # grouper: The name of the grouper.build_group_specific_distribution
-    # rows: Sum of the number of columns in all the "Xi" matrices for a given grouper.
-    #       Same than the order of L
-    # cols: Number of groups in the grouper variable
-    mu = 0
-    grouper = terms[0].name.split("|")[1]
-    rows = int(np.sum([term.predictor.shape[1] for term in terms]))
-    cols = int(terms[0].grouper.shape[1])  # not the most beautiful, but works
+#     # Parameters
+#     # grouper: The name of the grouper.build_group_specific_distribution
+#     # rows: Sum of the number of columns in all the "Xi" matrices for a given grouper.
+#     #       Same than the order of L
+#     # cols: Number of groups in the grouper variable
+#     mu = 0
+#     grouper = terms[0].name.split("|")[1]
+#     rows = int(np.sum([term.predictor.shape[1] for term in terms]))
+#     cols = int(terms[0].grouper.shape[1])  # not the most beautiful, but works
 
-    # Construct sigma
-    # Horizontally stack the sigma values for all the hyperpriors
-    sigma = np.hstack([term.prior.args["sigma"].args["sigma"] for term in terms])
+#     # Construct sigma
+#     # Horizontally stack the sigma values for all the hyperpriors
+#     sigma = np.hstack([term.prior.args["sigma"].args["sigma"] for term in terms])
 
-    # Reconstruct the hyperprior for the standard deviations, using one variable
-    sigma = pm.HalfNormal.dist(sigma=sigma, shape=rows)
+#     # Reconstruct the hyperprior for the standard deviations, using one variable
+#     sigma = pm.HalfNormal.dist(sigma=sigma, shape=rows)
 
-    # Obtain Cholesky factor for the covariance
-    # pylint: disable=unused-variable, disable=unpacking-non-sequence
-    (lkj_decomp, corr, sigma,) = pm.LKJCholeskyCov(
-        "_LKJCholeskyCov_" + grouper,
-        n=rows,
-        eta=eta,
-        sd_dist=sigma,
-        compute_corr=True,
-        store_in_trace=False,
-    )
+#     # Obtain Cholesky factor for the covariance
+#     # pylint: disable = unused-variable, disable=unpacking-non-sequence
+#     (lkj_decomp, corr, sigma,) = pm.LKJCholeskyCov(
+#         "_LKJCholeskyCov_" + grouper,
+#         n=rows,
+#         eta=eta,
+#         sd_dist=sigma,
+#         compute_corr=True,
+#         store_in_trace=False,
+#     )
 
-    coefs_offset = pm.Normal("_LKJ_" + grouper + "_offset", mu=0, sigma=1, shape=(rows, cols))
-    coefs = pt.dot(lkj_decomp, coefs_offset).T
+#     coefs_offset = pm.Normal("_LKJ_" + grouper + "_offset", mu=0, sigma=1, shape=(rows, cols))
+#     coefs = pt.dot(lkj_decomp, coefs_offset).T
 
-    ## Separate group-specific terms
-    start = 0
-    for term in terms:
-        label = term.name
-        dims = list(term.coords)
+#     ## Separate group-specific terms
+#     start = 0
+#     for term in terms:
+#         label = term.name
+#         dims = list(term.coords)
 
-        # Add coordinates to the model, only if they are not added yet.
-        for name, values in term.coords.items():
-            if name not in backend.model.coords:
-                backend.model.add_coords({name: values})
+#         # Add coordinates to the model, only if they are not added yet.
+#         for name, values in term.coords.items():
+#             if name not in backend.model.coords:
+#                 backend.model.add_coords({name: values})
 
-        predictor = term.predictor.squeeze()
-        delta = term.predictor.shape[1]
+#         predictor = term.predictor.squeeze()
+#         delta = term.predictor.shape[1]
 
-        if delta == 1:
-            idx = start
-        else:
-            idx = slice(start, start + delta)
+#         if delta == 1:
+#             idx = start
+#         else:
+#             idx = slice(start, start + delta)
 
-        # Add prior for the parameter
-        coef = pm.Deterministic(label, coefs[:, idx], dims=dims)
-        coef = coef[term.group_index]
+#         # Add prior for the parameter
+#         coef = pm.Deterministic(label, coefs[:, idx], dims=dims)
+#         coef = coef[term.group_index]
 
-        # Add standard deviation of the hyperprior distribution
-        group_dim = [dim for dim in dims if dim.endswith("_group_expr")]
-        pm.Deterministic(label + "_sigma", sigma[idx], dims=group_dim)
+#         # Add standard deviation of the hyperprior distribution
+#         group_dim = [dim for dim in dims if dim.endswith("_group_expr")]
+#         pm.Deterministic(label + "_sigma", sigma[idx], dims=group_dim)
 
-        # Account for the contribution of the term to the linear predictor
-        if predictor.ndim > 1:
-            for col in range(predictor.shape[1]):
-                mu += coef[:, col] * predictor[:, col]
-        else:
-            mu += coef * predictor
-        start += delta
+#         # Account for the contribution of the term to the linear predictor
+#         if predictor.ndim > 1:
+#             for col in range(predictor.shape[1]):
+#                 mu += coef[:, col] * predictor[:, col]
+#         else:
+#             mu += coef * predictor
+#         start += delta
 
-    # TO DO: Add correlations
-    return mu
+#     # TO DO: Add correlations
+#     return mu
