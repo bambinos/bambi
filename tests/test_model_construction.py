@@ -326,8 +326,8 @@ def test_links():
     data = pd.DataFrame(
         {
             "g": rng.choice([0, 1], size=100),
-            "y": rng.randint(3, 10, size=100),
-            "x": rng.randint(3, 10, size=100),
+            "y": rng.integers(3, 10, size=100),
+            "x": rng.integers(3, 10, size=100),
         }
     )
 
@@ -356,8 +356,8 @@ def test_bad_links():
     data = pd.DataFrame(
         {
             "g": rng.choice([0, 1], size=100),
-            "y": rng.randint(3, 10, size=100),
-            "x": rng.randint(3, 10, size=100),
+            "y": rng.integers(3, 10, size=100),
+            "x": rng.integers(3, 10, size=100),
         }
     )
     FAMILIES = {

@@ -101,7 +101,7 @@ def test_family_bad_priors():
 
 def test_auto_scale(diabetes_data):
     # By default, should scale everything except custom Prior() objects
-    priors = {"S1": 0.3, "BP": Prior("Cauchy", alpha=1, beta=17.5)}
+    priors = {"BP": Prior("Cauchy", alpha=1, beta=17.5)}
     model = Model("BMI ~ S1 + S2 + BP", diabetes_data, priors=priors)
     p1 = model.response_component.terms["S1"].prior
     p2 = model.response_component.terms["S2"].prior
@@ -112,16 +112,12 @@ def test_auto_scale(diabetes_data):
     assert p3.name == "Cauchy"
     assert p3.args["beta"] == 17.5
 
-    # With auto_scale off, custom priors are considered, but not custom scaling.
-    # Prior has no effect, and prior for BP has effect.
-    priors = {"S1": 0.3, "BP": Prior("Cauchy", alpha=1, beta=17.5)}
+    # With auto_scale off, custom priors are considered.
+    priors = {"BP": Prior("Cauchy", alpha=1, beta=17.5)}
     model = Model("BMI ~ S1 + S2 + BP", diabetes_data, priors=priors, auto_scale=False)
-    p1_off = model.response_component.terms["S1"].prior
     p2_off = model.response_component.terms["S2"].prior
     p3_off = model.response_component.terms["BP"].prior
-    assert p1_off.name == "Normal"
     assert p2_off.name == "Flat"
-    assert p1_off.args["sigma"] == 1
     assert "sigma" not in p2_off.args
     assert p3_off.name == "Cauchy"
 

@@ -705,8 +705,30 @@ class Model:
         response_aliased_name = get_aliased_name(self.response_component.response_term)
 
         # ALWAYS predict the mean response
-        for component in self.distributional_components.values():
-            component.predict(idata, data, include_group_specific)
+        means_dict = {}
+        response_dim = response_aliased_name + "_obs"
+        for name, component in self.distributional_components.items():
+            if name == self.response_name:
+                var_name = f"{response_aliased_name}_mean"
+            else:
+                component_aliased_name = component.alias if component.alias else name
+                var_name = f"{response_aliased_name}_{component_aliased_name}"
+
+            means_dict[var_name] = component.predict(idata, data, include_group_specific)
+
+            # Drop var/dim if already present. Needed for out-of-sample predictions.
+            if var_name in idata.posterior.data_vars:
+                idata.posterior = idata.posterior.drop_vars(var_name)
+
+        if response_dim in idata.posterior.dims:
+            idata.posterior = idata.posterior.drop_dims(response_dim)
+
+        # Use the first DataArray to get the number of observations
+        obs_n = len(list(means_dict.values())[0].coords.get(response_dim))
+        idata.posterior = idata.posterior.assign_coords({response_dim: list(range(obs_n))})
+
+        for name, value in means_dict.items():
+            idata.posterior[name] = value
 
         # Only if requested predict the predictive distribution
         if kind == "pps":

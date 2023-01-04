@@ -92,7 +92,7 @@ BUILTIN_FAMILIES = {
     "multinomial": {
         "likelihood": {
             "name": "Multinomial",
-            "params": {},
+            "params": ["p"],
             "parent": "p"
         },
         "link": {"p": "softmax"},
