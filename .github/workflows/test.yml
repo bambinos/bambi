@@ -53,7 +53,7 @@ jobs:
       - name: Run tests
         shell: bash -l {0}
         run: |
-          python -m pytest -vv --cov=bambi --cov-report=term --cov-report=xml bambi/tests
+          python -m pytest -vv --cov=bambi --cov-report=term --cov-report=xml tests
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
 
