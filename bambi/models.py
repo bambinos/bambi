@@ -35,8 +35,9 @@ _log = logging.getLogger("bambi")
 class Model:
     """Specification of model class.
 
+    Parameters
     ----------
-    formula : str
+    formula : str or bambi.formula.Formula
         A model description written using the formula syntax from the ``formulae`` library.
     data : pandas.DataFrame
         A pandas dataframe containing the data on which the model will be fit, with column
@@ -53,10 +54,12 @@ class Model:
         the names of terms in the model, "common," or "group_specific" and the values are
         instances of class ``Prior``. If priors are unset, uses automatic priors inspired by
         the R rstanarm library.
-    link : str
+    link : str or Dict[str, str]
         The name of the link function to use. Valid names are ``"cloglog"``, ``"identity"``,
         ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, ``"probit"``, and
         ``"softmax"``. Not all the link functions can be used with all the families.
+        If a dictionary, keys are the names of the target parameters and the values are the names
+        of the link functions.
     categorical : str or list
         The names of any variables to treat as categorical. Can be either a single variable
         name, or a list of names. If categorical is ``None``, the data type of the columns in
@@ -313,6 +316,10 @@ class Model:
         """Set up the model for sampling/fitting.
 
         Creates an instance of the underlying PyMC model and adds all the necessary terms to it.
+
+        Returns
+        -------
+        None
         """
         self.backend = PyMCModel()
         self.backend.build(self)
@@ -326,12 +333,14 @@ class Model:
         priors : dict
             Dictionary of priors to update. Keys are names of terms to update; values are the new
             priors (either a ``Prior`` instance, or an int or float that scales the default priors).
-            Note that a tuple can be passed as the key, in which case the same prior will be applied
-            to all terms named in the tuple.
-        common : Prior, int, float or str
+        common : Prior, int, or float
             A prior specification to apply to all common terms included in the model.
-        group_specific : Prior, int, float or str
+        group_specific : Prior, int, or float
             A prior specification to apply to all group specific terms included in the model.
+
+        Returns
+        -------
+        None
         """
         kwargs = dict(zip(["priors", "common", "group_specific"], [priors, common, group_specific]))
         self._added_priors.update(kwargs)
@@ -403,14 +412,20 @@ class Model:
         Parameters
         ----------
         family : str or bambi.families.Family
-            A specification of the model family (analogous to the family object in R). Either a
-            string, or an instance of class ``families.Family``. If a string is passed, a family
-            with the corresponding name must be defined in the defaults loaded at model
-            initialization.
-        link : Union[str, Dict[str, str]]
+            A specification of the model family.
+            Either a string, or an instance of class ``families.Family``.
+            If a string is passed, a family with the corresponding name must be defined in the
+            defaults loaded at model initialization.
+        link : str or Dict[str, str]
             The name of the link function to use. Valid names are ``"cloglog"``, ``"identity"``,
             ``"inverse_squared"``, ``"inverse"``, ``"log"``, ``"logit"``, ``"probit"``, and
             ``"softmax"``. Not all the link functions can be used with all the families.
+            If a dictionary, keys are the names of the target parameters and the values are the
+            names of the link functions.
+
+        Returns
+        -------
+        None
         """
 
         # If string, get builtin family
@@ -442,6 +457,10 @@ class Model:
         ----------
         aliases : dict
             A dictionary where key represents the original term name and the value is the alias.
+
+        Returns
+        -------
+        None
         """
         if not isinstance(aliases, dict):
             raise ValueError(f"'aliases' must be a dictionary, not a {type(aliases)}.")
@@ -626,17 +645,20 @@ class Model:
         return axes
 
     def prior_predictive(self, draws=500, var_names=None, omit_offsets=True, random_seed=None):
-        """
-        Generate samples from the prior predictive distribution.
+        """Generate samples from the prior predictive distribution.
+
         Parameters
         ----------
-        draws: int
+        draws : int
             Number of draws to sample from the prior predictive distribution. Defaults to 500.
-        var_names: str or list
+        var_names : str or list
             A list of names of variables for which to compute the prior predictive distribution.
             Defaults to ``None`` which means both observed and unobserved RVs.
-        random_seed: int
+        omit_offsets : bool
+            Whether to omit offset terms in the plot. Defaults to ``True``.
+        random_seed : int
             Seed for the random number generator.
+
         Returns
         -------
         InferenceData
@@ -670,22 +692,22 @@ class Model:
 
         Parameters
         ----------
-        idata: InferenceData
+        idata : InferenceData
             The ``InferenceData`` instance returned by ``.fit()``.
-        kind: str
+        kind : str
             Indicates the type of prediction required. Can be ``"mean"`` or ``"pps"``. The
             first returns draws from the posterior distribution of the mean, while the latter
             returns the draws from the posterior predictive distribution
             (i.e. the posterior probability distribution for a new observation).
             Defaults to ``"mean"``.
-        data: pandas.DataFrame or None
+        data : pandas.DataFrame or None
             An optional data frame with values for the predictors that are used to obtain
             out-of-sample predictions. If omitted, the original dataset is used.
-        include_group_specific: bool
+        include_group_specific : bool
             If ``True`` make predictions including the group specific effects. Otherwise,
             predictions are made with common effects only (i.e. group specific are set
             to zero).
-        inplace: bool
+        inplace : bool
             If ``True`` it will modify ``idata`` in-place. Otherwise, it will return a copy of
             ``idata`` with the predictions added. If ``kind="mean"``, a new variable ending in
             ``"_mean"`` is added to the ``posterior`` group. If ``kind="pps"``, it appends a
@@ -778,6 +800,11 @@ class Model:
             Format of the figure to save.
             Defaults to ``"png"``. Only works if ``name`` is not ``None``.
 
+        Returns
+        -------
+        graphviz.Digraph
+            The graph
+
         Example
         --------
         >>> model = Model("y ~ x + (1|z)")
@@ -787,7 +814,6 @@ class Model:
         >>> model = Model("y ~ x + (1|z)")
         >>> model.fit()
         >>> model.graph()
-
         """
         self._check_built()
 
@@ -853,7 +879,7 @@ class Model:
                 [prior_repr(component) for component in self.constant_components.values()]
             )
             aux_str = "Auxiliary parameters\n" + wrapify(indentify(aux_str, 4), 100, 4)
-            priors_dict[parent_name] = priors_dict[parent_name] + "\n" + aux_str
+            priors_dict[parent_name] = priors_dict[parent_name] + "\n\n" + aux_str
 
         for name, component in self.distributional_components.items():
             if component.response_kind == "data":
@@ -873,7 +899,7 @@ class Model:
                 "* To see a summary or plot of the posterior pass the object returned by .fit() to "
                 "az.summary() or az.plot_trace()",
             ]
-            output_list.append(foot_list)
+            output_list.extend(foot_list)
 
         return "\n".join(output_list)
 

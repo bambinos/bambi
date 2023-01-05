@@ -1,3 +1,5 @@
+from typing import Sequence
+
 import ast
 import textwrap
 
@@ -21,7 +23,7 @@ def indentify(string: str, n: int = 2) -> str:
     return space + space.join(string.splitlines(True))
 
 
-def multilinify(sequence, sep=","):
+def multilinify(sequence: Sequence[str], sep: str = ",") -> str:
     """Make a multi-line string out of a sequence of strings."""
     sep += "\n"
     return "\n" + sep.join(sequence)
@@ -146,6 +148,7 @@ def censored(*args):
 
 censored.__metadata__ = {"kind": "censored"}
 
+# These functions are made available in the namespace where the model formula is evaluated
 extra_namespace = {
     "c": c,
     "censored": censored,
@@ -177,10 +180,40 @@ def clean_formula_lhs(x):
 
 
 def get_auxiliary_parameters(family):
+    """Get names of auxiliary parameters
+
+    Obtains the difference between all the parameters and the parent parameter of a family.
+    These parameters are known as auxiliary or nuisance parameters.
+
+    Parameters
+    ----------
+    family : bambi.families.Family
+        The family
+
+    Returns
+    -------
+    set
+        Names of auxiliary parameters in the family
+    """
     return set(family.likelihood.params) - {family.likelihood.parent}
 
 
 def get_aliased_name(term):
+    """Get the aliased name of a model term
+
+    Model terms have a name and, optionally, an alias. The alias is used as the "name" if it's
+    available. This is a helper that returns the right "name".
+
+    Parameters
+    ----------
+    term : BaseTerm
+        The term
+
+    Returns
+    -------
+    str
+        The aliased name
+    """
     if term.alias:
         return term.alias
     return term.name

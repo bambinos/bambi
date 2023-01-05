@@ -13,7 +13,7 @@ class Family:
         The name of the family. It can be any string.
     likelihood : Likelihood
         A ``bambi.families.Likelihood`` instance specifying the model likelihood function.
-    link : Dict[str, Union[str, Link]]
+    link : Union[str, Dict[str, Union[str, Link]]]
         The link function that's used for every parameter in the likelihood function.
         Keys are the names of the parameters and values are the link functions.
         These can be a ``str`` with a name or a ``bambi.families.Link`` instance.
@@ -21,21 +21,20 @@ class Family:
 
     Examples
     --------
-    FIXME
     >>> import bambi as bmb
 
     Replicate the Gaussian built-in family.
 
     >>> sigma_prior = bmb.Prior("HalfNormal", sigma=1)
-    >>> likelihood = bmb.Likelihood("Gaussian", parent="mu", sigma=sigma_prior)
+    >>> likelihood = bmb.Likelihood("Gaussian", params=["mu", "sigma"], parent="mu")
     >>> family = bmb.Family("gaussian", likelihood, "identity")
-    >>> # Then you can do
-    >>> # bmb.Model("y ~ x", data, family=family)
+    >>> bmb.Model("y ~ x", data, family=family, priors={"sigma": sigma_prior})
 
     Replicate the Bernoulli built-in family.
 
     >>> likelihood = bmb.Likelihood("Bernoulli", parent="p")
     >>> family = bmb.Family("bernoulli", likelihood, "logit")
+    >>> bmb.Model("y ~ x", data, family=family)
     """
 
     SUPPORTED_LINKS = [
@@ -50,7 +49,7 @@ class Family:
         "tan_2",
     ]
 
-    def __init__(self, name, likelihood, link: Dict[str, Union[str, Link]]):
+    def __init__(self, name, likelihood, link: Union[str, Dict[str, Union[str, Link]]]):
         self.name = name
         self.likelihood = likelihood
         self.link = link

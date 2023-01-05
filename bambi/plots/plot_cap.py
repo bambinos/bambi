@@ -95,7 +95,7 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
             terms.update(component.design.common.terms)
 
         if component.design.group:
-            terms.update(component.group.terms)
+            terms.update(component.design.group.terms)
 
     # Get default values for each variable in the model
     for term in terms.values():
@@ -222,7 +222,11 @@ def plot_cap(
         axes = np.atleast_1d(axes)
     else:
         axes = np.atleast_1d(ax)
-        fig = axes[0].get_figure()
+        print(axes)
+        if isinstance(axes[0], np.ndarray):
+            fig = axes[0][0].get_figure()
+        else:
+            fig = axes[0].get_figure()
 
     main = covariates.get("horizontal")
     if is_numeric_dtype(cap_data[main]):

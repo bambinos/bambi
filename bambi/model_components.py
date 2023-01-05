@@ -9,6 +9,24 @@ from bambi.utils import get_aliased_name
 
 
 class ConstantComponent:
+    """Constant model components
+
+    This is a component for a target parameter that has no predictors. This could be seen as
+    an intercept-only model for that parameter. For example, tis is the case for sigma when
+    a non-distributional Normal linear regression model is used.
+
+    Parameters
+    ----------
+    name : str
+        The name of the component. For example "sigma", "alpha", or "kappa".
+    priors : bambi.priors.Prior
+        The prior distribution for the parameter
+    response_name : str
+        The name of the response variable. It's used to get the suffixed name of the component.
+    spec : bambi.Model
+        The Bambi model
+    """
+
     def __init__(self, name, prior, response_name, spec):
         self.name = with_suffix(response_name, name)
         self.prior = prior
@@ -20,8 +38,25 @@ class ConstantComponent:
 
 
 class DistributionalComponent:
-    """_summary_
-    response_kind = ["data", "parameter"]
+    """Distributional model components
+
+    Parameters
+    ----------
+    design : formulae.DesignMatrices
+        The object with all the required design matrices and information about the model terms.
+    priors : dict
+        A dictionary where keys are term names and values are their priors.
+    response_name : str
+        The name of the response or target. If ``response_kind`` is ``"data"``, it's the name of
+        the response variable. If ``response_kind`` is ``"param"`` it's the name of the parameter.
+        An example of the first could be "Reaction" and an example of the latter could be "sigma"
+        or "kappa".
+    response_kind : str
+        Specifies whether the distributional component models the response (``"data"``) or an
+        auxiliary parameter (``"param"``). When ``"data"`` this is actually modeling the "parent"
+        parameter of the family.
+    spec : bambi.Model
+        The Bambi model
     """
 
     def __init__(self, design, priors, response_name, response_kind, spec):
@@ -255,6 +290,8 @@ def prepare_prior(prior, kind, auto_scale):
         The prior.
     kind : string
         Accepted values are: ``"intercept"``, ``"common"``, or ``"group_specific"``.
+    auto_scale : bool
+        Whether priors should be scaled or not. Defaults to ``True``.
 
     Returns
     -------

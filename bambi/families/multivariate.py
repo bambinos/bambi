@@ -8,11 +8,8 @@ from bambi.utils import extract_argument_names, extra_namespace, get_aliased_nam
 
 
 class MultivariateFamily(Family):
-    def predict(self, model, posterior, linear_predictor):
-        return NotImplemented
-
     def posterior_predictive(self, model, posterior):
-        return NotImplemented
+        raise NotImplementedError
 
 
 class Categorical(MultivariateFamily):

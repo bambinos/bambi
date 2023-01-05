@@ -69,6 +69,13 @@ class Formula:
         self.additionals_lhs.append(response.term.name)
 
     def get_all_formulas(self):
+        """Get all the model formulas
+
+        Returns
+        -------
+        list
+            All the formulas in the instance
+        """
         return [self.main] + list(self.additionals)
 
     def __str__(self):
