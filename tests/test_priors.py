@@ -126,8 +126,8 @@ def test_prior_str():
     # Tests __str__ method
     prior1 = Prior("Normal", mu=0, sigma=1)
     prior2 = Prior("Normal", mu=0, sigma=Prior("HalfNormal", sigma=1))
-    assert str(prior1) == "Normal(mu: 0, sigma: 1)"
-    assert str(prior2) == "Normal(mu: 0, sigma: HalfNormal(sigma: 1))"
+    assert str(prior1) == "Normal(mu: 0.0, sigma: 1.0)"
+    assert str(prior2) == "Normal(mu: 0.0, sigma: HalfNormal(sigma: 1.0))"
     assert str(prior1) == repr(prior1)
 
 
