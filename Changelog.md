@@ -4,11 +4,22 @@
 
 ### New features
 
+* Refactored the codebase to support distributional models (#607)
+
 ### Maintenance and fixes
+
+* Moved the `tests` directory to the root of the repository (#607)
 
 ### Documentation
 
+* Update examples to work with the new internals (#607)
+* Fixed figure in the Sleepstudy example (#607)
+
 ### Deprecation
+
+* Removed versioned documentation webpage (#616)
+* Removed correlated priors for group-specific terms (#607)
+* Dictionary with tuple keys are not allowed for priors anymore (#607)
 
 ## 0.9.3
 
