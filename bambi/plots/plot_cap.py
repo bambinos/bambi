@@ -14,7 +14,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
 
-from bambi.utils import listify
+from bambi.utils import listify, get_aliased_name
 from bambi.plots.utils import get_group_offset, get_unique_levels
 
 
@@ -25,9 +25,10 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
     ----------
     model : bambi.Model
         An instance of a Bambi model
-    covariates : list
-        A sequence of one or two names of variables. The first variable is taken as the main
-        variable. If present, the second variable is a grouping variable.
+    covariates : dict
+        A dictionary of length between one and three.
+        Keys must be taken from ("horizontal", "color", "panel").
+        The values indicate the names of variables.
     grid_n : int, optional
         The number of points used to evaluate the main covariate. Defaults to 200.
     groups_n : int, optional
@@ -86,13 +87,15 @@ def create_cap_data(model, covariates, grid_n=200, groups_n=5):
             panel_values = np.repeat(panel_values, main_n * group_n)
             data_dict.update({main: main_values, group: group_values, panel: panel_values})
 
-    # Construct dictionary of terms that are in the model
+    # Construct dictionary of terms that are in the model.
+    # See it includes the terms for _all_ the distributional components, not just the response
     terms = {}
-    if model._design.common:
-        terms.update(model._design.common.terms)
+    for component in model.distributional_components.values():
+        if component.design.common:
+            terms.update(component.design.common.terms)
 
-    if model._design.group:
-        terms.update(model._design.group.terms)
+        if component.design.group:
+            terms.update(component.group.terms)
 
     # Get default values for each variable in the model
     for term in terms.values():
@@ -141,9 +144,14 @@ def plot_cap(
     idata : arviz.InferenceData
         The InferenceData object that contains the samples from the posterior distribution of
         the model.
-    covariates : list
-        A sequence of one or two names of variables. The first variable is taken as the main
-        variable. If present, the second variable is a grouping variable.
+    covariates : list or dict
+        A sequence of between one and three names of variables or a dict of length between one
+        and three.
+        If a sequence, the first variable is taken as the main variable,
+        mapped to the horizontal axis. If present, the second name is a coloring/grouping variable,
+        and the third is mapped to different plot panels.
+        If a dictionary, keys must be taken from ("horizontal", "color", "panel") and the values
+        are the names of the variables.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     hdi_prob : float, optional
@@ -192,13 +200,14 @@ def plot_cap(
     if transforms is None:
         transforms = {}
 
-    response_transform = transforms.get(model.response.name, identity)
+    response_name = get_aliased_name(model.response_component.response_term)
+    response_transform = transforms.get(response_name, identity)
 
-    y_hat = response_transform(idata.posterior[f"{model.response.name}_mean"])
+    y_hat = response_transform(idata.posterior[f"{response_name}_mean"])
     y_hat_mean = y_hat.mean(("chain", "draw"))
 
     if use_hdi:
-        y_hat_bounds = az.hdi(y_hat, hdi_prob)[f"{model.response.name}_mean"].T
+        y_hat_bounds = az.hdi(y_hat, hdi_prob)[f"{response_name}_mean"].T
     else:
         lower_bound = round((1 - hdi_prob) / 2, 4)
         upper_bound = 1 - lower_bound
@@ -226,7 +235,7 @@ def plot_cap(
         raise ValueError("Main covariate must be numeric or categoric.")
 
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
-        ax.set(xlabel=main, ylabel=model.response.name)
+        ax.set(xlabel=main, ylabel=response_name)
 
     return fig, axes
 
@@ -239,7 +248,7 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
         ax = axes[0]
         values_main = transform_main(cap_data[main])
         ax.plot(values_main, y_hat_mean, solid_capstyle="butt")
-        ax.fill_between(values_main, y_hat_bounds[0], y_hat_bounds[1], alpha=0.5)
+        ax.fill_between(values_main, y_hat_bounds[0], y_hat_bounds[1], alpha=0.4)
     elif "color" in covariates and not "panel" in covariates:
         ax = axes[0]
         color = covariates.get("color")
@@ -252,7 +261,7 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
                 values_main,
                 y_hat_bounds[0][idx],
                 y_hat_bounds[1][idx],
-                alpha=0.5,
+                alpha=0.4,
                 color=f"C{i}",
             )
     elif not "color" in covariates and "panel" in covariates:
@@ -262,7 +271,7 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
             idx = (cap_data[panel] == pnl).to_numpy()
             values_main = transform_main(cap_data.loc[idx, main])
             ax.plot(values_main, y_hat_mean[idx], solid_capstyle="butt")
-            ax.fill_between(values_main, y_hat_bounds[0][idx], y_hat_bounds[1][idx], alpha=0.5)
+            ax.fill_between(values_main, y_hat_bounds[0][idx], y_hat_bounds[1][idx], alpha=0.4)
             ax.set(title=f"{panel} = {pnl}")
     elif "color" in covariates and "panel" in covariates:
         color = covariates.get("color")
@@ -278,7 +287,7 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
                     values_main,
                     y_hat_bounds[0][idx],
                     y_hat_bounds[1][idx],
-                    alpha=0.5,
+                    alpha=0.4,
                     color=f"C{i}",
                 )
                 ax.set(title=f"{panel} = {pnl}")
@@ -292,7 +301,7 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
                         values_main,
                         y_hat_bounds[0][idx],
                         y_hat_bounds[1][idx],
-                        alpha=0.5,
+                        alpha=0.4,
                         color=f"C{i}",
                     )
                     ax.set(title=f"{panel} = {pnl}")
@@ -301,7 +310,7 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
         handles = [
             (
                 Line2D([], [], color=f"C{i}", solid_capstyle="butt"),
-                Patch(color=f"C{i}", alpha=0.5, lw=1),
+                Patch(color=f"C{i}", alpha=0.4, lw=1),
             )
             for i in range(len(colors))
         ]
