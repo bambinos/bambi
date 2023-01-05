@@ -1,4 +1,5 @@
 import numpy as np
+import pytensor
 
 
 class Prior:
@@ -33,9 +34,9 @@ class Prior:
         kwargs_ = {}
         for key, val in kwargs.items():
             if isinstance(val, (int, float)):
-                val = np.array(val)
+                val = np.array(val, dtype=pytensor.config.floatX)  # pylint: disable = no-member
             elif isinstance(val, np.ndarray):
-                val = val.squeeze()
+                val = val.squeeze().astype(pytensor.config.floatX)  # pylint: disable = no-member
             kwargs_[key] = val
         self.args.update(kwargs_)
 
