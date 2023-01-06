@@ -56,13 +56,13 @@ def test_gamma(data_gamma, data_new_gamma):
 
     # Default links
     model = Model(formula, data_gamma, family="gamma")
-    idata = model.fit(tune=100, draws=100)
+    idata = model.fit(tune=100, draws=100, random_seed=1234)
     model.predict(idata, kind="pps")
     model.predict(idata, kind="pps", data=data_new_gamma)
 
     # Custom links
     model = Model(formula, data_gamma, family="gamma", link={"mu": "log", "alpha": "log"})
-    idata = model.fit(tune=100, draws=100)
+    idata = model.fit(tune=100, draws=100, random_seed=1234)
     model.predict(idata, kind="pps")
     model.predict(idata, kind="pps", data=data_new_gamma)
 
@@ -72,6 +72,6 @@ def test_gamma_with_splines(data_normal, data_new_normal):
         "count ~ 0 + bs(hour, 8, intercept=True)", "alpha ~ 0 + bs(hour, 8, intercept=True)"
     )
     model = Model(formula, data_normal, family="gamma", link={"mu": "log", "alpha": "log"})
-    idata = model.fit(tune=100, draws=100)
+    idata = model.fit(tune=100, draws=100, random_seed=1234)
     model.predict(idata, kind="pps")
     model.predict(idata, kind="pps", data=data_new_normal)
