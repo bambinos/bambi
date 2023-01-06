@@ -6,6 +6,7 @@ import pytensor.tensor as pt
 from bambi.backend.utils import has_hyperprior, get_distribution
 from bambi.families.multivariate import MultivariateFamily
 from bambi.priors import Prior
+from bambi.utils import get_aliased_name
 
 
 class CommonTerm:
@@ -16,15 +17,13 @@ class CommonTerm:
 
     Parameters
     ----------
-    term: bambi.terms.Term
+    term : bambi.terms.Term
         An object representing a common effects term.
     """
 
     def __init__(self, term):
         self.term = term
         self.coords = self.term.coords.copy()
-        # Make sure we use the alias, if there's one
-        # NOTE: Could be handled in the term??
         if self.coords and self.term.alias:
             self.coords[self.term.alias + "_dim"] = self.coords.pop(self.term.name + "_dim")
 
@@ -38,8 +37,8 @@ class CommonTerm:
         # Dims of the response variable
         response_dims = []
         if isinstance(spec.family, MultivariateFamily):
-            response_dims = list(spec.response.coords)
-            response_dims_n = len(spec.response.coords[response_dims[0]])
+            response_dims = list(spec.response_component.response_term.coords)
+            response_dims_n = len(spec.response_component.response_term.coords[response_dims[0]])
             # Arguments may be of shape (a,) but we need them to be of shape (a, b)
             # a: length of predictor coordinates
             # b: length of response coordinates
@@ -81,9 +80,9 @@ class GroupSpecificTerm:
 
     Parameters
     ----------
-    term: bambi.terms.GroupSpecificTerm
+    term : bambi.terms.GroupSpecificTerm
         An object representing a group specific effects term.
-    noncentered: bool
+    noncentered : bool
         Specifies if we use non-centered parametrization of group-specific effects.
     """
 
@@ -101,7 +100,7 @@ class GroupSpecificTerm:
         # Dims of the response variable (e.g. categorical)
         response_dims = []
         if isinstance(spec.family, MultivariateFamily):
-            response_dims = list(spec.response.coords)
+            response_dims = list(spec.response_component.response_term.coords)
 
         dims = list(self.coords) + response_dims
         # Squeeze ensures we don't have a shape of (n, 1) when we mean (n, )
@@ -162,7 +161,7 @@ class InterceptTerm:
 
     Parameters
     ----------
-    term: bambi.terms.Term
+    term : bambi.terms.Term
         An object representing the intercept. This has ``.kind == "intercept"``
     """
 
@@ -174,7 +173,7 @@ class InterceptTerm:
         label = self.name
         # Prepends one dimension if response is multivariate
         if isinstance(spec.family, MultivariateFamily):
-            dims = list(spec.response.coords)
+            dims = list(spec.response_component.response_term.coords)
             dist = dist(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:
             dist = dist(label, **self.term.prior.args)
@@ -202,54 +201,64 @@ class ResponseTerm:
         self.term = term
         self.family = family
 
-    def build(self, nu, invlinks):
+    def build(self, pymc_backend, bmb_model):
         """Create and return the response distribution for the PyMC model.
 
-        nu : pytensor.tensor.var.TensorVariable
-            The linear predictor in the PyMC model.
-        invlinks : dict
-            A dictionary where names are names of inverse link functions and values are functions
-            that can operate with PyTensor tensors.
+        Parameters
+        ----------
+        pymc_backend : bambi.backend.PyMCModel
+            The object with all the backend information
+        bmb_model : bambi.Model
+            The Bambi model instance
+
+        Returns
+        -------
+        dist : pm.Distribution
+            The response distribution
         """
         data = np.squeeze(self.term.data)
+        parent = self.family.likelihood.parent
 
-        # Take the inverse link function that maps from linear predictor to the mean of likelihood
-        if self.family.link.name in invlinks:
-            linkinv = invlinks[self.family.link.name]
-        else:
-            linkinv = self.family.link.linkinv_backend
+        # The linear predictor for the parent parameter (usually the mean)
+        nu = pymc_backend.distributional_components[self.term.name].output
 
         if hasattr(self.family, "transform_backend_nu"):
             nu = self.family.transform_backend_nu(nu, data)
 
-        # Add mean parameter and observed data
-        kwargs = {self.family.likelihood.parent: linkinv(nu), "observed": data}
-
         # Add auxiliary parameters
-        kwargs = self.build_auxiliary_parameters(kwargs)
+        kwargs = {}
+
+        # Constant parameters. No link function is used.
+        for name, component in pymc_backend.constant_components.items():
+            kwargs[name] = component.output
+
+        # Distributional parameters. A link funciton is used.
+        response_aliased_name = get_aliased_name(self.term)
+        dims = (response_aliased_name + "_obs",)
+        for name, component in pymc_backend.distributional_components.items():
+            bmb_component = bmb_model.components[name]
+            if bmb_component.response_term:  # The response is added later
+                continue
+            aliased_name = (
+                bmb_component.alias if bmb_component.alias else bmb_component.response_name
+            )
+            linkinv = get_linkinv(self.family.link[name], pymc_backend.INVLINKS)
+            kwargs[name] = pm.Deterministic(
+                f"{response_aliased_name}_{aliased_name}", linkinv(component.output), dims=dims
+            )
+
+        # Take the inverse link function that maps from linear predictor to the parent of likelihood
+        linkinv = get_linkinv(self.family.link[parent], pymc_backend.INVLINKS)
+
+        # Add parent parameter and observed data
+        kwargs[parent] = linkinv(nu)
+        kwargs["observed"] = data
+        kwargs["dims"] = dims
 
         # Build the response distribution
         dist = self.build_response_distribution(kwargs)
 
         return dist
-
-    def build_auxiliary_parameters(self, kwargs):
-        # Build priors for the auxiliary parameters in the likelihood (e.g. sigma in Gaussian)
-        if self.family.likelihood.priors:
-            for key, value in self.family.likelihood.priors.items():
-
-                # Use the alias if there's one
-                if key in self.family.aliases:
-                    label = self.family.aliases[key]
-                else:
-                    label = f"{self.name}_{key}"
-
-                if isinstance(value, Prior):
-                    dist = get_distribution(value.name)
-                    kwargs[key] = dist(label, **value.args)
-                else:
-                    kwargs[key] = value
-        return kwargs
 
     def build_response_distribution(self, kwargs):
         # Get likelihood distribution
@@ -270,3 +279,27 @@ class ResponseTerm:
         if self.term.alias:
             return self.term.alias
         return self.term.name
+
+
+def get_linkinv(link, invlinks):
+    """Get the inverse of the link function as needed by PyMC
+
+    Parameters
+    ----------
+    link : bmb.Link
+        A link function object. It may contain the linkinv function that the backend uses.
+    invlinks : dict
+        Keys are names of link functions. Values are the built-in link functions.
+
+    Returns
+    -------
+        callable
+        The link function
+    """
+    # If the name is in the backend, get it from there
+    if link.name in invlinks:
+        invlink = invlinks[link.name]
+    # If not, use whatever is in `linkinv_backend`
+    else:
+        invlink = link.linkinv_backend
+    return invlink

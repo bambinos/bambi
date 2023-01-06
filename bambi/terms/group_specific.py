@@ -7,12 +7,13 @@ from bambi.priors.prior import Prior
 
 
 class GroupSpecificTerm(BaseTerm):  # pylint: disable=too-many-instance-attributes
-    def __init__(self, term, prior):
+    def __init__(self, term, prior, prefix=None):
         self._hyperprior_alias = {}
         self.term = term
         self.prior = prior
         self.data = np.squeeze(term.data)
         self.group_index = self.invert_dummies(self.grouper)
+        self.prefix = prefix
 
     def invert_dummies(self, dummies):
         """
@@ -57,6 +58,8 @@ class GroupSpecificTerm(BaseTerm):  # pylint: disable=too-many-instance-attribut
 
     @property
     def name(self):
+        if self.prefix:
+            return f"{self.prefix}_{self.term.name}"
         return self.term.name
 
     @property
@@ -114,6 +117,6 @@ class GroupSpecificTerm(BaseTerm):  # pylint: disable=too-many-instance-attribut
         assert all(isinstance(x, str) for x in values.values())
         self._hyperprior_alias.update(values)
 
-    def __str__(self):  # pylint: disable=signature-differs
+    def __str__(self):
         args = [f"groups: {self.groups}"]
-        return super().__str__(args)
+        return self.make_str(args)

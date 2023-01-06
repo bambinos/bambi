@@ -1,7 +1,7 @@
 """Classes to construct model families."""
-from .family import Family
-from .likelihood import Likelihood
-from .link import Link
+from bambi.families.family import Family
+from bambi.families.likelihood import Likelihood
+from bambi.families.link import Link
 
 __all__ = [
     "Family",

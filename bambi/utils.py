@@ -1,4 +1,7 @@
+from typing import Sequence
+
 import ast
+import textwrap
 
 import numpy as np
 
@@ -14,16 +17,28 @@ def listify(obj):
         return obj if isinstance(obj, (list, tuple, type(None))) else [obj]
 
 
-def spacify(string, n=2):
+def indentify(string: str, n: int = 2) -> str:
     """Add spaces to the beginning of each line in a multi-line string."""
     space = n * " "
     return space + space.join(string.splitlines(True))
 
 
-def multilinify(sequence, sep=","):
+def multilinify(sequence: Sequence[str], sep: str = ",") -> str:
     """Make a multi-line string out of a sequence of strings."""
     sep += "\n"
     return "\n" + sep.join(sequence)
+
+
+def wrapify(string, width=100, indentation=2):
+    lines = string.splitlines(True)
+    wrapper = textwrap.TextWrapper(width=width)
+    for idx, line in enumerate(lines):
+        if len(line) > width:
+            leading_spaces = len(line) - len(line.lstrip(" "))
+            wrapper.subsequent_indent = " " * (leading_spaces + indentation)
+            wrapped = wrapper.wrap(line)
+            lines[idx] = "\n".join(wrapped) + "\n"
+    return "".join(lines)
 
 
 def c(*args):  # pylint: disable=invalid-name
@@ -133,6 +148,7 @@ def censored(*args):
 
 censored.__metadata__ = {"kind": "censored"}
 
+# These functions are made available in the namespace where the model formula is evaluated
 extra_namespace = {
     "c": c,
     "censored": censored,
@@ -143,3 +159,61 @@ extra_namespace = {
     "exp2": np.exp2,
     "abs": np.abs,
 }
+
+
+def clean_formula_lhs(x):
+    """Remove the left hand side of a model formula and the tilde.
+
+    Parameters
+    ----------
+    x : str
+        A model formula that has '~' in it.
+
+    Returns
+    -------
+    str
+        The right hand side of the model formula
+    """
+    assert "~" in x
+    position = x.find("~")
+    return x[position + 1 :]
+
+
+def get_auxiliary_parameters(family):
+    """Get names of auxiliary parameters
+
+    Obtains the difference between all the parameters and the parent parameter of a family.
+    These parameters are known as auxiliary or nuisance parameters.
+
+    Parameters
+    ----------
+    family : bambi.families.Family
+        The family
+
+    Returns
+    -------
+    set
+        Names of auxiliary parameters in the family
+    """
+    return set(family.likelihood.params) - {family.likelihood.parent}
+
+
+def get_aliased_name(term):
+    """Get the aliased name of a model term
+
+    Model terms have a name and, optionally, an alias. The alias is used as the "name" if it's
+    available. This is a helper that returns the right "name".
+
+    Parameters
+    ----------
+    term : BaseTerm
+        The term
+
+    Returns
+    -------
+    str
+        The aliased name
+    """
+    if term.alias:
+        return term.alias
+    return term.name

@@ -20,9 +20,9 @@ class Formula:
     """
 
     def __init__(self, formula: str, *additionals: str):
-        self.additional_formulas_lhs = []
-        self.formula = formula
-        self.additional_formulas = self.check_additionals(additionals)
+        self.additionals_lhs = []
+        self.main = formula
+        self.additionals = self.check_additionals(additionals)
 
     def check_additionals(self, additionals: Sequence[str]):
         """Check if the additional formulas match the expected format
@@ -66,14 +66,24 @@ class Formula:
         if not isinstance(response.term.components[0], Variable):
             raise ValueError("The response must be a name.")
 
-        self.additional_formulas_lhs.append(response.term.name)
+        self.additionals_lhs.append(response.term.name)
+
+    def get_all_formulas(self):
+        """Get all the model formulas
+
+        Returns
+        -------
+        list
+            All the formulas in the instance
+        """
+        return [self.main] + list(self.additionals)
 
     def __str__(self):
-        formulas = [self.formula] + list(self.additional_formulas)
+        formulas = [self.main] + list(self.additionals)
         middle = ", ".join(formulas)
         return f"Formula({middle})"
 
     def __repr__(self):
-        formulas = [self.formula] + list(self.additional_formulas)
+        formulas = [self.main] + list(self.additionals)
         middle = ", ".join([f"'{formula}'" for formula in formulas])
         return f"Formula({middle})"

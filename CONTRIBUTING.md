@@ -117,7 +117,7 @@ We recommend that your contribution complies with the following guidelines befor
 - Code coverage **cannot** decrease. Coverage can be checked with **pytest-cov** package:
 
   ```bash
-  pytest --cov=bambi --cov-report=html bambi/tests/
+  pytest --cov=bambi --cov-report=html tests/
   ```
 
 - Your code passes black

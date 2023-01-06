@@ -1,0 +1,20 @@
+# Default parameters for PyMC distributions
+SETTINGS_DISTRIBUTIONS = {
+    "AsymmetricLaplace": {"mu": 0, "b": 1, "kappa": 1, "q": 0.5},
+    "Bernoulli": {"p": 0.5},
+    "Beta": {"alpha": 1, "beta": 1},
+    "Binomial": {"n": 1, "p": 0.5},
+    "Cauchy": {"alpha": 0, "beta": 1},
+    "Flat": {},
+    "Gamma": {"alpha": 2, "beta": 0.1},
+    "HalfCauchy": {"beta": 1},
+    "HalfFlat": {},
+    "HalfNormal": {"sigma": 1},
+    "Normal": {"mu": 0, "sigma": 1},
+    "NegativeBinomial": {"alpha": 1, "mu": 1},
+    "Laplace": {"mu": 0, "b": 1},
+    "Poisson": {"mu": 1},
+    "StudentT": {"lam": 1, "nu": 1},
+    "VonMises": {"mu": 0, "kappa": 1},
+    "Wald": {"mu": 1, "lam": 1},
+}

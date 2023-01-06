@@ -1,8 +1,8 @@
 import numpy as np
 
 from bambi.families.univariate import Gaussian, StudentT, VonMises
-
-from .prior import Prior
+from bambi.model_components import ConstantComponent
+from bambi.priors.prior import Prior
 
 
 class PriorScaler:
@@ -13,13 +13,14 @@ class PriorScaler:
 
     def __init__(self, model):
         self.model = model
-        self.has_intercept = model.intercept_term is not None
+        self.response_component = model.response_component
+        self.has_intercept = self.response_component.intercept_term is not None
         self.priors = {}
 
         # Compute mean and std of the response
         if isinstance(self.model.family, (Gaussian, StudentT)):
-            self.response_mean = np.mean(model.response.data)
-            self.response_std = np.std(self.model.response.data)
+            self.response_mean = np.mean(self.response_component.response_term.data)
+            self.response_std = np.std(self.response_component.response_term.data)
         else:
             self.response_mean = 0
             self.response_std = 1
@@ -31,7 +32,9 @@ class PriorScaler:
         # Only adjust mu and sigma if there is at least one Normal prior for a common term.
         if self.priors:
             sigmas = np.hstack([prior["sigma"] for prior in self.priors.values()])
-            x_mean = np.hstack([self.model.terms[term].data.mean(axis=0) for term in self.priors])
+            x_mean = np.hstack(
+                [self.response_component.terms[term].data.mean(axis=0) for term in self.priors]
+            )
             sigma = (sigma**2 + np.dot(sigmas**2, x_mean**2)) ** 0.5
 
         return mu, sigma
@@ -40,14 +43,15 @@ class PriorScaler:
         return self.STD * (self.response_std / np.std(x))
 
     def scale_response(self):
-        # Add cases for other families
-        priors = self.model.family.likelihood.priors
+        # Here we would add cases for other families if we wanted
         if isinstance(self.model.family, (Gaussian, StudentT)):
-            if priors["sigma"].auto_scale:
-                priors["sigma"] = Prior("HalfStudentT", nu=4, sigma=self.response_std)
+            sigma = self.model.components["sigma"]
+            if isinstance(sigma, ConstantComponent) and sigma.prior.auto_scale:
+                sigma.prior = Prior("HalfStudentT", nu=4, sigma=self.response_std)
         elif isinstance(self.model.family, VonMises):
-            if priors["kappa"].auto_scale:
-                priors["kappa"] = Prior("HalfStudentT", nu=4, sigma=self.response_std)
+            kappa = self.model.components["kappa"]
+            if isinstance(kappa, ConstantComponent) and kappa.prior.auto_scale:
+                kappa.prior = Prior("HalfStudentT", nu=4, sigma=self.response_std)
 
     def scale_intercept(self, term):
         if term.prior.name != "Normal":
@@ -94,22 +98,21 @@ class PriorScaler:
         term.prior.args["sigma"].update(sigma=np.squeeze(np.atleast_1d(sigma)))
 
     def scale(self):
-
         # Scale response
         self.scale_response()
 
         # Scale common terms
-        for term in self.model.common_terms.values():
-            if term.prior.auto_scale:
+        for term in self.response_component.common_terms.values():
+            if hasattr(term.prior, "auto_scale") and term.prior.auto_scale:
                 self.scale_common(term)
 
         # Scale intercept
         if self.has_intercept:
-            term = self.model.intercept_term
+            term = self.response_component.intercept_term
             if term.prior.auto_scale:
                 self.scale_intercept(term)
 
         # Scale group-specific terms
-        for term in self.model.group_specific_terms.values():
+        for term in self.response_component.group_specific_terms.values():
             if term.prior.auto_scale:
                 self.scale_group_specific(term)

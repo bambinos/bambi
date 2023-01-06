@@ -71,14 +71,14 @@ class ResponseTerm(BaseTerm):
             return len(self.term.levels) == 2
         return None
 
-    def __str__(self):  # pylint: disable=signature-differs
+    def __str__(self):
         extras = []
         if self.categorical:
             if self.binary:
                 extras += [f"success: {self.success}"]
             else:
                 extras += [f"reference: {self.reference}"]
-        return super().__str__(extras)
+        return self.make_str(extras)
 
 
 # Categorical

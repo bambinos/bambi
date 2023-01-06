@@ -8,10 +8,11 @@ from bambi.terms.base import BaseTerm
 class CommonTerm(BaseTerm):
     """A common model term."""
 
-    def __init__(self, term, prior):
+    def __init__(self, term, prior, prefix=None):
         self.term = term
         self.prior = prior
         self.data = np.squeeze(term.data)
+        self.prefix = prefix
 
         if self.categorical and len(self.levels) == 1 and (self.data == self.data[0]).all():
             raise ValueError(f"The term '{self.name}' has only 1 category!")
@@ -30,6 +31,8 @@ class CommonTerm(BaseTerm):
 
     @property
     def name(self):
+        if self.prefix:
+            return f"{self.prefix}_{self.term.name}"
         return self.term.name
 
     @property
@@ -75,8 +78,8 @@ class CommonTerm(BaseTerm):
     def levels(self):
         return self.term.levels
 
-    def __str__(self):  # pylint: disable=signature-differs
+    def __str__(self):
         args = []
         if self.coords:
             args = [f"coords: {self.coords}"]
-        return super().__str__(args)
+        return self.make_str(args)

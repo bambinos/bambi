@@ -14,8 +14,8 @@ from pytensor.tensor.special import softmax
 from bambi import version
 
 from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
-from bambi.backend.terms import CommonTerm, GroupSpecificTerm, InterceptTerm, ResponseTerm
-from bambi.families.multivariate import MultivariateFamily
+from bambi.backend.model_components import ConstantComponent, DistributionalComponent
+from bambi.utils import get_aliased_name
 
 _log = logging.getLogger("bambi")
 
@@ -38,16 +38,11 @@ class PyMCModel:
     def __init__(self):
         self.name = pm.__name__
         self.version = pm.__version__
-
-        # Attributes defined elsewhere
-        self._design_matrix_without_intercept = None
         self.vi_approx = None
-        self.coords = {}
         self.fit = False
-        self.has_intercept = False
         self.model = None
-        self.mu = None
         self.spec = None
+        self.components = {}
 
     def build(self, spec):
         """Compile the PyMC model from an abstract model specification.
@@ -59,21 +54,24 @@ class PyMCModel:
             to compile.
         """
         self.model = pm.Model()
-        self.has_intercept = spec.intercept_term is not None
-        self.mu = 0.0
+        self.components = {}
 
-        for name, values in spec.response.coords.items():
+        for name, values in spec.response_component.response_term.coords.items():
             if name not in self.model.coords:
                 self.model.add_coords({name: values})
-        self.coords.update(**spec.response.coords)
 
         with self.model:
-            self._build_intercept(spec)
-            self._build_offsets(spec)
-            self._build_common_terms(spec)
-            self._build_group_specific_terms(spec)
-            self._build_response(spec)
-            self._build_potentials(spec)
+            for name, component in spec.constant_components.items():
+                self.components[name] = ConstantComponent(component)
+                self.components[name].build(self, spec)
+
+            for name, component in spec.distributional_components.items():
+                self.components[name] = DistributionalComponent(component)
+                self.components[name].build(self, spec)
+
+            self.build_response(spec)
+            self.build_potentials(spec)
+
         self.spec = spec
 
     def run(
@@ -114,138 +112,23 @@ class PyMCModel:
         elif inference_method == "laplace":
             result = self._run_laplace(draws, omit_offsets, include_mean)
         else:
-            raise NotImplementedError(f"{inference_method} method has not been implemented")
+            raise NotImplementedError(f"'{inference_method}' method has not been implemented")
 
         self.fit = True
         return result
 
-    def _build_intercept(self, spec):
-        """Add intercept term to the PyMC model.
-
-        We have linear predictors of the form 'X @ b + Z @ u'. This is technically part of
-        'X @ b' but it is added separately for convenience reasons.
-
-        Parameters
-        ----------
-        spec : bambi.Model
-            The model.
-        """
-        if self.has_intercept:
-            self.mu += InterceptTerm(spec.intercept_term).build(spec)
-
-    def _build_common_terms(self, spec):
-        """Add common (fixed) terms to the PyMC model.
-
-        We have linear predictors of the form 'X @ b + Z @ u'.
-        This creates the 'b' parameter vector in PyMC, computes `X @ b`, and adds it to ``self.mu``.
-
-        Parameters
-        ----------
-        spec : bambi.Model
-            The model.
-        """
-        if spec.common_terms:
-            coefs = []
-            columns = []
-            for term in spec.common_terms.values():
-                common_term = CommonTerm(term)
-                # Add coords
-                for name, values in common_term.coords.items():
-                    if name not in self.model.coords:
-                        self.model.add_coords({name: values})
-                self.coords.update(**common_term.coords)
-
-                # Build
-                coef, data = common_term.build(spec)
-                coefs.append(coef)
-                columns.append(data)
-
-            # Column vector of coefficients and design matrix
-            coefs = pt.concatenate(coefs)
-
-            # Design matrix
-            data = np.column_stack(columns)
-
-            # If there's an intercept, center the data
-            # Also store the design matrix without the intercept to uncenter the intercept later
-            if self.has_intercept:
-                self._design_matrix_without_intercept = data
-                data = data - data.mean(0)
-
-            # Add term to linear predictor
-            self.mu += pt.dot(data, coefs)
-
-    def _build_group_specific_terms(self, spec):
-        """Add group-specific (random or varying) terms to the PyMC model.
-
-        We have linear predictors of the form 'X @ b + Z @ u'.
-        This creates the 'u' parameter vector in PyMC, computes `Z @ u`, and adds it to ``self.mu``.
-
-        Parameters
-        ----------
-        spec : bambi.Model
-            The model.
-        """
-        # Add group specific terms that have prior for their correlation matrix
-        for group, eta in spec.priors_cor.items():
-            # pylint: disable=protected-access
-            terms = [spec.terms[name] for name in spec._get_group_specific_groups()[group]]
-            self.mu += add_lkj(self, terms, eta)
-
-        terms = [
-            term
-            for term in spec.group_specific_terms.values()
-            if term.name.split("|")[1] not in spec.priors_cor
-        ]
-        for term in terms:
-            group_specific_term = GroupSpecificTerm(term, spec.noncentered)
-
-            # Add coords
-            for name, values in group_specific_term.coords.items():
-                if name not in self.model.coords:
-                    self.model.add_coords({name: values})
-            self.coords.update(**group_specific_term.coords)
-
-            # Build
-            coef, predictor = group_specific_term.build(spec)
-
-            # Add to the linear predictor
-            # The loop through predictor columns is not the most beautiful alternative.
-            # But it's the fastest. Doing matrix multiplication, pm.math.dot(data, coef), is slower.
-            if predictor.ndim > 1:
-                for col in range(predictor.shape[1]):
-                    self.mu += coef[:, col] * predictor[:, col]
-            elif isinstance(spec.family, MultivariateFamily):
-                self.mu += coef * predictor[:, np.newaxis]
-            else:
-                self.mu += coef * predictor
-
-    def _build_offsets(self, spec):
-        """Add offset terms to the PyMC model.
-
-        Offsets are terms with a regression coefficient of 1.
-        This is technically part of  'X @ b' in the linear predictor 'X @ b + Z @ u'.
-        It's added here so we avoid the creation of a constant variable in PyMC.
-
-        Parameters
-        ----------
-        spec : bambi.Model
-            The model.
-        """
-        for offset in spec.offset_terms.values():
-            self.mu += offset.data.squeeze()
-
-    def _build_response(self, spec):
+    def build_response(self, spec):
         """Add response term to the PyMC model
 
         Parameters
         ----------
-        spec : bambi.Model
+        spec : bambi.Modelf
             The model.
         """
-        ResponseTerm(spec.response, spec.family).build(self.mu, self.INVLINKS)
+        response_component = self.components[spec.response_name]
+        response_component.build_response(self, spec)
 
-    def _build_potentials(self, spec):
+    def build_potentials(self, spec):
         """Add potentials to the PyMC model.
 
         Potentials are arbitrary quantities that are added to the model log likelihood.
@@ -320,13 +203,11 @@ class PyMCModel:
                     else:
                         raise
             elif sampler_backend == "nuts_numpyro":
-                # Lazy import to not force users to install Jax
                 import pymc.sampling_jax  # pylint: disable=import-outside-toplevel
 
                 if not chains:
-                    chains = (
-                        4  # sample_numpyro_nuts does not handle chains = None like pm.sample does
-                    )
+                    # sample_numpyro_nuts does not handle chains = None like pm.sample does
+                    chains = 4
                 idata = pymc.sampling_jax.sample_numpyro_nuts(
                     draws=draws,
                     tune=tune,
@@ -335,13 +216,11 @@ class PyMCModel:
                     **kwargs,
                 )
             elif sampler_backend == "nuts_blackjax":
-                # Lazy import to not force users to install Jax
                 import pymc.sampling_jax  # pylint: disable=import-outside-toplevel
 
+                # sample_blackjax_nuts does not handle chains = None like pm.sample does
                 if not chains:
-                    chains = (
-                        4  # sample_blackjax_nuts does not handle chains = None like pm.sample does
-                    )
+                    chains = 4
                 idata = pymc.sampling_jax.sample_blackjax_nuts(
                     draws=draws,
                     tune=tune,
@@ -352,9 +231,8 @@ class PyMCModel:
             else:
                 raise ValueError(
                     f"sampler_backend value {sampler_backend} is not valid. Please choose one of"
-                    f"``mcmc``, ``nuts_numpyro`` or ``nuts_blackjax``"
+                    f"'mcmc', 'nuts_numpyro' or 'nuts_blackjax'"
                 )
-
         idata = self._clean_results(idata, omit_offsets, include_mean)
         return idata
 
@@ -364,32 +242,23 @@ class PyMCModel:
             getattr(idata, group).attrs["modeling_interface_version"] = version.__version__
 
         if omit_offsets:
-            offset_vars = [var for var in idata.posterior.var() if var.endswith("_offset")]
+            offset_vars = [var for var in idata.posterior.data_vars if var.endswith("_offset")]
             idata.posterior = idata.posterior.drop_vars(offset_vars)
 
         # Drop variables and dimensions associated with LKJ prior
-        vars_to_drop = [var for var in idata.posterior.var() if var.startswith("_LKJ")]
+        vars_to_drop = [var for var in idata.posterior.data_vars if var.startswith("_LKJ")]
         dims_to_drop = [dim for dim in idata.posterior.dims if dim.startswith("_LKJ")]
 
         idata.posterior = idata.posterior.drop_vars(vars_to_drop)
         idata.posterior = idata.posterior.drop_dims(dims_to_drop)
 
-        # Drop and reorder coords
-        # About coordinates ending with "_dim_0"
-        # Coordinates that end with "_dim_0" are added automatically.
-        # These represents unidimensional coordinates that are added for numerical variables.
-        # These variables have a shape of 1 so we can concatenate the coefficients and multiply
-        # the resulting vector with the design matrix.
-        # But having a unidimensional coordinate for a numeric variable does not make sense.
-        # So we drop them.
-        coords_to_drop = [dim for dim in idata.posterior.dims if dim.endswith("_dim_0")]
-        idata.posterior = idata.posterior.squeeze(coords_to_drop).reset_coords(
-            coords_to_drop, drop=True
-        )
+        dims_original = list(self.model.coords)
+
+        # Discard dims that are in the model but unused in the posterior
+        dims_original = [dim for dim in dims_original if dim in idata.posterior.dims]
 
         # This does not add any new coordinate, it just changes the order so the ones
         # ending in "__factor_dim" are placed after the others.
-        dims_original = list(self.coords)
         dims_group = [c for c in dims_original if c.endswith("__factor_dim")]
 
         # Keep the original order in dims_original
@@ -398,41 +267,32 @@ class PyMCModel:
         dims_new = ["chain", "draw"] + dims_original + dims_group
         idata.posterior = idata.posterior.transpose(*dims_new)
 
-        # Compute the actual intercept
-        if self.has_intercept and self.spec.common_terms:
-            chain_n = len(idata.posterior["chain"])
-            draw_n = len(idata.posterior["draw"])
-            shape = (chain_n, draw_n)
-            dims = ["chain", "draw"]
+        # Compute the actual intercept in all distributional components that have an intercept
 
-            # Design matrix without intercept
-            X = self._design_matrix_without_intercept
+        for pymc_component in self.distributional_components.values():
+            bambi_component = pymc_component.component
+            if bambi_component.intercept_term and bambi_component.common_terms:
+                chain_n = len(idata.posterior["chain"])
+                draw_n = len(idata.posterior["draw"])
+                shape, dims = (chain_n, draw_n), ("chain", "draw")
+                X = pymc_component.design_matrix_without_intercept
 
-            # Re-scale intercept for centered predictors
-            common_terms = []
-            for term in self.spec.common_terms.values():
-                if term.alias:
-                    common_terms += [term.alias]
-                else:
-                    common_terms += [term.name]
+                common_terms = []
+                for term in bambi_component.common_terms.values():
+                    common_terms.append(get_aliased_name(term))
 
-            if self.spec.response.coords:
-                # Grab the first object in a dictionary
-                levels = list(self.spec.response.coords.values())[0]
-                shape += (len(levels),)
-                dims += list(self.spec.response.coords)
+                response_coords = self.spec.response_component.response_term.coords
+                if response_coords:
+                    # Grab the first object in a dictionary
+                    levels = list(response_coords.values())[0]
+                    shape += (len(levels),)
+                    dims += tuple(response_coords)
 
-            posterior = idata.posterior.stack(samples=dims)
-            coefs = np.vstack([np.atleast_2d(posterior[name].values) for name in common_terms])
-
-            if self.spec.intercept_term.alias:
-                intercept_name = self.spec.intercept_term.alias
-            else:
-                intercept_name = self.spec.intercept_term.name
-
-            idata.posterior[intercept_name] = idata.posterior[intercept_name] - np.dot(
-                X.mean(0), coefs
-            ).reshape(shape)
+                posterior = idata.posterior.stack(samples=dims)
+                coefs = np.vstack([np.atleast_2d(posterior[name].values) for name in common_terms])
+                name = get_aliased_name(bambi_component.intercept_term)
+                center_factor = np.dot(X.mean(0), coefs).reshape(shape)
+                idata.posterior[name] = idata.posterior[name] - center_factor
 
         if include_mean:
             self.spec.predict(idata)
@@ -487,6 +347,14 @@ class PyMCModel:
         idata = self._clean_results(idata, omit_offsets, include_mean)
         return idata
 
+    @property
+    def constant_components(self):
+        return {k: v for k, v in self.components.items() if isinstance(v, ConstantComponent)}
+
+    @property
+    def distributional_components(self):
+        return {k: v for k, v in self.components.items() if isinstance(v, DistributionalComponent)}
+
 
 def _posterior_samples_to_idata(samples, model):
     """Create InferenceData from samples.
@@ -526,95 +394,3 @@ def _posterior_samples_to_idata(samples, model):
 
     idata = pm.to_inference_data(pm.backends.base.MultiTrace([strace]), model=model)
     return idata
-
-
-def add_lkj(backend, terms, eta=1):
-    """Add correlated prior for group-specific effects.
-
-    This function receives a list of group-specific terms that share their `grouper`, constructs
-    a multivariate Normal prior with LKJ prior on the correlation matrix, and adds the necessary
-    variables to the model. It uses a non-centered parametrization.
-
-    Parameters
-    ----------
-    terms: list
-        A list of terms that share a common grouper (i.e. ``1|Group`` and ``Variable|Group`` in
-        formula notation).
-    eta: num
-        The value for the eta parameter in the LKJ distribution.
-
-    Parameters
-    ----------
-    mu
-        The contribution to the linear predictor of the roup-specific terms in ``terms``.
-    """
-
-    # Parameters
-    # grouper: The name of the grouper.build_group_specific_distribution
-    # rows: Sum of the number of columns in all the "Xi" matrices for a given grouper.
-    #       Same than the order of L
-    # cols: Number of groups in the grouper variable
-    mu = 0
-    grouper = terms[0].name.split("|")[1]
-    rows = int(np.sum([term.predictor.shape[1] for term in terms]))
-    cols = int(terms[0].grouper.shape[1])  # not the most beautiful, but works
-
-    # Construct sigma
-    # Horizontally stack the sigma values for all the hyperpriors
-    sigma = np.hstack([term.prior.args["sigma"].args["sigma"] for term in terms])
-
-    # Reconstruct the hyperprior for the standard deviations, using one variable
-    sigma = pm.HalfNormal.dist(sigma=sigma, shape=rows)
-
-    # Obtain Cholesky factor for the covariance
-    # pylint: disable=unused-variable, disable=unpacking-non-sequence
-    (lkj_decomp, corr, sigma,) = pm.LKJCholeskyCov(
-        "_LKJCholeskyCov_" + grouper,
-        n=rows,
-        eta=eta,
-        sd_dist=sigma,
-        compute_corr=True,
-        store_in_trace=False,
-    )
-
-    coefs_offset = pm.Normal("_LKJ_" + grouper + "_offset", mu=0, sigma=1, shape=(rows, cols))
-    coefs = pt.dot(lkj_decomp, coefs_offset).T
-
-    ## Separate group-specific terms
-    start = 0
-    for term in terms:
-        label = term.name
-        dims = list(term.coords)
-
-        # Add coordinates to the model, only if they are not added yet.
-        for name, values in term.coords.items():
-            if name not in backend.model.coords:
-                backend.model.add_coords({name: values})
-        backend.coords.update(**term.coords)
-
-        predictor = term.predictor.squeeze()
-        delta = term.predictor.shape[1]
-
-        if delta == 1:
-            idx = start
-        else:
-            idx = slice(start, start + delta)
-
-        # Add prior for the parameter
-        coef = pm.Deterministic(label, coefs[:, idx], dims=dims)
-        coef = coef[term.group_index]
-
-        # Add standard deviation of the hyperprior distribution
-        group_dim = [dim for dim in dims if dim.endswith("_group_expr")]
-        pm.Deterministic(label + "_sigma", sigma[idx], dims=group_dim)
-
-        # Account for the contribution of the term to the linear predictor
-        if predictor.ndim > 1:
-            for col in range(predictor.shape[1]):
-                mu += coef[:, col] * predictor[:, col]
-        else:
-            mu += coef * predictor
-        start += delta
-
-    # TO DO: Add correlations
-    return mu
