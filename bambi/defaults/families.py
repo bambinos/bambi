@@ -16,9 +16,6 @@ from bambi.families.univariate import (
 from bambi.families.multivariate import Categorical, Multinomial
 
 
-# NOTE: We change the structure and gain a new argument, "default_priors".
-#       Default priors are not attributes of the likelihood or the link anymore.
-#       They're an optional attribute in the families.
 # fmt: off
 BUILTIN_FAMILIES = {
     "asymmetriclaplace": {

@@ -233,7 +233,6 @@ class ResponseTerm:
             kwargs[name] = component.output
 
         # Distributional parameters. A link funciton is used.
-        # NOTE: What about multidimensional responses?
         response_aliased_name = get_aliased_name(self.term)
         dims = (response_aliased_name + "_obs",)
         for name, component in pymc_backend.distributional_components.items():
