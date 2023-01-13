@@ -162,7 +162,7 @@ class DistributionalComponent:
         to_stack_dims = ("chain", "draw")
         design_matrix_dims = (response_dim, "__variables__")
 
-        if isinstance(self.spec.family, multivariate.MultivariateFamily):
+        if isinstance(self.spec.family, (multivariate.MultivariateFamily, univariate.Categorical)):
             to_stack_dims = to_stack_dims + (response_levels_dim,)
             linear_predictor_dims = linear_predictor_dims + (response_levels_dim,)
 
