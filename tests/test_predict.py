@@ -233,7 +233,7 @@ def test_posterior_predictive_categorical(inhaler):
     model = Model("rating ~ period", data=inhaler, family="categorical")
     idata = model.fit(tune=100, draws=100)
     model.predict(idata, kind="pps")
-    pps = idata.posterior_predictive["rating"].values
+    pps = idata.posterior_predictive["rating"].to_numpy()
 
     assert pps.shape[-1] == inhaler.shape[0]
     assert (np.unique(pps) == [0, 1, 2, 3]).all()

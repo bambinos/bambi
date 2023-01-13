@@ -31,43 +31,6 @@ class Categorical(MultivariateFamily):
         mean = mean.assign_coords({response_levels_dim_complete: levels_complete})
         return mean
 
-    def posterior_predictive(self, model, posterior, **kwargs):
-        def draw_categorical_samples(probability_matrix, items):
-            # https://stackoverflow.com/questions/34187130
-            # probability_matrix is a matrix of shape (n_chain * n_draw, n_levels)
-            cumsum = probability_matrix.cumsum(axis=1)
-            idx = np.random.rand(probability_matrix.shape[0])[:, np.newaxis]
-            idx = (cumsum < idx).sum(axis=1)
-            return items[idx]
-
-        response_name = get_aliased_name(model.response_component.response_term)
-        response_dim = response_name + "_obs"
-        response_levels = np.arange(len(model.response_component.response_term.levels))
-        mean = posterior[response_name + "_mean"]
-
-        mean = mean.to_numpy()
-        shape = mean.shape
-
-        # Stack chains and draws
-        mean = mean.reshape((mean.shape[0] * mean.shape[1], mean.shape[2], mean.shape[3]))
-        draws_n = mean.shape[0]
-        obs_n = mean.shape[1]
-
-        pps = np.empty((draws_n, obs_n), dtype=int)
-        for idx in range(obs_n):
-            pps[:, idx] = draw_categorical_samples(mean[:, idx, :], response_levels)
-
-        pps = pps.reshape((shape[0], shape[1], obs_n))
-        pps = xr.DataArray(
-            pps,
-            coords={
-                "chain": np.arange(shape[0]),
-                "draw": np.arange(shape[1]),
-                response_dim: np.arange(obs_n),
-            },
-        )
-        return pps
-
     def get_data(self, response):
         return np.nonzero(response.term.data)[1]
 

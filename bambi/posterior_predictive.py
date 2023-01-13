@@ -6,6 +6,18 @@ from bambi.utils import get_aliased_name
 
 
 def get_response_dist(family):
+    """Get the PyMC distribution for the response
+    
+    Parameters
+    ----------
+    family : bambi.Family
+        The family for which the response distribution is wanted
+
+    Returns
+    -------
+    graphviz.Digraph
+        The graph
+    """
     if family.likelihood.dist:
         dist = family.likelihood.dist
     else:
@@ -62,4 +74,15 @@ def get_posterior_predictive_draws(model, posterior):
 
     output_array = pm.draw(response_dist.dist(**kwargs))
     output_coords = xr.merge(output_dataset_list).coords
-    return xr.DataArray(output_array, coords=output_coords)
+
+    # Sometimes `output_array` has less dimensions than coords `output_coords`
+    # An example is the categorical family.
+    # This seems to work, but we should be open to better alternatives in the future
+    # NOTE: Some dimension information about the response distribution could be taken from
+    # response_dist.dist().ndim
+    output_coords_filtered = {}
+    for i, (name, values) in enumerate(output_coords.items()):
+        output_coords_filtered[name] = values
+        if i == output_array.ndim - 1:
+            break
+    return xr.DataArray(output_array, coords=output_coords_filtered)
