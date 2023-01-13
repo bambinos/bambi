@@ -8,8 +8,7 @@ from bambi.utils import extract_argument_names, extra_namespace, get_aliased_nam
 
 
 class MultivariateFamily(Family):
-    def posterior_predictive(self, model, posterior):
-        raise NotImplementedError
+    pass
 
 
 class Categorical(MultivariateFamily):
@@ -32,7 +31,6 @@ class Categorical(MultivariateFamily):
         mean = mean.assign_coords({response_levels_dim_complete: levels_complete})
         return mean
 
-    # NOTE: Check posterior predictive
     def posterior_predictive(self, model, posterior, **kwargs):
         def draw_categorical_samples(probability_matrix, items):
             # https://stackoverflow.com/questions/34187130

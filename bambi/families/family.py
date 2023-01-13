@@ -2,6 +2,7 @@ from typing import Dict, Union
 
 from bambi.families.link import Link
 from bambi.utils import get_auxiliary_parameters
+from bambi.posterior_predictive import get_posterior_predictive_draws
 
 
 class Family:
@@ -100,6 +101,13 @@ class Family:
         auxiliary_parameters = get_auxiliary_parameters(self)
         priors = {k: v for k, v in priors.items() if k in auxiliary_parameters}
         self.default_priors.update(priors)
+
+    def posterior_predictive(self, model, posterior, **kwargs):  # pylint: disable = unused-argument
+        """Get draws from posterior predictive distribution
+
+        * Some families may override this method
+        """
+        return get_posterior_predictive_draws(model, posterior)
 
     def __str__(self):
         msg_list = [f"Family: {self.name}", f"Likelihood: {self.likelihood}", f"Link: {self.link}"]
