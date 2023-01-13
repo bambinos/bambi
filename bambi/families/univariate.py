@@ -17,23 +17,9 @@ class AsymmetricLaplace(UnivariateFamily):
         "q": ["logit", "probit", "cloglog"],
     }
 
-    # def posterior_predictive(self, model, posterior, **kwargs):
-    #     """Sample from posterior predictive distribution"""
-    #     response_name = get_aliased_name(model.response_component.response_term)
-    #     mean = posterior[response_name + "_mean"]
-    #     b = posterior[response_name + "_b"]
-    #     kappa = posterior[response_name + "_kappa"]
-    #     return xr.apply_ufunc(stats.laplace_asymmetric.rvs, kappa, mean, b)
-
 
 class Bernoulli(UnivariateFamily):
     SUPPORTED_LINKS = {"p": ["identity", "logit", "probit", "cloglog"]}
-
-    # def posterior_predictive(self, model, posterior, **kwargs):
-    #     """Sample from posterior predictive distribution"""
-    #     response_name = get_aliased_name(model.response_component.response_term)
-    #     mean = posterior[response_name + "_mean"]
-    #     return xr.apply_ufunc(np.random.binomial, 1, mean)
 
     def get_data(self, response):
         if response.term.data.ndim == 1:
@@ -49,14 +35,6 @@ class Bernoulli(UnivariateFamily):
 
 class Beta(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["logit", "probit", "cloglog"], "kappa": ["log"]}
-
-    # def posterior_predictive(self, model, posterior, **kwargs):
-    #     response_name = get_aliased_name(model.response_component.response_term)
-    #     mean = posterior[response_name + "_mean"]
-    #     kappa = posterior[response_name + "_kappa"]
-    #     alpha = mean * kappa
-    #     beta = (1 - mean) * kappa
-    #     return xr.apply_ufunc(np.random.beta, alpha, beta)
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
@@ -93,13 +71,6 @@ class Binomial(UnivariateFamily):
 class Gamma(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "alpha": ["log"]}
 
-    # def posterior_predictive(self, model, posterior, **kwargs):
-    #     response_name = get_aliased_name(model.response_component.response_term)
-    #     mean = posterior[response_name + "_mean"]
-    #     alpha = posterior[response_name + "_alpha"]
-    #     beta = alpha / mean
-    #     return xr.apply_ufunc(np.random.gamma, alpha, 1 / beta)
-
     @staticmethod
     def transform_backend_kwargs(kwargs):
         # Gamma distribution is specified using mu and sigma, but we request prior for alpha.
@@ -112,82 +83,29 @@ class Gamma(UnivariateFamily):
 class Gaussian(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "sigma": ["log"]}
 
-    # def posterior_predictive(self, model, posterior, **kwargs):
-    #     "Sample from posterior predictive distribution"
-    #     response_name = get_aliased_name(model.response_component.response_term)
-    #     mean = posterior[response_name + "_mean"]
-    #     sigma = posterior[response_name + "_sigma"]
-    #     return xr.apply_ufunc(np.random.normal, mean, sigma)
-
 
 class NegativeBinomial(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "cloglog"], "alpha": ["log"]}
-
-    # def posterior_predictive(self, model, posterior, **kwargs):
-    #     response_name = get_aliased_name(model.response_component.response_term)
-    #     mean = posterior[response_name + "_mean"]
-    #     n = posterior[response_name + "_alpha"]
-    #     p = n / (mean + n)
-    #     return xr.apply_ufunc(np.random.negative_binomial, n, p)
 
 
 class Laplace(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "b": ["log"]}
 
-    # def posterior_predictive(self, model, posterior, **kwargs):
-    #     "Sample from posterior predictive distribution"
-    #     response_name = get_aliased_name(model.response_component.response_term)
-    #     mean = posterior[response_name + "_mean"]
-    #     b = posterior[response_name + "_b"]
-    #     return xr.apply_ufunc(np.random.laplace, mean, b)
-
 
 class Poisson(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log"]}
-
-    # def posterior_predictive(self, model, posterior, **kwargs):
-    #     response_name = get_aliased_name(model.response_component.response_term)
-    #     mean = posterior[response_name + "_mean"]
-    #     return xr.apply_ufunc(np.random.poisson, mean)
 
 
 class StudentT(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "sigma": ["log"], "nu": ["log"]}
 
-    # def posterior_predictive(self, model, posterior, **kwargs):
-    #     response_name = get_aliased_name(model.response_component.response_term)
-    #     mean = posterior[response_name + "_mean"]
-    #     sigma = posterior[response_name + "_sigma"]
-    #     nu_component = model.components["nu"]
-
-    #     # Constant component with fixed value
-    #     if hasattr(nu_component, "prior") and isinstance(nu_component.prior, (int, float)):
-    #         nu = nu_component.prior
-    #     # Either constant or distributional, but non-constant value
-    #     else:
-    #         nu = posterior[response_name + "_nu"]
-
-    #     return xr.apply_ufunc(stats.t.rvs, nu, mean, sigma)
-
 
 class VonMises(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "tan_2"], "kappa": ["log"]}
 
-    # def posterior_predictive(self, model, posterior, **kwargs):
-    #     response_name = get_aliased_name(model.response_component.response_term)
-    #     mean = posterior[response_name + "_mean"]
-    #     kappa = posterior[response_name + "_kappa"]
-    #     return xr.apply_ufunc(np.random.vonmises, mean, kappa)
-
 
 class Wald(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["inverse", "inverse_squared", "identity", "log"], "lam": ["log"]}
-
-    # def posterior_predictive(self, model, posterior, **kwargs):
-    #     response_name = get_aliased_name(model.response_component.response_term)
-    #     mean = posterior[response_name + "_mean"]
-    #     lam = posterior[response_name + "_lam"]
-    #     return xr.apply_ufunc(np.random.wald, mean, lam)
 
 
 # pylint: disable = protected-access
