@@ -5,6 +5,7 @@
 ### New features
 
 * Refactored the codebase to support distributional models (#607)
+* Added a default method to handle posterior predictive sampling for custom families (#625)
 
 ### Maintenance and fixes
 
