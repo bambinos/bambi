@@ -105,7 +105,12 @@ class Family:
     def posterior_predictive(self, model, posterior, **kwargs):  # pylint: disable = unused-argument
         """Get draws from posterior predictive distribution
 
-        * Some families may override this method
+        Parameters
+        ----------
+        model : bambi.Model
+            The model
+        posterior : xarray.Dataset
+            The dataset with draws for the parameters in the posterior distribution
         """
         return get_posterior_predictive_draws(model, posterior)
 

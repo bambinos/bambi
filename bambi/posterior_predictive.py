@@ -7,7 +7,7 @@ from bambi.utils import get_aliased_name
 
 def get_response_dist(family):
     """Get the PyMC distribution for the response
-    
+
     Parameters
     ----------
     family : bambi.Family
@@ -15,8 +15,8 @@ def get_response_dist(family):
 
     Returns
     -------
-    graphviz.Digraph
-        The graph
+    pm.Distribution
+        The response distribution
     """
     if family.likelihood.dist:
         dist = family.likelihood.dist
@@ -26,6 +26,23 @@ def get_response_dist(family):
 
 
 def expand_array(x, ndim):
+    """Add dimensions to an array to match the number of desired dimensions
+
+    If x.ndim < ndim, it adds ndim - x.ndim dimensions after the last axis. If not, it is left
+    untouched.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        The array
+    ndim : int
+        The number of desired dimensions
+
+    Returns
+    -------
+    np.ndarray
+        The array with the expanded dimensions
+    """
     if x.ndim == ndim:
         return x
     dims_to_expand = tuple(range(ndim - 1, x.ndim - 1, -1))
@@ -33,6 +50,27 @@ def expand_array(x, ndim):
 
 
 def get_posterior_predictive_draws(model, posterior):
+    """Get draws from the posterior predictive distribution
+
+    This function works for almost all the families. It grabs the draws for the parameters needed
+    in the response distribution, and then gets samples from the posterior predictive distribution
+    using `pm.draw()`. It won't work when the response distribution requires parameters that
+    are not available in `posterior`.
+
+    Parameters
+    ----------
+    model : bambi.Model
+        The model
+    posterior : xr.Dataset
+        The xarray dataset that contains the draws for all the parameters in the posterior.
+        It must contain the parameters that are needed in the distribution of the response, or
+        the parameters that allow to derive them.
+
+    Returns
+    -------
+    xr.DataArray
+        A data array with the draws from the posterior predictive distribution
+    """
     response_dist = get_response_dist(model.family)
     params = model.family.likelihood.params
     response_aliased_name = get_aliased_name(model.response_component.response_term)
