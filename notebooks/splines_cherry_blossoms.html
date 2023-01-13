@@ -906,17 +906,18 @@ w_j &amp; \sim \text{Normal}(0, 10)\\
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: doy ~ bs(year, knots=iknots, intercept=True)
-Family name: Gaussian
-Link: identity
-Observations: 827
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 100, sigma: 10)
-    bs(year, knots = iknots, intercept = True) ~ Normal(mu: 0, sigma: 10)
+       Formula: doy ~ bs(year, knots=iknots, intercept=True)
+        Family: gaussian
+          Link: mu = identity
+  Observations: 827
+        Priors:
+    target = mu
+        Common-level effects
+            Intercept ~ Normal(mu: 100, sigma: 10)
+            bs(year, knots = iknots, intercept = True) ~ Normal(mu: 0, sigma: 10)
 
-  Auxiliary parameters
-    sigma ~ Exponential(lam: 1)
+        Auxiliary parameters
+            doy_sigma ~ Exponential(lam: 1)
 </pre></div></div>
 </div>
 <p>Let’s create a function to plot each of the basis functions in the model.</p>
@@ -946,7 +947,7 @@ Priors:
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">B</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="p">[</span><span class="s2">&quot;bs(year, knots = iknots, intercept = True)&quot;</span><span class="p">]</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">B</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">common</span><span class="p">[</span><span class="s2">&quot;bs(year, knots = iknots, intercept = True)&quot;</span><span class="p">]</span>
 <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_spline_basis</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
 <span class="n">plot_knots</span><span class="p">(</span><span class="n">knots</span><span class="p">,</span> <span class="n">ax</span><span class="p">);</span>
 </pre></div>
@@ -968,7 +969,7 @@ Priors:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The seed is to make results reproducible</span>
-<span class="n">idata</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">)</span>
+<span class="n">idata</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">,</span> <span class="n">idata_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;log_likelihood&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
 </pre></div>
 </div>
 </div>
@@ -979,8 +980,8 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [Intercept, bs(year, knots = iknots, intercept = True), doy_sigma]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [doy_sigma, Intercept, bs(year, knots = iknots, intercept = True)]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -995,6 +996,9 @@ NUTS: [Intercept, bs(year, knots = iknots, intercept = True), doy_sigma]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -1005,8 +1009,8 @@ NUTS: [Intercept, bs(year, knots = iknots, intercept = True), doy_sigma]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:30<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:11&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1014,7 +1018,7 @@ NUTS: [Intercept, bs(year, knots = iknots, intercept = True), doy_sigma]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 31 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 12 seconds.
 </pre></div></div>
 </div>
 </section>
@@ -1067,231 +1071,231 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>103.805</td>
-      <td>2.529</td>
-      <td>99.303</td>
-      <td>108.573</td>
-      <td>0.099</td>
-      <td>0.070</td>
-      <td>660.0</td>
-      <td>1152.0</td>
-      <td>1.0</td>
+      <td>103.578</td>
+      <td>2.380</td>
+      <td>99.591</td>
+      <td>108.248</td>
+      <td>0.131</td>
+      <td>0.093</td>
+      <td>322.0</td>
+      <td>612.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[0]</th>
-      <td>-3.448</td>
-      <td>3.927</td>
-      <td>-11.137</td>
-      <td>3.554</td>
-      <td>0.105</td>
-      <td>0.075</td>
-      <td>1391.0</td>
-      <td>2511.0</td>
-      <td>1.0</td>
+      <td>-3.219</td>
+      <td>3.896</td>
+      <td>-10.352</td>
+      <td>4.227</td>
+      <td>0.129</td>
+      <td>0.091</td>
+      <td>919.0</td>
+      <td>1345.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[1]</th>
-      <td>-1.354</td>
-      <td>4.060</td>
-      <td>-8.853</td>
-      <td>6.198</td>
-      <td>0.106</td>
-      <td>0.075</td>
-      <td>1464.0</td>
-      <td>2344.0</td>
-      <td>1.0</td>
+      <td>-1.075</td>
+      <td>3.948</td>
+      <td>-8.206</td>
+      <td>6.442</td>
+      <td>0.146</td>
+      <td>0.103</td>
+      <td>732.0</td>
+      <td>1244.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[2]</th>
-      <td>-1.412</td>
-      <td>3.736</td>
-      <td>-8.355</td>
-      <td>5.731</td>
-      <td>0.117</td>
-      <td>0.082</td>
-      <td>1028.0</td>
-      <td>2072.0</td>
-      <td>1.0</td>
+      <td>-1.261</td>
+      <td>3.567</td>
+      <td>-7.682</td>
+      <td>5.737</td>
+      <td>0.132</td>
+      <td>0.093</td>
+      <td>734.0</td>
+      <td>1188.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[3]</th>
-      <td>4.318</td>
-      <td>2.975</td>
-      <td>-1.201</td>
-      <td>9.795</td>
-      <td>0.094</td>
-      <td>0.068</td>
-      <td>999.0</td>
-      <td>1508.0</td>
-      <td>1.0</td>
+      <td>4.606</td>
+      <td>2.923</td>
+      <td>-0.880</td>
+      <td>10.066</td>
+      <td>0.138</td>
+      <td>0.097</td>
+      <td>450.0</td>
+      <td>895.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[4]</th>
-      <td>-1.283</td>
-      <td>3.044</td>
-      <td>-7.102</td>
-      <td>4.216</td>
-      <td>0.104</td>
-      <td>0.074</td>
-      <td>850.0</td>
-      <td>1763.0</td>
-      <td>1.0</td>
+      <td>-1.023</td>
+      <td>2.820</td>
+      <td>-6.391</td>
+      <td>3.985</td>
+      <td>0.143</td>
+      <td>0.101</td>
+      <td>392.0</td>
+      <td>842.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[5]</th>
-      <td>3.854</td>
-      <td>3.032</td>
-      <td>-1.587</td>
-      <td>9.411</td>
-      <td>0.102</td>
-      <td>0.072</td>
-      <td>879.0</td>
-      <td>1763.0</td>
-      <td>1.0</td>
+      <td>4.046</td>
+      <td>2.848</td>
+      <td>-0.922</td>
+      <td>9.488</td>
+      <td>0.130</td>
+      <td>0.092</td>
+      <td>483.0</td>
+      <td>810.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[6]</th>
-      <td>-5.780</td>
-      <td>2.967</td>
-      <td>-11.063</td>
-      <td>0.173</td>
-      <td>0.103</td>
-      <td>0.073</td>
-      <td>836.0</td>
-      <td>1484.0</td>
-      <td>1.0</td>
+      <td>-5.528</td>
+      <td>2.782</td>
+      <td>-10.683</td>
+      <td>-0.451</td>
+      <td>0.139</td>
+      <td>0.099</td>
+      <td>396.0</td>
+      <td>755.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[7]</th>
-      <td>7.393</td>
-      <td>2.919</td>
-      <td>2.099</td>
-      <td>12.941</td>
-      <td>0.099</td>
-      <td>0.070</td>
-      <td>871.0</td>
-      <td>1696.0</td>
-      <td>1.0</td>
+      <td>7.600</td>
+      <td>2.775</td>
+      <td>2.203</td>
+      <td>12.451</td>
+      <td>0.134</td>
+      <td>0.096</td>
+      <td>427.0</td>
+      <td>867.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[8]</th>
-      <td>-1.452</td>
-      <td>3.060</td>
-      <td>-7.093</td>
-      <td>4.460</td>
-      <td>0.103</td>
-      <td>0.073</td>
-      <td>891.0</td>
-      <td>1396.0</td>
-      <td>1.0</td>
+      <td>-1.258</td>
+      <td>2.879</td>
+      <td>-6.734</td>
+      <td>4.035</td>
+      <td>0.137</td>
+      <td>0.097</td>
+      <td>446.0</td>
+      <td>637.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[9]</th>
-      <td>2.598</td>
-      <td>3.051</td>
-      <td>-3.372</td>
-      <td>7.951</td>
-      <td>0.103</td>
-      <td>0.073</td>
-      <td>870.0</td>
-      <td>1590.0</td>
-      <td>1.0</td>
+      <td>2.796</td>
+      <td>2.802</td>
+      <td>-2.862</td>
+      <td>7.631</td>
+      <td>0.132</td>
+      <td>0.097</td>
+      <td>449.0</td>
+      <td>1049.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[10]</th>
-      <td>4.218</td>
-      <td>3.049</td>
-      <td>-1.421</td>
-      <td>9.900</td>
-      <td>0.099</td>
-      <td>0.070</td>
-      <td>953.0</td>
-      <td>1766.0</td>
-      <td>1.0</td>
+      <td>4.465</td>
+      <td>2.849</td>
+      <td>-1.548</td>
+      <td>9.041</td>
+      <td>0.142</td>
+      <td>0.104</td>
+      <td>400.0</td>
+      <td>940.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[11]</th>
-      <td>-0.611</td>
-      <td>3.024</td>
-      <td>-6.329</td>
-      <td>4.870</td>
-      <td>0.103</td>
-      <td>0.073</td>
-      <td>860.0</td>
-      <td>1571.0</td>
-      <td>1.0</td>
+      <td>-0.349</td>
+      <td>2.870</td>
+      <td>-5.647</td>
+      <td>4.930</td>
+      <td>0.136</td>
+      <td>0.096</td>
+      <td>447.0</td>
+      <td>1084.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[12]</th>
-      <td>5.092</td>
-      <td>3.046</td>
-      <td>-0.760</td>
-      <td>10.582</td>
-      <td>0.100</td>
-      <td>0.070</td>
-      <td>936.0</td>
-      <td>1518.0</td>
-      <td>1.0</td>
+      <td>5.282</td>
+      <td>2.843</td>
+      <td>-0.133</td>
+      <td>10.478</td>
+      <td>0.127</td>
+      <td>0.090</td>
+      <td>496.0</td>
+      <td>780.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[13]</th>
-      <td>0.250</td>
-      <td>3.126</td>
-      <td>-5.369</td>
-      <td>6.097</td>
-      <td>0.103</td>
-      <td>0.073</td>
-      <td>921.0</td>
-      <td>1611.0</td>
-      <td>1.0</td>
+      <td>0.561</td>
+      <td>3.088</td>
+      <td>-5.198</td>
+      <td>6.379</td>
+      <td>0.144</td>
+      <td>0.102</td>
+      <td>458.0</td>
+      <td>850.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[14]</th>
-      <td>-1.270</td>
-      <td>3.412</td>
-      <td>-7.789</td>
-      <td>4.825</td>
-      <td>0.107</td>
-      <td>0.076</td>
-      <td>1021.0</td>
-      <td>1844.0</td>
-      <td>1.0</td>
+      <td>-1.106</td>
+      <td>3.255</td>
+      <td>-7.101</td>
+      <td>4.898</td>
+      <td>0.130</td>
+      <td>0.092</td>
+      <td>630.0</td>
+      <td>1185.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[15]</th>
-      <td>-7.411</td>
-      <td>3.509</td>
-      <td>-13.716</td>
-      <td>-0.713</td>
-      <td>0.103</td>
-      <td>0.073</td>
-      <td>1155.0</td>
-      <td>1970.0</td>
-      <td>1.0</td>
+      <td>-7.161</td>
+      <td>3.455</td>
+      <td>-13.624</td>
+      <td>-0.876</td>
+      <td>0.145</td>
+      <td>0.102</td>
+      <td>566.0</td>
+      <td>773.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots, intercept = True)[16]</th>
-      <td>-8.163</td>
-      <td>3.315</td>
-      <td>-14.146</td>
-      <td>-1.749</td>
-      <td>0.104</td>
-      <td>0.073</td>
-      <td>1014.0</td>
-      <td>2053.0</td>
-      <td>1.0</td>
+      <td>-7.925</td>
+      <td>3.069</td>
+      <td>-13.943</td>
+      <td>-2.287</td>
+      <td>0.130</td>
+      <td>0.092</td>
+      <td>555.0</td>
+      <td>936.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>doy_sigma</th>
-      <td>5.944</td>
-      <td>0.147</td>
-      <td>5.666</td>
-      <td>6.223</td>
+      <td>5.940</td>
+      <td>0.145</td>
+      <td>5.668</td>
+      <td>6.213</td>
+      <td>0.003</td>
       <td>0.002</td>
-      <td>0.002</td>
-      <td>4261.0</td>
-      <td>2308.0</td>
-      <td>1.0</td>
+      <td>2307.0</td>
+      <td>1497.0</td>
+      <td>1.00</td>
     </tr>
   </tbody>
 </table>
@@ -1318,7 +1322,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">posterior_stacked</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">idata</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">posterior_stacked</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">idata</span><span class="p">)</span>
 <span class="n">wp</span> <span class="o">=</span> <span class="n">posterior_stacked</span><span class="p">[</span><span class="s2">&quot;bs(year, knots = iknots, intercept = True)&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="s2">&quot;sample&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
 
 <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_spline_basis</span><span class="p">(</span><span class="n">B</span> <span class="o">*</span> <span class="n">wp</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
@@ -1383,11 +1387,20 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_33747/2247671002.py:8: FutureWarning: extract_dataset has been deprecated, please use extract
+  posterior_stacked =  az.extract_dataset(idata)
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_splines_cherry_blossoms_34_0.png" src="../_images/notebooks_splines_cherry_blossoms_34_0.png" />
+<img alt="../_images/notebooks_splines_cherry_blossoms_34_1.png" src="../_images/notebooks_splines_cherry_blossoms_34_1.png" />
 </div>
 </div>
 </section>
@@ -1402,7 +1415,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">design_matrix</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">design_matrix</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1426,7 +1439,7 @@ array([[1.   , 1.   , 0.   , ..., 0.   , 0.   , 0.   ],
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">design_matrix</span><span class="o">.</span><span class="n">shape</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">design_matrix</span><span class="o">.</span><span class="n">shape</span>
 </pre></div>
 </div>
 </div>
@@ -1445,7 +1458,7 @@ array([[1.   , 1.   , 0.   , ..., 0.   , 0.   , 0.   ],
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">_design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">design_matrix</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_rank</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">design_matrix</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1468,7 +1481,7 @@ array([[1.   , 1.   , 0.   , ..., 0.   , 0.   , 0.   ],
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note we use the same priors</span>
 <span class="n">model_new</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;doy ~ bs(year, knots=iknots)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">priors</span><span class="o">=</span><span class="n">priors</span><span class="p">)</span>
-<span class="n">idata_new</span> <span class="o">=</span> <span class="n">model_new</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="mi">7355608</span><span class="p">)</span>
+<span class="n">idata_new</span> <span class="o">=</span> <span class="n">model_new</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">random_seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">,</span> <span class="n">idata_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;log_likelihood&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
 </pre></div>
 </div>
 </div>
@@ -1479,8 +1492,8 @@ array([[1.   , 1.   , 0.   , ..., 0.   , 0.   , 0.   ],
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [Intercept, bs(year, knots = iknots), doy_sigma]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [doy_sigma, Intercept, bs(year, knots = iknots)]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1495,6 +1508,9 @@ NUTS: [Intercept, bs(year, knots = iknots), doy_sigma]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -1505,8 +1521,8 @@ NUTS: [Intercept, bs(year, knots = iknots), doy_sigma]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:28<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:09&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1514,7 +1530,7 @@ NUTS: [Intercept, bs(year, knots = iknots), doy_sigma]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 29 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 10 seconds.
 </pre></div></div>
 </div>
 <p>And let’s have a look at the summary</p>
@@ -1563,219 +1579,219 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>102.438</td>
-      <td>1.992</td>
-      <td>98.821</td>
-      <td>106.100</td>
-      <td>0.064</td>
-      <td>0.045</td>
-      <td>965.0</td>
-      <td>1338.0</td>
-      <td>1.01</td>
+      <td>102.509</td>
+      <td>1.986</td>
+      <td>98.651</td>
+      <td>105.950</td>
+      <td>0.088</td>
+      <td>0.062</td>
+      <td>511.0</td>
+      <td>795.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[0]</th>
-      <td>-0.941</td>
-      <td>3.978</td>
-      <td>-8.165</td>
-      <td>6.549</td>
-      <td>0.104</td>
-      <td>0.074</td>
-      <td>1453.0</td>
-      <td>2142.0</td>
-      <td>1.00</td>
+      <td>-0.996</td>
+      <td>3.843</td>
+      <td>-8.287</td>
+      <td>5.751</td>
+      <td>0.137</td>
+      <td>0.097</td>
+      <td>784.0</td>
+      <td>1084.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[1]</th>
-      <td>0.330</td>
-      <td>3.151</td>
-      <td>-5.446</td>
-      <td>6.282</td>
-      <td>0.066</td>
-      <td>0.048</td>
-      <td>2300.0</td>
-      <td>2591.0</td>
-      <td>1.00</td>
+      <td>0.263</td>
+      <td>2.931</td>
+      <td>-5.043</td>
+      <td>5.741</td>
+      <td>0.088</td>
+      <td>0.062</td>
+      <td>1097.0</td>
+      <td>1509.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[2]</th>
-      <td>5.595</td>
-      <td>2.675</td>
-      <td>0.643</td>
-      <td>10.640</td>
+      <td>5.529</td>
+      <td>2.715</td>
+      <td>0.354</td>
+      <td>10.453</td>
+      <td>0.104</td>
       <td>0.075</td>
-      <td>0.053</td>
-      <td>1279.0</td>
-      <td>2224.0</td>
-      <td>1.00</td>
+      <td>687.0</td>
+      <td>1174.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[3]</th>
-      <td>0.172</td>
-      <td>2.552</td>
-      <td>-4.675</td>
-      <td>4.836</td>
-      <td>0.066</td>
-      <td>0.047</td>
-      <td>1506.0</td>
-      <td>2375.0</td>
-      <td>1.00</td>
+      <td>0.093</td>
+      <td>2.546</td>
+      <td>-4.395</td>
+      <td>4.915</td>
+      <td>0.095</td>
+      <td>0.068</td>
+      <td>713.0</td>
+      <td>1036.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[4]</th>
-      <td>5.146</td>
-      <td>2.661</td>
-      <td>0.060</td>
-      <td>9.909</td>
-      <td>0.074</td>
-      <td>0.053</td>
-      <td>1276.0</td>
-      <td>2435.0</td>
-      <td>1.00</td>
+      <td>5.092</td>
+      <td>2.613</td>
+      <td>0.200</td>
+      <td>10.090</td>
+      <td>0.093</td>
+      <td>0.068</td>
+      <td>796.0</td>
+      <td>1063.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[5]</th>
-      <td>-4.359</td>
-      <td>2.536</td>
-      <td>-9.353</td>
-      <td>0.213</td>
-      <td>0.068</td>
-      <td>0.048</td>
-      <td>1380.0</td>
-      <td>2095.0</td>
-      <td>1.00</td>
+      <td>-4.481</td>
+      <td>2.521</td>
+      <td>-9.336</td>
+      <td>0.120</td>
+      <td>0.095</td>
+      <td>0.067</td>
+      <td>708.0</td>
+      <td>1044.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[6]</th>
-      <td>8.735</td>
-      <td>2.476</td>
-      <td>3.949</td>
-      <td>13.130</td>
-      <td>0.068</td>
-      <td>0.048</td>
-      <td>1308.0</td>
-      <td>2190.0</td>
-      <td>1.00</td>
+      <td>8.676</td>
+      <td>2.496</td>
+      <td>3.982</td>
+      <td>13.475</td>
+      <td>0.094</td>
+      <td>0.067</td>
+      <td>711.0</td>
+      <td>1112.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[7]</th>
-      <td>-0.096</td>
-      <td>2.655</td>
-      <td>-5.326</td>
-      <td>4.674</td>
-      <td>0.071</td>
-      <td>0.050</td>
-      <td>1415.0</td>
-      <td>2361.0</td>
-      <td>1.00</td>
+      <td>-0.199</td>
+      <td>2.640</td>
+      <td>-5.304</td>
+      <td>4.558</td>
+      <td>0.094</td>
+      <td>0.067</td>
+      <td>786.0</td>
+      <td>1009.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[8]</th>
-      <td>3.909</td>
-      <td>2.581</td>
-      <td>-0.920</td>
-      <td>8.736</td>
-      <td>0.068</td>
-      <td>0.048</td>
-      <td>1426.0</td>
-      <td>1966.0</td>
-      <td>1.00</td>
+      <td>3.922</td>
+      <td>2.623</td>
+      <td>-1.084</td>
+      <td>8.547</td>
+      <td>0.095</td>
+      <td>0.067</td>
+      <td>764.0</td>
+      <td>1043.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[9]</th>
-      <td>5.569</td>
-      <td>2.661</td>
-      <td>0.669</td>
-      <td>10.488</td>
-      <td>0.071</td>
-      <td>0.050</td>
-      <td>1407.0</td>
-      <td>2312.0</td>
-      <td>1.00</td>
+      <td>5.462</td>
+      <td>2.611</td>
+      <td>0.800</td>
+      <td>10.398</td>
+      <td>0.093</td>
+      <td>0.066</td>
+      <td>798.0</td>
+      <td>1155.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[10]</th>
-      <td>0.729</td>
-      <td>2.539</td>
-      <td>-4.035</td>
-      <td>5.429</td>
+      <td>0.730</td>
+      <td>2.644</td>
+      <td>-4.063</td>
+      <td>5.729</td>
+      <td>0.098</td>
       <td>0.069</td>
-      <td>0.049</td>
-      <td>1371.0</td>
-      <td>1889.0</td>
-      <td>1.00</td>
+      <td>727.0</td>
+      <td>1031.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[11]</th>
-      <td>6.494</td>
-      <td>2.583</td>
-      <td>1.780</td>
-      <td>11.382</td>
-      <td>0.068</td>
-      <td>0.048</td>
-      <td>1467.0</td>
-      <td>2207.0</td>
-      <td>1.00</td>
+      <td>6.335</td>
+      <td>2.491</td>
+      <td>1.371</td>
+      <td>10.786</td>
+      <td>0.088</td>
+      <td>0.063</td>
+      <td>805.0</td>
+      <td>1216.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[12]</th>
-      <td>1.616</td>
-      <td>2.728</td>
-      <td>-3.629</td>
-      <td>6.624</td>
-      <td>0.071</td>
-      <td>0.050</td>
-      <td>1469.0</td>
-      <td>1971.0</td>
-      <td>1.00</td>
+      <td>1.611</td>
+      <td>2.717</td>
+      <td>-3.184</td>
+      <td>6.855</td>
+      <td>0.097</td>
+      <td>0.069</td>
+      <td>779.0</td>
+      <td>1209.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[13]</th>
-      <td>0.059</td>
-      <td>3.061</td>
-      <td>-5.603</td>
-      <td>5.747</td>
-      <td>0.075</td>
-      <td>0.053</td>
-      <td>1683.0</td>
-      <td>2502.0</td>
-      <td>1.00</td>
+      <td>-0.078</td>
+      <td>3.062</td>
+      <td>-5.875</td>
+      <td>5.466</td>
+      <td>0.103</td>
+      <td>0.073</td>
+      <td>884.0</td>
+      <td>1021.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[14]</th>
-      <td>-6.070</td>
-      <td>3.110</td>
-      <td>-11.816</td>
-      <td>-0.147</td>
-      <td>0.075</td>
-      <td>0.053</td>
-      <td>1721.0</td>
-      <td>2481.0</td>
-      <td>1.00</td>
+      <td>-6.029</td>
+      <td>3.176</td>
+      <td>-12.220</td>
+      <td>-0.206</td>
+      <td>0.098</td>
+      <td>0.070</td>
+      <td>1037.0</td>
+      <td>1295.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>bs(year, knots = iknots)[15]</th>
-      <td>-6.804</td>
-      <td>2.997</td>
-      <td>-12.584</td>
-      <td>-1.520</td>
-      <td>0.073</td>
-      <td>0.052</td>
-      <td>1695.0</td>
-      <td>2339.0</td>
-      <td>1.00</td>
+      <td>-7.009</td>
+      <td>2.935</td>
+      <td>-12.558</td>
+      <td>-1.635</td>
+      <td>0.093</td>
+      <td>0.065</td>
+      <td>1007.0</td>
+      <td>1320.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>doy_sigma</th>
-      <td>5.944</td>
-      <td>0.148</td>
-      <td>5.676</td>
-      <td>6.226</td>
+      <td>5.943</td>
+      <td>0.145</td>
+      <td>5.690</td>
+      <td>6.234</td>
+      <td>0.003</td>
       <td>0.002</td>
-      <td>0.002</td>
-      <td>4502.0</td>
-      <td>2809.0</td>
-      <td>1.00</td>
+      <td>2454.0</td>
+      <td>1387.0</td>
+      <td>1.0</td>
     </tr>
   </tbody>
 </table>
@@ -1802,7 +1818,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-31.336991786956787
+11.852470874786377
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1819,10 +1835,10 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-28.54888606071472
+9.808770418167114
 </pre></div></div>
 </div>
-<p>Sampling times are the same in this particular example. But in general, we expect the sampler to run faster when there aren’t structural dependencies in the design matrix.</p>
+<p>Sampling times are similar in this particular example. But in general, we expect the sampler to run faster when there aren’t structural dependencies in the design matrix.</p>
 <p>And what about predictions?</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
@@ -1832,11 +1848,20 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_33747/2247671002.py:8: FutureWarning: extract_dataset has been deprecated, please use extract
+  posterior_stacked =  az.extract_dataset(idata)
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_splines_cherry_blossoms_53_0.png" src="../_images/notebooks_splines_cherry_blossoms_53_0.png" />
+<img alt="../_images/notebooks_splines_cherry_blossoms_53_1.png" src="../_images/notebooks_splines_cherry_blossoms_53_1.png" />
 </div>
 </div>
 <p>And model comparison?</p>
@@ -1888,11 +1913,11 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
     <tr>
       <th>New</th>
       <td>0</td>
-      <td>-2657.993432</td>
-      <td>16.091082</td>
+      <td>-2657.767647</td>
+      <td>15.889791</td>
       <td>0.000000</td>
-      <td>1.0</td>
-      <td>21.175383</td>
+      <td>0.614269</td>
+      <td>21.186857</td>
       <td>0.000000</td>
       <td>False</td>
       <td>log</td>
@@ -1900,12 +1925,12 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
     <tr>
       <th>Original</th>
       <td>1</td>
-      <td>-2658.153269</td>
-      <td>16.469409</td>
-      <td>0.159836</td>
-      <td>0.0</td>
-      <td>21.180233</td>
-      <td>0.565825</td>
+      <td>-2657.808318</td>
+      <td>16.144958</td>
+      <td>0.040671</td>
+      <td>0.385731</td>
+      <td>21.202294</td>
+      <td>0.569106</td>
       <td>False</td>
       <td>log</td>
     </tr>
@@ -1988,21 +2013,20 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Thu Jun 16 2022
+Last updated: Thu Jan 05 2023
 
 Python implementation: CPython
-Python version       : 3.9.7
-IPython version      : 8.3.0
+Python version       : 3.10.4
+IPython version      : 8.5.0
 
-bambi     : 0.9.0
-matplotlib: 3.5.1
-arviz     : 0.13.0.dev0
-sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
-[GCC 7.5.0]
-numpy     : 1.21.5
-pandas    : 1.4.2
+sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
+arviz     : 0.14.0
+bambi     : 0.9.3
+pandas    : 1.5.2
+matplotlib: 3.6.2
+numpy     : 1.23.5
 
-Watermark: 2.3.0
+Watermark: 2.3.1
 
 </pre></div></div>
 </div>

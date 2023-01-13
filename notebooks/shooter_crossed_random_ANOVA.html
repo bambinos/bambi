@@ -1803,8 +1803,8 @@ equivalent, to the main effects). This is the standard coding used in ANOVA.</p>
 Automatically removing 98/3600 rows from the dataset.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [Intercept, S(race), S(object), S(race):S(object), 1|subject_sigma, 1|subject_offset, S(race)|subject_sigma, S(race)|subject_offset, S(object)|subject_sigma, S(object)|subject_offset, S(race):S(object)|subject_sigma, S(race):S(object)|subject_offset, rate_sigma]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [rate_sigma, Intercept, S(race), S(object), S(race):S(object), 1|subject_sigma, 1|subject_offset, S(race)|subject_sigma, S(race)|subject_offset, S(object)|subject_sigma, S(object)|subject_offset, S(race):S(object)|subject_sigma, S(race):S(object)|subject_offset]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1819,6 +1819,9 @@ NUTS: [Intercept, S(race), S(object), S(race):S(object), 1|subject_sigma, 1|subj
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -1829,8 +1832,8 @@ NUTS: [Intercept, S(race), S(object), S(race):S(object), 1|subject_sigma, 1|subj
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 01:14<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:43&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1838,7 +1841,7 @@ NUTS: [Intercept, S(race), S(object), S(race):S(object), 1|subject_sigma, 1|subj
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 75 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 44 seconds.
 </pre></div></div>
 </div>
 <p>First let’s visualize the default priors that Bambi automatically decided on for each of the parameters. We do this by calling the <code class="docutils literal notranslate"><span class="pre">.plot_priors()</span></code> method of the <code class="docutils literal notranslate"><span class="pre">Model</span></code> object.</p>
@@ -1850,11 +1853,19 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling: [1|subject_sigma, Intercept, S(object), S(object)|subject_sigma, S(race), S(race):S(object), S(race):S(object)|subject_sigma, S(race)|subject_sigma, rate_sigma]
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_shooter_crossed_random_ANOVA_17_0.png" src="../_images/notebooks_shooter_crossed_random_ANOVA_17_0.png" />
+<img alt="../_images/notebooks_shooter_crossed_random_ANOVA_17_1.png" src="../_images/notebooks_shooter_crossed_random_ANOVA_17_1.png" />
 </div>
 </div>
 <p>The priors on the common effects seem quite reasonable. Recall that because of the -1 vs +1 contrast coding, the coefficients correspond to <em>half</em> the difference between the two levels of each factor. So the priors on the common effects essentially say that the black vs. white and gun vs. no gun (and their interaction) response rate differences are very unlikely to be as large as a full response per second.</p>
@@ -1920,15 +1931,15 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>1.707</td>
+      <td>1.708</td>
       <td>0.014</td>
       <td>1.682</td>
-      <td>1.735</td>
+      <td>1.736</td>
+      <td>0.001</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>970.0</td>
-      <td>1915.0</td>
-      <td>1.0</td>
+      <td>406.0</td>
+      <td>571.0</td>
+      <td>1.02</td>
     </tr>
     <tr>
       <th>S(race)[black]</th>
@@ -1936,47 +1947,47 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
       <td>0.004</td>
       <td>-0.009</td>
       <td>0.007</td>
+      <td>0.000</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>7026.0</td>
-      <td>2566.0</td>
-      <td>1.0</td>
+      <td>3103.0</td>
+      <td>1200.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>S(object)[gun]</th>
       <td>0.093</td>
       <td>0.006</td>
       <td>0.082</td>
-      <td>0.104</td>
+      <td>0.105</td>
+      <td>0.000</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>3641.0</td>
-      <td>3221.0</td>
-      <td>1.0</td>
+      <td>1290.0</td>
+      <td>1237.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>S(race):S(object)[black, gun]</th>
-      <td>0.023</td>
+      <td>0.024</td>
       <td>0.004</td>
-      <td>0.016</td>
+      <td>0.015</td>
       <td>0.031</td>
+      <td>0.000</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>7373.0</td>
-      <td>2438.0</td>
-      <td>1.0</td>
+      <td>3353.0</td>
+      <td>1333.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
-      <th>1|subject_sigma</th>
-      <td>0.083</td>
-      <td>0.011</td>
-      <td>0.063</td>
-      <td>0.104</td>
+      <th>rate_sigma</th>
+      <td>0.240</td>
+      <td>0.003</td>
+      <td>0.234</td>
+      <td>0.245</td>
+      <td>0.000</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>1312.0</td>
-      <td>1767.0</td>
-      <td>1.0</td>
+      <td>3307.0</td>
+      <td>885.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>...</th>
@@ -1994,61 +2005,61 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
       <th>S(race):S(object)|subject[black, gun, 32]</th>
       <td>-0.001</td>
       <td>0.006</td>
-      <td>-0.015</td>
-      <td>0.010</td>
+      <td>-0.013</td>
+      <td>0.011</td>
+      <td>0.000</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>5573.0</td>
-      <td>3163.0</td>
-      <td>1.0</td>
+      <td>2663.0</td>
+      <td>1697.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>S(race):S(object)|subject[black, gun, 33]</th>
-      <td>0.000</td>
+      <td>-0.000</td>
       <td>0.006</td>
-      <td>-0.012</td>
-      <td>0.013</td>
+      <td>-0.013</td>
+      <td>0.012</td>
+      <td>0.000</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>5453.0</td>
-      <td>3331.0</td>
-      <td>1.0</td>
+      <td>2553.0</td>
+      <td>1503.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>S(race):S(object)|subject[black, gun, 34]</th>
       <td>-0.000</td>
       <td>0.006</td>
       <td>-0.013</td>
-      <td>0.011</td>
+      <td>0.012</td>
+      <td>0.000</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>5854.0</td>
-      <td>3286.0</td>
-      <td>1.0</td>
+      <td>3585.0</td>
+      <td>1455.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>S(race):S(object)|subject[black, gun, 35]</th>
       <td>0.000</td>
       <td>0.006</td>
-      <td>-0.013</td>
+      <td>-0.012</td>
       <td>0.011</td>
+      <td>0.000</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>5743.0</td>
-      <td>3363.0</td>
-      <td>1.0</td>
+      <td>3093.0</td>
+      <td>1745.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>S(race):S(object)|subject[black, gun, 36]</th>
       <td>-0.001</td>
       <td>0.006</td>
-      <td>-0.014</td>
-      <td>0.011</td>
+      <td>-0.016</td>
+      <td>0.009</td>
+      <td>0.000</td>
       <td>0.0</td>
-      <td>0.0</td>
-      <td>5912.0</td>
-      <td>3060.0</td>
-      <td>1.0</td>
+      <td>2359.0</td>
+      <td>1725.0</td>
+      <td>1.00</td>
     </tr>
   </tbody>
 </table>
@@ -2083,8 +2094,8 @@ are interested in talking about, and that we could have just as easily and justi
 Automatically removing 98/3600 rows from the dataset.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [Intercept, S(race), S(object), S(race):S(object), 1|subject_sigma, 1|subject_offset, S(race)|subject_sigma, S(race)|subject_offset, S(object)|subject_sigma, S(object)|subject_offset, S(race):S(object)|subject_sigma, S(race):S(object)|subject_offset, 1|target_sigma, 1|target_offset, S(object)|target_sigma, S(object)|target_offset, rate_sigma]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [rate_sigma, Intercept, S(race), S(object), S(race):S(object), 1|subject_sigma, 1|subject_offset, S(race)|subject_sigma, S(race)|subject_offset, S(object)|subject_sigma, S(object)|subject_offset, S(race):S(object)|subject_sigma, S(race):S(object)|subject_offset, 1|target_sigma, 1|target_offset, S(object)|target_sigma, S(object)|target_offset]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2099,6 +2110,9 @@ NUTS: [Intercept, S(race), S(object), S(race):S(object), 1|subject_sigma, 1|subj
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -2109,8 +2123,8 @@ NUTS: [Intercept, S(race), S(object), S(race):S(object), 1|subject_sigma, 1|subj
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 01:32<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:58&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -2118,7 +2132,7 @@ NUTS: [Intercept, S(race), S(object), S(race):S(object), 1|subject_sigma, 1|subj
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 93 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 60 seconds.
 </pre></div></div>
 </div>
 <p>Now let’s look at the results…</p>
@@ -2182,62 +2196,62 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>1.704</td>
-      <td>0.019</td>
-      <td>1.669</td>
-      <td>1.740</td>
+      <td>1.702</td>
+      <td>0.020</td>
+      <td>1.666</td>
+      <td>1.738</td>
+      <td>0.002</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>353.0</td>
-      <td>856.0</td>
+      <td>158.0</td>
+      <td>331.0</td>
       <td>1.01</td>
     </tr>
     <tr>
       <th>S(race)[black]</th>
-      <td>0.000</td>
-      <td>0.014</td>
+      <td>-0.001</td>
+      <td>0.013</td>
       <td>-0.026</td>
-      <td>0.026</td>
+      <td>0.024</td>
       <td>0.001</td>
-      <td>0.000</td>
-      <td>451.0</td>
-      <td>673.0</td>
+      <td>0.001</td>
+      <td>239.0</td>
+      <td>469.0</td>
       <td>1.00</td>
     </tr>
     <tr>
       <th>S(object)[gun]</th>
       <td>0.093</td>
-      <td>0.015</td>
-      <td>0.065</td>
-      <td>0.121</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>425.0</td>
-      <td>965.0</td>
-      <td>1.00</td>
-    </tr>
-    <tr>
-      <th>S(race):S(object)[black, gun]</th>
-      <td>0.026</td>
       <td>0.014</td>
+      <td>0.068</td>
+      <td>0.122</td>
       <td>0.001</td>
-      <td>0.051</td>
       <td>0.001</td>
-      <td>0.000</td>
-      <td>435.0</td>
-      <td>879.0</td>
+      <td>200.0</td>
+      <td>394.0</td>
       <td>1.01</td>
     </tr>
     <tr>
-      <th>1|subject_sigma</th>
-      <td>0.085</td>
-      <td>0.011</td>
-      <td>0.064</td>
-      <td>0.105</td>
+      <th>S(race):S(object)[black, gun]</th>
+      <td>0.025</td>
+      <td>0.014</td>
+      <td>0.001</td>
+      <td>0.054</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>134.0</td>
+      <td>246.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>rate_sigma</th>
+      <td>0.205</td>
+      <td>0.002</td>
+      <td>0.201</td>
+      <td>0.210</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>570.0</td>
-      <td>1162.0</td>
+      <td>1698.0</td>
+      <td>1484.0</td>
       <td>1.00</td>
     </tr>
     <tr>
@@ -2254,62 +2268,62 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
     </tr>
     <tr>
       <th>S(object)|target[gun, w95]</th>
-      <td>-0.173</td>
-      <td>0.030</td>
-      <td>-0.232</td>
+      <td>-0.175</td>
+      <td>0.029</td>
+      <td>-0.229</td>
       <td>-0.117</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>933.0</td>
-      <td>1774.0</td>
+      <td>458.0</td>
+      <td>706.0</td>
       <td>1.00</td>
     </tr>
     <tr>
       <th>S(object)|target[gun, w96]</th>
-      <td>0.082</td>
+      <td>0.080</td>
       <td>0.031</td>
-      <td>0.022</td>
-      <td>0.140</td>
+      <td>0.026</td>
+      <td>0.137</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>879.0</td>
-      <td>2187.0</td>
-      <td>1.01</td>
+      <td>502.0</td>
+      <td>907.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>S(object)|target[gun, w97]</th>
-      <td>0.009</td>
-      <td>0.030</td>
-      <td>-0.051</td>
-      <td>0.061</td>
+      <td>0.007</td>
+      <td>0.029</td>
+      <td>-0.046</td>
+      <td>0.064</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>916.0</td>
-      <td>1601.0</td>
+      <td>433.0</td>
+      <td>953.0</td>
       <td>1.00</td>
     </tr>
     <tr>
       <th>S(object)|target[gun, w98]</th>
-      <td>0.089</td>
-      <td>0.030</td>
-      <td>0.035</td>
-      <td>0.146</td>
+      <td>0.087</td>
+      <td>0.029</td>
+      <td>0.036</td>
+      <td>0.141</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>838.0</td>
-      <td>1664.0</td>
+      <td>466.0</td>
+      <td>1033.0</td>
       <td>1.00</td>
     </tr>
     <tr>
       <th>S(object)|target[gun, w99]</th>
-      <td>-0.017</td>
-      <td>0.030</td>
-      <td>-0.072</td>
-      <td>0.039</td>
+      <td>-0.019</td>
+      <td>0.029</td>
+      <td>-0.076</td>
+      <td>0.034</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>875.0</td>
-      <td>1846.0</td>
+      <td>419.0</td>
+      <td>686.0</td>
       <td>1.00</td>
     </tr>
   </tbody>
@@ -2362,6 +2376,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 }
 
 html[theme=dark],
+body[data-theme=dark],
 body.vscode-dark {
   --xr-font-color0: rgba(255, 255, 255, 1);
   --xr-font-color2: rgba(255, 255, 255, 0.54);
@@ -2591,6 +2606,11 @@ body.vscode-dark {
   grid-column: 4;
 }
 
+.xr-index-preview {
+  grid-column: 2 / 5;
+  color: var(--xr-font-color2);
+}
+
 .xr-var-name,
 .xr-var-dims,
 .xr-var-dtype,
@@ -2612,14 +2632,16 @@ body.vscode-dark {
 }
 
 .xr-var-attrs,
-.xr-var-data {
+.xr-var-data,
+.xr-index-data {
   display: none;
   background-color: var(--xr-background-color) !important;
   padding-bottom: 5px !important;
 }
 
 .xr-var-attrs-in:checked ~ .xr-var-attrs,
-.xr-var-data-in:checked ~ .xr-var-data {
+.xr-var-data-in:checked ~ .xr-var-data,
+.xr-index-data-in:checked ~ .xr-index-data {
   display: block;
 }
 
@@ -2629,13 +2651,16 @@ body.vscode-dark {
 
 .xr-var-name span,
 .xr-var-data,
+.xr-index-name div,
+.xr-index-data,
 .xr-attrs {
   padding-left: 25px !important;
 }
 
 .xr-attrs,
 .xr-var-attrs,
-.xr-var-data {
+.xr-var-data,
+.xr-index-data {
   grid-column: 1 / -1;
 }
 
@@ -2673,7 +2698,8 @@ dl.xr-attrs {
 }
 
 .xr-icon-database,
-.xr-icon-file-text2 {
+.xr-icon-file-text2,
+.xr-no-icon {
   display: inline-block;
   vertical-align: middle;
   width: 1em;
@@ -2683,7 +2709,7 @@ dl.xr-attrs {
   fill: currentColor;
 }
 </style><pre class='xr-text-repr-fallback'>&lt;xarray.DataArray &#x27;S(race):S(object)&#x27; ()&gt;
-array(0.02625)</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'S(race):S(object)'</div></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-d96ebb14-0014-4830-b7e5-71d4fa6950ba' class='xr-array-in' type='checkbox' checked><label for='section-d96ebb14-0014-4830-b7e5-71d4fa6950ba' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>0.02625</span></div><div class='xr-array-data'><pre>array(0.02625)</pre></div></div></li><li class='xr-section-item'><input id='section-a27d1d75-beb9-40ac-be69-17a71879ff91' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-a27d1d75-beb9-40ac-be69-17a71879ff91' class='xr-section-summary'  title='Expand/collapse section'>Coordinates: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'></ul></div></li><li class='xr-section-item'><input id='section-da740546-5802-4469-99f1-8ab872df78d1' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-da740546-5802-4469-99f1-8ab872df78d1' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
+array(0.031)</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'S(race):S(object)'</div></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-37b3be38-29a2-4f8a-ba38-bcccc044a5fe' class='xr-array-in' type='checkbox' checked><label for='section-37b3be38-29a2-4f8a-ba38-bcccc044a5fe' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>0.031</span></div><div class='xr-array-data'><pre>array(0.031)</pre></div></div></li><li class='xr-section-item'><input id='section-b95a2e99-4b2c-4dee-b6d5-f92d45a9ce0b' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-b95a2e99-4b2c-4dee-b6d5-f92d45a9ce0b' class='xr-section-summary'  title='Expand/collapse section'>Coordinates: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'></ul></div></li><li class='xr-section-item'><input id='section-1a06f6ab-4513-4fb9-b7ae-30b7d2a12bc1' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-1a06f6ab-4513-4fb9-b7ae-30b7d2a12bc1' class='xr-section-summary'  title='Expand/collapse section'>Indexes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'></ul></div></li><li class='xr-section-item'><input id='section-6d4203b5-11cb-46da-b34e-6faae08b3afc' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-6d4203b5-11cb-46da-b34e-6faae08b3afc' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
 </div>
 <p>The second interesting thing is that the two new variance components in the model, those associated with the stimulus specific effects, are actually rather large. This actually largely explains the first fact above, since if these where estimated to be close to 0 anyway, the model estimates wouldn’t be much different than they were in the <code class="docutils literal notranslate"><span class="pre">subj_model</span></code>. It makes sense that there is a strong tendency for different targets to elicit difference reaction times on average, which leads to a large
 estimate of <code class="docutils literal notranslate"><span class="pre">1|target_sigma</span></code>.</p>
@@ -3027,7 +3053,7 @@ Automatically removing 98/3600 rows from the dataset.
 Modeling the probability that shoot_or_not==shoot
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
+Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [Intercept, S(race), S(object), S(race):S(object), 1|subject_sigma, 1|subject_offset, S(race)|subject_sigma, S(race)|subject_offset, S(object)|subject_sigma, S(object)|subject_offset, S(race):S(object)|subject_sigma, S(race):S(object)|subject_offset, 1|target_sigma, 1|target_offset, S(object)|target_sigma, S(object)|target_offset]
 </pre></div></div>
 </div>
@@ -3043,6 +3069,9 @@ NUTS: [Intercept, S(race), S(object), S(race):S(object), 1|subject_sigma, 1|subj
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -3053,8 +3082,8 @@ NUTS: [Intercept, S(race), S(object), S(race):S(object), 1|subject_sigma, 1|subj
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='12000' class='' max='12000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [12000/12000 02:24<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [6000/6000 01:49&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -3062,7 +3091,7 @@ NUTS: [Intercept, S(race), S(object), S(race):S(object), 1|subject_sigma, 1|subj
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 145 seconds.
+Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 110 seconds.
 </pre></div></div>
 </div>
 <p>Show the trace plot</p>
@@ -3127,62 +3156,62 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-0.023</td>
+      <td>-0.021</td>
       <td>0.151</td>
-      <td>-0.312</td>
-      <td>0.258</td>
+      <td>-0.309</td>
+      <td>0.262</td>
       <td>0.002</td>
       <td>0.002</td>
-      <td>4143.0</td>
-      <td>4366.0</td>
+      <td>4864.0</td>
+      <td>2794.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>S(race)[black]</th>
-      <td>0.221</td>
-      <td>0.152</td>
-      <td>-0.070</td>
-      <td>0.504</td>
+      <td>0.224</td>
+      <td>0.145</td>
+      <td>-0.032</td>
+      <td>0.508</td>
       <td>0.002</td>
       <td>0.002</td>
-      <td>4454.0</td>
-      <td>4200.0</td>
+      <td>5123.0</td>
+      <td>3256.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>S(object)[gun]</th>
-      <td>4.158</td>
-      <td>0.242</td>
-      <td>3.711</td>
-      <td>4.613</td>
-      <td>0.004</td>
+      <td>4.172</td>
+      <td>0.248</td>
+      <td>3.724</td>
+      <td>4.636</td>
+      <td>0.005</td>
       <td>0.003</td>
-      <td>3139.0</td>
-      <td>3184.0</td>
+      <td>2687.0</td>
+      <td>2887.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>S(race):S(object)[black, gun]</th>
-      <td>0.197</td>
-      <td>0.166</td>
-      <td>-0.107</td>
-      <td>0.515</td>
+      <td>0.200</td>
+      <td>0.170</td>
+      <td>-0.120</td>
+      <td>0.516</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>4434.0</td>
-      <td>4443.0</td>
+      <td>3508.0</td>
+      <td>3153.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>1|subject_sigma</th>
-      <td>0.226</td>
-      <td>0.149</td>
+      <td>0.222</td>
+      <td>0.151</td>
       <td>0.000</td>
-      <td>0.482</td>
+      <td>0.486</td>
+      <td>0.004</td>
       <td>0.003</td>
-      <td>0.002</td>
-      <td>2800.0</td>
-      <td>3320.0</td>
+      <td>1734.0</td>
+      <td>2208.0</td>
       <td>1.0</td>
     </tr>
     <tr>
@@ -3199,62 +3228,62 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
     </tr>
     <tr>
       <th>S(object)|target[gun, w95]</th>
-      <td>0.336</td>
-      <td>0.579</td>
-      <td>-0.709</td>
-      <td>1.481</td>
+      <td>0.349</td>
+      <td>0.598</td>
+      <td>-0.749</td>
+      <td>1.497</td>
       <td>0.007</td>
-      <td>0.006</td>
-      <td>7595.0</td>
-      <td>5289.0</td>
+      <td>0.009</td>
+      <td>8476.0</td>
+      <td>3118.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>S(object)|target[gun, w96]</th>
-      <td>0.033</td>
-      <td>0.551</td>
-      <td>-0.971</td>
-      <td>1.097</td>
+      <td>0.030</td>
+      <td>0.554</td>
+      <td>-0.997</td>
+      <td>1.062</td>
       <td>0.006</td>
-      <td>0.006</td>
-      <td>7707.0</td>
-      <td>5775.0</td>
+      <td>0.010</td>
+      <td>7719.0</td>
+      <td>2645.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>S(object)|target[gun, w97]</th>
-      <td>0.306</td>
-      <td>0.585</td>
-      <td>-0.795</td>
-      <td>1.404</td>
-      <td>0.007</td>
-      <td>0.006</td>
-      <td>8429.0</td>
-      <td>5670.0</td>
+      <td>0.310</td>
+      <td>0.582</td>
+      <td>-0.734</td>
+      <td>1.439</td>
+      <td>0.008</td>
+      <td>0.010</td>
+      <td>5782.0</td>
+      <td>2261.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>S(object)|target[gun, w98]</th>
-      <td>0.339</td>
-      <td>0.567</td>
-      <td>-0.741</td>
-      <td>1.404</td>
-      <td>0.006</td>
-      <td>0.006</td>
-      <td>8475.0</td>
-      <td>5503.0</td>
+      <td>0.344</td>
+      <td>0.584</td>
+      <td>-0.637</td>
+      <td>1.525</td>
+      <td>0.007</td>
+      <td>0.008</td>
+      <td>7543.0</td>
+      <td>3183.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>S(object)|target[gun, w99]</th>
-      <td>0.005</td>
-      <td>0.542</td>
-      <td>-1.020</td>
-      <td>1.018</td>
+      <td>0.017</td>
+      <td>0.548</td>
+      <td>-0.993</td>
+      <td>1.069</td>
       <td>0.006</td>
-      <td>0.006</td>
-      <td>8080.0</td>
-      <td>5843.0</td>
+      <td>0.009</td>
+      <td>8789.0</td>
+      <td>3061.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -3307,6 +3336,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 }
 
 html[theme=dark],
+body[data-theme=dark],
 body.vscode-dark {
   --xr-font-color0: rgba(255, 255, 255, 1);
   --xr-font-color2: rgba(255, 255, 255, 0.54);
@@ -3536,6 +3566,11 @@ body.vscode-dark {
   grid-column: 4;
 }
 
+.xr-index-preview {
+  grid-column: 2 / 5;
+  color: var(--xr-font-color2);
+}
+
 .xr-var-name,
 .xr-var-dims,
 .xr-var-dtype,
@@ -3557,14 +3592,16 @@ body.vscode-dark {
 }
 
 .xr-var-attrs,
-.xr-var-data {
+.xr-var-data,
+.xr-index-data {
   display: none;
   background-color: var(--xr-background-color) !important;
   padding-bottom: 5px !important;
 }
 
 .xr-var-attrs-in:checked ~ .xr-var-attrs,
-.xr-var-data-in:checked ~ .xr-var-data {
+.xr-var-data-in:checked ~ .xr-var-data,
+.xr-index-data-in:checked ~ .xr-index-data {
   display: block;
 }
 
@@ -3574,13 +3611,16 @@ body.vscode-dark {
 
 .xr-var-name span,
 .xr-var-data,
+.xr-index-name div,
+.xr-index-data,
 .xr-attrs {
   padding-left: 25px !important;
 }
 
 .xr-attrs,
 .xr-var-attrs,
-.xr-var-data {
+.xr-var-data,
+.xr-index-data {
   grid-column: 1 / -1;
 }
 
@@ -3618,7 +3658,8 @@ dl.xr-attrs {
 }
 
 .xr-icon-database,
-.xr-icon-file-text2 {
+.xr-icon-file-text2,
+.xr-no-icon {
   display: inline-block;
   vertical-align: middle;
   width: 1em;
@@ -3628,7 +3669,7 @@ dl.xr-attrs {
   fill: currentColor;
 }
 </style><pre class='xr-text-repr-fallback'>&lt;xarray.DataArray &#x27;S(race)&#x27; ()&gt;
-array(0.070875)</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'S(race)'</div></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-4c9f632a-d836-4fe5-abab-6412eefeed58' class='xr-array-in' type='checkbox' checked><label for='section-4c9f632a-d836-4fe5-abab-6412eefeed58' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>0.07087</span></div><div class='xr-array-data'><pre>array(0.070875)</pre></div></div></li><li class='xr-section-item'><input id='section-4efc5bef-f7ff-4306-9437-435bb5111e7b' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-4efc5bef-f7ff-4306-9437-435bb5111e7b' class='xr-section-summary'  title='Expand/collapse section'>Coordinates: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'></ul></div></li><li class='xr-section-item'><input id='section-baf201cd-98ff-40cf-8360-c30c0a3f9dce' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-baf201cd-98ff-40cf-8360-c30c0a3f9dce' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
+array(0.06275)</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.DataArray</div><div class='xr-array-name'>'S(race)'</div></div><ul class='xr-sections'><li class='xr-section-item'><div class='xr-array-wrap'><input id='section-3700dd9b-371d-4750-8366-4cab5d5a0344' class='xr-array-in' type='checkbox' checked><label for='section-3700dd9b-371d-4750-8366-4cab5d5a0344' title='Show/hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-array-preview xr-preview'><span>0.06275</span></div><div class='xr-array-data'><pre>array(0.06275)</pre></div></div></li><li class='xr-section-item'><input id='section-a0650d9a-7206-4184-a5f5-5d529e39eb92' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-a0650d9a-7206-4184-a5f5-5d529e39eb92' class='xr-section-summary'  title='Expand/collapse section'>Coordinates: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'></ul></div></li><li class='xr-section-item'><input id='section-d18caf47-e694-4740-b885-85c361552ccb' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-d18caf47-e694-4740-b885-85c361552ccb' class='xr-section-summary'  title='Expand/collapse section'>Indexes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'></ul></div></li><li class='xr-section-item'><input id='section-d60318f6-9d0c-467f-a1fc-7ab768c6d787' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-d60318f6-9d0c-467f-a1fc-7ab768c6d787' class='xr-section-summary'  title='Expand/collapse section'>Attributes: <span>(0)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'></dl></div></li></ul></div></div></div>
 </div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
@@ -3644,21 +3685,20 @@ array(0.070875)</pre><div class='xr-wrap' style='display:none'><div class='xr-he
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Wed Jun 01 2022
+Last updated: Thu Jan 05 2023
 
 Python implementation: CPython
-Python version       : 3.9.7
-IPython version      : 8.3.0
+Python version       : 3.10.4
+IPython version      : 8.5.0
 
-pandas    : 1.4.2
-arviz     : 0.12.1
-bambi     : 0.7.1
-sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
-[GCC 7.5.0]
-numpy     : 1.21.5
-matplotlib: 3.5.1
+numpy     : 1.23.5
+arviz     : 0.14.0
+matplotlib: 3.6.2
+sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
+pandas    : 1.5.2
+bambi     : 0.9.3
 
-Watermark: 2.3.0
+Watermark: 2.3.1
 
 </pre></div></div>
 </div>

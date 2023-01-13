@@ -757,12 +757,34 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-WARNING (aesara.tensor.basic_opt): Optimization Warning: The Op i1 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
+/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i1 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
+  warn(
+/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i1 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
+  warn(
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-WARNING (aesara.tensor.basic_opt): Optimization Warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [Intercept, distance, direction_kappa]
+/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
+  warn(
+/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
+  warn(
+/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
+  warn(
+/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
+  warn(
+/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i1 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
+  warn(
+/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i1 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
+  warn(
+/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
+  warn(
+/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
+  warn(
+/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
+  warn(
+/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/pytensor/tensor/rewriting/elemwise.py:694: UserWarning: Rewrite warning: The Op i0 does not provide a C implementation. As well as being potentially slow, this also disables loop fusion.
+  warn(
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [direction_kappa, Intercept, distance]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -777,6 +799,9 @@ NUTS: [Intercept, distance, direction_kappa]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -787,8 +812,8 @@ NUTS: [Intercept, distance, direction_kappa]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:03<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:06&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput docutils container">
@@ -796,11 +821,11 @@ NUTS: [Intercept, distance, direction_kappa]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [Intercept, distance, direction_sigma]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [direction_sigma, Intercept, distance]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -815,6 +840,9 @@ NUTS: [Intercept, distance, direction_sigma]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -825,8 +853,8 @@ NUTS: [Intercept, distance, direction_sigma]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:02<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:03&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -834,8 +862,7 @@ NUTS: [Intercept, distance, direction_sigma]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 2 seconds.
-The acceptance probability does not match the target. It is 0.8855, but should be close to 0.8. Try to increase the number of tuning steps.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 3 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -883,38 +910,38 @@ The acceptance probability does not match the target. It is 0.8855, but should b
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>1.692</td>
-      <td>0.321</td>
-      <td>1.106</td>
-      <td>2.299</td>
+      <td>1.667</td>
+      <td>0.325</td>
+      <td>1.069</td>
+      <td>2.253</td>
+      <td>0.011</td>
       <td>0.008</td>
-      <td>0.006</td>
-      <td>1888.0</td>
-      <td>1722.0</td>
+      <td>974.0</td>
+      <td>806.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>distance</th>
-      <td>-0.011</td>
+      <td>-0.010</td>
       <td>0.004</td>
-      <td>-0.019</td>
+      <td>-0.018</td>
       <td>-0.002</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2212.0</td>
-      <td>2012.0</td>
+      <td>1168.0</td>
+      <td>1170.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>direction_kappa</th>
-      <td>2.630</td>
-      <td>0.616</td>
-      <td>1.496</td>
-      <td>3.749</td>
-      <td>0.014</td>
-      <td>0.010</td>
-      <td>2066.0</td>
-      <td>1835.0</td>
+      <td>2.601</td>
+      <td>0.590</td>
+      <td>1.528</td>
+      <td>3.699</td>
+      <td>0.015</td>
+      <td>0.011</td>
+      <td>1499.0</td>
+      <td>1277.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -984,11 +1011,20 @@ The acceptance probability does not match the target. It is 0.8855, but should b
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_21333/4056881271.py:6: FutureWarning: extract_dataset has been deprecated, please use extract
+  pp_samples = az.extract_dataset(idata_vm, group=&#34;posterior_predictive&#34;, num_samples=200)[&#34;direction&#34;]
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_circular_regression_14_0.png" src="../_images/notebooks_circular_regression_14_0.png" />
+<img alt="../_images/notebooks_circular_regression_14_1.png" src="../_images/notebooks_circular_regression_14_1.png" />
 </div>
 </div>
 <p>We have shown an example of regression where the response variable is circular and the covariates are linear. This is sometimes refereed as linear-circular regression in order to distinguish it from other cases. Namely, when the response is linear and the covariates (or at least one of them) is circular the name circular-linear regression is often used. And when both covariates and the response variables are circular, we have a circular-circular regression. When the covariates are circular they
@@ -1013,32 +1049,23 @@ are usually modelled with the help of sin and cosine functions. You can read mor
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Mon Jun 20 2022
+Last updated: Thu Jan 05 2023
 
 Python implementation: CPython
-Python version       : 3.9.7
-IPython version      : 8.3.0
+Python version       : 3.10.4
+IPython version      : 8.5.0
 
-scipy     : 1.7.3
-arviz     : 0.13.0.dev0
-bambi     : 0.9.0
-matplotlib: 3.5.1
-sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
-[GCC 7.5.0]
-pandas    : 1.4.2
-numpy     : 1.21.5
+scipy     : 1.9.3
+bambi     : 0.9.3
+numpy     : 1.23.5
+arviz     : 0.14.0
+pandas    : 1.5.2
+matplotlib: 3.6.2
+sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
 
-Watermark: 2.3.0
+Watermark: 2.3.1
 
 </pre></div></div>
-</div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
-</pre></div>
-</div>
 </div>
 </section>
 

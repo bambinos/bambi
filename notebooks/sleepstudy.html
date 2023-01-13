@@ -814,7 +814,7 @@ subject-specific intercepts are added implicitly. We could suppress them by addi
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;Reaction ~ 1 + Days + (Days | Subject)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;Reaction ~ 1 + Days + (Days | Subject)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">categorical</span><span class="o">=</span><span class="s2">&quot;Subject&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -833,21 +833,22 @@ subject-specific intercepts are added implicitly. We could suppress them by addi
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: Reaction ~ 1 + Days + (Days | Subject)
-Family name: Gaussian
-Link: identity
-Observations: 180
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 298.5079, sigma: 261.0092)
-    Days ~ Normal(mu: 0.0, sigma: 48.8915)
+       Formula: Reaction ~ 1 + Days + (Days | Subject)
+        Family: gaussian
+          Link: mu = identity
+  Observations: 180
+        Priors:
+    target = mu
+        Common-level effects
+            Intercept ~ Normal(mu: 298.5079, sigma: 261.0092)
+            Days ~ Normal(mu: 0, sigma: 48.8915)
 
-  Group-level effects
-    1|Subject ~ Normal(mu: 0, sigma: HalfNormal(sigma: 261.0092))
-    Days|Subject ~ Normal(mu: 0, sigma: HalfNormal(sigma: 48.8915))
+        Group-level effects
+            1|Subject ~ Normal(mu: 0, sigma: HalfNormal(sigma: 261.0092))
+            Days|Subject ~ Normal(mu: 0, sigma: HalfNormal(sigma: 48.8915))
 
-  Auxiliary parameters
-    sigma ~ HalfStudentT(nu: 4, sigma: 56.1721)
+        Auxiliary parameters
+            Reaction_sigma ~ HalfStudentT(nu: 4, sigma: 56.1721)
 </pre></div></div>
 </div>
 <p>There we see the formula used to specify the model, the name of the response distribution (<code class="docutils literal notranslate"><span class="pre">Gaussian</span></code>), the link function (<code class="docutils literal notranslate"><span class="pre">identity</span></code>), together with the number of observations (<code class="docutils literal notranslate"><span class="pre">180</span></code>). Below, we have a description of the prior distributions for the different terms in the model. This tells Bambi is using <code class="docutils literal notranslate"><span class="pre">Normal</span></code> priors for both common and group-specific terms, and a <code class="docutils literal notranslate"><span class="pre">HalfStudentT</span></code> distribution for the residual error term of the linear regression.</p>
@@ -867,8 +868,8 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_sigma, Days|Subject_offset, Reaction_sigma]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [Reaction_sigma, Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_sigma, Days|Subject_offset]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -883,6 +884,9 @@ NUTS: [Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_sigma, D
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -893,8 +897,8 @@ NUTS: [Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_sigma, D
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='12000' class='' max='12000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [12000/12000 00:15<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [6000/6000 00:29&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -902,7 +906,7 @@ NUTS: [Intercept, Days, 1|Subject_sigma, 1|Subject_offset, Days|Subject_sigma, D
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 16 seconds.
+Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 30 seconds.
 </pre></div></div>
 </div>
 </section>
@@ -949,17 +953,17 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>251.476</td>
-      <td>7.567</td>
-      <td>236.722</td>
-      <td>265.558</td>
+      <td>251.494</td>
+      <td>7.621</td>
+      <td>238.327</td>
+      <td>266.683</td>
     </tr>
     <tr>
       <th>Days</th>
-      <td>10.504</td>
-      <td>1.682</td>
-      <td>7.339</td>
-      <td>13.671</td>
+      <td>10.467</td>
+      <td>1.686</td>
+      <td>7.411</td>
+      <td>13.720</td>
     </tr>
   </tbody>
 </table>
@@ -993,18 +997,31 @@ better at reaction times. Looks like they took this as a serious challenge!</p>
 <li><p>Some people are more affected by sleep deprivation than others.</p></li>
 </ul>
 <p>But there’s another question we haven’t answered yet: Are the initial reaction times associated with how much the sleep deprivation affects the evolution of reaction times? Let’s create a scatterplot to visualize the joint posterior of the subject-specific intercepts and slopes. This chart uses different colors for the individuals.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#  extract a subsample from the posterior and stack the chain and draw dims</span>
-<span class="n">posterior</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+<span class="n">posterior</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
 
 <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-<span class="n">posterior</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="s2">&quot;1|Subject&quot;</span><span class="p">,</span> <span class="s2">&quot;Days|Subject&quot;</span><span class="p">,</span>
-                       <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;Subject__factor_dim&quot;</span><span class="p">,</span>
-                       <span class="n">add_guide</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                       <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+    <span class="n">x</span><span class="o">=</span><span class="s2">&quot;1|Subject&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;Days|Subject&quot;</span><span class="p">,</span>
+    <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;Subject__factor_dim&quot;</span><span class="p">,</span>
+    <span class="n">add_colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">add_legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;tab20&quot;</span><span class="p">,</span>
+    <span class="n">edgecolors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="s2">&quot;0.25&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">c</span><span class="o">=</span><span class="s2">&quot;0.25&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
@@ -1017,14 +1034,14 @@ better at reaction times. Looks like they took this as a serious challenge!</p>
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_sleepstudy_25_0.png" src="../_images/notebooks_sleepstudy_25_0.png" />
+<img alt="../_images/notebooks_sleepstudy_26_0.png" src="../_images/notebooks_sleepstudy_26_0.png" />
 </div>
 </div>
 <p>If we look at the bigger picture, i.e omitting the groups, we can conclude there’s no association between the intercept and slope. In other words, having lower or higher intial reaction times does not say anything about how much sleep deprivation affects the average reaction time on a given subject.</p>
 <p>On the other hand, if we look at the joint posterior for a given individual, we can see a negative correlation between the intercept and the slope. This is telling that, conditional on a given subject, the intercept and slope posteriors are not independent. However, it doesn’t imply anything about the overall relationship between the intercept and the slope, which is what we need if we want to know whether the initial time is associated with how much sleep deprivation affects the reaction time.</p>
 <p>To conclude with this example, we’re going create the same plot we created in the beginning with the mean regression lines and a credible bands for them.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Obtain the posterior of the mean</span>
@@ -1033,9 +1050,8 @@ better at reaction times. Looks like they took this as a serious challenge!</p>
 <span class="c1"># Plot the data</span>
 <span class="n">axes</span> <span class="o">=</span> <span class="n">plot_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
-
 <span class="c1"># Take the posterior of the mean reaction time</span>
-<span class="n">reaction_mean</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">idata</span><span class="p">)[</span><span class="s2">&quot;Reaction_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">reaction_mean</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">idata</span><span class="p">)[</span><span class="s2">&quot;Reaction_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
 <span class="k">for</span> <span class="n">subject</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Subject&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span> <span class="n">axes</span><span class="o">.</span><span class="n">ravel</span><span class="p">()):</span>
 
@@ -1054,11 +1070,11 @@ better at reaction times. Looks like they took this as a serious challenge!</p>
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_sleepstudy_27_0.png" src="../_images/notebooks_sleepstudy_27_0.png" />
+<img alt="../_images/notebooks_sleepstudy_28_0.png" src="../_images/notebooks_sleepstudy_28_0.png" />
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
@@ -1071,21 +1087,22 @@ better at reaction times. Looks like they took this as a serious challenge!</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Mon Jun 20 2022
+The watermark extension is already loaded. To reload it, use:
+  %reload_ext watermark
+Last updated: Thu Jan 05 2023
 
 Python implementation: CPython
-Python version       : 3.9.7
-IPython version      : 8.3.0
+Python version       : 3.10.4
+IPython version      : 8.5.0
 
-pandas    : 1.4.2
-numpy     : 1.21.5
-matplotlib: 3.5.1
-sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
-[GCC 7.5.0]
-bambi     : 0.9.0
-arviz     : 0.13.0.dev0
+numpy     : 1.23.5
+arviz     : 0.14.0
+matplotlib: 3.6.2
+sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
+pandas    : 1.5.2
+bambi     : 0.9.3
 
-Watermark: 2.3.0
+Watermark: 2.3.1
 
 </pre></div></div>
 </div>

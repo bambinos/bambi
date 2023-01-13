@@ -605,7 +605,7 @@ div.rendered_html tbody tr:hover {
 </style>
 <section id="Hierarchical-Linear-Regression-(Pigs-dataset)">
 <h1>Hierarchical Linear Regression (Pigs dataset)<a class="headerlink" href="#Hierarchical-Linear-Regression-(Pigs-dataset)" title="Permalink to this heading">#</a></h1>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
@@ -617,15 +617,6 @@ div.rendered_html tbody tr:hover {
 <span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-/home/osvaldo/anaconda3/lib/python3.9/site-packages/statsmodels/compat/pandas.py:61: FutureWarning: pandas.Int64Index is deprecated and will be removed from pandas in a future version. Use pandas.Index with the appropriate dtype instead.
-  from pandas import Int64Index as NumericIndex
-</pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -790,8 +781,8 @@ include a main effect for the variable <code class="docutils literal notranslate
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [Intercept, Time, 1|Pig_sigma, 1|Pig_offset, Time|Pig_sigma, Time|Pig_offset, Weight_sigma]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [Weight_sigma, Intercept, Time, 1|Pig_sigma, 1|Pig_offset, Time|Pig_sigma, Time|Pig_offset]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -806,6 +797,9 @@ NUTS: [Intercept, Time, 1|Pig_sigma, 1|Pig_offset, Time|Pig_sigma, Time|Pig_offs
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -816,8 +810,8 @@ NUTS: [Intercept, Time, 1|Pig_sigma, 1|Pig_offset, Time|Pig_sigma, Time|Pig_offs
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:16<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:25&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -825,7 +819,7 @@ NUTS: [Intercept, Time, 1|Pig_sigma, 1|Pig_offset, Time|Pig_sigma, Time|Pig_offs
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 17 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 26 seconds.
 </pre></div></div>
 </div>
 <p>We can print the model to have a summary of the details</p>
@@ -843,21 +837,21 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: Weight ~ Time + (Time|Pig)
-Family name: Gaussian
-Link: identity
-Observations: 861
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 60.7258, sigma: 133.0346)
-    Time ~ Normal(mu: 0.0, sigma: 18.1283)
+       Formula: Weight ~ Time + (Time|Pig)
+        Family: gaussian
+          Link: mu = identity
+  Observations: 861
+        Priors:
+    target = mu
+        Common-level effects
+            Intercept ~ Normal(mu: 60.7258, sigma: 133.0346)
+            Time ~ Normal(mu: 0, sigma: 18.1283)
 
-  Group-level effects
-    1|Pig ~ Normal(mu: 0, sigma: HalfNormal(sigma: 133.0346))
-    Time|Pig ~ Normal(mu: 0, sigma: HalfNormal(sigma: 18.1283))
-
-  Auxiliary parameters
-    sigma ~ HalfStudentT(nu: 4, sigma: 24.9644)
+        Group-level effects
+            1|Pig ~ Normal(mu: 0, sigma: HalfNormal(sigma: 133.0346))
+            Time|Pig ~ Normal(mu: 0, sigma: HalfNormal(sigma: 18.1283))
+        Auxiliary parameters
+            Weight_sigma ~ HalfStudentT(nu: 4, sigma: 24.9644)
 ------
 * To see a plot of the priors call the .plot_priors() method.
 * To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()
@@ -872,11 +866,19 @@ Priors:
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling: [1|Pig_sigma, Intercept, Time, Time|Pig_sigma, Weight_sigma]
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_multi-level_regression_11_0.png" src="../_images/notebooks_multi-level_regression_11_0.png" />
+<img alt="../_images/notebooks_multi-level_regression_11_1.png" src="../_images/notebooks_multi-level_regression_11_1.png" />
 </div>
 </div>
 <p>Now we are ready to check the results. Using <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> we get traceplots that show the values sampled from the posteriors and density estimates that gives us an idea of the shape of the posterior distribution of our parameters.</p>
@@ -953,62 +955,62 @@ Priors:
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>15.723</td>
-      <td>0.561</td>
-      <td>14.710</td>
-      <td>16.802</td>
-      <td>0.017</td>
-      <td>0.012</td>
-      <td>1096.0</td>
-      <td>1672.0</td>
+      <td>15.741</td>
+      <td>0.543</td>
+      <td>14.781</td>
+      <td>16.814</td>
+      <td>0.030</td>
+      <td>0.021</td>
+      <td>330.0</td>
+      <td>719.0</td>
       <td>1.01</td>
     </tr>
     <tr>
       <th>Time</th>
-      <td>6.937</td>
-      <td>0.087</td>
-      <td>6.773</td>
-      <td>7.101</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>682.0</td>
-      <td>1548.0</td>
-      <td>1.00</td>
+      <td>6.944</td>
+      <td>0.084</td>
+      <td>6.802</td>
+      <td>7.108</td>
+      <td>0.005</td>
+      <td>0.004</td>
+      <td>236.0</td>
+      <td>424.0</td>
+      <td>1.03</td>
     </tr>
     <tr>
       <th>1|Pig_sigma</th>
-      <td>4.545</td>
-      <td>0.430</td>
-      <td>3.813</td>
-      <td>5.389</td>
-      <td>0.010</td>
-      <td>0.007</td>
-      <td>1768.0</td>
-      <td>2710.0</td>
+      <td>4.537</td>
+      <td>0.423</td>
+      <td>3.811</td>
+      <td>5.369</td>
+      <td>0.018</td>
+      <td>0.013</td>
+      <td>586.0</td>
+      <td>1161.0</td>
       <td>1.00</td>
     </tr>
     <tr>
       <th>Time|Pig_sigma</th>
-      <td>0.665</td>
-      <td>0.062</td>
-      <td>0.547</td>
+      <td>0.662</td>
+      <td>0.063</td>
+      <td>0.546</td>
       <td>0.774</td>
+      <td>0.003</td>
       <td>0.002</td>
-      <td>0.001</td>
-      <td>1484.0</td>
-      <td>2046.0</td>
+      <td>443.0</td>
+      <td>931.0</td>
       <td>1.00</td>
     </tr>
     <tr>
       <th>Weight_sigma</th>
-      <td>2.459</td>
-      <td>0.066</td>
-      <td>2.336</td>
-      <td>2.584</td>
+      <td>2.461</td>
+      <td>0.064</td>
+      <td>2.348</td>
+      <td>2.580</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>4765.0</td>
-      <td>2667.0</td>
+      <td>2534.0</td>
+      <td>1534.0</td>
       <td>1.00</td>
     </tr>
   </tbody>
@@ -1048,11 +1050,20 @@ Priors:
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_25969/3021069513.py:5: FutureWarning: extract_dataset has been deprecated, please use extract
+  posterior = az.extract_dataset(results)
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_multi-level_regression_18_0.png" src="../_images/notebooks_multi-level_regression_18_0.png" />
+<img alt="../_images/notebooks_multi-level_regression_18_1.png" src="../_images/notebooks_multi-level_regression_18_1.png" />
 </div>
 </div>
 <p>Next, we calculate the mean regression line for each pig and show them together in one plot. Here we clearly see each pig has a different pair of intercept and slope.</p>
@@ -1133,22 +1144,21 @@ Priors:
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Thu Jun 16 2022
+Last updated: Thu Jan 05 2023
 
 Python implementation: CPython
-Python version       : 3.9.7
-IPython version      : 8.3.0
+Python version       : 3.10.4
+IPython version      : 8.5.0
 
-statsmodels: 0.13.0
-arviz      : 0.13.0.dev0
-numpy      : 1.21.5
-sys        : 3.9.7 (default, Sep 16 2021, 13:09:58)
-[GCC 7.5.0]
-matplotlib : 3.5.1
-bambi      : 0.9.0
-xarray     : 2022.3.0
+matplotlib : 3.6.2
+xarray     : 2022.11.0
+numpy      : 1.23.5
+arviz      : 0.14.0
+statsmodels: 0.13.2
+bambi      : 0.9.3
+sys        : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
 
-Watermark: 2.3.0
+Watermark: 2.3.1
 
 </pre></div></div>
 </div>

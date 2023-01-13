@@ -348,11 +348,11 @@
 
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
 
-<span class="kn">from</span> <span class="nn">bambi.utils</span> <span class="kn">import</span> <span class="n">multilinify</span><span class="p">,</span> <span class="n">spacify</span>
+<span class="kn">from</span> <span class="nn">bambi.utils</span> <span class="kn">import</span> <span class="n">multilinify</span><span class="p">,</span> <span class="n">indentify</span>
 
 
 <span class="k">def</span> <span class="nf">force_within_unit_interval</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Make sure data in unit interval is in (0, 1)&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make sure data in unit interval is in (0, 1)&quot;&quot;&quot;</span>
     <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
     <span class="n">x</span><span class="p">[</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">eps</span>
     <span class="n">x</span><span class="p">[</span><span class="n">x</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">eps</span>
@@ -360,7 +360,7 @@
 
 
 <span class="k">def</span> <span class="nf">force_greater_than_zero</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Make sure data in positive reals is in (0, infty)&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make sure data in positive reals is in (0, infty)&quot;&quot;&quot;</span>
     <span class="n">eps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">finfo</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">eps</span>
     <span class="n">x</span><span class="p">[</span><span class="n">x</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">eps</span>
     <span class="k">return</span> <span class="n">x</span>
@@ -371,38 +371,38 @@
 
 
 <span class="k">def</span> <span class="nf">cloglog</span><span class="p">(</span><span class="n">mu</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Cloglog function that ensures the input is greater than 0.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cloglog function that ensures the input is greater than 0.&quot;&quot;&quot;</span>
     <span class="n">mu</span> <span class="o">=</span> <span class="n">force_greater_than_zero</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">mu</span><span class="p">))</span>
 
 
 <span class="k">def</span> <span class="nf">invcloglog</span><span class="p">(</span><span class="n">eta</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Inverse of the cloglog function that ensures result is in (0, 1)&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Inverse of the cloglog function that ensures result is in (0, 1)&quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">eta</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">force_within_unit_interval</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">probit</span><span class="p">(</span><span class="n">mu</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Probit function that ensures the input is in (0, 1)&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Probit function that ensures the input is in (0, 1)&quot;&quot;&quot;</span>
     <span class="n">mu</span> <span class="o">=</span> <span class="n">force_within_unit_interval</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
     <span class="k">return</span> <span class="mi">2</span><span class="o">**</span><span class="mf">0.5</span> <span class="o">*</span> <span class="n">special</span><span class="o">.</span><span class="n">erfinv</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">mu</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
 
 
 <span class="k">def</span> <span class="nf">invprobit</span><span class="p">(</span><span class="n">eta</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Inverse of the probit function that ensures result is in (0, 1)&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Inverse of the probit function that ensures result is in (0, 1)&quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">special</span><span class="o">.</span><span class="n">erf</span><span class="p">(</span><span class="n">eta</span> <span class="o">/</span> <span class="mi">2</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
     <span class="k">return</span> <span class="n">force_within_unit_interval</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">expit</span><span class="p">(</span><span class="n">eta</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Expit function that ensures result is in (0, 1)&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Expit function that ensures result is in (0, 1)&quot;&quot;&quot;</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">special</span><span class="o">.</span><span class="n">expit</span><span class="p">(</span><span class="n">eta</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
     <span class="n">result</span> <span class="o">=</span> <span class="n">force_within_unit_interval</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">result</span>
 
 
 <span class="k">def</span> <span class="nf">logit</span><span class="p">(</span><span class="n">mu</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Logit function that ensures the input is in (0, 1)&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Logit function that ensures the input is in (0, 1)&quot;&quot;&quot;</span>
     <span class="n">mu</span> <span class="o">=</span> <span class="n">force_within_unit_interval</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">special</span><span class="o">.</span><span class="n">logit</span><span class="p">(</span><span class="n">mu</span><span class="p">)</span>  <span class="c1"># pylint: disable=no-member</span>
 
@@ -459,7 +459,7 @@
 
 
 <div class="viewcode-block" id="Link"><a class="viewcode-back" href="../../../api_reference.html#bambi.families.Link">[docs]</a><span class="k">class</span> <span class="nc">Link</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Representation of a link function.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Representation of a link function.</span>
 
 <span class="sd">    This object contains two main functions. One is the link function itself, the function</span>
 <span class="sd">    that maps values in the response scale to the linear predictor, and the other is the inverse</span>
@@ -471,17 +471,17 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    name: str</span>
+<span class="sd">    name : str</span>
 <span class="sd">        The name of the link function. If it is a known name, it&#39;s not necessary to pass any</span>
 <span class="sd">        other arguments because functions are already defined internally. If not known, all of</span>
 <span class="sd">        ``link``, ``linkinv`` and ``linkinv_backend`` must be specified.</span>
-<span class="sd">    link: function</span>
+<span class="sd">    link : function</span>
 <span class="sd">        A function that maps the response to the linear predictor. Known as the :math:`g` function</span>
 <span class="sd">        in GLM jargon. Does not need to be specified when ``name`` is a known name.</span>
-<span class="sd">    linkinv: function</span>
+<span class="sd">    linkinv : function</span>
 <span class="sd">        A function that maps the linear predictor to the response. Known as the :math:`g^{-1}`</span>
 <span class="sd">        function in GLM jargon. Does not need to be specified when ``name`` is a known name.</span>
-<span class="sd">    linkinv_backend: function</span>
+<span class="sd">    linkinv_backend : function</span>
 <span class="sd">        Same than ``linkinv`` but must be something that works with PyMC backend (i.e. it must</span>
 <span class="sd">        work with PyTensor tensors). Does not need to be specified when ``name`` is a known</span>
 <span class="sd">        name.</span>
@@ -505,7 +505,7 @@
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;name: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;link: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;linkinv: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">linkinv</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">spacify</span><span class="p">(</span><span class="n">multilinify</span><span class="p">(</span><span class="n">args</span><span class="p">))</span><span class="si">}</span><span class="se">\n</span><span class="s2">)&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">indentify</span><span class="p">(</span><span class="n">multilinify</span><span class="p">(</span><span class="n">args</span><span class="p">))</span><span class="si">}</span><span class="se">\n</span><span class="s2">)&quot;</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span></div>

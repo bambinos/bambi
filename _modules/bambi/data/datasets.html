@@ -451,11 +451,47 @@
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;Admission into graduate school data. This dataset has a binary response</span>
 <span class="s2">        variable called &#39;admit&#39;. There are three predictor variables: &#39;gre&#39;, &#39;gpa&#39; and &#39;rank&#39;.&quot;&quot;&quot;</span><span class="p">,</span>
     <span class="p">),</span>
+    <span class="s2">&quot;bikes&quot;</span><span class="p">:</span> <span class="n">FileMetadata</span><span class="p">(</span>
+        <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;bike_sharing.csv&quot;</span><span class="p">,</span>
+        <span class="n">url</span><span class="o">=</span><span class="s2">&quot;https://figshare.com/ndownloader/files/38737026&quot;</span><span class="p">,</span>
+        <span class="n">checksum</span><span class="o">=</span><span class="s2">&quot;3e1844b6da435f910b10899e18188568f7d789c715a286c9c6c2ca23833ee7ac&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">This dataset contains the hourly and daily count of rental bikes between </span>
+<span class="s2">years 2011 and 2012 in Capital bikeshare system with the corresponding weather and seasonal </span>
+<span class="s2">information.</span>
+
+<span class="s2">- instant: record index</span>
+<span class="s2">- dteday : date</span>
+<span class="s2">- season : season (1:winter, 2:spring, 3:summer, 4:fall)</span>
+<span class="s2">- yr : year (0: 2011, 1:2012)</span>
+<span class="s2">- mnth : month ( 1 to 12)</span>
+<span class="s2">- hr : hour (0 to 23)</span>
+<span class="s2">- holiday : weather day is holiday or not (extracted from [Web Link])</span>
+<span class="s2">- weekday : day of the week</span>
+<span class="s2">- workingday : if day is neither weekend nor holiday is 1, otherwise is 0.</span>
+<span class="s2">- weathersit :</span>
+<span class="s2">    * 1: Clear, Few clouds, Partly cloudy, Partly cloudy</span>
+<span class="s2">    * 2: Mist + Cloudy, Mist + Broken clouds, Mist + Few clouds, Mist</span>
+<span class="s2">    * 3: Light Snow, Light Rain + Thunderstorm + Scattered clouds, Light Rain + Scattered clouds</span>
+<span class="s2">    * 4: Heavy Rain + Ice Pallets + Thunderstorm + Mist, Snow + Fog</span>
+<span class="s2">- temperature : Normalized temperature in Celsius. </span>
+<span class="s2">    The values are derived via (t-t_min)/(t_max-t_min), t_min=-8, t_max=+39 (only in hourly scale)</span>
+<span class="s2">- atemp: Normalized feeling temperature in Celsius. </span>
+<span class="s2">    The values are derived via (t-t_min)/(t_max-t_min), t_min=-16, t_max=+50 (only in hourly scale)</span>
+<span class="s2">- humidty: Normalized humidity. The values are divided to 100 (max)</span>
+<span class="s2">- windspeed: Normalized wind speed. The values are divided to 67 (max)</span>
+<span class="s2">- casual: count of casual users</span>
+<span class="s2">- registered: count of registered users</span>
+<span class="s2">- count: count of total rental bikes including both casual and registered</span>
+
+<span class="s2">Original source: https://archive.ics.uci.edu/ml/datasets/bike+sharing+dataset</span>
+<span class="s2">.&quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="p">),</span>
 <span class="p">}</span>
 
 
 <span class="k">def</span> <span class="nf">get_data_home</span><span class="p">(</span><span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return the path of the Bambi data dir.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the path of the Bambi data dir.</span>
 
 <span class="sd">    This folder is used to avoid downloading the data several times.</span>
 
@@ -478,7 +514,7 @@
 
 
 <div class="viewcode-block" id="clear_data_home"><a class="viewcode-back" href="../../../api_reference.html#bambi.data.clear_data_home">[docs]</a><span class="k">def</span> <span class="nf">clear_data_home</span><span class="p">(</span><span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Delete all the content of the data home cache.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete all the content of the data home cache.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -491,7 +527,7 @@
 
 
 <span class="k">def</span> <span class="nf">_sha256</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Calculate the sha256 hash of the file at path.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the sha256 hash of the file at path.&quot;&quot;&quot;</span>
     <span class="n">sha256hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">()</span>
     <span class="n">chunk_size</span> <span class="o">=</span> <span class="mi">8192</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">buff</span><span class="p">:</span>
@@ -505,7 +541,7 @@
 
 
 <div class="viewcode-block" id="load_data"><a class="viewcode-back" href="../../../api_reference.html#bambi.data.load_data">[docs]</a><span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_home</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Load a dataset.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load a dataset.</span>
 
 <span class="sd">    Run with no parameters to get a list of all available data sets.</span>
 
@@ -551,7 +587,7 @@
 
 
 <span class="k">def</span> <span class="nf">_list_datasets</span><span class="p">(</span><span class="n">home_dir</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get a string representation of all available datasets with descriptions.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a string representation of all available datasets with descriptions.&quot;&quot;&quot;</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">filename</span><span class="p">,</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="n">DATASETS</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
         <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">home_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
@@ -559,9 +595,9 @@
             <span class="n">location</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;location: </span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">location</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;location: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;=&#39;</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;=&#39;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">{</span><span class="mi">10</span> <span class="o">*</span> <span class="s1">&#39;-&#39;</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">{</span><span class="mi">10</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
 </pre></div>
 
             </article>

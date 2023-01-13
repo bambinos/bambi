@@ -624,17 +624,23 @@ div.rendered_html tbody tr:hover {
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">8924</span><span class="p">)</span>
-
-<span class="o">%</span><span class="k">load_ext</span> autoreload
-<span class="o">%</span><span class="k">autoreload</span> 2
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Generator(PCG64) at 0x7FDEF2EFEC00
+</pre></div></div>
 </div>
 </section>
 <section id="Read-Data">
@@ -1171,16 +1177,16 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: log_radon ~ 0 + floor
-Family name: Gaussian
-Link: identity
-Observations: 919
-Priors:
-  Common-level effects
-    floor ~ Normal(mu: 0, sigma: 10)
-
-  Auxiliary parameters
-    sigma ~ Exponential(lam: 1)
+       Formula: log_radon ~ 0 + floor
+        Family: gaussian
+          Link: mu = identity
+  Observations: 919
+        Priors:
+    target = mu
+        Common-level effects
+            floor ~ Normal(mu: 0, sigma: 10)
+        Auxiliary parameters
+            log_radon_sigma ~ Exponential(lam: 1)
 </pre></div></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">Family</span> <span class="pre">name:</span> <span class="pre">Gaussian</span></code> indicates the selected family, which defaults to Gaussian. And <code class="docutils literal notranslate"><span class="pre">Link:</span> <span class="pre">identity</span></code> indicates the default value for the link argument in <code class="docutils literal notranslate"><span class="pre">bmb.Model()</span></code>. Taken together this simply means that we are fitting a normal linear regression model.</p>
@@ -1217,8 +1223,8 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [floor, log_radon_sigma]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [log_radon_sigma, floor]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1233,6 +1239,9 @@ NUTS: [floor, log_radon_sigma]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -1243,8 +1252,8 @@ NUTS: [floor, log_radon_sigma]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:07<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:02&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1252,7 +1261,7 @@ NUTS: [floor, log_radon_sigma]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 8 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 2 seconds.
 </pre></div></div>
 </div>
 <p>Now we can examine the posterior distribution, i.e. the joint distribution of model parameters conditional on the data:</p>
@@ -1319,38 +1328,38 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>floor[Basement]</th>
-      <td>1.363</td>
-      <td>0.028</td>
-      <td>1.311</td>
+      <td>1.362</td>
+      <td>0.029</td>
+      <td>1.308</td>
       <td>1.416</td>
+      <td>0.001</td>
       <td>0.000</td>
-      <td>0.000</td>
-      <td>5441.0</td>
-      <td>2814.0</td>
+      <td>2861.0</td>
+      <td>1584.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>floor[Floor]</th>
-      <td>0.775</td>
-      <td>0.066</td>
-      <td>0.655</td>
-      <td>0.898</td>
+      <td>0.776</td>
+      <td>0.060</td>
+      <td>0.664</td>
+      <td>0.885</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>5381.0</td>
-      <td>2969.0</td>
+      <td>2818.0</td>
+      <td>1502.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>log_radon_sigma</th>
       <td>0.791</td>
-      <td>0.019</td>
-      <td>0.756</td>
-      <td>0.826</td>
+      <td>0.018</td>
+      <td>0.755</td>
+      <td>0.823</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>5126.0</td>
-      <td>2817.0</td>
+      <td>2950.0</td>
+      <td>1459.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1444,11 +1453,20 @@ to. We pool all the counties into a single estimate, or in other words, we perfo
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_29247/1213510270.py:9: FutureWarning: extract_dataset has been deprecated, please use extract
+  pps = az.extract_dataset(pooled_results, group=&#34;posterior_predictive&#34;)[&#34;log_radon&#34;].values
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_radon_example_44_0.png" src="../_images/notebooks_radon_example_44_0.png" />
+<img alt="../_images/notebooks_radon_example_44_1.png" src="../_images/notebooks_radon_example_44_1.png" />
 </div>
 </div>
 <p>The distributions look very similar, but we see that we have some extreme values. Hence if we need a number to compare them let us use the median.</p>
@@ -1466,7 +1484,7 @@ to. We pool all the counties into a single estimate, or in other words, we perfo
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-array([3.73843077, 2.08995068])
+array([3.71183577, 2.01142545])
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1548,16 +1566,16 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: log_radon ~ 0 + county:floor
-Family name: Gaussian
-Link: identity
-Observations: 919
-Priors:
-  Common-level effects
-    county:floor ~ Normal(mu: 0, sigma: 10)
-
-  Auxiliary parameters
-    sigma ~ Exponential(lam: 1)
+       Formula: log_radon ~ 0 + county:floor
+        Family: gaussian
+          Link: mu = identity
+  Observations: 919
+        Priors:
+    target = mu
+        Common-level effects
+            county:floor ~ Normal(mu: 0, sigma: 10)
+        Auxiliary parameters
+            log_radon_sigma ~ Exponential(lam: 1)
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1575,8 +1593,8 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [county:floor, log_radon_sigma]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [log_radon_sigma, county:floor]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1591,6 +1609,9 @@ NUTS: [county:floor, log_radon_sigma]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -1601,8 +1622,8 @@ NUTS: [county:floor, log_radon_sigma]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 01:12<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 01:14&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1610,7 +1631,7 @@ NUTS: [county:floor, log_radon_sigma]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 73 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 74 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1812,19 +1833,19 @@ u_j &amp;= \text{Intercept specific to the county } j \\
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: log_radon ~ 1 + (1|county)
-Family name: Gaussian
-Link: identity
-Observations: 919
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 0, sigma: 10)
+       Formula: log_radon ~ 1 + (1|county)
+        Family: gaussian
+          Link: mu = identity
+  Observations: 919
+        Priors:
+    target = mu
+        Common-level effects
+            Intercept ~ Normal(mu: 0, sigma: 10)
 
-  Group-level effects
-    1|county ~ Normal(mu: 0, sigma: Exponential(lam: 1))
-
-  Auxiliary parameters
-    sigma ~ Exponential(lam: 1)
+        Group-level effects
+            1|county ~ Normal(mu: 0, sigma: Exponential(lam: 1))
+        Auxiliary parameters
+            log_radon_sigma ~ Exponential(lam: 1)
 </pre></div></div>
 </div>
 <p>The <code class="docutils literal notranslate"><span class="pre">noncentered</span></code> argument asks Bambi not to use the non centered representation for the varying effects. This makes the graph representation clearer and is closer to the original implementation in the PyMC documentation.</p>
@@ -1843,8 +1864,8 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [Intercept, 1|county_sigma, 1|county, log_radon_sigma]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [log_radon_sigma, Intercept, 1|county_sigma, 1|county]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1859,6 +1880,9 @@ NUTS: [Intercept, 1|county_sigma, 1|county, log_radon_sigma]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -1869,8 +1893,8 @@ NUTS: [Intercept, 1|county_sigma, 1|county, log_radon_sigma]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:04<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:06&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1878,7 +1902,7 @@ NUTS: [Intercept, 1|county_sigma, 1|county, log_radon_sigma]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 5 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
 </pre></div></div>
 </div>
 <p>We can inspect the graphical representation of the model:</p>
@@ -1924,6 +1948,1698 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
 </pre></div>
 </div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">partial_pooling_results</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+            <div>
+              <div class='xr-header'>
+                <div class="xr-obj-type">arviz.InferenceData</div>
+              </div>
+              <ul class="xr-sections group-sections">
+
+            <li class = "xr-section-item">
+                  <input id="idata_posterior560be49e-13f2-4728-a2fe-cb960f70a456" class="xr-section-summary-in" type="checkbox">
+                  <label for="idata_posterior560be49e-13f2-4728-a2fe-cb960f70a456" class = "xr-section-summary">posterior</label>
+                  <div class="xr-section-inline-details"></div>
+                  <div class="xr-section-details">
+                      <ul id="xr-dataset-coord-list" class="xr-var-list">
+                          <div style="padding-left:2rem;"><div><svg style="position: absolute; width: 0; height: 0; overflow: hidden">
+<defs>
+<symbol id="icon-database" viewBox="0 0 32 32">
+<path d="M16 0c-8.837 0-16 2.239-16 5v4c0 2.761 7.163 5 16 5s16-2.239 16-5v-4c0-2.761-7.163-5-16-5z"></path>
+<path d="M16 17c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
+<path d="M16 26c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
+</symbol>
+<symbol id="icon-file-text2" viewBox="0 0 32 32">
+<path d="M28.681 7.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-15.5c-1.378 0-2.5 1.121-2.5 2.5v27c0 1.378 1.122 2.5 2.5 2.5h23c1.378 0 2.5-1.122 2.5-2.5v-19.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 5.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5 0 0 15.499-0 15.5 0v7c0 0.552 0.448 1 1 1h7v19.5z"></path>
+<path d="M23 26h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+<path d="M23 22h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+<path d="M23 18h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+</symbol>
+</defs>
+</svg>
+<style>/* CSS stylesheet for displaying xarray objects in jupyterlab.
+ *
+ */
+
+:root {
+  --xr-font-color0: var(--jp-content-font-color0, rgba(0, 0, 0, 1));
+  --xr-font-color2: var(--jp-content-font-color2, rgba(0, 0, 0, 0.54));
+  --xr-font-color3: var(--jp-content-font-color3, rgba(0, 0, 0, 0.38));
+  --xr-border-color: var(--jp-border-color2, #e0e0e0);
+  --xr-disabled-color: var(--jp-layout-color3, #bdbdbd);
+  --xr-background-color: var(--jp-layout-color0, white);
+  --xr-background-color-row-even: var(--jp-layout-color1, white);
+  --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
+}
+
+html[theme=dark],
+body[data-theme=dark],
+body.vscode-dark {
+  --xr-font-color0: rgba(255, 255, 255, 1);
+  --xr-font-color2: rgba(255, 255, 255, 0.54);
+  --xr-font-color3: rgba(255, 255, 255, 0.38);
+  --xr-border-color: #1F1F1F;
+  --xr-disabled-color: #515151;
+  --xr-background-color: #111111;
+  --xr-background-color-row-even: #111111;
+  --xr-background-color-row-odd: #313131;
+}
+
+.xr-wrap {
+  display: block !important;
+  min-width: 300px;
+  max-width: 700px;
+}
+
+.xr-text-repr-fallback {
+  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
+  display: none;
+}
+
+.xr-header {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+  border-bottom: solid 1px var(--xr-border-color);
+}
+
+.xr-header > div,
+.xr-header > ul {
+  display: inline;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.xr-obj-type,
+.xr-array-name {
+  margin-left: 2px;
+  margin-right: 10px;
+}
+
+.xr-obj-type {
+  color: var(--xr-font-color2);
+}
+
+.xr-sections {
+  padding-left: 0 !important;
+  display: grid;
+  grid-template-columns: 150px auto auto 1fr 20px 20px;
+}
+
+.xr-section-item {
+  display: contents;
+}
+
+.xr-section-item input {
+  display: none;
+}
+
+.xr-section-item input + label {
+  color: var(--xr-disabled-color);
+}
+
+.xr-section-item input:enabled + label {
+  cursor: pointer;
+  color: var(--xr-font-color2);
+}
+
+.xr-section-item input:enabled + label:hover {
+  color: var(--xr-font-color0);
+}
+
+.xr-section-summary {
+  grid-column: 1;
+  color: var(--xr-font-color2);
+  font-weight: 500;
+}
+
+.xr-section-summary > span {
+  display: inline-block;
+  padding-left: 0.5em;
+}
+
+.xr-section-summary-in:disabled + label {
+  color: var(--xr-font-color2);
+}
+
+.xr-section-summary-in + label:before {
+  display: inline-block;
+  content: '►';
+  font-size: 11px;
+  width: 15px;
+  text-align: center;
+}
+
+.xr-section-summary-in:disabled + label:before {
+  color: var(--xr-disabled-color);
+}
+
+.xr-section-summary-in:checked + label:before {
+  content: '▼';
+}
+
+.xr-section-summary-in:checked + label > span {
+  display: none;
+}
+
+.xr-section-summary,
+.xr-section-inline-details {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.xr-section-inline-details {
+  grid-column: 2 / -1;
+}
+
+.xr-section-details {
+  display: none;
+  grid-column: 1 / -1;
+  margin-bottom: 5px;
+}
+
+.xr-section-summary-in:checked ~ .xr-section-details {
+  display: contents;
+}
+
+.xr-array-wrap {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 20px auto;
+}
+
+.xr-array-wrap > label {
+  grid-column: 1;
+  vertical-align: top;
+}
+
+.xr-preview {
+  color: var(--xr-font-color3);
+}
+
+.xr-array-preview,
+.xr-array-data {
+  padding: 0 5px !important;
+  grid-column: 2;
+}
+
+.xr-array-data,
+.xr-array-in:checked ~ .xr-array-preview {
+  display: none;
+}
+
+.xr-array-in:checked ~ .xr-array-data,
+.xr-array-preview {
+  display: inline-block;
+}
+
+.xr-dim-list {
+  display: inline-block !important;
+  list-style: none;
+  padding: 0 !important;
+  margin: 0;
+}
+
+.xr-dim-list li {
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+}
+
+.xr-dim-list:before {
+  content: '(';
+}
+
+.xr-dim-list:after {
+  content: ')';
+}
+
+.xr-dim-list li:not(:last-child):after {
+  content: ',';
+  padding-right: 5px;
+}
+
+.xr-has-index {
+  font-weight: bold;
+}
+
+.xr-var-list,
+.xr-var-item {
+  display: contents;
+}
+
+.xr-var-item > div,
+.xr-var-item label,
+.xr-var-item > .xr-var-name span {
+  background-color: var(--xr-background-color-row-even);
+  margin-bottom: 0;
+}
+
+.xr-var-item > .xr-var-name:hover span {
+  padding-right: 5px;
+}
+
+.xr-var-list > li:nth-child(odd) > div,
+.xr-var-list > li:nth-child(odd) > label,
+.xr-var-list > li:nth-child(odd) > .xr-var-name span {
+  background-color: var(--xr-background-color-row-odd);
+}
+
+.xr-var-name {
+  grid-column: 1;
+}
+
+.xr-var-dims {
+  grid-column: 2;
+}
+
+.xr-var-dtype {
+  grid-column: 3;
+  text-align: right;
+  color: var(--xr-font-color2);
+}
+
+.xr-var-preview {
+  grid-column: 4;
+}
+
+.xr-index-preview {
+  grid-column: 2 / 5;
+  color: var(--xr-font-color2);
+}
+
+.xr-var-name,
+.xr-var-dims,
+.xr-var-dtype,
+.xr-preview,
+.xr-attrs dt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+}
+
+.xr-var-name:hover,
+.xr-var-dims:hover,
+.xr-var-dtype:hover,
+.xr-attrs dt:hover {
+  overflow: visible;
+  width: auto;
+  z-index: 1;
+}
+
+.xr-var-attrs,
+.xr-var-data,
+.xr-index-data {
+  display: none;
+  background-color: var(--xr-background-color) !important;
+  padding-bottom: 5px !important;
+}
+
+.xr-var-attrs-in:checked ~ .xr-var-attrs,
+.xr-var-data-in:checked ~ .xr-var-data,
+.xr-index-data-in:checked ~ .xr-index-data {
+  display: block;
+}
+
+.xr-var-data > table {
+  float: right;
+}
+
+.xr-var-name span,
+.xr-var-data,
+.xr-index-name div,
+.xr-index-data,
+.xr-attrs {
+  padding-left: 25px !important;
+}
+
+.xr-attrs,
+.xr-var-attrs,
+.xr-var-data,
+.xr-index-data {
+  grid-column: 1 / -1;
+}
+
+dl.xr-attrs {
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 125px auto;
+}
+
+.xr-attrs dt,
+.xr-attrs dd {
+  padding: 0;
+  margin: 0;
+  float: left;
+  padding-right: 10px;
+  width: auto;
+}
+
+.xr-attrs dt {
+  font-weight: normal;
+  grid-column: 1;
+}
+
+.xr-attrs dt:hover span {
+  display: inline-block;
+  background: var(--xr-background-color);
+  padding-right: 10px;
+}
+
+.xr-attrs dd {
+  grid-column: 2;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.xr-icon-database,
+.xr-icon-file-text2,
+.xr-no-icon {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1em;
+  height: 1.5em !important;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
+}
+</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt;
+Dimensions:             (chain: 2, draw: 1000, county__factor_dim: 85)
+Coordinates:
+  * chain               (chain) int64 0 1
+  * draw                (draw) int64 0 1 2 3 4 5 6 ... 994 995 996 997 998 999
+  * county__factor_dim  (county__factor_dim) &lt;U17 &#x27;AITKIN&#x27; ... &#x27;YELLOW MEDICINE&#x27;
+Data variables:
+    Intercept           (chain, draw) float64 1.408 1.346 1.346 ... 1.357 1.331
+    1|county            (chain, draw, county__factor_dim) float64 -0.133 ... ...
+    log_radon_sigma     (chain, draw) float64 0.7464 0.787 ... 0.7664 0.778
+    1|county_sigma      (chain, draw) float64 0.2866 0.3519 ... 0.2508 0.2492
+Attributes:
+    created_at:                  2023-01-05T15:05:23.323290
+    arviz_version:               0.14.0
+    inference_library:           pymc
+    inference_library_version:   5.0.1
+    sampling_time:               6.298857688903809
+    tuning_steps:                1000
+    modeling_interface:          bambi
+    modeling_interface_version:  0.9.3</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-12f2744a-8450-4211-a217-891823c222d1' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-12f2744a-8450-4211-a217-891823c222d1' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>chain</span>: 2</li><li><span class='xr-has-index'>draw</span>: 1000</li><li><span class='xr-has-index'>county__factor_dim</span>: 85</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-e8c6cc5e-68e5-416e-9b8c-f43026e301c6' class='xr-section-summary-in' type='checkbox'  checked><label for='section-e8c6cc5e-68e5-416e-9b8c-f43026e301c6' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>chain</span></div><div class='xr-var-dims'>(chain)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>0 1</div><input id='attrs-7eb90d58-b85f-4a1a-af85-48401506798d' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-7eb90d58-b85f-4a1a-af85-48401506798d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-53f6ac73-dec3-4c50-bb38-0f8017888984' class='xr-var-data-in' type='checkbox'><label for='data-53f6ac73-dec3-4c50-bb38-0f8017888984' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([0, 1])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>draw</span></div><div class='xr-var-dims'>(draw)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>0 1 2 3 4 5 ... 995 996 997 998 999</div><input id='attrs-af2fc22b-a654-4323-bcff-69c67feaee82' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-af2fc22b-a654-4323-bcff-69c67feaee82' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b29caa48-2552-4bc0-bb4d-4e01a9e5d688' class='xr-var-data-in' type='checkbox'><label for='data-b29caa48-2552-4bc0-bb4d-4e01a9e5d688' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([  0,   1,   2, ..., 997, 998, 999])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>county__factor_dim</span></div><div class='xr-var-dims'>(county__factor_dim)</div><div class='xr-var-dtype'>&lt;U17</div><div class='xr-var-preview xr-preview'>&#x27;AITKIN&#x27; ... &#x27;YELLOW MEDICINE&#x27;</div><input id='attrs-62500b60-a9db-41a0-a03d-a6671f9a18cc' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-62500b60-a9db-41a0-a03d-a6671f9a18cc' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-64bf417a-19ba-47fc-83cf-02885c84164a' class='xr-var-data-in' type='checkbox'><label for='data-64bf417a-19ba-47fc-83cf-02885c84164a' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([&#x27;AITKIN&#x27;, &#x27;ANOKA&#x27;, &#x27;BECKER&#x27;, &#x27;BELTRAMI&#x27;, &#x27;BENTON&#x27;, &#x27;BIG STONE&#x27;,
+       &#x27;BLUE EARTH&#x27;, &#x27;BROWN&#x27;, &#x27;CARLTON&#x27;, &#x27;CARVER&#x27;, &#x27;CASS&#x27;, &#x27;CHIPPEWA&#x27;,
+       &#x27;CHISAGO&#x27;, &#x27;CLAY&#x27;, &#x27;CLEARWATER&#x27;, &#x27;COOK&#x27;, &#x27;COTTONWOOD&#x27;, &#x27;CROW WING&#x27;,
+       &#x27;DAKOTA&#x27;, &#x27;DODGE&#x27;, &#x27;DOUGLAS&#x27;, &#x27;FARIBAULT&#x27;, &#x27;FILLMORE&#x27;, &#x27;FREEBORN&#x27;,
+       &#x27;GOODHUE&#x27;, &#x27;HENNEPIN&#x27;, &#x27;HOUSTON&#x27;, &#x27;HUBBARD&#x27;, &#x27;ISANTI&#x27;, &#x27;ITASCA&#x27;,
+       &#x27;JACKSON&#x27;, &#x27;KANABEC&#x27;, &#x27;KANDIYOHI&#x27;, &#x27;KITTSON&#x27;, &#x27;KOOCHICHING&#x27;,
+       &#x27;LAC QUI PARLE&#x27;, &#x27;LAKE&#x27;, &#x27;LAKE OF THE WOODS&#x27;, &#x27;LE SUEUR&#x27;, &#x27;LINCOLN&#x27;,
+       &#x27;LYON&#x27;, &#x27;MAHNOMEN&#x27;, &#x27;MARSHALL&#x27;, &#x27;MARTIN&#x27;, &#x27;MCLEOD&#x27;, &#x27;MEEKER&#x27;,
+       &#x27;MILLE LACS&#x27;, &#x27;MORRISON&#x27;, &#x27;MOWER&#x27;, &#x27;MURRAY&#x27;, &#x27;NICOLLET&#x27;, &#x27;NOBLES&#x27;,
+       &#x27;NORMAN&#x27;, &#x27;OLMSTED&#x27;, &#x27;OTTER TAIL&#x27;, &#x27;PENNINGTON&#x27;, &#x27;PINE&#x27;, &#x27;PIPESTONE&#x27;,
+       &#x27;POLK&#x27;, &#x27;POPE&#x27;, &#x27;RAMSEY&#x27;, &#x27;REDWOOD&#x27;, &#x27;RENVILLE&#x27;, &#x27;RICE&#x27;, &#x27;ROCK&#x27;,
+       &#x27;ROSEAU&#x27;, &#x27;SCOTT&#x27;, &#x27;SHERBURNE&#x27;, &#x27;SIBLEY&#x27;, &#x27;ST LOUIS&#x27;, &#x27;STEARNS&#x27;,
+       &#x27;STEELE&#x27;, &#x27;STEVENS&#x27;, &#x27;SWIFT&#x27;, &#x27;TODD&#x27;, &#x27;TRAVERSE&#x27;, &#x27;WABASHA&#x27;, &#x27;WADENA&#x27;,
+       &#x27;WASECA&#x27;, &#x27;WASHINGTON&#x27;, &#x27;WATONWAN&#x27;, &#x27;WILKIN&#x27;, &#x27;WINONA&#x27;, &#x27;WRIGHT&#x27;,
+       &#x27;YELLOW MEDICINE&#x27;], dtype=&#x27;&lt;U17&#x27;)</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-7b4a15e2-ce70-4bf0-96aa-ad06f596d4a4' class='xr-section-summary-in' type='checkbox'  checked><label for='section-7b4a15e2-ce70-4bf0-96aa-ad06f596d4a4' class='xr-section-summary' >Data variables: <span>(4)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>Intercept</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>1.408 1.346 1.346 ... 1.357 1.331</div><input id='attrs-01b242f3-ac08-4b86-9857-a97eb60d6763' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-01b242f3-ac08-4b86-9857-a97eb60d6763' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-fda40d83-6934-4228-9eed-ade4f59011c3' class='xr-var-data-in' type='checkbox'><label for='data-fda40d83-6934-4228-9eed-ade4f59011c3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[1.4077201 , 1.34624493, 1.34565521, ..., 1.36086223, 1.33421852,
+        1.41040288],
+       [1.40639123, 1.25722275, 1.28454437, ..., 1.38468539, 1.35695049,
+        1.33054722]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>1|county</span></div><div class='xr-var-dims'>(chain, draw, county__factor_dim)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-0.133 -0.5878 ... 0.1976 -0.5035</div><input id='attrs-22d78435-6cc3-4048-928a-2ad597ab0453' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-22d78435-6cc3-4048-928a-2ad597ab0453' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ae59bc4e-a41b-4fdd-a2ac-16997f1ea210' class='xr-var-data-in' type='checkbox'><label for='data-ae59bc4e-a41b-4fdd-a2ac-16997f1ea210' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[[-0.1330036 , -0.58777044, -0.32900234, ...,  0.21840521,
+          0.04550071, -0.01131558],
+        [-0.30816748, -0.26527478, -0.03044064, ...,  0.04318493,
+          0.26315661,  0.33361835],
+        [-0.52225997, -0.33040893, -0.51994547, ...,  0.22502481,
+          0.03073277,  0.31929866],
+        ...,
+        [-0.23801038, -0.42491499,  0.0216709 , ..., -0.27325958,
+          0.12411186,  0.27354628],
+        [-0.32953268, -0.43811102, -0.17181341, ...,  0.45143814,
+          0.19145088, -0.44540677],
+        [-0.21698272, -0.48174021, -0.36342377, ..., -0.47707638,
+          0.06378008,  0.37501537]],
+
+       [[-0.17429479, -0.48471575,  0.02980963, ...,  0.19871682,
+          0.12877066, -0.1038669 ],
+        [-0.45319249, -0.4049268 , -0.28021312, ...,  0.01458004,
+          0.3445744 ,  0.04872305],
+        [ 0.01123843, -0.20330103, -0.42761818, ...,  0.57771784,
+          0.35014877,  0.32899359],
+        ...,
+        [-0.3220596 , -0.43603886, -0.20031106, ...,  0.12031935,
+         -0.01931944, -0.24545371],
+        [-0.31834366, -0.35982062,  0.04533229, ...,  0.09312169,
+          0.13443558, -0.39461371],
+        [-0.23546351, -0.35168557,  0.00606731, ...,  0.0786892 ,
+          0.19757877, -0.50349315]]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>log_radon_sigma</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.7464 0.787 ... 0.7664 0.778</div><input id='attrs-5124f09e-5d27-463c-991e-d5a15072226e' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-5124f09e-5d27-463c-991e-d5a15072226e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-2d5b453a-4dbe-40cf-9a42-75e6fe34e4f2' class='xr-var-data-in' type='checkbox'><label for='data-2d5b453a-4dbe-40cf-9a42-75e6fe34e4f2' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[0.74644309, 0.78698726, 0.80709702, ..., 0.78509778, 0.75258448,
+        0.77453563],
+       [0.76739938, 0.76713974, 0.7845376 , ..., 0.7712114 , 0.76642623,
+        0.77796658]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>1|county_sigma</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.2866 0.3519 ... 0.2508 0.2492</div><input id='attrs-b463a663-5089-4ce2-8c2c-fd3f9b447019' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-b463a663-5089-4ce2-8c2c-fd3f9b447019' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-a435ce1c-a50f-4a40-8765-2b9a1dc5e38a' class='xr-var-data-in' type='checkbox'><label for='data-a435ce1c-a50f-4a40-8765-2b9a1dc5e38a' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[0.28655167, 0.35187238, 0.36204731, ..., 0.31710499, 0.3618921 ,
+        0.36221066],
+       [0.31488051, 0.3565084 , 0.33618049, ..., 0.29492183, 0.25077636,
+        0.24919994]])</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-08155f0d-20a3-4983-9d5e-72e0c003d44c' class='xr-section-summary-in' type='checkbox'  ><label for='section-08155f0d-20a3-4983-9d5e-72e0c003d44c' class='xr-section-summary' >Indexes: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>chain</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-8bd69881-edb2-4e9c-baf5-c1c1950ffadd' class='xr-index-data-in' type='checkbox'/><label for='index-8bd69881-edb2-4e9c-baf5-c1c1950ffadd' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Int64Index([0, 1], dtype=&#x27;int64&#x27;, name=&#x27;chain&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>draw</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-1aa0dce0-d6a1-473a-8952-099ffbcd288e' class='xr-index-data-in' type='checkbox'/><label for='index-1aa0dce0-d6a1-473a-8952-099ffbcd288e' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Int64Index([  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
+            ...
+            990, 991, 992, 993, 994, 995, 996, 997, 998, 999],
+           dtype=&#x27;int64&#x27;, name=&#x27;draw&#x27;, length=1000))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>county__factor_dim</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-fc6396db-2557-41de-9d61-0c6a08708a0b' class='xr-index-data-in' type='checkbox'/><label for='index-fc6396db-2557-41de-9d61-0c6a08708a0b' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Index([&#x27;AITKIN&#x27;, &#x27;ANOKA&#x27;, &#x27;BECKER&#x27;, &#x27;BELTRAMI&#x27;, &#x27;BENTON&#x27;, &#x27;BIG STONE&#x27;,
+       &#x27;BLUE EARTH&#x27;, &#x27;BROWN&#x27;, &#x27;CARLTON&#x27;, &#x27;CARVER&#x27;, &#x27;CASS&#x27;, &#x27;CHIPPEWA&#x27;,
+       &#x27;CHISAGO&#x27;, &#x27;CLAY&#x27;, &#x27;CLEARWATER&#x27;, &#x27;COOK&#x27;, &#x27;COTTONWOOD&#x27;, &#x27;CROW WING&#x27;,
+       &#x27;DAKOTA&#x27;, &#x27;DODGE&#x27;, &#x27;DOUGLAS&#x27;, &#x27;FARIBAULT&#x27;, &#x27;FILLMORE&#x27;, &#x27;FREEBORN&#x27;,
+       &#x27;GOODHUE&#x27;, &#x27;HENNEPIN&#x27;, &#x27;HOUSTON&#x27;, &#x27;HUBBARD&#x27;, &#x27;ISANTI&#x27;, &#x27;ITASCA&#x27;,
+       &#x27;JACKSON&#x27;, &#x27;KANABEC&#x27;, &#x27;KANDIYOHI&#x27;, &#x27;KITTSON&#x27;, &#x27;KOOCHICHING&#x27;,
+       &#x27;LAC QUI PARLE&#x27;, &#x27;LAKE&#x27;, &#x27;LAKE OF THE WOODS&#x27;, &#x27;LE SUEUR&#x27;, &#x27;LINCOLN&#x27;,
+       &#x27;LYON&#x27;, &#x27;MAHNOMEN&#x27;, &#x27;MARSHALL&#x27;, &#x27;MARTIN&#x27;, &#x27;MCLEOD&#x27;, &#x27;MEEKER&#x27;,
+       &#x27;MILLE LACS&#x27;, &#x27;MORRISON&#x27;, &#x27;MOWER&#x27;, &#x27;MURRAY&#x27;, &#x27;NICOLLET&#x27;, &#x27;NOBLES&#x27;,
+       &#x27;NORMAN&#x27;, &#x27;OLMSTED&#x27;, &#x27;OTTER TAIL&#x27;, &#x27;PENNINGTON&#x27;, &#x27;PINE&#x27;, &#x27;PIPESTONE&#x27;,
+       &#x27;POLK&#x27;, &#x27;POPE&#x27;, &#x27;RAMSEY&#x27;, &#x27;REDWOOD&#x27;, &#x27;RENVILLE&#x27;, &#x27;RICE&#x27;, &#x27;ROCK&#x27;,
+       &#x27;ROSEAU&#x27;, &#x27;SCOTT&#x27;, &#x27;SHERBURNE&#x27;, &#x27;SIBLEY&#x27;, &#x27;ST LOUIS&#x27;, &#x27;STEARNS&#x27;,
+       &#x27;STEELE&#x27;, &#x27;STEVENS&#x27;, &#x27;SWIFT&#x27;, &#x27;TODD&#x27;, &#x27;TRAVERSE&#x27;, &#x27;WABASHA&#x27;, &#x27;WADENA&#x27;,
+       &#x27;WASECA&#x27;, &#x27;WASHINGTON&#x27;, &#x27;WATONWAN&#x27;, &#x27;WILKIN&#x27;, &#x27;WINONA&#x27;, &#x27;WRIGHT&#x27;,
+       &#x27;YELLOW MEDICINE&#x27;],
+      dtype=&#x27;object&#x27;, name=&#x27;county__factor_dim&#x27;))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-ac1b9f3a-117c-4a1c-8acc-5a0e748131df' class='xr-section-summary-in' type='checkbox'  checked><label for='section-ac1b9f3a-117c-4a1c-8acc-5a0e748131df' class='xr-section-summary' >Attributes: <span>(8)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>created_at :</span></dt><dd>2023-01-05T15:05:23.323290</dd><dt><span>arviz_version :</span></dt><dd>0.14.0</dd><dt><span>inference_library :</span></dt><dd>pymc</dd><dt><span>inference_library_version :</span></dt><dd>5.0.1</dd><dt><span>sampling_time :</span></dt><dd>6.298857688903809</dd><dt><span>tuning_steps :</span></dt><dd>1000</dd><dt><span>modeling_interface :</span></dt><dd>bambi</dd><dt><span>modeling_interface_version :</span></dt><dd>0.9.3</dd></dl></div></li></ul></div></div><br></div>
+                      </ul>
+                  </div>
+            </li>
+
+            <li class = "xr-section-item">
+                  <input id="idata_sample_stats0d0d9c13-7a90-4fbb-8f4a-f44afe678da9" class="xr-section-summary-in" type="checkbox">
+                  <label for="idata_sample_stats0d0d9c13-7a90-4fbb-8f4a-f44afe678da9" class = "xr-section-summary">sample_stats</label>
+                  <div class="xr-section-inline-details"></div>
+                  <div class="xr-section-details">
+                      <ul id="xr-dataset-coord-list" class="xr-var-list">
+                          <div style="padding-left:2rem;"><div><svg style="position: absolute; width: 0; height: 0; overflow: hidden">
+<defs>
+<symbol id="icon-database" viewBox="0 0 32 32">
+<path d="M16 0c-8.837 0-16 2.239-16 5v4c0 2.761 7.163 5 16 5s16-2.239 16-5v-4c0-2.761-7.163-5-16-5z"></path>
+<path d="M16 17c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
+<path d="M16 26c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
+</symbol>
+<symbol id="icon-file-text2" viewBox="0 0 32 32">
+<path d="M28.681 7.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-15.5c-1.378 0-2.5 1.121-2.5 2.5v27c0 1.378 1.122 2.5 2.5 2.5h23c1.378 0 2.5-1.122 2.5-2.5v-19.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 5.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5 0 0 15.499-0 15.5 0v7c0 0.552 0.448 1 1 1h7v19.5z"></path>
+<path d="M23 26h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+<path d="M23 22h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+<path d="M23 18h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+</symbol>
+</defs>
+</svg>
+<style>/* CSS stylesheet for displaying xarray objects in jupyterlab.
+ *
+ */
+
+:root {
+  --xr-font-color0: var(--jp-content-font-color0, rgba(0, 0, 0, 1));
+  --xr-font-color2: var(--jp-content-font-color2, rgba(0, 0, 0, 0.54));
+  --xr-font-color3: var(--jp-content-font-color3, rgba(0, 0, 0, 0.38));
+  --xr-border-color: var(--jp-border-color2, #e0e0e0);
+  --xr-disabled-color: var(--jp-layout-color3, #bdbdbd);
+  --xr-background-color: var(--jp-layout-color0, white);
+  --xr-background-color-row-even: var(--jp-layout-color1, white);
+  --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
+}
+
+html[theme=dark],
+body[data-theme=dark],
+body.vscode-dark {
+  --xr-font-color0: rgba(255, 255, 255, 1);
+  --xr-font-color2: rgba(255, 255, 255, 0.54);
+  --xr-font-color3: rgba(255, 255, 255, 0.38);
+  --xr-border-color: #1F1F1F;
+  --xr-disabled-color: #515151;
+  --xr-background-color: #111111;
+  --xr-background-color-row-even: #111111;
+  --xr-background-color-row-odd: #313131;
+}
+
+.xr-wrap {
+  display: block !important;
+  min-width: 300px;
+  max-width: 700px;
+}
+
+.xr-text-repr-fallback {
+  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
+  display: none;
+}
+
+.xr-header {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+  border-bottom: solid 1px var(--xr-border-color);
+}
+
+.xr-header > div,
+.xr-header > ul {
+  display: inline;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.xr-obj-type,
+.xr-array-name {
+  margin-left: 2px;
+  margin-right: 10px;
+}
+
+.xr-obj-type {
+  color: var(--xr-font-color2);
+}
+
+.xr-sections {
+  padding-left: 0 !important;
+  display: grid;
+  grid-template-columns: 150px auto auto 1fr 20px 20px;
+}
+
+.xr-section-item {
+  display: contents;
+}
+
+.xr-section-item input {
+  display: none;
+}
+
+.xr-section-item input + label {
+  color: var(--xr-disabled-color);
+}
+
+.xr-section-item input:enabled + label {
+  cursor: pointer;
+  color: var(--xr-font-color2);
+}
+
+.xr-section-item input:enabled + label:hover {
+  color: var(--xr-font-color0);
+}
+
+.xr-section-summary {
+  grid-column: 1;
+  color: var(--xr-font-color2);
+  font-weight: 500;
+}
+
+.xr-section-summary > span {
+  display: inline-block;
+  padding-left: 0.5em;
+}
+
+.xr-section-summary-in:disabled + label {
+  color: var(--xr-font-color2);
+}
+
+.xr-section-summary-in + label:before {
+  display: inline-block;
+  content: '►';
+  font-size: 11px;
+  width: 15px;
+  text-align: center;
+}
+
+.xr-section-summary-in:disabled + label:before {
+  color: var(--xr-disabled-color);
+}
+
+.xr-section-summary-in:checked + label:before {
+  content: '▼';
+}
+
+.xr-section-summary-in:checked + label > span {
+  display: none;
+}
+
+.xr-section-summary,
+.xr-section-inline-details {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.xr-section-inline-details {
+  grid-column: 2 / -1;
+}
+
+.xr-section-details {
+  display: none;
+  grid-column: 1 / -1;
+  margin-bottom: 5px;
+}
+
+.xr-section-summary-in:checked ~ .xr-section-details {
+  display: contents;
+}
+
+.xr-array-wrap {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 20px auto;
+}
+
+.xr-array-wrap > label {
+  grid-column: 1;
+  vertical-align: top;
+}
+
+.xr-preview {
+  color: var(--xr-font-color3);
+}
+
+.xr-array-preview,
+.xr-array-data {
+  padding: 0 5px !important;
+  grid-column: 2;
+}
+
+.xr-array-data,
+.xr-array-in:checked ~ .xr-array-preview {
+  display: none;
+}
+
+.xr-array-in:checked ~ .xr-array-data,
+.xr-array-preview {
+  display: inline-block;
+}
+
+.xr-dim-list {
+  display: inline-block !important;
+  list-style: none;
+  padding: 0 !important;
+  margin: 0;
+}
+
+.xr-dim-list li {
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+}
+
+.xr-dim-list:before {
+  content: '(';
+}
+
+.xr-dim-list:after {
+  content: ')';
+}
+
+.xr-dim-list li:not(:last-child):after {
+  content: ',';
+  padding-right: 5px;
+}
+
+.xr-has-index {
+  font-weight: bold;
+}
+
+.xr-var-list,
+.xr-var-item {
+  display: contents;
+}
+
+.xr-var-item > div,
+.xr-var-item label,
+.xr-var-item > .xr-var-name span {
+  background-color: var(--xr-background-color-row-even);
+  margin-bottom: 0;
+}
+
+.xr-var-item > .xr-var-name:hover span {
+  padding-right: 5px;
+}
+
+.xr-var-list > li:nth-child(odd) > div,
+.xr-var-list > li:nth-child(odd) > label,
+.xr-var-list > li:nth-child(odd) > .xr-var-name span {
+  background-color: var(--xr-background-color-row-odd);
+}
+
+.xr-var-name {
+  grid-column: 1;
+}
+
+.xr-var-dims {
+  grid-column: 2;
+}
+
+.xr-var-dtype {
+  grid-column: 3;
+  text-align: right;
+  color: var(--xr-font-color2);
+}
+
+.xr-var-preview {
+  grid-column: 4;
+}
+
+.xr-index-preview {
+  grid-column: 2 / 5;
+  color: var(--xr-font-color2);
+}
+
+.xr-var-name,
+.xr-var-dims,
+.xr-var-dtype,
+.xr-preview,
+.xr-attrs dt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+}
+
+.xr-var-name:hover,
+.xr-var-dims:hover,
+.xr-var-dtype:hover,
+.xr-attrs dt:hover {
+  overflow: visible;
+  width: auto;
+  z-index: 1;
+}
+
+.xr-var-attrs,
+.xr-var-data,
+.xr-index-data {
+  display: none;
+  background-color: var(--xr-background-color) !important;
+  padding-bottom: 5px !important;
+}
+
+.xr-var-attrs-in:checked ~ .xr-var-attrs,
+.xr-var-data-in:checked ~ .xr-var-data,
+.xr-index-data-in:checked ~ .xr-index-data {
+  display: block;
+}
+
+.xr-var-data > table {
+  float: right;
+}
+
+.xr-var-name span,
+.xr-var-data,
+.xr-index-name div,
+.xr-index-data,
+.xr-attrs {
+  padding-left: 25px !important;
+}
+
+.xr-attrs,
+.xr-var-attrs,
+.xr-var-data,
+.xr-index-data {
+  grid-column: 1 / -1;
+}
+
+dl.xr-attrs {
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 125px auto;
+}
+
+.xr-attrs dt,
+.xr-attrs dd {
+  padding: 0;
+  margin: 0;
+  float: left;
+  padding-right: 10px;
+  width: auto;
+}
+
+.xr-attrs dt {
+  font-weight: normal;
+  grid-column: 1;
+}
+
+.xr-attrs dt:hover span {
+  display: inline-block;
+  background: var(--xr-background-color);
+  padding-right: 10px;
+}
+
+.xr-attrs dd {
+  grid-column: 2;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.xr-icon-database,
+.xr-icon-file-text2,
+.xr-no-icon {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1em;
+  height: 1.5em !important;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
+}
+</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt;
+Dimensions:                (chain: 2, draw: 1000)
+Coordinates:
+  * chain                  (chain) int64 0 1
+  * draw                   (draw) int64 0 1 2 3 4 5 ... 994 995 996 997 998 999
+Data variables: (12/17)
+    smallest_eigval        (chain, draw) float64 nan nan nan nan ... nan nan nan
+    diverging              (chain, draw) bool False False False ... False False
+    step_size              (chain, draw) float64 0.4264 0.4264 ... 0.5258 0.5258
+    perf_counter_start     (chain, draw) float64 1.134e+04 ... 1.134e+04
+    process_time_diff      (chain, draw) float64 0.001845 0.001541 ... 0.001548
+    n_steps                (chain, draw) float64 7.0 7.0 15.0 ... 7.0 15.0 7.0
+    ...                     ...
+    lp                     (chain, draw) float64 -1.085e+03 ... -1.08e+03
+    step_size_bar          (chain, draw) float64 0.443 0.443 ... 0.4482 0.4482
+    energy                 (chain, draw) float64 1.126e+03 ... 1.126e+03
+    acceptance_rate        (chain, draw) float64 0.5666 0.8503 ... 0.6538 0.808
+    max_energy_error       (chain, draw) float64 0.77 -0.5181 ... 0.9307 0.5153
+    largest_eigval         (chain, draw) float64 nan nan nan nan ... nan nan nan
+Attributes:
+    created_at:                  2023-01-05T15:05:23.338166
+    arviz_version:               0.14.0
+    inference_library:           pymc
+    inference_library_version:   5.0.1
+    sampling_time:               6.298857688903809
+    tuning_steps:                1000
+    modeling_interface:          bambi
+    modeling_interface_version:  0.9.3</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-7e52be9c-38a7-4680-a62f-ab4cf6dd612d' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-7e52be9c-38a7-4680-a62f-ab4cf6dd612d' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>chain</span>: 2</li><li><span class='xr-has-index'>draw</span>: 1000</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-e3e90655-beb3-4a13-ba16-f9c5ebd98362' class='xr-section-summary-in' type='checkbox'  checked><label for='section-e3e90655-beb3-4a13-ba16-f9c5ebd98362' class='xr-section-summary' >Coordinates: <span>(2)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>chain</span></div><div class='xr-var-dims'>(chain)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>0 1</div><input id='attrs-a10fdbfd-58ea-4e03-a1bf-a3fe9d42e41c' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-a10fdbfd-58ea-4e03-a1bf-a3fe9d42e41c' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-a72cbcee-494c-48fb-b6b1-6d8b424d0134' class='xr-var-data-in' type='checkbox'><label for='data-a72cbcee-494c-48fb-b6b1-6d8b424d0134' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([0, 1])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>draw</span></div><div class='xr-var-dims'>(draw)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>0 1 2 3 4 5 ... 995 996 997 998 999</div><input id='attrs-e1e5eb8f-468e-4071-ac86-98e9453445ee' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-e1e5eb8f-468e-4071-ac86-98e9453445ee' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d26b71eb-23e4-4369-a1ff-d82e6f00e44c' class='xr-var-data-in' type='checkbox'><label for='data-d26b71eb-23e4-4369-a1ff-d82e6f00e44c' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([  0,   1,   2, ..., 997, 998, 999])</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-cadd3ad3-99ad-4182-9f4d-ab658e038d8c' class='xr-section-summary-in' type='checkbox'  ><label for='section-cadd3ad3-99ad-4182-9f4d-ab658e038d8c' class='xr-section-summary' >Data variables: <span>(17)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>smallest_eigval</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>nan nan nan nan ... nan nan nan nan</div><input id='attrs-f9b672f7-3816-40dc-abd0-a4443600cdfd' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-f9b672f7-3816-40dc-abd0-a4443600cdfd' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-40b149aa-dd4f-44cf-a662-ff9d7006ff28' class='xr-var-data-in' type='checkbox'><label for='data-40b149aa-dd4f-44cf-a662-ff9d7006ff28' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>diverging</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>bool</div><div class='xr-var-preview xr-preview'>False False False ... False False</div><input id='attrs-3bf1d42e-9622-4c24-bde0-5be3fb0e2130' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-3bf1d42e-9622-4c24-bde0-5be3fb0e2130' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-c3b17b05-51f6-4329-a5f2-b164b17c7eca' class='xr-var-data-in' type='checkbox'><label for='data-c3b17b05-51f6-4329-a5f2-b164b17c7eca' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[False, False, False, ..., False, False, False],
+       [False, False, False, ..., False, False, False]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>step_size</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.4264 0.4264 ... 0.5258 0.5258</div><input id='attrs-1ad3bcb7-7cc1-4d7d-9f53-a7ea71fc5b32' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-1ad3bcb7-7cc1-4d7d-9f53-a7ea71fc5b32' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b11e529b-5c23-48af-aca6-5435a1aea9c2' class='xr-var-data-in' type='checkbox'><label for='data-b11e529b-5c23-48af-aca6-5435a1aea9c2' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[0.42643211, 0.42643211, 0.42643211, ..., 0.42643211, 0.42643211,
+        0.42643211],
+       [0.52580235, 0.52580235, 0.52580235, ..., 0.52580235, 0.52580235,
+        0.52580235]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>perf_counter_start</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>1.134e+04 1.134e+04 ... 1.134e+04</div><input id='attrs-8ad13438-05bd-4888-a72c-887e6464c8f8' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-8ad13438-05bd-4888-a72c-887e6464c8f8' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-aa2638c3-56f8-4b38-92a8-4fd1441a5ff3' class='xr-var-data-in' type='checkbox'><label for='data-aa2638c3-56f8-4b38-92a8-4fd1441a5ff3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[11339.18060664, 11339.18266998, 11339.18440546, ...,
+        11341.43753515, 11341.44075284, 11341.44241447],
+       [11339.13916398, 11339.14101822, 11339.14428841, ...,
+        11341.3763751 , 11341.37816056, 11341.38131733]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>process_time_diff</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.001845 0.001541 ... 0.001548</div><input id='attrs-15c10d3b-35ec-4b48-897c-3c0ad32f2304' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-15c10d3b-35ec-4b48-897c-3c0ad32f2304' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-70dd92ff-d6bd-408f-b815-3972e81099e4' class='xr-var-data-in' type='checkbox'><label for='data-70dd92ff-d6bd-408f-b815-3972e81099e4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[0.00184498, 0.00154148, 0.00291322, ..., 0.00300371, 0.00147345,
+        0.00286303],
+       [0.00161406, 0.00306944, 0.00304204, ..., 0.00158612, 0.00295564,
+        0.00154751]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>n_steps</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>7.0 7.0 15.0 15.0 ... 7.0 15.0 7.0</div><input id='attrs-bdd95883-bab1-40fe-8c32-35eb7d05b109' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-bdd95883-bab1-40fe-8c32-35eb7d05b109' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-6b1682de-ee94-498e-93e0-fdd29fdc936f' class='xr-var-data-in' type='checkbox'><label for='data-6b1682de-ee94-498e-93e0-fdd29fdc936f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[ 7.,  7., 15., ..., 15.,  7., 15.],
+       [ 7., 15., 15., ...,  7., 15.,  7.]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>reached_max_treedepth</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>bool</div><div class='xr-var-preview xr-preview'>False False False ... False False</div><input id='attrs-7e64c98d-5eab-43c0-872d-4f35b35ea2d9' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-7e64c98d-5eab-43c0-872d-4f35b35ea2d9' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-481397ee-e121-4258-bc17-170785359ac7' class='xr-var-data-in' type='checkbox'><label for='data-481397ee-e121-4258-bc17-170785359ac7' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[False, False, False, ..., False, False, False],
+       [False, False, False, ..., False, False, False]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>index_in_trajectory</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>3 -5 3 7 -4 5 5 ... -1 1 -1 -2 3 1</div><input id='attrs-64d08bd8-8f19-443c-83f7-89d15d747da7' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-64d08bd8-8f19-443c-83f7-89d15d747da7' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-6fb99164-0e9b-4498-803a-dc71977d06b3' class='xr-var-data-in' type='checkbox'><label for='data-6fb99164-0e9b-4498-803a-dc71977d06b3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[ 3, -5,  3, ..., -7,  7,  5],
+       [ 4,  8, -4, ..., -2,  3,  1]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>perf_counter_diff</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.001844 0.001541 ... 0.001546</div><input id='attrs-c712519e-c9a4-4155-9db6-c3d1805dbe8f' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-c712519e-c9a4-4155-9db6-c3d1805dbe8f' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-7887591b-de2f-41ec-aee2-3c40a0677bdd' class='xr-var-data-in' type='checkbox'><label for='data-7887591b-de2f-41ec-aee2-3c40a0677bdd' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[0.00184394, 0.00154119, 0.00291212, ..., 0.00300222, 0.00147261,
+        0.00286229],
+       [0.00164266, 0.00306914, 0.00304128, ..., 0.00158521, 0.00295434,
+        0.00154646]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>energy_error</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.4473 0.06158 ... 0.604 -0.08139</div><input id='attrs-c91b9a8b-abaf-4821-bdd4-7720e641c6bb' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-c91b9a8b-abaf-4821-bdd4-7720e641c6bb' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d724fa2c-46f9-44c2-921a-390508520860' class='xr-var-data-in' type='checkbox'><label for='data-d724fa2c-46f9-44c2-921a-390508520860' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[ 0.44728351,  0.06157559,  0.09484343, ...,  0.05589812,
+        -0.21583235,  0.33901506],
+       [ 0.02462608,  0.31476461,  0.19316821, ..., -0.96651082,
+         0.60399192, -0.08138962]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>tree_depth</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>3 3 4 4 4 4 3 3 ... 3 4 3 4 4 3 4 3</div><input id='attrs-0348ed7a-72b7-4e7a-86f7-86b263808cf4' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-0348ed7a-72b7-4e7a-86f7-86b263808cf4' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-a6953619-dca5-4813-84b7-cd41b323a698' class='xr-var-data-in' type='checkbox'><label for='data-a6953619-dca5-4813-84b7-cd41b323a698' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[3, 3, 4, ..., 4, 3, 4],
+       [3, 4, 4, ..., 3, 4, 3]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>lp</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>-1.085e+03 -1.088e+03 ... -1.08e+03</div><input id='attrs-77d2c887-e770-4855-9d68-352f7946f4dd' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-77d2c887-e770-4855-9d68-352f7946f4dd' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-22ea700f-8eac-4dde-ba5d-b3d81087f20f' class='xr-var-data-in' type='checkbox'><label for='data-22ea700f-8eac-4dde-ba5d-b3d81087f20f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[-1085.37191562, -1087.88863096, -1092.37538007, ...,
+        -1092.75516949, -1089.14198077, -1098.8258156 ],
+       [-1089.85063753, -1096.88438309, -1098.87095161, ...,
+        -1071.29957155, -1078.66959952, -1079.5095693 ]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>step_size_bar</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.443 0.443 0.443 ... 0.4482 0.4482</div><input id='attrs-c8937f08-513b-4197-ad63-cb35cb93480e' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-c8937f08-513b-4197-ad63-cb35cb93480e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-196b8955-3ac2-430a-96b6-2814557acd26' class='xr-var-data-in' type='checkbox'><label for='data-196b8955-3ac2-430a-96b6-2814557acd26' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[0.4430255 , 0.4430255 , 0.4430255 , ..., 0.4430255 , 0.4430255 ,
+        0.4430255 ],
+       [0.44816553, 0.44816553, 0.44816553, ..., 0.44816553, 0.44816553,
+        0.44816553]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>energy</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>1.126e+03 1.132e+03 ... 1.126e+03</div><input id='attrs-6e91528a-57f5-43df-a731-7898c809aaf3' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-6e91528a-57f5-43df-a731-7898c809aaf3' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-27360179-0ff0-41f1-80bf-b48f8f3fb309' class='xr-var-data-in' type='checkbox'><label for='data-27360179-0ff0-41f1-80bf-b48f8f3fb309' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[1125.91278604, 1131.94969871, 1130.44029909, ..., 1133.86619845,
+        1143.86580192, 1140.01452244],
+       [1125.72031508, 1139.96028702, 1145.9408952 , ..., 1112.82974843,
+        1113.96640428, 1125.65983207]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>acceptance_rate</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.5666 0.8503 ... 0.6538 0.808</div><input id='attrs-16578469-d9d0-46b7-8d96-b64f0bd9b67f' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-16578469-d9d0-46b7-8d96-b64f0bd9b67f' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-758306a5-bbb4-4ec0-9acf-33244da2e802' class='xr-var-data-in' type='checkbox'><label for='data-758306a5-bbb4-4ec0-9acf-33244da2e802' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[0.566597  , 0.85028311, 0.91524893, ..., 0.95842402, 0.81942384,
+        0.8264694 ],
+       [0.91399074, 0.80459391, 0.91507312, ..., 1.        , 0.65376977,
+        0.80802917]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>max_energy_error</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>0.77 -0.5181 ... 0.9307 0.5153</div><input id='attrs-29edc54e-232f-43bd-a958-ff63ed03bfa9' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-29edc54e-232f-43bd-a958-ff63ed03bfa9' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-a9e0220d-c34f-405e-b487-abcc37aa247d' class='xr-var-data-in' type='checkbox'><label for='data-a9e0220d-c34f-405e-b487-abcc37aa247d' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[ 0.77004892, -0.51805383, -0.52415563, ..., -0.5551082 ,
+         0.42294361,  0.43692918],
+       [-0.83235839,  0.50504515, -0.33711855, ..., -1.07243648,
+         0.93065977,  0.51534825]])</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>largest_eigval</span></div><div class='xr-var-dims'>(chain, draw)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>nan nan nan nan ... nan nan nan nan</div><input id='attrs-d5bfef5d-198f-4853-ac10-9620a58a7281' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-d5bfef5d-198f-4853-ac10-9620a58a7281' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-30fabfab-6d29-4393-bbea-5844e16e200f' class='xr-var-data-in' type='checkbox'><label for='data-30fabfab-6d29-4393-bbea-5844e16e200f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([[nan, nan, nan, ..., nan, nan, nan],
+       [nan, nan, nan, ..., nan, nan, nan]])</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-11b53383-f0ce-4634-b018-b8e35c69c1ca' class='xr-section-summary-in' type='checkbox'  ><label for='section-11b53383-f0ce-4634-b018-b8e35c69c1ca' class='xr-section-summary' >Indexes: <span>(2)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>chain</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-42c9f5e0-073b-4fcf-823e-c8f6d4c83f74' class='xr-index-data-in' type='checkbox'/><label for='index-42c9f5e0-073b-4fcf-823e-c8f6d4c83f74' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Int64Index([0, 1], dtype=&#x27;int64&#x27;, name=&#x27;chain&#x27;))</pre></div></li><li class='xr-var-item'><div class='xr-index-name'><div>draw</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-698b7ee3-8f1d-466f-b426-d79116241039' class='xr-index-data-in' type='checkbox'/><label for='index-698b7ee3-8f1d-466f-b426-d79116241039' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Int64Index([  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
+            ...
+            990, 991, 992, 993, 994, 995, 996, 997, 998, 999],
+           dtype=&#x27;int64&#x27;, name=&#x27;draw&#x27;, length=1000))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-04d46a5c-a662-40be-8de5-93e250915186' class='xr-section-summary-in' type='checkbox'  checked><label for='section-04d46a5c-a662-40be-8de5-93e250915186' class='xr-section-summary' >Attributes: <span>(8)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>created_at :</span></dt><dd>2023-01-05T15:05:23.338166</dd><dt><span>arviz_version :</span></dt><dd>0.14.0</dd><dt><span>inference_library :</span></dt><dd>pymc</dd><dt><span>inference_library_version :</span></dt><dd>5.0.1</dd><dt><span>sampling_time :</span></dt><dd>6.298857688903809</dd><dt><span>tuning_steps :</span></dt><dd>1000</dd><dt><span>modeling_interface :</span></dt><dd>bambi</dd><dt><span>modeling_interface_version :</span></dt><dd>0.9.3</dd></dl></div></li></ul></div></div><br></div>
+                      </ul>
+                  </div>
+            </li>
+
+            <li class = "xr-section-item">
+                  <input id="idata_observed_datad5f86209-defe-4256-b712-01588c90d55c" class="xr-section-summary-in" type="checkbox">
+                  <label for="idata_observed_datad5f86209-defe-4256-b712-01588c90d55c" class = "xr-section-summary">observed_data</label>
+                  <div class="xr-section-inline-details"></div>
+                  <div class="xr-section-details">
+                      <ul id="xr-dataset-coord-list" class="xr-var-list">
+                          <div style="padding-left:2rem;"><div><svg style="position: absolute; width: 0; height: 0; overflow: hidden">
+<defs>
+<symbol id="icon-database" viewBox="0 0 32 32">
+<path d="M16 0c-8.837 0-16 2.239-16 5v4c0 2.761 7.163 5 16 5s16-2.239 16-5v-4c0-2.761-7.163-5-16-5z"></path>
+<path d="M16 17c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
+<path d="M16 26c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
+</symbol>
+<symbol id="icon-file-text2" viewBox="0 0 32 32">
+<path d="M28.681 7.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-15.5c-1.378 0-2.5 1.121-2.5 2.5v27c0 1.378 1.122 2.5 2.5 2.5h23c1.378 0 2.5-1.122 2.5-2.5v-19.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 5.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5 0 0 15.499-0 15.5 0v7c0 0.552 0.448 1 1 1h7v19.5z"></path>
+<path d="M23 26h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+<path d="M23 22h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+<path d="M23 18h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
+</symbol>
+</defs>
+</svg>
+<style>/* CSS stylesheet for displaying xarray objects in jupyterlab.
+ *
+ */
+
+:root {
+  --xr-font-color0: var(--jp-content-font-color0, rgba(0, 0, 0, 1));
+  --xr-font-color2: var(--jp-content-font-color2, rgba(0, 0, 0, 0.54));
+  --xr-font-color3: var(--jp-content-font-color3, rgba(0, 0, 0, 0.38));
+  --xr-border-color: var(--jp-border-color2, #e0e0e0);
+  --xr-disabled-color: var(--jp-layout-color3, #bdbdbd);
+  --xr-background-color: var(--jp-layout-color0, white);
+  --xr-background-color-row-even: var(--jp-layout-color1, white);
+  --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
+}
+
+html[theme=dark],
+body[data-theme=dark],
+body.vscode-dark {
+  --xr-font-color0: rgba(255, 255, 255, 1);
+  --xr-font-color2: rgba(255, 255, 255, 0.54);
+  --xr-font-color3: rgba(255, 255, 255, 0.38);
+  --xr-border-color: #1F1F1F;
+  --xr-disabled-color: #515151;
+  --xr-background-color: #111111;
+  --xr-background-color-row-even: #111111;
+  --xr-background-color-row-odd: #313131;
+}
+
+.xr-wrap {
+  display: block !important;
+  min-width: 300px;
+  max-width: 700px;
+}
+
+.xr-text-repr-fallback {
+  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
+  display: none;
+}
+
+.xr-header {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+  border-bottom: solid 1px var(--xr-border-color);
+}
+
+.xr-header > div,
+.xr-header > ul {
+  display: inline;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.xr-obj-type,
+.xr-array-name {
+  margin-left: 2px;
+  margin-right: 10px;
+}
+
+.xr-obj-type {
+  color: var(--xr-font-color2);
+}
+
+.xr-sections {
+  padding-left: 0 !important;
+  display: grid;
+  grid-template-columns: 150px auto auto 1fr 20px 20px;
+}
+
+.xr-section-item {
+  display: contents;
+}
+
+.xr-section-item input {
+  display: none;
+}
+
+.xr-section-item input + label {
+  color: var(--xr-disabled-color);
+}
+
+.xr-section-item input:enabled + label {
+  cursor: pointer;
+  color: var(--xr-font-color2);
+}
+
+.xr-section-item input:enabled + label:hover {
+  color: var(--xr-font-color0);
+}
+
+.xr-section-summary {
+  grid-column: 1;
+  color: var(--xr-font-color2);
+  font-weight: 500;
+}
+
+.xr-section-summary > span {
+  display: inline-block;
+  padding-left: 0.5em;
+}
+
+.xr-section-summary-in:disabled + label {
+  color: var(--xr-font-color2);
+}
+
+.xr-section-summary-in + label:before {
+  display: inline-block;
+  content: '►';
+  font-size: 11px;
+  width: 15px;
+  text-align: center;
+}
+
+.xr-section-summary-in:disabled + label:before {
+  color: var(--xr-disabled-color);
+}
+
+.xr-section-summary-in:checked + label:before {
+  content: '▼';
+}
+
+.xr-section-summary-in:checked + label > span {
+  display: none;
+}
+
+.xr-section-summary,
+.xr-section-inline-details {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.xr-section-inline-details {
+  grid-column: 2 / -1;
+}
+
+.xr-section-details {
+  display: none;
+  grid-column: 1 / -1;
+  margin-bottom: 5px;
+}
+
+.xr-section-summary-in:checked ~ .xr-section-details {
+  display: contents;
+}
+
+.xr-array-wrap {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 20px auto;
+}
+
+.xr-array-wrap > label {
+  grid-column: 1;
+  vertical-align: top;
+}
+
+.xr-preview {
+  color: var(--xr-font-color3);
+}
+
+.xr-array-preview,
+.xr-array-data {
+  padding: 0 5px !important;
+  grid-column: 2;
+}
+
+.xr-array-data,
+.xr-array-in:checked ~ .xr-array-preview {
+  display: none;
+}
+
+.xr-array-in:checked ~ .xr-array-data,
+.xr-array-preview {
+  display: inline-block;
+}
+
+.xr-dim-list {
+  display: inline-block !important;
+  list-style: none;
+  padding: 0 !important;
+  margin: 0;
+}
+
+.xr-dim-list li {
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+}
+
+.xr-dim-list:before {
+  content: '(';
+}
+
+.xr-dim-list:after {
+  content: ')';
+}
+
+.xr-dim-list li:not(:last-child):after {
+  content: ',';
+  padding-right: 5px;
+}
+
+.xr-has-index {
+  font-weight: bold;
+}
+
+.xr-var-list,
+.xr-var-item {
+  display: contents;
+}
+
+.xr-var-item > div,
+.xr-var-item label,
+.xr-var-item > .xr-var-name span {
+  background-color: var(--xr-background-color-row-even);
+  margin-bottom: 0;
+}
+
+.xr-var-item > .xr-var-name:hover span {
+  padding-right: 5px;
+}
+
+.xr-var-list > li:nth-child(odd) > div,
+.xr-var-list > li:nth-child(odd) > label,
+.xr-var-list > li:nth-child(odd) > .xr-var-name span {
+  background-color: var(--xr-background-color-row-odd);
+}
+
+.xr-var-name {
+  grid-column: 1;
+}
+
+.xr-var-dims {
+  grid-column: 2;
+}
+
+.xr-var-dtype {
+  grid-column: 3;
+  text-align: right;
+  color: var(--xr-font-color2);
+}
+
+.xr-var-preview {
+  grid-column: 4;
+}
+
+.xr-index-preview {
+  grid-column: 2 / 5;
+  color: var(--xr-font-color2);
+}
+
+.xr-var-name,
+.xr-var-dims,
+.xr-var-dtype,
+.xr-preview,
+.xr-attrs dt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+}
+
+.xr-var-name:hover,
+.xr-var-dims:hover,
+.xr-var-dtype:hover,
+.xr-attrs dt:hover {
+  overflow: visible;
+  width: auto;
+  z-index: 1;
+}
+
+.xr-var-attrs,
+.xr-var-data,
+.xr-index-data {
+  display: none;
+  background-color: var(--xr-background-color) !important;
+  padding-bottom: 5px !important;
+}
+
+.xr-var-attrs-in:checked ~ .xr-var-attrs,
+.xr-var-data-in:checked ~ .xr-var-data,
+.xr-index-data-in:checked ~ .xr-index-data {
+  display: block;
+}
+
+.xr-var-data > table {
+  float: right;
+}
+
+.xr-var-name span,
+.xr-var-data,
+.xr-index-name div,
+.xr-index-data,
+.xr-attrs {
+  padding-left: 25px !important;
+}
+
+.xr-attrs,
+.xr-var-attrs,
+.xr-var-data,
+.xr-index-data {
+  grid-column: 1 / -1;
+}
+
+dl.xr-attrs {
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 125px auto;
+}
+
+.xr-attrs dt,
+.xr-attrs dd {
+  padding: 0;
+  margin: 0;
+  float: left;
+  padding-right: 10px;
+  width: auto;
+}
+
+.xr-attrs dt {
+  font-weight: normal;
+  grid-column: 1;
+}
+
+.xr-attrs dt:hover span {
+  display: inline-block;
+  background: var(--xr-background-color);
+  padding-right: 10px;
+}
+
+.xr-attrs dd {
+  grid-column: 2;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.xr-icon-database,
+.xr-icon-file-text2,
+.xr-no-icon {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1em;
+  height: 1.5em !important;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
+}
+</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt;
+Dimensions:        (log_radon_obs: 919)
+Coordinates:
+  * log_radon_obs  (log_radon_obs) int64 0 1 2 3 4 5 ... 913 914 915 916 917 918
+Data variables:
+    log_radon      (log_radon_obs) float64 1.435 1.03 0.2624 ... 2.219 0.8329
+Attributes:
+    created_at:                  2023-01-05T15:05:23.345383
+    arviz_version:               0.14.0
+    inference_library:           pymc
+    inference_library_version:   5.0.1
+    modeling_interface:          bambi
+    modeling_interface_version:  0.9.3</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-f1163223-4e12-4ae7-96eb-911c0b071d1c' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-f1163223-4e12-4ae7-96eb-911c0b071d1c' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span class='xr-has-index'>log_radon_obs</span>: 919</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-96d6f9fd-7ff7-4c91-ba6b-93619e82b400' class='xr-section-summary-in' type='checkbox'  checked><label for='section-96d6f9fd-7ff7-4c91-ba6b-93619e82b400' class='xr-section-summary' >Coordinates: <span>(1)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span class='xr-has-index'>log_radon_obs</span></div><div class='xr-var-dims'>(log_radon_obs)</div><div class='xr-var-dtype'>int64</div><div class='xr-var-preview xr-preview'>0 1 2 3 4 5 ... 914 915 916 917 918</div><input id='attrs-251372bc-35d6-4e33-b02f-5ae9bec6cb7e' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-251372bc-35d6-4e33-b02f-5ae9bec6cb7e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-a5c7d07c-6bf7-4da2-9591-a3ecba1574e4' class='xr-var-data-in' type='checkbox'><label for='data-a5c7d07c-6bf7-4da2-9591-a3ecba1574e4' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([  0,   1,   2, ..., 916, 917, 918])</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-16dce076-caf8-473d-b1ea-0019536941dc' class='xr-section-summary-in' type='checkbox'  checked><label for='section-16dce076-caf8-473d-b1ea-0019536941dc' class='xr-section-summary' >Data variables: <span>(1)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>log_radon</span></div><div class='xr-var-dims'>(log_radon_obs)</div><div class='xr-var-dtype'>float64</div><div class='xr-var-preview xr-preview'>1.435 1.03 0.2624 ... 2.219 0.8329</div><input id='attrs-19ba7196-cab3-416d-a470-5302e4d44ee7' class='xr-var-attrs-in' type='checkbox' disabled><label for='attrs-19ba7196-cab3-416d-a470-5302e4d44ee7' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d69c6be3-52d6-4fb9-abb8-8d89d0cadc1b' class='xr-var-data-in' type='checkbox'><label for='data-d69c6be3-52d6-4fb9-abb8-8d89d0cadc1b' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'></dl></div><div class='xr-var-data'><pre>array([ 1.43508453,  1.02961942,  0.26236426,  1.28093385,  1.7227666 ,
+        1.7227666 ,  0.26236426,  1.60943791,  1.41098697,  1.28093385,
+        0.95551145,  0.26236426,  1.02961942,  0.58778666,  1.16315081,
+       -0.22314355,  0.09531018,  0.69314718,  1.36097655,  2.19722458,
+        2.01490302,  1.80828877,  1.66770682,  1.84054963,  2.16332303,
+        1.45861502,  1.77495235,  1.43508453,  1.06471074,  0.69314718,
+        0.26236426,  0.47000363,  2.2512918 ,  0.58778666,  2.50143595,
+        1.94591015,  0.78845736,  2.27212589,  1.25276297,  1.93152141,
+        1.30833282,  0.83290912,  0.99325177,  0.78845736,  1.96009478,
+        0.26236426,  1.36097655,  1.28093385,  1.36097655,  2.28238239,
+        1.87180218,  1.54756251,  1.19392247,  0.95551145,  1.06471074,
+        1.16315081,  0.53062825,  1.56861592,  1.41098697,  1.62924054,
+        0.47000363,  1.58923521,  0.87546874, -0.10536052,  0.87546874,
+        1.54756251,  2.40694511,  2.7080502 ,  2.16332303,  1.5260563 ,
+        0.47000363,  1.38629436,  0.64185389,  0.53062825,  0.91629073,
+        1.36097655,  1.64865863,  1.70474809,  1.74046617,  2.94968834,
+        1.13140211,  1.64865863,  2.05412373,  2.10413415,  1.56861592,
+        2.14006616,  0.53062825,  2.44234704,  3.2308044 ,  2.34180581,
+        1.30833282,  1.02961942,  1.41098697,  0.74193734,  2.44234704,
+        2.3321439 ,  0.26236426,  1.19392247,  1.48160454,  0.83290912,
+...
+        0.40546511,  0.95551145,  1.06471074,  0.53062825,  1.06471074,
+        0.95551145,  2.32238772,  2.54160199,  0.78845736,  1.13140211,
+       -2.30258509,  1.06471074,  0.33647224,  2.43361336,  0.33647224,
+        0.        ,  1.5260563 ,  1.48160454,  1.09861229,  1.45861502,
+        1.28093385,  1.94591015,  0.47000363, -0.51082562,  0.        ,
+        0.18232156,  0.        , -0.51082562,  1.33500107, -0.10536052,
+        1.06471074,  0.83290912,  1.58923521,  0.18232156,  1.09861229,
+        0.53062825,  3.23867845,  0.40546511,  2.69462718,  3.03495299,
+        0.91629073,  0.58778666, -0.10536052,  0.58778666,  1.06471074,
+        1.98787435,  1.91692261,  0.95551145,  0.09531018,  0.95551145,
+        0.        , -2.30258509,  2.41591378,  1.19392247, -0.22314355,
+        0.83290912,  1.58923521,  1.94591015,  0.18232156,  0.64185389,
+        0.95551145,  1.28093385,  0.        ,  0.09531018,  0.99325177,
+        0.47000363, -2.30258509,  0.        ,  1.77495235,  1.28093385,
+        0.78845736,  2.29253476,  1.94591015,  1.74046617,  0.83290912,
+        1.80828877,  0.18232156,  1.48160454,  1.30833282,  1.25276297,
+        0.26236426,  0.58778666,  1.45861502, -0.10536052,  2.96527307,
+        0.95551145,  0.78845736,  0.33647224,  0.74193734,  1.33500107,
+       -0.51082562,  0.09531018,  0.40546511, -0.69314718, -0.51082562,
+        0.53062825,  0.        ,  2.21920348,  0.83290912])</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-15ea0b11-a976-46d6-810a-4e7cceda1b4e' class='xr-section-summary-in' type='checkbox'  ><label for='section-15ea0b11-a976-46d6-810a-4e7cceda1b4e' class='xr-section-summary' >Indexes: <span>(1)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-index-name'><div>log_radon_obs</div></div><div class='xr-index-preview'>PandasIndex</div><div></div><input id='index-97337576-19fe-4c4c-9b44-621f6d9b8ac4' class='xr-index-data-in' type='checkbox'/><label for='index-97337576-19fe-4c4c-9b44-621f6d9b8ac4' title='Show/Hide index repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-index-data'><pre>PandasIndex(Int64Index([  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
+            ...
+            909, 910, 911, 912, 913, 914, 915, 916, 917, 918],
+           dtype=&#x27;int64&#x27;, name=&#x27;log_radon_obs&#x27;, length=919))</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-667fe9a6-56a7-43b0-9483-52a39f51468e' class='xr-section-summary-in' type='checkbox'  checked><label for='section-667fe9a6-56a7-43b0-9483-52a39f51468e' class='xr-section-summary' >Attributes: <span>(6)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>created_at :</span></dt><dd>2023-01-05T15:05:23.345383</dd><dt><span>arviz_version :</span></dt><dd>0.14.0</dd><dt><span>inference_library :</span></dt><dd>pymc</dd><dt><span>inference_library_version :</span></dt><dd>5.0.1</dd><dt><span>modeling_interface :</span></dt><dd>bambi</dd><dt><span>modeling_interface_version :</span></dt><dd>0.9.3</dd></dl></div></li></ul></div></div><br></div>
+                      </ul>
+                  </div>
+            </li>
+
+              </ul>
+            </div>
+            <style> /* CSS stylesheet for displaying InferenceData objects in jupyterlab.
+ *
+ */
+
+:root {
+  --xr-font-color0: var(--jp-content-font-color0, rgba(0, 0, 0, 1));
+  --xr-font-color2: var(--jp-content-font-color2, rgba(0, 0, 0, 0.54));
+  --xr-font-color3: var(--jp-content-font-color3, rgba(0, 0, 0, 0.38));
+  --xr-border-color: var(--jp-border-color2, #e0e0e0);
+  --xr-disabled-color: var(--jp-layout-color3, #bdbdbd);
+  --xr-background-color: var(--jp-layout-color0, white);
+  --xr-background-color-row-even: var(--jp-layout-color1, white);
+  --xr-background-color-row-odd: var(--jp-layout-color2, #eeeeee);
+}
+
+html[theme=dark],
+body.vscode-dark {
+  --xr-font-color0: rgba(255, 255, 255, 1);
+  --xr-font-color2: rgba(255, 255, 255, 0.54);
+  --xr-font-color3: rgba(255, 255, 255, 0.38);
+  --xr-border-color: #1F1F1F;
+  --xr-disabled-color: #515151;
+  --xr-background-color: #111111;
+  --xr-background-color-row-even: #111111;
+  --xr-background-color-row-odd: #313131;
+}
+
+.xr-wrap {
+  display: block;
+  min-width: 300px;
+  max-width: 700px;
+}
+
+.xr-text-repr-fallback {
+  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
+  display: none;
+}
+
+.xr-header {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  margin-bottom: 4px;
+  border-bottom: solid 1px var(--xr-border-color);
+}
+
+.xr-header > div,
+.xr-header > ul {
+  display: inline;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.xr-obj-type,
+.xr-array-name {
+  margin-left: 2px;
+  margin-right: 10px;
+}
+
+.xr-obj-type {
+  color: var(--xr-font-color2);
+}
+
+.xr-sections {
+  padding-left: 0 !important;
+  display: grid;
+  grid-template-columns: 150px auto auto 1fr 20px 20px;
+}
+
+.xr-sections.group-sections {
+  grid-template-columns: auto;
+}
+
+.xr-section-item {
+  display: contents;
+}
+
+.xr-section-item input {
+  display: none;
+}
+
+.xr-section-item input + label {
+  color: var(--xr-disabled-color);
+}
+
+.xr-section-item input:enabled + label {
+  cursor: pointer;
+  color: var(--xr-font-color2);
+}
+
+.xr-section-item input:enabled + label:hover {
+  color: var(--xr-font-color0);
+}
+
+.xr-section-summary {
+  grid-column: 1;
+  color: var(--xr-font-color2);
+  font-weight: 500;
+}
+
+.xr-section-summary > span {
+  display: inline-block;
+  padding-left: 0.5em;
+}
+
+.xr-section-summary-in:disabled + label {
+  color: var(--xr-font-color2);
+}
+
+.xr-section-summary-in + label:before {
+  display: inline-block;
+  content: '►';
+  font-size: 11px;
+  width: 15px;
+  text-align: center;
+}
+
+.xr-section-summary-in:disabled + label:before {
+  color: var(--xr-disabled-color);
+}
+
+.xr-section-summary-in:checked + label:before {
+  content: '▼';
+}
+
+.xr-section-summary-in:checked + label > span {
+  display: none;
+}
+
+.xr-section-summary,
+.xr-section-inline-details {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.xr-section-inline-details {
+  grid-column: 2 / -1;
+}
+
+.xr-section-details {
+  display: none;
+  grid-column: 1 / -1;
+  margin-bottom: 5px;
+}
+
+.xr-section-summary-in:checked ~ .xr-section-details {
+  display: contents;
+}
+
+.xr-array-wrap {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 20px auto;
+}
+
+.xr-array-wrap > label {
+  grid-column: 1;
+  vertical-align: top;
+}
+
+.xr-preview {
+  color: var(--xr-font-color3);
+}
+
+.xr-array-preview,
+.xr-array-data {
+  padding: 0 5px !important;
+  grid-column: 2;
+}
+
+.xr-array-data,
+.xr-array-in:checked ~ .xr-array-preview {
+  display: none;
+}
+
+.xr-array-in:checked ~ .xr-array-data,
+.xr-array-preview {
+  display: inline-block;
+}
+
+.xr-dim-list {
+  display: inline-block !important;
+  list-style: none;
+  padding: 0 !important;
+  margin: 0;
+}
+
+.xr-dim-list li {
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+}
+
+.xr-dim-list:before {
+  content: '(';
+}
+
+.xr-dim-list:after {
+  content: ')';
+}
+
+.xr-dim-list li:not(:last-child):after {
+  content: ',';
+  padding-right: 5px;
+}
+
+.xr-has-index {
+  font-weight: bold;
+}
+
+.xr-var-list,
+.xr-var-item {
+  display: contents;
+}
+
+.xr-var-item > div,
+.xr-var-item label,
+.xr-var-item > .xr-var-name span {
+  background-color: var(--xr-background-color-row-even);
+  margin-bottom: 0;
+}
+
+.xr-var-item > .xr-var-name:hover span {
+  padding-right: 5px;
+}
+
+.xr-var-list > li:nth-child(odd) > div,
+.xr-var-list > li:nth-child(odd) > label,
+.xr-var-list > li:nth-child(odd) > .xr-var-name span {
+  background-color: var(--xr-background-color-row-odd);
+}
+
+.xr-var-name {
+  grid-column: 1;
+}
+
+.xr-var-dims {
+  grid-column: 2;
+}
+
+.xr-var-dtype {
+  grid-column: 3;
+  text-align: right;
+  color: var(--xr-font-color2);
+}
+
+.xr-var-preview {
+  grid-column: 4;
+}
+
+.xr-var-name,
+.xr-var-dims,
+.xr-var-dtype,
+.xr-preview,
+.xr-attrs dt {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 10px;
+}
+
+.xr-var-name:hover,
+.xr-var-dims:hover,
+.xr-var-dtype:hover,
+.xr-attrs dt:hover {
+  overflow: visible;
+  width: auto;
+  z-index: 1;
+}
+
+.xr-var-attrs,
+.xr-var-data {
+  display: none;
+  background-color: var(--xr-background-color) !important;
+  padding-bottom: 5px !important;
+}
+
+.xr-var-attrs-in:checked ~ .xr-var-attrs,
+.xr-var-data-in:checked ~ .xr-var-data {
+  display: block;
+}
+
+.xr-var-data > table {
+  float: right;
+}
+
+.xr-var-name span,
+.xr-var-data,
+.xr-attrs {
+  padding-left: 25px !important;
+}
+
+.xr-attrs,
+.xr-var-attrs,
+.xr-var-data {
+  grid-column: 1 / -1;
+}
+
+dl.xr-attrs {
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 125px auto;
+}
+
+.xr-attrs dt, dd {
+  padding: 0;
+  margin: 0;
+  float: left;
+  padding-right: 10px;
+  width: auto;
+}
+
+.xr-attrs dt {
+  font-weight: normal;
+  grid-column: 1;
+}
+
+.xr-attrs dt:hover span {
+  display: inline-block;
+  background: var(--xr-background-color);
+  padding-right: 10px;
+}
+
+.xr-attrs dd {
+  grid-column: 2;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.xr-icon-database,
+.xr-icon-file-text2 {
+  display: inline-block;
+  vertical-align: middle;
+  width: 1em;
+  height: 1.5em !important;
+  stroke-width: 0;
+  stroke: currentColor;
+  fill: currentColor;
+}
+.xr-wrap{width:700px!important;} </style></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">partial_pooling_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">partial_pooling_results</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
 
 <span class="c1"># Stack chains and draws. pps stands for posterior predictive samples</span>
@@ -1948,11 +3664,20 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_29247/3145587883.py:4: FutureWarning: extract_dataset has been deprecated, please use extract
+  pps = az.extract_dataset(partial_pooling_results, group=&#34;posterior_predictive&#34;)[&#34;log_radon&#34;].values
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_radon_example_82_0.png" src="../_images/notebooks_radon_example_82_0.png" />
+<img alt="../_images/notebooks_radon_example_83_1.png" src="../_images/notebooks_radon_example_83_1.png" />
 </div>
 </div>
 <p>Note that in this case the points are not concentrated along the diagonal (as it was the case for the unpooled model). The reason is that in the partial pooling model the hyperprior shrinks the predictions towards the global mean, represented by the horizonital dashed line.</p>
@@ -2014,7 +3739,7 @@ u_k &amp;= \text{Intercept specific to the county } k \\
 <h5>Notes<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h5>
 <p><span class="math notranslate nohighlight">\(\beta_j\)</span> and <span class="math notranslate nohighlight">\(u_k\)</span> may look similar. The difference is that the latter is a hierarchical effect (it has a hyperprior), while the former is not.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_priors</span> <span class="o">=</span> <span class="p">{</span>
@@ -2035,28 +3760,28 @@ u_k &amp;= \text{Intercept specific to the county } k \\
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: log_radon ~ 0 + floor + (1|county)
-Family name: Gaussian
-Link: identity
-Observations: 919
-Priors:
-  Common-level effects
-    floor ~ Normal(mu: 0, sigma: 10)
+       Formula: log_radon ~ 0 + floor + (1|county)
+        Family: gaussian
+          Link: mu = identity
+  Observations: 919
+        Priors:
+    target = mu
+        Common-level effects
+            floor ~ Normal(mu: 0, sigma: 10)
 
-  Group-level effects
-    1|county ~ Normal(mu: 0, sigma: Exponential(lam: 1))
-
-  Auxiliary parameters
-    sigma ~ Exponential(lam: 1)
+        Group-level effects
+            1|county ~ Normal(mu: 0, sigma: Exponential(lam: 1))
+        Auxiliary parameters
+            log_radon_sigma ~ Exponential(lam: 1)
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_results</span> <span class="o">=</span> <span class="n">varying_intercept_model</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
@@ -2070,8 +3795,8 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [floor, 1|county_sigma, 1|county, log_radon_sigma]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [log_radon_sigma, floor, 1|county_sigma, 1|county]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2086,6 +3811,9 @@ NUTS: [floor, 1|county_sigma, 1|county, log_radon_sigma]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -2096,8 +3824,8 @@ NUTS: [floor, 1|county_sigma, 1|county, log_radon_sigma]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:22<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:06&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -2105,12 +3833,12 @@ NUTS: [floor, 1|county_sigma, 1|county, log_radon_sigma]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 23 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 7 seconds.
 </pre></div></div>
 </div>
 <p>When looking at the graph representation of the model we still see the hierarchical structure for the <code class="docutils literal notranslate"><span class="pre">county</span></code> varying intercepts, but we do not see it for the <code class="docutils literal notranslate"><span class="pre">floor</span></code> feature as expected.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
@@ -2118,15 +3846,15 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_radon_example_92_0.svg" src="../_images/notebooks_radon_example_92_0.svg" /></div>
+<img alt="../_images/notebooks_radon_example_93_0.svg" src="../_images/notebooks_radon_example_93_0.svg" /></div>
 </div>
 <p>Let us visualize the posterior distributions:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">varying_intercept_results</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">chain_prop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ls&quot;</span><span class="p">:</span> <span class="s2">&quot;-&quot;</span><span class="p">});</span>
@@ -2138,7 +3866,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_radon_example_94_0.png" src="../_images/notebooks_radon_example_94_0.png" />
+<img alt="../_images/notebooks_radon_example_95_0.png" src="../_images/notebooks_radon_example_95_0.png" />
 </div>
 </div>
 </section>
@@ -2201,7 +3929,7 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 <li><p><code class="docutils literal notranslate"><span class="pre">floor|county</span></code> is <span class="math notranslate nohighlight">\(b_{jk}\)</span>, the county-specific floor coefficients. Again, since there’s no varying intercepot for the counties, this includes coefficients for both floor levels.</p></li>
 </ul>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_slope_priors</span> <span class="o">=</span> <span class="p">{</span>
@@ -2222,29 +3950,29 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: log_radon ~ 0 + floor + (0 + floor|county)
-Family name: Gaussian
-Link: identity
-Observations: 919
-Priors:
-  Common-level effects
-    floor ~ Normal(mu: 0, sigma: 10)
+       Formula: log_radon ~ 0 + floor + (0 + floor|county)
+        Family: gaussian
+          Link: mu = identity
+  Observations: 919
+        Priors:
+    target = mu
+        Common-level effects
+            floor ~ Normal(mu: 0, sigma: 10)
 
-  Group-level effects
-    floor|county ~ Normal(mu: 0, sigma: Exponential(lam: 1))
-
-  Auxiliary parameters
-    sigma ~ Exponential(lam: 1)
+        Group-level effects
+            floor|county ~ Normal(mu: 0, sigma: Exponential(lam: 1))
+        Auxiliary parameters
+            log_radon_sigma ~ Exponential(lam: 1)
 </pre></div></div>
 </div>
 <p>Next, we fit the model. Note we increase the default number of <code class="docutils literal notranslate"><span class="pre">draws</span></code> from the posterior and the <code class="docutils literal notranslate"><span class="pre">tune</span></code> samples to 2000. In addition, as the structure of the model gets more complex, so does the posterior. That’s why we increase <code class="docutils literal notranslate"><span class="pre">target_accept</span></code> from the default 0.8 to 0.9, because we want to explore the posterior more cautiously .</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_slope_results</span> <span class="o">=</span> <span class="n">varying_intercept_slope_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
@@ -2262,8 +3990,8 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [floor, floor|county_sigma, floor|county_offset, log_radon_sigma]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [log_radon_sigma, floor, floor|county_sigma, floor|county_offset]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2278,6 +4006,9 @@ NUTS: [floor, floor|county_sigma, floor|county_offset, log_radon_sigma]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -2288,8 +4019,8 @@ NUTS: [floor, floor|county_sigma, floor|county_offset, log_radon_sigma]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='16000' class='' max='16000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [16000/16000 01:41<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:24&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -2297,12 +4028,12 @@ NUTS: [floor, floor|county_sigma, floor|county_offset, log_radon_sigma]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws total) took 101 seconds.
+Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws total) took 24 seconds.
 </pre></div></div>
 </div>
 <p>In the graph representation of the model we can now see hierarchical structures both in the intercepts and the slopes. The terms that end with <code class="docutils literal notranslate"><span class="pre">_offset</span></code> appeared because we are using a non-centered parametrization. This parametrization is an algebraic trick that helps computation but leaves the model unchanged.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">varying_intercept_slope_model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
@@ -2310,15 +4041,15 @@ Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_radon_example_105_0.svg" src="../_images/notebooks_radon_example_105_0.svg" /></div>
+<img alt="../_images/notebooks_radon_example_106_0.svg" src="../_images/notebooks_radon_example_106_0.svg" /></div>
 </div>
 <p>Let’s have a look at the marginal posterior for the coefficients in the model.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[41]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;floor&quot;</span><span class="p">,</span> <span class="s2">&quot;floor|county&quot;</span><span class="p">,</span> <span class="s2">&quot;floor|county_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;log_radon_sigma&quot;</span><span class="p">]</span>
@@ -2335,7 +4066,7 @@ Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws 
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_radon_example_107_0.png" src="../_images/notebooks_radon_example_107_0.png" />
+<img alt="../_images/notebooks_radon_example_108_0.png" src="../_images/notebooks_radon_example_108_0.png" />
 </div>
 </div>
 </section>
@@ -2392,7 +4123,7 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 \end{aligned}\end{split}\]</div>
 <p>where <span class="math notranslate nohighlight">\(\lambda\)</span> is a positive constant that we set to <span class="math notranslate nohighlight">\(1\)</span>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">covariate_priors</span> <span class="o">=</span> <span class="p">{</span>
@@ -2414,35 +4145,36 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: log_radon ~ 0 + floor + log_u + (0 + floor|county)
-Family name: Gaussian
-Link: identity
-Observations: 919
-Priors:
-  Common-level effects
-    floor ~ Normal(mu: 0, sigma: 10)
-    log_u ~ Normal(mu: 0, sigma: 10)
+       Formula: log_radon ~ 0 + floor + log_u + (0 + floor|county)
+        Family: gaussian
+          Link: mu = identity
+  Observations: 919
+        Priors:
+    target = mu
+        Common-level effects
+            floor ~ Normal(mu: 0, sigma: 10)
+            log_u ~ Normal(mu: 0, sigma: 10)
 
-  Group-level effects
-    floor|county ~ Normal(mu: 0, sigma: Exponential(lam: 1))
-
-  Auxiliary parameters
-    sigma ~ Exponential(lam: 1)
+        Group-level effects
+            floor|county ~ Normal(mu: 0, sigma: Exponential(lam: 1))
+        Auxiliary parameters
+            log_radon_sigma ~ Exponential(lam: 1)
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">covariate_results</span> <span class="o">=</span> <span class="n">covariate_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
     <span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
     <span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
-    <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.9</span>
+    <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span>
+    <span class="n">chains</span><span class="o">=</span><span class="mi">2</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -2454,8 +4186,8 @@ Priors:
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [floor, log_u, floor|county_sigma, floor|county_offset, log_radon_sigma]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [log_radon_sigma, floor, log_u, floor|county_sigma, floor|county_offset]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -2470,6 +4202,9 @@ NUTS: [floor, log_u, floor|county_sigma, floor|county_offset, log_radon_sigma]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -2480,8 +4215,8 @@ NUTS: [floor, log_u, floor|county_sigma, floor|county_offset, log_radon_sigma]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='16000' class='' max='16000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [16000/16000 01:39<00:00 Sampling 4 chains, 2 divergences]
+  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [8000/8000 00:26&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -2489,12 +4224,11 @@ NUTS: [floor, log_u, floor|county_sigma, floor|county_offset, log_radon_sigma]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 2_000 tune and 2_000 draw iterations (8_000 + 8_000 draws total) took 100 seconds.
-There were 2 divergences after tuning. Increase `target_accept` or reparameterize.
+Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws total) took 27 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">covariate_model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
@@ -2502,14 +4236,14 @@ There were 2 divergences after tuning. Increase `target_accept` or reparameteriz
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[44]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_radon_example_114_0.svg" src="../_images/notebooks_radon_example_114_0.svg" /></div>
+<img alt="../_images/notebooks_radon_example_115_0.svg" src="../_images/notebooks_radon_example_115_0.svg" /></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[45]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;floor&quot;</span><span class="p">,</span> <span class="s2">&quot;log_u&quot;</span><span class="p">,</span> <span class="s2">&quot;floor|county&quot;</span><span class="p">,</span> <span class="s2">&quot;floor|county_sigma&quot;</span><span class="p">,</span> <span class="s2">&quot;log_radon_sigma&quot;</span><span class="p">]</span>
@@ -2526,12 +4260,12 @@ There were 2 divergences after tuning. Increase `target_accept` or reparameteriz
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_radon_example_115_0.png" src="../_images/notebooks_radon_example_115_0.png" />
+<img alt="../_images/notebooks_radon_example_116_0.png" src="../_images/notebooks_radon_example_116_0.png" />
 </div>
 </div>
 <p>Let us now visualize the posterior distributions of the intercepts:</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[46]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># get log_u values per county</span>
@@ -2546,7 +4280,7 @@ There were 2 divergences after tuning. Increase `target_accept` or reparameteriz
     <span class="o">+</span> <span class="n">covariate_results</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">floor__expr_dim</span><span class="o">=</span><span class="s2">&quot;Basement&quot;</span><span class="p">)[</span><span class="s2">&quot;floor|county&quot;</span><span class="p">]</span>
 <span class="p">)</span><span class="o">.</span><span class="n">values</span>
 
-<span class="n">y_predicted</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercepts</span> <span class="o">+</span> <span class="n">log_u_slope</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">8000</span><span class="p">,</span> <span class="n">n_counties</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="n">y_predicted</span> <span class="o">=</span> <span class="p">(</span><span class="n">intercepts</span> <span class="o">+</span> <span class="n">log_u_slope</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="n">n_counties</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
 
 <span class="c1"># reduce the intercepts posterior samples to the mean per county</span>
 <span class="n">mean_intercept</span> <span class="o">=</span> <span class="n">intercepts</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">+</span> <span class="n">log_u_slope</span>
@@ -2554,7 +4288,7 @@ There were 2 divergences after tuning. Increase `target_accept` or reparameteriz
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[47]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
@@ -2582,7 +4316,7 @@ There were 2 divergences after tuning. Increase `target_accept` or reparameteriz
 
 <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span>
     <span class="n">x</span><span class="o">=</span><span class="n">log_u_sample</span><span class="p">,</span>
-    <span class="n">y</span><span class="o">=</span><span class="n">mean_intercept</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">8000</span><span class="p">,</span> <span class="n">n_counties</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+    <span class="n">y</span><span class="o">=</span><span class="n">mean_intercept</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">4000</span><span class="p">,</span> <span class="n">n_counties</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
     <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
     <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
     <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Mean intercept&quot;</span><span class="p">,</span>
@@ -2602,7 +4336,7 @@ There were 2 divergences after tuning. Increase `target_accept` or reparameteriz
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_radon_example_118_0.png" src="../_images/notebooks_radon_example_118_0.png" />
+<img alt="../_images/notebooks_radon_example_119_0.png" src="../_images/notebooks_radon_example_119_0.png" />
 </div>
 </div>
 </section>
@@ -2613,8 +4347,8 @@ There were 2 divergences after tuning. Increase `target_accept` or reparameteriz
 <section id="Summary">
 <h2>Summary<a class="headerlink" href="#Summary" title="Permalink to this heading">#</a></h2>
 <p>Let us dig deeper into the model comparison for the pooled, unpooled, and partial pooling models. To do so we are generate predictions for each model ad county level, where we aggregate by taking the mean, and plot them against the observed values.</p>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[48]:
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># generate posterior predictive samples</span>
@@ -2642,8 +4376,21 @@ There were 2 divergences after tuning. Increase `target_accept` or reparameteriz
 </pre></div>
 </div>
 </div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_29247/54649629.py:7: FutureWarning: extract_dataset has been deprecated, please use extract
+  pooled_pps = az.extract_dataset(pooled_results, group=&#34;posterior_predictive&#34;)[&#34;log_radon&#34;].values
+/tmp/ipykernel_29247/54649629.py:8: FutureWarning: extract_dataset has been deprecated, please use extract
+  unpooled_pps = az.extract_dataset(unpooled_results, group=&#34;posterior_predictive&#34;)[&#34;log_radon&#34;].values
+/tmp/ipykernel_29247/54649629.py:9: FutureWarning: extract_dataset has been deprecated, please use extract
+  partial_pooling_pps = az.extract_dataset(partial_pooling_results, group=&#34;posterior_predictive&#34;)[&#34;log_radon&#34;].values
+</pre></div></div>
+</div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[50]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
@@ -2672,7 +4419,7 @@ There were 2 divergences after tuning. Increase `target_accept` or reparameteriz
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_radon_example_122_0.png" src="../_images/notebooks_radon_example_122_0.png" />
+<img alt="../_images/notebooks_radon_example_123_0.png" src="../_images/notebooks_radon_example_123_0.png" />
 </div>
 </div>
 <ul class="simple">
@@ -2681,7 +4428,7 @@ There were 2 divergences after tuning. Increase `target_accept` or reparameteriz
 <li><p>The partial pooling model is mixing global and information at county level. This is clearly seen by how corresponding (green) line is in between the pooling and unpooling lines.</p></li>
 </ul>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[50]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
@@ -2694,23 +4441,22 @@ There were 2 divergences after tuning. Increase `target_accept` or reparameteriz
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Thu Jun 16 2022
+Last updated: Thu Jan 05 2023
 
 Python implementation: CPython
-Python version       : 3.9.7
-IPython version      : 8.3.0
+Python version       : 3.10.4
+IPython version      : 8.5.0
 
-matplotlib: 3.5.1
-sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
-[GCC 7.5.0]
-numpy     : 1.21.5
-pandas    : 1.4.2
-bambi     : 0.9.0
-arviz     : 0.13.0.dev0
-pymc      : 4.0.0
-seaborn   : 0.11.2
+numpy     : 1.23.5
+seaborn   : 0.12.2
+matplotlib: 3.6.2
+bambi     : 0.9.3
+arviz     : 0.14.0
+sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
+pandas    : 1.5.2
+pymc      : 5.0.1
 
-Watermark: 2.3.0
+Watermark: 2.3.1
 
 </pre></div></div>
 </div>

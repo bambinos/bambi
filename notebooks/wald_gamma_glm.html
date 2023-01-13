@@ -846,7 +846,7 @@ y_i \sim \text{Gamma}(\mu_i, \sigma_i), &amp; g(\mu_i) = \mathbf{x}_i^T\beta, &a
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_wald</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;claimcst0 ~ C(agecat) + gender + area&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span> <span class="o">=</span> <span class="s2">&quot;wald&quot;</span><span class="p">,</span> <span class="n">link</span> <span class="o">=</span> <span class="s2">&quot;log&quot;</span><span class="p">)</span>
-<span class="n">fitted_wald</span> <span class="o">=</span> <span class="n">model_wald</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="n">fitted_wald</span> <span class="o">=</span> <span class="n">model_wald</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">idata_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;log_likelihood&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
 </pre></div>
 </div>
 </div>
@@ -857,8 +857,8 @@ y_i \sim \text{Gamma}(\mu_i, \sigma_i), &amp; g(\mu_i) = \mathbf{x}_i^T\beta, &a
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [Intercept, C(agecat), gender, area, claimcst0_lam]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [claimcst0_lam, Intercept, C(agecat), gender, area]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -873,6 +873,9 @@ NUTS: [Intercept, C(agecat), gender, area, claimcst0_lam]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -883,8 +886,8 @@ NUTS: [Intercept, C(agecat), gender, area, claimcst0_lam]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='12000' class='' max='12000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [12000/12000 05:03<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [6000/6000 00:17&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -892,7 +895,7 @@ NUTS: [Intercept, C(agecat), gender, area, claimcst0_lam]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws total) took 305 seconds.
+Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws total) took 17 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -955,158 +958,158 @@ Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>7.726</td>
+      <td>7.719</td>
       <td>0.097</td>
-      <td>7.550</td>
-      <td>7.910</td>
-      <td>0.002</td>
-      <td>0.002</td>
-      <td>1577.0</td>
-      <td>1891.0</td>
+      <td>7.524</td>
+      <td>7.881</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>723.0</td>
+      <td>973.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>C(agecat)[2]</th>
-      <td>-0.169</td>
-      <td>0.102</td>
+      <td>-0.164</td>
+      <td>0.103</td>
       <td>-0.362</td>
-      <td>0.021</td>
+      <td>0.014</td>
+      <td>0.004</td>
       <td>0.003</td>
-      <td>0.002</td>
-      <td>1637.0</td>
-      <td>2029.0</td>
+      <td>670.0</td>
+      <td>867.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>C(agecat)[3]</th>
-      <td>-0.262</td>
-      <td>0.099</td>
-      <td>-0.459</td>
-      <td>-0.088</td>
-      <td>0.002</td>
-      <td>0.002</td>
-      <td>1645.0</td>
-      <td>2056.0</td>
+      <td>-0.259</td>
+      <td>0.098</td>
+      <td>-0.442</td>
+      <td>-0.075</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>757.0</td>
+      <td>1077.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>C(agecat)[4]</th>
-      <td>-0.268</td>
+      <td>-0.264</td>
       <td>0.098</td>
-      <td>-0.452</td>
-      <td>-0.083</td>
-      <td>0.002</td>
-      <td>0.002</td>
-      <td>1556.0</td>
-      <td>2084.0</td>
+      <td>-0.441</td>
+      <td>-0.080</td>
+      <td>0.004</td>
+      <td>0.003</td>
+      <td>729.0</td>
+      <td>1056.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>C(agecat)[5]</th>
-      <td>-0.381</td>
+      <td>-0.377</td>
       <td>0.106</td>
-      <td>-0.580</td>
-      <td>-0.185</td>
+      <td>-0.582</td>
+      <td>-0.191</td>
+      <td>0.004</td>
       <td>0.003</td>
-      <td>0.002</td>
-      <td>1802.0</td>
-      <td>2212.0</td>
+      <td>767.0</td>
+      <td>1142.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>C(agecat)[6]</th>
-      <td>-0.324</td>
-      <td>0.122</td>
-      <td>-0.551</td>
-      <td>-0.091</td>
+      <td>-0.319</td>
+      <td>0.123</td>
+      <td>-0.550</td>
+      <td>-0.088</td>
+      <td>0.004</td>
       <td>0.003</td>
-      <td>0.002</td>
-      <td>2069.0</td>
-      <td>2201.0</td>
+      <td>897.0</td>
+      <td>1379.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>gender[M]</th>
       <td>0.154</td>
       <td>0.051</td>
-      <td>0.061</td>
-      <td>0.252</td>
+      <td>0.046</td>
+      <td>0.242</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>5291.0</td>
-      <td>3415.0</td>
+      <td>2325.0</td>
+      <td>1571.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>area[B]</th>
-      <td>-0.029</td>
-      <td>0.072</td>
-      <td>-0.161</td>
-      <td>0.112</td>
+      <td>-0.028</td>
+      <td>0.071</td>
+      <td>-0.151</td>
+      <td>0.110</td>
+      <td>0.002</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>3145.0</td>
-      <td>3180.0</td>
+      <td>1582.0</td>
+      <td>1584.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>area[C]</th>
-      <td>0.073</td>
+      <td>0.075</td>
       <td>0.067</td>
-      <td>-0.054</td>
-      <td>0.197</td>
+      <td>-0.057</td>
+      <td>0.193</td>
+      <td>0.002</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>2900.0</td>
-      <td>3091.0</td>
+      <td>1652.0</td>
+      <td>1352.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>area[D]</th>
-      <td>-0.021</td>
-      <td>0.089</td>
+      <td>-0.018</td>
+      <td>0.087</td>
       <td>-0.176</td>
-      <td>0.150</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>3619.0</td>
-      <td>3143.0</td>
+      <td>0.153</td>
+      <td>0.002</td>
+      <td>0.002</td>
+      <td>1779.0</td>
+      <td>1684.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>area[E]</th>
-      <td>0.151</td>
-      <td>0.108</td>
-      <td>-0.045</td>
-      <td>0.361</td>
+      <td>0.154</td>
+      <td>0.101</td>
+      <td>-0.028</td>
+      <td>0.351</td>
+      <td>0.003</td>
       <td>0.002</td>
-      <td>0.001</td>
-      <td>3977.0</td>
-      <td>2989.0</td>
+      <td>1632.0</td>
+      <td>1394.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>area[F]</th>
       <td>0.372</td>
-      <td>0.130</td>
-      <td>0.133</td>
-      <td>0.614</td>
+      <td>0.129</td>
+      <td>0.136</td>
+      <td>0.615</td>
+      <td>0.003</td>
       <td>0.002</td>
-      <td>0.002</td>
-      <td>4057.0</td>
-      <td>2897.0</td>
+      <td>1878.0</td>
+      <td>1345.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>claimcst0_lam</th>
-      <td>723.059</td>
-      <td>15.188</td>
-      <td>694.638</td>
-      <td>751.442</td>
-      <td>0.212</td>
-      <td>0.150</td>
-      <td>5097.0</td>
-      <td>3026.0</td>
+      <td>723.159</td>
+      <td>15.695</td>
+      <td>693.002</td>
+      <td>751.738</td>
+      <td>0.306</td>
+      <td>0.217</td>
+      <td>2630.0</td>
+      <td>1577.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1130,7 +1133,7 @@ Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws 
     <span class="n">link</span><span class="o">=</span><span class="s2">&quot;log&quot;</span><span class="p">,</span>
     <span class="n">categorical</span><span class="o">=</span><span class="s2">&quot;agecat&quot;</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">fitted_gamma</span> <span class="o">=</span> <span class="n">model_gamma</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+<span class="n">fitted_gamma</span> <span class="o">=</span> <span class="n">model_gamma</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tune</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">idata_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;log_likelihood&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
 </pre></div>
 </div>
 </div>
@@ -1141,8 +1144,8 @@ Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws 
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [Intercept, agecat, gender, area, claimcst0_alpha]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [claimcst0_alpha, Intercept, agecat, gender, area]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1157,6 +1160,9 @@ NUTS: [Intercept, agecat, gender, area, claimcst0_alpha]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -1167,8 +1173,8 @@ NUTS: [Intercept, agecat, gender, area, claimcst0_alpha]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='12000' class='' max='12000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [12000/12000 07:35<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [6000/6000 00:24&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1176,7 +1182,7 @@ NUTS: [Intercept, agecat, gender, area, claimcst0_alpha]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws total) took 455 seconds.
+Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws total) took 25 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1239,158 +1245,158 @@ Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>7.716</td>
+      <td>7.717</td>
       <td>0.063</td>
-      <td>7.602</td>
-      <td>7.833</td>
+      <td>7.591</td>
+      <td>7.825</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>1704.0</td>
-      <td>2240.0</td>
+      <td>891.0</td>
+      <td>1280.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>agecat[2]</th>
       <td>-0.181</td>
       <td>0.064</td>
-      <td>-0.301</td>
-      <td>-0.061</td>
+      <td>-0.309</td>
+      <td>-0.064</td>
+      <td>0.002</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>2019.0</td>
-      <td>2679.0</td>
+      <td>949.0</td>
+      <td>1151.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>agecat[3]</th>
-      <td>-0.276</td>
+      <td>-0.275</td>
       <td>0.063</td>
-      <td>-0.391</td>
-      <td>-0.158</td>
+      <td>-0.395</td>
+      <td>-0.164</td>
+      <td>0.002</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>1868.0</td>
-      <td>2520.0</td>
+      <td>966.0</td>
+      <td>1342.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>agecat[4]</th>
-      <td>-0.267</td>
+      <td>-0.269</td>
       <td>0.063</td>
-      <td>-0.386</td>
-      <td>-0.153</td>
+      <td>-0.388</td>
+      <td>-0.155</td>
+      <td>0.002</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>1815.0</td>
-      <td>2218.0</td>
+      <td>900.0</td>
+      <td>1406.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>agecat[5]</th>
-      <td>-0.388</td>
-      <td>0.069</td>
-      <td>-0.519</td>
-      <td>-0.262</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>2170.0</td>
-      <td>2401.0</td>
+      <td>-0.389</td>
+      <td>0.071</td>
+      <td>-0.522</td>
+      <td>-0.255</td>
+      <td>0.002</td>
+      <td>0.002</td>
+      <td>1059.0</td>
+      <td>1358.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>agecat[6]</th>
       <td>-0.314</td>
-      <td>0.080</td>
-      <td>-0.460</td>
-      <td>-0.160</td>
+      <td>0.078</td>
+      <td>-0.459</td>
+      <td>-0.161</td>
       <td>0.002</td>
       <td>0.001</td>
-      <td>2278.0</td>
-      <td>2597.0</td>
+      <td>1367.0</td>
+      <td>1546.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>gender[M]</th>
       <td>0.166</td>
       <td>0.034</td>
-      <td>0.106</td>
-      <td>0.231</td>
+      <td>0.101</td>
+      <td>0.225</td>
+      <td>0.001</td>
       <td>0.000</td>
-      <td>0.000</td>
-      <td>7281.0</td>
-      <td>3280.0</td>
+      <td>2965.0</td>
+      <td>1448.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>area[B]</th>
-      <td>-0.024</td>
+      <td>-0.023</td>
       <td>0.050</td>
       <td>-0.123</td>
-      <td>0.064</td>
+      <td>0.062</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>3097.0</td>
-      <td>3061.0</td>
+      <td>1601.0</td>
+      <td>1709.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>area[C]</th>
       <td>0.071</td>
-      <td>0.047</td>
+      <td>0.045</td>
       <td>-0.013</td>
-      <td>0.161</td>
+      <td>0.156</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>3206.0</td>
-      <td>3038.0</td>
+      <td>1359.0</td>
+      <td>1514.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>area[D]</th>
-      <td>-0.016</td>
+      <td>-0.017</td>
       <td>0.063</td>
-      <td>-0.135</td>
-      <td>0.101</td>
+      <td>-0.132</td>
+      <td>0.106</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>3786.0</td>
-      <td>2873.0</td>
+      <td>1838.0</td>
+      <td>1558.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>area[E]</th>
-      <td>0.153</td>
-      <td>0.068</td>
-      <td>0.028</td>
-      <td>0.286</td>
+      <td>0.152</td>
+      <td>0.067</td>
+      <td>0.026</td>
+      <td>0.273</td>
+      <td>0.002</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>3976.0</td>
-      <td>3126.0</td>
+      <td>1964.0</td>
+      <td>1596.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>area[F]</th>
-      <td>0.372</td>
+      <td>0.371</td>
       <td>0.076</td>
-      <td>0.233</td>
-      <td>0.517</td>
+      <td>0.235</td>
+      <td>0.521</td>
+      <td>0.002</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>4503.0</td>
-      <td>2876.0</td>
+      <td>1885.0</td>
+      <td>1467.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>claimcst0_alpha</th>
       <td>0.762</td>
       <td>0.014</td>
-      <td>0.738</td>
+      <td>0.736</td>
       <td>0.789</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>6496.0</td>
-      <td>3352.0</td>
+      <td>3212.0</td>
+      <td>1452.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1437,25 +1443,25 @@ Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws 
     <tr style="text-align: right;">
       <th></th>
       <th>rank</th>
-      <th>loo</th>
+      <th>elpd_loo</th>
       <th>p_loo</th>
-      <th>d_loo</th>
+      <th>elpd_diff</th>
       <th>weight</th>
       <th>se</th>
       <th>dse</th>
       <th>warning</th>
-      <th>loo_scale</th>
+      <th>scale</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>wald</th>
       <td>0</td>
-      <td>-38581.528593</td>
-      <td>12.987415</td>
-      <td>0.000000</td>
+      <td>-38581.405635</td>
+      <td>12.882981</td>
+      <td>0.00000</td>
       <td>1.0</td>
-      <td>106.066095</td>
+      <td>106.105576</td>
       <td>0.000000</td>
       <td>False</td>
       <td>log</td>
@@ -1463,12 +1469,12 @@ Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws 
     <tr>
       <th>gamma</th>
       <td>1</td>
-      <td>-39629.299736</td>
-      <td>27.090234</td>
-      <td>1047.771143</td>
+      <td>-39628.995425</td>
+      <td>26.607829</td>
+      <td>1047.58979</td>
       <td>0.0</td>
-      <td>104.999828</td>
-      <td>35.741461</td>
+      <td>104.988009</td>
+      <td>35.754616</td>
       <td>False</td>
       <td>log</td>
     </tr>
@@ -1506,20 +1512,19 @@ Sampling 4 chains for 2_000 tune and 1_000 draw iterations (8_000 + 4_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Wed Jun 01 2022
+Last updated: Thu Jan 05 2023
 
 Python implementation: CPython
-Python version       : 3.9.7
-IPython version      : 8.3.0
+Python version       : 3.10.4
+IPython version      : 8.5.0
 
-arviz     : 0.12.1
-matplotlib: 3.5.1
-sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
-[GCC 7.5.0]
-numpy     : 1.21.5
-bambi     : 0.7.1
+sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
+matplotlib: 3.6.2
+arviz     : 0.14.0
+numpy     : 1.23.5
+bambi     : 0.9.3
 
-Watermark: 2.3.0
+Watermark: 2.3.1
 
 </pre></div></div>
 </div>

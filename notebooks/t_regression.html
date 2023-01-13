@@ -609,7 +609,7 @@ div.rendered_html tbody tr:hover {
 <p>Many toy datasets circumvent problems that practitioners run into with real data. Specifically, the assumption of normality can be easily violated by outliers, which can cause havoc in traditional linear regression. One way to navigate this is through <em>robust linear regression</em>, outlined in this example.</p>
 <p>First load modules and set the RNG for reproducibility.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
@@ -621,7 +621,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
@@ -631,7 +631,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>Next, generate pseudodata. The bulk of the data will be linear with noise distributed normally, but additionally several outliers will be interjected.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">size</span> <span class="o">=</span> <span class="mi">100</span>
@@ -657,7 +657,7 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>Plot this data. The three data points in the top left are the interjected data.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
@@ -677,12 +677,12 @@ div.rendered_html tbody tr:hover {
 </div>
 <p>To highlight the problem, first fit a standard normally-distributed linear regression.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note, &quot;gaussian&quot; is the default argument for family. Added to be explicit.</span>
 <span class="n">gauss_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;y ~ x&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;gaussian&quot;</span><span class="p">)</span>
-<span class="n">gauss_fitted</span> <span class="o">=</span> <span class="n">gauss_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+<span class="n">gauss_fitted</span> <span class="o">=</span> <span class="n">gauss_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">idata_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;log_likelihood&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
 <span class="n">gauss_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">gauss_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -694,8 +694,8 @@ div.rendered_html tbody tr:hover {
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [Intercept, x, y_sigma]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [y_sigma, Intercept, x]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -710,6 +710,9 @@ NUTS: [Intercept, x, y_sigma]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -720,8 +723,8 @@ NUTS: [Intercept, x, y_sigma]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='12000' class='' max='12000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [12000/12000 00:02<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [6000/6000 00:03&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -729,11 +732,11 @@ NUTS: [Intercept, x, y_sigma]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 3 seconds.
+Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 3 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">gauss_fitted</span><span class="p">)</span>
@@ -741,7 +744,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -777,48 +780,145 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>1.535</td>
-      <td>0.229</td>
-      <td>1.091</td>
-      <td>1.941</td>
+      <td>1.533</td>
+      <td>0.230</td>
+      <td>1.093</td>
+      <td>1.959</td>
+      <td>0.003</td>
       <td>0.002</td>
-      <td>0.002</td>
-      <td>10022.0</td>
-      <td>6139.0</td>
+      <td>5481.0</td>
+      <td>2857.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>x</th>
-      <td>1.198</td>
+      <td>1.201</td>
       <td>0.400</td>
-      <td>0.478</td>
-      <td>1.967</td>
+      <td>0.458</td>
+      <td>1.964</td>
+      <td>0.005</td>
       <td>0.004</td>
-      <td>0.003</td>
-      <td>10313.0</td>
-      <td>5779.0</td>
+      <td>5177.0</td>
+      <td>2869.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>y_sigma</th>
-      <td>1.185</td>
-      <td>0.084</td>
-      <td>1.041</td>
-      <td>1.354</td>
+      <td>1.186</td>
+      <td>0.085</td>
+      <td>1.032</td>
+      <td>1.351</td>
       <td>0.001</td>
       <td>0.001</td>
-      <td>9456.0</td>
-      <td>5203.0</td>
+      <td>5873.0</td>
+      <td>2891.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>y_mean[0]</th>
+      <td>1.533</td>
+      <td>0.230</td>
+      <td>1.093</td>
+      <td>1.959</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>5481.0</td>
+      <td>2857.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>y_mean[1]</th>
+      <td>1.546</td>
+      <td>0.227</td>
+      <td>1.113</td>
+      <td>1.963</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>5487.0</td>
+      <td>2857.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>y_mean[98]</th>
+      <td>2.722</td>
+      <td>0.227</td>
+      <td>2.288</td>
+      <td>3.143</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>5461.0</td>
+      <td>3205.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>y_mean[99]</th>
+      <td>2.734</td>
+      <td>0.230</td>
+      <td>2.307</td>
+      <td>3.176</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>5454.0</td>
+      <td>3232.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>y_mean[100]</th>
+      <td>1.653</td>
+      <td>0.197</td>
+      <td>1.290</td>
+      <td>2.027</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>5512.0</td>
+      <td>3038.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>y_mean[101]</th>
+      <td>1.714</td>
+      <td>0.181</td>
+      <td>1.376</td>
+      <td>2.048</td>
+      <td>0.002</td>
+      <td>0.002</td>
+      <td>5539.0</td>
+      <td>3273.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>y_mean[102]</th>
+      <td>1.774</td>
+      <td>0.166</td>
+      <td>1.447</td>
+      <td>2.064</td>
+      <td>0.002</td>
+      <td>0.002</td>
+      <td>5572.0</td>
+      <td>3294.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
 </table>
+<p>106 rows × 9 columns</p>
 </div></div>
 </div>
 <p>Remember, the true intercept was 1, the true slope was 2. The recovered intercept is much higher, and the slope is much lower, so the influence of the outliers is apparent.</p>
 <p>Visually, looking at the recovered regression line and posterior predictive HDI highlights the problem further.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
@@ -855,7 +955,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <p>Clearly, assuming the data are distributed normally is inducing problems here. Bayesian robust linear regression forgoes the normality assumption by instead using a Student T distribution to describe the distribution of the data. The Student T distribution has thicker tails, and by allocating more probability mass to the tails, outliers have a less strong effect.</p>
 <p>Comparing the two distributions,</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">normal_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">100_000</span><span class="p">)</span>
@@ -890,7 +990,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <p>The T distribution is specified by a number of degrees of freedom (<span class="math notranslate nohighlight">\(\nu\)</span>). In <code class="docutils literal notranslate"><span class="pre">`numpy.random.standard_t</span></code> &lt;<a class="reference external" href="https://numpy.org/doc/stable/reference/random/generated/numpy.random.standard_t.html">https://numpy.org/doc/stable/reference/random/generated/numpy.random.standard_t.html</a>&gt;`__ this is the parameter <code class="docutils literal notranslate"><span class="pre">df</span></code>, in the <a class="reference external" href="https://docs.pymc.io/api/distributions/continuous.html#pymc3.distributions.continuous.StudentT">pymc T distribution</a>, it’s <code class="docutils literal notranslate"><span class="pre">nu</span></code>. It is constrained to real numbers greater than 0. As the degrees of freedom increase, the probability in the tails Student T
 distribution decrease. In the limit of <span class="math notranslate nohighlight">\(\nu \rightarrow + \infty\)</span>, the Student T distribution is a normal distribution. Below, the T distribution is plotted for various <span class="math notranslate nohighlight">\(\nu\)</span>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="o">-</span><span class="mi">8</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mf">0.15</span><span class="p">)</span>
@@ -925,11 +1025,11 @@ distribution decrease. In the limit of <span class="math notranslate nohighlight
 </div>
 <p>In Bambi, the way to specify a regression with Student T distributed data is by passing <code class="docutils literal notranslate"><span class="pre">&quot;t&quot;</span></code> to the <code class="docutils literal notranslate"><span class="pre">family</span></code> parameter of a Model.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">t_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;y ~ x&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;t&quot;</span><span class="p">)</span>
-<span class="n">t_fitted</span> <span class="o">=</span> <span class="n">t_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">)</span>
+<span class="n">t_fitted</span> <span class="o">=</span> <span class="n">t_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">idata_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;log_likelihood&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
 <span class="n">t_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">t_fitted</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -941,8 +1041,8 @@ distribution decrease. In the limit of <span class="math notranslate nohighlight
 <div class="highlight"><pre>
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [Intercept, x, y_sigma, y_nu]
+Multiprocess sampling (2 chains in 2 jobs)
+NUTS: [y_sigma, y_nu, Intercept, x]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -957,6 +1057,9 @@ NUTS: [Intercept, x, y_sigma, y_nu]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -967,8 +1070,8 @@ NUTS: [Intercept, x, y_sigma, y_nu]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='12000' class='' max='12000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [12000/12000 00:03<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [6000/6000 00:06&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -976,11 +1079,11 @@ NUTS: [Intercept, x, y_sigma, y_nu]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 3 seconds.
+Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 7 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">t_fitted</span><span class="p">)</span>
@@ -988,7 +1091,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1024,60 +1127,145 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>0.995</td>
-      <td>0.109</td>
-      <td>0.787</td>
-      <td>1.190</td>
+      <td>0.994</td>
+      <td>0.107</td>
+      <td>0.797</td>
+      <td>1.199</td>
+      <td>0.002</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>10722.0</td>
-      <td>6760.0</td>
+      <td>4029.0</td>
+      <td>3029.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>x</th>
-      <td>1.899</td>
-      <td>0.191</td>
-      <td>1.528</td>
-      <td>2.240</td>
+      <td>1.900</td>
+      <td>0.184</td>
+      <td>1.562</td>
+      <td>2.254</td>
+      <td>0.003</td>
       <td>0.002</td>
-      <td>0.001</td>
-      <td>10973.0</td>
-      <td>6673.0</td>
+      <td>4172.0</td>
+      <td>3105.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>y_sigma</th>
-      <td>0.406</td>
-      <td>0.045</td>
-      <td>0.326</td>
+      <td>0.405</td>
+      <td>0.046</td>
+      <td>0.321</td>
       <td>0.492</td>
       <td>0.001</td>
-      <td>0.000</td>
-      <td>7360.0</td>
-      <td>6177.0</td>
+      <td>0.001</td>
+      <td>4006.0</td>
+      <td>3248.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>y_nu</th>
-      <td>2.616</td>
-      <td>0.618</td>
-      <td>1.542</td>
-      <td>3.751</td>
-      <td>0.007</td>
-      <td>0.005</td>
-      <td>7058.0</td>
-      <td>6431.0</td>
+      <td>2.601</td>
+      <td>0.620</td>
+      <td>1.500</td>
+      <td>3.727</td>
+      <td>0.011</td>
+      <td>0.008</td>
+      <td>3431.0</td>
+      <td>3063.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>y_mean[0]</th>
+      <td>0.994</td>
+      <td>0.107</td>
+      <td>0.797</td>
+      <td>1.199</td>
+      <td>0.002</td>
+      <td>0.001</td>
+      <td>4029.0</td>
+      <td>3029.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>y_mean[98]</th>
+      <td>2.875</td>
+      <td>0.103</td>
+      <td>2.688</td>
+      <td>3.079</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>4786.0</td>
+      <td>3228.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>y_mean[99]</th>
+      <td>2.894</td>
+      <td>0.105</td>
+      <td>2.709</td>
+      <td>3.105</td>
+      <td>0.002</td>
+      <td>0.001</td>
+      <td>4768.0</td>
+      <td>3155.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>y_mean[100]</th>
+      <td>1.184</td>
+      <td>0.091</td>
+      <td>1.009</td>
+      <td>1.350</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>4046.0</td>
+      <td>3140.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>y_mean[101]</th>
+      <td>1.279</td>
+      <td>0.084</td>
+      <td>1.118</td>
+      <td>1.432</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>4074.0</td>
+      <td>3151.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>y_mean[102]</th>
+      <td>1.374</td>
+      <td>0.077</td>
+      <td>1.232</td>
+      <td>1.519</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>4128.0</td>
+      <td>3194.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
 </table>
+<p>107 rows × 9 columns</p>
 </div></div>
 </div>
 <p>Note the new parameter in the model, <code class="docutils literal notranslate"><span class="pre">y_nu</span></code>. This is the aforementioned degrees of freedom. If this number were very high, we would expect it to be well described by a normal distribution. However, the HDI of this spans from 1.5 to 3.7, meaning that the tails are much heavier than a normal distribution. As a result of the heavier tails, <code class="docutils literal notranslate"><span class="pre">y_sigma</span></code> has also dropped precipitously from the normal model, meaning the oversized uncertainty bands from above have shrunk.</p>
 <p>Comparing the extracted values of the two models,</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_slope_intercept</span><span class="p">(</span><span class="n">mod</span><span class="p">):</span>
@@ -1097,7 +1285,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1144,7 +1332,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 <p>Here we can see the mean recovered values of both the slope and intercept are far closer to the true values using the robust regression model compared to the normally distributed one.</p>
 <p>Visually comparing the robust regression line,</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
@@ -1179,7 +1367,7 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 differences (especially given a relatively small number of samples).</p>
 <p>Last, another way to evaluate the models is to compare based on Leave-one-out Cross-validation (LOO), which provides an estimate of accuracy on out-of-sample predictions.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">models</span> <span class="o">=</span> <span class="p">{</span>
@@ -1196,12 +1384,12 @@ differences (especially given a relatively small number of samples).</p>
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/osvaldo/proyectos/00_BM/arviz/arviz/stats/stats.py:811: UserWarning: Estimated shape parameter of Pareto distribution is greater than 0.7 for one or more samples. You should consider using a more robust model, this is because importance sampling is less likely to work well if the marginal posterior and LOO posterior are very different. This is more likely to happen with a non-robust model and highly influential observations.
+/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/arviz/stats/stats.py:803: UserWarning: Estimated shape parameter of Pareto distribution is greater than 0.7 for one or more samples. You should consider using a more robust model, this is because importance sampling is less likely to work well if the marginal posterior and LOO posterior are very different. This is more likely to happen with a non-robust model and highly influential observations.
   warnings.warn(
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1238,11 +1426,11 @@ differences (especially given a relatively small number of samples).</p>
     <tr>
       <th>Student T</th>
       <td>0</td>
-      <td>-101.673224</td>
-      <td>5.521664</td>
-      <td>0.00000</td>
-      <td>1.0</td>
-      <td>14.928767</td>
+      <td>-101.760564</td>
+      <td>5.603439</td>
+      <td>0.000000</td>
+      <td>1.000000e+00</td>
+      <td>14.994794</td>
       <td>0.000000</td>
       <td>False</td>
       <td>log</td>
@@ -1250,12 +1438,12 @@ differences (especially given a relatively small number of samples).</p>
     <tr>
       <th>gaussian</th>
       <td>1</td>
-      <td>-171.465054</td>
-      <td>13.592956</td>
-      <td>69.79183</td>
-      <td>0.0</td>
-      <td>29.246632</td>
-      <td>17.462814</td>
+      <td>-171.732028</td>
+      <td>14.081743</td>
+      <td>69.971464</td>
+      <td>3.053913e-11</td>
+      <td>29.382970</td>
+      <td>17.542539</td>
       <td>True</td>
       <td>log</td>
     </tr>
@@ -1264,7 +1452,7 @@ differences (especially given a relatively small number of samples).</p>
 </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_compare</span><span class="p">(</span><span class="n">df_compare</span><span class="p">,</span> <span class="n">insample_dev</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
@@ -1280,7 +1468,7 @@ differences (especially given a relatively small number of samples).</p>
 </div>
 <p>Here it is quite obvious that the Student T model is much better, due to having a clearly larger value of LOO.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
@@ -1293,21 +1481,20 @@ differences (especially given a relatively small number of samples).</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Sun Jun 19 2022
+Last updated: Thu Jan 05 2023
 
 Python implementation: CPython
-Python version       : 3.9.7
-IPython version      : 8.3.0
+Python version       : 3.10.4
+IPython version      : 8.5.0
 
-bambi     : 0.9.0
-pandas    : 1.4.2
-arviz     : 0.13.0.dev0
-sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
-[GCC 7.5.0]
-numpy     : 1.21.5
-matplotlib: 3.5.1
+bambi     : 0.9.3
+pandas    : 1.5.2
+numpy     : 1.23.5
+matplotlib: 3.6.2
+sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
+arviz     : 0.14.0
 
-Watermark: 2.3.0
+Watermark: 2.3.1
 
 </pre></div></div>
 </div>

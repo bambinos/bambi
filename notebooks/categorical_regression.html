@@ -672,12 +672,9 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/osvaldo/anaconda3/lib/python3.9/site-packages/aesara/tensor/nnet/basic.py:1116: FutureWarning: Softmax now accepts an axis argument. For backwards-compatibility it defaults to -1 when not specified, but in the future the default will be `None`.
-To suppress this warning specify axis explicitly.
-  warnings.warn(
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
+Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [Intercept, x]
 </pre></div></div>
 </div>
@@ -693,6 +690,9 @@ NUTS: [Intercept, x]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -703,8 +703,8 @@ NUTS: [Intercept, x]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:03<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:05&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -712,7 +712,7 @@ NUTS: [Intercept, x]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 4 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
 </pre></div></div>
 </div>
 <p>Note that we pass the <code class="docutils literal notranslate"><span class="pre">family=&quot;categorical&quot;</span></code> argument to Bambi’s <code class="docutils literal notranslate"><span class="pre">Model</span></code> method in order to call the categorical family. Here, the response variable are strings (“A”, “B”, “C”), however they can also be <code class="docutils literal notranslate"><span class="pre">pd.Categorical</span></code> objects.</p>
@@ -837,8 +837,8 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/osvaldo/anaconda3/lib/python3.9/site-packages/seaborn/axisgrid.py:88: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
-  self._figure.tight_layout(*args, **kwargs)
+/home/tomas/anaconda3/envs/bambi/lib/python3.10/site-packages/seaborn/axisgrid.py:208: UserWarning: This figure was using a layout engine that is incompatible with subplots_adjust and/or tight_layout; not calling subplots_adjust.
+  self._figure.subplots_adjust(right=right)
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -868,12 +868,9 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/osvaldo/anaconda3/lib/python3.9/site-packages/aesara/tensor/nnet/basic.py:1116: FutureWarning: Softmax now accepts an axis argument. For backwards-compatibility it defaults to -1 when not specified, but in the future the default will be `None`.
-To suppress this warning specify axis explicitly.
-  warnings.warn(
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
+Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [Intercept, sepal_length, sepal_width, petal_length, petal_width]
 </pre></div></div>
 </div>
@@ -889,6 +886,9 @@ NUTS: [Intercept, sepal_length, sepal_width, petal_length, petal_width]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -899,8 +899,8 @@ NUTS: [Intercept, sepal_length, sepal_width, petal_length, petal_width]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:15<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:18&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput docutils container">
@@ -908,7 +908,7 @@ NUTS: [Intercept, sepal_length, sepal_width, petal_length, petal_width]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 15 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 19 seconds.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -948,123 +948,123 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
   <tbody>
     <tr>
       <th>Intercept[versicolor]</th>
-      <td>-6.766</td>
-      <td>7.751</td>
-      <td>-21.300</td>
-      <td>7.183</td>
-      <td>0.175</td>
-      <td>0.124</td>
-      <td>1953.0</td>
-      <td>2268.0</td>
-      <td>1.0</td>
+      <td>-7.067</td>
+      <td>7.923</td>
+      <td>-21.384</td>
+      <td>8.505</td>
+      <td>0.219</td>
+      <td>0.170</td>
+      <td>1324.0</td>
+      <td>1293.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>Intercept[virginica]</th>
-      <td>-22.362</td>
-      <td>9.368</td>
-      <td>-40.455</td>
-      <td>-5.504</td>
-      <td>0.185</td>
-      <td>0.131</td>
-      <td>2558.0</td>
-      <td>2649.0</td>
-      <td>1.0</td>
+      <td>-22.703</td>
+      <td>9.543</td>
+      <td>-40.931</td>
+      <td>-5.092</td>
+      <td>0.228</td>
+      <td>0.167</td>
+      <td>1763.0</td>
+      <td>1393.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>sepal_length[versicolor]</th>
-      <td>3.086</td>
-      <td>1.667</td>
-      <td>-0.146</td>
-      <td>6.067</td>
-      <td>0.047</td>
-      <td>0.033</td>
-      <td>1266.0</td>
-      <td>1994.0</td>
-      <td>1.0</td>
+      <td>3.143</td>
+      <td>1.693</td>
+      <td>0.008</td>
+      <td>6.382</td>
+      <td>0.052</td>
+      <td>0.037</td>
+      <td>1073.0</td>
+      <td>1145.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>sepal_length[virginica]</th>
-      <td>2.281</td>
-      <td>1.723</td>
-      <td>-1.142</td>
-      <td>5.403</td>
-      <td>0.048</td>
-      <td>0.034</td>
-      <td>1277.0</td>
-      <td>1888.0</td>
-      <td>1.0</td>
+      <td>2.369</td>
+      <td>1.787</td>
+      <td>-1.125</td>
+      <td>5.627</td>
+      <td>0.052</td>
+      <td>0.039</td>
+      <td>1168.0</td>
+      <td>1135.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>sepal_width[versicolor]</th>
       <td>-4.694</td>
-      <td>1.952</td>
-      <td>-8.115</td>
-      <td>-0.783</td>
-      <td>0.049</td>
-      <td>0.035</td>
-      <td>1581.0</td>
-      <td>2104.0</td>
-      <td>1.0</td>
+      <td>1.978</td>
+      <td>-8.436</td>
+      <td>-1.194</td>
+      <td>0.073</td>
+      <td>0.052</td>
+      <td>741.0</td>
+      <td>996.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>sepal_width[virginica]</th>
-      <td>-6.650</td>
-      <td>2.324</td>
-      <td>-11.190</td>
-      <td>-2.558</td>
-      <td>0.058</td>
-      <td>0.041</td>
-      <td>1601.0</td>
-      <td>1817.0</td>
-      <td>1.0</td>
+      <td>-6.575</td>
+      <td>2.335</td>
+      <td>-10.766</td>
+      <td>-2.183</td>
+      <td>0.076</td>
+      <td>0.054</td>
+      <td>915.0</td>
+      <td>1017.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>petal_length[versicolor]</th>
-      <td>1.066</td>
-      <td>0.909</td>
-      <td>-0.617</td>
-      <td>2.726</td>
-      <td>0.022</td>
-      <td>0.016</td>
-      <td>1697.0</td>
-      <td>2085.0</td>
-      <td>1.0</td>
+      <td>1.106</td>
+      <td>0.899</td>
+      <td>-0.697</td>
+      <td>2.690</td>
+      <td>0.026</td>
+      <td>0.019</td>
+      <td>1222.0</td>
+      <td>1240.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>petal_length[virginica]</th>
-      <td>4.017</td>
-      <td>1.028</td>
-      <td>2.057</td>
-      <td>5.918</td>
-      <td>0.022</td>
-      <td>0.016</td>
-      <td>2178.0</td>
-      <td>2363.0</td>
-      <td>1.0</td>
+      <td>3.960</td>
+      <td>1.075</td>
+      <td>2.013</td>
+      <td>6.020</td>
+      <td>0.029</td>
+      <td>0.021</td>
+      <td>1340.0</td>
+      <td>1166.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>petal_width[versicolor]</th>
-      <td>1.942</td>
-      <td>2.106</td>
-      <td>-2.140</td>
-      <td>5.742</td>
-      <td>0.052</td>
-      <td>0.037</td>
-      <td>1651.0</td>
-      <td>1808.0</td>
-      <td>1.0</td>
+      <td>1.891</td>
+      <td>2.040</td>
+      <td>-1.931</td>
+      <td>5.773</td>
+      <td>0.061</td>
+      <td>0.044</td>
+      <td>1112.0</td>
+      <td>1008.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>petal_width[virginica]</th>
-      <td>9.057</td>
-      <td>2.341</td>
-      <td>4.864</td>
-      <td>13.731</td>
-      <td>0.059</td>
-      <td>0.042</td>
-      <td>1559.0</td>
-      <td>1616.0</td>
-      <td>1.0</td>
+      <td>9.075</td>
+      <td>2.250</td>
+      <td>4.800</td>
+      <td>13.100</td>
+      <td>0.066</td>
+      <td>0.047</td>
+      <td>1149.0</td>
+      <td>1004.0</td>
+      <td>1.00</td>
     </tr>
   </tbody>
 </table>
@@ -1186,12 +1186,9 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/osvaldo/anaconda3/lib/python3.9/site-packages/aesara/tensor/nnet/basic.py:1116: FutureWarning: Softmax now accepts an axis argument. For backwards-compatibility it defaults to -1 when not specified, but in the future the default will be `None`.
-To suppress this warning specify axis explicitly.
-  warnings.warn(
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
+Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [Intercept, length, sex]
 </pre></div></div>
 </div>
@@ -1207,6 +1204,9 @@ NUTS: [Intercept, length, sex]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -1217,8 +1217,8 @@ NUTS: [Intercept, length, sex]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:04<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [4000/4000 00:06&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1226,7 +1226,7 @@ NUTS: [Intercept, length, sex]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 5 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
 </pre></div></div>
 </div>
 <p>We can then look at how the food choices vary by length for both male and female alligators.</p>
@@ -1272,7 +1272,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/tmp/ipykernel_28477/2509692565.py:21: UserWarning: This figure was using constrained_layout, but that is incompatible with subplots_adjust and/or tight_layout; disabling constrained_layout.
+/tmp/ipykernel_21156/2509692565.py:21: UserWarning: This figure was using a layout engine that is incompatible with subplots_adjust and/or tight_layout; not calling subplots_adjust.
   fig.subplots_adjust(left=0.05, right=0.975, bottom=0.075, top=0.85)
 </pre></div></div>
 </div>
@@ -1294,7 +1294,7 @@ class.</p>
 
 <span class="n">ax</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">plot_ppc</span><span class="p">(</span><span class="n">idata</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">])</span>
-<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">levels</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">response_term</span><span class="o">.</span><span class="n">levels</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Choice&quot;</span><span class="p">);</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Probability&quot;</span><span class="p">);</span>
 </pre></div>
@@ -1325,22 +1325,21 @@ class.</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Mon Jun 20 2022
+Last updated: Thu Jan 05 2023
 
 Python implementation: CPython
-Python version       : 3.9.7
-IPython version      : 8.3.0
+Python version       : 3.10.4
+IPython version      : 8.5.0
 
-seaborn   : 0.11.2
-pandas    : 1.4.2
-bambi     : 0.9.0
-arviz     : 0.13.0.dev0
-numpy     : 1.21.5
-matplotlib: 3.5.1
-sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
-[GCC 7.5.0]
+matplotlib: 3.6.2
+sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
+pandas    : 1.5.2
+arviz     : 0.14.0
+seaborn   : 0.12.2
+numpy     : 1.23.5
+bambi     : 0.9.3
 
-Watermark: 2.3.0
+Watermark: 2.3.1
 
 </pre></div></div>
 </div>

@@ -925,33 +925,33 @@ Name: party_id, dtype: int64
 \right.\end{split}\]</div>
 <p>and we are interested in modelling <span class="math notranslate nohighlight">\(\pi = P(Y = 1)\)</span> (a.k.a. probability of success) based on two explanatory variables, age and party affiliation.</p>
 <p>A logistic regression is a model that links the <span class="math notranslate nohighlight">\(\text{logit}(\pi)\)</span> to a linear combination of the predictors. In our example, we’re going to include a main effect for party affiliation and the interaction effect between party affiliation and age (i.e. we’ll have a different age slope for each affiliation). The mathematical equation for our model is</p>
-<div class="math notranslate nohighlight">
-\[\log{\left(\frac{\pi}{1 - \pi}\right)} =
-\beta_0 + \beta_1 X_1 + \beta_2 X_2 + \beta_3 X_3 X_4 + \beta_4 X_1 X_4 + \beta_5 X_2 X_4\]</div>
-<div class="math notranslate nohighlight">
-\[\begin{split}X_1 = \left\{
+<p>$$ \begin{aligned} <span class="math">\log{\left(\frac{\pi}{1 - \pi}\right)}</span> &amp;= <span class="math">\beta</span>_0 + <span class="math">\beta</span>_1 X_1 + <span class="math">\beta</span>_2 X_2 + <span class="math">\beta</span>_3 X_3 X_4 + <span class="math">\beta</span>_4 X_1 X_4 + <span class="math">\beta</span>_5 X_2 X_4 \</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>X_1 &amp;= \left\{
     \begin{array}{ll}
         1 &amp; \textrm{if party affiliation is Independent} \\
         0 &amp; \textrm{in other case}
     \end{array}
-\right. \\\end{split}\]</div>
-<div class="math notranslate nohighlight">
-\[\begin{split}X_2 = \left\{
+\right. \\
+
+X_2 &amp;= \left\{
     \begin{array}{ll}
         1 &amp; \textrm{if party affiliation is Republican} \\
         0 &amp; \textrm{in other case}
     \end{array}
-\right. \\\end{split}\]</div>
-<div class="math notranslate nohighlight">
-\[\begin{split}X_3 =
+\right. \\
+
+X_3 &amp;=
 \left\{
     \begin{array}{ll}
         1 &amp; \textrm{if party affiliation is Democrat} \\
         0 &amp; \textrm{in other case}
     \end{array}
-\right. \\\end{split}\]</div>
-<div class="math notranslate nohighlight">
-\[X_4 = \text{Age}\]</div>
+\right. \\
+
+X_4 &amp;= \text{Age}
+</pre></div>
+</div>
+<p>\end{aligned} $$</p>
 <p>Notice we don’t have a main effect for <span class="math notranslate nohighlight">\(X_3\)</span>. This happens because Democrat party affiliation is being taken as baseline in the encoding of the categorical variable <code class="docutils literal notranslate"><span class="pre">party_id</span></code> and <span class="math notranslate nohighlight">\(\beta_1\)</span> and <span class="math notranslate nohighlight">\(\beta_2\)</span> represent deviations from that baseline. Thus, we see the main effect of Democrat affiliation is being represented by the Intercept, <span class="math notranslate nohighlight">\(\beta_0\)</span>.</p>
 <p>If we represent the right hand side of the model equation with <span class="math notranslate nohighlight">\(\eta\)</span>, the expression can be re-arranged to express our probability of interest, <span class="math notranslate nohighlight">\(\pi\)</span>, as a function of the linear predictor <span class="math notranslate nohighlight">\(\eta\)</span>.</p>
 <div class="math notranslate nohighlight">
@@ -968,7 +968,9 @@ pick one of the events to model, but will inform you which one it picked when yo
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">clinton_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;vote[&#39;clinton&#39;] ~ party_id + party_id:age&quot;</span><span class="p">,</span> <span class="n">clinton_data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s2">&quot;bernoulli&quot;</span><span class="p">)</span>
-<span class="n">clinton_fitted</span> <span class="o">=</span> <span class="n">clinton_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">)</span>
+<span class="n">clinton_fitted</span> <span class="o">=</span> <span class="n">clinton_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">draws</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">target_accept</span><span class="o">=</span><span class="mf">0.85</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="n">SEED</span><span class="p">,</span> <span class="n">idata_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;log_likelihood&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -980,7 +982,7 @@ pick one of the events to model, but will inform you which one it picked when yo
 Modeling the probability that vote==clinton
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
+Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [Intercept, party_id, party_id:age]
 </pre></div></div>
 </div>
@@ -996,6 +998,9 @@ NUTS: [Intercept, party_id, party_id:age]
         /* Needs to be in here for Safari polyfill so background images work as expected. */
         background-size: auto;
     }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
     .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
         background: #F44336;
     }
@@ -1006,8 +1011,8 @@ NUTS: [Intercept, party_id, party_id:age]
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='12000' class='' max='12000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [12000/12000 00:48<00:00 Sampling 4 chains, 0 divergences]
+  <progress value='6000' class='' max='6000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  100.00% [6000/6000 00:13&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1015,7 +1020,7 @@ NUTS: [Intercept, party_id, party_id:age]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws total) took 49 seconds.
+Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws total) took 14 seconds.
 </pre></div></div>
 </div>
 <p>We can print the model object to see information about the response distribution, the link function and the priors.</p>
@@ -1033,15 +1038,16 @@ Sampling 4 chains for 1_000 tune and 2_000 draw iterations (4_000 + 8_000 draws 
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: vote[&#39;clinton&#39;] ~ party_id + party_id:age
-Family name: Bernoulli
-Link: logit
-Observations: 373
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 0, sigma: 4.3846)
-    party_id ~ Normal(mu: [0. 0.], sigma: [5.4007 6.0634])
-    party_id:age ~ Normal(mu: [0. 0. 0.], sigma: [0.0938 0.1007 0.1098])
+       Formula: vote[&#39;clinton&#39;] ~ party_id + party_id:age
+        Family: bernoulli
+          Link: p = logit
+  Observations: 373
+        Priors:
+    target = p
+        Common-level effects
+            Intercept ~ Normal(mu: 0, sigma: 4.3846)
+            party_id ~ Normal(mu: [0. 0.], sigma: [5.4007 6.0634])
+            party_id:age ~ Normal(mu: [0. 0. 0.], sigma: [0.0938 0.1007 0.1098])
 ------
 * To see a plot of the priors call the .plot_priors() method.
 * To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()
@@ -1058,11 +1064,19 @@ Priors:
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling: [Intercept, party_id, party_id:age]
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_logistic_regression_23_0.png" src="../_images/notebooks_logistic_regression_23_0.png" />
+<img alt="../_images/notebooks_logistic_regression_23_1.png" src="../_images/notebooks_logistic_regression_23_1.png" />
 </div>
 </div>
 <p>Now let’s check out the results! We get traceplots and density estimates for the posteriors with <code class="docutils literal notranslate"><span class="pre">az.plot_trace()</span></code> and a summary of the posteriors with <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code>.</p>
@@ -1126,74 +1140,74 @@ Priors:
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>1.682</td>
-      <td>0.732</td>
-      <td>0.347</td>
-      <td>3.107</td>
+      <td>1.674</td>
+      <td>0.725</td>
+      <td>0.251</td>
+      <td>2.998</td>
+      <td>0.016</td>
       <td>0.011</td>
-      <td>0.008</td>
-      <td>4180.0</td>
-      <td>4203.0</td>
+      <td>2199.0</td>
+      <td>2105.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[independent]</th>
-      <td>-0.294</td>
-      <td>0.964</td>
-      <td>-2.064</td>
-      <td>1.571</td>
-      <td>0.015</td>
-      <td>0.012</td>
-      <td>3910.0</td>
-      <td>4407.0</td>
+      <td>-0.293</td>
+      <td>0.956</td>
+      <td>-2.037</td>
+      <td>1.543</td>
+      <td>0.021</td>
+      <td>0.018</td>
+      <td>2046.0</td>
+      <td>2230.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id[republican]</th>
-      <td>-1.166</td>
-      <td>1.574</td>
-      <td>-4.117</td>
-      <td>1.758</td>
+      <td>-1.151</td>
+      <td>1.575</td>
+      <td>-4.122</td>
+      <td>1.806</td>
+      <td>0.039</td>
       <td>0.027</td>
-      <td>0.019</td>
-      <td>3506.0</td>
-      <td>4675.0</td>
+      <td>1667.0</td>
+      <td>1843.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[democrat]</th>
       <td>0.013</td>
       <td>0.015</td>
-      <td>-0.015</td>
-      <td>0.043</td>
+      <td>-0.016</td>
+      <td>0.042</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>4161.0</td>
-      <td>4331.0</td>
+      <td>2133.0</td>
+      <td>2064.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[independent]</th>
       <td>-0.033</td>
-      <td>0.012</td>
-      <td>-0.056</td>
-      <td>-0.011</td>
+      <td>0.011</td>
+      <td>-0.055</td>
+      <td>-0.012</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>5498.0</td>
-      <td>4557.0</td>
+      <td>3257.0</td>
+      <td>2797.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>party_id:age[republican]</th>
-      <td>-0.079</td>
+      <td>-0.080</td>
       <td>0.036</td>
-      <td>-0.151</td>
-      <td>-0.017</td>
+      <td>-0.153</td>
+      <td>-0.018</td>
       <td>0.001</td>
-      <td>0.000</td>
-      <td>3902.0</td>
-      <td>3683.0</td>
+      <td>0.001</td>
+      <td>1692.0</td>
+      <td>1546.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1406,6 +1420,20 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
   </thead>
   <tbody>
     <tr>
+      <th>34</th>
+      <td>34</td>
+      <td>trump</td>
+      <td>83</td>
+      <td>republican</td>
+    </tr>
+    <tr>
+      <th>58</th>
+      <td>64</td>
+      <td>trump</td>
+      <td>84</td>
+      <td>republican</td>
+    </tr>
+    <tr>
       <th>62</th>
       <td>68</td>
       <td>trump</td>
@@ -1413,31 +1441,17 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
       <td>republican</td>
     </tr>
     <tr>
+      <th>87</th>
+      <td>95</td>
+      <td>trump</td>
+      <td>80</td>
+      <td>republican</td>
+    </tr>
+    <tr>
       <th>191</th>
       <td>215</td>
       <td>trump</td>
       <td>95</td>
-      <td>republican</td>
-    </tr>
-    <tr>
-      <th>222</th>
-      <td>248</td>
-      <td>clinton</td>
-      <td>36</td>
-      <td>republican</td>
-    </tr>
-    <tr>
-      <th>320</th>
-      <td>359</td>
-      <td>clinton</td>
-      <td>22</td>
-      <td>republican</td>
-    </tr>
-    <tr>
-      <th>322</th>
-      <td>361</td>
-      <td>clinton</td>
-      <td>37</td>
       <td>republican</td>
     </tr>
     <tr>
@@ -1676,6 +1690,20 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
   </thead>
   <tbody>
     <tr>
+      <th>34</th>
+      <td>34</td>
+      <td>trump</td>
+      <td>83</td>
+      <td>republican</td>
+    </tr>
+    <tr>
+      <th>58</th>
+      <td>64</td>
+      <td>trump</td>
+      <td>84</td>
+      <td>republican</td>
+    </tr>
+    <tr>
       <th>62</th>
       <td>68</td>
       <td>trump</td>
@@ -1683,31 +1711,17 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
       <td>republican</td>
     </tr>
     <tr>
+      <th>87</th>
+      <td>95</td>
+      <td>trump</td>
+      <td>80</td>
+      <td>republican</td>
+    </tr>
+    <tr>
       <th>191</th>
       <td>215</td>
       <td>trump</td>
       <td>95</td>
-      <td>republican</td>
-    </tr>
-    <tr>
-      <th>222</th>
-      <td>248</td>
-      <td>clinton</td>
-      <td>36</td>
-      <td>republican</td>
-    </tr>
-    <tr>
-      <th>320</th>
-      <td>359</td>
-      <td>clinton</td>
-      <td>22</td>
-      <td>republican</td>
-    </tr>
-    <tr>
-      <th>322</th>
-      <td>361</td>
-      <td>clinton</td>
-      <td>37</td>
       <td>republican</td>
     </tr>
     <tr>
@@ -1770,7 +1784,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.995
+0.99625
 </pre></div></div>
 </div>
 <p>Probability that the Democrat slope is greater than the Independent slope?</p>
@@ -1788,7 +1802,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.992
+0.99125
 </pre></div></div>
 </div>
 <p>Probability that the Independent slope is greater than the Republican slope?</p>
@@ -1806,12 +1820,12 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.89425
+0.899
 </pre></div></div>
 </div>
 <p>Probability that the Democrat slope is greater than 0?</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">dem</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
@@ -1819,12 +1833,12 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[31]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.797375
+0.80875
 </pre></div></div>
 </div>
 <p>Probability that the Republican slope is less than 0?</p>
@@ -1842,7 +1856,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.993375
+0.995
 </pre></div></div>
 </div>
 <p>Probability that the Independent slope is less than 0?</p>
@@ -1860,7 +1874,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-0.99625
+0.99875
 </pre></div></div>
 </div>
 <p>If we look at the plot of the marginal posteriors, we may be suspicious that, for example, the probability that Democrat slope is greater than the Republican slope is 0.998 (almost 1!), given the overlap between the blue and green density functions. However, we can’t answer such a question using the marginal posteriors only, as shown in the plot. Since Democrat and Republican slopes (<span class="math notranslate nohighlight">\(\beta_3\)</span> and <span class="math notranslate nohighlight">\(\beta_5\)</span>, respectively) are random variables, we need to use their joint distribution
@@ -1980,7 +1994,7 @@ to answer probability questions that involve both of them. The fact that logical
 </pre></div>
 </div>
 </div>
-<div class="nbinput nblast docutils container">
+<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
 </pre></div>
 </div>
@@ -1988,6 +2002,15 @@ to answer probability questions that involve both of them. The fact that logical
 <span class="n">vote_posterior</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">extract_dataset</span><span class="p">(</span><span class="n">clinton_fitted</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="mi">2000</span><span class="p">)[</span><span class="s2">&quot;vote_mean&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/tmp/ipykernel_23763/325773600.py:2: FutureWarning: extract_dataset has been deprecated, please use extract
+  vote_posterior = az.extract_dataset(clinton_fitted, num_samples=2000)[&#34;vote_mean&#34;]
+</pre></div></div>
 </div>
 <p>Make the plot!</p>
 <div class="nbinput docutils container">
@@ -2033,21 +2056,20 @@ to answer probability questions that involve both of them. The fact that logical
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Sun Jun 19 2022
+Last updated: Thu Jan 05 2023
 
 Python implementation: CPython
-Python version       : 3.9.7
-IPython version      : 8.3.0
+Python version       : 3.10.4
+IPython version      : 8.5.0
 
-bambi     : 0.9.0
-pandas    : 1.4.2
-arviz     : 0.13.0.dev0
-numpy     : 1.21.5
-matplotlib: 3.5.1
-sys       : 3.9.7 (default, Sep 16 2021, 13:09:58)
-[GCC 7.5.0]
+pandas    : 1.5.2
+matplotlib: 3.6.2
+numpy     : 1.23.5
+arviz     : 0.14.0
+bambi     : 0.9.3
+sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
 
-Watermark: 2.3.0
+Watermark: 2.3.1
 
 </pre></div></div>
 </div>

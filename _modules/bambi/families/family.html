@@ -342,39 +342,47 @@
             <article class="bd-article" role="main">
               
   <h1>Source code for bambi.families.family</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">bambi.families.link</span> <span class="kn">import</span> <span class="n">Link</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pymc</span> <span class="k">as</span> <span class="nn">pm</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+
+<span class="kn">from</span> <span class="nn">bambi.families.link</span> <span class="kn">import</span> <span class="n">Link</span>
+<span class="kn">from</span> <span class="nn">bambi.utils</span> <span class="kn">import</span> <span class="n">get_auxiliary_parameters</span><span class="p">,</span> <span class="n">get_aliased_name</span>
 
 
 <div class="viewcode-block" id="Family"><a class="viewcode-back" href="../../../api_reference.html#bambi.families.Family">[docs]</a><span class="k">class</span> <span class="nc">Family</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;A specification of model family.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A specification of model family.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    name: str</span>
+<span class="sd">    name : str</span>
 <span class="sd">        The name of the family. It can be any string.</span>
-<span class="sd">    likelihood: Likelihood</span>
+<span class="sd">    likelihood : Likelihood</span>
 <span class="sd">        A ``bambi.families.Likelihood`` instance specifying the model likelihood function.</span>
-<span class="sd">    link: str or Link</span>
-<span class="sd">        The name of the link function or a ``bambi.families.Link`` instance. The link function</span>
-<span class="sd">        transforms the linear model prediction to the mean parameter of the likelihood function.</span>
+<span class="sd">    link : Union[str, Dict[str, Union[str, Link]]]</span>
+<span class="sd">        The link function that&#39;s used for every parameter in the likelihood function.</span>
+<span class="sd">        Keys are the names of the parameters and values are the link functions.</span>
+<span class="sd">        These can be a ``str`` with a name or a ``bambi.families.Link`` instance.</span>
+<span class="sd">        The link function transforms the linear predictors.</span>
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-
 <span class="sd">    &gt;&gt;&gt; import bambi as bmb</span>
 
 <span class="sd">    Replicate the Gaussian built-in family.</span>
 
 <span class="sd">    &gt;&gt;&gt; sigma_prior = bmb.Prior(&quot;HalfNormal&quot;, sigma=1)</span>
-<span class="sd">    &gt;&gt;&gt; likelihood = bmb.Likelihood(&quot;Gaussian&quot;, parent=&quot;mu&quot;, sigma=sigma_prior)</span>
+<span class="sd">    &gt;&gt;&gt; likelihood = bmb.Likelihood(&quot;Gaussian&quot;, params=[&quot;mu&quot;, &quot;sigma&quot;], parent=&quot;mu&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; family = bmb.Family(&quot;gaussian&quot;, likelihood, &quot;identity&quot;)</span>
-<span class="sd">    &gt;&gt;&gt; # Then you can do</span>
-<span class="sd">    &gt;&gt;&gt; # bmb.Model(&quot;y ~ x&quot;, data, family=family)</span>
+<span class="sd">    &gt;&gt;&gt; bmb.Model(&quot;y ~ x&quot;, data, family=family, priors={&quot;sigma&quot;: sigma_prior})</span>
 
 <span class="sd">    Replicate the Bernoulli built-in family.</span>
 
 <span class="sd">    &gt;&gt;&gt; likelihood = bmb.Likelihood(&quot;Bernoulli&quot;, parent=&quot;p&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; family = bmb.Family(&quot;bernoulli&quot;, likelihood, &quot;logit&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; bmb.Model(&quot;y ~ x&quot;, data, family=family)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">SUPPORTED_LINKS</span> <span class="o">=</span> <span class="p">[</span>
@@ -389,52 +397,187 @@
         <span class="s2">&quot;tan_2&quot;</span><span class="p">,</span>
     <span class="p">]</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">,</span> <span class="n">link</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Link</span><span class="p">]]]):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span> <span class="o">=</span> <span class="n">likelihood</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">link</span> <span class="o">=</span> <span class="n">link</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_priors</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_link</span>
 
     <span class="nd">@link</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">check_string_link</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_link</span> <span class="o">=</span> <span class="n">Link</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">Link</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_link</span> <span class="o">=</span> <span class="n">x</span>
+    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c1"># The name of the link function. It&#39;s applied to the parent parameter of the likelihood</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Link</span><span class="p">)):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span> <span class="n">value</span><span class="p">}</span>
+        <span class="n">links</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">link</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">link</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_string_link</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">Link</span><span class="p">):</span>
+                <span class="k">pass</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;.link&#39; must be set to a string or a Link instance.&quot;</span><span class="p">)</span>
+            <span class="n">links</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">link</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_link</span> <span class="o">=</span> <span class="n">links</span>
+
+    <span class="k">def</span> <span class="nf">check_string_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link_name</span><span class="p">,</span> <span class="n">param_name</span><span class="p">):</span>
+        <span class="c1"># When you instantiate Family directly</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SUPPORTED_LINKS</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">supported_links</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">SUPPORTED_LINKS</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;.link must be set to a string or a Link instance.&quot;</span><span class="p">)</span>
+            <span class="n">supported_links</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">SUPPORTED_LINKS</span><span class="p">[</span><span class="n">param_name</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">check_string_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">link</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">link</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">SUPPORTED_LINKS</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Link &#39;</span><span class="si">{</span><span class="n">link</span><span class="si">}</span><span class="s2">&#39; cannot be used with family &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">link_name</span> <span class="ow">in</span> <span class="n">supported_links</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Link &#39;</span><span class="si">{</span><span class="n">link_name</span><span class="si">}</span><span class="s2">&#39; cannot be used for &#39;</span><span class="si">{</span><span class="n">param_name</span><span class="si">}</span><span class="s2">&#39; with family &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">Link</span><span class="p">(</span><span class="n">link_name</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Family.set_alias"><a class="viewcode-back" href="../../../api_reference.html#bambi.families.Family.set_alias">[docs]</a>    <span class="k">def</span> <span class="nf">set_alias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">alias</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Set alias for an auxiliary variable of the family</span>
+<div class="viewcode-block" id="Family.set_default_priors"><a class="viewcode-back" href="../../../api_reference.html#bambi.families.Family.set_default_priors">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_priors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">priors</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set default priors for non-parent parameters</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        name: str</span>
-<span class="sd">            The name of the variable</span>
-<span class="sd">        alias: str</span>
-<span class="sd">            The new name for the variable</span>
+<span class="sd">        priors : dict</span>
+<span class="sd">            The keys are the names of non-parent parameters and the values are their default priors.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">aliases</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">alias</span><span class="p">})</span></div>
+        <span class="n">auxiliary_parameters</span> <span class="o">=</span> <span class="n">get_auxiliary_parameters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">priors</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">priors</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">auxiliary_parameters</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_priors</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">priors</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Family.posterior_predictive"><a class="viewcode-back" href="../../../api_reference.html#bambi.families.Family.posterior_predictive">[docs]</a>    <span class="k">def</span> <span class="nf">posterior_predictive</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">posterior</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># pylint: disable = unused-argument</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get draws from the posterior predictive distribution</span>
+
+<span class="sd">        This function works for almost all the families. It grabs the draws for the parameters</span>
+<span class="sd">        needed in the response distribution, and then gets samples from the posterior predictive</span>
+<span class="sd">        distribution using `pm.draw()`. It won&#39;t work when the response distribution requires</span>
+<span class="sd">        parameters that are not available in `posterior`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        model : bambi.Model</span>
+<span class="sd">            The model</span>
+<span class="sd">        posterior : xr.Dataset</span>
+<span class="sd">            The xarray dataset that contains the draws for all the parameters in the posterior.</span>
+<span class="sd">            It must contain the parameters that are needed in the distribution of the response, or</span>
+<span class="sd">            the parameters that allow to derive them.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        xr.DataArray</span>
+<span class="sd">            A data array with the draws from the posterior predictive distribution</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">response_dist</span> <span class="o">=</span> <span class="n">get_response_dist</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">params</span>
+        <span class="n">response_aliased_name</span> <span class="o">=</span> <span class="n">get_aliased_name</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">response_term</span><span class="p">)</span>
+
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">output_dataset_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># In the posterior xr.Dataset we need to consider aliases.</span>
+        <span class="c1"># But we don&#39;t use aliases when passing kwargs to the PyMC distribution</span>
+        <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="c1"># Extract posterior draws for the parent parameter</span>
+            <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
+                <span class="n">component</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">response_name</span><span class="p">]</span>
+                <span class="n">var_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">response_aliased_name</span><span class="si">}</span><span class="s2">_mean&quot;</span>
+                <span class="n">kwargs</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+                <span class="n">output_dataset_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">posterior</span><span class="p">[</span><span class="n">var_name</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Extract posterior draws for non-parent parameters</span>
+                <span class="n">component</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
+                <span class="n">component_aliased_name</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">alias</span> <span class="k">if</span> <span class="n">component</span><span class="o">.</span><span class="n">alias</span> <span class="k">else</span> <span class="n">param</span>
+                <span class="n">var_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">response_aliased_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">component_aliased_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">posterior</span><span class="p">:</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+                    <span class="n">output_dataset_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">posterior</span><span class="p">[</span><span class="n">var_name</span><span class="p">])</span>
+                <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="s2">&quot;prior&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+                    <span class="n">kwargs</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span>
+
+        <span class="c1"># Determine the array with largest number of dimensions</span>
+        <span class="n">ndims_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+        <span class="c1"># Append a dimension when needed. Required to make `pm.draw()` work.</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">expand_array</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">ndims_max</span><span class="p">)</span>
+
+        <span class="c1"># NOTE: Wouldn&#39;t it be better to always use parametrizations compatible with PyMC?</span>
+        <span class="c1"># The current approach allows more flexibility, but it&#39;s more painful.</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="s2">&quot;transform_backend_kwargs&quot;</span><span class="p">):</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">transform_backend_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">output_array</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">response_dist</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="n">output_coords_all</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">output_dataset_list</span><span class="p">)</span><span class="o">.</span><span class="n">coords</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="s2">&quot;KIND&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">KIND</span> <span class="o">==</span> <span class="s2">&quot;Multivariate&quot;</span><span class="p">:</span>
+            <span class="n">coord_names</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;chain&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;draw&quot;</span><span class="p">,</span>
+                <span class="n">response_aliased_name</span> <span class="o">+</span> <span class="s2">&quot;_obs&quot;</span><span class="p">,</span>
+                <span class="n">response_aliased_name</span> <span class="o">+</span> <span class="s2">&quot;_mean_dim&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Assume it&#39;s univariate family</span>
+            <span class="n">coord_names</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">,</span> <span class="n">response_aliased_name</span> <span class="o">+</span> <span class="s2">&quot;_obs&quot;</span><span class="p">)</span>
+
+        <span class="n">output_coords</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">coord_name</span> <span class="ow">in</span> <span class="n">coord_names</span><span class="p">:</span>
+            <span class="n">output_coords</span><span class="p">[</span><span class="n">coord_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_coords_all</span><span class="p">[</span><span class="n">coord_name</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">output_array</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="n">output_coords</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">msg_list</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Response distribution: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Link: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">priors</span><span class="p">:</span>
-            <span class="n">priors_msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> ~ </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">priors</span><span class="o">.</span><span class="n">items</span><span class="p">()])</span>
-            <span class="n">msg_list</span> <span class="o">+=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Priors:</span><span class="se">\n</span><span class="s2">  </span><span class="si">{</span><span class="n">priors_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">msg_list</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">msg</span>
+        <span class="n">msg_list</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Family: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Likelihood: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">likelihood</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Link: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">link</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">msg_list</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span></div>
+
+
+<span class="k">def</span> <span class="nf">get_response_dist</span><span class="p">(</span><span class="n">family</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the PyMC distribution for the response</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    family : bambi.Family</span>
+<span class="sd">        The family for which the response distribution is wanted</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pm.Distribution</span>
+<span class="sd">        The response distribution</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">dist</span><span class="p">:</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">dist</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pm</span><span class="p">,</span> <span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dist</span>
+
+
+<span class="k">def</span> <span class="nf">expand_array</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">ndim</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add dimensions to an array to match the number of desired dimensions</span>
+
+<span class="sd">    If x.ndim &lt; ndim, it adds ndim - x.ndim dimensions after the last axis. If not, it is left</span>
+<span class="sd">    untouched.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : np.ndarray</span>
+<span class="sd">        The array</span>
+<span class="sd">    ndim : int</span>
+<span class="sd">        The number of desired dimensions</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    np.ndarray</span>
+<span class="sd">        The array with the expanded dimensions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="n">ndim</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span>
+    <span class="n">dims_to_expand</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">dims_to_expand</span><span class="p">)</span>
 </pre></div>
 
             </article>

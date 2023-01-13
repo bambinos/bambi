@@ -675,18 +675,18 @@ div.rendered_html tbody tr:hover {
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: y ~ x + z
-Family name: Gaussian
-Link: identity
-Observations: 50
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 0.1852, sigma: 2.5649)
-    x ~ Normal(mu: 0, sigma: 2.231)
-    z ~ Normal(mu: 0, sigma: 2.4374)
-
-  Auxiliary parameters
-    sigma ~ HalfStudentT(nu: 4, sigma: 1.013)
+       Formula: y ~ x + z
+        Family: gaussian
+          Link: mu = identity
+  Observations: 50
+        Priors:
+    target = mu
+        Common-level effects
+            Intercept ~ Normal(mu: 0.1852, sigma: 2.5649)
+            x ~ Normal(mu: 0, sigma: 2.231)
+            z ~ Normal(mu: 0, sigma: 2.4374)
+        Auxiliary parameters
+            y_sigma ~ HalfStudentT(nu: 4, sigma: 1.013)
 </pre></div></div>
 </div>
 <p>Typically, we will initialize a Bambi <code class="docutils literal notranslate"><span class="pre">Model</span></code> by passing it a model formula and a pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>. Other arguments such as family, priors, and link are available. By default, it uses <code class="docutils literal notranslate"><span class="pre">family=&quot;gaussian&quot;</span></code> which implies a linear regression with normal error. We get back a model that we can immediately fit by calling <code class="docutils literal notranslate"><span class="pre">model.fit()</span></code>.</p>
@@ -964,19 +964,19 @@ Automatically removing 33/6940 rows from the dataset.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: value ~ condition + age + gender
-Family name: Gaussian
-Link: identity
-Observations: 6907
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 4.5457, sigma: 28.4114)
-    condition ~ Normal(mu: 0, sigma: 12.0966)
-    age ~ Normal(mu: 0, sigma: 1.3011)
-    gender ~ Normal(mu: 0, sigma: 13.1286)
-
-  Auxiliary parameters
-    sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)
+       Formula: value ~ condition + age + gender
+        Family: gaussian
+          Link: mu = identity
+  Observations: 6907
+        Priors:
+    target = mu
+        Common-level effects
+            Intercept ~ Normal(mu: 4.5457, sigma: 28.4114)
+            condition ~ Normal(mu: 0, sigma: 12.0966)
+            age ~ Normal(mu: 0, sigma: 1.3011)
+            gender ~ Normal(mu: 0, sigma: 13.1286)
+        Auxiliary parameters
+            value_sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1002,22 +1002,22 @@ Automatically removing 33/6940 rows from the dataset.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: value ~ condition + age + gender + (1|uid)
-Family name: Gaussian
-Link: identity
-Observations: 6907
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 4.5457, sigma: 28.4114)
-    condition ~ Normal(mu: 0, sigma: 12.0966)
-    age ~ Normal(mu: 0, sigma: 1.3011)
-    gender ~ Normal(mu: 0, sigma: 13.1286)
+       Formula: value ~ condition + age + gender + (1|uid)
+        Family: gaussian
+          Link: mu = identity
+  Observations: 6907
+        Priors:
+    target = mu
+        Common-level effects
+            Intercept ~ Normal(mu: 4.5457, sigma: 28.4114)
+            condition ~ Normal(mu: 0, sigma: 12.0966)
+            age ~ Normal(mu: 0, sigma: 1.3011)
+            gender ~ Normal(mu: 0, sigma: 13.1286)
 
-  Group-level effects
-    1|uid ~ Normal(mu: 0, sigma: HalfNormal(sigma: 28.4114))
-
-  Auxiliary parameters
-    sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)
+        Group-level effects
+            1|uid ~ Normal(mu: 0, sigma: HalfNormal(sigma: 28.4114))
+        Auxiliary parameters
+            value_sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
@@ -1044,26 +1044,26 @@ Automatically removing 33/6940 rows from the dataset.
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)
-Family name: Gaussian
-Link: identity
-Observations: 6907
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 4.5457, sigma: 28.4114)
-    condition ~ Normal(mu: 0, sigma: 12.0966)
-    age ~ Normal(mu: 0, sigma: 1.3011)
-    gender ~ Normal(mu: 0, sigma: 13.1286)
+       Formula: value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)
+        Family: gaussian
+          Link: mu = identity
+  Observations: 6907
+        Priors:
+    target = mu
+        Common-level effects
+            Intercept ~ Normal(mu: 4.5457, sigma: 28.4114)
+            condition ~ Normal(mu: 0, sigma: 12.0966)
+            age ~ Normal(mu: 0, sigma: 1.3011)
+            gender ~ Normal(mu: 0, sigma: 13.1286)
 
-  Group-level effects
-    1|uid ~ Normal(mu: 0, sigma: HalfNormal(sigma: 28.4114))
-    1|study ~ Normal(mu: 0, sigma: HalfNormal(sigma: 28.4114))
-    condition|study ~ Normal(mu: 0, sigma: HalfNormal(sigma: 12.0966))
-    1|stimulus ~ Normal(mu: 0, sigma: HalfNormal(sigma: 28.4114))
-    condition|stimulus ~ Normal(mu: 0, sigma: HalfNormal(sigma: 12.0966))
-
-  Auxiliary parameters
-    sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)
+        Group-level effects
+            1|uid ~ Normal(mu: 0, sigma: HalfNormal(sigma: 28.4114))
+            1|study ~ Normal(mu: 0, sigma: HalfNormal(sigma: 28.4114))
+            condition|study ~ Normal(mu: 0, sigma: HalfNormal(sigma: 12.0966))
+            1|stimulus ~ Normal(mu: 0, sigma: HalfNormal(sigma: 28.4114))
+            condition|stimulus ~ Normal(mu: 0, sigma: HalfNormal(sigma: 12.0966))
+        Auxiliary parameters
+            value_sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)
 </pre></div></div>
 </div>
 <p>Each of the above examples specifies a full model that can be fitted using PyMC by doing</p>
@@ -1098,7 +1098,7 @@ Automatically removing 33/6940 rows from the dataset.
 Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [Intercept, condition, age, gender, 1|uid_sigma, 1|uid_offset, value_sigma]
+NUTS: [value_sigma, Intercept, condition, age, gender, 1|uid_sigma, 1|uid_offset]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -1127,7 +1127,7 @@ NUTS: [Intercept, condition, age, gender, 1|uid_sigma, 1|uid_offset, value_sigma
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:21&lt;00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:28&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1135,7 +1135,7 @@ NUTS: [Intercept, condition, age, gender, 1|uid_sigma, 1|uid_offset, value_sigma
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 22 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 28 seconds.
 </pre></div></div>
 </div>
 <p>The above code obtains 1,000 draws (the default value) and return them as an <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance.</p>
@@ -1173,11 +1173,19 @@ Automatically removing 33/6940 rows from the dataset.
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Sampling: [1|uid_sigma, Intercept, age, condition, gender, value_sigma]
+</pre></div></div>
+</div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_getting_started_23_0.png" src="../_images/notebooks_getting_started_23_0.png" />
+<img alt="../_images/notebooks_getting_started_23_1.png" src="../_images/notebooks_getting_started_23_1.png" />
 </div>
 </div>
 </section>
@@ -1190,7 +1198,7 @@ heights, a value of 3,000 cms should be assigned a probability of exactly 0).</p
 available, it’s a good idea to use them.</p>
 <p>Fortunately, Bambi is built on top of PyMC, which means that we can seamlessly use any of the over 40 <code class="docutils literal notranslate"><span class="pre">Distribution</span></code> classes defined in PyMC. We can specify such priors in Bambi using the <code class="docutils literal notranslate"><span class="pre">Prior</span></code> class, which initializes with a <code class="docutils literal notranslate"><span class="pre">name</span></code> argument (which must map on exactly to the name of a valid PyMC <code class="docutils literal notranslate"><span class="pre">Distribution</span></code>) followed by any of the parameters accepted by the corresponding <code class="docutils literal notranslate"><span class="pre">distribution</span></code>. For example:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># A Laplace prior with mean of 0 and scale of 10</span>
@@ -1211,30 +1219,30 @@ Automatically removing 9/6940 rows from the dataset.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: value ~ condition + (1|uid)
-Family name: Gaussian
-Link: identity
-Observations: 6931
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 4.5516, sigma: 8.4548)
-    condition ~ Normal(mu: 0, sigma: 12.1019)
+       Formula: value ~ condition + (1|uid)
+        Family: gaussian
+          Link: mu = identity
+  Observations: 6931
+        Priors:
+    target = mu
+        Common-level effects
+            Intercept ~ Normal(mu: 4.5516, sigma: 8.4548)
+            condition ~ Normal(mu: 0, sigma: 12.1019)
 
-  Group-level effects
-    1|uid ~ Laplace(mu: 0, b: HalfNormal(sigma: 1))
-
-  Auxiliary parameters
-    sigma ~ HalfStudentT(nu: 4, sigma: 2.4197)
+        Group-level effects
+            1|uid ~ Laplace(mu: 0, b: HalfNormal(sigma: 1))
+        Auxiliary parameters
+            value_sigma ~ HalfStudentT(nu: 4, sigma: 2.4197)
 </pre></div></div>
 </div>
 <p>Priors specified using the <code class="docutils literal notranslate"><span class="pre">Prior</span></code> class can be nested to arbitrary depths–meaning, we can set any of a given prior’s argument to point to another <code class="docutils literal notranslate"><span class="pre">Prior</span></code> instance. This is particularly useful when specifying hierarchical priors on group specific effects, where the individual group specific slopes or intercepts are constrained to share a common source distribution:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subject_sd</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Prior</span><span class="p">(</span><span class="s2">&quot;HalfCauchy&quot;</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
@@ -1253,25 +1261,25 @@ Automatically removing 9/6940 rows from the dataset.
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Formula: value ~ condition + (1|uid)
-Family name: Gaussian
-Link: identity
-Observations: 6931
-Priors:
-  Common-level effects
-    Intercept ~ Normal(mu: 4.5516, sigma: 8.4548)
-    condition ~ Normal(mu: 0, sigma: 12.1019)
+       Formula: value ~ condition + (1|uid)
+        Family: gaussian
+          Link: mu = identity
+  Observations: 6931
+        Priors:
+    target = mu
+        Common-level effects
+            Intercept ~ Normal(mu: 4.5516, sigma: 8.4548)
+            condition ~ Normal(mu: 0, sigma: 12.1019)
 
-  Group-level effects
-    1|uid ~ Normal(mu: 0, sd: HalfCauchy(beta: 5))
-
-  Auxiliary parameters
-    sigma ~ HalfStudentT(nu: 4, sigma: 2.4197)
+        Group-level effects
+            1|uid ~ Normal(mu: 0, sd: HalfCauchy(beta: 5))
+        Auxiliary parameters
+            value_sigma ~ HalfStudentT(nu: 4, sigma: 2.4197)
 </pre></div></div>
 </div>
 <p>The above prior specification indicates that the individual subject intercepts are to be treated as if they are randomly sampled from the same underlying normal distribution, where the variance of that normal distribution is parameterized by a separate hyperprior (a half-cauchy with beta = 5).</p>
@@ -1282,7 +1290,7 @@ correlation scale that Bambi uses for default priors. This means that if your ou
 <h2>Generalized linear mixed models<a class="headerlink" href="#Generalized-linear-mixed-models" title="Permalink to this heading">#</a></h2>
 <p>Bambi supports the construction of mixed models with non-normal response distributions (i.e., generalized linear mixed models, or GLMMs). GLMMs are specified in the same way as LMMs, except that the user must specify the distribution to use for the response, and (optionally) the link function with which to transform the linear model prediction into the desired non-normal response. The easiest way to construct a GLMM is to simple set the <code class="docutils literal notranslate"><span class="pre">family</span></code> when creating the model:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;admissions&quot;</span><span class="p">)</span>
@@ -1329,7 +1337,7 @@ NUTS: [Intercept, gre, gpa, rank]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:25&lt;00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:15&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1337,7 +1345,7 @@ NUTS: [Intercept, gre, gpa, rank]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 26 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 16 seconds.
 </pre></div></div>
 </div>
 <p>If no <code class="docutils literal notranslate"><span class="pre">link</span></code> argument is explicitly set (see below), the canonical link function (or an otherwise sensible default) will be used. The following table summarizes the currently available families and their associated links:</p>
@@ -1397,7 +1405,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <p>Following the convention used in many R packages, the response distribution to use for a GLMM is specified in a <code class="docutils literal notranslate"><span class="pre">Family</span></code> class that indicates how the response variable is distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility. In the following example, we show how the
 built-in Bernoulli family could be constructed on-the-fly:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">special</span>
@@ -1473,7 +1481,7 @@ NUTS: [Intercept, gre, gpa, rank]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:09&lt;00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:11&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1481,7 +1489,7 @@ NUTS: [Intercept, gre, gpa, rank]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 10 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 12 seconds.
 </pre></div></div>
 </div>
 <p>The above example produces results identical to simply setting <code class="docutils literal notranslate"><span class="pre">family='bernoulli'</span></code>.</p>
@@ -1495,7 +1503,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <h2>Plotting<a class="headerlink" href="#Plotting" title="Permalink to this heading">#</a></h2>
 <p>To visualize a plot of the posterior estimates and sample traces for all parameters, simply pass the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object to the arviz function <code class="docutils literal notranslate"><span class="pre">az._plot_trace</span></code>:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">compact</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span>
@@ -1515,7 +1523,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <h2>Summarizing<a class="headerlink" href="#Summarizing" title="Permalink to this heading">#</a></h2>
 <p>If you prefer numerical summaries of the posterior estimates, you can use the <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code> function from <a class="reference external" href="https://arviz-devs.github.io/arviz/generated/arviz.summary.html#arviz.summary">ArviZ</a> which provides a pandas DataFrame with some key summary and diagnostics info on the model parameters, such as the 94% highest posterior density intervals</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
@@ -1523,7 +1531,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1559,14 +1567,14 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-3.475</td>
-      <td>1.165</td>
-      <td>-5.483</td>
-      <td>-1.163</td>
-      <td>0.021</td>
-      <td>0.016</td>
-      <td>2994.0</td>
-      <td>1781.0</td>
+      <td>-3.510</td>
+      <td>1.172</td>
+      <td>-5.663</td>
+      <td>-1.414</td>
+      <td>0.018</td>
+      <td>0.014</td>
+      <td>4173.0</td>
+      <td>1944.0</td>
       <td>1.0</td>
     </tr>
     <tr>
@@ -1577,32 +1585,32 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
       <td>0.004</td>
       <td>0.000</td>
       <td>0.000</td>
-      <td>2172.0</td>
-      <td>1780.0</td>
+      <td>2012.0</td>
+      <td>1462.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>gpa</th>
-      <td>0.780</td>
-      <td>0.333</td>
-      <td>0.179</td>
-      <td>1.434</td>
-      <td>0.007</td>
+      <td>0.793</td>
+      <td>0.328</td>
+      <td>0.181</td>
+      <td>1.406</td>
+      <td>0.006</td>
       <td>0.005</td>
-      <td>2319.0</td>
-      <td>1570.0</td>
+      <td>2769.0</td>
+      <td>1954.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>rank</th>
-      <td>-0.566</td>
-      <td>0.127</td>
-      <td>-0.808</td>
-      <td>-0.347</td>
+      <td>-0.567</td>
+      <td>0.129</td>
+      <td>-0.815</td>
+      <td>-0.340</td>
+      <td>0.003</td>
       <td>0.002</td>
-      <td>0.002</td>
-      <td>2651.0</td>
-      <td>1499.0</td>
+      <td>2125.0</td>
+      <td>1646.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1611,7 +1619,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <p>If you want to view summaries or plots for specific parameters, you can pass a list of its names:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># show the names of all variables stored in the InferenceData object</span>
@@ -1620,7 +1628,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1634,7 +1642,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <h2>Accessing back-end objects<a class="headerlink" href="#Accessing-back-end-objects" title="Permalink to this heading">#</a></h2>
 <p>Bambi is just a high-level interface to PyMC. As such, Bambi internally stores virtually all objects generated by PyMC, making it easy for users to retrieve, inspect, and modify those objects. For example, the <code class="docutils literal notranslate"><span class="pre">Model</span></code> class created by PyMC (as opposed to the Bambi class of the same name) is accessible from <code class="docutils literal notranslate"><span class="pre">model.backend.model</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">type</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
@@ -1642,7 +1650,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1651,7 +1659,7 @@ pymc.model.Model
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span>
@@ -1659,7 +1667,7 @@ pymc.model.Model
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1671,7 +1679,7 @@ $$
             $$</div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">observed_RVs</span>
@@ -1679,7 +1687,7 @@ $$
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1688,7 +1696,7 @@ $$
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">backend</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">unobserved_RVs</span>
@@ -1696,7 +1704,7 @@ $$
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
