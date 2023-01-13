@@ -4,6 +4,7 @@ from bambi.families.univariate import (
     Bernoulli,
     Beta,
     Binomial,
+    Categorical,
     Gamma,
     Gaussian,
     NegativeBinomial,
@@ -13,7 +14,7 @@ from bambi.families.univariate import (
     VonMises,
     Wald,
 )
-from bambi.families.multivariate import Categorical, Multinomial
+from bambi.families.multivariate import Multinomial
 
 
 # fmt: off

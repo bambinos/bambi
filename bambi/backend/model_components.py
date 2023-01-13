@@ -5,6 +5,7 @@ from pytensor import tensor as pt
 from bambi.backend.terms import CommonTerm, GroupSpecificTerm, InterceptTerm, ResponseTerm
 from bambi.backend.utils import get_distribution
 from bambi.families.multivariate import MultivariateFamily
+from bambi.families.univariate import Categorical
 from bambi.utils import get_aliased_name
 
 
@@ -118,7 +119,7 @@ class DistributionalComponent:
             if predictor.ndim > 1:
                 for col in range(predictor.shape[1]):
                     self.output += coef[:, col] * predictor[:, col]
-            elif isinstance(bmb_model.family, MultivariateFamily):
+            elif isinstance(bmb_model.family, (MultivariateFamily, Categorical)):
                 self.output += coef * predictor[:, np.newaxis]
             else:
                 self.output += coef * predictor

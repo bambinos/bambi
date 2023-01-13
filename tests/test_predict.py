@@ -189,6 +189,16 @@ def test_predict_t(data_numeric_xy):
     model.predict(idata, kind="mean", data=data.iloc[:20, :])
     model.predict(idata, kind="pps", data=data.iloc[:20, :])
 
+    # A case where the prior for one of the parameters is constant
+    model = Model("y ~ x", data, family="t", priors={"nu": 4})
+    idata = model.fit(tune=100, draws=100)
+
+    model.predict(idata, kind="mean")
+    model.predict(idata, kind="pps")
+
+    model.predict(idata, kind="mean", data=data.iloc[:20, :])
+    model.predict(idata, kind="pps", data=data.iloc[:20, :])
+
 
 def test_predict_wald(data_gamma):
     data = data_gamma
@@ -233,7 +243,7 @@ def test_posterior_predictive_categorical(inhaler):
     model = Model("rating ~ period", data=inhaler, family="categorical")
     idata = model.fit(tune=100, draws=100)
     model.predict(idata, kind="pps")
-    pps = idata.posterior_predictive["rating"].values
+    pps = idata.posterior_predictive["rating"].to_numpy()
 
     assert pps.shape[-1] == inhaler.shape[0]
     assert (np.unique(pps) == [0, 1, 2, 3]).all()

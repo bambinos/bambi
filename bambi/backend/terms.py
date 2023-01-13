@@ -5,6 +5,7 @@ import pytensor.tensor as pt
 
 from bambi.backend.utils import has_hyperprior, get_distribution
 from bambi.families.multivariate import MultivariateFamily
+from bambi.families.univariate import Categorical
 from bambi.priors import Prior
 from bambi.utils import get_aliased_name
 
@@ -36,7 +37,7 @@ class CommonTerm:
 
         # Dims of the response variable
         response_dims = []
-        if isinstance(spec.family, MultivariateFamily):
+        if isinstance(spec.family, (MultivariateFamily, Categorical)):
             response_dims = list(spec.response_component.response_term.coords)
             response_dims_n = len(spec.response_component.response_term.coords[response_dims[0]])
             # Arguments may be of shape (a,) but we need them to be of shape (a, b)
@@ -99,7 +100,7 @@ class GroupSpecificTerm:
 
         # Dims of the response variable (e.g. categorical)
         response_dims = []
-        if isinstance(spec.family, MultivariateFamily):
+        if isinstance(spec.family, (MultivariateFamily, Categorical)):
             response_dims = list(spec.response_component.response_term.coords)
 
         dims = list(self.coords) + response_dims
@@ -172,7 +173,7 @@ class InterceptTerm:
         dist = get_distribution(self.term.prior.name)
         label = self.name
         # Prepends one dimension if response is multivariate
-        if isinstance(spec.family, MultivariateFamily):
+        if isinstance(spec.family, (MultivariateFamily, Categorical)):
             dims = list(spec.response_component.response_term.coords)
             dist = dist(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:

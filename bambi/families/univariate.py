@@ -1,14 +1,13 @@
 import numpy as np
 import xarray as xr
-from scipy import stats
+import pytensor.tensor as pt
 
 from bambi.families.family import Family
 from bambi.utils import get_aliased_name
 
 
 class UnivariateFamily(Family):
-    def posterior_predictive(self, model, posterior, **kwargs):
-        raise NotImplementedError
+    KIND = "Univariate"
 
 
 class AsymmetricLaplace(UnivariateFamily):
@@ -19,23 +18,9 @@ class AsymmetricLaplace(UnivariateFamily):
         "q": ["logit", "probit", "cloglog"],
     }
 
-    def posterior_predictive(self, model, posterior, **kwargs):
-        """Sample from posterior predictive distribution"""
-        response_name = get_aliased_name(model.response_component.response_term)
-        mean = posterior[response_name + "_mean"]
-        b = posterior[response_name + "_b"]
-        kappa = posterior[response_name + "_kappa"]
-        return xr.apply_ufunc(stats.laplace_asymmetric.rvs, kappa, mean, b)
-
 
 class Bernoulli(UnivariateFamily):
     SUPPORTED_LINKS = {"p": ["identity", "logit", "probit", "cloglog"]}
-
-    def posterior_predictive(self, model, posterior, **kwargs):
-        """Sample from posterior predictive distribution"""
-        response_name = get_aliased_name(model.response_component.response_term)
-        mean = posterior[response_name + "_mean"]
-        return xr.apply_ufunc(np.random.binomial, 1, mean)
 
     def get_data(self, response):
         if response.term.data.ndim == 1:
@@ -51,14 +36,6 @@ class Bernoulli(UnivariateFamily):
 
 class Beta(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["logit", "probit", "cloglog"], "kappa": ["log"]}
-
-    def posterior_predictive(self, model, posterior, **kwargs):
-        response_name = get_aliased_name(model.response_component.response_term)
-        mean = posterior[response_name + "_mean"]
-        kappa = posterior[response_name + "_kappa"]
-        alpha = mean * kappa
-        beta = (1 - mean) * kappa
-        return xr.apply_ufunc(np.random.beta, alpha, beta)
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
@@ -92,15 +69,49 @@ class Binomial(UnivariateFamily):
         return kwargs
 
 
+class Categorical(UnivariateFamily):
+    SUPPORTED_LINKS = {"p": ["softmax"]}
+    UFUNC_KWARGS = {"axis": -1}
+
+    def transform_linear_predictor(self, model, linear_predictor):
+        response_name = get_aliased_name(model.response_component.response_term)
+        response_levels_dim = response_name + "_dim"
+        linear_predictor = linear_predictor.pad({response_levels_dim: (1, 0)}, constant_values=0)
+        return linear_predictor
+
+    def transform_coords(self, model, mean):
+        # The mean has the reference level in the dimension, a new name is needed
+        response_name = get_aliased_name(model.response_component.response_term)
+        response_levels_dim = response_name + "_dim"
+        response_levels_dim_complete = response_name + "_mean_dim"
+        levels_complete = model.response_component.response_term.levels
+        mean = mean.rename({response_levels_dim: response_levels_dim_complete})
+        mean = mean.assign_coords({response_levels_dim_complete: levels_complete})
+        return mean
+
+    def get_data(self, response):
+        return np.nonzero(response.term.data)[1]
+
+    def get_coords(self, response):
+        name = response.name + "_dim"
+        return {name: [level for level in response.levels if level != response.reference]}
+
+    def get_reference(self, response):
+        return get_reference_level(response.term)
+
+    @staticmethod
+    def transform_backend_nu(nu, data):
+        # Add column of zeros to the linear predictor for the reference level (the first one)
+        shape = (data.shape[0], 1)
+
+        # The first line makes sure the intercept-only models work
+        nu = np.ones(shape) * nu  # (response_levels, ) -> (n, response_levels)
+        nu = pt.concatenate([np.zeros(shape), nu], axis=1)
+        return nu
+
+
 class Gamma(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "alpha": ["log"]}
-
-    def posterior_predictive(self, model, posterior, **kwargs):
-        response_name = get_aliased_name(model.response_component.response_term)
-        mean = posterior[response_name + "_mean"]
-        alpha = posterior[response_name + "_alpha"]
-        beta = alpha / mean
-        return xr.apply_ufunc(np.random.gamma, alpha, 1 / beta)
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
@@ -114,82 +125,29 @@ class Gamma(UnivariateFamily):
 class Gaussian(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "sigma": ["log"]}
 
-    def posterior_predictive(self, model, posterior, **kwargs):
-        "Sample from posterior predictive distribution"
-        response_name = get_aliased_name(model.response_component.response_term)
-        mean = posterior[response_name + "_mean"]
-        sigma = posterior[response_name + "_sigma"]
-        return xr.apply_ufunc(np.random.normal, mean, sigma)
-
 
 class NegativeBinomial(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "cloglog"], "alpha": ["log"]}
-
-    def posterior_predictive(self, model, posterior, **kwargs):
-        response_name = get_aliased_name(model.response_component.response_term)
-        mean = posterior[response_name + "_mean"]
-        n = posterior[response_name + "_alpha"]
-        p = n / (mean + n)
-        return xr.apply_ufunc(np.random.negative_binomial, n, p)
 
 
 class Laplace(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "b": ["log"]}
 
-    def posterior_predictive(self, model, posterior, **kwargs):
-        "Sample from posterior predictive distribution"
-        response_name = get_aliased_name(model.response_component.response_term)
-        mean = posterior[response_name + "_mean"]
-        b = posterior[response_name + "_b"]
-        return xr.apply_ufunc(np.random.laplace, mean, b)
-
 
 class Poisson(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log"]}
-
-    def posterior_predictive(self, model, posterior, **kwargs):
-        response_name = get_aliased_name(model.response_component.response_term)
-        mean = posterior[response_name + "_mean"]
-        return xr.apply_ufunc(np.random.poisson, mean)
 
 
 class StudentT(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "sigma": ["log"], "nu": ["log"]}
 
-    def posterior_predictive(self, model, posterior, **kwargs):
-        response_name = get_aliased_name(model.response_component.response_term)
-        mean = posterior[response_name + "_mean"]
-        sigma = posterior[response_name + "_sigma"]
-        nu_component = model.components["nu"]
-
-        # Constant component with fixed value
-        if hasattr(nu_component, "prior") and isinstance(nu_component.prior, (int, float)):
-            nu = nu_component.prior
-        # Either constant or distributional, but non-constant value
-        else:
-            nu = posterior[response_name + "_nu"]
-
-        return xr.apply_ufunc(stats.t.rvs, nu, mean, sigma)
-
 
 class VonMises(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "tan_2"], "kappa": ["log"]}
 
-    def posterior_predictive(self, model, posterior, **kwargs):
-        response_name = get_aliased_name(model.response_component.response_term)
-        mean = posterior[response_name + "_mean"]
-        kappa = posterior[response_name + "_kappa"]
-        return xr.apply_ufunc(np.random.vonmises, mean, kappa)
-
 
 class Wald(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["inverse", "inverse_squared", "identity", "log"], "lam": ["log"]}
-
-    def posterior_predictive(self, model, posterior, **kwargs):
-        response_name = get_aliased_name(model.response_component.response_term)
-        mean = posterior[response_name + "_mean"]
-        lam = posterior[response_name + "_lam"]
-        return xr.apply_ufunc(np.random.wald, mean, lam)
 
 
 # pylint: disable = protected-access
@@ -199,6 +157,22 @@ def get_success_level(term):
 
     if term.levels is None:
         return term.components[0].reference
+
+    levels = term.levels
+    intermediate_data = term.components[0]._intermediate_data
+    if hasattr(intermediate_data, "_contrast"):
+        return intermediate_data._contrast.reference
+
+    return levels[0]
+
+
+# pylint: disable = protected-access
+def get_reference_level(term):
+    if term.kind != "categoric":
+        return None
+
+    if term.levels is None:
+        return None
 
     levels = term.levels
     intermediate_data = term.components[0]._intermediate_data
