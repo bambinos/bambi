@@ -6,6 +6,7 @@
 
 * Refactored the codebase to support distributional models (#607)
 * Added a default method to handle posterior predictive sampling for custom families (#625)
+* `plot_cap()` gains a new argument `target` that allows to plot different parameters of the response distribution (#627)
 
 ### Maintenance and fixes
 
