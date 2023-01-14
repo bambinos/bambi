@@ -153,6 +153,7 @@ def test_transforms(mtcars):
 
 
 def test_multiple_outputs():
+"""Test plot cap default and specified values for target argument"""
     rng = np.random.default_rng(121195)
     N = 200
     a, b = 0.5, 1.1
