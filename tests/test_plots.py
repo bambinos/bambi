@@ -168,4 +168,5 @@ def test_multiple_outputs():
     idata = model.fit(tune=100, draws=100, random_seed=1234)
    # Test default target 
     plot_cap(model, idata, "x")
+    # Test user supplied target argument
     plot_cap(model, idata, "x", "alpha")
