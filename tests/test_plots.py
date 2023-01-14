@@ -153,6 +153,7 @@ def test_transforms(mtcars):
 
 
 def test_multiple_outputs():
+"""Test plot cap default and specified values for target argument"""
     rng = np.random.default_rng(121195)
     N = 200
     a, b = 0.5, 1.1
@@ -165,5 +166,7 @@ def test_multiple_outputs():
     formula = Formula("y ~ x", "alpha ~ x")
     model = Model(formula, data_gamma, family="gamma")
     idata = model.fit(tune=100, draws=100, random_seed=1234)
+   # Test default target 
     plot_cap(model, idata, "x")
+    # Test user supplied target argument
     plot_cap(model, idata, "x", "alpha")
