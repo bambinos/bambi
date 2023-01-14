@@ -2,7 +2,7 @@
 SETTINGS_DISTRIBUTIONS = {
     "AsymmetricLaplace": {"mu": 0, "b": 1, "kappa": 1, "q": 0.5},
     "Bernoulli": {"p": 0.5},
-    "Beta": {"alpha": 1, "beta": 1},
+    "Beta": {"alpha": 2, "beta": 2},
     "Binomial": {"n": 1, "p": 0.5},
     "Cauchy": {"alpha": 0, "beta": 1},
     "Flat": {},

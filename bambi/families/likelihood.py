@@ -19,6 +19,7 @@ DISTRIBUTIONS = {
     "StudentT": DistSettings(params=("mu", "sigma", "nu"), parent="mu"),
     "VonMises": DistSettings(params=("mu", "kappa"), parent="mu"),
     "Wald": DistSettings(params=("mu", "lam"), parent="mu"),
+    "ZeroInflatedPoisson": DistSettings(params=("mu", "psi"), parent="mu")
 }
 
 
