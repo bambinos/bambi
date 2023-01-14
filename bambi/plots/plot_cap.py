@@ -225,7 +225,6 @@ def plot_cap(
         axes = np.atleast_1d(axes)
     else:
         axes = np.atleast_1d(ax)
-        print(axes)
         if isinstance(axes[0], np.ndarray):
             fig = axes[0][0].get_figure()
         else:
