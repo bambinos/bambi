@@ -166,5 +166,6 @@ def test_multiple_outputs():
     formula = Formula("y ~ x", "alpha ~ x")
     model = Model(formula, data_gamma, family="gamma")
     idata = model.fit(tune=100, draws=100, random_seed=1234)
+   # Test default target 
     plot_cap(model, idata, "x")
     plot_cap(model, idata, "x", "alpha")
