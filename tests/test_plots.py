@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import pytest
 
-from bambi.models import Model
+from bambi.models import Model, Formula
 from bambi.plots import plot_cap
 
 
@@ -150,3 +150,20 @@ def test_transforms(mtcars):
 
     transforms = {"mpg": np.log, "hp": np.log}
     plot_cap(model, idata, ["hp"], transforms=transforms)
+
+
+def test_multiple_outputs():
+    rng = np.random.default_rng(121195)
+    N = 200
+    a, b = 0.5, 1.1
+    x = rng.uniform(-1.5, 1.5, N)
+    shape = np.exp(0.3 + x * 0.5 + rng.normal(scale=0.1, size=N))
+    y = rng.gamma(shape, np.exp(a + b * x) / shape, N)
+    data_gamma = pd.DataFrame({"x": x, "y": y})
+
+    
+    formula = Formula("y ~ x", "alpha ~ x")
+    model = Model(formula, data_gamma, family="gamma")
+    idata = model.fit()
+    plot_cap(model, idata, "x")
+    plot_cap(model, idata, "x", "alpha")

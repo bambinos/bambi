@@ -128,6 +128,7 @@ def plot_cap(
     model,
     idata,
     covariates,
+    target="mean",
     use_hdi=True,
     hdi_prob=None,
     transforms=None,
@@ -152,6 +153,8 @@ def plot_cap(
         and the third is mapped to different plot panels.
         If a dictionary, keys must be taken from ("horizontal", "color", "panel") and the values
         are the names of the variables.
+    target : str
+        Which model parameter to plot. Defaults to 'mean'.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     hdi_prob : float, optional
@@ -203,11 +206,11 @@ def plot_cap(
     response_name = get_aliased_name(model.response_component.response_term)
     response_transform = transforms.get(response_name, identity)
 
-    y_hat = response_transform(idata.posterior[f"{response_name}_mean"])
+    y_hat = response_transform(idata.posterior[f"{response_name}_{target}"])
     y_hat_mean = y_hat.mean(("chain", "draw"))
 
     if use_hdi:
-        y_hat_bounds = az.hdi(y_hat, hdi_prob)[f"{response_name}_mean"].T
+        y_hat_bounds = az.hdi(y_hat, hdi_prob)[f"{response_name}_{target}"].T
     else:
         lower_bound = round((1 - hdi_prob) / 2, 4)
         upper_bound = 1 - lower_bound
@@ -238,8 +241,9 @@ def plot_cap(
     else:
         raise ValueError("Main covariate must be numeric or categoric.")
 
+    ylabel = response_name if target == "mean" else target
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
-        ax.set(xlabel=main, ylabel=response_name)
+        ax.set(xlabel=main, ylabel=ylabel)
 
     return fig, axes
 
