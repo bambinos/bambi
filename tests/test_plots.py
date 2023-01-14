@@ -161,9 +161,9 @@ def test_multiple_outputs():
     y = rng.gamma(shape, np.exp(a + b * x) / shape, N)
     data_gamma = pd.DataFrame({"x": x, "y": y})
 
-    
+
     formula = Formula("y ~ x", "alpha ~ x")
     model = Model(formula, data_gamma, family="gamma")
-    idata = model.fit()
+    idata = model.fit(tune=100, draws=100, random_seed=1234)
     plot_cap(model, idata, "x")
     plot_cap(model, idata, "x", "alpha")
