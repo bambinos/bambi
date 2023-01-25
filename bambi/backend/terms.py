@@ -255,10 +255,10 @@ class ResponseTerm:
         kwargs[parent] = linkinv(nu)
         kwargs["observed"] = data
 
-        # The response has multiple variables, but a single linear predictor
         dims_n = len(dims)
         ndim_diff = data.ndim - dims_n
 
+        # The response has multiple variables, but a single linear predictor
         if ndim_diff > 0:
             for i in range(ndim_diff):
                 axis = dims_n + i
