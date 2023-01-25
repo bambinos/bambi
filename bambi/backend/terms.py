@@ -235,7 +235,9 @@ class ResponseTerm:
 
         # Distributional parameters. A link funciton is used.
         response_aliased_name = get_aliased_name(self.term)
-        dims = (response_aliased_name + "_obs",)
+        dims = [
+            response_aliased_name + "_obs",
+        ]
         for name, component in pymc_backend.distributional_components.items():
             bmb_component = bmb_model.components[name]
             if bmb_component.response_term:  # The response is added later
