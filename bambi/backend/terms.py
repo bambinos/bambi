@@ -254,6 +254,19 @@ class ResponseTerm:
         # Add parent parameter and observed data
         kwargs[parent] = linkinv(nu)
         kwargs["observed"] = data
+
+        # The response has multiple variables, but a single linear predictor
+        dims_n = len(dims)
+        ndim_diff = data.ndim - dims_n
+
+        if ndim_diff > 0:
+            for i in range(ndim_diff):
+                axis = dims_n + i
+                name = f"{response_aliased_name}_extra_dim_{i}"
+                values = np.arange(np.size(data, axis=axis))
+                pymc_backend.model.add_coords({name: values})
+                dims.append(name)
+
         kwargs["dims"] = dims
 
         # Build the response distribution
