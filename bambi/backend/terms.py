@@ -235,9 +235,7 @@ class ResponseTerm:
 
         # Distributional parameters. A link funciton is used.
         response_aliased_name = get_aliased_name(self.term)
-        dims = [
-            response_aliased_name + "_obs",
-        ]
+        dims = [response_aliased_name + "_obs"]
         for name, component in pymc_backend.distributional_components.items():
             bmb_component = bmb_model.components[name]
             if bmb_component.response_term:  # The response is added later
@@ -256,27 +254,14 @@ class ResponseTerm:
         # Add parent parameter and observed data
         kwargs[parent] = linkinv(nu)
         kwargs["observed"] = data
-
-        dims_n = len(dims)
-        ndim_diff = data.ndim - dims_n
-
-        # The response has multiple variables, but a single linear predictor
-        if ndim_diff > 0:
-            for i in range(ndim_diff):
-                axis = dims_n + i
-                name = f"{response_aliased_name}_extra_dim_{i}"
-                values = np.arange(np.size(data, axis=axis))
-                pymc_backend.model.add_coords({name: values})
-                dims.append(name)
-
         kwargs["dims"] = dims
 
         # Build the response distribution
-        dist = self.build_response_distribution(kwargs)
+        dist = self.build_response_distribution(kwargs, pymc_backend)
 
         return dist
 
-    def build_response_distribution(self, kwargs):
+    def build_response_distribution(self, kwargs, pymc_backend):
         # Get likelihood distribution
         if self.family.likelihood.dist:
             dist = self.family.likelihood.dist
@@ -287,6 +272,24 @@ class ResponseTerm:
         # likelihood function
         if hasattr(self.family, "transform_backend_kwargs"):
             kwargs = self.family.transform_backend_kwargs(kwargs)
+
+        # It's possible the observed for the response is multidimensional, but there's a single
+        # linear predictor because the family is not multivariate.
+        # In this case, we add extra dimensions to avoid having shape mismatch
+        response_aliased_name = get_aliased_name(self.term)
+        dims, data = kwargs["dims"], kwargs["observed"]
+        dims_n = len(dims)
+        ndim_diff = data.ndim - dims_n
+
+        if ndim_diff > 0:
+            for i in range(ndim_diff):
+                axis = dims_n + i
+                name = f"{response_aliased_name}_extra_dim_{i}"
+                values = np.arange(np.size(data, axis=axis))
+                pymc_backend.model.add_coords({name: values})
+                dims.append(name)
+
+        kwargs["dims"] = dims
 
         return dist(self.name, **kwargs)
 
