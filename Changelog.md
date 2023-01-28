@@ -11,6 +11,7 @@
 ### Maintenance and fixes
 
 * Moved the `tests` directory to the root of the repository (#607)
+* Don't pass `dims` to the response of the likelihood distribution anymore (#629)
 
 ### Documentation
 
