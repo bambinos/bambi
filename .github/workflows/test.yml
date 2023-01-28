@@ -28,7 +28,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
           auto-update-conda: true
 
+      - shell: bash -l {0}
+        run: |
+          conda info
+          conda list
+
       - name: Install Bambi and all its dependencies
+        shell: bash -l {0}
         run: |
           conda install -c conda-forge python-graphviz
           conda install pip
@@ -36,7 +42,12 @@ jobs:
           pip install .[dev]
           pip install .[jax]
 
+          python --version
+          conda list
+          pip freeze
+
       - name: Run linters
+        shell: bash -l {0}
         run: |
           echo "Running black..."
           black bambi --check

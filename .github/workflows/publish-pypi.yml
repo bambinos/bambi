@@ -12,8 +12,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v3
@@ -55,7 +53,7 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN }}
-        run: python3 -m twine upload --repository testpypi dist/*
+        run: python3 -m twine upload --skip-existing --repository testpypi dist/*
             
       - name: Test pip install from test.pypi
         run: |
