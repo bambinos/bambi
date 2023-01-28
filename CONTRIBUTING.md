@@ -66,13 +66,13 @@ Please reasonably document any additions or changes to the codebase, when in dou
 
    ```bash
    pip install -e .
-   pip install bambi[dev]
+   pip install .[dev]
    ```
 
    If you're going to develop futures related to JAX, install jax-related dependencies.
 
    ```bash
-   pip install bambi[jax]
+   pip install .[jax]
    ```
 
 1. Develop the feature on your feature branch. Add changed files using `git add` and then `git commit` files:
