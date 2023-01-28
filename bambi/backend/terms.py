@@ -251,17 +251,16 @@ class ResponseTerm:
         # Take the inverse link function that maps from linear predictor to the parent of likelihood
         linkinv = get_linkinv(self.family.link[parent], pymc_backend.INVLINKS)
 
-        # Add parent parameter and observed data
+        # Add parent parameter and observed data. We don't need to pass dims.
         kwargs[parent] = linkinv(nu)
         kwargs["observed"] = data
-        kwargs["dims"] = dims
 
         # Build the response distribution
-        dist = self.build_response_distribution(kwargs, pymc_backend)
+        dist = self.build_response_distribution(kwargs)
 
         return dist
 
-    def build_response_distribution(self, kwargs, pymc_backend):
+    def build_response_distribution(self, kwargs):
         # Get likelihood distribution
         if self.family.likelihood.dist:
             dist = self.family.likelihood.dist
@@ -273,8 +272,6 @@ class ResponseTerm:
         if hasattr(self.family, "transform_backend_kwargs"):
             kwargs = self.family.transform_backend_kwargs(kwargs)
 
-        kwargs = self.robustify_dims(pymc_backend, kwargs)
-
         return dist(self.name, **kwargs)
 
     @property
@@ -282,26 +279,6 @@ class ResponseTerm:
         if self.term.alias:
             return self.term.alias
         return self.term.name
-
-    def robustify_dims(self, pymc_backend, kwargs):
-        # It's possible the observed for the response is multidimensional, but there's a single
-        # linear predictor because the family is not multivariate.
-        # In this case, we add extra dimensions to avoid having shape mismatch between the data
-        # and the shape implied by the `dims` we pass.
-        response_aliased_name = get_aliased_name(self.term)
-        dims, data = kwargs["dims"], kwargs["observed"]
-        dims_n = len(dims)
-        ndim_diff = data.ndim - dims_n
-
-        if ndim_diff > 0:
-            for i in range(ndim_diff):
-                axis = dims_n + i
-                name = f"{response_aliased_name}_extra_dim_{i}"
-                values = np.arange(np.size(data, axis=axis))
-                pymc_backend.model.add_coords({name: values})
-                dims.append(name)
-        kwargs["dims"] = dims
-        return kwargs
 
 
 def get_linkinv(link, invlinks):
