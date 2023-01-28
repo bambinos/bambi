@@ -11,6 +11,7 @@
 ### Maintenance and fixes
 
 * Moved the `tests` directory to the root of the repository (#607)
+* Make more usage of the `pyproject.toml` config file to distribute the package (#631)
 
 ### Documentation
 
