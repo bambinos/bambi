@@ -1,6 +1,6 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = ["setuptools>=61.0", "pymc>=5.0.0", "formulae==0.3.4"]
+requires = ["setuptools>=61.0"]
 
 [project]
 name = "bambi"
@@ -29,7 +29,7 @@ dev = [
     "black==22.3.0",
     "nbsphinx>=0.4.2",
     "pre-commit>=2.19",
-    "pre-ipython>=5.8.0,!=8.7.0",
+    "ipython>=5.8.0,!=8.7.0",
     "pylint==2.10.2",
     "pytest-cov>=2.6.1",
     "pytest>=4.4.0",
@@ -62,7 +62,7 @@ packages = [
 ]
 
 [tool.setuptools.dynamic]
-version = {attr = "bambi.__version__"}
+version = {file = "bambi/VERSION.txt"}
 
 [tool.black]
 line-length = 100

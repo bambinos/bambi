@@ -33,8 +33,8 @@ jobs:
           conda install -c conda-forge python-graphviz
           conda install pip
           pip install .
-          pip install bambi[dev]
-          pip install bambi[jax]
+          pip install .[dev]
+          pip install .[jax]
 
       - name: Run linters
         run: |
