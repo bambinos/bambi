@@ -38,7 +38,7 @@ class Likelihood:
     parent : str
         Optional specification of the name of the mean parameter in the likelihood.
         This is the parameter whose transformation is modeled by the linear predictor.
-    dist : pymc.distributions.distribution.DistributionMeta
+    dist : pymc.distributions.distribution.DistributionMeta or callable
         Optional custom PyMC distribution that will be used to compute the likelihood.
     """
 
@@ -83,7 +83,12 @@ class Likelihood:
         self._parent = value
 
     def __str__(self):
-        args = [("name", self.name), ("params", self.params), ("parent", self.parent)]
+        args = [
+            ("name", self.name),
+            ("params", self.params),
+            ("parent", self.parent),
+            ("dist", self.dist),
+        ]
         args = [f"{arg[0]}: {arg[1]}" for arg in args]
         return f"{self.__class__.__name__}({indentify(multilinify(args))}\n)"
 

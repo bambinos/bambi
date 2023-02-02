@@ -14,13 +14,17 @@ class Prior:
         Whether to adjust the parameters of the prior or use them as passed. Default to ``True``.
     kwargs : dict
         Optional keywords specifying the parameters of the named distribution.
+    dist : pymc.distributions.distribution.DistributionMeta or callable
+        A callable that returns a valid PyMC distribution. The signature must contain ``name``,
+        ``dims``, and ``shape``, as well as its own keyworded arguments.
     """
 
-    def __init__(self, name, auto_scale=True, **kwargs):
+    def __init__(self, name, auto_scale=True, dist=None, **kwargs):
         self.name = name
         self.auto_scale = auto_scale
         self.args = {}
         self.update(**kwargs)
+        self.dist = dist
 
     def update(self, **kwargs):
         """Update the arguments of the prior with additional arguments.
