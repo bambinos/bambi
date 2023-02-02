@@ -46,7 +46,7 @@ Please reasonably document any additions or changes to the codebase, when in dou
 
 1. Fork the [project repository](https://github.com/bambinos/bambi/) by clicking on the 'Fork' button near the top right of the main repository page. This creates a copy of the code under your GitHub user account.
 
-2. Clone your fork of the Bambi repo from your GitHub account to your local disk, and add the base repository as a remote:
+1. Clone your fork of the Bambi repo from your GitHub account to your local disk, and add the base repository as a remote:
 
    ```bash
    git clone git@github.com:<your GitHub handle>/bambi.git
@@ -54,7 +54,7 @@ Please reasonably document any additions or changes to the codebase, when in dou
    git remote add upstream git@github.com:bambinos/bambi.git
    ```
 
-3. Create a feature branch (e.g. `my-feature`) to hold your development changes:
+1. Create a feature branch (e.g. `my-feature`) to hold your development changes:
 
    ```bash
    git checkout -b my-feature
@@ -62,14 +62,20 @@ Please reasonably document any additions or changes to the codebase, when in dou
 
    Always use a feature branch. It's good practice to never routinely work on the `main` branch of any repository.
 
-4. Project requirements are in `requirements.txt`, and libraries used for development are in `requirements-dev.txt`. To set up a development environment, you may run:
+1. Install the package in editable mode and its development dependencies.
 
    ```bash
-   pip install -r requirements.txt
-   pip install -r requirements-dev.txt
+   pip install -e .
+   pip install .[dev]
    ```
 
-5. Develop the feature on your feature branch. Add changed files using `git add` and then `git commit` files:
+   If you're going to develop futures related to JAX, install jax-related dependencies.
+
+   ```bash
+   pip install .[jax]
+   ```
+
+1. Develop the feature on your feature branch. Add changed files using `git add` and then `git commit` files:
 
    ```bash
    git add modified_files
@@ -117,19 +123,19 @@ We recommend that your contribution complies with the following guidelines befor
 - Code coverage **cannot** decrease. Coverage can be checked with **pytest-cov** package:
 
   ```bash
-  pytest --cov=bambi --cov-report=html tests/
+  pytest --cov=bambi --cov-report=html tests
   ```
 
 - Your code passes black
 
   ```bash
-  black bambi/
+  black bambi
   ```
 
 - Your code passes pylint
 
   ```bash
-  pylint bambi/
+  pylint bambi
   ```
 
 **This guide was derived from the [ArviZ guide to contributing](https://github.com/arviz-devs/arviz/blob/master/CONTRIBUTING.md)**
