@@ -14,13 +14,16 @@ class Prior:
         Whether to adjust the parameters of the prior or use them as passed. Default to ``True``.
     kwargs : dict
         Optional keywords specifying the parameters of the named distribution.
+    fn : callable
+        A function that returns a valid PyMC distribution. Useful to implement custom priors.
     """
 
-    def __init__(self, name, auto_scale=True, **kwargs):
+    def __init__(self, name, auto_scale=True, fn=None, **kwargs):
         self.name = name
         self.auto_scale = auto_scale
         self.args = {}
         self.update(**kwargs)
+        self.fn = fn
 
     def update(self, **kwargs):
         """Update the arguments of the prior with additional arguments.

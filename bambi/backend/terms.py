@@ -31,9 +31,12 @@ class CommonTerm:
     def build(self, spec):
         data = self.term.data
         label = self.name
-        dist = self.term.prior.name
         args = self.term.prior.args
-        distribution = get_distribution(dist)
+
+        if self.term.prior.fn is not None:
+            distribution = self.term.prior.fn
+        else:
+            distribution = get_distribution(self.term.prior.name)
 
         # Dims of the response variable
         response_dims = []
