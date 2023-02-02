@@ -630,9 +630,8 @@ div.rendered_html tbody tr:hover {
 <p>Usually when doing regression we model the conditional mean of some distribution. Common cases are a Normal distribution for continuous unbounded responses, a Poisson distribution for count data, etc.</p>
 <p>Quantile regression, instead estimates a conditional quantile of the response variable. If the quantile is 0.5, then we will be estimating the median (instead of the mean), this could be useful as a way of performing robust regression, in a similar fashion as using a Student-t distribution instead of a Normal. But for some problem we actually care of the behaviour of the response away from the mean (or median). For example, in medical research, pathologies or potential health risks occur at high
 or low quantile, for instance, overweight and underweight. In some other fields like ecology, quantile regression is justified due to the existence of complex interactions between variables, where the effect of one variable on another is different for different ranges of the variable.</p>
-</section>
 <section id="Asymmetric-Laplace-distribution">
-<h1>Asymmetric Laplace distribution<a class="headerlink" href="#Asymmetric-Laplace-distribution" title="Permalink to this heading">#</a></h1>
+<h2>Asymmetric Laplace distribution<a class="headerlink" href="#Asymmetric-Laplace-distribution" title="Permalink to this heading">#</a></h2>
 <p>At first it could be weird to think which distribution we should use as the likelihood for quantile regression or how to write a Bayesian model for quantile regression. But it turns out the answer is quite simple, we just need to use the asymmetric Laplace distribution. This distribution has one parameter controling the mean, another for the scale and a third one for the asymmetry. There are at least two alternative parametrizations regarding this asymmetric parameter. In terms of <span class="math notranslate nohighlight">\(\kappa\)</span>
 a parameter that goes from 0 to <span class="math notranslate nohighlight">\(\infty\)</span> and in terms of <span class="math notranslate nohighlight">\(q\)</span> a number between 0 and 1. This later parametrization is more intuitive for quantile regression as we can directly interpre it as the quantile of interest.</p>
 <p>On the next cell we compute the pdf of 3 distribution from the Asymmetric Laplace family</p>
@@ -1041,6 +1040,7 @@ Watermark: 2.3.1
 </pre></div></div>
 </div>
 </section>
+</section>
 
 
             </article>
@@ -1080,12 +1080,7 @@ Watermark: 2.3.1
 </div>
 <nav id="bd-toc-nav" class="page-toc">
     <ul class="visible nav section-nav flex-column">
- <li class="toc-h1 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#">
-   Quantile Regression
-  </a>
- </li>
- <li class="toc-h1 nav-item toc-entry">
+ <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#Asymmetric-Laplace-distribution">
    Asymmetric Laplace distribution
   </a>

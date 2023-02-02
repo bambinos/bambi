@@ -34,3 +34,9 @@ methods in the current release of Bambi.
 
 .. automodule:: bambi.data
     :members:
+
+:mod:`bambi.plots`
+=====================
+
+.. automodule:: bambi.plots
+    :members:

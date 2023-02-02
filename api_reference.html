@@ -858,6 +858,79 @@ Run <code class="docutils literal notranslate"><span class="pre">bmb.clear_data_
 </dd></dl>
 
 </section>
+<section id="module-bambi.plots">
+<span id="bambi-plots"></span><h2><a class="reference internal" href="#module-bambi.plots" title="bambi.plots"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.plots</span></code></a><a class="headerlink" href="#module-bambi.plots" title="Permalink to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="bambi.plots.create_cap_data">
+<span class="sig-prename descclassname"><span class="pre">bambi.plots.</span></span><span class="sig-name descname"><span class="pre">create_cap_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/plots/plot_cap.html#create_cap_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.plots.create_cap_data" title="Permalink to this definition">#</a></dt>
+<dd><p>Create data for a Conditional Adjusted Predictions plot</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>bambi.Model</em>) – An instance of a Bambi model</p></li>
+<li><p><strong>covariates</strong> (<em>dict</em>) – A dictionary of length between one and three.
+Keys must be taken from (“horizontal”, “color”, “panel”).
+The values indicate the names of variables.</p></li>
+<li><p><strong>grid_n</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of points used to evaluate the main covariate. Defaults to 200.</p></li>
+<li><p><strong>groups_n</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of groups to create when the grouping variable is numeric. Groups are based on
+equally spaced points. Defaults to 5.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The data for the Conditional Adjusted Predictions plot.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – When the number of covariates is larger than 2.
+    When either the main or the group covariates are not numeric or categoric.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bambi.plots.plot_cap">
+<span class="sig-prename descclassname"><span class="pre">bambi.plots.</span></span><span class="sig-name descname"><span class="pre">plot_cap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hdi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdi_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/plots/plot_cap.html#plot_cap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.plots.plot_cap" title="Permalink to this definition">#</a></dt>
+<dd><p>Plot Conditional Adjusted Predictions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>bambi.Model</em>) – The model for which we want to plot the predictions.</p></li>
+<li><p><strong>idata</strong> (<em>arviz.InferenceData</em>) – The InferenceData object that contains the samples from the posterior distribution of
+the model.</p></li>
+<li><p><strong>covariates</strong> (<em>list</em><em> or </em><em>dict</em>) – A sequence of between one and three names of variables or a dict of length between one
+and three.
+If a sequence, the first variable is taken as the main variable,
+mapped to the horizontal axis. If present, the second name is a coloring/grouping variable,
+and the third is mapped to different plot panels.
+If a dictionary, keys must be taken from (“horizontal”, “color”, “panel”) and the values
+are the names of the variables.</p></li>
+<li><p><strong>target</strong> (<em>str</em>) – Which model parameter to plot. Defaults to ‘mean’.</p></li>
+<li><p><strong>use_hdi</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to compute the highest density interval (defaults to True) or the quantiles.</p></li>
+<li><p><strong>hdi_prob</strong> (<em>float</em><em>, </em><em>optional</em>) – The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
+Changing the global variable <code class="docutils literal notranslate"><span class="pre">az.rcParam[&quot;stats.hdi_prob&quot;]</span></code> affects this default.</p></li>
+<li><p><strong>legend</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to automatically include a legend in the plot. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>transforms</strong> (<em>dict</em><em>, </em><em>optional</em>) – Transformations that are applied to each of the variables being plotted. The keys are the
+name of the variables, and the values are functions to be applied. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes._subplots.AxesSubplot</em><em>, </em><em>optional</em>) – A matplotlib axes object or a sequence of them. If None, this function instantiates a
+new axes object. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple with the figure and the axes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.figure.Figure, matplotlib.axes._subplots.AxesSubplot</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – When <code class="docutils literal notranslate"><span class="pre">level</span></code> is not within 0 and 1.
+    When the main covariate is not numeric or categoric.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 </section>
 
 
@@ -1113,6 +1186,35 @@ Run <code class="docutils literal notranslate"><span class="pre">bmb.clear_data_
      <code class="docutils literal notranslate">
       <span class="pre">
        load_data()
+      </span>
+     </code>
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#module-bambi.plots">
+   <code class="xref py py-mod docutils literal notranslate">
+    <span class="pre">
+     bambi.plots
+    </span>
+   </code>
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#bambi.plots.create_cap_data">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       create_cap_data()
+      </span>
+     </code>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#bambi.plots.plot_cap">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       plot_cap()
       </span>
      </code>
     </a>
