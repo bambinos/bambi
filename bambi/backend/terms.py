@@ -3,7 +3,11 @@ import pymc as pm
 
 import pytensor.tensor as pt
 
-from bambi.backend.utils import has_hyperprior, get_distribution
+from bambi.backend.utils import (
+    has_hyperprior,
+    get_distribution_from_prior,
+    get_distribution_from_likelihood,
+)
 from bambi.families.multivariate import MultivariateFamily
 from bambi.families.univariate import Categorical
 from bambi.priors import Prior
@@ -32,11 +36,7 @@ class CommonTerm:
         data = self.term.data
         label = self.name
         args = self.term.prior.args
-
-        if self.term.prior.fn is not None:
-            distribution = self.term.prior.fn
-        else:
-            distribution = get_distribution(self.term.prior.name)
+        distribution = get_distribution_from_prior(self.term.prior)
 
         # Dims of the response variable
         response_dims = []
@@ -97,7 +97,6 @@ class GroupSpecificTerm:
 
     def build(self, spec):
         label = self.name
-        dist = self.term.prior.name
         kwargs = self.term.prior.args
         predictor = np.squeeze(self.term.predictor)
 
@@ -109,7 +108,7 @@ class GroupSpecificTerm:
         dims = list(self.coords) + response_dims
         # Squeeze ensures we don't have a shape of (n, 1) when we mean (n, )
         # This happens with categorical predictors with two levels and intercept.
-        coef = self.build_distribution(dist, label, dims=dims, **kwargs).squeeze()
+        coef = self.build_distribution(self.term.prior, label, dims=dims, **kwargs).squeeze()
         coef = coef[self.term.group_index]
 
         return coef, predictor
@@ -127,9 +126,9 @@ class GroupSpecificTerm:
             new_coords[self.term.alias + kind] = value
         return new_coords
 
-    def build_distribution(self, dist, label, **kwargs):
+    def build_distribution(self, prior, label, **kwargs):
         """Build and return a PyMC Distribution."""
-        dist = get_distribution(dist)
+        distribution = get_distribution_from_prior(prior)
 
         if "dims" in kwargs:
             group_dim = [dim for dim in kwargs["dims"] if dim.endswith("__expr_dim")]
@@ -143,14 +142,14 @@ class GroupSpecificTerm:
             sigma = kwargs["sigma"]
             offset = pm.Normal(label + "_offset", mu=0, sigma=1, dims=kwargs["dims"])
             return pm.Deterministic(label, offset * sigma, dims=kwargs["dims"])
-        return dist(label, **kwargs)
+        return distribution(label, **kwargs)
 
     def expand_prior_args(self, key, value, label, **kwargs):
         # kwargs are used to pass 'dims' for group specific terms.
         if isinstance(value, Prior):
             # If there's an alias for the hyperprior, use it.
             key = self.term.hyperprior_alias.get(key, key)
-            return self.build_distribution(value.name, f"{label}_{key}", **value.args, **kwargs)
+            return self.build_distribution(value, f"{label}_{key}", **value.args, **kwargs)
         return value
 
     @property
@@ -173,7 +172,7 @@ class InterceptTerm:
         self.term = term
 
     def build(self, spec):
-        dist = get_distribution(self.term.prior.name)
+        dist = get_distribution_from_prior(self.term.prior)
         label = self.name
         # Prepends one dimension if response is multivariate
         if isinstance(spec.family, (MultivariateFamily, Categorical)):
@@ -238,7 +237,7 @@ class ResponseTerm:
 
         # Distributional parameters. A link funciton is used.
         response_aliased_name = get_aliased_name(self.term)
-        dims = (response_aliased_name + "_obs",)
+        dims = [response_aliased_name + "_obs"]
         for name, component in pymc_backend.distributional_components.items():
             bmb_component = bmb_model.components[name]
             if bmb_component.response_term:  # The response is added later
@@ -254,10 +253,9 @@ class ResponseTerm:
         # Take the inverse link function that maps from linear predictor to the parent of likelihood
         linkinv = get_linkinv(self.family.link[parent], pymc_backend.INVLINKS)
 
-        # Add parent parameter and observed data
+        # Add parent parameter and observed data. We don't need to pass dims.
         kwargs[parent] = linkinv(nu)
         kwargs["observed"] = data
-        kwargs["dims"] = dims
 
         # Build the response distribution
         dist = self.build_response_distribution(kwargs)
@@ -266,17 +264,14 @@ class ResponseTerm:
 
     def build_response_distribution(self, kwargs):
         # Get likelihood distribution
-        if self.family.likelihood.dist:
-            dist = self.family.likelihood.dist
-        else:
-            dist = get_distribution(self.family.likelihood.name)
+        distribution = get_distribution_from_likelihood(self.family.likelihood)
 
         # Families can implement specific transformations of parameters that are passed to the
         # likelihood function
         if hasattr(self.family, "transform_backend_kwargs"):
             kwargs = self.family.transform_backend_kwargs(kwargs)
 
-        return dist(self.name, **kwargs)
+        return distribution(self.name, **kwargs)
 
     @property
     def name(self):
