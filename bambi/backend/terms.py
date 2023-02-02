@@ -235,7 +235,7 @@ class ResponseTerm:
 
         # Distributional parameters. A link funciton is used.
         response_aliased_name = get_aliased_name(self.term)
-        dims = (response_aliased_name + "_obs",)
+        dims = [response_aliased_name + "_obs"]
         for name, component in pymc_backend.distributional_components.items():
             bmb_component = bmb_model.components[name]
             if bmb_component.response_term:  # The response is added later
@@ -251,10 +251,9 @@ class ResponseTerm:
         # Take the inverse link function that maps from linear predictor to the parent of likelihood
         linkinv = get_linkinv(self.family.link[parent], pymc_backend.INVLINKS)
 
-        # Add parent parameter and observed data
+        # Add parent parameter and observed data. We don't need to pass dims.
         kwargs[parent] = linkinv(nu)
         kwargs["observed"] = data
-        kwargs["dims"] = dims
 
         # Build the response distribution
         dist = self.build_response_distribution(kwargs)
