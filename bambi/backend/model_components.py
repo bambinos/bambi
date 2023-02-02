@@ -3,7 +3,7 @@ import numpy as np
 from pytensor import tensor as pt
 
 from bambi.backend.terms import CommonTerm, GroupSpecificTerm, InterceptTerm, ResponseTerm
-from bambi.backend.utils import get_distribution
+from bambi.backend.utils import get_distribution_from_prior
 from bambi.families.multivariate import MultivariateFamily
 from bambi.families.univariate import Categorical
 from bambi.utils import get_aliased_name
@@ -25,7 +25,7 @@ class ConstantComponent:
                 self.output = self.component.prior
             # Set to a distribution
             else:
-                dist = get_distribution(self.component.prior.name)
+                dist = get_distribution_from_prior(self.component.prior)
                 self.output = dist(label, **self.component.prior.args)
 
 
