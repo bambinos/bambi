@@ -665,7 +665,7 @@ priors (either a <code class="docutils literal notranslate"><span class="pre">Pr
 <p>Classes to represent prior distributions and methods to set automatic priors</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="bambi.priors.Prior">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">Prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/prior.html#Prior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.Prior" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bambi.priors.</span></span><span class="sig-name descname"><span class="pre">Prior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/priors/prior.html#Prior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.priors.Prior" title="Permalink to this definition">#</a></dt>
 <dd><p>Abstract specification of a term prior.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -674,6 +674,8 @@ priors (either a <code class="docutils literal notranslate"><span class="pre">Pr
 (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;Normal&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;Bernoulli&quot;</span></code>, etc.)</p></li>
 <li><p><strong>auto_scale</strong> (<em>bool</em>) – Whether to adjust the parameters of the prior or use them as passed. Default to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 <li><p><strong>kwargs</strong> (<em>dict</em>) – Optional keywords specifying the parameters of the named distribution.</p></li>
+<li><p><strong>dist</strong> (<em>pymc.distributions.distribution.DistributionMeta</em><em> or </em><em>callable</em>) – A callable that returns a valid PyMC distribution. The signature must contain <code class="docutils literal notranslate"><span class="pre">name</span></code>,
+<code class="docutils literal notranslate"><span class="pre">dims</span></code>, and <code class="docutils literal notranslate"><span class="pre">shape</span></code>, as well as its own keyworded arguments.</p></li>
 </ul>
 </dd>
 </dl>
@@ -786,7 +788,7 @@ the parameters that allow to derive them.</p></li>
 <li><p><strong>params</strong> (<em>Sequence</em><em>[</em><em>str</em><em>]</em>) – The name of the parameters the likelihood function accepts.</p></li>
 <li><p><strong>parent</strong> (<em>str</em>) – Optional specification of the name of the mean parameter in the likelihood.
 This is the parameter whose transformation is modeled by the linear predictor.</p></li>
-<li><p><strong>dist</strong> (<em>pymc.distributions.distribution.DistributionMeta</em>) – Optional custom PyMC distribution that will be used to compute the likelihood.</p></li>
+<li><p><strong>dist</strong> (<em>pymc.distributions.distribution.DistributionMeta</em><em> or </em><em>callable</em>) – Optional custom PyMC distribution that will be used to compute the likelihood.</p></li>
 </ul>
 </dd>
 </dl>
