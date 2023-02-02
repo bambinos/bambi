@@ -106,7 +106,7 @@ If you use Bambi and want to cite it please use
 
 Contributing
 ============
-We welcome contributions from interested individuals or groups! For information about contributing to Bambi, check out our instructions, policies, and guidelines `here <https://github.com/bambinos/bambi/blob/main/CONTRIBUTING.md>`_.
+We welcome contributions from interested individuals or groups! For information about contributing to Bambi, check out our instructions, policies, and guidelines `here <https://github.com/bambinos/bambi/blob/main/docs/CONTRIBUTING.md>`_.
 
 Contributors
 ============
