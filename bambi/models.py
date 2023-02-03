@@ -18,9 +18,9 @@ from bambi.model_components import ConstantComponent, DistributionalComponent
 from bambi.families import Family, univariate
 from bambi.formula import Formula
 from bambi.priors import Prior, PriorScaler
+from bambi.transformations import extra_namespace
 from bambi.utils import (
     clean_formula_lhs,
-    extra_namespace,
     get_aliased_name,
     get_auxiliary_parameters,
     listify,

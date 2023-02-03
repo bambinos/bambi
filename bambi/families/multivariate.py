@@ -4,7 +4,8 @@ import xarray as xr
 import pytensor.tensor as pt
 
 from bambi.families.family import Family
-from bambi.utils import extract_argument_names, extra_namespace, get_aliased_name
+from bambi.transformations import extra_namespace
+from bambi.utils import extract_argument_names, get_aliased_name
 
 
 class MultivariateFamily(Family):
