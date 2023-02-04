@@ -933,7 +933,7 @@ def prior_repr(term):
     return f"{term.name} ~ {term.prior}"
 
 
-def make_priors_summary(component: DistributionalComponent):
+def make_priors_summary(component: DistributionalComponent) -> str:
     # Common effects
     priors_common = [
         prior_repr(term) for term in component.common_terms.values() if term.kind != "offset"
@@ -947,10 +947,14 @@ def make_priors_summary(component: DistributionalComponent):
     # Offsets
     offsets = [f"{term.name} ~ 1" for term in component.offset_terms.values()]
 
+    # HSGP
+    hsgp = [f"{term.name} ~ HSGP" for term in component.hsgp_terms.values()]
+
     priors_dict = {
         "Common-level effects": priors_common,
         "Group-level effects": priors_group,
         "Offset effects": offsets,
+        "HSGP effects": hsgp,
     }
 
     priors_list = []

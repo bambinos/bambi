@@ -22,8 +22,7 @@ class HSGPTerm(BaseTerm):
         self.term = term
         self.prior = prior
         self.prefix = prefix
-        self.hsgp_attrs = {}
-        # self.hsgp_attrs = extract_hsgp_kwargs(term)
+        self.hsgp_attributes = get_hsgp_attributes(term)
 
     @property
     def term(self):
@@ -40,27 +39,27 @@ class HSGPTerm(BaseTerm):
 
     @property
     def m(self):
-        return self.hsgp_attrs["m"]
+        return self.hsgp_attributes["m"]
 
     @property
     def L(self):
-        return self.hsgp_attrs["L"]
+        return self.hsgp_attributes["L"]
 
     @property
     def c(self):
-        return self.hsgp_attrs["c"]
+        return self.hsgp_attributes["c"]
 
     @property
     def cov(self):
-        return self.hsgp_attrs["cov"]
+        return self.hsgp_attributes["cov"]
 
     @property
     def centered(self):
-        return self.hsgp_attrs["centered"]
+        return self.hsgp_attributes["centered"]
 
     @property
     def drop_first(self):
-        return self.hsgp_attrs["drop_first"]
+        return self.hsgp_attributes["drop_first"]
 
     @property
     def prior(self):
@@ -73,7 +72,7 @@ class HSGPTerm(BaseTerm):
 
     @property
     def coords(self):
-        # XTODO?
+        # NOTE: This has to depend on the 'by' argument.
         return {}
 
     @property
@@ -93,3 +92,19 @@ class HSGPTerm(BaseTerm):
     @property
     def levels(self):
         return None
+
+
+def get_hsgp_attributes(term):
+    names = ("m", "L", "c", "cov", "drop_first", "centered", "by")
+    attrs_original = term.components[0].call.stateful_transform.__dict__
+    attrs = {}
+    for name in names:
+        attrs[name] = attrs_original[name]
+    return attrs
+
+
+# NOTE: Regarding optimizations of the basis
+# When we have multiple GPs, one per level of a covariate, we cannot safely assume that 'X'
+# is the same in all cases.
+# However, we could test this. And if we find out that the observed values are the same
+# for all groups, then we can apply some optimizations

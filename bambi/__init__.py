@@ -11,7 +11,18 @@ from .priors import Prior
 from .version import __version__
 
 
-__all__ = ["Model", "Prior", "Family", "Likelihood", "Link", "PyMCModel", "Formula"]
+__all__ = [
+    "Model",
+    "Prior",
+    "Family",
+    "Likelihood",
+    "Link",
+    "PyMCModel",
+    "Formula",
+    "clear_data_home",
+    "load_data",
+    "math",
+]
 
 _log = logging.getLogger("bambi")
 

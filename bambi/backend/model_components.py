@@ -2,7 +2,7 @@ import numpy as np
 
 from pytensor import tensor as pt
 
-from bambi.backend.terms import CommonTerm, GroupSpecificTerm, InterceptTerm, ResponseTerm
+from bambi.backend.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, InterceptTerm, ResponseTerm
 from bambi.backend.utils import get_distribution_from_prior
 from bambi.families.multivariate import MultivariateFamily
 from bambi.families.univariate import Categorical
@@ -41,6 +41,7 @@ class DistributionalComponent:
             self.build_intercept(bmb_model)
             self.build_offsets()
             self.build_common_terms(pymc_backend, bmb_model)
+            self.build_hsgp_terms(pymc_backend, bmb_model)
             self.build_group_specific_terms(pymc_backend, bmb_model)
 
     def build_intercept(self, bmb_model):
@@ -96,11 +97,23 @@ class DistributionalComponent:
             # Add term to linear predictor
             self.output += pt.dot(data, coefs)
 
+    def build_hsgp_terms(self, pymc_backend, bmb_model):
+        """Add HSGP (Hilbert-Space Gaussian Process approximation) terms to the PyMC model.
+
+        The linear predictor 'X @ b + Z @ u' can be augmented with non-parametric HSGP terms
+        'f(x)'. This creates the 'f(x)' and adds it ``self.output``.
+        """
+        # TODO: Can this be improved, made more general, or optimized considering more use case?
+        for term in self.component.hsgp_terms.values():
+            hsgp_term = HSGPTerm(term)
+            self.output += hsgp_term.build(pymc_backend)
+
     def build_group_specific_terms(self, pymc_backend, bmb_model):
         """Add group-specific (random or varying) terms to the PyMC model.
 
         We have linear predictors of the form 'X @ b + Z @ u'.
-        This creates the 'u' parameter vector in PyMC, computes `Z @ u`, and adds it to ``self.mu``.
+        This creates the 'u' parameter vector in PyMC, computes `Z @ u`, and adds it to
+        ``self.output``.
         """
         for term in self.component.group_specific_terms.values():
             group_specific_term = GroupSpecificTerm(term, bmb_model.noncentered)

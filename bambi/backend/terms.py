@@ -1,6 +1,5 @@
 import numpy as np
 import pymc as pm
-
 import pytensor.tensor as pt
 
 from bambi.backend.utils import (
@@ -280,6 +279,68 @@ class ResponseTerm:
         return self.term.name
 
 
+class HSGPTerm:
+    def __init__(self, term):
+        self.term = term
+        self.coords = self.term.coords.copy()
+        # TODO: Is this enough?? hmmm. What if we have more than a single coord?
+        if self.coords and self.term.alias:
+            self.coords[self.term.alias + "_dim"] = self.coords.pop(self.term.name + "_dim")
+
+    def build(self, pymc_backend):
+        label = self.term.alias if self.term.alias else self.term.name
+
+        # Build covariance function
+        cov_func = self.get_cov_func()
+
+        # Build GP
+        gp = pm.gp.HSGP(
+            m=self.term.m,
+            c=self.term.c,
+            L=self.term.L,
+            drop_first=self.term.drop_first,
+            cov_func=cov_func,
+        )
+
+        # TODO: Handle multivariate cases
+        pymc_backend.model.add_coords({f"{label}_coeffs_dim": np.arange(self.term.m[0])})
+
+        # Get prior components
+        # NOTE: See one dimension is added
+        phi, sqrt_psd = gp.prior_components(self.term.data)
+
+        # Build deterministic
+        # TODO: Add more appropriate names to parameters
+        # TODO: Make sure dim names work with aliases
+        # TODO: Allow to have a parameter that determines if the 'f' goes into the inferencedata
+        # or not (i.e. 'output' is wrapped in deterministic or not)
+        if self.term.centered:
+            coeffs = pm.Normal(f"{label}_coeffs", sigma=sqrt_psd, dims=f"{label}_coeffs_dim")
+            output = phi @ coeffs
+        else:
+            coeffs = pm.Normal(f"{label}_coeffs", dims=f"{label}_coeffs_dim")
+            output = phi @ (coeffs * sqrt_psd)
+        return output
+
+    def get_cov_func(self):
+        # Get the callable that creates the function
+        create_cov_function = GP_KERNELS[self.term.cov]["fn"]
+
+        # Build priors
+        label = self.term.alias if self.term.alias else self.term.name
+        priors = {}
+        names = GP_KERNELS[self.term.cov]["params"]
+        for name in names:
+            prior = self.term.prior[name]
+            if isinstance(prior, Prior):
+                distribution = get_distribution_from_prior(prior)
+                coef = distribution(f"{self.term.name}_{name}", **prior.args)
+            else:
+                coef = prior
+            priors[name] = coef
+        return create_cov_function(**priors)
+
+
 def get_linkinv(link, invlinks):
     """Get the inverse of the link function as needed by PyMC
 
@@ -302,3 +363,13 @@ def get_linkinv(link, invlinks):
     else:
         invlink = link.linkinv_backend
     return invlink
+
+
+# TODO: There should be a better place for this
+def bmb_exp_quad(sigma, ell, input_dim=1):
+    return sigma**2 * pm.gp.cov.ExpQuad(input_dim, ls=ell)
+
+
+GP_KERNELS = {
+    "ExpQuad": {"fn": bmb_exp_quad, "params": ("sigma", "ell", "input_dim")},
+}

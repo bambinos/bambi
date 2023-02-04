@@ -4,8 +4,8 @@ import xarray as xr
 from bambi.defaults import get_default_prior
 from bambi.families import univariate, multivariate
 from bambi.priors import Prior
-from bambi.terms import CommonTerm, GroupSpecificTerm, OffsetTerm, ResponseTerm
-from bambi.utils import get_aliased_name
+from bambi.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, OffsetTerm, ResponseTerm
+from bambi.utils import get_aliased_name, is_hsgp_term
 
 
 class ConstantComponent:
@@ -66,14 +66,11 @@ class DistributionalComponent:
         self.response_name = response_name
         self.response_kind = response_kind
         self.spec = spec
-
-        if self.response_kind == "data":
-            self.prefix = ""
-        else:
-            self.prefix = response_name
+        self.prefix = "" if response_kind == "data" else response_name
 
         if self.design.common:
             self.add_common_terms(priors)
+            self.add_hsgp_terms(priors)
 
         if self.design.group:
             self.add_group_specific_terms(priors)
@@ -83,6 +80,8 @@ class DistributionalComponent:
 
     def add_common_terms(self, priors):
         for name, term in self.design.common.terms.items():
+            if is_hsgp_term(term):
+                continue
             prior = priors.pop(name, priors.get("common", None))
             if isinstance(prior, Prior):
                 any_hyperprior = any(isinstance(x, Prior) for x in prior.args.values())
@@ -101,6 +100,13 @@ class DistributionalComponent:
         for name, term in self.design.group.terms.items():
             prior = priors.pop(name, priors.get("group_specific", None))
             self.terms[name] = GroupSpecificTerm(term, prior, self.prefix)
+
+    def add_hsgp_terms(self, priors):
+        for name, term in self.design.common.terms.items():
+            if is_hsgp_term(term):
+                # TODO: Default priors?
+                prior = priors.pop(name, None)
+                self.terms[name] = HSGPTerm(term, prior, self.prefix)
 
     def add_response_term(self):
         """Add a response (or outcome/dependent) variable to the model."""
@@ -131,6 +137,9 @@ class DistributionalComponent:
             elif isinstance(term, CommonTerm) and term.kind == "intercept":
                 kind = "intercept"
             elif hasattr(term, "kind") and term.kind == "offset":
+                continue
+            elif isinstance(term, HSGPTerm):
+                # TODO: Should we allow to build priors in a more general way as with other terms?
                 continue
             else:
                 kind = "common"
@@ -279,6 +288,11 @@ class DistributionalComponent:
     def offset_terms(self):
         """Return dict of all offset effects in model."""
         return {k: v for (k, v) in self.terms.items() if isinstance(v, OffsetTerm)}
+
+    @property
+    def hsgp_terms(self):
+        """Return dict of all HSGP terms in model."""
+        return {k: v for (k, v) in self.terms.items() if isinstance(v, HSGPTerm)}
 
 
 def prepare_prior(prior, kind, auto_scale):
