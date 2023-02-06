@@ -187,15 +187,37 @@ class DistributionalComponent:
                 x_offsets.append(X[:, term_slice])
                 X = np.delete(X, term_slice, axis=1)
 
-            # Create DataArray
-            X_terms = [get_aliased_name(term) for term in self.common_terms.values()]
-            if self.intercept_term:
-                X_terms.insert(0, get_aliased_name(self.intercept_term))
-            b = posterior[X_terms].to_stacked_array("__variables__", to_stack_dims)
+            # Add HSGP components to the linear predictor and remove them from common matrix
+            # TODO
+            for term in self.hsgp_terms:
+                term_slice = self.design.common.slices[term]
+                X_slice = X[:, term_slice]
+                X = np.delete(X, term_slice, axis=1)
 
-            # Add contribution due to the common terms
-            X = xr.DataArray(X, dims=design_matrix_dims)
-            linear_predictor += xr.dot(X, b)
+                backend_term = self.spec.backend.response_component.terms[term]
+                phi, sqrt_psd = backend_term.hsgp.prior_components(X_slice)
+                phi, sqrt_psd = phi.eval(), sqrt_psd.eval()
+
+                # FIXME: dims are hard-coded
+                phi = xr.DataArray(phi, dims=("y_obs", "hsgp_coeffs_dim"))
+                sqrt_psd = xr.DataArray(sqrt_psd, dims=("hsgp_coeffs_dim"))
+                coeffs = posterior["hsgp_coeffs"]
+
+                if backend_term.term.centered:
+                    linear_predictor += phi @ coeffs
+                else:
+                    linear_predictor += phi @ (coeffs * sqrt_psd)
+
+            if self.common_terms or self.intercept_term:
+                # Create DataArray
+                X_terms = [get_aliased_name(term) for term in self.common_terms.values()]
+                if self.intercept_term:
+                    X_terms.insert(0, get_aliased_name(self.intercept_term))
+                b = posterior[X_terms].to_stacked_array("__variables__", to_stack_dims)
+
+                # Add contribution due to the common terms
+                X = xr.DataArray(X, dims=design_matrix_dims)
+                linear_predictor += xr.dot(X, b)
 
         if self.design.group and include_group_specific:
             if in_sample:

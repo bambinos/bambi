@@ -283,18 +283,19 @@ class HSGPTerm:
     def __init__(self, term):
         self.term = term
         self.coords = self.term.coords.copy()
+        self.hsgp = None
         # TODO: Is this enough?? hmmm. What if we have more than a single coord?
         if self.coords and self.term.alias:
             self.coords[self.term.alias + "_dim"] = self.coords.pop(self.term.name + "_dim")
 
     def build(self, pymc_backend):
-        label = self.term.alias if self.term.alias else self.term.name
+        label = self.name
 
         # Build covariance function
         cov_func = self.get_cov_func()
 
         # Build GP
-        gp = pm.gp.HSGP(
+        self.hsgp = pm.gp.HSGP(
             m=self.term.m,
             c=self.term.c,
             L=self.term.L,
@@ -306,8 +307,7 @@ class HSGPTerm:
         pymc_backend.model.add_coords({f"{label}_coeffs_dim": np.arange(self.term.m[0])})
 
         # Get prior components
-        # NOTE: See one dimension is added
-        phi, sqrt_psd = gp.prior_components(self.term.data)
+        phi, sqrt_psd = self.hsgp.prior_components(self.term.data)
 
         # Build deterministic
         # TODO: Add more appropriate names to parameters
@@ -322,23 +322,35 @@ class HSGPTerm:
             output = phi @ (coeffs * sqrt_psd)
         return output
 
+    def predict(self, data, coeffs):
+        phi, sqrt_psd = self.hsgp.prior_components(data)
+        if self.term.centered:
+            return (phi @ coeffs).eval()
+        else:
+            return (phi @ (coeffs * sqrt_psd)).eval()
+
     def get_cov_func(self):
         # Get the callable that creates the function
         create_cov_function = GP_KERNELS[self.term.cov]["fn"]
 
         # Build priors
-        label = self.term.alias if self.term.alias else self.term.name
         priors = {}
         names = GP_KERNELS[self.term.cov]["params"]
         for name in names:
             prior = self.term.prior[name]
             if isinstance(prior, Prior):
                 distribution = get_distribution_from_prior(prior)
-                coef = distribution(f"{self.term.name}_{name}", **prior.args)
+                coef = distribution(f"{self.name}_{name}", **prior.args)
             else:
                 coef = prior
             priors[name] = coef
         return create_cov_function(**priors)
+
+    @property
+    def name(self):
+        if self.term.alias:
+            return self.term.alias
+        return self.term.name
 
 
 def get_linkinv(link, invlinks):

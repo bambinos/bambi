@@ -35,6 +35,7 @@ class DistributionalComponent:
         self.output = 0
         self.has_intercept = self.component.intercept_term is not None
         self.design_matrix_without_intercept = None
+        self.terms = {}
 
     def build(self, pymc_backend, bmb_model):
         with pymc_backend.model:
@@ -104,8 +105,9 @@ class DistributionalComponent:
         'f(x)'. This creates the 'f(x)' and adds it ``self.output``.
         """
         # TODO: Can this be improved, made more general, or optimized considering more use case?
-        for term in self.component.hsgp_terms.values():
+        for name, term in self.component.hsgp_terms.items():
             hsgp_term = HSGPTerm(term)
+            self.terms[name] = hsgp_term
             self.output += hsgp_term.build(pymc_backend)
 
     def build_group_specific_terms(self, pymc_backend, bmb_model):
