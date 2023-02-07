@@ -187,26 +187,31 @@ class DistributionalComponent:
                 x_offsets.append(X[:, term_slice])
                 X = np.delete(X, term_slice, axis=1)
 
-            # Add HSGP components to the linear predictor and remove them from common matrix
-            # TODO
-            for term in self.hsgp_terms:
-                term_slice = self.design.common.slices[term]
+            # TODO: How does it work when we have contributions by levels of a third variable?
+            # Add HSGP components contribution to the linear predictor
+            for term_name, term in self.hsgp_terms.items():
+                # Extract data for the HSGP component from the design matrix
+                term_slice = self.design.common.slices[term_name]
                 X_slice = X[:, term_slice]
                 X = np.delete(X, term_slice, axis=1)
 
-                backend_term = self.spec.backend.response_component.terms[term]
+                # Grab the backend term. It contains what we need to get 'phi' and 'sqrt_psd'
+                backend_term = self.spec.backend.response_component.terms[term_name]
                 phi, sqrt_psd = backend_term.hsgp.prior_components(X_slice)
                 phi, sqrt_psd = phi.eval(), sqrt_psd.eval()
 
-                # FIXME: dims are hard-coded
-                phi = xr.DataArray(phi, dims=("y_obs", "hsgp_coeffs_dim"))
-                sqrt_psd = xr.DataArray(sqrt_psd, dims=("hsgp_coeffs_dim"))
-                coeffs = posterior["hsgp_coeffs"]
+                # Convert 'phi' and 'sqrt_psd' to xarray.DataArrays for easier math
+                term_aliased_name = get_aliased_name(term)
+                phi = xr.DataArray(phi, dims=(response_dim, f"{term_aliased_name}_weights_dim"))
+                sqrt_psd = xr.DataArray(sqrt_psd, dims=(f"{term_aliased_name}_weights_dim"))
+                weights = posterior[f"{term_aliased_name}_weights"]
 
-                if backend_term.term.centered:
-                    linear_predictor += phi @ coeffs
+                # Compute contribution and add it to the linear predictor
+                if term.centered:
+                    hsgp_contribution = xr.dot(phi, weights)
                 else:
-                    linear_predictor += phi @ (coeffs * sqrt_psd)
+                    hsgp_contribution = xr.dot(phi, (weights * sqrt_psd))
+                linear_predictor += hsgp_contribution
 
             if self.common_terms or self.intercept_term:
                 # Create DataArray

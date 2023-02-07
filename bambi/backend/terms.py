@@ -6,6 +6,8 @@ from bambi.backend.utils import (
     has_hyperprior,
     get_distribution_from_prior,
     get_distribution_from_likelihood,
+    get_linkinv,
+    GP_KERNELS,
 )
 from bambi.families.multivariate import MultivariateFamily
 from bambi.families.univariate import Categorical
@@ -288,7 +290,8 @@ class HSGPTerm:
         if self.coords and self.term.alias:
             self.coords[self.term.alias + "_dim"] = self.coords.pop(self.term.name + "_dim")
 
-    def build(self, pymc_backend):
+    def build(self, pymc_backend, bmb_model):
+        # TODO: Handle when there's a 'by' argument
         label = self.name
 
         # Build covariance function
@@ -303,85 +306,45 @@ class HSGPTerm:
             cov_func=cov_func,
         )
 
-        # TODO: Handle multivariate cases
-        pymc_backend.model.add_coords({f"{label}_coeffs_dim": np.arange(self.term.m[0])})
+        # TODO: Handle multivariate cases. How is it done in other cases? Multiply dimension names?
+        pymc_backend.model.add_coords({f"{label}_weights_dim": np.arange(self.term.m[0])})
+
+        # Get dimension name for the response
+        response_name = get_aliased_name(bmb_model.response_component.response_term)
+        response_dim_name = f"{response_name}_obs"
 
         # Get prior components
         phi, sqrt_psd = self.hsgp.prior_components(self.term.data)
 
         # Build deterministic
-        # TODO: Add more appropriate names to parameters
-        # TODO: Make sure dim names work with aliases
-        # TODO: Allow to have a parameter that determines if the 'f' goes into the inferencedata
-        # or not (i.e. 'output' is wrapped in deterministic or not)
         if self.term.centered:
-            coeffs = pm.Normal(f"{label}_coeffs", sigma=sqrt_psd, dims=f"{label}_coeffs_dim")
-            output = phi @ coeffs
+            coeffs = pm.Normal(f"{label}_weights", sigma=sqrt_psd, dims=f"{label}_weights_dim")
+            output = pm.Deterministic(label, phi @ coeffs, dims=response_dim_name)
         else:
-            coeffs = pm.Normal(f"{label}_coeffs", dims=f"{label}_coeffs_dim")
-            output = phi @ (coeffs * sqrt_psd)
+            coeffs = pm.Normal(f"{label}_weights", dims=f"{label}_weights_dim")
+            output = pm.Deterministic(label, phi @ (coeffs * sqrt_psd), dims=response_dim_name)
         return output
-
-    def predict(self, data, coeffs):
-        phi, sqrt_psd = self.hsgp.prior_components(data)
-        if self.term.centered:
-            return (phi @ coeffs).eval()
-        else:
-            return (phi @ (coeffs * sqrt_psd)).eval()
 
     def get_cov_func(self):
         # Get the callable that creates the function
-        create_cov_function = GP_KERNELS[self.term.cov]["fn"]
+        cov_dict = GP_KERNELS[self.term.cov]
+        create_cov_function = cov_dict["fn"]
+        names = cov_dict["params"]
+        params = {"input_dim": self.term.shape[1]}
 
         # Build priors
-        priors = {}
-        names = GP_KERNELS[self.term.cov]["params"]
         for name in names:
             prior = self.term.prior[name]
             if isinstance(prior, Prior):
                 distribution = get_distribution_from_prior(prior)
-                coef = distribution(f"{self.name}_{name}", **prior.args)
+                value = distribution(f"{self.name}_{name}", **prior.args)
             else:
-                coef = prior
-            priors[name] = coef
-        return create_cov_function(**priors)
+                value = prior
+            params[name] = value
+        return create_cov_function(**params)
 
     @property
     def name(self):
         if self.term.alias:
             return self.term.alias
         return self.term.name
-
-
-def get_linkinv(link, invlinks):
-    """Get the inverse of the link function as needed by PyMC
-
-    Parameters
-    ----------
-    link : bmb.Link
-        A link function object. It may contain the linkinv function that the backend uses.
-    invlinks : dict
-        Keys are names of link functions. Values are the built-in link functions.
-
-    Returns
-    -------
-        callable
-        The link function
-    """
-    # If the name is in the backend, get it from there
-    if link.name in invlinks:
-        invlink = invlinks[link.name]
-    # If not, use whatever is in `linkinv_backend`
-    else:
-        invlink = link.linkinv_backend
-    return invlink
-
-
-# TODO: There should be a better place for this
-def bmb_exp_quad(sigma, ell, input_dim=1):
-    return sigma**2 * pm.gp.cov.ExpQuad(input_dim, ls=ell)
-
-
-GP_KERNELS = {
-    "ExpQuad": {"fn": bmb_exp_quad, "params": ("sigma", "ell", "input_dim")},
-}

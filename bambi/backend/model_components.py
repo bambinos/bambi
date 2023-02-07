@@ -38,6 +38,8 @@ class DistributionalComponent:
         self.terms = {}
 
     def build(self, pymc_backend, bmb_model):
+        # Coordinates for the response are added first
+        self.add_response_coords(pymc_backend, bmb_model)
         with pymc_backend.model:
             self.build_intercept(bmb_model)
             self.build_offsets()
@@ -108,7 +110,7 @@ class DistributionalComponent:
         for name, term in self.component.hsgp_terms.items():
             hsgp_term = HSGPTerm(term)
             self.terms[name] = hsgp_term
-            self.output += hsgp_term.build(pymc_backend)
+            self.output += hsgp_term.build(pymc_backend, bmb_model)
 
     def build_group_specific_terms(self, pymc_backend, bmb_model):
         """Add group-specific (random or varying) terms to the PyMC model.
@@ -143,15 +145,16 @@ class DistributionalComponent:
         # Extract the response term from the Bambi family
         response_term = bmb_model.response_component.response_term
 
-        # Add coordinates to the PyMC model. They're used if it is a distributional model.
+        # Create and build the response term
+        response_term = ResponseTerm(response_term, bmb_model.family)
+        response_term.build(pymc_backend, bmb_model)
+
+    def add_response_coords(self, pymc_backend, bmb_model):
+        response_term = bmb_model.response_component.response_term
         response_name = get_aliased_name(response_term)
         dim_name = f"{response_name}_obs"
         dim_value = np.arange(response_term.shape[0])
         pymc_backend.model.add_coords({dim_name: dim_value})
-
-        # Create and build the response term
-        response_term = ResponseTerm(response_term, bmb_model.family)
-        response_term.build(pymc_backend, bmb_model)
 
 
 # # NOTE: Here for historical reasons, not supposed to work now at least for now
