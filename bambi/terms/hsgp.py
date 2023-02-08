@@ -1,6 +1,8 @@
 import formulae.terms
 
-from bambi.terms.base import BaseTerm
+from bambi.terms.base import BaseTerm, VALID_PRIORS
+
+GP_VALID_PRIORS = VALID_PRIORS[:-1]
 
 # pylint: disable = invalid-name
 class HSGPTerm(BaseTerm):
@@ -67,8 +69,15 @@ class HSGPTerm(BaseTerm):
 
     @prior.setter
     def prior(self, value):
-        # TODO
-        # assert isinstance(value, VALID_PRIORS), f"Prior must be one of {VALID_PRIORS}"
+        message = (
+            "The priors for an HSGP term must be passed within a dictionary. "
+            "Keys must the names of the parameters of the covariance function "
+            "and values are instances of bambi.Prior or numeric constants."
+        )
+        if not isinstance(value, dict):
+            raise ValueError(message)
+        for prior in value.values():
+            assert isinstance(prior, GP_VALID_PRIORS), f"Prior must be one of {GP_VALID_PRIORS}"
         self._prior = value
 
     @property

@@ -1,3 +1,5 @@
+import inspect
+
 import numpy as np
 import pymc as pm
 import pytensor.tensor as pt
@@ -282,11 +284,26 @@ class ResponseTerm:
 
 
 class HSGPTerm:
+    """A term that is compiled to a HSGP term in PyMC
+
+    This instance contains information of a bambi.HSGPTerm and knows how to build the distributions
+    in PyMC that represent the HSGP latent approximation.
+
+    Parameters
+    ----------
+    term : bambi.terms.HSGPTerm
+        An object representing a Bambi hsgp term.
+    """
+
     def __init__(self, term):
         self.term = term
         self.coords = self.term.coords.copy()
         self.hsgp = None
-        # TODO: Is this enough?? hmmm. What if we have more than a single coord?
+
+        # TODO: Is this enough? What if we have more than a single coord?
+        #       We already have some coords that correspond to the 'weights' or basis functions.
+        #       There could be another dimension which would be given by a categorical variable.
+        #       I'm not sure if it should be handled via the 'by' argument, or as an interaction.
         if self.coords and self.term.alias:
             self.coords[self.term.alias + "_dim"] = self.coords.pop(self.term.name + "_dim")
 
@@ -294,10 +311,16 @@ class HSGPTerm:
         # TODO: Handle when there's a 'by' argument
         label = self.name
 
-        # Build covariance function
+        # Get the covariance function
         cov_func = self.get_cov_func()
 
         # Build GP
+        # NOTE!!: Just realized we don't need to store the 'hsgp' object here
+        # It's not like another PyMC distribution. It can be stored within the
+        # Bambi HSGP term.
+        # Problem: What about the priors that go into the covariance function?
+        # Where do we create them? They need to be ready when we instantiate HSGP
+        # Idea: Do self.term.hsgp = pm.gp.HSGP instead of self.hsgp.
         self.hsgp = pm.gp.HSGP(
             m=self.term.m,
             c=self.term.c,
@@ -326,11 +349,25 @@ class HSGPTerm:
         return output
 
     def get_cov_func(self):
+        """Construct and return the covariance function
+
+        This method uses the name of the covariance function to retrieve a callable that
+        returns a GP kernel and the name of its parameters. Then it looks for values for the
+        parameters in the dictionary of priors of the term (building PyMC distributions as needed)
+        and finally it determines the value of 'input_dim' if that is required by the callable
+        that produces the covariance function. If that is the case, 'input_dim' is set to the
+        dimensionality of the GP component -- the number of columns in the data.
+
+        Returns
+        -------
+        pm.gp.Covariance
+            A covariance function that can be used with a GP in PyMC
+        """
         # Get the callable that creates the function
         cov_dict = GP_KERNELS[self.term.cov]
         create_cov_function = cov_dict["fn"]
         names = cov_dict["params"]
-        params = {"input_dim": self.term.shape[1]}
+        params = {}
 
         # Build priors
         for name in names:
@@ -341,6 +378,10 @@ class HSGPTerm:
             else:
                 value = prior
             params[name] = value
+
+        if "input_dim" in list(inspect.signature(create_cov_function).parameters):
+            params["input_dim"] = self.term.shape[1]
+
         return create_cov_function(**params)
 
     @property
