@@ -306,8 +306,8 @@ class HSGPTerm:
             cov_func=cov_func,
         )
 
-        # TODO: Handle multivariate cases. How is it done in other cases? Multiply dimension names?
-        pymc_backend.model.add_coords({f"{label}_weights_dim": np.arange(self.term.m[0])})
+        # Notice we take the product. It handles multivariate cases as well.
+        pymc_backend.model.add_coords({f"{label}_weights_dim": np.arange(np.prod(self.term.m))})
 
         # Get dimension name for the response
         response_name = get_aliased_name(bmb_model.response_component.response_term)

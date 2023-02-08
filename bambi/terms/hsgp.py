@@ -67,6 +67,7 @@ class HSGPTerm(BaseTerm):
 
     @prior.setter
     def prior(self, value):
+        # TODO
         # assert isinstance(value, VALID_PRIORS), f"Prior must be one of {VALID_PRIORS}"
         self._prior = value
 
@@ -95,6 +96,18 @@ class HSGPTerm(BaseTerm):
 
 
 def get_hsgp_attributes(term):
+    """Extract HSGP attributes from a model matrix term
+
+    Parameters
+    ----------
+    term : formulae.terms.terms.Term
+        The formulae term that creates the HSGP term.
+
+    Returns
+    -------
+    dict
+        The attributes that will be passed to pm.gp.HSGP
+    """
     names = ("m", "L", "c", "cov", "drop_first", "centered", "by")
     attrs_original = term.components[0].call.stateful_transform.__dict__
     attrs = {}
