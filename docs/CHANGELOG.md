@@ -4,6 +4,16 @@
 
 ### New features
 
+### Maintenance and fixes
+
+### Documentation
+
+### Deprecation
+
+## 0.10.0
+
+### New features
+
 * Refactored the codebase to support distributional models (#607)
 * Added a default method to handle posterior predictive sampling for custom families (#625)
 * `plot_cap()` gains a new argument `target` that allows to plot different parameters of the response distribution (#627)
@@ -18,6 +28,7 @@
 
 * Update examples to work with the new internals (#607)
 * Fixed figure in the Sleepstudy example (#607)
+* Add example using distributional models (#641)
 
 ### Deprecation
 
