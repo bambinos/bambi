@@ -58,7 +58,7 @@ jobs:
       - name: Test pip install from test.pypi
         run: |
           python -m venv venv-test-pypi
-          venv-test-pypi/bin/python -m pip install --index-url https://test.pypi.org/simple/ bambi
+          venv-test-pypi/bin/python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple bambi
           venv-test-pypi/bin/python -c "import bambi; assert bambi.__version__ == '${{  github.ref_name }}'"
 
   publish:

@@ -93,8 +93,6 @@ html_logo = "logos/RGB/Bambi_logo.png"
 # further.  For a list of options available for each theme, see the
 # documentation.
 
-# https://pydata-sphinx-theme.readthedocs.io/en/latest/user_guide/configuring.html#remove-the-sidebar-from-some-pages
-
 html_theme_options = {
     "collapse_navigation": True,
     "show_toc_level": 2,
