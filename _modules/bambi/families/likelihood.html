@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>bambi.families.likelihood &#8212; Bambi 0.9.3 documentation</title>
+    <title>bambi.families.likelihood &#8212; Bambi 0.10.0 documentation</title>
   
   
   
@@ -382,7 +382,7 @@
 <span class="sd">    parent : str</span>
 <span class="sd">        Optional specification of the name of the mean parameter in the likelihood.</span>
 <span class="sd">        This is the parameter whose transformation is modeled by the linear predictor.</span>
-<span class="sd">    dist : pymc.distributions.distribution.DistributionMeta</span>
+<span class="sd">    dist : pymc.distributions.distribution.DistributionMeta or callable</span>
 <span class="sd">        Optional custom PyMC distribution that will be used to compute the likelihood.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -427,7 +427,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_parent</span> <span class="o">=</span> <span class="n">value</span>
 
     <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">args</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;parent&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">)]</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;parent&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;dist&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist</span><span class="p">),</span>
+        <span class="p">]</span>
         <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">arg</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">indentify</span><span class="p">(</span><span class="n">multilinify</span><span class="p">(</span><span class="n">args</span><span class="p">))</span><span class="si">}</span><span class="se">\n</span><span class="s2">)&quot;</span>
 

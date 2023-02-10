@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>bambi.priors.prior &#8212; Bambi 0.9.3 documentation</title>
+    <title>bambi.priors.prior &#8212; Bambi 0.10.0 documentation</title>
   
   
   
@@ -358,13 +358,17 @@
 <span class="sd">        Whether to adjust the parameters of the prior or use them as passed. Default to ``True``.</span>
 <span class="sd">    kwargs : dict</span>
 <span class="sd">        Optional keywords specifying the parameters of the named distribution.</span>
+<span class="sd">    dist : pymc.distributions.distribution.DistributionMeta or callable</span>
+<span class="sd">        A callable that returns a valid PyMC distribution. The signature must contain ``name``,</span>
+<span class="sd">        ``dims``, and ``shape``, as well as its own keyworded arguments.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">auto_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">auto_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">auto_scale</span> <span class="o">=</span> <span class="n">auto_scale</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist</span> <span class="o">=</span> <span class="n">dist</span>
 
 <div class="viewcode-block" id="Prior.update"><a class="viewcode-back" href="../../../api_reference.html#bambi.priors.Prior.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the arguments of the prior with additional arguments.</span>
