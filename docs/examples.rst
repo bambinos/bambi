@@ -23,4 +23,4 @@ Examples
   notebooks/categorical_regression
   notebooks/circular_regression
   notebooks/quantile_regression
-
+  notebooks/distributional_models

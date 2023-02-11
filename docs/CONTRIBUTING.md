@@ -138,4 +138,4 @@ We recommend that your contribution complies with the following guidelines befor
   pylint bambi
   ```
 
-**This guide was derived from the [ArviZ guide to contributing](https://github.com/arviz-devs/arviz/blob/master/CONTRIBUTING.md)**
+**This guide was derived from the [ArviZ guide to contributing](https://github.com/arviz-devs/arviz/blob/main/CONTRIBUTING.md)**
