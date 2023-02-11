@@ -106,11 +106,8 @@ class DistributionalComponent:
         The linear predictor 'X @ b + Z @ u' can be augmented with non-parametric HSGP terms
         'f(x)'. This creates the 'f(x)' and adds it ``self.output``.
         """
-        # TODO: Can this be improved, made more general, or optimized considering more use case?
-        for name, term in self.component.hsgp_terms.items():
-            hsgp_term = HSGPTerm(term)
-            self.terms[name] = hsgp_term
-            self.output += hsgp_term.build(pymc_backend, bmb_model)
+        for term in self.component.hsgp_terms.values():
+            self.output += HSGPTerm(term).build(pymc_backend, bmb_model)
 
     def build_group_specific_terms(self, pymc_backend, bmb_model):
         """Add group-specific (random or varying) terms to the PyMC model.

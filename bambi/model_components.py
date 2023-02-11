@@ -195,9 +195,8 @@ class DistributionalComponent:
                 X_slice = X[:, term_slice]
                 X = np.delete(X, term_slice, axis=1)
 
-                # Grab the backend term. It contains what we need to get 'phi' and 'sqrt_psd'
-                backend_term = self.spec.backend.response_component.terms[term_name]
-                phi, sqrt_psd = backend_term.hsgp.prior_components(X_slice)
+                # Grab HSGP instance and generate 'phi' and 'sqrt_psd'
+                phi, sqrt_psd = term.hsgp.prior_components(X_slice)
                 phi, sqrt_psd = phi.eval(), sqrt_psd.eval()
 
                 # Convert 'phi' and 'sqrt_psd' to xarray.DataArrays for easier math

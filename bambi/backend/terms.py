@@ -298,7 +298,6 @@ class HSGPTerm:
     def __init__(self, term):
         self.term = term
         self.coords = self.term.coords.copy()
-        self.hsgp = None
 
         # TODO: Is this enough? What if we have more than a single coord?
         #       We already have some coords that correspond to the 'weights' or basis functions.
@@ -315,13 +314,7 @@ class HSGPTerm:
         cov_func = self.get_cov_func()
 
         # Build GP
-        # NOTE!!: Just realized we don't need to store the 'hsgp' object here
-        # It's not like another PyMC distribution. It can be stored within the
-        # Bambi HSGP term.
-        # Problem: What about the priors that go into the covariance function?
-        # Where do we create them? They need to be ready when we instantiate HSGP
-        # Idea: Do self.term.hsgp = pm.gp.HSGP instead of self.hsgp.
-        self.hsgp = pm.gp.HSGP(
+        self.term.hsgp = pm.gp.HSGP(
             m=self.term.m,
             c=self.term.c,
             L=self.term.L,
@@ -337,7 +330,7 @@ class HSGPTerm:
         response_dim_name = f"{response_name}_obs"
 
         # Get prior components
-        phi, sqrt_psd = self.hsgp.prior_components(self.term.data)
+        phi, sqrt_psd = self.term.hsgp.prior_components(self.term.data)
 
         # Build deterministic
         if self.term.centered:
