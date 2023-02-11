@@ -313,7 +313,7 @@ class HSGPTerm:
         # Get the covariance function
         cov_func = self.get_cov_func()
 
-        # Build GP
+        # Build HSGP and store it in the term.
         self.term.hsgp = pm.gp.HSGP(
             m=self.term.m,
             c=self.term.c,

@@ -75,5 +75,5 @@ def matern52(sigma, ell, input_dim=1):
 GP_KERNELS = {
     "ExpQuad": {"fn": exp_quad, "params": ("sigma", "ell")},
     "Matern32": {"fn": matern32, "params": ("sigma", "ell")},
-    "Matern52": {"fn": exp_quad, "params": ("sigma", "ell")},
+    "Matern52": {"fn": matern52, "params": ("sigma", "ell")},
 }

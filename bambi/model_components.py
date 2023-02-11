@@ -139,7 +139,8 @@ class DistributionalComponent:
             elif hasattr(term, "kind") and term.kind == "offset":
                 continue
             elif isinstance(term, HSGPTerm):
-                # TODO: Should we allow to build priors in a more general way as with other terms?
+                if term.prior is None:
+                    term.prior = get_default_prior("hsgp", cov_func=term.cov)
                 continue
             else:
                 kind = "common"
@@ -192,11 +193,11 @@ class DistributionalComponent:
             for term_name, term in self.hsgp_terms.items():
                 # Extract data for the HSGP component from the design matrix
                 term_slice = self.design.common.slices[term_name]
-                X_slice = X[:, term_slice]
+                x_slice = X[:, term_slice]
                 X = np.delete(X, term_slice, axis=1)
 
                 # Grab HSGP instance and generate 'phi' and 'sqrt_psd'
-                phi, sqrt_psd = term.hsgp.prior_components(X_slice)
+                phi, sqrt_psd = term.hsgp.prior_components(x_slice)
                 phi, sqrt_psd = phi.eval(), sqrt_psd.eval()
 
                 # Convert 'phi' and 'sqrt_psd' to xarray.DataArrays for easier math

@@ -2,7 +2,7 @@ import formulae.terms
 
 from bambi.terms.base import BaseTerm, VALID_PRIORS
 
-GP_VALID_PRIORS = VALID_PRIORS[:-1]
+GP_VALID_PRIORS = tuple(value for value in VALID_PRIORS if value is not None)
 
 # pylint: disable = invalid-name
 class HSGPTerm(BaseTerm):
@@ -25,6 +25,7 @@ class HSGPTerm(BaseTerm):
         self.prior = prior
         self.prefix = prefix
         self.hsgp_attributes = get_hsgp_attributes(term)
+        self.hsgp = None
 
     @property
     def term(self):
@@ -74,11 +75,14 @@ class HSGPTerm(BaseTerm):
             "Keys must the names of the parameters of the covariance function "
             "and values are instances of bambi.Prior or numeric constants."
         )
-        if not isinstance(value, dict):
-            raise ValueError(message)
-        for prior in value.values():
-            assert isinstance(prior, GP_VALID_PRIORS), f"Prior must be one of {GP_VALID_PRIORS}"
-        self._prior = value
+        if value is None:
+            self._prior = value
+        else:
+            if not isinstance(value, dict):
+                raise ValueError(message)
+            for prior in value.values():
+                assert isinstance(prior, GP_VALID_PRIORS), f"Prior must be one of {GP_VALID_PRIORS}"
+            self._prior = value
 
     @property
     def coords(self):
@@ -123,10 +127,3 @@ def get_hsgp_attributes(term):
     for name in names:
         attrs[name] = attrs_original[name]
     return attrs
-
-
-# NOTE: Regarding optimizations of the basis
-# When we have multiple GPs, one per level of a covariate, we cannot safely assume that 'X'
-# is the same in all cases.
-# However, we could test this. And if we find out that the observed values are the same
-# for all groups, then we can apply some optimizations
