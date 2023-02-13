@@ -5,8 +5,10 @@ import warnings
 
 from copy import deepcopy
 
+import numpy as np
 import pymc as pm
 import pandas as pd
+import xarray as xr
 
 from arviz.plots import plot_posterior
 
@@ -751,6 +753,39 @@ class Model:
 
         for name, value in means_dict.items():
             idata.posterior[name] = value
+
+        # FIX-ME
+        # Add contributions of the HSGP term. This is quite convoluted and not clean.
+        # But it's the simplest way I found for now, without having to refactor a lot.
+        for name, component in self.distributional_components.items():
+            if component.design.common:
+                if data is None:
+                    X = component.design.common.design_matrix
+                else:
+                    X = component.design.common.evaluate_new_data(data).design_matrix
+
+            # This is the same code that appears in `model_components.py` predict
+            for term_name, term in component.hsgp_terms.items():
+                term_slice = component.design.common.slices[term_name]
+                x_slice = X[:, term_slice]
+                X = np.delete(X, term_slice, axis=1)
+
+                phi, sqrt_psd = term.hsgp.prior_components(x_slice)
+                phi, sqrt_psd = phi.eval(), sqrt_psd.eval()
+
+                term_aliased_name = get_aliased_name(term)
+                phi = xr.DataArray(phi, dims=(response_dim, f"{term_aliased_name}_weights_dim"))
+                sqrt_psd = xr.DataArray(sqrt_psd, dims=(f"{term_aliased_name}_weights_dim"))
+                weights = idata.posterior[f"{term_aliased_name}_weights"]
+
+                # Compute contribution and add it to the linear predictor
+                if term.centered:
+                    hsgp_contribution = xr.dot(phi, weights)
+                else:
+                    hsgp_contribution = xr.dot(phi, (weights * sqrt_psd))
+
+                hsgp_contribution = hsgp_contribution.transpose("chain", "draw", response_dim)
+                idata.posterior[term_aliased_name] = hsgp_contribution
 
         # Only if requested predict the predictive distribution
         if kind == "pps":
