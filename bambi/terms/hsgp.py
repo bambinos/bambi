@@ -1,3 +1,5 @@
+import numpy as np
+
 import formulae.terms
 
 from bambi.terms.base import BaseTerm, VALID_PRIORS
@@ -41,16 +43,27 @@ class HSGPTerm(BaseTerm):
         return self.term.data
 
     @property
+    def data_centered(self):
+        return self.term.data - self.hsgp_attributes["mean"]
+
+    @property
     def m(self):
-        return self.hsgp_attributes["m"]
+        return np.atleast_1d(self.hsgp_attributes["m"])
 
     @property
     def L(self):
-        return self.hsgp_attributes["L"]
+        if self.c:
+            S = np.max(np.abs(self.data_centered), axis=0)
+            output = self.c * S
+        else:
+            output = self.hsgp_attributes["L"]
+        return np.atleast_1d(output)
 
     @property
     def c(self):
-        return self.hsgp_attributes["c"]
+        if self.hsgp_attributes["c"] is None:
+            return None
+        return np.atleast_1d(self.hsgp_attributes["c"])
 
     @property
     def cov(self):
@@ -73,7 +86,7 @@ class HSGPTerm(BaseTerm):
         message = (
             "The priors for an HSGP term must be passed within a dictionary. "
             "Keys must the names of the parameters of the covariance function "
-            "and values are instances of bambi.Prior or numeric constants."
+            "and values are instances of `bambi.Prior` or numeric constants."
         )
         if value is None:
             self._prior = value
@@ -121,7 +134,7 @@ def get_hsgp_attributes(term):
     dict
         The attributes that will be passed to pm.gp.HSGP
     """
-    names = ("m", "L", "c", "cov", "drop_first", "centered", "by")
+    names = ("m", "L", "c", "by", "cov", "drop_first", "centered", "mean")
     attrs_original = term.components[0].call.stateful_transform.__dict__
     attrs = {}
     for name in names:

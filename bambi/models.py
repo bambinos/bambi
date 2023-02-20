@@ -770,7 +770,8 @@ class Model:
                 x_slice = X[:, term_slice]
                 X = np.delete(X, term_slice, axis=1)
 
-                phi, sqrt_psd = term.hsgp.prior_components(x_slice)
+                x_slice_centered = x_slice - term.hsgp_attributes["mean"]
+                phi, sqrt_psd = term.hsgp.prior_linearized(x_slice_centered)
                 phi, sqrt_psd = phi.eval(), sqrt_psd.eval()
 
                 term_aliased_name = get_aliased_name(term)

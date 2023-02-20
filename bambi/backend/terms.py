@@ -314,10 +314,11 @@ class HSGPTerm:
         cov_func = self.get_cov_func()
 
         # Build HSGP and store it in the term.
+        # NOTE: self.term.m and self.term.L are 1d numpy arrays
+        #       but the array class is not a Sequence as asserted in HSGP
         self.term.hsgp = pm.gp.HSGP(
-            m=self.term.m,
-            c=self.term.c,
-            L=self.term.L,
+            m=list(self.term.m),
+            L=list(self.term.L),
             drop_first=self.term.drop_first,
             cov_func=cov_func,
         )
@@ -330,7 +331,7 @@ class HSGPTerm:
         response_dim_name = f"{response_name}_obs"
 
         # Get prior components
-        phi, sqrt_psd = self.term.hsgp.prior_components(self.term.data)
+        phi, sqrt_psd = self.term.hsgp.prior_linearized(self.term.data_centered)
 
         # Build deterministic
         if self.term.centered:

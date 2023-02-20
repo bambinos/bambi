@@ -104,7 +104,8 @@ class DistributionalComponent:
     def add_hsgp_terms(self, priors):
         for name, term in self.design.common.terms.items():
             if is_hsgp_term(term):
-                # TODO: Default priors?
+                # NOTE: Default priors are handled in the backend term
+                # Perhaps it would be better to separate this later
                 prior = priors.pop(name, None)
                 self.terms[name] = HSGPTerm(term, prior, self.prefix)
 
@@ -197,7 +198,8 @@ class DistributionalComponent:
                 X = np.delete(X, term_slice, axis=1)
 
                 # Grab HSGP instance and generate 'phi' and 'sqrt_psd'
-                phi, sqrt_psd = term.hsgp.prior_components(x_slice)
+                x_slice_centered = x_slice - term.hsgp_attributes["mean"]
+                phi, sqrt_psd = term.hsgp.prior_linearized(x_slice_centered)
                 phi, sqrt_psd = phi.eval(), sqrt_psd.eval()
 
                 # Convert 'phi' and 'sqrt_psd' to xarray.DataArrays for easier math

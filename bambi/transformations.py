@@ -80,14 +80,17 @@ class HSGP:
         self.cov = None
         self.drop_first = None
         self.centered = None
+        self.mean = None
         self.params_set = False
 
     # pylint: disable = redefined-outer-name
     def __call__(
         self, *x, m, L=None, c=None, by=None, cov="ExpQuad", drop_first=False, centered=False
     ):
+        values = np.column_stack(x)
         if not self.params_set:
-            self.by = by
+            if (L is None and c is None) or (L is not None and c is not None):
+                raise ValueError("Provide one of `c` or `L`")
             self.m = m
             self.L = L
             self.c = c
@@ -95,8 +98,9 @@ class HSGP:
             self.cov = cov
             self.drop_first = drop_first
             self.centered = centered
+            self.mean = np.mean(values, axis=0)
             self.params_set = True
-        return np.column_stack(x)
+        return values
 
 
 # These functions are made available in the namespace where the model formula is evaluated
