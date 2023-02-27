@@ -151,7 +151,9 @@ class HSGP:
             self.variables_n = values.shape[1]
             self.groups_n = 1 if self.by is None else len(np.unique(self.by))
 
-            self.m = self.recycle_parameter(m, self.variables_n, self.groups_n)
+            # The number of basis functions cannot vary by level of the grouping variable
+            # It makes the implementation simpler and... why would you do that?!
+            self.m = self.recycle_parameter(m, self.variables_n, 1)
 
             if L is not None:
                 L = self.recycle_parameter(L, self.variables_n, self.groups_n)

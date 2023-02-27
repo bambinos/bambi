@@ -306,40 +306,73 @@ class HSGPTerm:
         if self.coords and self.term.alias:
             self.coords[self.term.alias + "_dim"] = self.coords.pop(self.term.name + "_dim")
 
-    def build(self, pymc_backend, bmb_model):
-        # TODO: Handle when there's a 'by' argument
+    def build(self, pymc_backend, bmb_model):  # TODO: Handle when there's a 'by' argument
         label = self.name
 
         # Get the covariance function
         cov_func = self.get_cov_func()
 
-        # Build HSGP and store it in the term.
-        # NOTE: self.term.m and self.term.L are 1d numpy arrays
-        #       but the array class is not a Sequence as asserted in HSGP
-        self.term.hsgp = pm.gp.HSGP(
-            m=list(self.term.m),
-            L=list(self.term.L),
-            drop_first=self.term.drop_first,
-            cov_func=cov_func,
-        )
-
-        # Notice we take the product. It handles multivariate cases as well.
+        # This handles univariate and multivariate cases.
         pymc_backend.model.add_coords({f"{label}_weights_dim": np.arange(np.prod(self.term.m))})
 
         # Get dimension name for the response
         response_name = get_aliased_name(bmb_model.response_component.response_term)
-        response_dim_name = f"{response_name}_obs"
 
-        # Get prior components
-        phi, sqrt_psd = self.term.hsgp.prior_linearized(self.term.data_centered)
+        # Prepare dims
+        coeff_dims = (f"{label}_weights_dim",)
+        contribution_dims = (f"{response_name}_obs",)
+
+        # Build HSGP and store it in the term.
+        if self.term.by is not None:
+            # TODO: How to take different covariance functions, while also preserving
+            #       the ability to use the same when needed?
+            flatten_coeffs = True
+            coeff_dims = coeff_dims + (f"{label}_by",)
+            contribution_dims = contribution_dims + (f"{label}_by",)
+            phi_list = []
+            sqrt_psd_list = []
+            self.term.hsgp = {}
+            for i, level in np.unique(self.term.by):
+                hsgp = pm.gp.HSGP(
+                    m=list(self.term.m),  # Doesn't change by group
+                    L=list(self.term.L[i]),  # 1d array is not a Sequence
+                    drop_first=self.term.drop_first,
+                    cov_func=cov_func,
+                )
+                mask = self.term.by == level
+                phi, sqrt_psd = hsgp.prior_linearized(self.term.data_centered[mask])
+                phi = phi.eval()
+                phi[~mask] = 0
+                sqrt_psd_list.append(sqrt_psd)
+                phi_list.append(phi)
+
+                # Store it for later usage
+                self.term.hsgp[level] = hsgp
+
+            sqrt_psd = pt.stack(sqrt_psd_list, axis=1)
+            phi = np.hstack(phi_list)
+        else:
+            flatten_coeffs = False
+            self.term.hsgp = pm.gp.HSGP(
+                m=list(self.term.m),
+                L=list(self.term.L[0]),
+                drop_first=self.term.drop_first,
+                cov_func=cov_func,
+            )
+            # Get prior components
+            phi, sqrt_psd = self.term.hsgp.prior_linearized(self.term.data_centered)
 
         # Build deterministic
         if self.term.centered:
-            coeffs = pm.Normal(f"{label}_weights", sigma=sqrt_psd, dims=f"{label}_weights_dim")
-            output = pm.Deterministic(label, phi @ coeffs, dims=response_dim_name)
+            coeffs = pm.Normal(f"{label}_weights", sigma=sqrt_psd, dims=coeff_dims)
+            if flatten_coeffs:
+                coeffs = coeffs.T.flatten()  # Equivalent to .flatten("F")
+            output = pm.Deterministic(label, phi @ coeffs, dims=contribution_dims)
         else:
-            coeffs = pm.Normal(f"{label}_weights", dims=f"{label}_weights_dim")
-            output = pm.Deterministic(label, phi @ (coeffs * sqrt_psd), dims=response_dim_name)
+            coeffs = pm.Normal(f"{label}_weights", dims=coeff_dims)
+            if flatten_coeffs:
+                coeffs = coeffs.T.flatten()
+            output = pm.Deterministic(label, phi @ (coeffs * sqrt_psd), dims=contribution_dims)
         return output
 
     def get_cov_func(self):
@@ -358,7 +391,7 @@ class HSGPTerm:
             A covariance function that can be used with a GP in PyMC
         """
         # Get the callable that creates the function
-        cov_dict = GP_KERNELS[self.term.cov]
+        cov_dict = GP_KERNELS[self.term.cov[0]]  # FIXME
         create_cov_function = cov_dict["fn"]
         names = cov_dict["params"]
         params = {}

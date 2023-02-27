@@ -44,19 +44,22 @@ class HSGPTerm(BaseTerm):
 
     @property
     def data_centered(self):
-        # FIXME: consider groups
         if self.by is None:
-            return self.term.data - self.hsgp_attributes["mean"]
-
-        ...
-        return
+            output = self.data - self.mean
+        else:
+            _, levels_idx = np.unique(self.by, return_inverse=True)
+            output = self.data - self.mean[levels_idx]
+        return output
 
     @property
     def m(self):
-        return self.hsgp_attributes["m"]
+        return np.atleast_1d(np.squeeze(self.hsgp_attributes["m"]))
 
     @property
     def L(self):
+        """Get the value of L
+        It's of shape (term.groups_n, term.variables_n). It's computed by variable and group.
+        """
         if self.c is not None:
             if self.by is None:
                 S = np.max(np.abs(self.data - self.mean), axis=0)
@@ -69,9 +72,7 @@ class HSGPTerm(BaseTerm):
 
     @property
     def c(self):
-        if self.hsgp_attributes["c"] is None:
-            return None
-        return np.atleast_1d(self.hsgp_attributes["c"])
+        return self.hsgp_attributes["c"]
 
     @property
     def by(self):
