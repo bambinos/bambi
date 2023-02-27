@@ -1,3 +1,5 @@
+from typing import Any
+
 import numpy as np
 
 from formulae.transforms import register_stateful_transform
@@ -72,38 +74,59 @@ class HSGP:
     __transform_name__ = "hsgp"
 
     def __init__(self):
-        self.by = None
         self.m = None
         self.L = None
         self.c = None
         self.by = None
         self.cov = None
+        self.share_cov = None
         self.drop_first = None
         self.centered = None
         self.mean = None
         self.params_set = False
+        self.variables_n = None
+        self.groups_n = None
 
     # pylint: disable = redefined-outer-name
     def __call__(
-        self, *x, m, L=None, c=None, by=None, cov="ExpQuad", drop_first=False, centered=False
+        self,
+        *x,
+        m,
+        L=None,
+        c=None,
+        by=None,
+        cov="ExpQuad",
+        share_cov=True,
+        drop_first=False,
+        centered=False,
     ):
         """_summary_
+
+        See `pymc.gp.HSGP` for more details about the parameters `m`, `L`, `c`, and `drop_first`.
 
         Parameters
         ----------
         m : int, Sequence[int], Sequence[Sequence[int]], ndarray
-        L : int, Sequence[int], Sequence[Sequence[int]], ndarray, optional
-            _description_, by default None
-        c : int, Sequence[int], Sequence[Sequence[int]], ndarray, optional
-            _description_, by default None
-        by : _type_, optional
-            _description_, by default None
-        cov : str, optional
-            _description_, by default "ExpQuad"
+            The number of basis vectors. See `HSGP.reconciliate_shape` to see how it is
+            broadcasted/recycled.
+        L : float, Sequence[float], Sequence[Sequence[float]], ndarray, optional
+            The boundary of the variable space. See `HSGP.reconciliate_shape` to see how it is
+            broadcasted/recycled. Defaults to `None`.
+        c : float, Sequence[float], Sequence[Sequence[float]], ndarray, optional
+            The proportion extension factor. Se `HSGP.reconciliate_shape` to see how it is
+            broadcasted/recycled. Defaults to `None`.
+        by : array-like, optional
+            The values of a variable to group by. It is used to create a HSGP term by group.
+            Defaults to `None`.
+        cov : str, Sequence[str], optional
+            The name of the covariance function to use. If it is a sequence, each element is
+            the name of the covariance function for every group. Defaults to "ExpQuad".
+        share_cov : bool, optional
+            Whether to share the same covariance function for every group. Defaults to `True`.
         drop_first : bool, optional
-            _description_, by default False
+            Whether to ignore the first basis vector or not. Defaults to `False`.
         centered : bool, optional
-            _description_, by default False
+            Whether to use the centered or the non-centered parametrization. Defaults to `False`.
 
         Returns
         -------
@@ -113,25 +136,45 @@ class HSGP:
         Raises
         ------
         ValueError
-            _description_
+            When both `L` and `c` are `None` or when both of them are not `None` at the same time.
         """
         values = np.column_stack(x)
-        self.by = np.asarray(by) if by is not None else by # can change with new data
+        self.by = np.asarray(by) if by is not None else by  # can change with new data
+
         if not self.params_set:
             if (L is None and c is None) or (L is not None and c is not None):
                 raise ValueError("Provide one of `c` or `L`")
-            self.m = m
+
+            # Number of variables and number of groups
+            self.variables_n = values.shape[1]
+            self.groups_n = 1 if self.by is None else len(np.unique(self.by))
+
+            self.m = self.recycle_parameter(m, self.variables_n, self.groups_n)
+
+            if L is not None:
+                L = self.recycle_parameter(L, self.variables_n, self.groups_n)
+            if c is not None:
+                c = self.recycle_parameter(c, self.variables_n, self.groups_n)
+
+            # As many covariance functions as groups.
+            # If `share_cov` is `True`, the first value in `cov` will be used, no matter how many
+            # groups there are.
+            if isinstance(cov, str):
+                cov = (cov,) * self.groups_n
+
             self.L = L
             self.c = c
             self.cov = cov
+            self.share_cov = share_cov
             self.drop_first = drop_first
             self.centered = centered
             self.mean = mean_by_group(values, self.by)
             self.params_set = True
+
         return values
 
     @staticmethod
-    def reconciliate_shape(value, variables_n: int, groups_n: int):
+    def recycle_parameter(value, variables_n: int, groups_n: int) -> list[list[Any]]:
         """Reshapes a value considering the number of variables and groups
 
         Parameter values such as `m`, `L`, and `c` may be different for the different variables and
@@ -139,7 +182,7 @@ class HSGP:
         This method contains the logic used to map user supplied values, which may be of different
         shape and nature, into an object of shape `(groups_n, variables_n)`.
 
-        The behavior of the method depends on the type of `value` in the following way. 
+        The behavior of the method depends on the type of `value` in the following way.
         If value is of type...
         * `int`: the same value is recycled for all variables and groups.
         * `Sequence[int]`: it represents the values by variable and it is recycled for all groups.
