@@ -87,20 +87,88 @@ class HSGP:
     def __call__(
         self, *x, m, L=None, c=None, by=None, cov="ExpQuad", drop_first=False, centered=False
     ):
+        """_summary_
+
+        Parameters
+        ----------
+        m : int, Sequence[int], Sequence[Sequence[int]], ndarray
+        L : int, Sequence[int], Sequence[Sequence[int]], ndarray, optional
+            _description_, by default None
+        c : int, Sequence[int], Sequence[Sequence[int]], ndarray, optional
+            _description_, by default None
+        by : _type_, optional
+            _description_, by default None
+        cov : str, optional
+            _description_, by default "ExpQuad"
+        drop_first : bool, optional
+            _description_, by default False
+        centered : bool, optional
+            _description_, by default False
+
+        Returns
+        -------
+        _type_
+            _description_
+
+        Raises
+        ------
+        ValueError
+            _description_
+        """
         values = np.column_stack(x)
+        self.by = np.asarray(by) if by is not None else by # can change with new data
         if not self.params_set:
             if (L is None and c is None) or (L is not None and c is not None):
                 raise ValueError("Provide one of `c` or `L`")
             self.m = m
             self.L = L
             self.c = c
-            self.by = by
             self.cov = cov
             self.drop_first = drop_first
             self.centered = centered
-            self.mean = np.mean(values, axis=0)
+            self.mean = mean_by_group(values, self.by)
             self.params_set = True
         return values
+
+    @staticmethod
+    def reconciliate_shape(value, variables_n: int, groups_n: int):
+        """Reshapes a value considering the number of variables and groups
+
+        Parameter values such as `m`, `L`, and `c` may be different for the different variables and
+        groups. Internally, the shape of these objects is always `(groups_n, variables_n)`.
+        This method contains the logic used to map user supplied values, which may be of different
+        shape and nature, into an object of shape `(groups_n, variables_n)`.
+
+        The behavior of the method depends on the type of `value` in the following way. 
+        If value is of type...
+        * `int`: the same value is recycled for all variables and groups.
+        * `Sequence[int]`: it represents the values by variable and it is recycled for all groups.
+        * `Sequence[Sequence[int]]`: it represents the values by variable and by group and thus
+        no recycling applies. Must be of shape `(groups_n, variables_n)`.
+        * `ndarray`:
+            * If one dimensional, it behaves as `Sequence[int]`
+            * If two dimensional, it behaves as `Sequence[Sequence[int]]`
+        """
+        value = np.asarray(value)
+        shape = value.shape
+        if len(shape) == 0:
+            output = np.tile(value, (groups_n, variables_n)).tolist()
+        elif len(shape) == 1:
+            output = np.tile(value, (groups_n, 1)).tolist()
+        elif len(shape) == 2:
+            assert shape == (groups_n, variables_n)
+            output = value.tolist()
+        return output
+
+
+def mean_by_group(values, group):
+    if group is None:
+        return np.mean(values, axis=0)
+    levels = np.unique(group)
+    means = np.zeros((len(levels), values.shape[1]))
+    for i, level in enumerate(levels):
+        means[i] = np.mean(values[group == level], axis=0)
+    return means
 
 
 # These functions are made available in the namespace where the model formula is evaluated
