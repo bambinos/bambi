@@ -128,6 +128,8 @@ class HSGP:
         centered : bool, optional
             Whether to use the centered or the non-centered parametrization. Defaults to `False`.
 
+        TODO: Assert original shapes of 'c', 'L' and 'm'.
+
         Returns
         -------
         _type_
@@ -195,12 +197,12 @@ class HSGP:
         value = np.asarray(value)
         shape = value.shape
         if len(shape) == 0:
-            output = np.tile(value, (groups_n, variables_n)).tolist()
+            output = np.tile(value, (groups_n, variables_n))
         elif len(shape) == 1:
-            output = np.tile(value, (groups_n, 1)).tolist()
+            output = np.tile(value, (groups_n, 1))
         elif len(shape) == 2:
             assert shape == (groups_n, variables_n)
-            output = value.tolist()
+            output = value
         return output
 
 

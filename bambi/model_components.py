@@ -141,7 +141,7 @@ class DistributionalComponent:
                 continue
             elif isinstance(term, HSGPTerm):
                 if term.prior is None:
-                    term.prior = get_default_prior("hsgp", cov_func=term.cov)
+                    term.prior = get_default_prior("hsgp", cov_func=term.cov[0])
                 continue
             else:
                 kind = "common"

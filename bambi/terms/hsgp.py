@@ -44,26 +44,38 @@ class HSGPTerm(BaseTerm):
 
     @property
     def data_centered(self):
-        return self.term.data - self.hsgp_attributes["mean"]
+        # FIXME: consider groups
+        if self.by is None:
+            return self.term.data - self.hsgp_attributes["mean"]
+
+        ...
+        return
 
     @property
     def m(self):
-        return np.atleast_1d(self.hsgp_attributes["m"])
+        return self.hsgp_attributes["m"]
 
     @property
     def L(self):
-        if self.c:
-            S = np.max(np.abs(self.data_centered), axis=0)
-            output = self.c * S
-        else:
-            output = self.hsgp_attributes["L"]
-        return np.atleast_1d(output)
+        if self.c is not None:
+            if self.by is None:
+                S = np.max(np.abs(self.data - self.mean), axis=0)
+            else:
+                S = np.zeros_like(self.c)
+                levels = np.unique(self.by)
+                for i, level in enumerate(levels):
+                    S[i] = np.max(np.abs(self.data[self.by == level] - self.mean[i]), axis=0)
+        return S * self.c
 
     @property
     def c(self):
         if self.hsgp_attributes["c"] is None:
             return None
         return np.atleast_1d(self.hsgp_attributes["c"])
+
+    @property
+    def by(self):
+        return self.hsgp_attributes["by"]
 
     @property
     def cov(self):
@@ -76,6 +88,18 @@ class HSGPTerm(BaseTerm):
     @property
     def drop_first(self):
         return self.hsgp_attributes["drop_first"]
+
+    @property
+    def variables_n(self):
+        return self.hsgp_attributes["variables_n"]
+
+    @property
+    def groups_n(self):
+        return self.hsgp_attributes["groups_n"]
+
+    @property
+    def mean(self):
+        return self.hsgp_attributes["mean"]
 
     @property
     def prior(self):
@@ -134,7 +158,19 @@ def get_hsgp_attributes(term):
     dict
         The attributes that will be passed to pm.gp.HSGP
     """
-    names = ("m", "L", "c", "by", "cov", "drop_first", "centered", "mean")
+    names = (
+        "m",
+        "L",
+        "c",
+        "by",
+        "cov",
+        "share_cov",
+        "drop_first",
+        "centered",
+        "mean",
+        "variables_n",
+        "groups_n",
+    )
     attrs_original = term.components[0].call.stateful_transform.__dict__
     attrs = {}
     for name in names:
