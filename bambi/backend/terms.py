@@ -327,22 +327,22 @@ class HSGPTerm:
             # TODO: How to take different covariance functions, while also preserving
             #       the ability to use the same when needed?
             flatten_coeffs = True
+            levels = np.unique(self.term.by)
             coeff_dims = coeff_dims + (f"{label}_by",)
-            contribution_dims = contribution_dims + (f"{label}_by",)
+            pymc_backend.model.add_coords({f"{label}_by": levels})
             phi_list = []
             sqrt_psd_list = []
             self.term.hsgp = {}
-            for i, level in np.unique(self.term.by):
+            for i, level in enumerate(levels):
                 hsgp = pm.gp.HSGP(
                     m=list(self.term.m),  # Doesn't change by group
                     L=list(self.term.L[i]),  # 1d array is not a Sequence
                     drop_first=self.term.drop_first,
                     cov_func=cov_func,
                 )
-                mask = self.term.by == level
-                phi, sqrt_psd = hsgp.prior_linearized(self.term.data_centered[mask])
+                phi, sqrt_psd = hsgp.prior_linearized(self.term.data_centered)
                 phi = phi.eval()
-                phi[~mask] = 0
+                phi[self.term.by != level] = 0
                 sqrt_psd_list.append(sqrt_psd)
                 phi_list.append(phi)
 
@@ -361,18 +361,19 @@ class HSGPTerm:
             )
             # Get prior components
             phi, sqrt_psd = self.term.hsgp.prior_linearized(self.term.data_centered)
+            phi = phi.eval()
 
-        # Build deterministic
+        # Build weights coefficient
         if self.term.centered:
             coeffs = pm.Normal(f"{label}_weights", sigma=sqrt_psd, dims=coeff_dims)
-            if flatten_coeffs:
-                coeffs = coeffs.T.flatten()  # Equivalent to .flatten("F")
-            output = pm.Deterministic(label, phi @ coeffs, dims=contribution_dims)
         else:
-            coeffs = pm.Normal(f"{label}_weights", dims=coeff_dims)
-            if flatten_coeffs:
-                coeffs = coeffs.T.flatten()
-            output = pm.Deterministic(label, phi @ (coeffs * sqrt_psd), dims=contribution_dims)
+            coeffs_raw = pm.Normal(f"{label}_weights_raw", dims=coeff_dims)
+            coeffs = pm.Deterministic(f"{label}_weights", coeffs_raw * sqrt_psd, dims=coeff_dims)
+
+        # Build deterministic for the HSGP contribution
+        if flatten_coeffs:
+            coeffs = coeffs.T.flatten()  # Equivalent to .flatten("F")
+        output = pm.Deterministic(label, phi @ coeffs, dims=contribution_dims)
         return output
 
     def get_cov_func(self):

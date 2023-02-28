@@ -64,7 +64,7 @@ class HSGPTerm(BaseTerm):
             if self.by is None:
                 S = np.max(np.abs(self.data - self.mean), axis=0)
             else:
-                S = np.zeros_like(self.c)
+                S = np.zeros_like(self.c, dtype="float")
                 levels = np.unique(self.by)
                 for i, level in enumerate(levels):
                     S[i] = np.max(np.abs(self.data[self.by == level] - self.mean[i]), axis=0)
