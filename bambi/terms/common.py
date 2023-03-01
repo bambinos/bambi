@@ -17,7 +17,11 @@ class CommonTerm(BaseTerm):
         if self.categorical and len(self.levels) == 1 and (self.data == self.data[0]).all():
             raise ValueError(f"The term '{self.name}' has only 1 category!")
 
-        if not self.categorical and self.kind != "intercept" and np.all(self.data == self.data[0]):
+        if (
+            not self.categorical
+            and self.kind not in ("intercept", "offset")
+            and np.all(self.data == self.data[0])
+        ):
             raise ValueError(f"The term '{self.name}' is constant!")
 
     @property
