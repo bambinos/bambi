@@ -107,7 +107,11 @@ class DistributionalComponent:
         'f(x)'. This creates the 'f(x)' and adds it ``self.output``.
         """
         for term in self.component.hsgp_terms.values():
-            self.output += HSGPTerm(term).build(pymc_backend, bmb_model)
+            hsgp_term = HSGPTerm(term)
+            for name, values in hsgp_term.coords.items():
+                if name not in pymc_backend.model.coords:
+                    pymc_backend.model.add_coords({name: values})
+            self.output += hsgp_term.build(pymc_backend, bmb_model)
 
     def build_group_specific_terms(self, pymc_backend, bmb_model):
         """Add group-specific (random or varying) terms to the PyMC model.

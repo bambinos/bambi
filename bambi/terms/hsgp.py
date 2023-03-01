@@ -1,3 +1,5 @@
+from functools import partial
+
 import numpy as np
 
 import formulae.terms
@@ -28,6 +30,37 @@ class HSGPTerm(BaseTerm):
         self.prefix = prefix
         self.hsgp_attributes = get_hsgp_attributes(term)
         self.hsgp = None
+        properties_names = (
+            "c",
+            "by",
+            "cov",
+            "share_cov",
+            "centered",
+            "drop_first",
+            "variables_n",
+            "groups_n",
+            "mean",
+        )
+        self.__init_properties(properties_names)
+
+    def __init_properties(self, names):
+        """Initialize attributes as properties
+
+        The properties are taken from the `self.hsgp_attributes` dictionary. This is to avoid
+        writing many @property calls in the class definition.
+
+        Parameters
+        ----------
+        names : Sequence[str]
+            The names of the attributes taken from `self.hsgp_attributes`
+        """
+
+        def get(self, name):
+            return self.hsgp_attributes[name]
+
+        for name in names:
+            get_partial = partial(get, name=name)
+            setattr(self.__class__, name, property(get_partial))
 
     @property
     def term(self):
@@ -43,6 +76,10 @@ class HSGPTerm(BaseTerm):
         return self.term.data
 
     @property
+    def shape(self):
+        return self.data.shape
+
+    @property
     def data_centered(self):
         if self.by is None:
             output = self.data - self.mean
@@ -53,6 +90,9 @@ class HSGPTerm(BaseTerm):
 
     @property
     def m(self):
+        """Get the value of 'm', the number of basis vectors
+        It's of shape (term.variables_n, ). It's computed by variable.
+        """
         return np.atleast_1d(np.squeeze(self.hsgp_attributes["m"]))
 
     @property
@@ -65,49 +105,16 @@ class HSGPTerm(BaseTerm):
                 S = np.max(np.abs(self.data - self.mean), axis=0)
             else:
                 S = np.zeros_like(self.c, dtype="float")
-                levels = np.unique(self.by)
-                for i, level in enumerate(levels):
+                for i, level in enumerate(self.by_levels):
                     S[i] = np.max(np.abs(self.data[self.by == level] - self.mean[i]), axis=0)
         return S * self.c
-
-    @property
-    def c(self):
-        return self.hsgp_attributes["c"]
-
-    @property
-    def by(self):
-        return self.hsgp_attributes["by"]
-
-    @property
-    def cov(self):
-        return self.hsgp_attributes["cov"]
-
-    @property
-    def centered(self):
-        return self.hsgp_attributes["centered"]
-
-    @property
-    def drop_first(self):
-        return self.hsgp_attributes["drop_first"]
-
-    @property
-    def variables_n(self):
-        return self.hsgp_attributes["variables_n"]
-
-    @property
-    def groups_n(self):
-        return self.hsgp_attributes["groups_n"]
-
-    @property
-    def mean(self):
-        return self.hsgp_attributes["mean"]
 
     @property
     def prior(self):
         return self._prior
 
     @prior.setter
-    def prior(self, value):
+    def prior(self, value):  # FIXME does not handle multiple covariance functions
         message = (
             "The priors for an HSGP term must be passed within a dictionary. "
             "Keys must the names of the parameters of the covariance function "
@@ -124,8 +131,11 @@ class HSGPTerm(BaseTerm):
 
     @property
     def coords(self):
-        # NOTE: This has to depend on the 'by' argument.
-        return {}
+        # This handles univariate and multivariate cases
+        coords = {f"{self.name}_weights_dim": np.arange(np.prod(self.m))}
+        if self.by is not None:
+            coords[f"{self.name}_by"] = self.by_levels
+        return coords
 
     @property
     def name(self):
@@ -134,16 +144,18 @@ class HSGPTerm(BaseTerm):
         return self.term.name
 
     @property
-    def shape(self):
-        return self.data.shape
-
-    @property
     def categorical(self):
         return False
 
     @property
     def levels(self):
         return None
+
+    @property
+    def by_levels(self):
+        if self.by is None:
+            return None
+        return np.unique(self.by)
 
 
 def get_hsgp_attributes(term):

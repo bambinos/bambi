@@ -239,8 +239,7 @@ class ResponseTerm:
             kwargs[name] = component.output
 
         # Distributional parameters. A link funciton is used.
-        response_aliased_name = get_aliased_name(self.term)
-        dims = [response_aliased_name + "_obs"]
+        dims = (f"{self.name}_obs",)
         for name, component in pymc_backend.distributional_components.items():
             bmb_component = bmb_model.components[name]
             if bmb_component.response_term:  # The response is added later
@@ -250,7 +249,7 @@ class ResponseTerm:
             )
             linkinv = get_linkinv(self.family.link[name], pymc_backend.INVLINKS)
             kwargs[name] = pm.Deterministic(
-                f"{response_aliased_name}_{aliased_name}", linkinv(component.output), dims=dims
+                f"{self.name}_{aliased_name}", linkinv(component.output), dims=dims
             )
 
         # Take the inverse link function that maps from linear predictor to the parent of likelihood
@@ -259,13 +258,14 @@ class ResponseTerm:
         # Add parent parameter and observed data. We don't need to pass dims.
         kwargs[parent] = linkinv(nu)
         kwargs["observed"] = data
+        kwargs["dims"] = dims
 
         # Build the response distribution
-        dist = self.build_response_distribution(kwargs)
+        dist = self.build_response_distribution(kwargs, pymc_backend)
 
         return dist
 
-    def build_response_distribution(self, kwargs):
+    def build_response_distribution(self, kwargs, pymc_backend):
         # Get likelihood distribution
         distribution = get_distribution_from_likelihood(self.family.likelihood)
 
@@ -274,6 +274,8 @@ class ResponseTerm:
         if hasattr(self.family, "transform_backend_kwargs"):
             kwargs = self.family.transform_backend_kwargs(kwargs)
 
+        kwargs = self.robustify_dims(pymc_backend, kwargs)
+
         return distribution(self.name, **kwargs)
 
     @property
@@ -281,6 +283,25 @@ class ResponseTerm:
         if self.term.alias:
             return self.term.alias
         return self.term.name
+
+    def robustify_dims(self, pymc_backend, kwargs):
+        # It's possible the observed for the response is multidimensional, but there's a single
+        # linear predictor because the family is not multivariate.
+        # In this case, we add extra dimensions to avoid having shape mismatch between the data
+        # and the shape implied by the `dims` we pass.
+        dims, data = kwargs["dims"], kwargs["observed"]
+        dims_n = len(dims)
+        ndim_diff = data.ndim - dims_n
+
+        if ndim_diff > 0:
+            for i in range(ndim_diff):
+                axis = dims_n + i
+                name = f"{self.name}_extra_dim_{i}"
+                values = np.arange(np.size(data, axis=axis))
+                pymc_backend.model.add_coords({name: values})
+                dims.append(name)
+        kwargs["dims"] = dims
+        return kwargs
 
 
 class HSGPTerm:
@@ -298,22 +319,19 @@ class HSGPTerm:
     def __init__(self, term):
         self.term = term
         self.coords = self.term.coords.copy()
-
-        # TODO: Is this enough? What if we have more than a single coord?
-        #       We already have some coords that correspond to the 'weights' or basis functions.
-        #       There could be another dimension which would be given by a categorical variable.
-        #       I'm not sure if it should be handled via the 'by' argument, or as an interaction.
         if self.coords and self.term.alias:
-            self.coords[self.term.alias + "_dim"] = self.coords.pop(self.term.name + "_dim")
+            self.coords[f"{self.term.alias}_weights_dim"] = self.coords.pop(
+                f"{self.term.name}_weights_dim"
+            )
+            if self.term.by is not None:
+                self.coords[f"{self.term.alias}_by"] = self.coords.pop(f"{self.term.name}_by")
 
-    def build(self, pymc_backend, bmb_model):  # TODO: Handle when there's a 'by' argument
+    def build(self, pymc_backend, bmb_model):
+        # Get the name of the term
         label = self.name
 
-        # Get the covariance function
-        cov_func = self.get_cov_func()
-
-        # This handles univariate and multivariate cases.
-        pymc_backend.model.add_coords({f"{label}_weights_dim": np.arange(np.prod(self.term.m))})
+        # Get the covariance functions (it's possibly more than one)
+        covariance_functions = self.get_covariance_functions()
 
         # Get dimension name for the response
         response_name = get_aliased_name(bmb_model.response_component.response_term)
@@ -324,22 +342,20 @@ class HSGPTerm:
 
         # Build HSGP and store it in the term.
         if self.term.by is not None:
-            # TODO: How to take different covariance functions, while also preserving
-            #       the ability to use the same when needed?
             flatten_coeffs = True
-            levels = np.unique(self.term.by)
             coeff_dims = coeff_dims + (f"{label}_by",)
-            pymc_backend.model.add_coords({f"{label}_by": levels})
-            phi_list = []
-            sqrt_psd_list = []
+            phi_list, sqrt_psd_list = [], []
             self.term.hsgp = {}
-            for i, level in enumerate(levels):
+            for i, level in enumerate(self.term.by_levels):
+                cov_func = covariance_functions[i]
                 hsgp = pm.gp.HSGP(
                     m=list(self.term.m),  # Doesn't change by group
                     L=list(self.term.L[i]),  # 1d array is not a Sequence
                     drop_first=self.term.drop_first,
                     cov_func=cov_func,
                 )
+                # Notice we pass all the values, for all the groups.
+                # Then we only keep the ones for the corresponding group.
                 phi, sqrt_psd = hsgp.prior_linearized(self.term.data_centered)
                 phi = phi.eval()
                 phi[self.term.by != level] = 0
@@ -353,6 +369,7 @@ class HSGPTerm:
             phi = np.hstack(phi_list)
         else:
             flatten_coeffs = False
+            (cov_func,) = covariance_functions
             self.term.hsgp = pm.gp.HSGP(
                 m=list(self.term.m),
                 L=list(self.term.L[0]),
@@ -376,7 +393,7 @@ class HSGPTerm:
         output = pm.Deterministic(label, phi @ coeffs, dims=contribution_dims)
         return output
 
-    def get_cov_func(self):
+    def get_covariance_functions(self):
         """Construct and return the covariance function
 
         This method uses the name of the covariance function to retrieve a callable that
@@ -388,29 +405,54 @@ class HSGPTerm:
 
         Returns
         -------
-        pm.gp.Covariance
+        Sequence[pm.gp.Covariance]
             A covariance function that can be used with a GP in PyMC
         """
+
         # Get the callable that creates the function
-        cov_dict = GP_KERNELS[self.term.cov[0]]  # FIXME
-        create_cov_function = cov_dict["fn"]
-        names = cov_dict["params"]
+        cov_dict = GP_KERNELS[self.term.cov]
+        create_covariance_function = cov_dict["fn"]
+        param_names = cov_dict["params"]
         params = {}
 
-        # Build priors
-        for name in names:
-            prior = self.term.prior[name]
+        # Set dimensions and behavior for priors that are actually fixed (floats or ints)
+        if self.term.by is not None and not self.term.share_cov:
+            dims = (f"{self.name}_by",)
+            recycle = True
+        else:
+            dims = None
+            recycle = False
+
+        # Build priors and parameters
+        for param_name in param_names:
+            prior = self.term.prior[param_name]
             if isinstance(prior, Prior):
                 distribution = get_distribution_from_prior(prior)
-                value = distribution(f"{self.name}_{name}", **prior.args)
+                value = distribution(f"{self.name}_{param_name}", **prior.args, dims=dims)
+            elif recycle:
+                value = (prior,) * self.term.groups_n
             else:
                 value = prior
-            params[name] = value
+            params[param_name] = value
 
-        if "input_dim" in list(inspect.signature(create_cov_function).parameters):
-            params["input_dim"] = self.term.shape[1]
+        if "input_dim" in list(inspect.signature(create_covariance_function).parameters):
+            if recycle:
+                params["input_dim"] = (self.term.shape[1],) * self.term.groups_n
+            else:
+                params["input_dim"] = self.term.shape[1]
 
-        return create_cov_function(**params)
+        if self.term.share_cov:
+            covariance_function = create_covariance_function(**params)
+            output = [covariance_function] * self.term.groups_n  # no copy is made
+        else:
+            output = []
+            # print(self.term.by_levels)
+            # print(params)
+            for i, _ in enumerate(self.term.by_levels):
+                params_level = {key: value[i] for key, value in params.items()}
+                covariance_function = create_covariance_function(**params_level)
+                output.append(covariance_function)
+        return output
 
     @property
     def name(self):

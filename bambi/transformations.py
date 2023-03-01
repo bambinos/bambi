@@ -100,7 +100,7 @@ class HSGP:
         drop_first=False,
         centered=False,
     ):
-        """_summary_
+        """Evaluate the values and set internal parameters
 
         See `pymc.gp.HSGP` for more details about the parameters `m`, `L`, `c`, and `drop_first`.
 
@@ -118,9 +118,8 @@ class HSGP:
         by : array-like, optional
             The values of a variable to group by. It is used to create a HSGP term by group.
             Defaults to `None`.
-        cov : str, Sequence[str], optional
-            The name of the covariance function to use. If it is a sequence, each element is
-            the name of the covariance function for every group. Defaults to "ExpQuad".
+        cov : str, optional
+            The name of the covariance function to use. Defaults to "ExpQuad".
         share_cov : bool, optional
             Whether to share the same covariance function for every group. Defaults to `True`.
         drop_first : bool, optional
@@ -128,18 +127,17 @@ class HSGP:
         centered : bool, optional
             Whether to use the centered or the non-centered parametrization. Defaults to `False`.
 
-        TODO: Assert original shapes of 'c', 'L' and 'm'.
-
         Returns
         -------
-        _type_
-            _description_
+        values
+            A NumPy array of shape (observations_n, variables_n)
 
         Raises
         ------
         ValueError
             When both `L` and `c` are `None` or when both of them are not `None` at the same time.
         """
+        # TODO: Assert original shapes of 'c', 'L' and 'm'.
         values = np.column_stack(x)
         self.by = np.asarray(by) if by is not None else by  # can change with new data
 
@@ -159,12 +157,6 @@ class HSGP:
                 L = self.recycle_parameter(L, self.variables_n, self.groups_n)
             if c is not None:
                 c = self.recycle_parameter(c, self.variables_n, self.groups_n)
-
-            # As many covariance functions as groups.
-            # If `share_cov` is `True`, the first value in `cov` will be used, no matter how many
-            # groups there are.
-            if isinstance(cov, str):
-                cov = (cov,) * self.groups_n
 
             self.L = L
             self.c = c
