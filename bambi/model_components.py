@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import xarray as xr
 
 from bambi.defaults import get_default_prior
@@ -179,9 +180,14 @@ class DistributionalComponent:
 
         if self.design.common:
             if in_sample:
-                X = self.design.common.design_matrix
+                # We need 'dm_common' because of the 'by' argument in HSGP
+                # This would be fixed (made more elegant) when we modify formulae to account
+                # for transformations whose output does not need to go into the design matrix
+                dm_common = self.design.common
             else:
-                X = self.design.common.evaluate_new_data(data).design_matrix
+                dm_common = self.design.common.evaluate_new_data(data)
+
+            X = dm_common.design_matrix
 
             # Add offset columns to their own design matrix and remove then from common matrix
             for term in self.offset_terms:
@@ -189,30 +195,53 @@ class DistributionalComponent:
                 x_offsets.append(X[:, term_slice])
                 X = np.delete(X, term_slice, axis=1)
 
-            # TODO: How does it work when we have contributions by levels of a third variable?
             # Add HSGP components contribution to the linear predictor
             for term_name, term in self.hsgp_terms.items():
                 # Extract data for the HSGP component from the design matrix
                 term_slice = self.design.common.slices[term_name]
                 x_slice = X[:, term_slice]
                 X = np.delete(X, term_slice, axis=1)
+                term_aliased_name = get_aliased_name(term)
 
-                # Grab HSGP instance and generate 'phi' and 'sqrt_psd'
-                x_slice_centered = x_slice - term.hsgp_attributes["mean"]
-                phi, sqrt_psd = term.hsgp.prior_linearized(x_slice_centered)
-                phi, sqrt_psd = phi.eval(), sqrt_psd.eval()
+                hsgp_to_stack_dims = (f"{term_aliased_name}_weights_dim", )
+                if term.by is not None:
+                    # To make sure we use the original categorical levels and it works when the
+                    # new dataset contains a subset of the observed levels
+                    by_values = get_new_by(dm_common.terms[term_name])
+                    levels_idx = pd.Categorical(by_values, categories=term.by_levels).codes
+                    x_slice_centered = x_slice.data - term.mean[levels_idx]
+                    
+                    phi_list, sqrt_psd_list = [], []
+                    for level in term.by_levels:
+                        hsgp = term.hsgp[level]
+                        phi, sqrt_psd = hsgp.prior_linearized(x_slice_centered)
+                        phi, sqrt_psd = phi.eval(), sqrt_psd.eval()
+                        phi[by_values != level] = 0
+                        sqrt_psd_list.append(sqrt_psd)
+                        phi_list.append(phi)
+                    
+                    phi = np.column_stack(phi_list)
+                    sqrt_psd = np.concatenate(sqrt_psd_list)
+                    hsgp_to_stack_dims = (f"{term_aliased_name}_by", ) + hsgp_to_stack_dims
+                else:               
+                    x_slice_centered = x_slice - term.mean
+                    phi, sqrt_psd = term.hsgp.prior_linearized(x_slice_centered)
+                    phi, sqrt_psd = phi.eval(), sqrt_psd.eval()
 
                 # Convert 'phi' and 'sqrt_psd' to xarray.DataArrays for easier math
-                term_aliased_name = get_aliased_name(term)
-                phi = xr.DataArray(phi, dims=(response_dim, f"{term_aliased_name}_weights_dim"))
-                sqrt_psd = xr.DataArray(sqrt_psd, dims=(f"{term_aliased_name}_weights_dim"))
+                # Notice the extra '_' in the dim name for the weights
+                phi = xr.DataArray(phi, dims=(response_dim, f"{term_aliased_name}__weights_dim"))
+                sqrt_psd = xr.DataArray(sqrt_psd, dims=(f"{term_aliased_name}__weights_dim"))
                 weights = posterior[f"{term_aliased_name}_weights"]
+                weights = weights.stack({f"{term_aliased_name}__weights_dim": hsgp_to_stack_dims})
 
                 # Compute contribution and add it to the linear predictor
                 if term.centered:
-                    hsgp_contribution = xr.dot(phi, weights)
+                    coeffs = weights
                 else:
-                    hsgp_contribution = xr.dot(phi, (weights * sqrt_psd))
+                    coeffs = weights * sqrt_psd
+                
+                hsgp_contribution = xr.dot(phi, coeffs)
                 linear_predictor += hsgp_contribution
 
             if self.common_terms or self.intercept_term:
@@ -357,3 +386,8 @@ def with_suffix(value, suffix):
     if suffix:
         return f"{value}_{suffix}"
     return value
+
+
+def get_new_by(term):
+    """Extract the new values of the 'by' variable in a HSGP term"""
+    return term.components[0].call.stateful_transform.__dict__["by"]

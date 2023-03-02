@@ -446,8 +446,6 @@ class HSGPTerm:
             output = [covariance_function] * self.term.groups_n  # no copy is made
         else:
             output = []
-            # print(self.term.by_levels)
-            # print(params)
             for i, _ in enumerate(self.term.by_levels):
                 params_level = {key: value[i] for key, value in params.items()}
                 covariance_function = create_covariance_function(**params_level)
