@@ -365,8 +365,8 @@ class HSGPTerm:
                 # Store it for later usage
                 self.term.hsgp[level] = hsgp
 
-            sqrt_psd = pt.stack(sqrt_psd_list, axis=1)
             phi = np.hstack(phi_list)
+            sqrt_psd = pt.stack(sqrt_psd_list, axis=1)
         else:
             flatten_coeffs = False
             (cov_func,) = covariance_functions

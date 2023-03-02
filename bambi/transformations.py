@@ -138,6 +138,7 @@ class HSGP:
             When both `L` and `c` are `None` or when both of them are not `None` at the same time.
         """
         # TODO: Assert original shapes of 'c', 'L' and 'm'.
+        # TODO: Add the grouping variable as the last column (the indexes)
         values = np.column_stack(x)
         self.by = np.asarray(by) if by is not None else by  # can change with new data
 

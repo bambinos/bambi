@@ -772,45 +772,35 @@ class Model:
                 x_slice = X[:, term_slice]
                 X = np.delete(X, term_slice, axis=1)
                 term_aliased_name = get_aliased_name(term)
-                
-                hsgp_to_stack_dims = (f"{term_aliased_name}_weights_dim", )
+
+                hsgp_to_stack_dims = (f"{term_aliased_name}_weights_dim",)
                 if term.by is not None:
                     # To make sure we use the original categorical levels and it works when the
                     # new dataset contains a subset of the observed levels
                     by_values = get_new_by(dm_common.terms[term_name])
                     levels_idx = pd.Categorical(by_values, categories=term.by_levels).codes
                     x_slice_centered = x_slice.data - term.mean[levels_idx]
-                    
-                    phi_list, sqrt_psd_list = [], []
+
+                    phi_list = []
                     for level in term.by_levels:
                         hsgp = term.hsgp[level]
-                        phi, sqrt_psd = hsgp.prior_linearized(x_slice_centered)
-                        phi, sqrt_psd = phi.eval(), sqrt_psd.eval()
+                        phi = hsgp.prior_linearized(x_slice_centered)[0].eval()
                         phi[by_values != level] = 0
-                        sqrt_psd_list.append(sqrt_psd)
                         phi_list.append(phi)
-                    
                     phi = np.column_stack(phi_list)
-                    sqrt_psd = np.concatenate(sqrt_psd_list)
-                    hsgp_to_stack_dims = (f"{term_aliased_name}_by", ) + hsgp_to_stack_dims
-                else:               
+                    hsgp_to_stack_dims = (f"{term_aliased_name}_by",) + hsgp_to_stack_dims
+                else:
                     x_slice_centered = x_slice - term.mean
-                    phi, sqrt_psd = term.hsgp.prior_linearized(x_slice_centered)
-                    phi, sqrt_psd = phi.eval(), sqrt_psd.eval()
+                    phi = term.hsgp.prior_linearized(x_slice_centered)[0].eval()
 
                 # Convert 'phi' and 'sqrt_psd' to xarray.DataArrays for easier math
                 # Notice the extra '_' in the dim name for the weights
                 phi = xr.DataArray(phi, dims=(response_dim, f"{term_aliased_name}__weights_dim"))
-                sqrt_psd = xr.DataArray(sqrt_psd, dims=(f"{term_aliased_name}__weights_dim"))
                 weights = idata.posterior[f"{term_aliased_name}_weights"]
                 weights = weights.stack({f"{term_aliased_name}__weights_dim": hsgp_to_stack_dims})
 
                 # Compute contribution and add it to the linear predictor
-                if term.centered:
-                    coeffs = weights
-                else:
-                    coeffs = weights * sqrt_psd
-                hsgp_contribution = xr.dot(phi, coeffs)
+                hsgp_contribution = xr.dot(phi, weights)
 
                 hsgp_contribution = hsgp_contribution.transpose("chain", "draw", response_dim)
                 idata.posterior[term_aliased_name] = hsgp_contribution
