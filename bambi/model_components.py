@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import xarray as xr
 
 from bambi.defaults import get_default_prior

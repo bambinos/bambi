@@ -1,3 +1,4 @@
+# pylint: disable=no-member
 from functools import partial
 
 import numpy as np
@@ -125,7 +126,7 @@ class HSGPTerm(BaseTerm):
         return self._prior
 
     @prior.setter
-    def prior(self, value):  # FIXME does not handle multiple covariance functions
+    def prior(self, value):
         message = (
             "The priors for an HSGP term must be passed within a dictionary. "
             "Keys must the names of the parameters of the covariance function "

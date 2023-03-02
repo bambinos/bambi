@@ -5,10 +5,8 @@ import warnings
 
 from copy import deepcopy
 
-import numpy as np
 import pymc as pm
 import pandas as pd
-import xarray as xr
 
 from arviz.plots import plot_posterior
 

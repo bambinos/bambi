@@ -71,7 +71,7 @@ censored.__metadata__ = {"kind": "censored"}
 
 # pylint: disable = invalid-name
 @register_stateful_transform
-class HSGP:
+class HSGP:  # pylint: disable = too-many-instance-attributes
     __transform_name__ = "hsgp"
 
     def __init__(self):
@@ -131,20 +131,23 @@ class HSGP:
         Returns
         -------
         values
-            A NumPy array of shape (observations_n, variables_n)
+            A NumPy array of shape (observations_n, variables_n) or
+            (observations_n, variables_n + 1) if `by` is not None.
 
         Raises
         ------
         ValueError
             When both `L` and `c` are `None` or when both of them are not `None` at the same time.
         """
-        # TODO: Assert original shapes of 'c', 'L' and 'm'.
+        # TO-DO: Assert original shapes of 'c', 'L' and 'm'.
         values = np.column_stack(x)
 
         if by is not None:
-            if self.params_set:  # Generate indexes according to the original 'by_levels'
+            # Generate indexes according to the original 'by_levels'
+            if self.params_set:
                 by_indexes = pd.Categorical(by, categories=self.by_levels).codes
-            else:  # Determine unique levels and store them, only for the first time
+            # Determine unique levels and store them, only for the first time
+            else:
                 by_levels, by_indexes = np.unique(by, return_inverse=True)
                 self.by_levels = by_levels
         else:

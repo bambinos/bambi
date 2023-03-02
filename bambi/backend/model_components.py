@@ -111,7 +111,7 @@ class DistributionalComponent:
             for name, values in hsgp_term.coords.items():
                 if name not in pymc_backend.model.coords:
                     pymc_backend.model.add_coords({name: values})
-            self.output += hsgp_term.build(pymc_backend, bmb_model)
+            self.output += hsgp_term.build(bmb_model)
 
     def build_group_specific_terms(self, pymc_backend, bmb_model):
         """Add group-specific (random or varying) terms to the PyMC model.

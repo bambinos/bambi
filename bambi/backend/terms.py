@@ -326,7 +326,7 @@ class HSGPTerm:
             if self.term.by_levels is not None:
                 self.coords[f"{self.term.alias}_by"] = self.coords.pop(f"{self.term.name}_by")
 
-    def build(self, pymc_backend, bmb_model):
+    def build(self, bmb_model):
         # Get the name of the term
         label = self.name
 
