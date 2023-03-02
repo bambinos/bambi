@@ -730,6 +730,8 @@ class Model:
 
         # ALWAYS predict the mean response
         means_dict = {}
+        # To store the HSGP contributions that are also added to the posterior dataset
+        hsgp_dict = {}
         response_dim = response_aliased_name + "_obs"
         for name, component in self.distributional_components.items():
             if name == self.response_name:
@@ -738,7 +740,7 @@ class Model:
                 component_aliased_name = component.alias if component.alias else name
                 var_name = f"{response_aliased_name}_{component_aliased_name}"
 
-            means_dict[var_name] = component.predict(idata, data, include_group_specific)
+            means_dict[var_name] = component.predict(idata, data, include_group_specific, hsgp_dict)
 
             # Drop var/dim if already present. Needed for out-of-sample predictions.
             if var_name in idata.posterior.data_vars:
@@ -754,55 +756,13 @@ class Model:
         for name, value in means_dict.items():
             idata.posterior[name] = value
 
-        # FIX-ME
-        # Add contributions of the HSGP term. This is quite convoluted and not clean.
-        # But it's the simplest way I found for now, without having to refactor a lot.
-        for name, component in self.distributional_components.items():
-            # This is the same code that appears in `model_components.py` predict
-            if component.design.common:
-                if data is None:
-                    dm_common = component.design.common
-                else:
-                    dm_common = component.design.common.evaluate_new_data(data)
-
-                X = dm_common.design_matrix
-
-            for term_name, term in component.hsgp_terms.items():
-                term_slice = component.design.common.slices[term_name]
-                x_slice = X[:, term_slice]
-                X = np.delete(X, term_slice, axis=1)
+        # Add HSGP contributions to the posterior dataset
+        for component in self.distributional_components.values():
+            for name, hsgp_contribution in hsgp_dict.items():
+                term = component.hsgp_terms.get(name, None)
+                if term is None:
+                    continue
                 term_aliased_name = get_aliased_name(term)
-
-                hsgp_to_stack_dims = (f"{term_aliased_name}_weights_dim",)
-                if term.by is not None:
-                    # To make sure we use the original categorical levels and it works when the
-                    # new dataset contains a subset of the observed levels
-                    by_values = get_new_by(dm_common.terms[term_name])
-                    levels_idx = pd.Categorical(by_values, categories=term.by_levels).codes
-                    x_slice_centered = x_slice.data - term.mean[levels_idx]
-
-                    phi_list = []
-                    for level in term.by_levels:
-                        hsgp = term.hsgp[level]
-                        phi = hsgp.prior_linearized(x_slice_centered)[0].eval()
-                        phi[by_values != level] = 0
-                        phi_list.append(phi)
-                    phi = np.column_stack(phi_list)
-                    hsgp_to_stack_dims = (f"{term_aliased_name}_by",) + hsgp_to_stack_dims
-                else:
-                    x_slice_centered = x_slice - term.mean
-                    phi = term.hsgp.prior_linearized(x_slice_centered)[0].eval()
-
-                # Convert 'phi' and 'sqrt_psd' to xarray.DataArrays for easier math
-                # Notice the extra '_' in the dim name for the weights
-                phi = xr.DataArray(phi, dims=(response_dim, f"{term_aliased_name}__weights_dim"))
-                weights = idata.posterior[f"{term_aliased_name}_weights"]
-                weights = weights.stack({f"{term_aliased_name}__weights_dim": hsgp_to_stack_dims})
-
-                # Compute contribution and add it to the linear predictor
-                hsgp_contribution = xr.dot(phi, weights)
-
-                hsgp_contribution = hsgp_contribution.transpose("chain", "draw", response_dim)
                 idata.posterior[term_aliased_name] = hsgp_contribution
 
         # Only if requested predict the predictive distribution

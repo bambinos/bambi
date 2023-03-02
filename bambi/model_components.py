@@ -159,7 +159,7 @@ class DistributionalComponent:
         for name, value in priors.items():
             self.terms[name].prior = value
 
-    def predict(self, idata, data=None, include_group_specific=True):
+    def predict(self, idata, data=None, include_group_specific=True, hsgp_dict=None):
         linear_predictor = 0
         x_offsets = []
         posterior = idata.posterior
@@ -204,20 +204,16 @@ class DistributionalComponent:
                 term_aliased_name = get_aliased_name(term)
                 hsgp_to_stack_dims = (f"{term_aliased_name}_weights_dim",)
 
-                # NOTE: We don't need to use 'sqrt_psd' because the 'weights' are already
-                #       multiplied by them.
-                if term.by is not None:
-                    # To make sure we use the original categorical levels and it works when the
-                    # new dataset contains a subset of the observed levels
-                    by_values = get_new_by(dm_common.terms[term_name])
-                    levels_idx = pd.Categorical(by_values, categories=term.by_levels).codes
-                    x_slice_centered = x_slice.data - term.mean[levels_idx]
+                # NOTE: No need to use 'sqrt_psd' because 'weights' is already multiplied by it.
+                if term.by_levels is not None:
+                    by_values = x_slice[:, -1].astype(int)
+                    x_slice = x_slice[:, :-1]
+                    x_slice_centered = x_slice.data - term.mean[by_values]
 
                     phi_list = []
-                    for level in term.by_levels:
-                        hsgp = term.hsgp[level]
-                        phi = hsgp.prior_linearized(x_slice_centered)[0].eval()
-                        phi[by_values != level] = 0
+                    for i, level in enumerate(term.by_levels):
+                        phi = term.hsgp[level].prior_linearized(x_slice_centered)[0].eval()
+                        phi[by_values != i] = 0
                         phi_list.append(phi)
                     phi = np.column_stack(phi_list)
                     hsgp_to_stack_dims = (f"{term_aliased_name}_by",) + hsgp_to_stack_dims
@@ -234,6 +230,10 @@ class DistributionalComponent:
                 # Compute contribution and add it to the linear predictor
                 hsgp_contribution = xr.dot(phi, weights)
 
+                # Store the contribution so it can be added later to the posterior Dataset
+                hsgp_dict[term_name] = hsgp_contribution
+
+                # Add contribution to the linear predictor
                 linear_predictor += hsgp_contribution
 
             if self.common_terms or self.intercept_term:

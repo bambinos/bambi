@@ -323,7 +323,7 @@ class HSGPTerm:
             self.coords[f"{self.term.alias}_weights_dim"] = self.coords.pop(
                 f"{self.term.name}_weights_dim"
             )
-            if self.term.by is not None:
+            if self.term.by_levels is not None:
                 self.coords[f"{self.term.alias}_by"] = self.coords.pop(f"{self.term.name}_by")
 
     def build(self, pymc_backend, bmb_model):
@@ -341,7 +341,7 @@ class HSGPTerm:
         contribution_dims = (f"{response_name}_obs",)
 
         # Build HSGP and store it in the term.
-        if self.term.by is not None:
+        if self.term.by_levels is not None:
             flatten_coeffs = True
             coeff_dims = coeff_dims + (f"{label}_by",)
             phi_list, sqrt_psd_list = [], []
@@ -358,7 +358,7 @@ class HSGPTerm:
                 # Then we only keep the ones for the corresponding group.
                 phi, sqrt_psd = hsgp.prior_linearized(self.term.data_centered)
                 phi = phi.eval()
-                phi[self.term.by != level] = 0
+                phi[self.term.by != i] = 0
                 sqrt_psd_list.append(sqrt_psd)
                 phi_list.append(phi)
 
@@ -416,7 +416,7 @@ class HSGPTerm:
         params = {}
 
         # Set dimensions and behavior for priors that are actually fixed (floats or ints)
-        if self.term.by is not None and not self.term.share_cov:
+        if self.term.by_levels is not None and not self.term.share_cov:
             dims = (f"{self.name}_by",)
             recycle = True
         else:

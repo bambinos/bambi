@@ -32,7 +32,7 @@ class HSGPTerm(BaseTerm):
         self.hsgp = None
         properties_names = (
             "c",
-            "by",
+            "by_levels",
             "cov",
             "share_cov",
             "centered",
@@ -73,19 +73,24 @@ class HSGPTerm(BaseTerm):
 
     @property
     def data(self):
-        return self.term.data
+        if self.by_levels is None:
+            return self.term.data
+        else:
+            return self.term.data[:, :-1]
 
     @property
     def shape(self):
-        return self.data.shape
+        if self.by_levels is None:
+            return self.term.data.shape
+        else:
+            return self.term.data[:, :-1].shape
 
     @property
     def data_centered(self):
-        if self.by is None:
+        if self.by_levels is None:
             output = self.data - self.mean
         else:
-            _, levels_idx = np.unique(self.by, return_inverse=True)
-            output = self.data - self.mean[levels_idx]
+            output = self.data - self.mean[self.by]
         return output
 
     @property
@@ -101,13 +106,19 @@ class HSGPTerm(BaseTerm):
         It's of shape (term.groups_n, term.variables_n). It's computed by variable and group.
         """
         if self.c is not None:
-            if self.by is None:
+            if self.by_levels is None:
                 S = np.max(np.abs(self.data - self.mean), axis=0)
             else:
                 S = np.zeros_like(self.c, dtype="float")
-                for i, level in enumerate(self.by_levels):
-                    S[i] = np.max(np.abs(self.data[self.by == level] - self.mean[i]), axis=0)
+                for i in range(len(self.by_levels)):
+                    S[i] = np.max(np.abs(self.data_centered[self.by == i]), axis=0)
         return S * self.c
+
+    @property
+    def by(self):
+        if self.by_levels is not None:
+            return self.term.data[:, -1].astype(int)
+        return None
 
     @property
     def prior(self):
@@ -133,7 +144,7 @@ class HSGPTerm(BaseTerm):
     def coords(self):
         # This handles univariate and multivariate cases
         coords = {f"{self.name}_weights_dim": np.arange(np.prod(self.m))}
-        if self.by is not None:
+        if self.by_levels is not None:
             coords[f"{self.name}_by"] = self.by_levels
         return coords
 
@@ -150,12 +161,6 @@ class HSGPTerm(BaseTerm):
     @property
     def levels(self):
         return None
-
-    @property
-    def by_levels(self):
-        if self.by is None:
-            return None
-        return np.unique(self.by)
 
 
 def get_hsgp_attributes(term):
@@ -175,7 +180,7 @@ def get_hsgp_attributes(term):
         "m",
         "L",
         "c",
-        "by",
+        "by_levels",
         "cov",
         "share_cov",
         "drop_first",

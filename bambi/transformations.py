@@ -1,6 +1,7 @@
 from typing import Any
 
 import numpy as np
+import pandas as pd
 
 from formulae.transforms import register_stateful_transform
 
@@ -77,7 +78,7 @@ class HSGP:
         self.m = None
         self.L = None
         self.c = None
-        self.by = None
+        self.by_levels = None
         self.cov = None
         self.share_cov = None
         self.drop_first = None
@@ -138,9 +139,16 @@ class HSGP:
             When both `L` and `c` are `None` or when both of them are not `None` at the same time.
         """
         # TODO: Assert original shapes of 'c', 'L' and 'm'.
-        # TODO: Add the grouping variable as the last column (the indexes)
         values = np.column_stack(x)
-        self.by = np.asarray(by) if by is not None else by  # can change with new data
+
+        if by is not None:
+            if self.params_set:  # Generate indexes according to the original 'by_levels'
+                by_indexes = pd.Categorical(by, categories=self.by_levels).codes
+            else:  # Determine unique levels and store them, only for the first time
+                by_levels, by_indexes = np.unique(by, return_inverse=True)
+                self.by_levels = by_levels
+        else:
+            by_indexes = None
 
         if not self.params_set:
             if (L is None and c is None) or (L is not None and c is not None):
@@ -148,7 +156,7 @@ class HSGP:
 
             # Number of variables and number of groups
             self.variables_n = values.shape[1]
-            self.groups_n = 1 if self.by is None else len(np.unique(self.by))
+            self.groups_n = 1 if self.by_levels is None else len(self.by_levels)
 
             # The number of basis functions cannot vary by level of the grouping variable
             # It makes the implementation simpler and... why would you do that?!
@@ -165,8 +173,14 @@ class HSGP:
             self.share_cov = share_cov
             self.drop_first = drop_first
             self.centered = centered
-            self.mean = mean_by_group(values, self.by)
+            self.mean = mean_by_group(values, by)
             self.params_set = True
+
+        if by_indexes is not None:
+            # The indexes of the 'by' variable is the last column of the matrix returned
+            # Note this would certainly cast variables from int to float
+            # So we must take care of it when using the indexes in 'by'
+            values = np.column_stack([values, by_indexes])
 
         return values
 
