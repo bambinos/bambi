@@ -104,8 +104,6 @@ class DistributionalComponent:
     def add_hsgp_terms(self, priors):
         for name, term in self.design.common.terms.items():
             if is_hsgp_term(term):
-                # NOTE: Default priors are handled in the backend term
-                # Perhaps it would be better to separate this later
                 prior = priors.pop(name, None)
                 self.terms[name] = HSGPTerm(term, prior, self.prefix)
 
@@ -204,7 +202,7 @@ class DistributionalComponent:
                 hsgp_to_stack_dims = (f"{term_aliased_name}_weights_dim",)
 
                 # Data may be scaled so the maximum Euclidean distance between two points is 1
-                if term.scale:
+                if term.scale_predictors:
                     maximum_distance = term.maximum_distance
                 else:
                     maximum_distance = 1

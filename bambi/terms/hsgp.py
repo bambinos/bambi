@@ -46,6 +46,8 @@ class HSGPTerm(BaseTerm):
             "maximum_distance",
         )
         self.__init_properties(properties_names)
+        # When prior is none at initialization, then automatic priors are used
+        self.automatic_priors = self.prior is None
 
     def __init_properties(self, names):
         """Initialize attributes as properties
@@ -144,6 +146,15 @@ class HSGPTerm(BaseTerm):
             for prior in value.values():
                 assert isinstance(prior, GP_VALID_PRIORS), f"Prior must be one of {GP_VALID_PRIORS}"
             self._prior = value
+
+    @property
+    def scale_predictors(self):
+        # If scale is None, look if it uses automatic priors.
+        #  If automatic priors are used, it will scale the data
+        #  If automatic priors are not used, it won't scale the data
+        if self.scale is None:
+            return self.automatic_priors
+        return self.scale
 
     @property
     def coords(self):

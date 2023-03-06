@@ -299,7 +299,7 @@ class ResponseTerm:
                 name = f"{self.name}_extra_dim_{i}"
                 values = np.arange(np.size(data, axis=axis))
                 pymc_backend.model.add_coords({name: values})
-                dims.append(name)
+                dims = dims + (name,)  # TODO: Test with multinomial regression, shouldn't be added?
         kwargs["dims"] = dims
         return kwargs
 
@@ -341,7 +341,7 @@ class HSGPTerm:
         contribution_dims = (f"{response_name}_obs",)
 
         # Data may be scaled so the maximum Euclidean distance between two points is 1
-        if self.term.scale:
+        if self.term.scale_predictors:
             data = self.term.data_centered / self.term.maximum_distance
         else:
             data = self.term.data_centered
