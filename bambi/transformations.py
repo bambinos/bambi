@@ -81,9 +81,12 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
         self.by_levels = None
         self.cov = None
         self.share_cov = None
+        self.scale = None
+        self.iso = None
         self.drop_first = None
         self.centered = None
         self.mean = None
+        self.maximum_distance = None
         self.params_set = False
         self.variables_n = None
         self.groups_n = None
@@ -98,6 +101,8 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
         by=None,
         cov="ExpQuad",
         share_cov=True,
+        scale=True,
+        iso=True,
         drop_first=False,
         centered=False,
     ):
@@ -123,6 +128,17 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
             The name of the covariance function to use. Defaults to "ExpQuad".
         share_cov : bool, optional
             Whether to share the same covariance function for every group. Defaults to `True`.
+        scale : bool, optional
+            When `True`, the predictors are be rescaled such that the largest Euclidean
+            distance between two points is 1. This adjustment often improves the sampling speed and
+            convergence. The rescaling also impacts the estimated length-scale parameters,
+            which will resemble those of the scaled predictors rather than the original predictors
+            when `scale` is `True`. Defaults to `True`.
+        iso : bool, optional
+            Determines whether to use an isotropic or non-isotropic Gaussian Process.
+            If isotropic, the same level of smoothing is applied to all predictors,
+            while non-isotropic GPs allow different levels of smoothing for individual predictors.
+            This parameter is ignored if only one predictor is supplied. Defaults to `True`.
         drop_first : bool, optional
             Whether to ignore the first basis vector or not. Defaults to `False`.
         centered : bool, optional
@@ -174,9 +190,12 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
             self.c = c
             self.cov = cov
             self.share_cov = share_cov
+            self.scale = scale
+            self.iso = iso
             self.drop_first = drop_first
             self.centered = centered
             self.mean = mean_by_group(values, by)
+            self.maximum_distance = np.max(get_distance(values))
             self.params_set = True
 
         if by_indexes is not None:
@@ -218,6 +237,15 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
         return output
 
 
+def as_matrix(x):
+    x = np.atleast_1d(x)
+    if x.ndim == 1:
+        return x[:, np.newaxis]
+    elif x.ndim > 2:
+        raise ValueError("'x.ndim' cannot be > 2")
+    return x
+
+
 def mean_by_group(values, group):
     if group is None:
         return np.mean(values, axis=0)
@@ -226,6 +254,20 @@ def mean_by_group(values, group):
     for i, level in enumerate(levels):
         means[i] = np.mean(values[group == level], axis=0)
     return means
+
+
+def get_distance(x):
+    """Computes the Euclidean distance between observations
+
+    The input is an array of shape `(n, p)` where rows represent observations and columns represent
+    variables. The output is an array of shape `(n, n)` where the values represent the Euclidean
+    distance between observations considering all the `p` variables.
+    """
+    x = as_matrix(x)
+    out = 0
+    for i in range(x.shape[1]):
+        out = out + np.subtract.outer(x[:, i], x[:, i]) ** 2
+    return np.sqrt(out)
 
 
 # These functions are made available in the namespace where the model formula is evaluated

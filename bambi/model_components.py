@@ -203,12 +203,16 @@ class DistributionalComponent:
                 term_aliased_name = get_aliased_name(term)
                 hsgp_to_stack_dims = (f"{term_aliased_name}_weights_dim",)
 
-                # NOTE: No need to use 'sqrt_psd' because 'weights' is already multiplied by it.
+                # Data may be scaled so the maximum Euclidean distance between two points is 1
+                if term.scale:
+                    maximum_distance = term.maximum_distance
+                else:
+                    maximum_distance = 1
+
                 if term.by_levels is not None:
                     by_values = x_slice[:, -1].astype(int)
                     x_slice = x_slice[:, :-1]
-                    x_slice_centered = x_slice.data - term.mean[by_values]
-
+                    x_slice_centered = (x_slice.data - term.mean[by_values]) / maximum_distance
                     phi_list = []
                     for i, level in enumerate(term.by_levels):
                         phi = term.hsgp[level].prior_linearized(x_slice_centered)[0].eval()
@@ -217,7 +221,7 @@ class DistributionalComponent:
                     phi = np.column_stack(phi_list)
                     hsgp_to_stack_dims = (f"{term_aliased_name}_by",) + hsgp_to_stack_dims
                 else:
-                    x_slice_centered = x_slice - term.mean
+                    x_slice_centered = (x_slice - term.mean) / maximum_distance
                     phi = term.hsgp.prior_linearized(x_slice_centered)[0].eval()
 
                 # Convert 'phi' and 'sqrt_psd' to xarray.DataArrays for easier math

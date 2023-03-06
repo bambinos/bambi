@@ -36,11 +36,14 @@ class HSGPTerm(BaseTerm):
             "by_levels",
             "cov",
             "share_cov",
+            "scale",
+            "iso",
             "centered",
             "drop_first",
             "variables_n",
             "groups_n",
             "mean",
+            "maximum_distance",
         )
         self.__init_properties(properties_names)
 
@@ -75,9 +78,10 @@ class HSGPTerm(BaseTerm):
     @property
     def data(self):
         if self.by_levels is None:
-            return self.term.data
+            data = self.term.data
         else:
-            return self.term.data[:, :-1]
+            data = self.term.data[:, :-1]
+        return data
 
     @property
     def shape(self):
@@ -184,11 +188,14 @@ def get_hsgp_attributes(term):
         "by_levels",
         "cov",
         "share_cov",
+        "scale",
+        "iso",
         "drop_first",
         "centered",
         "mean",
         "variables_n",
         "groups_n",
+        "maximum_distance",
     )
     attrs_original = term.components[0].call.stateful_transform.__dict__
     attrs = {}

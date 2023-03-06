@@ -340,6 +340,12 @@ class HSGPTerm:
         coeff_dims = (f"{label}_weights_dim",)
         contribution_dims = (f"{response_name}_obs",)
 
+        # Data may be scaled so the maximum Euclidean distance between two points is 1
+        if self.term.scale:
+            data = self.term.data_centered / self.term.maximum_distance
+        else:
+            data = self.term.data_centered
+
         # Build HSGP and store it in the term.
         if self.term.by_levels is not None:
             flatten_coeffs = True
@@ -356,7 +362,7 @@ class HSGPTerm:
                 )
                 # Notice we pass all the values, for all the groups.
                 # Then we only keep the ones for the corresponding group.
-                phi, sqrt_psd = hsgp.prior_linearized(self.term.data_centered)
+                phi, sqrt_psd = hsgp.prior_linearized(data)
                 phi = phi.eval()
                 phi[self.term.by != i] = 0
                 sqrt_psd_list.append(sqrt_psd)
@@ -377,7 +383,7 @@ class HSGPTerm:
                 cov_func=cov_func,
             )
             # Get prior components
-            phi, sqrt_psd = self.term.hsgp.prior_linearized(self.term.data_centered)
+            phi, sqrt_psd = self.term.hsgp.prior_linearized(data)
             phi = phi.eval()
 
         # Build weights coefficient
