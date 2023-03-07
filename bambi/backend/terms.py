@@ -319,6 +319,11 @@ class HSGPTerm:
     def __init__(self, term):
         self.term = term
         self.coords = self.term.coords.copy()
+
+        # Coordinates for the variable
+        if not self.term.iso and self.term.shape[1] > 1:
+            self.coords[f"{self.name}_var"] = np.arange(self.term.shape[1])
+
         if self.coords and self.term.alias:
             self.coords[f"{self.term.alias}_weights_dim"] = self.coords.pop(
                 f"{self.term.name}_weights_dim"
@@ -432,28 +437,43 @@ class HSGPTerm:
         # Build priors and parameters
         for param_name in param_names:
             prior = self.term.prior[param_name]
+            param_dims = dims
             if isinstance(prior, Prior):
                 distribution = get_distribution_from_prior(prior)
-                value = distribution(f"{self.name}_{param_name}", **prior.args, dims=dims)
-            elif recycle:
-                value = (prior,) * self.term.groups_n
+                # varying lengthscale parameter
+                if param_name == "ell" and not self.term.iso and self.term.shape[1] > 1:
+                    if param_dims is not None:
+                        param_dims = (f"{self.name}_var",) + param_dims
+                    else:
+                        param_dims = (f"{self.name}_var",)
+                value = distribution(f"{self.name}_{param_name}", **prior.args, dims=param_dims)
             else:
-                value = prior
+                # If it's not a distribution, but a scalar...
+                if recycle:
+                    value = (prior,) * self.term.groups_n
+                else:
+                    value = prior
             params[param_name] = value
 
         if "input_dim" in list(inspect.signature(create_covariance_function).parameters):
-            if recycle:
-                params["input_dim"] = (self.term.shape[1],) * self.term.groups_n
+            if self.term.groups_n > 1 and not self.term.share_cov:
+                params["input_dim"] = np.repeat(self.term.shape[1], self.term.groups_n)
             else:
                 params["input_dim"] = self.term.shape[1]
 
-        if self.term.share_cov:
+        if self.term.groups_n == 1 or self.term.share_cov:
             covariance_function = create_covariance_function(**params)
-            output = [covariance_function] * self.term.groups_n  # no copy is made
+            output = [covariance_function] * self.term.groups_n
         else:
             output = []
             for i, _ in enumerate(self.term.by_levels):
-                params_level = {key: value[i] for key, value in params.items()}
+                params_level = {}
+                for key, value in params.items():
+                    if value[..., i].ndim == 0 and isinstance(value, np.ndarray):
+                        entry = value[..., i].item()
+                    else:
+                        entry = value[..., i]
+                    params_level[key] = entry
                 covariance_function = create_covariance_function(**params_level)
                 output.append(covariance_function)
         return output
