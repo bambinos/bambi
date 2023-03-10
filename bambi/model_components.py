@@ -379,8 +379,3 @@ def with_suffix(value, suffix):
     if suffix:
         return f"{value}_{suffix}"
     return value
-
-
-def get_new_by(term):
-    """Extract the new values of the 'by' variable in a HSGP term"""
-    return term.components[0].call.stateful_transform.__dict__["by"]

@@ -944,6 +944,13 @@ def prior_repr(term):
     return f"{term.name} ~ {term.prior}"
 
 
+def hsgp_repr(term):
+    output_list = [f"cov: {term.cov}", *[f"{key} ~ {value}" for key, value in term.prior.items()]]
+    output_list = ["    " + element for element in output_list]
+    output_list.insert(0, term.name)
+    return "\n".join(output_list)
+
+
 def make_priors_summary(component: DistributionalComponent) -> str:
     # Common effects
     priors_common = [
@@ -959,13 +966,13 @@ def make_priors_summary(component: DistributionalComponent) -> str:
     offsets = [f"{term.name} ~ 1" for term in component.offset_terms.values()]
 
     # HSGP
-    hsgp = [f"{term.name} ~ HSGP" for term in component.hsgp_terms.values()]
+    hsgp = [hsgp_repr(term) for term in component.hsgp_terms.values()]
 
     priors_dict = {
         "Common-level effects": priors_common,
         "Group-level effects": priors_group,
         "Offset effects": offsets,
-        "HSGP effects": hsgp,
+        "HSGP contributions": hsgp,
     }
 
     priors_list = []
@@ -974,8 +981,3 @@ def make_priors_summary(component: DistributionalComponent) -> str:
             priors_list.append(group + "\n" + wrapify(indentify("\n".join(priors), 4), 100, 4))
 
     return "\n\n".join(priors_list)
-
-
-def get_new_by(term):
-    """Extract the new values of the 'by' variable in a HSGP term"""
-    return term.components[0].call.stateful_transform.__dict__["by"]
