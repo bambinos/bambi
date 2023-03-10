@@ -112,7 +112,7 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
 
         Parameters
         ----------
-        m : int, Sequence[int], Sequence[Sequence[int]], ndarray
+        m : int, Sequence[int], ndarray
             The number of basis vectors. See `HSGP.reconciliate_shape` to see how it is
             broadcasted/recycled.
         L : float, Sequence[float], Sequence[Sequence[float]], ndarray, optional
@@ -157,7 +157,6 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
         ValueError
             When both `L` and `c` are `None` or when both of them are not `None` at the same time.
         """
-        # TO-DO: Assert original shapes of 'c', 'L' and 'm'.
         values = np.column_stack(x)
 
         if by is not None:
@@ -178,6 +177,12 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
             # Number of variables and number of groups
             self.variables_n = values.shape[1]
             self.groups_n = 1 if self.by_levels is None else len(self.by_levels)
+
+            m = np.asarray(m)
+            if not (m.ndim == 0 or m.shape == (self.variables_n,)):
+                raise ValueError(
+                    "`m` must be scalar or a sequence with length equal to the number of variables"
+                )
 
             # The number of basis functions cannot vary by level of the grouping variable
             # It makes the implementation simpler and... why would you do that?!
@@ -232,14 +237,34 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
         if len(shape) == 0:
             output = np.tile(value, (groups_n, variables_n))
         elif len(shape) == 1:
+            if shape != (variables_n,):
+                raise ValueError("1D sequences must be of shape (variables_n, )")
             output = np.tile(value, (groups_n, 1))
         elif len(shape) == 2:
-            assert shape == (groups_n, variables_n)
+            if shape != (groups_n, variables_n):
+                raise ValueError("2D sequences must be of shape (groups_n, variables_n)")
             output = value
         return output
 
 
 def as_matrix(x):
+    """Converts array to matrix
+
+    Parameters
+    ----------
+    x : np.ndarray
+        Array
+
+    Returns
+    -------
+    np.ndarray
+        A two dimensional array
+
+    Raises
+    ------
+    ValueError
+        If the input has more than two dimensions
+    """
     x = np.atleast_1d(x)
     if x.ndim == 1:
         return x[:, np.newaxis]
@@ -249,6 +274,22 @@ def as_matrix(x):
 
 
 def mean_by_group(values, group):
+    """Compute the mean value by group
+
+    Parameters
+    ----------
+    values : np.ndarray
+        A 2 dimensional array. Rows indicate observations and columns indicate different variables.
+    group : sequence
+        A sequence that indicates to which group each observation belongs to. If `None`, then
+        no group exists.
+
+    Returns
+    -------
+    np.ndarray
+        An array with the mean values for all the variables, per group, if there's a group.
+        It's of shape (groups_n, variables_n).
+    """
     if group is None:
         return np.mean(values, axis=0)
     levels = np.unique(group)
