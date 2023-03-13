@@ -275,7 +275,6 @@ class ResponseTerm:
             kwargs = self.family.transform_backend_kwargs(kwargs)
 
         kwargs = self.robustify_dims(pymc_backend, kwargs)
-
         return distribution(self.name, **kwargs)
 
     @property
