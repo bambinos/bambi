@@ -462,6 +462,6 @@ def test_extra_namespace():
     data = load_data("carclaims")
     extra_namespace = {"levels": data["veh_body"].unique()}
     formula = "numclaims ~ 0 + C(veh_body, levels=levels)"
-    model = Model(formula, data, family="poisson", link="log", namespace=extra_namespace)
+    model = Model(formula, data, family="poisson", link="log", extra_namespace=extra_namespace)
     term = model.response_component.terms["C(veh_body, levels=levels)"]
     assert (np.asarray(term.levels) == data["veh_body"].unique()).all()

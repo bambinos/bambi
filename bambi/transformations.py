@@ -314,7 +314,7 @@ def get_distance(x):
 
 
 # These functions are made available in the namespace where the model formula is evaluated
-extra_namespace = {
+transformations_namespace = {
     "c": c,
     "censored": censored,
     "log": np.log,

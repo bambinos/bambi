@@ -299,7 +299,7 @@ class ResponseTerm:
                 name = f"{self.name}_extra_dim_{i}"
                 values = np.arange(np.size(data, axis=axis))
                 pymc_backend.model.add_coords({name: values})
-                dims = dims + (name,)  
+                dims = dims + (name,)
         kwargs["dims"] = dims
         return kwargs
 
