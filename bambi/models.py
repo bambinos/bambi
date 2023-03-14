@@ -761,7 +761,9 @@ class Model:
                 if term is None:
                     continue
                 term_aliased_name = get_aliased_name(term)
-                idata.posterior[term_aliased_name] = hsgp_contribution
+                idata.posterior[term_aliased_name] = hsgp_contribution.transpose(
+                    "chain", "draw", ...
+                )
 
         # Only if requested predict the predictive distribution
         if kind == "pps":
