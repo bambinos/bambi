@@ -172,7 +172,7 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
 
         if not self.params_set:
             if (L is None and c is None) or (L is not None and c is not None):
-                raise ValueError("Provide one of `c` or `L`")
+                raise ValueError("Provide one of 'c' or 'L'")
 
             # Number of variables and number of groups
             self.variables_n = values.shape[1]
@@ -181,7 +181,7 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
             m = np.asarray(m)
             if not (m.ndim == 0 or m.shape == (self.variables_n,)):
                 raise ValueError(
-                    "`m` must be scalar or a sequence with length equal to the number of variables"
+                    "'m' must be scalar or a sequence with length equal to the number of variables"
                 )
 
             # The number of basis functions cannot vary by level of the grouping variable

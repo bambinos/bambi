@@ -119,7 +119,8 @@ class HSGPTerm(BaseTerm):
                 S = np.zeros_like(self.c, dtype="float")
                 for i in range(len(self.by_levels)):
                     S[i] = np.max(np.abs(self.data_centered[self.by == i]), axis=0)
-        return S * self.c
+            return S * self.c
+        return self.hsgp_attributes["L"]
 
     @property
     def by(self):
