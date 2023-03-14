@@ -292,13 +292,14 @@ class ResponseTerm:
         dims_n = len(dims)
         ndim_diff = data.ndim - dims_n
 
+        # TO DO: Test with multinomial regression, shouldn't be added?
         if ndim_diff > 0:
             for i in range(ndim_diff):
                 axis = dims_n + i
                 name = f"{self.name}_extra_dim_{i}"
                 values = np.arange(np.size(data, axis=axis))
                 pymc_backend.model.add_coords({name: values})
-                dims = dims + (name,)  # TODO: Test with multinomial regression, shouldn't be added?
+                dims = dims + (name,)  
         kwargs["dims"] = dims
         return kwargs
 

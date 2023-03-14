@@ -84,6 +84,9 @@ class Model:
     noncentered : bool
         If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on
         grouped parameters. If ``False``, naive (centered) parameterization is used.
+    namespace : dict, optional
+        Additional user supplied variables with transformations or data to include in the
+        environment where the formula is evaluated. Defaults to `None`.
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -99,6 +102,7 @@ class Model:
         dropna=False,
         auto_scale=True,
         noncentered=True,
+        namespace=None,
     ):
         # attributes that are set later
         self.components = {}  # Constant and Distributional components
@@ -132,8 +136,16 @@ class Model:
         # Create family
         self._set_family(family, link)
 
+        # Handle additional namespaces
+        extra_namespace_copy = extra_namespace.copy()
+        if not isinstance(namespace, (type(None), dict)):
+            raise ValueError("'namespace' must be a dictionary or None")
+
+        if isinstance(namespace, dict):
+            extra_namespace_copy.update(namespace)
+
         ## Main component
-        design = design_matrices(self.formula.main, self.data, na_action, 1, extra_namespace)
+        design = design_matrices(self.formula.main, self.data, na_action, 1, extra_namespace_copy)
         if design.response is None:
             raise ValueError(
                 "No outcome variable is set! "
@@ -166,7 +178,7 @@ class Model:
 
             # Create design matrix, only for the response part
             design = design_matrices(
-                clean_formula_lhs(extra_formula), self.data, na_action, 1, extra_namespace
+                clean_formula_lhs(extra_formula), self.data, na_action, 1, extra_namespace_copy
             )
 
             # If priors were not passed, pass an empty dictionary
