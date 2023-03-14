@@ -177,10 +177,126 @@ def test_L_good_shape(data_1d_multiple_groups, data_2d_multiple_groups):
     assert (term.L == np.array(L)).all()
 
 
-# TODO: Test custom priors (work)
-# TODO: Test custom priors (don't work, e.g. partial priors)
-# TODO: Test predict 1d and 2d
-# TODO: Test dims in inference data (before and after making predictions)
-# TODO: Test share_cov=False (and shapes)
-# TODO: Test iso=False (and shapes)
-# TODO: Test 'by' (test some of the internal attributes of the term)
+def test_custom_priors_1d(data_1d_single_group):
+    priors = {
+        "hsgp(x, c=1.5, m=10)": {
+            "sigma": bmb.Prior("Exponential", lam=0.75),
+            "ell": bmb.Prior("Exponential", lam=1.25),
+        }
+    }
+    model = bmb.Model("y ~ 0 + hsgp(x, c=1.5, m=10)", data_1d_single_group, priors=priors)
+    model.build()
+
+    weights_rv = model.backend.model["hsgp(x, c=1.5, m=10)_weights_raw"]
+    ell_rv = model.backend.model["hsgp(x, c=1.5, m=10)_ell"]
+    sigma_rv = model.backend.model["hsgp(x, c=1.5, m=10)_sigma"]
+    assert weights_rv.eval().shape == (10,)
+    assert ell_rv.eval().shape == ()
+    assert sigma_rv.eval().shape == ()
+
+    # Weird, but this is how we can check it.
+    # PyMC asks for lam but then PyTensor uses 1 / lam
+    assert 1 / sigma_rv.owner.inputs[-1].eval() == 0.75
+    assert 1 / ell_rv.owner.inputs[-1].eval() == 1.25
+    assert weights_rv.owner.inputs[-2].eval() == 0  # mu
+    assert weights_rv.owner.inputs[-1].eval() == 1  # sigma
+
+
+def test_custom_priors_2d_by_groups(data_2d_multiple_groups):
+    priors = {
+        "hsgp(x, y, by=group, c=1.5, m=10, share_cov=False)": {
+            "sigma": bmb.Prior("Exponential", lam=5),
+            "ell": bmb.Prior("Exponential", lam=2),
+        }
+    }
+    model = bmb.Model(
+        "outcome ~ 0 + hsgp(x, y, by=group, c=1.5, m=10, share_cov=False)",
+        data_2d_multiple_groups,
+        priors=priors,
+    )
+    model.set_alias({"hsgp(x, y, by=group, c=1.5, m=10, share_cov=False)": "phi"})
+    model.build()
+
+    weights_rv = model.backend.model["phi_weights_raw"]
+    ell_rv = model.backend.model["phi_ell"]
+    sigma_rv = model.backend.model["phi_sigma"]
+
+    assert weights_rv.eval().shape == (100, 3)  # (10x10, 3)
+    assert ell_rv.eval().shape == (3,)
+    assert sigma_rv.eval().shape == (3,)
+
+    # Weird, but this is how we can check it.
+    # PyMC asks for lam but then PyTensor uses 1 / lam
+    assert 1 / sigma_rv.owner.inputs[-1].eval() == 5
+    assert 1 / ell_rv.owner.inputs[-1].eval() == 2
+    assert weights_rv.owner.inputs[-2].eval() == 0  # mu
+    assert weights_rv.owner.inputs[-1].eval() == 1  # sigma
+
+
+def test_custom_priors_2d_by_groups_anisotropic(data_2d_multiple_groups):
+    priors = {
+        "hsgp(x, y, by=group, c=1.5, m=10, share_cov=False, iso=False)": {
+            "sigma": bmb.Prior("Exponential", lam=5),
+            "ell": bmb.Prior("Exponential", lam=2),
+        }
+    }
+    model = bmb.Model(
+        "outcome ~ 0 + hsgp(x, y, by=group, c=1.5, m=10, share_cov=False, iso=False)",
+        data_2d_multiple_groups,
+        priors=priors,
+    )
+    model.set_alias({"hsgp(x, y, by=group, c=1.5, m=10, share_cov=False, iso=False)": "phi"})
+    model.build()
+
+    weights_rv = model.backend.model["phi_weights_raw"]
+    ell_rv = model.backend.model["phi_ell"]
+    sigma_rv = model.backend.model["phi_sigma"]
+
+    assert weights_rv.eval().shape == (100, 3)  # (10x10, 3)
+    assert ell_rv.eval().shape == (2, 3)  # (vars_n, groups_n)
+    assert sigma_rv.eval().shape == (3,)  # (groups_n, )
+
+    # Weird, but this is how we can check it.
+    # PyMC asks for lam but then PyTensor uses 1 / lam
+    assert 1 / sigma_rv.owner.inputs[-1].eval() == 5
+    assert 1 / ell_rv.owner.inputs[-1].eval() == 2
+    assert weights_rv.owner.inputs[-2].eval() == 0  # mu
+    assert weights_rv.owner.inputs[-1].eval() == 1  # sigma
+
+
+def test_bad_prior(data_1d_single_group):
+    match = "The priors for an HSGP term must be passed within a dictionary"
+    priors = {"hsgp(x, m=10, c=2)": bmb.Prior("Exponential", lam=1)}
+    with pytest.raises(ValueError, match=match):
+        bmb.Model("y ~ 0 + hsgp(x, m=10, c=2)", data_1d_single_group, priors=priors)
+
+
+def test_minimal_1d_predicts(data_1d_single_group):
+    model = bmb.Model("y ~ 0 + hsgp(x, c=1.5, m=10)", data_1d_single_group)
+    idata = model.fit(tune=500, draws=500, chains=2, random_seed=1234)
+
+    new_data = pd.DataFrame({"x": np.linspace(0, 5, num=10)})
+
+    # Mean: In-sample
+    new_idata = model.predict(idata, inplace=False)
+    assert new_idata.posterior["y_mean"].dims == ("chain", "draw", "y_obs")
+    assert new_idata.posterior["y_mean"].to_numpy().shape == (2, 500, 100)
+    assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].dims == ("chain", "draw", "y_obs")
+    assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].to_numpy().shape == (2, 500, 100)
+
+    # Mean: Out-of-sample
+    new_idata = model.predict(idata, data=new_data, inplace=False)
+    assert new_idata.posterior["y_mean"].dims == ("chain", "draw", "y_obs")
+    assert new_idata.posterior["y_mean"].to_numpy().shape == (2, 500, 10)
+    assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].dims == ("chain", "draw", "y_obs")
+    assert new_idata.posterior["hsgp(x, c=1.5, m=10)"].to_numpy().shape == (2, 500, 10)
+
+    # Posterior predictive: In-sample
+    new_idata = model.predict(idata, kind="pps", inplace=False)
+    assert new_idata.posterior_predictive["y"].dims == ("chain", "draw", "y_obs")
+    assert new_idata.posterior_predictive["y"].to_numpy().shape == (2, 500, 100)
+
+    # Posterior predictive: Out-of-sample
+    new_idata = model.predict(idata, data=new_data, kind="pps", inplace=False)
+    assert new_idata.posterior_predictive["y"].dims == ("chain", "draw", "y_obs")
+    assert new_idata.posterior_predictive["y"].to_numpy().shape == (2, 500, 10)
