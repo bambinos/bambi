@@ -778,11 +778,14 @@ def test_2d_response_no_shape():
     This tests whether a model where there's a single linear predictor and a response with
     response.ndim > 1 works well, without Bambi causing any shape problems.
     See https://github.com/bambinos/bambi/pull/629
+    Updated https://github.com/bambinos/bambi/pull/632
     """
 
     def fn(name, p, observed, **kwargs):
         y = observed[:, 0].flatten()
         n = observed[:, 1].flatten()
+        # It's the users' responsibility to take only the first dim
+        kwargs["dims"] = kwargs.get("dims")[0] 
         return pm.Binomial(name, p=p, n=n, observed=y, **kwargs)
 
     likelihood = Likelihood("CustomBinomial", params=["p"], parent="p", dist=fn)

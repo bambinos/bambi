@@ -348,6 +348,10 @@ class PyMCModel:
         return idata
 
     @property
+    def response_component(self):
+        return self.components[self.spec.response_name]
+
+    @property
     def constant_components(self):
         return {k: v for k, v in self.components.items() if isinstance(v, ConstantComponent)}
 

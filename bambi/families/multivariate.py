@@ -4,7 +4,8 @@ import xarray as xr
 import pytensor.tensor as pt
 
 from bambi.families.family import Family
-from bambi.utils import extract_argument_names, extra_namespace, get_aliased_name
+from bambi.transformations import transformations_namespace
+from bambi.utils import extract_argument_names, get_aliased_name
 
 
 class MultivariateFamily(Family):
@@ -77,7 +78,7 @@ class Multinomial(MultivariateFamily):
         return {name: labels[1:]}
 
     def get_levels(self, response):
-        labels = extract_argument_names(response.name, list(extra_namespace))
+        labels = extract_argument_names(response.name, list(transformations_namespace))
         if labels:
             return labels
         return [str(level) for level in range(response.data.shape[1])]

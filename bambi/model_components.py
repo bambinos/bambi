@@ -4,8 +4,8 @@ import xarray as xr
 from bambi.defaults import get_default_prior
 from bambi.families import univariate, multivariate
 from bambi.priors import Prior
-from bambi.terms import CommonTerm, GroupSpecificTerm, OffsetTerm, ResponseTerm
-from bambi.utils import get_aliased_name
+from bambi.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, OffsetTerm, ResponseTerm
+from bambi.utils import get_aliased_name, is_hsgp_term
 
 
 class ConstantComponent:
@@ -66,14 +66,11 @@ class DistributionalComponent:
         self.response_name = response_name
         self.response_kind = response_kind
         self.spec = spec
-
-        if self.response_kind == "data":
-            self.prefix = ""
-        else:
-            self.prefix = response_name
+        self.prefix = "" if response_kind == "data" else response_name
 
         if self.design.common:
             self.add_common_terms(priors)
+            self.add_hsgp_terms(priors)
 
         if self.design.group:
             self.add_group_specific_terms(priors)
@@ -83,6 +80,8 @@ class DistributionalComponent:
 
     def add_common_terms(self, priors):
         for name, term in self.design.common.terms.items():
+            if is_hsgp_term(term):
+                continue
             prior = priors.pop(name, priors.get("common", None))
             if isinstance(prior, Prior):
                 any_hyperprior = any(isinstance(x, Prior) for x in prior.args.values())
@@ -101,6 +100,12 @@ class DistributionalComponent:
         for name, term in self.design.group.terms.items():
             prior = priors.pop(name, priors.get("group_specific", None))
             self.terms[name] = GroupSpecificTerm(term, prior, self.prefix)
+
+    def add_hsgp_terms(self, priors):
+        for name, term in self.design.common.terms.items():
+            if is_hsgp_term(term):
+                prior = priors.pop(name, None)
+                self.terms[name] = HSGPTerm(term, prior, self.prefix)
 
     def add_response_term(self):
         """Add a response (or outcome/dependent) variable to the model."""
@@ -132,6 +137,10 @@ class DistributionalComponent:
                 kind = "intercept"
             elif hasattr(term, "kind") and term.kind == "offset":
                 continue
+            elif isinstance(term, HSGPTerm):
+                if term.prior is None:
+                    term.prior = get_default_prior("hsgp", cov_func=term.cov)
+                continue
             else:
                 kind = "common"
             term.prior = prepare_prior(term.prior, kind, self.spec.auto_scale)
@@ -147,7 +156,7 @@ class DistributionalComponent:
         for name, value in priors.items():
             self.terms[name].prior = value
 
-    def predict(self, idata, data=None, include_group_specific=True):
+    def predict(self, idata, data=None, include_group_specific=True, hsgp_dict=None):
         linear_predictor = 0
         x_offsets = []
         posterior = idata.posterior
@@ -168,9 +177,14 @@ class DistributionalComponent:
 
         if self.design.common:
             if in_sample:
-                X = self.design.common.design_matrix
+                # We need 'dm_common' because of the 'by' argument in HSGP
+                # This would be fixed (made more elegant) when we modify formulae to account
+                # for transformations whose output does not need to go into the design matrix
+                dm_common = self.design.common
             else:
-                X = self.design.common.evaluate_new_data(data).design_matrix
+                dm_common = self.design.common.evaluate_new_data(data)
+
+            X = dm_common.design_matrix
 
             # Add offset columns to their own design matrix and remove then from common matrix
             for term in self.offset_terms:
@@ -178,15 +192,61 @@ class DistributionalComponent:
                 x_offsets.append(X[:, term_slice])
                 X = np.delete(X, term_slice, axis=1)
 
-            # Create DataArray
-            X_terms = [get_aliased_name(term) for term in self.common_terms.values()]
-            if self.intercept_term:
-                X_terms.insert(0, get_aliased_name(self.intercept_term))
-            b = posterior[X_terms].to_stacked_array("__variables__", to_stack_dims)
+            # Add HSGP components contribution to the linear predictor
+            for term_name, term in self.hsgp_terms.items():
+                # Extract data for the HSGP component from the design matrix
+                term_slice = self.design.common.slices[term_name]
+                x_slice = X[:, term_slice]
+                X = np.delete(X, term_slice, axis=1)
+                term_aliased_name = get_aliased_name(term)
+                hsgp_to_stack_dims = (f"{term_aliased_name}_weights_dim",)
 
-            # Add contribution due to the common terms
-            X = xr.DataArray(X, dims=design_matrix_dims)
-            linear_predictor += xr.dot(X, b)
+                # Data may be scaled so the maximum Euclidean distance between two points is 1
+                if term.scale_predictors:
+                    maximum_distance = term.maximum_distance
+                else:
+                    maximum_distance = 1
+
+                if term.by_levels is not None:
+                    by_values = x_slice[:, -1].astype(int)
+                    x_slice = x_slice[:, :-1]
+                    x_slice_centered = (x_slice.data - term.mean[by_values]) / maximum_distance
+                    phi_list = []
+                    for i, level in enumerate(term.by_levels):
+                        phi = term.hsgp[level].prior_linearized(x_slice_centered)[0].eval()
+                        phi[by_values != i] = 0
+                        phi_list.append(phi)
+                    phi = np.column_stack(phi_list)
+                    hsgp_to_stack_dims = (f"{term_aliased_name}_by",) + hsgp_to_stack_dims
+                else:
+                    x_slice_centered = (x_slice - term.mean) / maximum_distance
+                    phi = term.hsgp.prior_linearized(x_slice_centered)[0].eval()
+
+                # Convert 'phi' and 'sqrt_psd' to xarray.DataArrays for easier math
+                # Notice the extra '_' in the dim name for the weights
+                phi = xr.DataArray(phi, dims=(response_dim, f"{term_aliased_name}__weights_dim"))
+                weights = posterior[f"{term_aliased_name}_weights"]
+                weights = weights.stack({f"{term_aliased_name}__weights_dim": hsgp_to_stack_dims})
+
+                # Compute contribution and add it to the linear predictor
+                hsgp_contribution = xr.dot(phi, weights)
+
+                # Store the contribution so it can be added later to the posterior Dataset
+                hsgp_dict[term_name] = hsgp_contribution
+
+                # Add contribution to the linear predictor
+                linear_predictor += hsgp_contribution
+
+            if self.common_terms or self.intercept_term:
+                # Create DataArray
+                X_terms = [get_aliased_name(term) for term in self.common_terms.values()]
+                if self.intercept_term:
+                    X_terms.insert(0, get_aliased_name(self.intercept_term))
+                b = posterior[X_terms].to_stacked_array("__variables__", to_stack_dims)
+
+                # Add contribution due to the common terms
+                X = xr.DataArray(X, dims=design_matrix_dims)
+                linear_predictor += xr.dot(X, b)
 
         if self.design.group and include_group_specific:
             if in_sample:
@@ -279,6 +339,11 @@ class DistributionalComponent:
     def offset_terms(self):
         """Return dict of all offset effects in model."""
         return {k: v for (k, v) in self.terms.items() if isinstance(v, OffsetTerm)}
+
+    @property
+    def hsgp_terms(self):
+        """Return dict of all HSGP terms in model."""
+        return {k: v for (k, v) in self.terms.items() if isinstance(v, HSGPTerm)}
 
 
 def prepare_prior(prior, kind, auto_scale):

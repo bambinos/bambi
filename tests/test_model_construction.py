@@ -455,3 +455,13 @@ def test_custom_likelihood_function():
     model = Model("y ~ x", df, family=family, priors={"sigma": sigma_prior})
     _ = model.fit(tune=100, draws=100)
     assert model.backend.model.observed_RVs[0].str_repr() == "y ~ N(f(Intercept, x), y_sigma)"
+
+
+def test_extra_namespace():
+    """Tests the formula can access an additional namespace"""
+    data = load_data("carclaims")
+    extra_namespace = {"levels": data["veh_body"].unique()}
+    formula = "numclaims ~ 0 + C(veh_body, levels=levels)"
+    model = Model(formula, data, family="poisson", link="log", extra_namespace=extra_namespace)
+    term = model.response_component.terms["C(veh_body, levels=levels)"]
+    assert (np.asarray(term.levels) == data["veh_body"].unique()).all()

@@ -1,4 +1,5 @@
 from bambi.defaults.distributions import SETTINGS_DISTRIBUTIONS
+from bambi.defaults.hsgp import HSGP_COV_PARAMS_DEFAULT_PRIORS
 
 from bambi.families import Likelihood
 from bambi.priors import Prior
@@ -38,7 +39,30 @@ def generate_prior(dist, **kwargs):
     return prior
 
 
-def get_default_prior(term_type):
+def generate_prior_hsgp(cov_name: str):
+    """Generate a prior configuration for an HSGP term
+
+    The 'prior' for the HSGP term refers to a dictionary of priors. This dictionary contains
+    Prior instances for the parameters of the covariance function.
+
+    Parameters
+    ----------
+    cov_name : str
+        The name of a covariance function
+
+    Returns
+    -------
+    dict[str, Prior]
+        The priors for the parameters of the covariance function
+    """
+    config = HSGP_COV_PARAMS_DEFAULT_PRIORS[cov_name]
+    priors = {}
+    for param, dist in config.items():
+        priors[param] = Prior(dist, **SETTINGS_DISTRIBUTIONS[dist])
+    return priors
+
+
+def get_default_prior(term_type, **kwargs):
     """Generate a Prior based on the default settings
 
     The following summarises default priors for each type of term:
@@ -49,10 +73,12 @@ def get_default_prior(term_type):
     * common_flat: Uniform prior.
     * group_specific: Normal prior where its sigma has a HalfNormal hyperprior.
     * group_specific_flat: Normal prior where its sigma has a HalfFlat hyperprior.
+    * hsgp: The priors depend on the value passed to `kwargs["cov_func"]`.
+        See `HSGP_COV_PARAMS_DEFAULT_PRIORS`.
 
     Parameters
     ----------
-    term_type: str
+    term_type : str
         The type of the term for which the default prior is wanted.
 
     Raises
@@ -73,6 +99,8 @@ def get_default_prior(term_type):
         prior = generate_prior("Normal", sigma="HalfNormal")
     elif term_type == "group_specific_flat":
         prior = generate_prior("Normal", sigma="HalfFlat")
+    elif term_type == "hsgp":
+        prior = generate_prior_hsgp(kwargs["cov_func"])
     else:
         raise ValueError("Unrecognized term type.")
     return prior
