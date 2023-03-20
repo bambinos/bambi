@@ -1,0 +1,1130 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+    <title>Basic building blocks &#8212; Bambi 0.10.0.dev documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=12da95d707ffb74b382d" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/how_bambi_works';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs..."
+         aria-label="Search the docs..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/Bambi_logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/Bambi_logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="getting_started.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../examples.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api_reference.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../faq.html">
+                        Frequently Asked Questions
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/bambinos/bambi" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bambi/" title="PyPi" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+    <label class="sidebar-toggle secondary-toggle" for="__secondary">
+      <span class="fa-solid fa-outdent"></span>
+    </label>
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="getting_started.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../examples.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../api_reference.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../faq.html">
+                        Frequently Asked Questions
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/bambinos/bambi" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bambi/" title="PyPi" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<div id="searchbox"></div></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page">Basic building blocks</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section id="Basic-building-blocks">
+<h1>Basic building blocks<a class="headerlink" href="#Basic-building-blocks" title="Permalink to this heading">#</a></h1>
+<section id="Linear-predictor">
+<h2>Linear predictor<a class="headerlink" href="#Linear-predictor" title="Permalink to this heading">#</a></h2>
+<p>Bambi builds <strong>linear predictors</strong> of the form</p>
+<div class="math notranslate nohighlight">
+\[\pmb{\eta} = \mathbf{X}\pmb{\beta} + \mathbf{Z}\pmb{u}\]</div>
+<p>The linear predictor is the sum of two kinds of contributions</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathbf{X}\pmb{\beta}\)</span> is the common (fixed) effects contribution</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{Z}\pmb{u}\)</span> is the group-specific (random) effects contribution</p></li>
+</ul>
+<p>Both contributions obey the same rule: A dot product between a data object and a parameter object.</p>
+</section>
+<section id="Design-matrix">
+<h2>Design matrix<a class="headerlink" href="#Design-matrix" title="Permalink to this heading">#</a></h2>
+<p>The following objects are <strong>design matrices</strong></p>
+<div class="math notranslate nohighlight">
+\[\begin{array}{c}
+\underset{n\times p}{\mathbf{X}}
+&amp; \underset{n\times j}{\mathbf{Z}}
+\end{array}\]</div>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\mathbf{X}\)</span> is the design matrix for the common (fixed) effects part</p></li>
+<li><p><span class="math notranslate nohighlight">\(\mathbf{Z}\)</span> is the design matrix for the group-specific (random) effects part</p></li>
+</ul>
+</section>
+<section id="Parameter-vector">
+<h2>Parameter vector<a class="headerlink" href="#Parameter-vector" title="Permalink to this heading">#</a></h2>
+<p>The following objects are <strong>parameter vectors</strong></p>
+<div class="math notranslate nohighlight">
+\[\begin{array}{c}
+\underset{p\times 1}{\pmb{\beta}}
+&amp; \underset{j\times 1}{\pmb{u}}
+\end{array}\]</div>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\pmb{\beta}\)</span> is a vector of parameters/coefficients for the common (fixed) effects part</p></li>
+<li><p><span class="math notranslate nohighlight">\(\pmb{u}\)</span> is a vector of parameters/coefficients for the group-specific (random) effects part</p></li>
+</ul>
+<p>As result, the linear predictor <span class="math notranslate nohighlight">\(\pmb{\eta}\)</span> is of shape <span class="math notranslate nohighlight">\(n \times 1\)</span>.</p>
+<p><strong>A fundamental question:</strong> How do we use linear predictors in modeling?</p>
+<p>Linear predictors (or a function of them) describe the functional relationship between one or more parameters of the response distribution and the predictors.</p>
+</section>
+<section id="Example:-Linear-regression">
+<h2>Example: Linear regression<a class="headerlink" href="#Example:-Linear-regression" title="Permalink to this heading">#</a></h2>
+<p>A classical linear regression model is a special case where there is no group-specific contribution and a linear predictor is mapped to the mean parameter of the response distribution.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\pmb{\mu} &amp;= \pmb{\eta} = \mathbf{X}\pmb{\beta}  \\
+\pmb{\beta} &amp;\sim \text{Distribution} \\
+\sigma      &amp;\sim \text{Distribution} \\
+Y_i  &amp;\sim \text{Normal}(\eta_i, \sigma)
+\end{aligned}\end{split}\]</div>
+</section>
+<section id="Link-functions">
+<h2>Link functions<a class="headerlink" href="#Link-functions" title="Permalink to this heading">#</a></h2>
+<p>Link functions turn linear models in <strong>generalized linear models</strong>. A link function, <span class="math notranslate nohighlight">\(g\)</span>, is a function that maps a parameter of the response distribution to the linear predictor. When people talk about generalized linear models, they mean there’s a link function mapping the mean of the response distribution to the linear predictor. But as we will see later, Bambi allows to use linear predictors and link functions to model any parameter of the response distribution – these are known as
+distributional models or <strong>generalized linear models for location, scale, and shape</strong>.</p>
+<div class="math notranslate nohighlight">
+\[g(\pmb{\mu})  = \pmb{\eta} = \mathbf{X}\pmb{\beta}\]</div>
+<p>where <span class="math notranslate nohighlight">\(g\)</span> is the link function. It must be <strong>differentiable, monotonic, and invertible</strong>. For example, the logit function is useful when the mean parameter is bounded in the <span class="math notranslate nohighlight">\((0, 1)\)</span> domain.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+g(\pmb{\mu}) &amp;= \text{logit}(\pmb{\mu}) = \log \left(\frac{\pmb{\mu}}{1 - \pmb{\mu}}\right) = \pmb{\eta} = \mathbf{X}\pmb{\beta} \\
+\pmb{\mu} = g^{-1}(\pmb{\eta}) &amp;= \text{logistic}(\pmb{\eta}) = \frac{1}{1 + \exp (-\pmb{\eta})} = \frac{1}{1 + \exp (-\mathbf{X}\pmb{\beta})}
+\end{aligned}\end{split}\]</div>
+</section>
+<section id="Example:-Logistic-regression">
+<h2>Example: Logistic regression<a class="headerlink" href="#Example:-Logistic-regression" title="Permalink to this heading">#</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+g(\pmb{\mu})  &amp;= \mathbf{X}\pmb{\beta}  \\
+\pmb{\beta}   &amp;\sim \text{Distribution} \\
+Y_i    &amp;\sim \text{Bernoulli}(\mu = g^{-1}(\mathbf{X}\pmb{\beta} )_i)
+\end{aligned}\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(g = \text{logit}\)</span> and <span class="math notranslate nohighlight">\(g^{-1} = \text{logistic}\)</span> also known as <span class="math notranslate nohighlight">\(\text{expit}\)</span>.</p>
+</section>
+<section id="Generalized-linear-models-for-location,-scale,-and-shape">
+<h2>Generalized linear models for location, scale, and shape<a class="headerlink" href="#Generalized-linear-models-for-location,-scale,-and-shape" title="Permalink to this heading">#</a></h2>
+<p>This is an extension to generalized linear models. In a generalized linear model a linear predictor and a link function are used to explain the relationship between the mean (location) of the response distribution and the predictors. In this type of models we are able to use linear predictors and link functions to represent the relationship between <strong>any parameter of the response distribution</strong> and the predictors.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+g_1(\pmb{\theta}_1) &amp;= \mathbf{X}_1\pmb{\beta}_1 + \mathbf{Z}_1\pmb{u}_1 \\
+g_2(\pmb{\theta}_2) &amp;= \mathbf{X}_2\pmb{\beta}_2 + \mathbf{Z}_2\pmb{u}_2 \\
+&amp;\phantom{b=\,} \vdots \\
+g_k(\pmb{\theta}_k) &amp;= \mathbf{X}_k\pmb{\beta}_k + \mathbf{Z}_k\pmb{u}_k \\
+Y_i &amp;\sim \text{Distribution}(\theta_{1i}, \theta_{2i}, \dots, \theta_{ki})
+\end{aligned}\end{split}\]</div>
+</section>
+<section id="Example:-Heteroskedastic-linear-regression">
+<h2>Example: Heteroskedastic linear regression<a class="headerlink" href="#Example:-Heteroskedastic-linear-regression" title="Permalink to this heading">#</a></h2>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+g_1(\pmb{\mu})     &amp;= \mathbf{X}_1\pmb{\beta}_1  \\
+g_2(\pmb{\sigma})  &amp;= \mathbf{X}_2\pmb{\beta}_2 \\
+\pmb{\beta}_1 &amp;\sim \text{Distribution} \\
+\pmb{\beta}_2 &amp;\sim \text{Distribution} \\
+Y_i  &amp;\sim \text{Normal}(\mu_i, \sigma_i)
+\end{aligned}\end{split}\]</div>
+<p>Where</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(g_1\)</span> is the identity function</p></li>
+<li><p><span class="math notranslate nohighlight">\(g_2\)</span> is a function that maps <span class="math notranslate nohighlight">\(\mathbb{R}\to\mathbb{R}^+\)</span>.</p>
+<ul>
+<li><p>Usually <span class="math notranslate nohighlight">\(g_2 = \log\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\pmb{\sigma} = \exp(\mathbf{X}_2\pmb{\beta}_2)\)</span>.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="What-can-be-included-in-a-design-matrix">
+<h2>What can be included in a design matrix<a class="headerlink" href="#What-can-be-included-in-a-design-matrix" title="Permalink to this heading">#</a></h2>
+<p>A design matrix is… a matrix. As such, it’s filled up with numbers. However, it does not mean it cannot encode non-numerical variables. In a design matrix we can encode the following</p>
+<ul class="simple">
+<li><p><strong>Numerical</strong> predictors</p></li>
+<li><p><strong>Interaction</strong> effects</p></li>
+<li><p><strong>Transformations</strong> of numerical predictors that don’t depend on model parameters</p>
+<ul>
+<li><p>Powers</p></li>
+<li><p>Centering</p></li>
+<li><p>Standardization</p></li>
+<li><p>Basis functions</p>
+<ul>
+<li><p>Bambi currently supports basis splines</p></li>
+</ul>
+</li>
+<li><p>And anything you can imagine as well as it does not involve model parameters</p></li>
+</ul>
+</li>
+<li><p><strong>Categorical</strong> predictors</p>
+<ul>
+<li><p>Categorical variables are encoded into their own design matrices</p></li>
+<li><p>The most popular approach is to create binary “dummy” variables. One per level of the categorical variable.</p></li>
+<li><p>But doing it haphazardly will result in non-identifiabilities quite soon.</p></li>
+<li><p>Encodings to the rescue</p>
+<ul>
+<li><p>One can apply different restrictions or contrast matrices to overcome this problem. They usually imply different interpretations of the regression coefficients.</p></li>
+<li><p>Treatment encoding: Sets one level to zero</p></li>
+<li><p>Zero-sum encoding: Sets one level to the opposite of the sum of the other levels</p></li>
+<li><p>Backward differences</p></li>
+<li><p>Orthogonal polynomials</p></li>
+<li><p>Helmert contrasts</p></li>
+<li><p>…</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>These all can be expressed as a single set of columns of a design matrix that are matched with a subset of the parameter vector of the same length</strong></p>
+</section>
+<section id="Who-takes-care-of-each-step?">
+<h2>Who takes care of each step?<a class="headerlink" href="#Who-takes-care-of-each-step?" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Data matrices are built by <code class="docutils literal notranslate"><span class="pre">formulae</span></code>.</p>
+<ul>
+<li><p>Data matrices are not dependent on parameter values in any form.</p></li>
+</ul>
+</li>
+<li><p>Bambi consumes and manipulates them to create model terms, which shape the parameter vector.</p>
+<ul>
+<li><p>The parameter vector is not influenced by the <strong>values</strong> in the data matrix.</p></li>
+</ul>
+</li>
+</ul>
+<p>Going back to planet Earth…</p>
+</section>
+</section>
+<section id="Example">
+<h1>Example<a class="headerlink" href="#Example" title="Permalink to this heading">#</a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">az</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;arviz-darkgrid&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;sleepstudy&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mf">7.5</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">constrained_layout</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">left</span><span class="o">=</span><span class="mf">0.075</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="mf">0.975</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mf">0.075</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mf">0.925</span><span class="p">,</span> <span class="n">wspace</span><span class="o">=</span><span class="mf">0.03</span><span class="p">)</span>
+
+    <span class="n">axes_flat</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">subject</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Subject&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()):</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">axes_flat</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Subject&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">subject</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">days</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;Days&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">reaction</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;Reaction&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+
+        <span class="c1"># Plot observed data points</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">days</span><span class="p">,</span> <span class="n">reaction</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">,</span> <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+
+        <span class="c1"># Add a title</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Subject: </span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">8</span><span class="p">])</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="s2">&quot;Days&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.03</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="s2">&quot;Reaction time (ms)&quot;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">axes</span>
+
+<span class="n">plot_data</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_how_bambi_works_12_0.png" src="../_images/notebooks_how_bambi_works_12_0.png" />
+</div>
+</div>
+<p><strong>The model</strong></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\mu_i &amp; = \beta_0 + \beta_1 \text{Days}_i + u_{0i} + u_{1i}\text{Days}_i \\
+\beta_0 &amp; \sim \text{Normal} \\
+\beta_1 &amp; \sim \text{Normal} \\
+u_{0i} &amp; \sim \text{Normal}(0, \sigma_{u_0}) \\
+u_{1i} &amp; \sim \text{Normal}(0, \sigma_{u_1}) \\
+\sigma_{u_0} &amp; \sim \text{HalfNormal} \\
+\sigma_{u_1} &amp; \sim \text{HalfNormal} \\
+\sigma  &amp; \sim \text{HalfStudentT} \\
+\text{Reaction}_i &amp; \sim \text{Normal}(\mu_i, \sigma)
+\end{aligned}\end{split}\]</div>
+<p>Written in a slightly different way (and omitting some priors)…</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\mu_i &amp; = \text{Intercept}_i + \text{Slope}_i \text{Days}_i \\
+\text{Intercept}_i &amp; = \beta_0 + u_{0i} \\
+\text{Slope}_i &amp; = \beta_1 + u_{1i} \\
+\sigma &amp; \sim \text{HalfStudentT} \\
+\text{Reaction}_i &amp; \sim \text{Normal}(\mu_i, \sigma) \\
+\end{aligned}\end{split}\]</div>
+<p>We can see both the intercept and the slope are made of a “common” component and a “subject-specific” deflection.</p>
+<p>Under the general representation written above…</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{aligned}
+\pmb{\mu} &amp;= \mathbf{X}\pmb{\beta} + \mathbf{Z}\pmb{u} \\
+\pmb{\beta}    &amp;\sim \text{Normal} \\
+\pmb{u}        &amp;\sim \text{Normal}(0, \text{diag}(\sigma_{\pmb{u}})) \\
+\sigma         &amp;\sim \text{HalfStudenT} \\
+\sigma_{\pmb{u}} &amp;\sim \text{HalfNormal} \\
+Y_i  &amp;\sim \text{Normal}(\mu_i, \sigma)
+\end{aligned}\end{split}\]</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s2">&quot;Reaction ~ 1 + Days + (1 + Days | Subject)&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">categorical</span><span class="o">=</span><span class="s2">&quot;Subject&quot;</span><span class="p">)</span>
+<span class="n">model</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+       Formula: Reaction ~ 1 + Days + (1 + Days | Subject)
+        Family: gaussian
+          Link: mu = identity
+  Observations: 180
+        Priors:
+    target = mu
+        Common-level effects
+            Intercept ~ Normal(mu: 298.5079, sigma: 261.0092)
+            Days ~ Normal(mu: 0.0, sigma: 48.8915)
+
+        Group-level effects
+            1|Subject ~ Normal(mu: 0.0, sigma: HalfNormal(sigma: 261.0092))
+            Days|Subject ~ Normal(mu: 0.0, sigma: HalfNormal(sigma: 48.8915))
+
+        Auxiliary parameters
+            Reaction_sigma ~ HalfStudentT(nu: 4.0, sigma: 56.1721)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">build</span><span class="p">()</span>
+<span class="n">model</span><span class="o">.</span><span class="n">graph</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_how_bambi_works_16_0.svg" src="../_images/notebooks_how_bambi_works_16_0.svg" /></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dm</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">design</span>
+<span class="n">dm</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+DesignMatrices
+
+                  (rows, cols)
+Response:               (180,)
+Common:               (180, 2)
+Group-specific:      (180, 36)
+
+Use .reponse, .common, or .group to access the different members.
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">dm</span><span class="o">.</span><span class="n">response</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dm</span><span class="o">.</span><span class="n">response</span><span class="p">)[:</span><span class="mi">5</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ResponseMatrix
+  name: Reaction
+  kind: numeric
+  shape: (180,)
+
+To access the actual design matrix do &#39;np.array(this_obj)&#39;
+
+[249.56   258.7047 250.8006 321.4398 356.8519]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">dm</span><span class="o">.</span><span class="n">common</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dm</span><span class="o">.</span><span class="n">common</span><span class="p">)[:</span><span class="mi">5</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+CommonEffectsMatrix with shape (180, 2)
+Terms:
+  Intercept
+    kind: intercept
+    column: 0
+  Days
+    kind: numeric
+    column: 1
+
+To access the actual design matrix do &#39;np.array(this_obj)&#39;
+
+[[1 0]
+ [1 1]
+ [1 2]
+ [1 3]
+ [1 4]]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">dm</span><span class="o">.</span><span class="n">group</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dm</span><span class="o">.</span><span class="n">group</span><span class="p">)[:</span><span class="mi">14</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+GroupEffectsMatrix with shape (180, 36)
+Terms:
+  1|Subject
+    kind: intercept
+    groups: [&#39;308&#39;, &#39;309&#39;, &#39;310&#39;, &#39;330&#39;, &#39;331&#39;, &#39;332&#39;, &#39;333&#39;, &#39;334&#39;, &#39;335&#39;, &#39;337&#39;, &#39;349&#39;, &#39;350&#39;,
+      &#39;351&#39;, &#39;352&#39;, &#39;369&#39;, &#39;370&#39;, &#39;371&#39;, &#39;372&#39;]
+    columns: 0:18
+  Days|Subject
+    kind: numeric
+    groups: [&#39;308&#39;, &#39;309&#39;, &#39;310&#39;, &#39;330&#39;, &#39;331&#39;, &#39;332&#39;, &#39;333&#39;, &#39;334&#39;, &#39;335&#39;, &#39;337&#39;, &#39;349&#39;, &#39;350&#39;,
+      &#39;351&#39;, &#39;352&#39;, &#39;369&#39;, &#39;370&#39;, &#39;371&#39;, &#39;372&#39;]
+    columns: 18:36
+
+To access the actual design matrix do &#39;np.array(this_obj)&#39;
+
+[[1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 6 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 7 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 8 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 9 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+ [0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 3 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">intercept_term</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+CommonTerm(
+  name: Intercept,
+  prior: Normal(mu: 298.5079, sigma: 261.0092),
+  shape: (180,),
+  categorical: False
+)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">common_terms</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;Days&#39;: CommonTerm(
+   name: Days,
+   prior: Normal(mu: 0.0, sigma: 48.8915),
+   shape: (180,),
+   categorical: False
+ )}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">group_specific_terms</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;1|Subject&#39;: GroupSpecificTerm(
+   name: 1|Subject,
+   prior: Normal(mu: 0.0, sigma: HalfNormal(sigma: 261.0092)),
+   shape: (180, 18),
+   categorical: False,
+   groups: [&#39;308&#39;, &#39;309&#39;, &#39;310&#39;, &#39;330&#39;, &#39;331&#39;, &#39;332&#39;, &#39;333&#39;, &#39;334&#39;, &#39;335&#39;, &#39;337&#39;, &#39;349&#39;, &#39;350&#39;, &#39;351&#39;, &#39;352&#39;, &#39;369&#39;, &#39;370&#39;, &#39;371&#39;, &#39;372&#39;]
+ ),
+ &#39;Days|Subject&#39;: GroupSpecificTerm(
+   name: Days|Subject,
+   prior: Normal(mu: 0.0, sigma: HalfNormal(sigma: 48.8915)),
+   shape: (180, 18),
+   categorical: False,
+   groups: [&#39;308&#39;, &#39;309&#39;, &#39;310&#39;, &#39;330&#39;, &#39;331&#39;, &#39;332&#39;, &#39;333&#39;, &#39;334&#39;, &#39;335&#39;, &#39;337&#39;, &#39;349&#39;, &#39;350&#39;, &#39;351&#39;, &#39;352&#39;, &#39;369&#39;, &#39;370&#39;, &#39;371&#39;, &#39;372&#39;]
+ )}
+</pre></div></div>
+</div>
+<p>Terms not only exist in the Bambi world. There are three (!!) types of terms being created.</p>
+<ul class="simple">
+<li><p>Formulae has its terms</p>
+<ul>
+<li><p>Agnostic information design matrix information</p></li>
+</ul>
+</li>
+<li><p>Bambi has its terms</p>
+<ul>
+<li><p>Contains both the information given by formulae and metadata relevant to Bambi (priors)</p></li>
+</ul>
+</li>
+<li><p>The backend has its terms</p>
+<ul>
+<li><p>Accept a Bambi term and knows how to “compile” itself to that backend.</p></li>
+<li><p>E.g. the PyMC backend terms know how to write one or more PyMC distributions out of a Bambi term.</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>Could we have multiple backends?</strong> In principle yes. But there’s one aspect which is convoluted, dims and coords, and the solution we found (not the best) prevented us from separating all stuff and making the front-end completely independent of the backend.</p>
+<p>Formulae terms</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dm</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">terms</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;Intercept&#39;: Intercept(), &#39;Days&#39;: Term([Variable(Days)])}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dm</span><span class="o">.</span><span class="n">group</span><span class="o">.</span><span class="n">terms</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;1|Subject&#39;: GroupSpecificTerm(
+   expr= Intercept(),
+   factor= Term([Variable(Subject)])
+ ),
+ &#39;Days|Subject&#39;: GroupSpecificTerm(
+   expr= Term([Variable(Days)]),
+   factor= Term([Variable(Subject)])
+ )}
+</pre></div></div>
+</div>
+<p>Bambi terms</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">terms</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;Intercept&#39;: CommonTerm(
+   name: Intercept,
+   prior: Normal(mu: 298.5079, sigma: 261.0092),
+   shape: (180,),
+   categorical: False
+ ),
+ &#39;Days&#39;: CommonTerm(
+   name: Days,
+   prior: Normal(mu: 0.0, sigma: 48.8915),
+   shape: (180,),
+   categorical: False
+ ),
+ &#39;1|Subject&#39;: GroupSpecificTerm(
+   name: 1|Subject,
+   prior: Normal(mu: 0.0, sigma: HalfNormal(sigma: 261.0092)),
+   shape: (180, 18),
+   categorical: False,
+   groups: [&#39;308&#39;, &#39;309&#39;, &#39;310&#39;, &#39;330&#39;, &#39;331&#39;, &#39;332&#39;, &#39;333&#39;, &#39;334&#39;, &#39;335&#39;, &#39;337&#39;, &#39;349&#39;, &#39;350&#39;, &#39;351&#39;, &#39;352&#39;, &#39;369&#39;, &#39;370&#39;, &#39;371&#39;, &#39;372&#39;]
+ ),
+ &#39;Days|Subject&#39;: GroupSpecificTerm(
+   name: Days|Subject,
+   prior: Normal(mu: 0.0, sigma: HalfNormal(sigma: 48.8915)),
+   shape: (180, 18),
+   categorical: False,
+   groups: [&#39;308&#39;, &#39;309&#39;, &#39;310&#39;, &#39;330&#39;, &#39;331&#39;, &#39;332&#39;, &#39;333&#39;, &#39;334&#39;, &#39;335&#39;, &#39;337&#39;, &#39;349&#39;, &#39;350&#39;, &#39;351&#39;, &#39;352&#39;, &#39;369&#39;, &#39;370&#39;, &#39;371&#39;, &#39;372&#39;]
+ ),
+ &#39;Reaction&#39;: ResponseTerm(
+   name: Reaction,
+   prior: Normal(mu: 0.0, sigma: 1.0),
+   shape: (180,),
+   categorical: False
+ )}
+</pre></div></div>
+</div>
+<p><strong>Random idea:</strong> Perhaps in a future we can make Bambi more extensible by using generics-based API and some type of register. I haven’t thought about it at all yet.</p>
+</section>
+
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  <!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">Basic building blocks</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Linear-predictor">Linear predictor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Design-matrix">Design matrix</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Parameter-vector">Parameter vector</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Example:-Linear-regression">Example: Linear regression</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Link-functions">Link functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Example:-Logistic-regression">Example: Logistic regression</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Generalized-linear-models-for-location,-scale,-and-shape">Generalized linear models for location, scale, and shape</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Example:-Heteroskedastic-linear-regression">Example: Heteroskedastic linear regression</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#What-can-be-included-in-a-design-matrix">What can be included in a design matrix</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#Who-takes-care-of-each-step?">Who takes care of each step?</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#Example">Example</a></li>
+</ul>
+
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div class="tocsection sourcelink">
+    <a href="../_sources/notebooks/how_bambi_works.ipynb.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            <div class="bd-footer-content__inner"></div>
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=12da95d707ffb74b382d"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=12da95d707ffb74b382d"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2022, The developers of Bambi.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://sphinx-doc.org/">Sphinx</a> 5.3.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
