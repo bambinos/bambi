@@ -214,7 +214,7 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
         return values
 
     @staticmethod
-    def recycle_parameter(value, variables_n: int, groups_n: int) -> list[list[Any]]:
+    def recycle_parameter(value, variables_n: int, groups_n: int):
         """Reshapes a value considering the number of variables and groups
 
         Parameter values such as `m`, `L`, and `c` may be different for the different variables and

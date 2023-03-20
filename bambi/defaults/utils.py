@@ -39,7 +39,7 @@ def generate_prior(dist, **kwargs):
     return prior
 
 
-def generate_prior_hsgp(cov_name: str) -> dict[str, Prior]:
+def generate_prior_hsgp(cov_name: str):
     """Generate a prior configuration for an HSGP term
 
     The 'prior' for the HSGP term refers to a dictionary of priors. This dictionary contains
