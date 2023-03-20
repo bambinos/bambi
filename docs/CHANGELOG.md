@@ -4,7 +4,7 @@
 
 ### New features
 
-* Add support for Gaussian Processes via the HSGP approximation (#632)
+* Add support for Gaussian Processes via the HSGP approximation (#632) 
 
 ### Maintenance and fixes
 
