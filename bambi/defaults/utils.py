@@ -109,7 +109,6 @@ def get_default_prior(term_type, **kwargs):
 def generate_likelihood(name, params, parent):
     """Generate a Likelihood instance.
 
-    FIXME
     Parameters
     ----------
     name: str
@@ -127,7 +126,6 @@ def generate_likelihood(name, params, parent):
     bambi.Likelihood
         The likelihood instance.
     """
-    # priors = {k: generate_prior(v) for k, v in args.items()}
     return Likelihood(name, params, parent)
 
 

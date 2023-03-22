@@ -13,6 +13,7 @@ from bambi.families.univariate import (
     StudentT,
     VonMises,
     Wald,
+    ZeroInflatedPoisson,
 )
 from bambi.families.multivariate import Multinomial
 
@@ -155,6 +156,16 @@ BUILTIN_FAMILIES = {
         "family": Wald,
         "default_priors": {"lam": "HalfCauchy"},
     },
+    "zero_inflated_poisson": {
+        "likelihood": {
+            "name": "ZeroInflatedPoisson",
+            "params": ["mu", "psi"],
+            "parent": "mu"
+        },
+        "link": {"mu": "log", "psi": "logit"},
+        "family": ZeroInflatedPoisson,
+        "default_priors": {"psi": "Beta"},
+    }
 }
 # fmt: on
 

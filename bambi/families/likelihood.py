@@ -19,7 +19,9 @@ DISTRIBUTIONS = {
     "StudentT": DistSettings(params=("mu", "sigma", "nu"), parent="mu"),
     "VonMises": DistSettings(params=("mu", "kappa"), parent="mu"),
     "Wald": DistSettings(params=("mu", "lam"), parent="mu"),
-    "ZeroInflatedPoisson": DistSettings(params=("mu", "psi"), parent="mu")
+    "ZeroInflatedBinomial": DistSettings(params=("p", "psi"), parent="p"),
+    "ZeroInflatedNegativeBinomial": DistSettings(params=("mu", "alpha", "psi"), parent="mu"),
+    "ZeroInflatedPoisson": DistSettings(params=("mu", "psi"), parent="mu"),
 }
 
 

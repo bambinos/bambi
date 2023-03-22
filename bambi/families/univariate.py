@@ -150,6 +150,10 @@ class Wald(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["inverse", "inverse_squared", "identity", "log"], "lam": ["log"]}
 
 
+class ZeroInflatedPoisson(UnivariateFamily):
+    SUPPORTED_LINKS = {"mu": ["identity", "log"], "psi": ["logit", "probit", "cloglog"]}
+
+
 # pylint: disable = protected-access
 def get_success_level(term):
     if term.kind != "categoric":
