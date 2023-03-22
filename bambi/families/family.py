@@ -177,7 +177,7 @@ class Family:
                 "chain",
                 "draw",
                 response_aliased_name + "_obs",
-                response_aliased_name + "_mean_dmi",
+                response_aliased_name + "_mean_dim",
             )
         else:  # Assume it's univariate family
             coord_names = ("chain", "draw", response_aliased_name + "_obs")
