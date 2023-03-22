@@ -859,3 +859,33 @@ def test_zero_inflated_binomial():
     model = Model(formula, df, family="zero_inflated_binomial")
     idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
     model.predict(idata, kind="pps")
+
+
+def test_zero_inflated_negativebinomial():
+    rng = np.random.default_rng(121195)
+
+    # Basic intercept-only model
+    y = pm.draw(
+        pm.ZeroInflatedNegativeBinomial.dist(mu=5, alpha=30, psi=0.7), draws=500, random_seed=1234
+    )
+    df = pd.DataFrame({"y": y})
+    priors = {"alpha": Prior("HalfNormal", sigma=20)}
+    model = Model("y ~ 1", df, family="zero_inflated_negativebinomial", priors=priors)
+    idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
+    model.predict(idata, kind="pps")
+
+    # Distributional model
+    x = np.sort(rng.uniform(0.2, 3, size=500))
+    b0, b1 = 0.5, 0.35
+    a0, a1 = 2, -0.7
+    mu = np.exp(b0 + b1 * x)
+    psi = expit(a0 + a1 * x)
+
+    y = pm.draw(pm.ZeroInflatedNegativeBinomial.dist(mu=mu, alpha=30, psi=psi))
+    df = pd.DataFrame({"y": y, "x": x})
+
+    priors = {"alpha": Prior("HalfNormal", sigma=20)}
+    formula = Formula("y ~ x", "psi ~ x")
+    model = Model(formula, df, family="zero_inflated_negativebinomial", priors=priors)
+    idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
+    model.predict(idata, kind="pps")

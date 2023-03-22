@@ -14,6 +14,7 @@ from bambi.families.univariate import (
     VonMises,
     Wald,
     ZeroInflatedBinomial,
+    ZeroInflatedNegativeBinomial,
     ZeroInflatedPoisson,
 )
 from bambi.families.multivariate import Multinomial
@@ -166,6 +167,16 @@ BUILTIN_FAMILIES = {
         "link": {"p": "logit", "psi": "logit"},
         "family": ZeroInflatedBinomial,
         "default_priors": {"psi": "Beta"},
+    },
+    "zero_inflated_negativebinomial": {
+        "likelihood": {
+            "name": "ZeroInflatedNegativeBinomial",
+            "params": ["mu", "alpha", "psi"],
+            "parent": "mu",
+        },
+        "link": {"mu": "log", "alpha": "log", "psi": "logit"},
+        "family": ZeroInflatedNegativeBinomial,
+        "default_priors": {"alpha": "HalfCauchy", "psi": "Beta"},
     },
     "zero_inflated_poisson": {
         "likelihood": {

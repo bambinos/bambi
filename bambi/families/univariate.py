@@ -176,6 +176,14 @@ class ZeroInflatedBinomial(UnivariateFamily):
         return kwargs
 
 
+class ZeroInflatedNegativeBinomial(UnivariateFamily):
+    SUPPORTED_LINKS = {
+        "mu": ["identity", "log", "cloglog"],
+        "alpha": ["log"],
+        "psi": ["logit", "probit", "cloglog"],
+    }
+
+
 class ZeroInflatedPoisson(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log"], "psi": ["logit", "probit", "cloglog"]}
 
