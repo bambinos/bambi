@@ -15,7 +15,8 @@ jobs:
 
     name: Set up Python ${{ matrix.python-version }}
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout source
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
@@ -27,15 +28,19 @@ jobs:
           python-version: ${{ matrix.python-version }}
           auto-update-conda: true
 
-      - name: Install dev environment & bambi
+      - shell: bash -l {0}
+        run: |
+          conda info
+          conda list
+
+      - name: Install Bambi and all its dependencies
         shell: bash -l {0}
         run: |
           conda install -c conda-forge python-graphviz
           conda install pip
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
-          pip install -r requirements-optional.txt
           pip install .
+          pip install .[dev]
+          pip install .[jax]
 
           python --version
           conda list
@@ -44,16 +49,15 @@ jobs:
       - name: Run linters
         shell: bash -l {0}
         run: |
-          python -m black bambi --check
-          echo "Success!"
+          echo "Running black..."
+          black bambi --check
 
           echo "Checking code style with pylint..."
-          python -m pylint bambi/
+          pylint bambi
 
       - name: Run tests
         shell: bash -l {0}
-        run: |
-          python -m pytest -vv --cov=bambi --cov-report=term --cov-report=xml tests
+        run: python -m pytest -vv --cov=bambi --cov-report=term --cov-report=xml tests
         env:
           PYTHON_VERSION: ${{ matrix.python-version }}
 

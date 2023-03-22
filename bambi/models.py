@@ -18,9 +18,9 @@ from bambi.model_components import ConstantComponent, DistributionalComponent
 from bambi.families import Family, univariate
 from bambi.formula import Formula
 from bambi.priors import Prior, PriorScaler
+from bambi.transformations import transformations_namespace
 from bambi.utils import (
     clean_formula_lhs,
-    extra_namespace,
     get_aliased_name,
     get_auxiliary_parameters,
     listify,
@@ -84,6 +84,9 @@ class Model:
     noncentered : bool
         If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on
         grouped parameters. If ``False``, naive (centered) parameterization is used.
+    extra_namespace : dict, optional
+        Additional user supplied variables with transformations or data to include in the
+        environment where the formula is evaluated. Defaults to `None`.
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -99,6 +102,7 @@ class Model:
         dropna=False,
         auto_scale=True,
         noncentered=True,
+        extra_namespace=None,
     ):
         # attributes that are set later
         self.components = {}  # Constant and Distributional components
@@ -132,8 +136,16 @@ class Model:
         # Create family
         self._set_family(family, link)
 
+        # Handle additional namespaces
+        additional_namespace = transformations_namespace.copy()
+        if not isinstance(extra_namespace, (type(None), dict)):
+            raise ValueError("'namespace' must be a dictionary or None")
+
+        if isinstance(extra_namespace, dict):
+            additional_namespace.update(extra_namespace)
+
         ## Main component
-        design = design_matrices(self.formula.main, self.data, na_action, 1, extra_namespace)
+        design = design_matrices(self.formula.main, self.data, na_action, 1, additional_namespace)
         if design.response is None:
             raise ValueError(
                 "No outcome variable is set! "
@@ -166,7 +178,7 @@ class Model:
 
             # Create design matrix, only for the response part
             design = design_matrices(
-                clean_formula_lhs(extra_formula), self.data, na_action, 1, extra_namespace
+                clean_formula_lhs(extra_formula), self.data, na_action, 1, additional_namespace
             )
 
             # If priors were not passed, pass an empty dictionary
@@ -728,6 +740,8 @@ class Model:
 
         # ALWAYS predict the mean response
         means_dict = {}
+        # To store the HSGP contributions that are also added to the posterior dataset
+        hsgp_dict = {}
         response_dim = response_aliased_name + "_obs"
         for name, component in self.distributional_components.items():
             if name == self.response_name:
@@ -736,7 +750,7 @@ class Model:
                 component_aliased_name = component.alias if component.alias else name
                 var_name = f"{response_aliased_name}_{component_aliased_name}"
 
-            means_dict[var_name] = component.predict(idata, data, include_group_specific)
+            means_dict[var_name] = component.predict(idata, data, include_group_specific, hsgp_dict)
 
             # Drop var/dim if already present. Needed for out-of-sample predictions.
             if var_name in idata.posterior.data_vars:
@@ -751,6 +765,17 @@ class Model:
 
         for name, value in means_dict.items():
             idata.posterior[name] = value
+
+        # Add HSGP contributions to the posterior dataset
+        for component in self.distributional_components.values():
+            for name, hsgp_contribution in hsgp_dict.items():
+                term = component.hsgp_terms.get(name, None)
+                if term is None:
+                    continue
+                term_aliased_name = get_aliased_name(term)
+                idata.posterior[term_aliased_name] = hsgp_contribution.transpose(
+                    "chain", "draw", ...
+                )
 
         # Only if requested predict the predictive distribution
         if kind == "pps":
@@ -933,7 +958,14 @@ def prior_repr(term):
     return f"{term.name} ~ {term.prior}"
 
 
-def make_priors_summary(component: DistributionalComponent):
+def hsgp_repr(term):
+    output_list = [f"cov: {term.cov}", *[f"{key} ~ {value}" for key, value in term.prior.items()]]
+    output_list = ["    " + element for element in output_list]
+    output_list.insert(0, term.name)
+    return "\n".join(output_list)
+
+
+def make_priors_summary(component: DistributionalComponent) -> str:
     # Common effects
     priors_common = [
         prior_repr(term) for term in component.common_terms.values() if term.kind != "offset"
@@ -947,10 +979,14 @@ def make_priors_summary(component: DistributionalComponent):
     # Offsets
     offsets = [f"{term.name} ~ 1" for term in component.offset_terms.values()]
 
+    # HSGP
+    hsgp = [hsgp_repr(term) for term in component.hsgp_terms.values()]
+
     priors_dict = {
         "Common-level effects": priors_common,
         "Group-level effects": priors_group,
         "Offset effects": offsets,
+        "HSGP contributions": hsgp,
     }
 
     priors_list = []

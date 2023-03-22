@@ -25,7 +25,7 @@ Bambi is a high-level Bayesian model-building interface written in Python. It wo
 
 Dependencies
 ============
-Bambi is tested on Python 3.8+ and depends on ArviZ, formulae, NumPy, pandas and PyMC (see `requirements.txt <https://github.com/bambinos/bambi/blob/main/requirements.txt>`_ for version information).
+Bambi is tested on Python 3.8+ and depends on ArviZ, formulae, NumPy, pandas and PyMC (see `pyproject.toml <https://github.com/bambinos/bambi/blob/main/pyproject.toml>`_ for version information).
 
 Installation
 ============
@@ -106,7 +106,7 @@ If you use Bambi and want to cite it please use
 
 Contributing
 ============
-We welcome contributions from interested individuals or groups! For information about contributing to Bambi, check out our instructions, policies, and guidelines `here <https://github.com/bambinos/bambi/blob/main/CONTRIBUTING.md>`_.
+We welcome contributions from interested individuals or groups! For information about contributing to Bambi, check out our instructions, policies, and guidelines `here <https://github.com/bambinos/bambi/blob/main/docs/CONTRIBUTING.md>`_.
 
 Contributors
 ============

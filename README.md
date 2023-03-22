@@ -25,7 +25,7 @@ Alternatively, if you want the bleeding edge version of the package you can inst
 
 ### Dependencies
 
-Bambi requires working versions of ArviZ, formulae, NumPy, pandas and PyMC. Dependencies are listed in `requirements.txt`, and should all be installed by the Bambi installer; no further action should be required.
+Bambi requires working versions of ArviZ, formulae, NumPy, pandas and PyMC. Dependencies are listed in `pyproject.toml` and should all be installed by the Bambi installer; no further action should be required.
 
 ## Example
 
@@ -95,7 +95,7 @@ If you use Bambi and want to cite it please use
 
 ## Contributions
 
-Bambi is a community project and welcomes contributions. Additional information can be found in the [Contributing](https://github.com/bambinos/bambi/blob/master/CONTRIBUTING.md) Readme.
+Bambi is a community project and welcomes contributions. Additional information can be found in the [Contributing](https://github.com/bambinos/bambi/blob/main/docs/CONTRIBUTING.md) Readme.
 
 For a list of contributors see the [GitHub contributor](https://github.com/bambinos/bambi/graphs/contributors) page
 
@@ -105,8 +105,8 @@ If you want to support Bambi financially, you can [make a donation](https://numf
 
 ## Code of Conduct
 
-Bambi wishes to maintain a positive community. Additional details can be found in the [Code of Conduct](https://github.com/bambinos/bambi/blob/master/CODE_OF_CONDUCT.md)
+Bambi wishes to maintain a positive community. Additional details can be found in the [Code of Conduct](https://github.com/bambinos/bambi/blob/main/docs/CODE_OF_CONDUCT.md)
 
 ## License
 
-[MIT License](https://github.com/bambinos/bambi/blob/master/LICENSE)
+[MIT License](https://github.com/bambinos/bambi/blob/main/LICENSE)

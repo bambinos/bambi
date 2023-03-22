@@ -6,6 +6,7 @@ import pymc as pm
 import pandas as pd
 from scipy import special
 
+from bambi.data import load_data
 from bambi.families import Family, Likelihood, Link
 from bambi.models import Model
 from bambi.priors import Prior
@@ -339,3 +340,15 @@ def test_set_priors_but_intercept():
     }
 
     Model("z ~ x1 + x2 + (1|g)", df, priors=priors)
+
+
+def test_custom_prior():
+    def CustomPrior(name, *args, dims=None, **kwargs):
+        return pm.Normal(name, *args, dims=dims, **kwargs)
+
+    data = load_data("my_data")
+
+    priors = {"x": Prior("CustomPrior", mu=0, sigma=5, dist=CustomPrior)}
+    model = Model("y ~ x", data, priors=priors)
+    model.build()
+    assert model.backend.model.free_RVs[-1].str_repr() == "x ~ N(0, 5)"
