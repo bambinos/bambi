@@ -2,7 +2,9 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from bambi import Model, Formula, load_data
+import bambi as bmb
+
+from bmb import Model, Formula, load_data
 
 
 @pytest.fixture(scope="module")

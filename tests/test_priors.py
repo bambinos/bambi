@@ -6,10 +6,12 @@ import pymc as pm
 import pandas as pd
 from scipy import special
 
-from bambi.data import load_data
-from bambi.families import Family, Likelihood, Link
-from bambi.models import Model
-from bambi.priors import Prior
+import bambi as bmb
+
+from bmb.data import load_data
+from bmb.families import Family, Likelihood, Link
+from bmb.models import Model
+from bmb.priors import Prior
 
 
 @pytest.fixture(scope="module")

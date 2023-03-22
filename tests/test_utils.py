@@ -3,9 +3,11 @@ import pytest
 import numpy as np
 import pandas as pd
 
-from bambi.utils import listify
-from bambi.backend.pymc import probit, cloglog
-from bambi.transformations import censored
+import bambi as bmb
+
+from bmb.utils import listify
+from bmb.backend.pymc import probit, cloglog
+from bmb.transformations import censored
 
 
 def test_listify():

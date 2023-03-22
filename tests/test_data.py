@@ -5,8 +5,10 @@ from urllib.parse import urlunsplit
 import pandas as pd
 import pytest
 
-from bambi import clear_data_home, load_data
-from bambi.data.datasets import DATASETS, FileMetadata
+import bambi as bmb
+
+from bmb import clear_data_home, load_data
+from bmb.data.datasets import DATASETS, FileMetadata
 
 
 @pytest.fixture(autouse=True)

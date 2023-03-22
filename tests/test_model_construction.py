@@ -8,13 +8,15 @@ import pandas as pd
 import pymc as pm
 import pytest
 
+import bambi as bmb
+
 from formulae import design_matrices
 
-from bambi.data.datasets import load_data
-from bambi.models import Model
-from bambi.terms import CommonTerm, GroupSpecificTerm
-from bambi.priors import Prior
-from bambi.families import Family, Likelihood
+from bmb.data.datasets import load_data
+from bmb.models import Model
+from bmb.terms import CommonTerm, GroupSpecificTerm
+from bmb.priors import Prior
+from bmb.families import Family, Likelihood
 
 
 @pytest.fixture(scope="module")

@@ -4,8 +4,10 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from bambi.models import Model
-from bambi import load_data
+import bambi as bmb
+
+from bmb.models import Model
+from bmb import load_data
 
 
 @pytest.fixture(scope="module")

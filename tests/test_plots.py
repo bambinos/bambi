@@ -5,8 +5,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import pytest
 
-from bambi.models import Model, Formula
-from bambi.plots import plot_cap
+import bambi as bmb
+
+from bmb.models import Model, Formula
+from bmb.plots import plot_cap
 
 
 @pytest.fixture(scope="module")

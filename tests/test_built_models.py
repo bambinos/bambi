@@ -8,11 +8,13 @@ import numpy as np
 import pandas as pd
 import pymc as pm
 
-from bambi import math
-from bambi.families import Family, Likelihood, Link
-from bambi.models import Model
-from bambi.priors import Prior
-from bambi.terms import GroupSpecificTerm
+import bambi as bmb
+
+from bmb import math
+from bmb.families import Family, Likelihood, Link
+from bmb.models import Model
+from bmb.priors import Prior
+from bmb.terms import GroupSpecificTerm
 
 
 @pytest.fixture(scope="module")

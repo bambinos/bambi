@@ -1,6 +1,8 @@
 import pytest
 
-from bambi import load_data, Formula, Model
+import bambi as bmb
+
+from bmb import load_data, Formula, Model
 
 
 @pytest.fixture(scope="module")
