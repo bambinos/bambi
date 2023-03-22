@@ -833,3 +833,29 @@ def test_zero_inflated_poisson():
     model = Model(formula, df, family="zero_inflated_poisson")
     idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
     model.predict(idata, kind="pps")
+
+
+def test_zero_inflated_binomial():
+    rng = np.random.default_rng(121195)
+
+    # Basic intercept-only model
+    y = pm.draw(pm.ZeroInflatedBinomial.dist(p=0.5, n=30, psi=0.7), draws=500, random_seed=1234)
+    df = pd.DataFrame({"y": y})
+    model = Model("p(y, 30) ~ 1", df, family="zero_inflated_binomial")
+    idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
+    model.predict(idata, kind="pps")
+
+    # Distributional model
+    x = np.sort(rng.uniform(0.2, 3, size=500))
+    b0, b1 = -0.5, 0.5
+    a0, a1 = 2, -0.7
+    p = expit(b0 + b1 * x)
+    psi = expit(a0 + a1 * x)
+
+    y = pm.draw(pm.ZeroInflatedBinomial.dist(p=p, psi=psi, n=30))
+    df = pd.DataFrame({"y": y, "x": x})
+
+    formula = Formula("prop(y, 30) ~ x", "psi ~ x")
+    model = Model(formula, df, family="zero_inflated_binomial")
+    idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
+    model.predict(idata, kind="pps")

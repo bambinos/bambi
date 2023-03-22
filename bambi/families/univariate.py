@@ -150,6 +150,32 @@ class Wald(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["inverse", "inverse_squared", "identity", "log"], "lam": ["log"]}
 
 
+class ZeroInflatedBinomial(UnivariateFamily):
+    SUPPORTED_LINKS = {
+        "p": ["identity", "logit", "probit", "cloglog"],
+        "psi": ["logit", "probit", "cloglog"],
+    }
+
+    def posterior_predictive(self, model, posterior, **kwargs):
+        data = kwargs["data"]
+        if data is None:
+            trials = model.response_component.response_term.data[:, 1]
+        else:
+            trials = model.response_component.design.response.evaluate_new_data(data).astype(int)
+        # Prepend 'draw' and 'chain' dimensions
+        trials = trials[np.newaxis, np.newaxis, :]
+        return super().posterior_predictive(model, posterior, n=trials)
+
+    @staticmethod
+    def transform_backend_kwargs(kwargs):
+        # Only used when fitting data, not when getting draws from posterior predictive distribution
+        if "observed" in kwargs:
+            observed = kwargs.pop("observed")
+            kwargs["observed"] = observed[:, 0].squeeze()
+            kwargs["n"] = observed[:, 1].squeeze()
+        return kwargs
+
+
 class ZeroInflatedPoisson(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log"], "psi": ["logit", "probit", "cloglog"]}
 

@@ -105,7 +105,7 @@ class Family:
         priors = {k: v for k, v in priors.items() if k in auxiliary_parameters}
         self.default_priors.update(priors)
 
-    def posterior_predictive(self, model, posterior, **kwargs):  # pylint: disable = unused-argument
+    def posterior_predictive(self, model, posterior, **kwargs):
         """Get draws from the posterior predictive distribution
 
         This function works for almost all the families. It grabs the draws for the parameters
@@ -121,6 +121,9 @@ class Family:
             The xarray dataset that contains the draws for all the parameters in the posterior.
             It must contain the parameters that are needed in the distribution of the response, or
             the parameters that allow to derive them.
+        kwargs :
+            Parameters that are used to get draws but do not appear in the posterior object.
+            For instance, the 'n' in binomial models.
 
         Returns
         -------
@@ -131,7 +134,7 @@ class Family:
         params = model.family.likelihood.params
         response_aliased_name = get_aliased_name(model.response_component.response_term)
 
-        kwargs = {}
+        # kwargs = {}
         output_dataset_list = []
 
         # In the posterior xr.Dataset we need to consider aliases.
@@ -174,7 +177,7 @@ class Family:
                 "chain",
                 "draw",
                 response_aliased_name + "_obs",
-                response_aliased_name + "_mean_dim",
+                response_aliased_name + "_mean_dmi",
             )
         else:  # Assume it's univariate family
             coord_names = ("chain", "draw", response_aliased_name + "_obs")
