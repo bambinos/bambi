@@ -134,7 +134,8 @@ class Family:
         params = model.family.likelihood.params
         response_aliased_name = get_aliased_name(model.response_component.response_term)
 
-        # kwargs = {}
+        # Drop None kwargs
+        kwargs = {key: value for key, value in kwargs.items() if value is not None}
         output_dataset_list = []
 
         # In the posterior xr.Dataset we need to consider aliases.
