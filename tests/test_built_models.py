@@ -8,8 +8,11 @@ import numpy as np
 import pandas as pd
 import pymc as pm
 
+from scipy.special import expit
+
 from bambi import math
 from bambi.families import Family, Likelihood, Link
+from bambi.formula import Formula
 from bambi.models import Model
 from bambi.priors import Prior
 from bambi.terms import GroupSpecificTerm
@@ -785,7 +788,7 @@ def test_2d_response_no_shape():
         y = observed[:, 0].flatten()
         n = observed[:, 1].flatten()
         # It's the users' responsibility to take only the first dim
-        kwargs["dims"] = kwargs.get("dims")[0] 
+        kwargs["dims"] = kwargs.get("dims")[0]
         return pm.Binomial(name, p=p, n=n, observed=y, **kwargs)
 
     likelihood = Likelihood("CustomBinomial", params=["p"], parent="p", dist=fn)
@@ -802,3 +805,87 @@ def test_2d_response_no_shape():
 
     model = Model("prop(y, n) ~ x", data, family=family)
     model.fit(draws=10, tune=10)
+
+
+def test_zero_inflated_poisson():
+    rng = np.random.default_rng(121195)
+
+    # Basic intercept-only model
+    x = np.concatenate([np.zeros(250), rng.poisson(lam=3, size=750)])
+    df = pd.DataFrame({"response": x})
+
+    model = Model("response ~ 1", df, family="zero_inflated_poisson")
+    idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
+    model.predict(idata, kind="pps")
+
+    # Distributional model
+    x = np.sort(rng.uniform(0.2, 3, size=1000))
+
+    b0, b1 = 0.2, 0.9
+    a0, a1 = 2.5, -0.7
+    mu = np.exp(b0 + b1 * x)
+    psi = expit(a0 + a1 * x)
+
+    y = pm.draw(pm.ZeroInflatedPoisson.dist(mu=mu, psi=psi))
+    df = pd.DataFrame({"y": y, "x": x})
+
+    formula = Formula("y ~ x", "psi ~ x")
+    model = Model(formula, df, family="zero_inflated_poisson")
+    idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
+    model.predict(idata, kind="pps")
+
+
+def test_zero_inflated_binomial():
+    rng = np.random.default_rng(121195)
+
+    # Basic intercept-only model
+    y = pm.draw(pm.ZeroInflatedBinomial.dist(p=0.5, n=30, psi=0.7), draws=500, random_seed=1234)
+    df = pd.DataFrame({"y": y})
+    model = Model("p(y, 30) ~ 1", df, family="zero_inflated_binomial")
+    idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
+    model.predict(idata, kind="pps")
+
+    # Distributional model
+    x = np.sort(rng.uniform(0.2, 3, size=500))
+    b0, b1 = -0.5, 0.5
+    a0, a1 = 2, -0.7
+    p = expit(b0 + b1 * x)
+    psi = expit(a0 + a1 * x)
+
+    y = pm.draw(pm.ZeroInflatedBinomial.dist(p=p, psi=psi, n=30))
+    df = pd.DataFrame({"y": y, "x": x})
+
+    formula = Formula("prop(y, 30) ~ x", "psi ~ x")
+    model = Model(formula, df, family="zero_inflated_binomial")
+    idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
+    model.predict(idata, kind="pps")
+
+
+def test_zero_inflated_negativebinomial():
+    rng = np.random.default_rng(121195)
+
+    # Basic intercept-only model
+    y = pm.draw(
+        pm.ZeroInflatedNegativeBinomial.dist(mu=5, alpha=30, psi=0.7), draws=500, random_seed=1234
+    )
+    df = pd.DataFrame({"y": y})
+    priors = {"alpha": Prior("HalfNormal", sigma=20)}
+    model = Model("y ~ 1", df, family="zero_inflated_negativebinomial", priors=priors)
+    idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
+    model.predict(idata, kind="pps")
+
+    # Distributional model
+    x = np.sort(rng.uniform(0.2, 3, size=500))
+    b0, b1 = 0.5, 0.35
+    a0, a1 = 2, -0.7
+    mu = np.exp(b0 + b1 * x)
+    psi = expit(a0 + a1 * x)
+
+    y = pm.draw(pm.ZeroInflatedNegativeBinomial.dist(mu=mu, alpha=30, psi=psi))
+    df = pd.DataFrame({"y": y, "x": x})
+
+    priors = {"alpha": Prior("HalfNormal", sigma=20)}
+    formula = Formula("y ~ x", "psi ~ x")
+    model = Model(formula, df, family="zero_inflated_negativebinomial", priors=priors)
+    idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
+    model.predict(idata, kind="pps")

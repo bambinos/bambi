@@ -5,6 +5,7 @@
 ### New features
 
 * Add support for Gaussian Processes via the HSGP approximation (#632) 
+* Add new families: `"zero_inflated_poisson"`, `"zero_inflated_binomial"`, and `"zero_inflated_negativebinomial"` (#654)
 
 ### Maintenance and fixes
 
