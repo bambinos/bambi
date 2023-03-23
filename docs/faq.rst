@@ -23,7 +23,7 @@ I'm not familiar with Bayesian modelling, where can I learn more?
 
 There are a number of excellent resources available online, including:
     * [Bambi examples](https://bambinos.github.io/bambi/examples.html)
-    * [Bayesian Modeling and Computation](https://www.amazon.com/Bayesian-Modeling-Computation-Statistics-Science/dp/0124058884)
+    * [Bayesian Modeling and Computation](https://bayesiancomputationbook.com/welcome.html)
     * [Bayesian Data Analysis](https://www.amazon.com/Bayesian-Analysis-Chapman-Statistical-Science/dp/1439840954)
     * [Bayesian Methods for Hackers](https://github.com/CamDavidsonPilon/Probabilistic-Programming-and-Bayesian-Methods-for-Hackers)
 
