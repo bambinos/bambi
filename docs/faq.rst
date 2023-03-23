@@ -4,53 +4,19 @@ Frequently Asked Questions
 General Questions
 ===================
 
-Why have a Bayesian regression library?
+What is the difference between Bambi and PyMC?
 ----------------------------
-
-Bayesian modelling allows flexible (read 'bespoke') model specification and also provides an
-estimation of uncertainty in the model parameters. Both of these are wildly useful in 
-practice, in particular in a business context where the model is used to make decisions,
-and where a complex model may be needed to capture the underlying relationships. Further,
-Bayesian modelling allows graceful handling of small sample sizes by judicious use of
-prior distributions.
-
-
-And finally, see `this issue <https://github.com/bambinos/bambi/issues/389>`_.
-
-
-I'm not familiar with Bayesian modelling, where can I learn more?
-----------------------------
-
-There are a number of excellent resources available online, including:
-    * [Bambi examples](https://bambinos.github.io/bambi/examples.html)
-    * [Bayesian Modeling and Computation](https://bayesiancomputationbook.com/welcome.html)
-    * [Bayesian Data Analysis](https://www.amazon.com/Bayesian-Analysis-Chapman-Statistical-Science/dp/1439840954)
-    * [Bayesian Methods for Hackers](https://github.com/CamDavidsonPilon/Probabilistic-Programming-and-Bayesian-Methods-for-Hackers)
-
-What is the difference between Bambi and PyMC3?
-----------------------------
-    * Bambi is a wrapper around PyMC3, NumPyro, and BlackJax. It provides a simple interface for
-            specifying Bayesian models, and allows for easy inference using MCMC or 
-            variational inference.
-    * PyMC3 is a library for Bayesian modelling, and is the backend used by Bambi. It is a very
-            powerful library, but can be difficult to use for beginners. Bambi provides a simple
-            interface for specifying models, and allows for easy inference using MCMC or variational
-            inference.
+    * Bambi is a regression library built on top of PyMC. It provides a simple 
+        interface for specifying Bayesian models, and allows for easy inference using MCMC or 
+        variational inference.
+    * PyMC is a library for Bayesian modelling, and is the backend used by Bambi. It is a very
+            powerful library, but can be challenging to use for beginners. Bambi provides a simple
+            interface for specifying models, and allows for easy inference via MCMC or variational
+            inference using PyMC.
 
 
 Inference Questions
 ====================
-
-My sampler through errors/indicating divergences, what should I do?
-----------------------------
-    * Divergences are a common issue in Bayesian modelling, and are usually not a problem as long as
-            they are not prevalent. However, if you are seeing a lot of divergences, you may want 
-            to try 1) respecifying your model, 2) a different sampler.
-    * If the sampler fails, this is likely an issue with model specification. Make sure you are using
-            the correct priors for your model, and that you are not specifying a prior that is too
-            strong (e.g. a prior that is too narrow), or one that does not match the data (e.g. a
-            prior that doesn't cover the domain of the data such as using a HalfNormal prior for a
-            parameter that can be negative).
 
 What sampling methods are available?
 ----------------------------
@@ -58,14 +24,6 @@ The sampler used is automatically selected given the type of variables used in t
 For inference, Bambi supports both MCMC and variational inference. MCMC is the default, but you can specify variational inference by passing `inference_method='vi'` to `Model.fit()`.
 Bambi also supports multiple backends for MCMC, including NumPyro, and BlackJax
 (see API for "fit" method for more details [here](https://bambinos.github.io/bambi/api_reference.html)).
-
-My sampler is taking a long time, what should I do?
-----------------------------
-Long sampling times may simply be a result of the model being complex, or the data being
-large. If you are using a sampler that supports parallelization, you can try increasing the
-number of chains and/or cores. If you are using a sampler that does not support parallelization, you can try using a different sampler that does (e.g. NumPyro vs. PyMC3). You can also
-use variational inference, which is much faster than MCMC, but is not as flexible. You can
-also try respecifying your model, or using a different prior.
 
 Can infernece in Bambi be sped up using GPUs/TPUs?
 ----------------------------
