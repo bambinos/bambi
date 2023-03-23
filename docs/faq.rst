@@ -67,7 +67,7 @@ number of chains and/or cores. If you are using a sampler that does not support 
 use variational inference, which is much faster than MCMC, but is not as flexible. You can
 also try respecifying your model, or using a different prior.
 
-Can infernece in Bambi be sped up using GPUs/TPUs?
+Can inference in Bambi be sped up using GPUs/TPUs?
 ----------------------------
 Yes, Bambi supports inference on GPUs and TPUs using the numpyro and blackjax backends. 
 See the API for "fit" method for more details 
