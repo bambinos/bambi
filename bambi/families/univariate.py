@@ -1,5 +1,4 @@
 import numpy as np
-import xarray as xr
 import pytensor.tensor as pt
 
 from bambi.families.family import Family
@@ -8,6 +7,27 @@ from bambi.utils import get_aliased_name
 
 class UnivariateFamily(Family):
     KIND = "Univariate"
+
+
+class BinomialBaseFamily(UnivariateFamily):
+    def posterior_predictive(self, model, posterior, **kwargs):
+        data = kwargs["data"]
+        if data is None:
+            trials = model.response_component.response_term.data[:, 1]
+        else:
+            trials = model.response_component.design.response.evaluate_new_data(data).astype(int)
+        # Prepend 'draw' and 'chain' dimensions
+        trials = trials[np.newaxis, np.newaxis, :]
+        return super().posterior_predictive(model, posterior, n=trials)
+
+    @staticmethod
+    def transform_backend_kwargs(kwargs):
+        # Only used when fitting data, not when getting draws from posterior predictive distribution
+        if "observed" in kwargs:
+            observed = kwargs.pop("observed")
+            kwargs["observed"] = observed[:, 0].squeeze()
+            kwargs["n"] = observed[:, 1].squeeze()
+        return kwargs
 
 
 class AsymmetricLaplace(UnivariateFamily):
@@ -46,27 +66,22 @@ class Beta(UnivariateFamily):
         return kwargs
 
 
-class Binomial(UnivariateFamily):
-    SUPPORTED_LINKS = {"p": ["identity", "logit", "probit", "cloglog"]}
-
-    def posterior_predictive(self, model, posterior, **kwargs):
-        data = kwargs["data"]
-
-        if data is None:
-            trials = model.response_component.response_term.data[:, 1]
-        else:
-            trials = model.response_component.design.response.evaluate_new_data(data)
-
-        response_name = get_aliased_name(model.response_component.response_term)
-        mean = posterior[response_name + "_mean"]
-        return xr.apply_ufunc(np.random.binomial, trials.squeeze(), mean)
+class BetaBinomial(BinomialBaseFamily):
+    # We use the 'mu' and 'kappa' parametrization of the Beta
+    SUPPORTED_LINKS = {"mu": ["logit", "probit", "cloglog"], "kappa": ["log"]}
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
-        observed = kwargs.pop("observed")
-        kwargs["observed"] = observed[:, 0].squeeze()
-        kwargs["n"] = observed[:, 1].squeeze()
-        return kwargs
+        # Beta specific parameters
+        mu = kwargs.pop("mu")
+        kappa = kwargs.pop("kappa")
+        kwargs["alpha"] = mu * kappa
+        kwargs["beta"] = (1 - mu) * kappa
+        return BinomialBaseFamily.transform_backend_kwargs(kwargs)
+
+
+class Binomial(BinomialBaseFamily):
+    SUPPORTED_LINKS = {"p": ["identity", "logit", "probit", "cloglog"]}
 
 
 class Categorical(UnivariateFamily):
@@ -150,30 +165,11 @@ class Wald(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["inverse", "inverse_squared", "identity", "log"], "lam": ["log"]}
 
 
-class ZeroInflatedBinomial(UnivariateFamily):
+class ZeroInflatedBinomial(BinomialBaseFamily):
     SUPPORTED_LINKS = {
         "p": ["identity", "logit", "probit", "cloglog"],
         "psi": ["logit", "probit", "cloglog"],
     }
-
-    def posterior_predictive(self, model, posterior, **kwargs):
-        data = kwargs["data"]
-        if data is None:
-            trials = model.response_component.response_term.data[:, 1]
-        else:
-            trials = model.response_component.design.response.evaluate_new_data(data).astype(int)
-        # Prepend 'draw' and 'chain' dimensions
-        trials = trials[np.newaxis, np.newaxis, :]
-        return super().posterior_predictive(model, posterior, n=trials)
-
-    @staticmethod
-    def transform_backend_kwargs(kwargs):
-        # Only used when fitting data, not when getting draws from posterior predictive distribution
-        if "observed" in kwargs:
-            observed = kwargs.pop("observed")
-            kwargs["observed"] = observed[:, 0].squeeze()
-            kwargs["n"] = observed[:, 1].squeeze()
-        return kwargs
 
 
 class ZeroInflatedNegativeBinomial(UnivariateFamily):
