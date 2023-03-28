@@ -370,7 +370,7 @@ def test_predict_include_group_specific():
 def test_predict_offset():
     # Simple case
 
-    data = load_data("carclaims")
+    data = bmb.load_data("carclaims")
     model = Model("numclaims ~ offset(np.log(exposure))", data, family="poisson", link="log")
     idata = model.fit(tune=100, draws=100, chains=2, random_seed=1234)
     model.predict(idata)
