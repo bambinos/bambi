@@ -207,6 +207,11 @@ class DistributionalComponent:
                 else:
                     maximum_distance = 1
 
+                # NOTE:
+                # The approach here differs from the one in the PyMC implementation.
+                # Here we have a single dot product with many zeros, while there we have many
+                # smaller dot products.
+                # It is subject to change here, but I don't want to mess up dims and coords.
                 if term.by_levels is not None:
                     by_values = x_slice[:, -1].astype(int)
                     x_slice = x_slice[:, :-1]
@@ -222,7 +227,7 @@ class DistributionalComponent:
                     x_slice_centered = (x_slice - term.mean) / maximum_distance
                     phi = term.hsgp.prior_linearized(x_slice_centered)[0].eval()
 
-                # Convert 'phi' and 'sqrt_psd' to xarray.DataArrays for easier math
+                # Convert 'phi' to xarray.DataArray for easier math
                 # Notice the extra '_' in the dim name for the weights
                 phi = xr.DataArray(phi, dims=(response_dim, f"{term_aliased_name}__weights_dim"))
                 weights = posterior[f"{term_aliased_name}_weights"]
