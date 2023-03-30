@@ -73,7 +73,7 @@ def test_term_init(diabetes_data):
 def test_distribute_group_specific_effect_over(diabetes_data):
     # 163 unique levels of BMI in diabetes_data
     # With intercept
-    model = bmb.bmb.Model("BP ~ (C(age_grp)|BMI)", diabetes_data)
+    model = bmb.Model("BP ~ (C(age_grp)|BMI)", diabetes_data)
 
     # Treatment encoding because of the intercept
     levels = sorted(list(diabetes_data["age_grp"].unique()))[1:]

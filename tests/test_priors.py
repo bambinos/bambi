@@ -145,7 +145,7 @@ def test_family_link_unsupported():
     family = bmb.Family("cheese", likelihood=likelihood, link="cloglog")
     family.set_default_priors({"milk": prior})
     with pytest.raises(
-        ValueError, match="bmb.Link 'Empty' cannot be used for 'holes' with family 'cheese'"
+        ValueError, match="Link 'Empty' cannot be used for 'holes' with family 'cheese'"
     ):
         family.link = "Empty"
 

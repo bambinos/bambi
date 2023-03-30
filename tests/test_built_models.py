@@ -610,7 +610,7 @@ def test_quantile_regression():
 
 def test_plot_priors(crossed_data):
     model = bmb.Model("Y ~ 0 + threecats", crossed_data)
-    with pytest.raises(ValueError, match="bmb.Model is not built yet"):
+    with pytest.raises(ValueError, match="Model is not built yet"):
         model.plot_priors()
     model.build()
     model.plot_priors()
@@ -618,7 +618,7 @@ def test_plot_priors(crossed_data):
 
 def test_model_graph(crossed_data):
     model = bmb.Model("Y ~ 0 + threecats", crossed_data)
-    with pytest.raises(ValueError, match="bmb.Model is not built yet"):
+    with pytest.raises(ValueError, match="Model is not built yet"):
         model.graph()
     model.build()
     model.graph()
