@@ -3,10 +3,10 @@ import pytest
 import numpy as np
 import pandas as pd
 
+import bambi as bmb
 from bambi.utils import listify
 from bambi.backend.pymc import probit, cloglog
 from bambi.transformations import censored
-
 
 def test_listify():
     assert listify(None) == []

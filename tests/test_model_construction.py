@@ -10,11 +10,8 @@ import pytest
 
 from formulae import design_matrices
 
-from bambi.data.datasets import load_data
-from bambi.models import Model
+import bambi as bmb
 from bambi.terms import CommonTerm, GroupSpecificTerm
-from bambi.priors import Prior
-from bambi.families import Family, Likelihood
 
 
 @pytest.fixture(scope="module")
@@ -76,7 +73,7 @@ def test_term_init(diabetes_data):
 def test_distribute_group_specific_effect_over(diabetes_data):
     # 163 unique levels of BMI in diabetes_data
     # With intercept
-    model = Model("BP ~ (C(age_grp)|BMI)", diabetes_data)
+    model = bmb.Model("BP ~ (C(age_grp)|BMI)", diabetes_data)
 
     # Treatment encoding because of the intercept
     levels = sorted(list(diabetes_data["age_grp"].unique()))[1:]
@@ -93,7 +90,7 @@ def test_distribute_group_specific_effect_over(diabetes_data):
     assert model.response_component.terms["C(age_grp)|BMI"].data.shape == (442, 326)
 
     # Without intercept. Reference level is not removed.
-    model = Model("BP ~ (0 + C(age_grp)|BMI)", diabetes_data)
+    model = bmb.Model("BP ~ (0 + C(age_grp)|BMI)", diabetes_data)
     assert "C(age_grp)|BMI" in model.response_component.terms
     assert not "1|BMI" in model.response_component.terms
     assert model.response_component.terms["C(age_grp)|BMI"].data.shape == (442, 489)
@@ -101,11 +98,11 @@ def test_distribute_group_specific_effect_over(diabetes_data):
 
 def test_model_init_bad_data():
     with pytest.raises(ValueError):
-        Model("y ~ x", {"x": 1})
+        bmb.Model("y ~ x", {"x": 1})
 
 
 def test_unbuilt_model(diabetes_data):
-    model = Model("Y ~ AGE", data=diabetes_data)
+    model = bmb.Model("Y ~ AGE", data=diabetes_data)
     with pytest.raises(ValueError):
         model._check_built()
 
@@ -119,10 +116,10 @@ def test_model_categorical_argument():
             "z": rng.integers(2, size=100),
         }
     )
-    model = Model("y ~ 0 + x", data, categorical="x")
+    model = bmb.Model("y ~ 0 + x", data, categorical="x")
     assert model.response_component.terms["x"].categorical
 
-    model = Model("y ~ 0 + x*z", data, categorical=["x", "z"])
+    model = bmb.Model("y ~ 0 + x*z", data, categorical=["x", "z"])
     assert model.response_component.terms["x"].categorical
     assert model.response_component.terms["z"].categorical
     assert model.response_component.terms["x:z"].categorical
@@ -130,18 +127,18 @@ def test_model_categorical_argument():
 
 def test_model_no_response():
     with pytest.raises(ValueError):
-        Model("x", pd.DataFrame({"x": [1]}))
+        bmb.Model("x", pd.DataFrame({"x": [1]}))
 
 
 def test_model_term_names_property(diabetes_data):
-    model = Model("BMI ~ age_grp + BP + S1", diabetes_data)
+    model = bmb.Model("BMI ~ age_grp + BP + S1", diabetes_data)
     assert model.response_component.intercept_term.name == "Intercept"
     assert set(model.response_component.common_terms) == {"age_grp", "BP", "S1"}
 
 
 def test_model_term_names_property_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
-    model = Model("Y ~ threecats*fourcats", crossed_data)
+    model = bmb.Model("Y ~ threecats*fourcats", crossed_data)
     assert model.response_component.intercept_term.name == "Intercept"
     assert set(model.response_component.common_terms) == {
         "threecats",
@@ -152,7 +149,7 @@ def test_model_term_names_property_interaction(crossed_data):
 
 def test_model_terms_levels_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
-    model = Model("Y ~ threecats*fourcats", crossed_data)
+    model = bmb.Model("Y ~ threecats*fourcats", crossed_data)
 
     assert model.response_component.terms["threecats:fourcats"].levels == [
         "b, b",
@@ -175,7 +172,7 @@ def test_model_terms_levels():
             "subject": reduce(add, [[f"Subject {x}"] * 10 for x in range(1, 6)]),
         }
     )
-    model = Model("y ~ x + z + time + (time|subject)", data)
+    model = bmb.Model("y ~ x + z + time + (time|subject)", data)
     assert model.response_component.terms["z"].levels == ["Group 2", "Group 3"]
     assert model.response_component.terms["1|subject"].groups == [
         f"Subject {x}" for x in range(1, 6)
@@ -196,7 +193,7 @@ def test_model_term_classes():
         }
     )
 
-    model = Model("y ~ x*g + (x|s)", data)
+    model = bmb.Model("y ~ x*g + (x|s)", data)
 
     assert isinstance(model.response_component.terms["x"], CommonTerm)
     assert isinstance(model.response_component.terms["g"], CommonTerm)
@@ -209,7 +206,7 @@ def test_model_term_classes():
 
 
 def test_one_shot_formula_fit(diabetes_data):
-    model = Model("S3 ~ S1 + S2", diabetes_data)
+    model = bmb.Model("S3 ~ S1 + S2", diabetes_data)
     model.fit(draws=50)
     named_vars = model.backend.model.named_vars
     targets = ["S3", "S1", "Intercept"]
@@ -227,7 +224,7 @@ def test_categorical_term():
             "g2": ["x", "x", "z", "z", "y", "y"],
         }
     )
-    model = Model("y ~ x1 + x2 + g1 + (g1|g2) + (x2|g2)", data)
+    model = bmb.Model("y ~ x1 + x2 + g1 + (g1|g2) + (x2|g2)", data)
     fitted = model.fit(tune=100, draws=100)
     df = az.summary(fitted)
     names = {
@@ -261,7 +258,7 @@ def test_omit_offsets_false():
             "g1": ["a"] * 50 + ["b"] * 50,
         }
     )
-    model = Model("y ~ x1 + (x1|g1)", data)
+    model = bmb.Model("y ~ x1 + (x1|g1)", data)
     fitted = model.fit(tune=100, draws=100, omit_offsets=False)
     offsets = [var for var in fitted.posterior.var() if var.endswith("_offset")]
     assert offsets == ["1|g1_offset", "x1|g1_offset"]
@@ -276,7 +273,7 @@ def test_omit_offsets_true():
             "g1": ["a"] * 50 + ["b"] * 50,
         }
     )
-    model = Model("y ~ x1 + (x1|g1)", data)
+    model = bmb.Model("y ~ x1 + (x1|g1)", data)
     fitted = model.fit(tune=100, draws=100, omit_offsets=True)
     offsets = [var for var in fitted.posterior.var() if var.endswith("_offset")]
     assert not offsets
@@ -291,15 +288,15 @@ def test_hyperprior_on_common_effect():
             "g1": ["a"] * 50 + ["b"] * 50,
         }
     )
-    slope = Prior("Normal", mu=0, sd=Prior("HalfCauchy", beta=2))
+    slope = bmb.Prior("Normal", mu=0, sd=bmb.Prior("HalfCauchy", beta=2))
 
     priors = {"x1": slope}
     with pytest.raises(ValueError):
-        Model("y ~ x1 + (x1|g1)", data, priors=priors)
+        bmb.Model("y ~ x1 + (x1|g1)", data, priors=priors)
 
     priors = {"common": slope}
     with pytest.raises(ValueError):
-        Model("y ~ x1 + (x1|g1)", data, priors=priors)
+        bmb.Model("y ~ x1 + (x1|g1)", data, priors=priors)
 
 
 @pytest.mark.parametrize(
@@ -318,7 +315,7 @@ def test_hyperprior_on_common_effect():
 def test_automatic_priors(family):
     """Test that automatic priors work correctly"""
     obs = pd.DataFrame([0], columns=["x"])
-    Model("x ~ 0", obs, family=family)
+    bmb.Model("x ~ 0", obs, family=family)
 
 
 def test_links():
@@ -345,9 +342,9 @@ def test_links():
     for family, links in FAMILIES.items():
         for link in links:
             if family == "bernoulli":
-                Model("g ~ x", data, family=family, link=link)
+                bmb.Model("g ~ x", data, family=family, link=link)
             else:
-                Model("y ~ x", data, family=family, link=link)
+                bmb.Model("y ~ x", data, family=family, link=link)
 
 
 def test_bad_links():
@@ -378,7 +375,7 @@ def test_bad_links():
                     formula = "g ~ x"
                 else:
                     formula = "y ~ x"
-                Model(formula, data, family=family, link=link)
+                bmb.Model(formula, data, family=family, link=link)
 
 
 def test_constant_terms():
@@ -392,10 +389,10 @@ def test_constant_terms():
     )
 
     with pytest.raises(ValueError):
-        Model("y ~ 0 + x", data)
+        bmb.Model("y ~ 0 + x", data)
 
     with pytest.raises(ValueError):
-        Model("y ~ 0 + z", data)
+        bmb.Model("y ~ 0 + z", data)
 
 
 def test_1d_group_specific():
@@ -411,16 +408,16 @@ def test_1d_group_specific():
     # We need to ensure x|g is of shape (40,) and not of shape (40, 1)
     # We do so by checking the mean is (40, ) because shape of x|g still returns (40, 1)
     # The difference is that we do .squeeze() on it after creation.
-    model = Model("y ~ (x|g)", data)
+    model = bmb.Model("y ~ (x|g)", data)
     model.build()
     assert model.backend.components["y"].output.shape.eval() == (40,)
 
 
 def test_data_is_copied():
-    adults = load_data("adults")
+    adults = bmb.load_data("adults")
 
-    model_1 = Model("age ~ sex * race", adults)
-    model_2 = Model("age ~ sex * race", adults, categorical=["age", "sex"])
+    model_1 = bmb.Model("age ~ sex * race", adults)
+    model_2 = bmb.Model("age ~ sex * race", adults, categorical=["age", "sex"])
 
     for model in [model_1, model_2]:
         assert id(adults) != id(model.data)
@@ -437,7 +434,7 @@ def test_response_is_censored():
             "status": ["none", "right", "interval", "left", "none"],
         }
     )
-    dm = Model("censored(x, status) ~ 1", df)
+    dm = bmb.Model("censored(x, status) ~ 1", df)
     assert dm.response.is_censored
 
 
@@ -447,21 +444,21 @@ def test_custom_likelihood_function():
     def CustomGaussian(*args, **kwargs):
         return pm.Normal(*args, **kwargs)
 
-    sigma_prior = Prior("HalfNormal", sigma=1)
-    likelihood = Likelihood(
+    sigma_prior = bmb.Prior("HalfNormal", sigma=1)
+    likelihood = bmb.Likelihood(
         "CustomGaussian", params=["mu", "sigma"], parent="mu", dist=CustomGaussian
     )
-    family = Family("custom_gaussian", likelihood, "identity")
-    model = Model("y ~ x", df, family=family, priors={"sigma": sigma_prior})
+    family = bmb.Family("custom_gaussian", likelihood, "identity")
+    model = bmb.Model("y ~ x", df, family=family, priors={"sigma": sigma_prior})
     _ = model.fit(tune=100, draws=100)
     assert model.backend.model.observed_RVs[0].str_repr() == "y ~ N(f(Intercept, x), y_sigma)"
 
 
 def test_extra_namespace():
     """Tests the formula can access an additional namespace"""
-    data = load_data("carclaims")
+    data = bmb.load_data("carclaims")
     extra_namespace = {"levels": data["veh_body"].unique()}
     formula = "numclaims ~ 0 + C(veh_body, levels=levels)"
-    model = Model(formula, data, family="poisson", link="log", extra_namespace=extra_namespace)
+    model = bmb.Model(formula, data, family="poisson", link="log", extra_namespace=extra_namespace)
     term = model.response_component.terms["C(veh_body, levels=levels)"]
     assert (np.asarray(term.levels) == data["veh_body"].unique()).all()

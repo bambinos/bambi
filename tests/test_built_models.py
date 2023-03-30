@@ -10,11 +10,7 @@ import pymc as pm
 
 from scipy.special import expit
 
-from bambi import math
-from bambi.families import Family, Likelihood, Link
-from bambi.formula import Formula
-from bambi.models import Model
-from bambi.priors import Prior
+import bambi as bmb
 from bambi.terms import GroupSpecificTerm
 
 
@@ -120,22 +116,22 @@ def data_1000():
 
 
 def test_empty_model(crossed_data):
-    model0 = Model("Y ~ 0", crossed_data)
+    model0 = bmb.Model("Y ~ 0", crossed_data)
     model0.fit(tune=0, draws=1)
 
 
 def test_intercept_only_model(crossed_data):
-    model0 = Model("Y ~ 1", crossed_data)
+    model0 = bmb.Model("Y ~ 1", crossed_data)
     model0.fit(tune=0, draws=1)
 
 
 def test_slope_only_model(crossed_data):
-    model0 = Model("Y ~ 0 + continuous", crossed_data)
+    model0 = bmb.Model("Y ~ 0 + continuous", crossed_data)
     model0.fit(tune=0, draws=1)
 
 
 def test_cell_means_parameterization(crossed_data):
-    model0 = Model("Y ~ 0 + threecats", crossed_data)
+    model0 = bmb.Model("Y ~ 0 + threecats", crossed_data)
     model0.fit(tune=0, draws=1)
 
 
@@ -144,18 +140,18 @@ def test_3x4_common_anova(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
 
     # with intercept
-    model0 = Model("Y ~ threecats*fourcats", crossed_data)
+    model0 = bmb.Model("Y ~ threecats*fourcats", crossed_data)
     fitted0 = model0.fit(tune=0, draws=1)
     assert len(fitted0.posterior.data_vars) == 5
 
     # without intercept (i.e., 2-factor cell means model)
-    model1 = Model("Y ~ 0 + threecats*fourcats", crossed_data)
+    model1 = bmb.Model("Y ~ 0 + threecats*fourcats", crossed_data)
     fitted1 = model1.fit(tune=0, draws=1)
     assert len(fitted1.posterior.data_vars) == 4
 
 
 def test_cell_means_with_covariate(crossed_data):
-    model = Model("Y ~ 0 + threecats + continuous", crossed_data)
+    model = bmb.Model("Y ~ 0 + threecats + continuous", crossed_data)
     model.build()
     # check that threecats priors have finite variance
     assert not np.isinf(model.response_component.terms["threecats"].prior.args["sigma"]).all()
@@ -170,7 +166,7 @@ def test_many_common_many_group_specific(crossed_data):
     crossed_data_missing.loc[2, "threecats"] = np.nan
 
     # Here I'm comparing implicit/explicit intercepts for group specific effects work the same way.
-    model0 = Model(
+    model0 = bmb.Model(
         "Y ~ continuous + dummy + threecats + (threecats|subj) + (1|item) + (0+continuous|item) + (dummy|item) + (threecats|site)",
         crossed_data_missing,
         dropna=True,
@@ -181,7 +177,7 @@ def test_many_common_many_group_specific(crossed_data):
         chains=2,
     )
 
-    model1 = Model(
+    model1 = bmb.Model(
         "Y ~ continuous + dummy + threecats + (threecats|subj) + (continuous|item) + (dummy|item) + (threecats|site)",
         crossed_data_missing,
         dropna=True,
@@ -289,7 +285,7 @@ def test_cell_means_with_many_group_specific_effects(crossed_data):
             "(1|site)",
         ]
     )
-    model0 = Model(formula, crossed_data)
+    model0 = bmb.Model(formula, crossed_data)
     model0.fit(tune=0, draws=1)
 
     formula = "Y ~" + "+".join(
@@ -302,7 +298,7 @@ def test_cell_means_with_many_group_specific_effects(crossed_data):
             "(threecats|site)",
         ]
     )
-    model1 = Model(formula, crossed_data)
+    model1 = bmb.Model(formula, crossed_data)
     model1.fit(tune=0, draws=1)
 
     # check that the group specific effects design matrices have the same shape
@@ -379,17 +375,17 @@ def test_cell_means_with_many_group_specific_effects(crossed_data):
 
 def test_group_specific_categorical_interaction(crossed_data):
     crossed_data["fourcats"] = sum([[x] * 10 for x in ["a", "b", "c", "d"]], list()) * 3
-    model = Model("Y ~ continuous + (threecats:fourcats|site)", crossed_data)
+    model = bmb.Model("Y ~ continuous + (threecats:fourcats|site)", crossed_data)
     model.fit(tune=10, draws=10)
 
 
 def test_logistic_regression_empty_index(data_100):
-    model = Model("b1 ~ n1", data_100, family="bernoulli")
+    model = bmb.Model("b1 ~ n1", data_100, family="bernoulli")
     model.fit()
 
 
 def test_logistic_regression_good_numeric(data_100):
-    model = Model("b0 ~ n1", data_100, family="bernoulli")
+    model = bmb.Model("b0 ~ n1", data_100, family="bernoulli")
     model.fit()
 
 
@@ -398,7 +394,7 @@ def test_logistic_regression_bad_numeric():
     rng = np.random.default_rng(1234)
     data = pd.DataFrame({"y": rng.choice([1, 2], 50), "x": rng.normal(size=50)})
     with pytest.raises(ValueError, match=error_msg):
-        model = Model("y ~ x", data, family="bernoulli")
+        model = bmb.Model("y ~ x", data, family="bernoulli")
         model.fit()
 
 
@@ -411,7 +407,7 @@ def test_logistic_regression_bad_numeric():
     ],
 )
 def test_logistic_regression_categoric_alternative_samplers(data_100, args):
-    model = Model("b1 ~ n1", data_100, family="bernoulli")
+    model = bmb.Model("b1 ~ n1", data_100, family="bernoulli")
     model.fit(tune=50, draws=50, inference_method=args[0], **args[1])
 
 
@@ -424,23 +420,23 @@ def test_logistic_regression_categoric_alternative_samplers(data_100, args):
     ],
 )
 def test_regression_alternative_samplers(data_100, args):
-    model = Model("n1 ~ n2", data_100)
+    model = bmb.Model("n1 ~ n2", data_100)
     model.fit(tune=50, draws=50, inference_method=args[0], **args[1])
 
 
 def test_laplace_regression(data_100):
-    bmb_model = Model("n1 ~ n2", data_100, family="laplace")
+    bmb_model = bmb.Model("n1 ~ n2", data_100, family="laplace")
     bmb_model.fit()
 
 
 def test_poisson_regression(crossed_data):
     # build model using fit and pymc
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
-    model0 = Model("count ~ dummy + continuous + threecats", crossed_data, family="poisson")
+    model0 = bmb.Model("count ~ dummy + continuous + threecats", crossed_data, family="poisson")
     model0.fit(tune=0, draws=1)
 
     # build model using add
-    model1 = Model("count ~ threecats + continuous + dummy", crossed_data, family="poisson")
+    model1 = bmb.Model("count ~ threecats + continuous + dummy", crossed_data, family="poisson")
     model1.fit(tune=0, draws=1)
 
     # check that term names agree
@@ -492,8 +488,8 @@ def test_poisson_regression(crossed_data):
 
 def test_laplace():
     data = pd.DataFrame(np.repeat((0, 1), (30, 60)), columns=["w"])
-    priors = {"Intercept": Prior("Uniform", lower=0, upper=1)}
-    model = Model("w ~ 1", data=data, family="bernoulli", priors=priors, link="identity")
+    priors = {"Intercept": bmb.Prior("Uniform", lower=0, upper=1)}
+    model = bmb.Model("w ~ 1", data=data, family="bernoulli", priors=priors, link="identity")
     results = model.fit(inference_method="laplace")
     mode_n = results.posterior["Intercept"].mean().item()
     std_n = results.posterior["Intercept"].std().item()
@@ -504,8 +500,8 @@ def test_laplace():
 
 def test_vi():
     data = pd.DataFrame(np.repeat((0, 1), (30, 60)), columns=["w"])
-    priors = {"Intercept": Prior("Uniform", lower=0, upper=1)}
-    model = Model("w ~ 1", data=data, family="bernoulli", priors=priors, link="identity")
+    priors = {"Intercept": bmb.Prior("Uniform", lower=0, upper=1)}
+    model = bmb.Model("w ~ 1", data=data, family="bernoulli", priors=priors, link="identity")
     results = model.fit(inference_method="vi", method="advi")
     samples = results.sample(1000).posterior["Intercept"]
     mode_n = samples.mean()
@@ -520,7 +516,7 @@ def test_vi():
 def test_prior_predictive(crossed_data):
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
     # New default priors are too wide for this case... something to keep investigating
-    model = Model(
+    model = bmb.Model(
         "count ~ threecats + continuous + dummy",
         crossed_data,
         family="poisson",
@@ -546,7 +542,7 @@ def test_prior_predictive(crossed_data):
 
 def test_posterior_predictive(crossed_data):
     crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
-    model = Model("count ~ threecats + continuous + dummy", crossed_data, family="poisson")
+    model = bmb.Model("count ~ threecats + continuous + dummy", crossed_data, family="poisson")
     fitted = model.fit(tune=0, draws=10, chains=2)
     pps = model.predict(fitted, kind="pps", inplace=False)
 
@@ -567,30 +563,30 @@ def test_gamma_regression(dm):
 
     y = rng.gamma(shape_true, y_true / shape_true, N)
     data = pd.DataFrame({"x": x, "y": y})
-    model = Model("y ~ x", data, family="gamma", link="log")
+    model = bmb.Model("y ~ x", data, family="gamma", link="log")
     model.fit(draws=10, tune=10)
 
     # Real data, categorical predictor.
     data = dm[["order", "ind_mg_dry"]]
-    model = Model("ind_mg_dry ~ order", data, family="gamma", link="log")
+    model = bmb.Model("ind_mg_dry ~ order", data, family="gamma", link="log")
     model.fit(draws=10, tune=10)
 
 
 def test_beta_regression():
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "gasoline.csv"))
-    model = Model("yield ~  temp + batch", data, family="beta", categorical="batch")
+    model = bmb.Model("yield ~  temp + batch", data, family="beta", categorical="batch")
     model.fit(draws=10, tune=10, target_accept=0.9)
 
 
 def test_t_regression(data_100):
-    Model("n1 ~ n2", data_100, family="t").fit(draws=10, tune=10)
+    bmb.Model("n1 ~ n2", data_100, family="t").fit(draws=10, tune=10)
 
 
 def test_vonmises_regression():
     rng = np.random.default_rng(1234)
     data = pd.DataFrame({"y": rng.vonmises(0, 1, size=100), "x": rng.normal(size=100)})
-    Model("y ~ x", data, family="vonmises").fit(draws=10, tune=10)
+    bmb.Model("y ~ x", data, family="vonmises").fit(draws=10, tune=10)
 
 
 def test_quantile_regression():
@@ -598,11 +594,11 @@ def test_quantile_regression():
     x = rng.uniform(2, 10, 100)
     y = 2 * x + rng.normal(0, 0.6 * x**0.75)
     data = pd.DataFrame({"x": x, "y": y})
-    bmb_model0 = Model("y ~ x", data, family="asymmetriclaplace", priors={"kappa": 9})
+    bmb_model0 = bmb.Model("y ~ x", data, family="asymmetriclaplace", priors={"kappa": 9})
     idata0 = bmb_model0.fit()
     bmb_model0.predict(idata0)
 
-    bmb_model1 = Model("y ~ x", data, family="asymmetriclaplace", priors={"kappa": 0.1})
+    bmb_model1 = bmb.Model("y ~ x", data, family="asymmetriclaplace", priors={"kappa": 0.1})
     idata1 = bmb_model1.fit()
     bmb_model1.predict(idata1)
 
@@ -613,7 +609,7 @@ def test_quantile_regression():
 
 
 def test_plot_priors(crossed_data):
-    model = Model("Y ~ 0 + threecats", crossed_data)
+    model = bmb.Model("Y ~ 0 + threecats", crossed_data)
     with pytest.raises(ValueError, match="Model is not built yet"):
         model.plot_priors()
     model.build()
@@ -621,7 +617,7 @@ def test_plot_priors(crossed_data):
 
 
 def test_model_graph(crossed_data):
-    model = Model("Y ~ 0 + threecats", crossed_data)
+    model = bmb.Model("Y ~ 0 + threecats", crossed_data)
     with pytest.raises(ValueError, match="Model is not built yet"):
         model.graph()
     model.build()
@@ -630,14 +626,14 @@ def test_model_graph(crossed_data):
 
 def test_potentials():
     data = pd.DataFrame(np.repeat((0, 1), (18, 20)), columns=["w"])
-    priors = {"Intercept": Prior("Uniform", lower=0, upper=1)}
+    priors = {"Intercept": bmb.Prior("Uniform", lower=0, upper=1)}
 
     potentials = [
-        (("Intercept", "Intercept"), lambda x, y: math.switch(x < 0.45, y, -np.inf)),
-        ("Intercept", lambda x: math.switch(x > 0.55, 0, -np.inf)),
+        (("Intercept", "Intercept"), lambda x, y: bmb.math.switch(x < 0.45, y, -np.inf)),
+        ("Intercept", lambda x: bmb.math.switch(x > 0.55, 0, -np.inf)),
     ]
 
-    model = Model(
+    model = bmb.Model(
         "w ~ 1",
         data,
         family="bernoulli",
@@ -668,17 +664,17 @@ def test_binomial_regression():
         }
     )
 
-    model = Model("prop(y, n) ~ x", data, family="binomial")
+    model = bmb.Model("prop(y, n) ~ x", data, family="binomial")
     model.fit(draws=10, tune=10)
 
     # Using constant instead of variable in data frame
-    model = Model("prop(y, 62) ~ x", data, family="binomial")
+    model = bmb.Model("prop(y, 62) ~ x", data, family="binomial")
     model.fit(draws=10, tune=10)
 
 
 @pytest.mark.skip(reason="this example no longer trigger the fallback to adapt_diag")
 def test_init_fallback(init_data, caplog):
-    model = Model("od ~ temp + (1|source) + 0", init_data)
+    model = bmb.Model("od ~ temp + (1|source) + 0", init_data)
     with caplog.at_level(logging.INFO):
         model.fit(draws=100, init="auto")
         assert "Initializing NUTS using jitter+adapt_diag..." in caplog.text
@@ -687,23 +683,23 @@ def test_init_fallback(init_data, caplog):
 
 
 def test_categorical_family(inhaler):
-    model = Model("rating ~ period + carry + treat", inhaler, family="categorical")
+    model = bmb.Model("rating ~ period + carry + treat", inhaler, family="categorical")
     model.fit(draws=10, tune=10)
 
 
 def test_categorical_family_varying_intercept(inhaler):
-    model = Model("rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical")
+    model = bmb.Model("rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical")
     model.fit(draws=10, tune=10)
 
 
 def test_categorical_family_categorical_predictors(categorical_family_categorical_predictor):
     formula = "response ~ group + city"
-    model = Model(formula, categorical_family_categorical_predictor, family="categorical")
+    model = bmb.Model(formula, categorical_family_categorical_predictor, family="categorical")
     model.fit(draws=10, tune=10)
 
 
 def test_set_alias(data_100):
-    model = Model("n1 ~ n2 + (n2|cat1)", data_100)
+    model = bmb.Model("n1 ~ n2 + (n2|cat1)", data_100)
     aliases = {
         "Intercept": "α",
         "n2": "β",
@@ -719,7 +715,7 @@ def test_set_alias(data_100):
 
 def test_fit_include_mean(crossed_data):
     draws = 500
-    model = Model("Y ~ continuous * threecats", crossed_data)
+    model = bmb.Model("Y ~ continuous * threecats", crossed_data)
     idata = model.fit(tune=draws, draws=draws, include_mean=True)
     assert idata.posterior["Y_mean"].shape[1:] == (draws, 120)
 
@@ -772,7 +768,7 @@ def test_group_specific_splines():
     )
     knots = np.array([191.0, 297.0, 512.5])
 
-    model = Model("y ~ (bs(x, knots=knots, intercept=False, degree=1)|day)", data=x_check)
+    model = bmb.Model("y ~ (bs(x, knots=knots, intercept=False, degree=1)|day)", data=x_check)
     model.build()
 
 
@@ -791,9 +787,9 @@ def test_2d_response_no_shape():
         kwargs["dims"] = kwargs.get("dims")[0]
         return pm.Binomial(name, p=p, n=n, observed=y, **kwargs)
 
-    likelihood = Likelihood("CustomBinomial", params=["p"], parent="p", dist=fn)
-    link = Link("logit")
-    family = Family("custom-binomial", likelihood, link)
+    likelihood = bmb.Likelihood("CustomBinomial", params=["p"], parent="p", dist=fn)
+    link = bmb.Link("logit")
+    family = bmb.Family("custom-binomial", likelihood, link)
 
     data = pd.DataFrame(
         {
@@ -803,7 +799,7 @@ def test_2d_response_no_shape():
         }
     )
 
-    model = Model("prop(y, n) ~ x", data, family=family)
+    model = bmb.Model("prop(y, n) ~ x", data, family=family)
     model.fit(draws=10, tune=10)
 
 
@@ -814,7 +810,7 @@ def test_zero_inflated_poisson():
     x = np.concatenate([np.zeros(250), rng.poisson(lam=3, size=750)])
     df = pd.DataFrame({"response": x})
 
-    model = Model("response ~ 1", df, family="zero_inflated_poisson")
+    model = bmb.Model("response ~ 1", df, family="zero_inflated_poisson")
     idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
     model.predict(idata, kind="pps")
 
@@ -829,8 +825,8 @@ def test_zero_inflated_poisson():
     y = pm.draw(pm.ZeroInflatedPoisson.dist(mu=mu, psi=psi))
     df = pd.DataFrame({"y": y, "x": x})
 
-    formula = Formula("y ~ x", "psi ~ x")
-    model = Model(formula, df, family="zero_inflated_poisson")
+    formula = bmb.Formula("y ~ x", "psi ~ x")
+    model = bmb.Model(formula, df, family="zero_inflated_poisson")
     idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
     model.predict(idata, kind="pps")
 
@@ -841,7 +837,7 @@ def test_zero_inflated_binomial():
     # Basic intercept-only model
     y = pm.draw(pm.ZeroInflatedBinomial.dist(p=0.5, n=30, psi=0.7), draws=500, random_seed=1234)
     df = pd.DataFrame({"y": y})
-    model = Model("p(y, 30) ~ 1", df, family="zero_inflated_binomial")
+    model = bmb.Model("p(y, 30) ~ 1", df, family="zero_inflated_binomial")
     idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
     model.predict(idata, kind="pps")
 
@@ -855,8 +851,8 @@ def test_zero_inflated_binomial():
     y = pm.draw(pm.ZeroInflatedBinomial.dist(p=p, psi=psi, n=30))
     df = pd.DataFrame({"y": y, "x": x})
 
-    formula = Formula("prop(y, 30) ~ x", "psi ~ x")
-    model = Model(formula, df, family="zero_inflated_binomial")
+    formula = bmb.Formula("prop(y, 30) ~ x", "psi ~ x")
+    model = bmb.Model(formula, df, family="zero_inflated_binomial")
     idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
     model.predict(idata, kind="pps")
 
@@ -869,8 +865,8 @@ def test_zero_inflated_negativebinomial():
         pm.ZeroInflatedNegativeBinomial.dist(mu=5, alpha=30, psi=0.7), draws=500, random_seed=1234
     )
     df = pd.DataFrame({"y": y})
-    priors = {"alpha": Prior("HalfNormal", sigma=20)}
-    model = Model("y ~ 1", df, family="zero_inflated_negativebinomial", priors=priors)
+    priors = {"alpha": bmb.Prior("HalfNormal", sigma=20)}
+    model = bmb.Model("y ~ 1", df, family="zero_inflated_negativebinomial", priors=priors)
     idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
     model.predict(idata, kind="pps")
 
@@ -884,8 +880,8 @@ def test_zero_inflated_negativebinomial():
     y = pm.draw(pm.ZeroInflatedNegativeBinomial.dist(mu=mu, alpha=30, psi=psi))
     df = pd.DataFrame({"y": y, "x": x})
 
-    priors = {"alpha": Prior("HalfNormal", sigma=20)}
-    formula = Formula("y ~ x", "psi ~ x")
-    model = Model(formula, df, family="zero_inflated_negativebinomial", priors=priors)
+    priors = {"alpha": bmb.Prior("HalfNormal", sigma=20)}
+    formula = bmb.Formula("y ~ x", "psi ~ x")
+    model = bmb.Model(formula, df, family="zero_inflated_negativebinomial", priors=priors)
     idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
     model.predict(idata, kind="pps")

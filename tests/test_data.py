@@ -5,7 +5,7 @@ from urllib.parse import urlunsplit
 import pandas as pd
 import pytest
 
-from bambi import clear_data_home, load_data
+import bambi as bmb
 from bambi.data.datasets import DATASETS, FileMetadata
 
 
@@ -40,30 +40,30 @@ def no_remote_data(monkeypatch, tmpdir):
 def test_clear_data_home():
     resource = DATASETS["test_remote"]
     assert os.path.exists(resource.filename)
-    clear_data_home(data_home=os.path.dirname(resource.filename))
+    bmb.clear_data_home(data_home=os.path.dirname(resource.filename))
     assert not os.path.exists(resource.filename)
 
 
 def test_load_data():
-    df = load_data("test_remote")
+    df = bmb.load_data("test_remote")
     df_ = pd.DataFrame({"x": [0], "y": [1]})
     assert df.equals(df_)
 
 
 def test_bad_checksum():
     resource = DATASETS["test_remote"]
-    clear_data_home(data_home=os.path.dirname(resource.filename))
+    bmb.clear_data_home(data_home=os.path.dirname(resource.filename))
     with pytest.raises(IOError):
-        load_data("bad_checksum")
+        bmb.load_data("bad_checksum")
 
 
 def test_missing_dataset():
     with pytest.raises(ValueError):
-        load_data("does not exist")
+        bmb.load_data("does not exist")
 
 
 def test_list_datasets():
-    dataset_string = load_data()
+    dataset_string = bmb.load_data()
     # make sure all the names of the data sets are in the dataset description
     for key in ("my_data",):
         assert key in dataset_string

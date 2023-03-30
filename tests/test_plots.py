@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import pytest
 
-from bambi.models import Model, Formula
+import bambi as bmb
 from bambi.plots import plot_cap
 
 
@@ -15,7 +15,7 @@ def mtcars():
     data["cyl"] = data["cyl"].replace({4: "low", 6: "medium", 8: "high"})
     data["cyl"] = pd.Categorical(data["cyl"], categories=["low", "medium", "high"], ordered=True)
     data["gear"] = data["gear"].replace({3: "A", 4: "B", 5: "C"})
-    model = Model("mpg ~ 0 + hp * wt + cyl + gear", data)
+    model = bmb.Model("mpg ~ 0 + hp * wt + cyl + gear", data)
     idata = model.fit(tune=500, draws=500, random_seed=1234)
     return model, idata
 
@@ -162,8 +162,8 @@ def test_multiple_outputs():
     y = rng.gamma(shape, np.exp(a + b * x) / shape, N)
     data_gamma = pd.DataFrame({"x": x, "y": y})
 
-    formula = Formula("y ~ x", "alpha ~ x")
-    model = Model(formula, data_gamma, family="gamma")
+    formula = bmb.Formula("y ~ x", "alpha ~ x")
+    model = bmb.Model(formula, data_gamma, family="gamma")
     idata = model.fit(tune=100, draws=100, random_seed=1234)
     # Test default target
     plot_cap(model, idata, "x")

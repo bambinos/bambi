@@ -1,22 +1,22 @@
 import pytest
 
-from bambi import load_data, Formula, Model
+import bambi as bmb
 
 
 @pytest.fixture(scope="module")
 def my_data():
-    return load_data("my_data")
+    return bmb.load_data("my_data")
 
 
 @pytest.fixture(scope="module")
 def anes():
-    return load_data("ANES")
+    return bmb.load_data("ANES")
 
 
 def test_non_distributional_model(my_data):
     # Plain model
-    formula = Formula("y ~ x")
-    model = Model(formula, my_data)
+    formula = bmb.Formula("y ~ x")
+    model = bmb.Model(formula, my_data)
     idata = model.fit(tune=100, draws=100)
     model.predict(idata)
 
@@ -34,8 +34,8 @@ def test_non_distributional_model(my_data):
 
 
 def test_distributional_model(my_data):
-    formula = Formula("y ~ x", "sigma ~ x")
-    model = Model(formula, my_data)
+    formula = bmb.Formula("y ~ x", "sigma ~ x")
+    model = bmb.Model(formula, my_data)
     idata = model.fit(tune=100, draws=100)
     model.predict(idata)
 
@@ -74,7 +74,7 @@ def test_distributional_model(my_data):
 
 
 def test_non_distributional_model_with_categories(anes):
-    model = Model("vote[clinton] ~ age + age:party_id", anes, family="bernoulli")
+    model = bmb.Model("vote[clinton] ~ age + age:party_id", anes, family="bernoulli")
     idata = model.fit(tune=100, draws=100)
     model.predict(idata)
     assert list(idata.posterior.coords) == ["chain", "draw", "age:party_id_dim", "vote_obs"]

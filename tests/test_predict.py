@@ -4,8 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from bambi.models import Model
-from bambi import load_data
+import bambi as bmb
 
 
 @pytest.fixture(scope="module")
@@ -68,7 +67,7 @@ def inhaler():
 
 def test_predict_bernoulli(data_bernoulli):
     data = data_bernoulli
-    model = Model("y ~ x1*x2", data, family="bernoulli")
+    model = bmb.Model("y ~ x1*x2", data, family="bernoulli")
     idata = model.fit(tune=100, draws=100, target_accept=0.9)
 
     # In sample prediction
@@ -89,7 +88,7 @@ def test_predict_bernoulli(data_bernoulli):
 def test_predict_beta(data_beta):
     data = data_beta
     data["batch"] = pd.Categorical(data["batch"], [10, 1, 2, 3, 4, 5, 6, 7, 8, 9], ordered=True)
-    model = Model("yield ~ temp + batch", data, family="beta")
+    model = bmb.Model("yield ~ temp + batch", data, family="beta")
     idata = model.fit(tune=100, draws=100, target_accept=0.90)
 
     model.predict(idata, kind="mean")
@@ -112,7 +111,7 @@ def test_predict_beta(data_beta):
 def test_predict_gamma(data_gamma):
     data = data_gamma
 
-    model = Model("y ~ x", data, family="gamma", link="log")
+    model = bmb.Model("y ~ x", data, family="gamma", link="log")
     idata = model.fit(tune=100, draws=100)
 
     model.predict(idata, kind="mean")
@@ -130,7 +129,7 @@ def test_predict_gamma(data_gamma):
 
 def test_predict_gaussian(data_numeric_xy):
     data = data_numeric_xy
-    model = Model("y ~ x", data, family="gaussian")
+    model = bmb.Model("y ~ x", data, family="gaussian")
     idata = model.fit(tune=100, draws=100)
 
     model.predict(idata, kind="mean")
@@ -143,7 +142,7 @@ def test_predict_gaussian(data_numeric_xy):
 def test_predict_negativebinomial(data_count):
     data = data_count
 
-    model = Model("y ~ x", data, family="negativebinomial")
+    model = bmb.Model("y ~ x", data, family="negativebinomial")
     idata = model.fit(tune=100, draws=100)
 
     model.predict(idata, kind="mean")
@@ -162,7 +161,7 @@ def test_predict_negativebinomial(data_count):
 def test_predict_poisson(data_count):
     data = data_count
 
-    model = Model("y ~ x", data, family="negativebinomial")
+    model = bmb.Model("y ~ x", data, family="negativebinomial")
     idata = model.fit(tune=100, draws=100)
 
     model.predict(idata, kind="mean")
@@ -180,7 +179,7 @@ def test_predict_poisson(data_count):
 
 def test_predict_t(data_numeric_xy):
     data = data_numeric_xy
-    model = Model("y ~ x", data, family="t")
+    model = bmb.Model("y ~ x", data, family="t")
     idata = model.fit(tune=100, draws=100)
 
     model.predict(idata, kind="mean")
@@ -190,7 +189,7 @@ def test_predict_t(data_numeric_xy):
     model.predict(idata, kind="pps", data=data.iloc[:20, :])
 
     # A case where the prior for one of the parameters is constant
-    model = Model("y ~ x", data, family="t", priors={"nu": 4})
+    model = bmb.Model("y ~ x", data, family="t", priors={"nu": 4})
     idata = model.fit(tune=100, draws=100)
 
     model.predict(idata, kind="mean")
@@ -203,7 +202,7 @@ def test_predict_t(data_numeric_xy):
 def test_predict_wald(data_gamma):
     data = data_gamma
 
-    model = Model("y ~ x", data, family="wald", link="log")
+    model = bmb.Model("y ~ x", data, family="wald", link="log")
     idata = model.fit(tune=100, draws=100)
 
     model.predict(idata, kind="mean")
@@ -220,7 +219,7 @@ def test_predict_wald(data_gamma):
 
 
 def test_predict_categorical(inhaler):
-    model = Model("rating ~ period + carry + treat", inhaler, family="categorical")
+    model = bmb.Model("rating ~ period + carry + treat", inhaler, family="categorical")
     idata = model.fit(tune=100, draws=100)
 
     model.predict(idata)
@@ -229,7 +228,7 @@ def test_predict_categorical(inhaler):
     model.predict(idata, data=inhaler.iloc[:20, :])
     assert np.allclose(idata.posterior["rating_mean"].values.sum(-1), 1)
 
-    model = Model("rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical")
+    model = bmb.Model("rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical")
     idata = model.fit(tune=100, draws=100)
 
     model.predict(idata)
@@ -240,7 +239,7 @@ def test_predict_categorical(inhaler):
 
 
 def test_posterior_predictive_categorical(inhaler):
-    model = Model("rating ~ period", data=inhaler, family="categorical")
+    model = bmb.Model("rating ~ period", data=inhaler, family="categorical")
     idata = model.fit(tune=100, draws=100)
     model.predict(idata, kind="pps")
     pps = idata.posterior_predictive["rating"].to_numpy()
@@ -263,7 +262,7 @@ def test_predict_categorical_group_specific():
         }
     )
 
-    model = Model("y ~ x1 + (0 + x2|x1) + (0 + x3|x1 + x2)", data, family="bernoulli")
+    model = bmb.Model("y ~ x1 + (0 + x2|x1) + (0 + x3|x1 + x2)", data, family="bernoulli")
 
     idata = model.fit(tune=100, draws=100, chains=2)
 
@@ -279,14 +278,14 @@ def test_predict_multinomial(inhaler):
     df.columns = ["treat", "carry", "y1", "y2", "y3", "y4"]
 
     # Intercept only
-    model = Model("c(y1, y2, y3, y4) ~ 1", df, family="multinomial")
+    model = bmb.Model("c(y1, y2, y3, y4) ~ 1", df, family="multinomial")
     idata = model.fit(tune=100, draws=100)
 
     model.predict(idata)
     model.predict(idata, data=df.iloc[:3, :])
 
     # Numerical predictors
-    model = Model("c(y1, y2, y3, y4) ~ treat + carry", df, family="multinomial")
+    model = bmb.Model("c(y1, y2, y3, y4) ~ treat + carry", df, family="multinomial")
     idata = model.fit(tune=100, draws=100)
 
     model.predict(idata)
@@ -296,7 +295,7 @@ def test_predict_multinomial(inhaler):
     df["treat"] = df["treat"].replace({-0.5: "A", 0.5: "B"})
     df["carry"] = df["carry"].replace({-1: "a", 0: "b", 1: "c"})
 
-    model = Model("c(y1, y2, y3, y4) ~ treat + carry", df, family="multinomial")
+    model = bmb.Model("c(y1, y2, y3, y4) ~ treat + carry", df, family="multinomial")
     idata = model.fit(tune=100, draws=100)
 
     model.predict(idata)
@@ -313,7 +312,7 @@ def test_predict_multinomial(inhaler):
     )
 
     # Contains group-specific effect
-    model = Model(
+    model = bmb.Model(
         "c(y1, y2, y3, y4) ~ 1 + (1 | state)", data, family="multinomial", noncentered=False
     )
     idata = model.fit(tune=100, draws=100, random_seed=0)
@@ -328,7 +327,7 @@ def test_posterior_predictive_multinomial(inhaler):
     df.columns = ["treat", "carry", "y1", "y2", "y3", "y4"]
 
     # Intercept only
-    model = Model("c(y1, y2, y3, y4) ~ 1", df, family="multinomial")
+    model = bmb.Model("c(y1, y2, y3, y4) ~ 1", df, family="multinomial")
     idata = model.fit(tune=100, draws=100)
 
     # The sum across the columns of the response is the same for all the chain and draws.
@@ -347,7 +346,7 @@ def test_predict_include_group_specific():
         }
     )
 
-    model = Model("y ~ 1 + (1|x1)", data, family="bernoulli")
+    model = bmb.Model("y ~ 1 + (1|x1)", data, family="bernoulli")
     idata = model.fit(tune=100, draws=100, chains=2, random_seed=1234)
     idata_1 = model.predict(idata, data=data, inplace=False, include_group_specific=True)
     idata_2 = model.predict(idata, data=data, inplace=False, include_group_specific=False)
@@ -368,8 +367,8 @@ def test_predict_include_group_specific():
 def test_predict_offset():
     # Simple case
 
-    data = load_data("carclaims")
-    model = Model("numclaims ~ offset(np.log(exposure))", data, family="poisson", link="log")
+    data = bmb.load_data("carclaims")
+    model = bmb.Model("numclaims ~ offset(np.log(exposure))", data, family="poisson", link="log")
     idata = model.fit(tune=100, draws=100, chains=2, random_seed=1234)
     model.predict(idata)
     model.predict(idata, kind="pps")
@@ -384,6 +383,6 @@ def test_predict_offset():
         }
     )
     data["time"] = data["y"] - rng.normal(loc=1, size=100)
-    model = Model("y ~ offset(np.log(time)) + x + (1 | group)", data, family="poisson")
+    model = bmb.Model("y ~ offset(np.log(time)) + x + (1 | group)", data, family="poisson")
     idata = model.fit(tune=100, draws=100, chains=2, target_accept=0.9, random_seed=1234)
     model.predict(idata, kind="pps")
