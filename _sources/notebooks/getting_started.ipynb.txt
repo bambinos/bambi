@@ -662,7 +662,6 @@
    ]
   },
   {
-   "attachments": {},
    "cell_type": "markdown",
    "metadata": {},
    "source": [
@@ -788,6 +787,33 @@
    "metadata": {},
    "source": [
     "It's important to note that explicitly setting priors by passing in ``Prior`` objects will disable Bambi's default behavior of scaling priors to the data in order to ensure that they remain weakly informative. This means that if you specify your own prior, you have to be sure not only to specify the distribution you want, but also any relevant scale parameters. For example, the 0.5 in ``Prior(\"Normal\", mu=0, sd=0.5)`` will be specified on the scale of the data, not the bounded partial correlation scale that Bambi uses for default priors. This means that if your outcome variable has a mean value of 10,000 and a standard deviation of, say, 1,000, you could potentially have some problems getting the model to produce reasonable estimates, since from the perspective of the data, you're specifying an extremely strong prior."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Custom Prior\n",
+    "\n",
+    "Bambi's priors are a thin layer on top of [PyMC distributions](https://www.pymc.io/projects/docs/en/latest/api/distributions.html). If you want to ask for a prior distribution by name, it must be the name of a PyMC distribution. But sometimes we want to use more complex distributions as priors. For all those cases, Bambi's `Prior` class allow users to pass a function that returns a distribution that will be used as the prior. See the following example:\n",
+    "\n",
+    "```python\n",
+    "def CustomPrior(name, *args, dims=None, **kwargs):\n",
+    "    return pm.Normal(name, *args, dims=dims, **kwargs)\n",
+    "\n",
+    "priors = {\"x\": Prior(\"CustomPrior\", mu=0, sigma=5, dist=CustomPrior)}\n",
+    "model = Model(\"y ~ x\", data, priors=priors)\n",
+    "```\n",
+    "\n",
+    "The example above is trival because it's just a wrapper of the `pm.Normal` distribution. But we can use this pattern to construct more complex distributions, such as a Truncated Laplace distribution shown below.\n",
+    "\n",
+    "```python\n",
+    "def TruncatedLaplace(name, mu,b,lower,upper,*args, dims=None, **kwargs):\n",
+    "    lap_dist = pm.Laplace.dist(mu=mu, b=b)\n",
+    "    return pm.Truncated(name, lap_dist, lower=lower, upper=upper, *args, dims=dims, **kwargs)\n",
+    "```\n",
+    "\n",
+    "In summary, custom priors allow for greater flexibility by combining existing PyMC distributions in different ways. If you need to use a distribution that's not implemented in PyMC, please check the [link](https://www.pymc.io/projects/docs/en/latest/contributing/implementing_distribution.html) for further details."
    ]
   },
   {
@@ -1054,7 +1080,6 @@
    ]
   },
   {
-   "attachments": {},
    "cell_type": "markdown",
    "metadata": {},
    "source": [
@@ -1207,7 +1232,6 @@
    ]
   },
   {
-   "attachments": {},
    "cell_type": "markdown",
    "metadata": {},
    "source": [
@@ -1315,7 +1339,7 @@
  ],
  "metadata": {
   "kernelspec": {
-   "display_name": "Python 3.10.4 ('bambi')",
+   "display_name": "Python 3 (ipykernel)",
    "language": "python",
    "name": "python3"
   },
