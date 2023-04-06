@@ -73,7 +73,7 @@ class Multinomial(MultivariateFamily):
 
     def get_coords(self, response):
         # For the moment, it always uses the first column as reference.
-        name = response.name + "_dim"
+        name = get_aliased_name(response) + "_dim"
         labels = self.get_levels(response)
         return {name: labels[1:]}
 
