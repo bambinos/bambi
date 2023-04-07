@@ -93,7 +93,7 @@ class Categorical(UnivariateFamily):
         return np.nonzero(response.term.data)[1]
 
     def get_coords(self, response):
-        name = response.name + "_dim"
+        name = get_aliased_name(response) + "_dim"
         return {name: [level for level in response.levels if level != response.reference]}
 
     def get_reference(self, response):

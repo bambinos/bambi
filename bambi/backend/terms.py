@@ -126,7 +126,7 @@ class GroupSpecificTerm:
         new_coords = {}
         for key, value in coords.items():
             _, kind = key.split("__")
-            new_coords[self.term.alias + kind] = value
+            new_coords[self.term.alias + "__" + kind] = value
         return new_coords
 
     def build_distribution(self, prior, label, **kwargs):
