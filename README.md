@@ -54,7 +54,7 @@ fitted = model.fit()
 In the first line we create and build a Bambi `Model`. The second line tells the sampler to start
 running and it returns an `InferenceData` object, which can be passed to several ArviZ functions
 such as `az.summary()` to get a summary of the parameters distribution and sample diagnostics or
- `az.plot_traces()` to visualize them.
+ `az.plot_trace()` to visualize them.
 
 
 ### Logistic regression
