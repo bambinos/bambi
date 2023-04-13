@@ -1,6 +1,5 @@
 # pylint: disable=unused-argument
 import numpy as np
-import xarray as xr
 import pytensor.tensor as pt
 
 from bambi.families.family import Family
@@ -33,43 +32,9 @@ class Multinomial(MultivariateFamily):
         return mean
 
     def posterior_predictive(self, model, posterior, **kwargs):
-        response_name = get_aliased_name(model.response_component.response_term)
-        response_dim = response_name + "_obs"
-        response_levels_dim_complete = response_name + "_mean_dim"
-
-        mean = posterior[response_name + "_mean"].to_numpy()
-        shape = mean.shape
-
-        # Stack chains and draws
-        mean = mean.reshape((mean.shape[0] * mean.shape[1], mean.shape[2], mean.shape[3]))
-        draws_n = mean.shape[0]
-        obs_n = mean.shape[1]
-
-        # Q: What is the right 'n' for out of sample data?
-        #    right now it assumes that "N" is the same as before..
-        #    It could be improved in the future!
-        pps = np.empty(mean.shape, dtype=int)
-        n = model.response_component.response_term.data.sum(1)
-
-        # random.multinomial only accepts
-        # * n : integer
-        # * p : vector
-        for i in range(obs_n):
-            for j in range(draws_n):
-                pps[j, i, :] = np.random.multinomial(n[i], mean[j, i, :])
-
-        # Final shape is of (chain, draw, obs_n, response_n)
-        pps = pps.reshape(shape)
-        pps = xr.DataArray(
-            pps,
-            coords={
-                "chain": np.arange(shape[0]),
-                "draw": np.arange(shape[1]),
-                response_dim: np.arange(obs_n),
-                response_levels_dim_complete: model.response_component.response_term.levels,
-            },
-        )
-        return pps
+        n = model.response_component.response_term.data.sum(1).astype(int)
+        dont_reshape = ["n"]
+        return super().posterior_predictive(model, posterior, n=n, dont_reshape=dont_reshape)
 
     def get_coords(self, response):
         # For the moment, it always uses the first column as reference.
@@ -85,7 +50,8 @@ class Multinomial(MultivariateFamily):
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
-        kwargs["n"] = kwargs["observed"].sum(axis=1)
+        if "observed" in kwargs:
+            kwargs["n"] = kwargs["observed"].sum(axis=1).astype(int)
         return kwargs
 
     @staticmethod

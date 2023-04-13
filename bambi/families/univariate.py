@@ -55,6 +55,11 @@ class Bernoulli(UnivariateFamily):
 
 
 class Beta(UnivariateFamily):
+    """Beta Family
+
+    It uses the mean (mu) and sample size (kappa) parametrization of the Beta distribution.
+    """
+
     SUPPORTED_LINKS = {"mu": ["logit", "probit", "cloglog"], "kappa": ["log"]}
 
     @staticmethod
@@ -67,16 +72,21 @@ class Beta(UnivariateFamily):
 
 
 class BetaBinomial(BinomialBaseFamily):
-    # We use the 'mu' and 'kappa' parametrization of the Beta
+    """BetaBinomial family
+
+    It uses the mean (mu) and sample size (kappa) parametrization of the Beta distribution.
+    """
+
     SUPPORTED_LINKS = {"mu": ["logit", "probit", "cloglog"], "kappa": ["log"]}
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
-        # Beta specific parameters
+        # First, transform the parameters of the beta component
         mu = kwargs.pop("mu")
         kappa = kwargs.pop("kappa")
         kwargs["alpha"] = mu * kappa
         kwargs["beta"] = (1 - mu) * kappa
+        # Then transform the parameters of the binomial component
         return BinomialBaseFamily.transform_backend_kwargs(kwargs)
 
 
