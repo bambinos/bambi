@@ -176,15 +176,9 @@ class Family:
         output_array = pm.draw(response_dist.dist(**kwargs))
         output_coords_all = xr.merge(output_dataset_list).coords
 
+        coord_names = ["chain", "draw", response_aliased_name + "_obs"]
         if hasattr(model.family, "KIND") and model.family.KIND == "Multivariate":
-            coord_names = (
-                "chain",
-                "draw",
-                response_aliased_name + "_obs",
-                response_aliased_name + "_mean_dim",
-            )
-        else:  # Assume it's univariate family
-            coord_names = ("chain", "draw", response_aliased_name + "_obs")
+            coord_names.append(response_aliased_name + "_dim")
 
         output_coords = {}
         for coord_name in coord_names:

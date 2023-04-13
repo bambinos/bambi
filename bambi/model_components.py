@@ -166,12 +166,18 @@ class DistributionalComponent:
         # Prepare dims objects
         response_name = get_aliased_name(self.spec.response_component.response_term)
         response_dim = response_name + "_obs"
-        response_levels_dim = response_name + "_dim"
         linear_predictor_dims = ("chain", "draw", response_dim)
         to_stack_dims = ("chain", "draw")
         design_matrix_dims = (response_dim, "__variables__")
 
-        if isinstance(self.spec.family, (multivariate.MultivariateFamily, univariate.Categorical)):
+        # These families drop a level in the response
+        if isinstance(self.spec.family, (multivariate.Multinomial, univariate.Categorical)):
+            response_levels_dim = response_name + "_reduced_dim"
+            to_stack_dims = to_stack_dims + (response_levels_dim,)
+            linear_predictor_dims = linear_predictor_dims + (response_levels_dim,)
+        # These families DON'T drop any level in the response
+        elif isinstance(self.spec.family, multivariate.MultivariateFamily):
+            response_levels_dim = response_name + "_dim"
             to_stack_dims = to_stack_dims + (response_levels_dim,)
             linear_predictor_dims = linear_predictor_dims + (response_levels_dim,)
 

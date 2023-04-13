@@ -17,15 +17,15 @@ class Multinomial(MultivariateFamily):
 
     def transform_linear_predictor(self, model, linear_predictor):
         response_name = get_aliased_name(model.response_component.response_term)
-        response_levels_dim = response_name + "_dim"
+        response_levels_dim = response_name + "_reduced_dim"
         linear_predictor = linear_predictor.pad({response_levels_dim: (1, 0)}, constant_values=0)
         return linear_predictor
 
     def transform_coords(self, model, mean):
         # The mean has the reference level in the dimension, a new name is needed
         response_name = get_aliased_name(model.response_component.response_term)
-        response_levels_dim = response_name + "_dim"
-        response_levels_dim_complete = response_name + "_mean_dim"
+        response_levels_dim = response_name + "_reduced_dim"
+        response_levels_dim_complete = response_name + "_dim"
         levels_complete = model.response_component.response_term.levels
         mean = mean.rename({response_levels_dim: response_levels_dim_complete})
         mean = mean.assign_coords({response_levels_dim_complete: levels_complete})
@@ -38,7 +38,7 @@ class Multinomial(MultivariateFamily):
 
     def get_coords(self, response):
         # For the moment, it always uses the first column as reference.
-        name = get_aliased_name(response) + "_dim"
+        name = get_aliased_name(response) + "_reduced_dim"
         labels = self.get_levels(response)
         return {name: labels[1:]}
 
@@ -63,3 +63,29 @@ class Multinomial(MultivariateFamily):
         nu = np.ones(shape) * nu  # (response_levels, ) -> (n, response_levels)
         nu = pt.concatenate([np.zeros(shape), nu], axis=1)
         return nu
+
+
+class DirichletMultinomial(MultivariateFamily):
+    SUPPORTED_LINKS = {"a": ["log"]}
+
+    def posterior_predictive(self, model, posterior, **kwargs):
+        n = model.response_component.response_term.data.sum(1).astype(int)
+        dont_reshape = ["n"]
+        return super().posterior_predictive(model, posterior, n=n, dont_reshape=dont_reshape)
+
+    def get_coords(self, response):
+        name = get_aliased_name(response) + "_dim"
+        labels = self.get_levels(response)
+        return {name: labels}
+
+    def get_levels(self, response):
+        labels = extract_argument_names(response.name, list(transformations_namespace))
+        if labels:
+            return labels
+        return [str(level) for level in range(response.data.shape[1])]
+
+    @staticmethod
+    def transform_backend_kwargs(kwargs):
+        if "observed" in kwargs:
+            kwargs["n"] = kwargs["observed"].sum(axis=1).astype(int)
+        return kwargs

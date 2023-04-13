@@ -11,7 +11,7 @@ from bambi.backend.utils import (
     get_linkinv,
     GP_KERNELS,
 )
-from bambi.families.multivariate import MultivariateFamily, Multinomial
+from bambi.families.multivariate import MultivariateFamily, Multinomial, DirichletMultinomial
 from bambi.families.univariate import Categorical
 from bambi.priors import Prior
 from bambi.utils import get_aliased_name
@@ -289,8 +289,8 @@ class ResponseTerm:
         # In this case, we add extra dimensions to avoid having shape mismatch between the data
         # and the shape implied by the `dims` we pass.
 
-        # Don't do it for the Multinomial family (it's an exception)
-        if isinstance(self.family, Multinomial):
+        # Don't do it for the Multinomial families (it's an exception)
+        if isinstance(self.family, (Multinomial, DirichletMultinomial)):
             return kwargs
 
         dims, data = kwargs["dims"], kwargs["observed"]
