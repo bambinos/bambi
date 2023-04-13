@@ -3,6 +3,7 @@ from bambi.families.univariate import (
     AsymmetricLaplace,
     Bernoulli,
     Beta,
+    BetaBinomial,
     Binomial,
     Categorical,
     Gamma,
@@ -50,6 +51,16 @@ BUILTIN_FAMILIES = {
         },
         "link": {"mu": "logit", "kappa": "log"},
         "family": Beta,
+        "default_priors": {"kappa": "HalfCauchy"},
+    },
+    "beta_binomial": {
+        "likelihood": {
+            "name": "BetaBinomial",
+            "params": ["mu", "kappa"],
+            "parent": "mu",
+        },
+        "link": {"mu": "logit", "kappa": "log"},
+        "family": BetaBinomial,
         "default_priors": {"kappa": "HalfCauchy"},
     },
     "binomial": {
