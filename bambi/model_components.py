@@ -282,17 +282,13 @@ class DistributionalComponent:
         if hasattr(family, "transform_linear_predictor"):
             linear_predictor = family.transform_linear_predictor(self.spec, linear_predictor)
 
-        if hasattr(family, "UFUNC_KWARGS"):
-            ufunc_kwargs = family.UFUNC_KWARGS
-        else:
-            ufunc_kwargs = {}
-
         if self.response_kind == "data":
             linkinv = family.link[family.likelihood.parent].linkinv
         else:
             linkinv = family.link[self.response_name].linkinv
 
-        response = xr.apply_ufunc(linkinv, linear_predictor, kwargs=ufunc_kwargs)
+        invlink_kwargs = getattr(family, "INVLINK_KWARGS", {})
+        response = xr.apply_ufunc(linkinv, linear_predictor, kwargs=invlink_kwargs)
 
         if hasattr(family, "transform_coords"):
             response = family.transform_coords(self.spec, response)

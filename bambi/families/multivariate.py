@@ -13,7 +13,7 @@ class MultivariateFamily(Family):
 
 class Multinomial(MultivariateFamily):
     SUPPORTED_LINKS = {"p": ["softmax"]}
-    UFUNC_KWARGS = {"axis": -1}
+    INVLINK_KWARGS = {"axis": -1}
 
     def transform_linear_predictor(self, model, linear_predictor):
         response_name = get_aliased_name(model.response_component.response_term)
