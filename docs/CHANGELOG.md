@@ -6,10 +6,18 @@
 
 * Add support for Gaussian Processes via the HSGP approximation (#632) 
 * Add new families: `"zero_inflated_poisson"`, `"zero_inflated_binomial"`, and `"zero_inflated_negativebinomial"` (#654)
+* Add new families: `"beta_binomial"` and `"dirichlet_multinomial"` (#659)
 
 ### Maintenance and fixes
 
+* Modify how HSGP is built in PyMC when there are groups (#661)
+* Modify how Bambi is imported in the tests (#662)
+* Prevent underscores from being removed in dim names (#664)
+
 ### Documentation
+
+* Document how to use custom priors (#656)
+* Fix name of arviz traceplot function in the docs (#666)
 
 ### Deprecation
 

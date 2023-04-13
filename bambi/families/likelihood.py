@@ -8,8 +8,10 @@ DistSettings = namedtuple("DistSettings", ["params", "parent"])
 DISTRIBUTIONS = {
     "Bernoulli": DistSettings(params=("p",), parent="p"),
     "Beta": DistSettings(params=("mu", "kappa"), parent="mu"),
+    "BetaBinomial": DistSettings(params=("mu", "kappa"), parent="mu"),
     "Binomial": DistSettings(params=("p",), parent="p"),
     "Categorical": DistSettings(params=("p",), parent="p"),
+    "DirichletMultinomial": DistSettings(params=("a",), parent="a"),
     "Gamma": DistSettings(params=("mu", "alpha"), parent="mu"),
     "Multinomial": DistSettings(params=("p",), parent="p"),
     "Normal": DistSettings(params=("mu", "sigma"), parent="mu"),

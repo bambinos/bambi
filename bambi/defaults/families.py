@@ -3,6 +3,7 @@ from bambi.families.univariate import (
     AsymmetricLaplace,
     Bernoulli,
     Beta,
+    BetaBinomial,
     Binomial,
     Categorical,
     Gamma,
@@ -17,7 +18,7 @@ from bambi.families.univariate import (
     ZeroInflatedNegativeBinomial,
     ZeroInflatedPoisson,
 )
-from bambi.families.multivariate import Multinomial
+from bambi.families.multivariate import Multinomial, DirichletMultinomial
 
 
 # fmt: off
@@ -52,6 +53,16 @@ BUILTIN_FAMILIES = {
         "family": Beta,
         "default_priors": {"kappa": "HalfCauchy"},
     },
+    "beta_binomial": {
+        "likelihood": {
+            "name": "BetaBinomial",
+            "params": ["mu", "kappa"],
+            "parent": "mu",
+        },
+        "link": {"mu": "logit", "kappa": "log"},
+        "family": BetaBinomial,
+        "default_priors": {"kappa": "HalfCauchy"},
+    },
     "binomial": {
         "likelihood": {
             "name": "Binomial",
@@ -69,6 +80,15 @@ BUILTIN_FAMILIES = {
         },
         "link": {"p": "softmax"},
         "family": Categorical,
+    },
+    "dirichlet_multinomial": {
+        "likelihood": {
+            "name": "DirichletMultinomial",
+            "params": ["a"],
+            "parent": "a",
+        },
+        "link": {"a": "log"},
+        "family": DirichletMultinomial,
     },
     "gamma": {
         "likelihood": {

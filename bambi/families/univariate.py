@@ -1,5 +1,4 @@
 import numpy as np
-import xarray as xr
 import pytensor.tensor as pt
 
 from bambi.families.family import Family
@@ -8,6 +7,27 @@ from bambi.utils import get_aliased_name
 
 class UnivariateFamily(Family):
     KIND = "Univariate"
+
+
+class BinomialBaseFamily(UnivariateFamily):
+    def posterior_predictive(self, model, posterior, **kwargs):
+        data = kwargs["data"]
+        if data is None:
+            trials = model.response_component.response_term.data[:, 1]
+        else:
+            trials = model.response_component.design.response.evaluate_new_data(data).astype(int)
+        # Prepend 'draw' and 'chain' dimensions
+        trials = trials[np.newaxis, np.newaxis, :]
+        return super().posterior_predictive(model, posterior, n=trials)
+
+    @staticmethod
+    def transform_backend_kwargs(kwargs):
+        # Only used when fitting data, not when getting draws from posterior predictive distribution
+        if "observed" in kwargs:
+            observed = kwargs.pop("observed")
+            kwargs["observed"] = observed[:, 0].squeeze()
+            kwargs["n"] = observed[:, 1].squeeze()
+        return kwargs
 
 
 class AsymmetricLaplace(UnivariateFamily):
@@ -35,6 +55,11 @@ class Bernoulli(UnivariateFamily):
 
 
 class Beta(UnivariateFamily):
+    """Beta Family
+
+    It uses the mean (mu) and sample size (kappa) parametrization of the Beta distribution.
+    """
+
     SUPPORTED_LINKS = {"mu": ["logit", "probit", "cloglog"], "kappa": ["log"]}
 
     @staticmethod
@@ -46,44 +71,44 @@ class Beta(UnivariateFamily):
         return kwargs
 
 
-class Binomial(UnivariateFamily):
-    SUPPORTED_LINKS = {"p": ["identity", "logit", "probit", "cloglog"]}
+class BetaBinomial(BinomialBaseFamily):
+    """BetaBinomial family
 
-    def posterior_predictive(self, model, posterior, **kwargs):
-        data = kwargs["data"]
+    It uses the mean (mu) and sample size (kappa) parametrization of the Beta distribution.
+    """
 
-        if data is None:
-            trials = model.response_component.response_term.data[:, 1]
-        else:
-            trials = model.response_component.design.response.evaluate_new_data(data)
-
-        response_name = get_aliased_name(model.response_component.response_term)
-        mean = posterior[response_name + "_mean"]
-        return xr.apply_ufunc(np.random.binomial, trials.squeeze(), mean)
+    SUPPORTED_LINKS = {"mu": ["logit", "probit", "cloglog"], "kappa": ["log"]}
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
-        observed = kwargs.pop("observed")
-        kwargs["observed"] = observed[:, 0].squeeze()
-        kwargs["n"] = observed[:, 1].squeeze()
-        return kwargs
+        # First, transform the parameters of the beta component
+        mu = kwargs.pop("mu")
+        kappa = kwargs.pop("kappa")
+        kwargs["alpha"] = mu * kappa
+        kwargs["beta"] = (1 - mu) * kappa
+        # Then transform the parameters of the binomial component
+        return BinomialBaseFamily.transform_backend_kwargs(kwargs)
+
+
+class Binomial(BinomialBaseFamily):
+    SUPPORTED_LINKS = {"p": ["identity", "logit", "probit", "cloglog"]}
 
 
 class Categorical(UnivariateFamily):
     SUPPORTED_LINKS = {"p": ["softmax"]}
-    UFUNC_KWARGS = {"axis": -1}
+    INVLINK_KWARGS = {"axis": -1}
 
     def transform_linear_predictor(self, model, linear_predictor):
         response_name = get_aliased_name(model.response_component.response_term)
-        response_levels_dim = response_name + "_dim"
+        response_levels_dim = response_name + "_reduced_dim"
         linear_predictor = linear_predictor.pad({response_levels_dim: (1, 0)}, constant_values=0)
         return linear_predictor
 
     def transform_coords(self, model, mean):
         # The mean has the reference level in the dimension, a new name is needed
         response_name = get_aliased_name(model.response_component.response_term)
-        response_levels_dim = response_name + "_dim"
-        response_levels_dim_complete = response_name + "_mean_dim"
+        response_levels_dim = response_name + "_reduced_dim"
+        response_levels_dim_complete = response_name + "_dim"
         levels_complete = model.response_component.response_term.levels
         mean = mean.rename({response_levels_dim: response_levels_dim_complete})
         mean = mean.assign_coords({response_levels_dim_complete: levels_complete})
@@ -93,7 +118,7 @@ class Categorical(UnivariateFamily):
         return np.nonzero(response.term.data)[1]
 
     def get_coords(self, response):
-        name = get_aliased_name(response) + "_dim"
+        name = get_aliased_name(response) + "_reduced_dim"
         return {name: [level for level in response.levels if level != response.reference]}
 
     def get_reference(self, response):
@@ -150,30 +175,11 @@ class Wald(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["inverse", "inverse_squared", "identity", "log"], "lam": ["log"]}
 
 
-class ZeroInflatedBinomial(UnivariateFamily):
+class ZeroInflatedBinomial(BinomialBaseFamily):
     SUPPORTED_LINKS = {
         "p": ["identity", "logit", "probit", "cloglog"],
         "psi": ["logit", "probit", "cloglog"],
     }
-
-    def posterior_predictive(self, model, posterior, **kwargs):
-        data = kwargs["data"]
-        if data is None:
-            trials = model.response_component.response_term.data[:, 1]
-        else:
-            trials = model.response_component.design.response.evaluate_new_data(data).astype(int)
-        # Prepend 'draw' and 'chain' dimensions
-        trials = trials[np.newaxis, np.newaxis, :]
-        return super().posterior_predictive(model, posterior, n=trials)
-
-    @staticmethod
-    def transform_backend_kwargs(kwargs):
-        # Only used when fitting data, not when getting draws from posterior predictive distribution
-        if "observed" in kwargs:
-            observed = kwargs.pop("observed")
-            kwargs["observed"] = observed[:, 0].squeeze()
-            kwargs["n"] = observed[:, 1].squeeze()
-        return kwargs
 
 
 class ZeroInflatedNegativeBinomial(UnivariateFamily):

@@ -122,8 +122,9 @@ class Family:
             It must contain the parameters that are needed in the distribution of the response, or
             the parameters that allow to derive them.
         kwargs :
-            Parameters that are used to get draws but do not appear in the posterior object.
-            For instance, the 'n' in binomial models.
+            Parameters that are used to get draws but do not appear in the posterior object or
+            other configuration parameters.
+            For instance, the 'n' in binomial models and multinomial models.
 
         Returns
         -------
@@ -135,10 +136,11 @@ class Family:
         response_aliased_name = get_aliased_name(model.response_component.response_term)
 
         kwargs.pop("data", None)  # Remove the 'data' kwarg
+        dont_reshape = kwargs.pop("dont_reshape", [])
         output_dataset_list = []
 
-        # In the posterior xr.Dataset we need to consider aliases.
-        # But we don't use aliases when passing kwargs to the PyMC distribution
+        # In the posterior xr.Dataset we need to consider aliases,
+        # but we don't use aliases when passing kwargs to the PyMC distribution.
         for param in params:
             # Extract posterior draws for the parent parameter
             if param == model.family.likelihood.parent:
@@ -161,26 +163,22 @@ class Family:
         ndims_max = max(x.ndim for x in kwargs.values())
 
         # Append a dimension when needed. Required to make `pm.draw()` work.
+        # However, some distributions like Multinomial, require some parameters to be of a smaller
+        # dimension than others (n.ndim <= p.ndim - 1) so we don't reshape those.
         for key, values in kwargs.items():
+            if key in dont_reshape:
+                continue
             kwargs[key] = expand_array(values, ndims_max)
 
-        # NOTE: Wouldn't it be better to always use parametrizations compatible with PyMC?
-        # The current approach allows more flexibility, but it's more painful.
         if hasattr(model.family, "transform_backend_kwargs"):
             kwargs = model.family.transform_backend_kwargs(kwargs)
 
         output_array = pm.draw(response_dist.dist(**kwargs))
         output_coords_all = xr.merge(output_dataset_list).coords
 
+        coord_names = ["chain", "draw", response_aliased_name + "_obs"]
         if hasattr(model.family, "KIND") and model.family.KIND == "Multivariate":
-            coord_names = (
-                "chain",
-                "draw",
-                response_aliased_name + "_obs",
-                response_aliased_name + "_mean_dim",
-            )
-        else:  # Assume it's univariate family
-            coord_names = ("chain", "draw", response_aliased_name + "_obs")
+            coord_names.append(response_aliased_name + "_dim")
 
         output_coords = {}
         for coord_name in coord_names:
