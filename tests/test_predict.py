@@ -386,3 +386,42 @@ def test_predict_offset():
     model = bmb.Model("y ~ offset(np.log(time)) + x + (1 | group)", data, family="poisson")
     idata = model.fit(tune=100, draws=100, chains=2, target_accept=0.9, random_seed=1234)
     model.predict(idata, kind="pps")
+
+
+def test_posterior_predictive_dirichlet_multinomial(inhaler):
+    df = inhaler.groupby(["treat", "rating"], as_index=False).size()
+    df = df.pivot(index=["treat"], columns="rating", values="size").reset_index()
+    df.columns = ["treat", "y1", "y2", "y3", "y4"]
+
+    # Intercept only
+    model = bmb.Model("c(y1, y2, y3, y4) ~ 1", df, family="dirichlet_multinomial")
+    idata = model.fit(tune=100, draws=100)
+
+    # The sum across the columns of the response is the same for all the chain and draws.
+    model.predict(idata, kind="pps")
+    assert np.all(idata.posterior_predictive["c(y1, y2, y3, y4)"].values.sum(-1).var((0, 1)) == 0)
+
+    # With predictor only
+    model = bmb.Model("c(y1, y2, y3, y4) ~ 0 + treat", df, family="dirichlet_multinomial")
+    idata = model.fit(tune=100, draws=100)
+
+    # The sum across the columns of the response is the same for all the chain and draws.
+    model.predict(idata, kind="pps")
+    assert np.all(idata.posterior_predictive["c(y1, y2, y3, y4)"].values.sum(-1).var((0, 1)) == 0)
+
+
+def test_posterior_predictive_beta_binomial():
+    data = pd.DataFrame(
+        {
+            "x": np.array([1.6907, 1.7242, 1.7552, 1.7842, 1.8113, 1.8369, 1.8610, 1.8839]),
+            "n": np.array([59, 60, 62, 56, 63, 59, 62, 60]),
+            "y": np.array([6, 13, 18, 28, 52, 53, 61, 60]),
+        }
+    )
+
+    model = bmb.Model("prop(y, n) ~ x", data, family="beta_binomial")
+    idata = model.fit(draws=100, tune=100)
+    model.predict(idata, kind="pps")
+
+    n = data["n"].to_numpy()
+    assert np.all(idata.posterior_predictive["prop(y, n)"].values <= n[np.newaxis, np.newaxis, :])
