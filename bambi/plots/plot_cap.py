@@ -129,6 +129,7 @@ def plot_cap(
     idata,
     covariates,
     target="mean",
+    pps=False,
     use_hdi=True,
     hdi_prob=None,
     transforms=None,
@@ -155,6 +156,8 @@ def plot_cap(
         are the names of the variables.
     target : str
         Which model parameter to plot. Defaults to 'mean'.
+    pps: bool, optional
+        Whether to plot the posterior predictive samples. Defaults to ``False``.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     hdi_prob : float, optional
@@ -194,17 +197,26 @@ def plot_cap(
     cap_data = create_cap_data(model, covariates)
     idata = model.predict(idata, data=cap_data, inplace=False)
 
-    if hdi_prob is None:
-        hdi_prob = az.rcParams["stats.hdi_prob"]
-
-    if not 0 < hdi_prob < 1:
-        raise ValueError(f"'hdi_prob' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
-
     if transforms is None:
         transforms = {}
 
     response_name = get_aliased_name(model.response_component.response_term)
     response_transform = transforms.get(response_name, identity)
+
+    if pps:
+        idata = model.predict(idata, data=cap_data, inplace=False, kind="pps")
+        y_hat = response_transform(idata.posterior_predictive[f"{response_name}"])
+        y_hat_mean = y_hat.mean(("chain", "draw"))
+    else:
+        idata = model.predict(idata, data=cap_data, inplace=False)
+        y_hat = response_transform(idata.posterior[f"{response_name}_{target}"])
+        y_hat_mean = y_hat.mean(("chain", "draw"))
+
+    if hdi_prob is None:
+        hdi_prob = az.rcParams["stats.hdi_prob"]
+
+    if not 0 < hdi_prob < 1:
+        raise ValueError(f"'hdi_prob' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
 
     y_hat = response_transform(idata.posterior[f"{response_name}_{target}"])
     y_hat_mean = y_hat.mean(("chain", "draw"))
@@ -244,7 +256,7 @@ def plot_cap(
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
         ax.set(xlabel=main, ylabel=ylabel)
 
-    return fig, axes
+    return (fig, axes), idata, cap_data
 
 
 def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms, legend, axes):
