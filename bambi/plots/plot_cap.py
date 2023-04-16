@@ -211,17 +211,16 @@ def plot_cap(
         idata = model.predict(idata, data=cap_data, inplace=False)
         y_hat = response_transform(idata.posterior[f"{response_name}_{target}"])
         y_hat_mean = y_hat.mean(("chain", "draw"))
-
+    
     if hdi_prob is None:
         hdi_prob = az.rcParams["stats.hdi_prob"]
 
     if not 0 < hdi_prob < 1:
         raise ValueError(f"'hdi_prob' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
 
-    y_hat = response_transform(idata.posterior[f"{response_name}_{target}"])
-    y_hat_mean = y_hat.mean(("chain", "draw"))
-
-    if use_hdi:
+    if use_hdi and pps:
+        y_hat_bounds = az.hdi(y_hat, hdi_prob)[f"{response_name}"].T
+    elif use_hdi:
         y_hat_bounds = az.hdi(y_hat, hdi_prob)[f"{response_name}_{target}"].T
     else:
         lower_bound = round((1 - hdi_prob) / 2, 4)
