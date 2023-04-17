@@ -155,7 +155,9 @@ def plot_cap(
         If a dictionary, keys must be taken from ("horizontal", "color", "panel") and the values
         are the names of the variables.
     target : str
-        Which model parameter to plot. Defaults to 'mean'.
+        Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only
+        works when pps is False as the target may not be available in the posterior predictive
+        distribution.
     pps: bool, optional
         Whether to plot the posterior predictive samples. Defaults to ``False``.
     use_hdi : bool, optional
@@ -194,8 +196,13 @@ def plot_cap(
 
     assert 1 <= len(covariates) <= 3
 
+    if hdi_prob is None:
+        hdi_prob = az.rcParams["stats.hdi_prob"]
+
+    if not 0 < hdi_prob < 1:
+        raise ValueError(f"'hdi_prob' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
+
     cap_data = create_cap_data(model, covariates)
-    idata = model.predict(idata, data=cap_data, inplace=False)
 
     if transforms is None:
         transforms = {}
@@ -205,21 +212,15 @@ def plot_cap(
 
     if pps:
         idata = model.predict(idata, data=cap_data, inplace=False, kind="pps")
-        y_hat = response_transform(idata.posterior_predictive[f"{response_name}"])
+        y_hat = response_transform(idata.posterior_predictive[response_name])
         y_hat_mean = y_hat.mean(("chain", "draw"))
     else:
         idata = model.predict(idata, data=cap_data, inplace=False)
         y_hat = response_transform(idata.posterior[f"{response_name}_{target}"])
         y_hat_mean = y_hat.mean(("chain", "draw"))
-    
-    if hdi_prob is None:
-        hdi_prob = az.rcParams["stats.hdi_prob"]
-
-    if not 0 < hdi_prob < 1:
-        raise ValueError(f"'hdi_prob' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
 
     if use_hdi and pps:
-        y_hat_bounds = az.hdi(y_hat, hdi_prob)[f"{response_name}"].T
+        y_hat_bounds = az.hdi(y_hat, hdi_prob)[response_name].T
     elif use_hdi:
         y_hat_bounds = az.hdi(y_hat, hdi_prob)[f"{response_name}_{target}"].T
     else:
@@ -255,7 +256,7 @@ def plot_cap(
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
         ax.set(xlabel=main, ylabel=ylabel)
 
-    return (fig, axes), idata, cap_data
+    return fig, axes
 
 
 def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms, legend, axes):
