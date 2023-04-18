@@ -42,7 +42,7 @@ in the [Bambi examples](https://bambinos.github.io/bambi/examples.html).
 
 How do I find out what priors are available?
 ----------------------------
-You can find a list of available priors in the [Bambi Models API](https://bambinos.github.io/bambi/api_reference.html#module-bambi.models) under the "family" argument.
+You can use any valid PyMC distribution as a prior. You can find a list of all the distributions available in PyMC [here](https://www.pymc.io/projects/docs/en/stable/api/distributions.html).  You can also find examples of how to specify priors in the [Bambi examples](https://bambinos.github.io/bambi/examples.html), and in the [Getting Started Guide](https://bambinos.github.io/bambi/notebooks/getting_started.html#Specifying-priors).
 
 Does bambi come with pre-specified regression models?
 ----------------------------
