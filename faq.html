@@ -400,28 +400,63 @@ document.write(`
                   
   <section id="frequently-asked-questions">
 <h1>Frequently Asked Questions<a class="headerlink" href="#frequently-asked-questions" title="Permalink to this heading">#</a></h1>
-<section id="installation-issues">
-<h2>Installation issues<a class="headerlink" href="#installation-issues" title="Permalink to this heading">#</a></h2>
-<section id="bambi-not-working-on-windows">
-<h3>Bambi not working on Windows<a class="headerlink" href="#bambi-not-working-on-windows" title="Permalink to this heading">#</a></h3>
-<p>If Bambi does not work on Windows you can…</p>
-<ul class="simple">
-<li><p>First</p></li>
-<li><p>Second</p></li>
+<section id="general-questions">
+<h2>General Questions<a class="headerlink" href="#general-questions" title="Permalink to this heading">#</a></h2>
+<section id="what-is-the-difference-between-bambi-and-pymc">
+<h3>What is the difference between Bambi and PyMC?<a class="headerlink" href="#what-is-the-difference-between-bambi-and-pymc" title="Permalink to this heading">#</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>Bambi is a regression library built on top of PyMC. It provides a simple</dt><dd><p>interface for specifying Bayesian models, and allows for easy inference using MCMC or
+variational inference.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>PyMC is a library for Bayesian modelling, and is the backend used by Bambi. It is a very</dt><dd><p>powerful library, but can be challenging to use for beginners. Bambi provides a simple
+interface for specifying models, and allows for easy inference via MCMC or variational
+inference using PyMC.</p>
+</dd>
+</dl>
+</li>
 </ul>
-<p>And finally, see <a class="reference external" href="https://github.com/bambinos/bambi/issues/389">this issue</a>.</p>
-</section>
-<section id="bambi-not-working-on-linux">
-<h3>Bambi not working on Linux<a class="headerlink" href="#bambi-not-working-on-linux" title="Permalink to this heading">#</a></h3>
-<ul class="simple">
-<li><p>First</p></li>
-<li><p>Second</p></li>
-</ul>
+</div></blockquote>
 </section>
 </section>
-<section id="miscellaneous-how-to">
-<h2>Miscellaneous how to<a class="headerlink" href="#miscellaneous-how-to" title="Permalink to this heading">#</a></h2>
-<p>Pass arguments to <code class="docutils literal notranslate"><span class="pre">Model.fit()</span></code>…</p>
+<section id="inference-questions">
+<h2>Inference Questions<a class="headerlink" href="#inference-questions" title="Permalink to this heading">#</a></h2>
+<section id="what-sampling-methods-are-available">
+<h3>What sampling methods are available?<a class="headerlink" href="#what-sampling-methods-are-available" title="Permalink to this heading">#</a></h3>
+<p>The sampler used is automatically selected given the type of variables used in the model.
+For inference, Bambi supports both MCMC and variational inference. MCMC is the default, but you can specify variational inference by passing <cite>inference_method=’vi’</cite> to <cite>Model.fit()</cite>.
+Bambi also supports multiple backends for MCMC, including NumPyro, and BlackJax
+(see API for “fit” method for more details [here](<a class="reference external" href="https://bambinos.github.io/bambi/api_reference.html">https://bambinos.github.io/bambi/api_reference.html</a>)).</p>
+</section>
+<section id="can-infernece-in-bambi-be-sped-up-using-gpus-tpus">
+<h3>Can infernece in Bambi be sped up using GPUs/TPUs?<a class="headerlink" href="#can-infernece-in-bambi-be-sped-up-using-gpus-tpus" title="Permalink to this heading">#</a></h3>
+<p>Yes, Bambi supports inference on GPUs and TPUs using the numpyro and blackjax backends.
+See the API for “fit” method for more details
+[here](<a class="reference external" href="https://bambinos.github.io/bambi/api_reference.html">https://bambinos.github.io/bambi/api_reference.html</a>).</p>
+</section>
+</section>
+<section id="model-specification-questions">
+<h2>Model Specification Questions<a class="headerlink" href="#model-specification-questions" title="Permalink to this heading">#</a></h2>
+<section id="my-data-has-a-non-normal-distributions-can-i-still-use-bambi">
+<h3>My data has a non-normal distributions, can I still use Bambi?<a class="headerlink" href="#my-data-has-a-non-normal-distributions-can-i-still-use-bambi" title="Permalink to this heading">#</a></h3>
+<p>Yes, Bambi supports a wide range of distributions which can be specified using the “family”
+argument to the “Model”. You can find examples of how to specify these distributions
+in the [Bambi examples](<a class="reference external" href="https://bambinos.github.io/bambi/examples.html">https://bambinos.github.io/bambi/examples.html</a>).</p>
+</section>
+<section id="how-do-i-find-out-what-priors-are-available">
+<h3>How do I find out what priors are available?<a class="headerlink" href="#how-do-i-find-out-what-priors-are-available" title="Permalink to this heading">#</a></h3>
+<p>You can use any valid PyMC distribution as a prior. You can find a list of all the distributions available in PyMC [here](<a class="reference external" href="https://www.pymc.io/projects/docs/en/stable/api/distributions.html">https://www.pymc.io/projects/docs/en/stable/api/distributions.html</a>).  You can also find examples of how to specify priors in the [Bambi examples](<a class="reference external" href="https://bambinos.github.io/bambi/examples.html">https://bambinos.github.io/bambi/examples.html</a>), and in the [Getting Started Guide](<a class="reference external" href="https://bambinos.github.io/bambi/notebooks/getting_started.html#Specifying-priors">https://bambinos.github.io/bambi/notebooks/getting_started.html#Specifying-priors</a>).</p>
+</section>
+<section id="does-bambi-come-with-pre-specified-regression-models">
+<h3>Does bambi come with pre-specified regression models?<a class="headerlink" href="#does-bambi-come-with-pre-specified-regression-models" title="Permalink to this heading">#</a></h3>
+<p>To allow building of bespoke models, Bambi does not come with pre-specified regression models.
+However, you can find examples of how to specify models in the
+[Bambi examples](<a class="reference external" href="https://bambinos.github.io/bambi/examples.html">https://bambinos.github.io/bambi/examples.html</a>).</p>
+</section>
 </section>
 </section>
 
@@ -463,12 +498,21 @@ document.write(`
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installation-issues">Installation issues</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bambi-not-working-on-windows">Bambi not working on Windows</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bambi-not-working-on-linux">Bambi not working on Linux</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#general-questions">General Questions</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-the-difference-between-bambi-and-pymc">What is the difference between Bambi and PyMC?</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#miscellaneous-how-to">Miscellaneous how to</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inference-questions">Inference Questions</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-sampling-methods-are-available">What sampling methods are available?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#can-infernece-in-bambi-be-sped-up-using-gpus-tpus">Can infernece in Bambi be sped up using GPUs/TPUs?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#model-specification-questions">Model Specification Questions</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#my-data-has-a-non-normal-distributions-can-i-still-use-bambi">My data has a non-normal distributions, can I still use Bambi?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-do-i-find-out-what-priors-are-available">How do I find out what priors are available?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#does-bambi-come-with-pre-specified-regression-models">Does bambi come with pre-specified regression models?</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
