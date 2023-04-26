@@ -67,6 +67,7 @@ def censored(*args):
 
 censored.__metadata__ = {"kind": "censored"}
 
+
 # pylint: disable = invalid-name
 @register_stateful_transform
 class HSGP:  # pylint: disable = too-many-instance-attributes
