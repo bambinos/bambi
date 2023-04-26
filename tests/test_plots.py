@@ -25,134 +25,167 @@ def mtcars():
 # * Test using the dictionary and the list gives the same plot
 
 
-def test_basic(mtcars):
+@pytest.mark.parametrize("pps", [False, True])
+def test_basic(mtcars, pps):
     model, idata = mtcars
 
     # Using dictionary
     # Horizontal variable is numeric
-    plot_cap(model, idata, {"horizontal": "hp"})
+    plot_cap(model, idata, {"horizontal": "hp"}, pps=pps)
 
     # Horizontal variable is categorical
-    plot_cap(model, idata, {"horizontal": "gear"})
+    plot_cap(model, idata, {"horizontal": "gear"}, pps=pps)
 
     # Using list
-    plot_cap(model, idata, ["hp"])
-    plot_cap(model, idata, ["gear"])
+    plot_cap(model, idata, ["hp"], pps=pps)
+    plot_cap(model, idata, ["gear"], pps=pps)
 
 
-def test_with_groups(mtcars):
+@pytest.mark.parametrize("pps", [False, True])
+def test_with_groups(mtcars, pps):
     model, idata = mtcars
 
     # Dictionary
     # Horizontal: numeric. Group: numeric
-    plot_cap(model, idata, {"horizontal": "hp", "color": "wt"})
+    plot_cap(model, idata, {"horizontal": "hp", "color": "wt"}, pps=pps)
 
     # Horizontal: numeric. Group: categorical
-    plot_cap(model, idata, {"horizontal": "hp", "color": "cyl"})
+    plot_cap(model, idata, {"horizontal": "hp", "color": "cyl"}, pps=pps)
 
     # Horizontal: categorical. Group: numeric
-    plot_cap(model, idata, {"horizontal": "gear", "color": "wt"})
+    plot_cap(model, idata, {"horizontal": "gear", "color": "wt"}, pps=pps)
 
     # Horizontal: categorical. Group: categorical
-    plot_cap(model, idata, {"horizontal": "gear", "color": "cyl"})
+    plot_cap(model, idata, {"horizontal": "gear", "color": "cyl"}, pps=pps)
 
     # List
-    plot_cap(model, idata, ["hp", "wt"])
-    plot_cap(model, idata, ["hp", "cyl"])
-    plot_cap(model, idata, ["gear", "wt"])
-    plot_cap(model, idata, ["gear", "cyl"])
+    plot_cap(model, idata, ["hp", "wt"], pps=pps)
+    plot_cap(model, idata, ["hp", "cyl"], pps=pps)
+    plot_cap(model, idata, ["gear", "wt"], pps=pps)
+    plot_cap(model, idata, ["gear", "cyl"], pps=pps)
 
 
-def test_with_panel(mtcars):
+@pytest.mark.parametrize("pps", [False, True])
+def test_with_panel(mtcars, pps):
     model, idata = mtcars
 
     # Dictionary is the only possibility
     # Horizontal: numeric. Group: numeric
-    plot_cap(model, idata, {"horizontal": "hp", "panel": "wt"})
+    plot_cap(model, idata, {"horizontal": "hp", "panel": "wt"}, pps=pps)
 
     # Horizontal: numeric. Group: categorical
-    plot_cap(model, idata, {"horizontal": "hp", "panel": "cyl"})
+    plot_cap(model, idata, {"horizontal": "hp", "panel": "cyl"}, pps=pps)
 
     # Horizontal: categorical. Group: numeric
-    plot_cap(model, idata, {"horizontal": "gear", "panel": "wt"})
+    plot_cap(model, idata, {"horizontal": "gear", "panel": "wt"}, pps=pps)
 
     # Horizontal: categorical. Group: categorical
-    plot_cap(model, idata, {"horizontal": "gear", "panel": "cyl"})
+    plot_cap(model, idata, {"horizontal": "gear", "panel": "cyl"}, pps=pps)
 
-
-def test_with_group_and_panel(mtcars):
+@pytest.mark.parametrize("pps", [False, True])
+def test_with_group_and_panel(mtcars, pps):
     model, idata = mtcars
 
     # Dictionary
-    plot_cap(model, idata, {"horizontal": "hp", "color": "cyl", "panel": "gear"})
-    plot_cap(model, idata, {"horizontal": "cyl", "color": "hp", "panel": "gear"})
-    plot_cap(model, idata, {"horizontal": "cyl", "color": "gear", "panel": "hp"})
+    plot_cap(model, idata, {"horizontal": "hp", "color": "cyl", "panel": "gear"}, pps=pps)
+    plot_cap(model, idata, {"horizontal": "cyl", "color": "hp", "panel": "gear"}, pps=pps)
+    plot_cap(model, idata, {"horizontal": "cyl", "color": "gear", "panel": "hp"}, pps=pps)
 
     # List
-    plot_cap(model, idata, ["hp", "cyl", "gear"])
-    plot_cap(model, idata, ["cyl", "hp", "gear"])
-    plot_cap(model, idata, ["cyl", "gear", "hp"])
+    plot_cap(model, idata, ["hp", "cyl", "gear"], pps=pps)
+    plot_cap(model, idata, ["cyl", "hp", "gear"], pps=pps)
+    plot_cap(model, idata, ["cyl", "gear", "hp"], pps=pps)
 
 
-def test_ax(mtcars):
+@pytest.mark.parametrize("pps", [False, True])
+def test_ax(mtcars, pps):
     model, idata = mtcars
     fig, ax = plt.subplots()
-    fig_r, ax_r = plot_cap(model, idata, ["hp"], ax=ax)
+    fig_r, ax_r = plot_cap(model, idata, ["hp"], pps=pps, ax=ax)
 
     assert isinstance(ax_r, np.ndarray)
     assert fig is fig_r
     assert ax is ax_r[0]
 
 
-def test_fig_kwargs(mtcars):
+@pytest.mark.parametrize("pps", [False, True])
+def test_fig_kwargs(mtcars, pps):
     model, idata = mtcars
     plot_cap(
         model,
         idata,
         {"horizontal": "hp", "color": "cyl", "panel": "gear"},
+        pps=pps,
         fig_kwargs={"figsize": (15, 5), "dpi": 120, "sharey": True},
     )
 
 
-def test_use_hdi(mtcars):
+@pytest.mark.parametrize("pps", [False, True])
+def test_use_hdi(mtcars, pps):
     model, idata = mtcars
-    plot_cap(model, idata, {"horizontal": "hp", "color": "cyl", "panel": "gear"}, use_hdi=False)
+    plot_cap(
+        model, 
+        idata, 
+        {"horizontal": "hp", "color": "cyl", "panel": "gear"}, 
+        pps=pps,
+        use_hdi=False
+    )
 
 
-def test_hdi_prob(mtcars):
+@pytest.mark.parametrize("pps", [False, True])
+def test_hdi_prob(mtcars, pps):
     model, idata = mtcars
-    plot_cap(model, idata, {"horizontal": "hp", "color": "cyl", "panel": "gear"}, hdi_prob=0.9)
+    plot_cap(
+        model, 
+        idata,
+        {"horizontal": "hp", "color": "cyl", "panel": "gear"}, 
+        pps=pps,
+        hdi_prob=0.9
+    )
 
     with pytest.raises(
         ValueError, match="'hdi_prob' must be greater than 0 and smaller than 1. It is 1.1."
     ):
-        plot_cap(model, idata, {"horizontal": "hp", "color": "cyl", "panel": "gear"}, hdi_prob=1.1)
+        plot_cap(
+            model, 
+            idata, 
+            {"horizontal": "hp", "color": "cyl", "panel": "gear"}, 
+            pps=pps,
+            hdi_prob=1.1)
 
     with pytest.raises(
         ValueError, match="'hdi_prob' must be greater than 0 and smaller than 1. It is -0.1."
     ):
-        plot_cap(model, idata, {"horizontal": "hp", "color": "cyl", "panel": "gear"}, hdi_prob=-0.1)
+        plot_cap(
+            model, 
+            idata, 
+            {"horizontal": "hp", "color": "cyl", "panel": "gear"}, 
+            pps=pps,
+            hdi_prob=-0.1)
 
 
-def test_legend(mtcars):
+@pytest.mark.parametrize("pps", [False, True])
+def test_legend(mtcars, pps):
     model, idata = mtcars
-    plot_cap(model, idata, ["hp"], legend=False)
+    plot_cap(model, idata, ["hp"], pps=pps,legend=False)
 
 
-def test_transforms(mtcars):
+@pytest.mark.parametrize("pps", [False, True])
+def test_transforms(mtcars, pps):
     model, idata = mtcars
 
     transforms = {"mpg": np.log}
-    plot_cap(model, idata, ["hp"], transforms=transforms)
+    plot_cap(model, idata, ["hp"], pps=pps, transforms=transforms)
 
     transforms = {"hp": np.log}
-    plot_cap(model, idata, ["hp"], transforms=transforms)
+    plot_cap(model, idata, ["hp"], pps=pps, transforms=transforms)
 
     transforms = {"mpg": np.log, "hp": np.log}
-    plot_cap(model, idata, ["hp"], transforms=transforms)
+    plot_cap(model, idata, ["hp"], pps=pps, transforms=transforms)
 
 
-def test_multiple_outputs():
+@pytest.mark.parametrize("pps", [False, True])
+def test_multiple_outputs(pps):
     """Test plot cap default and specified values for target argument"""
     rng = np.random.default_rng(121195)
     N = 200
@@ -166,6 +199,6 @@ def test_multiple_outputs():
     model = bmb.Model(formula, data_gamma, family="gamma")
     idata = model.fit(tune=100, draws=100, random_seed=1234)
     # Test default target
-    plot_cap(model, idata, "x")
+    plot_cap(model, idata,  "x", pps=pps)
     # Test user supplied target argument
-    plot_cap(model, idata, "x", "alpha")
+    plot_cap(model, idata, "x", "alpha", pps=pps)
