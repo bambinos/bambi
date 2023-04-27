@@ -451,7 +451,7 @@ def test_custom_likelihood_function():
     family = bmb.Family("custom_gaussian", likelihood, "identity")
     model = bmb.Model("y ~ x", df, family=family, priors={"sigma": sigma_prior})
     _ = model.fit(tune=100, draws=100)
-    assert model.backend.model.observed_RVs[0].str_repr() == "y ~ N(f(Intercept, x), y_sigma)"
+    assert model.backend.model.observed_RVs[0].str_repr() == "y ~ Normal(f(Intercept, x), y_sigma)"
 
 
 def test_extra_namespace():

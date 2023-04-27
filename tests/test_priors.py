@@ -348,4 +348,4 @@ def test_custom_prior():
     priors = {"x": bmb.Prior("CustomPrior", mu=0, sigma=5, dist=CustomPrior)}
     model = bmb.Model("y ~ x", data, priors=priors)
     model.build()
-    assert model.backend.model.free_RVs[-1].str_repr() == "x ~ N(0, 5)"
+    assert model.backend.model.free_RVs[-1].str_repr() == "x ~ Normal(0, 5)"
