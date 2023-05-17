@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 
 
@@ -7,7 +6,7 @@
 
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>Logistic Regression (Vote intention with ANES data) &#8212; Bambi 0.10.0.dev documentation</title>
   
@@ -37,9 +36,6 @@
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../_static/doctools.js"></script>
     <script src="../_static/sphinx_highlight.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -727,33 +723,8 @@ Name: party_id, dtype: int64
 \right.\end{split}\]</div>
 <p>and we are interested in modelling <span class="math notranslate nohighlight">\(\pi = P(Y = 1)\)</span> (a.k.a. probability of success) based on two explanatory variables, age and party affiliation.</p>
 <p>A logistic regression is a model that links the <span class="math notranslate nohighlight">\(\text{logit}(\pi)\)</span> to a linear combination of the predictors. In our example, we’re going to include a main effect for party affiliation and the interaction effect between party affiliation and age (i.e. we’ll have a different age slope for each affiliation). The mathematical equation for our model is</p>
-<p>$$ \begin{aligned} <span class="math">\log{\left(\frac{\pi}{1 - \pi}\right)}</span> &amp;= <span class="math">\beta</span>_0 + <span class="math">\beta</span>_1 X_1 + <span class="math">\beta</span>_2 X_2 + <span class="math">\beta</span>_3 X_3 X_4 + <span class="math">\beta</span>_4 X_1 X_4 + <span class="math">\beta</span>_5 X_2 X_4 \</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>X_1 &amp;= \left\{
-    \begin{array}{ll}
-        1 &amp; \textrm{if party affiliation is Independent} \\
-        0 &amp; \textrm{in other case}
-    \end{array}
-\right. \\
-
-X_2 &amp;= \left\{
-    \begin{array}{ll}
-        1 &amp; \textrm{if party affiliation is Republican} \\
-        0 &amp; \textrm{in other case}
-    \end{array}
-\right. \\
-
-X_3 &amp;=
-\left\{
-    \begin{array}{ll}
-        1 &amp; \textrm{if party affiliation is Democrat} \\
-        0 &amp; \textrm{in other case}
-    \end{array}
-\right. \\
-
-X_4 &amp;= \text{Age}
-</pre></div>
-</div>
-<p>\end{aligned} $$</p>
+<p>$$</p>
+<p>$$</p>
 <p>Notice we don’t have a main effect for <span class="math notranslate nohighlight">\(X_3\)</span>. This happens because Democrat party affiliation is being taken as baseline in the encoding of the categorical variable <code class="docutils literal notranslate"><span class="pre">party_id</span></code> and <span class="math notranslate nohighlight">\(\beta_1\)</span> and <span class="math notranslate nohighlight">\(\beta_2\)</span> represent deviations from that baseline. Thus, we see the main effect of Democrat affiliation is being represented by the Intercept, <span class="math notranslate nohighlight">\(\beta_0\)</span>.</p>
 <p>If we represent the right hand side of the model equation with <span class="math notranslate nohighlight">\(\eta\)</span>, the expression can be re-arranged to express our probability of interest, <span class="math notranslate nohighlight">\(\pi\)</span>, as a function of the linear predictor <span class="math notranslate nohighlight">\(\eta\)</span>.</p>
 <div class="math notranslate nohighlight">
@@ -1981,7 +1952,7 @@ Watermark: 2.3.1
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.3.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.0.1.
     <br/>
   </p>
 </div>
