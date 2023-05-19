@@ -38,7 +38,7 @@ def plot_comparison(
     to all plot functions.
     # """
     
-    comparisons_df, contrast_df = comparison(
+    contrast_df = comparison(
         model=model,
         idata=idata,
         contrast_predictor=contrast_predictor,
@@ -59,47 +59,11 @@ def plot_comparison(
         conditional_values = conditional
         conditional = {k: listify(v) for k, v in conditional.items()}
         conditional = dict(zip(covariate_kinds, conditional))
-
-    # contrast_name, contrast = next(iter(contrast_predictor.items()))
-    
-    # print(f"orig. conditional: {conditional_values}")
-    # print(f"conditional: {conditional}")
-    # #print(f"contrast_name: {contrast_name}, contrast: {contrast}")
-    # print(f"contrast_predictor: {contrast_predictor}")
-
-    # create = CreateData(model, conditional)
-    # comparisons_df = create.comparisons_data(
-    #     contrast_predictor=contrast_predictor,
-    #     conditional=conditional_values
-    #     )
-    
-    # if hdi_prob is None:
-    #     hdi_prob = az.rcParams["stats.hdi_prob"]
-    
-    # if not 0 < hdi_prob < 1:
-    #     raise ValueError(f"'hdi_prob' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
     
     if transforms is None:
         transforms = {}
 
     response_name = get_aliased_name(model.response_component.response_term)
-    response_transform = transforms.get(response_name, identity)
-    response_preds_term = f"{response_name}_{target}_preds"
-
-    # idata = model.predict(idata, data=comparisons_df, inplace=False)
-    # y_hat = response_transform(idata.posterior[f"{response_name}_{target}"])
-    # y_hat_mean = y_hat.mean(("chain", "draw"))
-    # comparisons_df[response_preds_term] = y_hat_mean
-
-    # if use_hdi:
-    #      y_hat_bounds = az.hdi(y_hat, hdi_prob)[f"{response_name}_{target}"].T
-
-    # # rename using 95% HDI
-    # lower = f"{response_preds_term}_lower"
-    # upper = f"{response_preds_term}_upper"
-    # comparisons_df[lower] = y_hat_bounds[0]
-    # comparisons_df[upper] = y_hat_bounds[1]
-
 
     if ax is None:
         fig_kwargs = {} if fig_kwargs is None else fig_kwargs
@@ -122,23 +86,28 @@ def plot_comparison(
     )
 
     if is_numeric_dtype(contrast_df[main]):
-        # axes = _plot_cap_numeric(
-        #     conditional, 
-        #     contrast_df,
-        #     contrast_df["contrast_comparison"],
-        #     y_hat_bounds,
-        #     transforms,
-        #     legend,
-        #     axes
-        # )
-        axes = _plot_comparison_categoric(
-            conditional, 
-            contrast_df,
-            contrast_df["contrast_comparison"],
-            y_hat_bounds,
-            legend,
-            axes
-        )
+        # main condition variable can be numeric, but only a few values
+        # so it is treated as categoric
+        if np.unique(contrast_df[main]).shape[0] <= 5:
+            axes = _plot_comparison_categoric(
+                conditional,
+                contrast_df,
+                contrast_df["contrast_comparison"],
+                y_hat_bounds,
+                legend,
+                axes
+            )
+        else:
+            axes = _plot_cap_numeric(
+                conditional, 
+                contrast_df,
+                contrast_df["contrast_comparison"],
+                y_hat_bounds,
+                transforms,
+                legend,
+                axes
+            )
+
     elif is_categorical_dtype(contrast_df[main]) or is_string_dtype(contrast_df[main]):
         axes = _plot_comparison_categoric(
             conditional, 
@@ -322,7 +291,6 @@ def _plot_comparison_categoric(
     return axes
 
 
-
 def comparison(
         model,
         idata,
@@ -334,7 +302,7 @@ def comparison(
         transforms=None,
     ) -> pd.DataFrame:
     """
-
+    
     """
     create = CreateData(model, conditional)
 
@@ -350,6 +318,7 @@ def comparison(
         )
     # if dict, user passed values to condition on
     elif isinstance(conditional, dict):
+        print(f"conditional: {conditional}")
         comparisons_df = create.comparisons_data(
             contrast_predictor=contrast_predictor,
             conditional=conditional,
@@ -387,11 +356,12 @@ def comparison(
     comparisons_df[lower] = y_hat_bounds[0]
     comparisons_df[upper] = y_hat_bounds[1]
 
+    # obtain covariaties used in the model to perform group by operations
     model_covariates = list(
         comparisons_df.columns[~comparisons_df.columns
                                .isin([contrast_name, response_preds_term, lower, upper])]
                                )
-    
+    # TO DO: allow different types of comparisons other than difference (ratio, etc.)
     # compute difference between contrast predictions
     contrast_comparison = pd.DataFrame((comparisons_df
                            .groupby(model_covariates)[[response_preds_term, lower, upper]]
@@ -404,28 +374,28 @@ def comparison(
     group = conditional.get("color")
     panel = conditional.get("panel")
 
+    # TO DO: create a utility function for building contrasts dataframe
+    N = contrast_comparison.shape[0]
     if np.unique(comparisons_df[main]).shape[0] == 1:
+        number_repeats = N
         contrast_comparison[main] = np.repeat(
-            np.unique(comparisons_df[main]), contrast_comparison.shape[0]
+            np.unique(comparisons_df[main]), number_repeats
         )
     else:
-        contrast_comparison[main] = np.unique(comparisons_df[main])
-
-    # TO DO: create a utility function for this
-    if group is not None:
-        if np.unique(comparisons_df[group]).shape[0] == 1:
-            contrast_comparison[group] = np.repeat(
-                np.unique(comparisons_df[group]), contrast_comparison.shape[0]
-            )
-        else:
-            contrast_comparison[group] = np.unique(comparisons_df[group])
-    elif panel is not None:
-        if np.unique(comparisons_df[panel]).shape[0] == 1:
-            contrast_comparison[panel] = np.repeat(
-                np.unique(comparisons_df[panel]), contrast_comparison.shape[0]
-            )
-        else:
-            contrast_comparison[panel] = np.unique(comparisons_df[panel])
+        main_values = np.unique(comparisons_df[main])
+        main_n = len(main_values)
+        number_repeats = N // main_n
+        values = np.repeat(main_values, number_repeats)
+        contrast_comparison[main] = values
+    
+    if group and not panel:
+        group_values = np.unique(comparisons_df[group])
+        group_n = len(group_values)
+        number_repeats = N // group_n
+        values = np.repeat(group_values, number_repeats)
+        contrast_comparison[group] = values
+    elif group and panel:
+        raise ValueError("Not implemented: TO DO!!!")
 
     contrast_comparison = contrast_comparison.rename(
         columns={
@@ -434,8 +404,7 @@ def comparison(
             f"{upper}": "contrast_comparison_upper"
         }
     )
-
-    return comparisons_df, contrast_comparison
+    return contrast_comparison
 
 
 def identity(x):
