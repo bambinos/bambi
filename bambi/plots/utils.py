@@ -43,21 +43,109 @@ class CreateData:
         self.covariates = covariates
         self.data = model.data
     
+    
+    def enforce_dtypes(self, df: pd.DataFrame)-> pd.DataFrame:
+        """
+        Enforce dtypes of the original data to the new data.
+        """
+        
+        observed_dtypes = self.model.data.dtypes
+        for col in df.columns:
+            if col in observed_dtypes.index:
+                df[col] = df[col].astype(observed_dtypes[col])
+        return df
+    
+    
     def _get_covariates(self, covariates: dict) -> tuple:
 
-        main = covariates.get("horizontal")
-        group = covariates.get("color", None)
-        panel = covariates.get("panel", None)
+        covariate_kinds = ("horizontal", "color", "panel")
+        if any(key in covariate_kinds for key in covariates.keys()):
+            # default if user did not pass their own conditional dict
+            main = covariates.get("horizontal")
+            group = covariates.get("color", None)
+            panel = covariates.get("panel", None)
+        else:
+            # assign main, group, panel based on the number of variables
+            # passed by the user in their conditional dict
+            length = len(covariates.keys())
+            if length == 1:
+                main = covariates.keys()
+                group = None
+                panel = None
+            elif length == 2:
+                main, group = covariates.keys()
+                panel = None
+            elif length == 3:
+                main, group, panel = covariates.keys()
 
         return (main, group, panel)
 
 
-    def _make_main_values(self, x, grid_n):
+    def _make_main_values(self, x, grid_n=200, groups_n=5):
         if is_numeric_dtype(x):
             return np.linspace(np.min(x), np.max(x), grid_n)
         elif is_string_dtype(x) or is_categorical_dtype(x):
             return np.unique(x)
         raise ValueError("Main covariate must be numeric or categoric.")
+    
+
+    def make_group_values(self, x, groups_n=5):
+        if is_string_dtype(x) or is_categorical_dtype(x):
+            return np.unique(x)
+        elif is_numeric_dtype(x):
+            return np.quantile(x, np.linspace(0, 1, groups_n))
+        raise ValueError("Group covariate must be numeric or categoric.")
+    
+    
+    def _make_group_panel_values(
+            self, 
+            data_dict, 
+            main, 
+            group, 
+            panel, 
+            kind,
+            groups_n=5
+        ):
+
+        # If available, obtain groups for grouping variable
+        if group:
+            group_values = self.make_group_values(self.data[group], groups_n)
+            group_n = len(group_values)
+
+        # If available, obtain groups for panel variable. Same logic than grouping applies
+        if panel:
+            panel_values = self.make_group_values(self.data[panel], groups_n)
+            panel_n = len(panel_values)
+
+        main_values = data_dict[main]
+        main_n = len(main_values)
+
+        # TO DO: is there a more concise way than logic and passing of
+        # kind = ... argument?
+        if kind == 'prediction':
+            if group and not panel:
+                main_values = np.tile(main_values, group_n)
+                group_values = np.repeat(group_values, main_n)
+                data_dict.update({main: main_values, group: group_values})
+            elif not group and panel:
+                main_values = np.tile(main_values, panel_n)
+                panel_values = np.repeat(panel_values, main_n)
+                data_dict.update({main: main_values, panel: panel_values})
+            elif group and panel:
+                if group == panel:
+                    main_values = np.tile(main_values, group_n)
+                    group_values = np.repeat(group_values, main_n)
+                    data_dict.update({main: main_values, group: group_values})
+                else:
+                    main_values = np.tile(np.tile(main_values, group_n), panel_n)
+                    group_values = np.tile(np.repeat(group_values, main_n), panel_n)
+                    panel_values = np.repeat(panel_values, main_n * group_n)
+                    data_dict.update({main: main_values, group: group_values, panel: panel_values})
+        else:
+            if group and not panel:
+                data_dict.update({group: group_values})
+
+        return data_dict
     
 
     def _set_default_values(self, data_dict: dict, type: str):
@@ -104,6 +192,9 @@ class CreateData:
     
     
     def cap_data(self, main, group, panel):
+        """
+        TO DO: implement this method
+        """
         pass
 
 
@@ -118,19 +209,25 @@ class CreateData:
         """
 
         main, group, panel = self._get_covariates(conditional)
+        print(f"main: {main}, group: {group}, panel: {panel}")
 
         model_covariates = clean_formula_lhs(str(self.model.formula.main)).strip()
         model_covariates = model_covariates.split(" ")
         
-        # check if contrast_predictor and conditional are instances of type dict
         if isinstance(contrast_predictor, dict) and isinstance(conditional, dict):
+            # if user passed data, then only to compute default values for 
+            # unspecified covariates in the model
             if user_passed:
                 data_dict = {**conditional}
             else:
+                # if user did not pass data, then compute default values
                 main_values = self._make_main_values(self.data[main], grid_n)
                 data_dict = {main: main_values}
+                data_dict = self._make_group_panel_values(
+                    data_dict, main, group, panel, kind='comparison'
+                    )
         
-        # TO DO: remove hard coding of index
+        # TO DO: remove hard coding of index? (it seems to work though)
         if isinstance(contrast_predictor, dict):
             main_predictor = list(contrast_predictor.keys())[0] 
             contrast = list(contrast_predictor.values())[0]
@@ -138,11 +235,10 @@ class CreateData:
         elif isinstance(contrast_predictor, list):
             print("default")
         elif not isinstance(contrast_predictor, (list, dict, str)):
-            raise TypeError("focal must be a list, dict, or string")
+            raise TypeError("`contrast_predictor` must be a list, dict, or string")
         
-
         comparison_data = self._set_default_values(data_dict, type='comparison')
-        # Use cartesian product (cross join) to create contrasts
+        # use cartesian product (cross join) to create contrasts
         keys, values = zip(*comparison_data.items())
-        comparisons_df = [dict(zip(keys, v)) for v in itertools.product(*values)]
-        return pd.DataFrame(comparisons_df)
+        contrast_dict = [dict(zip(keys, v)) for v in itertools.product(*values)]
+        return self.enforce_dtypes(pd.DataFrame(contrast_dict))
