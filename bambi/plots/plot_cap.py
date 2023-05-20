@@ -259,15 +259,30 @@ def plot_cap(
     return fig, axes
 
 
-def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms, legend, axes):
+def _plot_cap_numeric(
+        covariates, 
+        cap_data, 
+        y_hat_mean, 
+        y_hat_bounds, 
+        transforms, 
+        legend, 
+        axes
+    ):
     main = covariates.get("horizontal")
     transform_main = transforms.get(main, identity)
+    y_hat_bounds_dim = y_hat_bounds.ndim
 
     if len(covariates) == 1:
         ax = axes[0]
         values_main = transform_main(cap_data[main])
         ax.plot(values_main, y_hat_mean, solid_capstyle="butt")
-        ax.fill_between(values_main, y_hat_bounds[0], y_hat_bounds[1], alpha=0.4)
+        if y_hat_bounds_dim > 2:
+            for dim in range(y_hat_bounds_dim):
+                ax.fill_between(
+                    values_main, y_hat_bounds[0][dim], y_hat_bounds[1][dim], alpha=0.4
+                )
+        else:
+            ax.fill_between(values_main, y_hat_bounds[0], y_hat_bounds[1], alpha=0.4)
     elif "color" in covariates and not "panel" in covariates:
         ax = axes[0]
         color = covariates.get("color")
@@ -276,13 +291,23 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
             idx = (cap_data[color] == clr).to_numpy()
             values_main = transform_main(cap_data.loc[idx, main])
             ax.plot(values_main, y_hat_mean[idx], color=f"C{i}", solid_capstyle="butt")
-            ax.fill_between(
-                values_main,
-                y_hat_bounds[0][idx],
-                y_hat_bounds[1][idx],
-                alpha=0.4,
-                color=f"C{i}",
-            )
+            if y_hat_bounds_dim > 2:
+                for dim in range(y_hat_bounds_dim):
+                    ax.fill_between(
+                        values_main,
+                        y_hat_bounds[0][dim][idx],
+                        y_hat_bounds[1][dim][idx],
+                        alpha=0.4,
+                        color=f"C{i}",
+                    )
+            else:
+                ax.fill_between(
+                    values_main,
+                    y_hat_bounds[0][idx],
+                    y_hat_bounds[1][idx],
+                    alpha=0.4,
+                    color=f"C{i}",
+                )
     elif not "color" in covariates and "panel" in covariates:
         panel = covariates.get("panel")
         panels = get_unique_levels(cap_data[panel])
@@ -290,7 +315,17 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
             idx = (cap_data[panel] == pnl).to_numpy()
             values_main = transform_main(cap_data.loc[idx, main])
             ax.plot(values_main, y_hat_mean[idx], solid_capstyle="butt")
-            ax.fill_between(values_main, y_hat_bounds[0][idx], y_hat_bounds[1][idx], alpha=0.4)
+            if y_hat_bounds_dim > 2:
+                for dim in range(y_hat_bounds_dim):
+                    ax.fill_between(
+                        values_main,
+                        y_hat_bounds[0][dim][idx],
+                        y_hat_bounds[1][dim][idx],
+                        alpha=0.4,
+                    )
+            else:
+                ax.fill_between(
+                    values_main, y_hat_bounds[0][idx], y_hat_bounds[1][idx], alpha=0.4)
             ax.set(title=f"{panel} = {pnl}")
     elif "color" in covariates and "panel" in covariates:
         color = covariates.get("color")
@@ -302,20 +337,16 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
                 idx = (cap_data[panel] == pnl).to_numpy()
                 values_main = transform_main(cap_data.loc[idx, main])
                 ax.plot(values_main, y_hat_mean[idx], color=f"C{i}", solid_capstyle="butt")
-                ax.fill_between(
-                    values_main,
-                    y_hat_bounds[0][idx],
-                    y_hat_bounds[1][idx],
-                    alpha=0.4,
-                    color=f"C{i}",
-                )
-                ax.set(title=f"{panel} = {pnl}")
-        else:
-            for ax, pnl in zip(axes.ravel(), panels):
-                for i, clr in enumerate(colors):
-                    idx = ((cap_data[panel] == pnl) & (cap_data[color] == clr)).to_numpy()
-                    values_main = transform_main(cap_data.loc[idx, main])
-                    ax.plot(values_main, y_hat_mean[idx], color=f"C{i}", solid_capstyle="butt")
+                if y_hat_bounds_dim > 2:
+                    for dim in range(y_hat_bounds_dim):
+                        ax.fill_between(
+                            values_main,
+                            y_hat_bounds[0][dim][idx],
+                            y_hat_bounds[1][dim][idx],
+                            alpha=0.4,
+                            color=f"C{i}",
+                        )
+                else:
                     ax.fill_between(
                         values_main,
                         y_hat_bounds[0][idx],
@@ -323,6 +354,30 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
                         alpha=0.4,
                         color=f"C{i}",
                     )
+                ax.set(title=f"{panel} = {pnl}")
+        else:
+            for ax, pnl in zip(axes.ravel(), panels):
+                for i, clr in enumerate(colors):
+                    idx = ((cap_data[panel] == pnl) & (cap_data[color] == clr)).to_numpy()
+                    values_main = transform_main(cap_data.loc[idx, main])
+                    ax.plot(values_main, y_hat_mean[idx], color=f"C{i}", solid_capstyle="butt")
+                    if y_hat_bounds_dim > 2:
+                        for dim in range(y_hat_bounds_dim):
+                            ax.fill_between(
+                                values_main,
+                                y_hat_bounds[0][dim][idx],
+                                y_hat_bounds[1][dim][idx],
+                                alpha=0.4,
+                                color=f"C{i}",
+                            )
+                    else:
+                        ax.fill_between(
+                            values_main,
+                            y_hat_bounds[0][idx],
+                            y_hat_bounds[1][idx],
+                            alpha=0.4,
+                            color=f"C{i}",
+                        )
                     ax.set(title=f"{panel} = {pnl}")
 
     if "color" in covariates and legend:
@@ -337,6 +392,7 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
             ax.legend(
                 handles, tuple(colors), title=color, handlelength=1.3, handleheight=1, loc="best"
             )
+    
     return axes
 
 
