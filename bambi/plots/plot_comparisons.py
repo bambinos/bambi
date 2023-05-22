@@ -15,9 +15,10 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
 
+import bambi as bmb
 from bambi.utils import listify, get_aliased_name, clean_formula_lhs
 from bambi.plots.utils import get_group_offset, get_unique_levels
-from bambi.plots.utils import CreateData
+from bambi.plots.create_data import create_comparisons_data
 
 
 def plot_comparison(
@@ -38,7 +39,7 @@ def plot_comparison(
     to all plot functions.
     # """
     
-    contrast_df = comparison(
+    idata, contrast_df = comparison(
         model=model,
         idata=idata,
         contrast_predictor=contrast_predictor,
@@ -56,7 +57,6 @@ def plot_comparison(
         conditional = dict(zip(covariate_kinds, conditional))
     # if dict, user passed values to condition on
     elif isinstance(conditional, dict):
-        conditional_values = conditional
         conditional = {k: listify(v) for k, v in conditional.items()}
         conditional = dict(zip(covariate_kinds, conditional))
     
@@ -125,7 +125,7 @@ def plot_comparison(
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
         ax.set(xlabel=main, ylabel=ylabel)
 
-    return (fig, axes), contrast_df
+    return (fig, axes), idata, contrast_df
 
 
 def _plot_cap_numeric(
@@ -217,7 +217,6 @@ def _plot_cap_numeric(
     return axes 
 
 
-
 def _plot_comparison_categoric(
         conditional, 
         contrast_comparison,
@@ -292,36 +291,37 @@ def _plot_comparison_categoric(
 
 
 def comparison(
-        model,
-        idata,
+        model: bmb.Model,
+        idata: az.InferenceData,
         contrast_predictor: Union[str, dict, list],
         conditional: Union[str, dict, list],
-        target="mean",
-        use_hdi=True,
+        target: str = "mean",
+        use_hdi: bool = True,
         hdi_prob=None,
         transforms=None,
     ) -> pd.DataFrame:
     """
     
     """
-    create = CreateData(model, conditional)
 
     covariate_kinds = ("horizontal", "color", "panel")
     # if not dict, then user did not pass values to condition on
     if not isinstance(conditional, dict):
         conditional = listify(conditional)
         conditional = dict(zip(covariate_kinds, conditional))
-        comparisons_df = create.comparisons_data(
-            contrast_predictor=contrast_predictor,
-            conditional=conditional,
+        comparisons_df = create_comparisons_data(
+            model,
+            contrast_predictor,
+            conditional,
             user_passed=False
         )
     # if dict, user passed values to condition on
     elif isinstance(conditional, dict):
         print(f"conditional: {conditional}")
-        comparisons_df = create.comparisons_data(
-            contrast_predictor=contrast_predictor,
-            conditional=conditional,
+        comparisons_df = create_comparisons_data(
+            model,
+            contrast_predictor,
+            conditional,
             user_passed=True
         )
         conditional = {k: listify(v) for k, v in conditional.items()}
@@ -342,6 +342,7 @@ def comparison(
     response_transform = transforms.get(response_name, identity)
     response_preds_term = f"{response_name}_{target}_preds"
 
+    # Perform predictions on new data
     idata = model.predict(idata, data=comparisons_df, inplace=False)
     y_hat = response_transform(idata.posterior[f"{response_name}_{target}"])
     y_hat_mean = y_hat.mean(("chain", "draw"))
@@ -397,6 +398,7 @@ def comparison(
     elif group and panel:
         raise ValueError("Not implemented: TO DO!!!")
 
+    # TO DO: better names and descriptive statistics
     contrast_comparison = contrast_comparison.rename(
         columns={
             f"{response_preds_term}": "contrast_comparison",
@@ -404,7 +406,7 @@ def comparison(
             f"{upper}": "contrast_comparison_upper"
         }
     )
-    return contrast_comparison
+    return idata, contrast_comparison
 
 
 def identity(x):
