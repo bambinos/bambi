@@ -260,18 +260,10 @@ def plot_cap(
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
         ax.set(xlabel=main, ylabel=ylabel)
 
-    return fig, axes, idata
+    return fig, axes
 
 
-def _plot_cap_numeric(
-        covariates, 
-        cap_data, 
-        y_hat_mean, 
-        y_hat_bounds, 
-        transforms, 
-        legend, 
-        axes
-    ):
+def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms, legend, axes):
     main = covariates.get("horizontal")
     transform_main = transforms.get(main, identity)
     y_hat_bounds_dim = y_hat_bounds.ndim
@@ -282,9 +274,7 @@ def _plot_cap_numeric(
         ax.plot(values_main, y_hat_mean, solid_capstyle="butt")
         if y_hat_bounds_dim > 2:
             for dim in range(y_hat_bounds_dim):
-                ax.fill_between(
-                    values_main, y_hat_bounds[0][dim], y_hat_bounds[1][dim], alpha=0.4
-                )
+                ax.fill_between(values_main, y_hat_bounds[0][dim], y_hat_bounds[1][dim], alpha=0.4)
         else:
             ax.fill_between(values_main, y_hat_bounds[0], y_hat_bounds[1], alpha=0.4)
     elif "color" in covariates and not "panel" in covariates:
@@ -328,8 +318,7 @@ def _plot_cap_numeric(
                         alpha=0.4,
                     )
             else:
-                ax.fill_between(
-                    values_main, y_hat_bounds[0][idx], y_hat_bounds[1][idx], alpha=0.4)
+                ax.fill_between(values_main, y_hat_bounds[0][idx], y_hat_bounds[1][idx], alpha=0.4)
             ax.set(title=f"{panel} = {pnl}")
     elif "color" in covariates and "panel" in covariates:
         color = covariates.get("color")
@@ -396,9 +385,7 @@ def _plot_cap_numeric(
         ]
         for ax in axes.ravel():
             ax.set_label(values)
-            ax.legend(
-                handles, values, title=title, handlelength=1.3, handleheight=1, loc="best"
-            )
+            ax.legend(handles, values, title=title, handlelength=1.3, handleheight=1, loc="best")
     elif "color" in covariates and legend:
         handles = [
             (
@@ -409,9 +396,9 @@ def _plot_cap_numeric(
         ]
         for ax in axes.ravel():
             ax.legend(
-                handles, tuple(values), title=values, handlelength=1.3, handleheight=1, loc="best"
+                handles, tuple(colors), title=color, handlelength=1.3, handleheight=1, loc="best"
             )
-    
+
     return axes
 
 
