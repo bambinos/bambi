@@ -243,6 +243,10 @@ def plot_cap(
             fig = axes[0].get_figure()
 
     main = covariates.get("horizontal")
+
+    if is_categorical_dtype(model.data[response_name]):
+        legend = {response_name: (model.data[response_name].cat.categories.tolist())}
+
     if is_numeric_dtype(cap_data[main]):
         axes = _plot_cap_numeric(
             covariates, cap_data, y_hat_mean, y_hat_bounds, transforms, legend, axes
@@ -256,7 +260,7 @@ def plot_cap(
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
         ax.set(xlabel=main, ylabel=ylabel)
 
-    return fig, axes
+    return fig, axes, idata
 
 
 def _plot_cap_numeric(
@@ -380,7 +384,22 @@ def _plot_cap_numeric(
                         )
                     ax.set(title=f"{panel} = {pnl}")
 
-    if "color" in covariates and legend:
+    if type(legend) != bool:
+        title = list(legend.keys())[0]
+        values = list(legend.values())[0]
+        handles = [
+            (
+                Line2D([], [], color=f"C{i}", solid_capstyle="butt"),
+                Patch(color=f"C{i}", alpha=0.4, lw=1),
+            )
+            for i in range(len(values))
+        ]
+        for ax in axes.ravel():
+            ax.set_label(values)
+            ax.legend(
+                handles, values, title=title, handlelength=1.3, handleheight=1, loc="best"
+            )
+    elif "color" in covariates and legend:
         handles = [
             (
                 Line2D([], [], color=f"C{i}", solid_capstyle="butt"),
@@ -390,7 +409,7 @@ def _plot_cap_numeric(
         ]
         for ax in axes.ravel():
             ax.legend(
-                handles, tuple(colors), title=color, handlelength=1.3, handleheight=1, loc="best"
+                handles, tuple(values), title=values, handlelength=1.3, handleheight=1, loc="best"
             )
     
     return axes
