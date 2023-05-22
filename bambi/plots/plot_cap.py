@@ -452,8 +452,22 @@ def _plot_cap_categoric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, 
                     ax.scatter(idxs, y_hat_mean[idx], color=f"C{i}")
                     ax.vlines(idxs, y_hat_bounds[0][idx], y_hat_bounds[1][idx], color=f"C{i}")
                     ax.set(title=f"{panel} = {pnl}")
+                    
+    if type(legend) != bool:
+        title = list(legend.keys())[0]
+        values = list(legend.values())[0]
+        handles = [
+            (
+                Line2D([], [], color=f"C{i}", solid_capstyle="butt"),
+                Patch(color=f"C{i}", alpha=0.4, lw=1),
+            )
+            for i in range(len(values))
+        ]
+        for ax in axes.ravel():
+            ax.set_label(values)
+            ax.legend(handles, values, title=title, handlelength=1.3, handleheight=1, loc="best")
 
-    if "color" in covariates and legend:
+    elif "color" in covariates and legend:
         handles = [
             Line2D([], [], c=f"C{i}", marker="o", label=level) for i, level in enumerate(colors)
         ]
