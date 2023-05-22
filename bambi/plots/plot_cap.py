@@ -373,7 +373,7 @@ def _plot_cap_numeric(covariates, cap_data, y_hat_mean, y_hat_bounds, transforms
                         )
                     ax.set(title=f"{panel} = {pnl}")
 
-    if type(legend) != bool:
+    if not isinstance(legend, bool):
         title = list(legend.keys())[0]
         values = list(legend.values())[0]
         handles = [
@@ -452,8 +452,8 @@ def _plot_cap_categoric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, 
                     ax.scatter(idxs, y_hat_mean[idx], color=f"C{i}")
                     ax.vlines(idxs, y_hat_bounds[0][idx], y_hat_bounds[1][idx], color=f"C{i}")
                     ax.set(title=f"{panel} = {pnl}")
-                    
-    if type(legend) != bool:
+
+    if not isinstance(legend, bool):
         title = list(legend.keys())[0]
         values = list(legend.values())[0]
         handles = [
