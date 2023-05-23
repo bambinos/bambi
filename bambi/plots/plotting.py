@@ -215,7 +215,7 @@ def plot_comparison(
         When the main covariate is not numeric or categoric.
     """
 
-    idata, contrast_df = comparison(
+    contrast_df = comparison(
         model=model,
         idata=idata,
         contrast_predictor=contrast_predictor,
@@ -315,7 +315,7 @@ def comparison(
         transforms=None,
     ) -> pd.DataFrame:
     """
-    
+    TO DO: move outside of the plotting module
     """
 
     covariate_kinds = ("horizontal", "color", "panel")
@@ -331,7 +331,6 @@ def comparison(
         )
     # if dict, user passed values to condition on
     elif isinstance(conditional, dict):
-        print(f"conditional: {conditional}")
         comparisons_df = create_comparisons_data(
             model,
             contrast_predictor,
@@ -420,8 +419,4 @@ def comparison(
             f"{upper}": "contrast_comparison_upper"
         }
     )
-    return idata, contrast_comparison
-
-
-def identity(x):
-    return x
+    return contrast_comparison
