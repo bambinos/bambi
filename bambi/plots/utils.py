@@ -1,10 +1,44 @@
+from dataclasses import dataclass
 from statistics import mode
-from typing import Callable, Union
+from typing import Callable, Union, Tuple, Any
 
 import numpy as np
 import pandas as pd
 from formulae.terms.call import Call
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
+
+
+@dataclass
+class Covariates:
+    main: str
+    group: Union[str, None]
+    panel: Union[str, None]
+
+
+def get_covariates(covariates: dict) -> Covariates:
+    """
+    """
+    covariate_kinds = ("horizontal", "color", "panel")
+    if any(key in covariate_kinds for key in covariates.keys()):
+        # default if user did not pass their own conditional dict
+        main = covariates.get("horizontal")
+        group = covariates.get("color", None)
+        panel = covariates.get("panel", None)
+    else:
+        # assign main, group, panel based on the number of variables
+        # passed by the user in their conditional dict
+        length = len(covariates.keys())
+        if length == 1:
+            main = covariates.keys()
+            group = None
+            panel = None
+        elif length == 2:
+            main, group = covariates.keys()
+            panel = None
+        elif length == 3:
+            main, group, panel = covariates.keys()
+
+    return Covariates(main, group, panel)
 
 
 def enforce_dtypes(data, df: pd.DataFrame) -> pd.DataFrame:
@@ -71,7 +105,7 @@ def make_group_panel_values(
     return data_dict
 
 
-def set_default_values(model, data, data_dict: dict, kind: str):
+def set_default_values(model, data, data_dict: dict, kind: str) -> Union[dict, pd.DataFrame]:
     """
     """
     terms = {}
@@ -109,10 +143,10 @@ def set_default_values(model, data, data_dict: dict, kind: str):
     elif kind == 'predictions':
         return pd.DataFrame(data_dict)
     else:
-        raise ValueError("type must be 'comparison', 'predictions', or 'slopes'")
+        raise ValueError("kind must be 'comparison', 'predictions', or 'slopes'")
 
 
-def make_main_values(x, grid_n: int = 200, groups_n: int = 5):
+def make_main_values(x, grid_n: int = 200, groups_n: int = 5) -> np.ndarray:
     """
     """
     if is_numeric_dtype(x):
@@ -122,7 +156,7 @@ def make_main_values(x, grid_n: int = 200, groups_n: int = 5):
     raise ValueError("Main covariate must be numeric or categoric.")
 
 
-def make_group_values(x, groups_n: int = 5):
+def make_group_values(x, groups_n: int = 5) -> np.ndarray:
     """
     """
     if is_string_dtype(x) or is_categorical_dtype(x):
@@ -132,33 +166,7 @@ def make_group_values(x, groups_n: int = 5):
     raise ValueError("Group covariate must be numeric or categoric.")
 
 
-def get_covariates(covariates: dict):
-    """
-    """
-    covariate_kinds = ("horizontal", "color", "panel")
-    if any(key in covariate_kinds for key in covariates.keys()):
-        # default if user did not pass their own conditional dict
-        main = covariates.get("horizontal")
-        group = covariates.get("color", None)
-        panel = covariates.get("panel", None)
-    else:
-        # assign main, group, panel based on the number of variables
-        # passed by the user in their conditional dict
-        length = len(covariates.keys())
-        if length == 1:
-            main = covariates.keys()
-            group = None
-            panel = None
-        elif length == 2:
-            main, group = covariates.keys()
-            panel = None
-        elif length == 3:
-            main, group, panel = covariates.keys()
-
-    return main, group, panel
-
-
-def get_unique_levels(x):
+def get_unique_levels(x) -> Union[list, np.ndarray]:
     """
     """
     if hasattr(x, "dtype") and hasattr(x.dtype, "categories"):
@@ -168,7 +176,7 @@ def get_unique_levels(x):
     return levels
 
 
-def get_group_offset(n, lower=0.05, upper=0.4):
+def get_group_offset(n, lower: float = 0.05, upper: float = 0.4) -> np.ndarray:
     # Complementary log log function, scaled.
     # See following code to have an idea of how this function looks like
     # lower, upper = 0.05, 0.4
