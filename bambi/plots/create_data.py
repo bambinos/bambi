@@ -27,7 +27,8 @@ def create_comparisons_data(
         """
         
         data = model.data
-        main, group, panel = get_covariates(conditional)
+        covariates = get_covariates(conditional)
+        main, group, panel = covariates.main, covariates.group, covariates.panel
 
         model_covariates = clean_formula_lhs(str(model.formula.main)).strip()
         model_covariates = model_covariates.split(" ")
