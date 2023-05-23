@@ -79,7 +79,7 @@ def make_group_panel_values(
 
     # TO DO: is there a more concise way than logic and passing of
     # kind = ... argument?
-    if kind == 'prediction':
+    if kind == 'predictions':
         if group and not panel:
             main_values = np.tile(main_values, group_n)
             group_values = np.repeat(group_values, main_n)
@@ -105,7 +105,7 @@ def make_group_panel_values(
     return data_dict
 
 
-def set_default_values(model, data, data_dict: dict, kind: str) -> Union[dict, pd.DataFrame]:
+def set_default_values(model, data, data_dict: dict, kind: str) -> pd.DataFrame:
     """
     """
     terms = {}
@@ -141,7 +141,7 @@ def set_default_values(model, data, data_dict: dict, kind: str) -> Union[dict, p
                 data_dict[key] = [value]
         return data_dict
     elif kind == 'predictions':
-        return pd.DataFrame(data_dict)
+        return data_dict
     else:
         raise ValueError("kind must be 'comparison', 'predictions', or 'slopes'")
 
@@ -189,3 +189,7 @@ def get_group_offset(n, lower: float = 0.05, upper: float = 0.4) -> np.ndarray:
     # ax.axhline(upper, color="k", ls="--")
     intercept, slope = 3.25, 1
     return lower + np.exp(-np.exp(intercept - slope * n)) * (upper - lower)
+
+
+def identity(x):
+    return x
