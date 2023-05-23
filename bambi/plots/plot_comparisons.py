@@ -13,6 +13,8 @@ from arviz.plots.plot_utils import default_grid
 from formulae.terms.call import Call
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
+import seaborn.objects as so
+import seaborn as sns
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
 
 import bambi as bmb
