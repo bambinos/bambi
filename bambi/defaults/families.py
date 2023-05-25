@@ -8,6 +8,10 @@ from bambi.families.univariate import (
     Categorical,
     Gamma,
     Gaussian,
+    HurdleGamma,
+    HurdleLogNormal,
+    HurdleNegativeBinomial,
+    HurdlePoisson,
     NegativeBinomial,
     Laplace,
     Poisson,
@@ -109,6 +113,46 @@ BUILTIN_FAMILIES = {
         "link": {"mu": "identity", "sigma": "log"},
         "family": Gaussian,
         "default_priors": {"sigma": "HalfNormal"}
+    },
+    "hurdle_gamma": {
+        "likelihood": {
+            "name": "HurdleGamma",
+            "params": ["mu", "alpha", "psi"],
+            "parent": "mu"
+        },
+        "link": {"mu": "log", "alpha": "log", "psi": "logit"},
+        "family": HurdleGamma,
+        "default_priors": {"alpha": "HalfCauchy", "psi": "Beta"}
+    },
+    "hurdle_lognormal": {
+        "likelihood": {
+            "name": "HurdleLogNormal",
+            "params": ["mu", "sigma", "psi"],
+            "parent": "mu"
+        },
+        "link": {"mu": "identity", "sigma": "log", "psi": "logit"},
+        "family": HurdleLogNormal,
+        "default_priors": {"sigma": "HalfNormal", "psi": "Beta"}
+    },
+    "hurdle_negativebinomial": {
+        "likelihood": {
+            "name": "HurdleNegativeBinomial",
+            "params": ["mu", "alpha", "psi"],
+            "parent": "mu"
+        },
+        "link": {"mu": "log", "alpha": "log", "psi": "logit"},
+        "family": HurdleNegativeBinomial,
+        "default_priors": {"alpha": "HalfCauchy", "psi": "Beta"}
+    },
+    "hurdle_poisson": {
+        "likelihood": {
+            "name": "HurdlePoisson",
+            "params": ["mu", "psi"],
+            "parent": "mu"
+        },
+        "link": {"mu": "log", "psi": "logit"},
+        "family": HurdlePoisson,
+        "default_priors": {"psi": "Beta"},
     },
     "multinomial": {
         "likelihood": {
