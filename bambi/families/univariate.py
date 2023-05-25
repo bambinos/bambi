@@ -125,14 +125,48 @@ class Categorical(UnivariateFamily):
         return get_reference_level(response.term)
 
     @staticmethod
-    def transform_backend_nu(nu, data):
+    def transform_backend_eta(eta, kwargs):
+        data = kwargs["observed"]
+
         # Add column of zeros to the linear predictor for the reference level (the first one)
         shape = (data.shape[0], 1)
 
         # The first line makes sure the intercept-only models work
-        nu = np.ones(shape) * nu  # (response_levels, ) -> (n, response_levels)
-        nu = pt.concatenate([np.zeros(shape), nu], axis=1)
-        return nu
+        eta = np.ones(shape) * eta  # (response_levels, ) -> (n, response_levels)
+        eta = pt.concatenate([np.zeros(shape), eta], axis=1)
+        return eta
+
+
+class Cumulative(UnivariateFamily):
+    SUPPORTED_LINKS = {"p": ["logit", "probit", "cloglog"], "threshold": ["identity"]}
+
+    def get_data(self, response):
+        return np.nonzero(response.term.data)[1]
+
+    @staticmethod
+    def transform_backend_eta(eta, kwargs):
+        # shape(threshold) = (K, )
+        # shape(eta) = (n, )
+        # shape(threshold - shape_padright(eta)) = (n, K)
+        threshold = kwargs["threshold"]
+        eta_shifted = threshold - pt.shape_padright(eta)
+        return eta_shifted
+
+    @staticmethod
+    def transform_backend_kwargs(kwargs):
+        # P(Y = k) = F(threshold_k - eta) - F(threshold_{k - 1} - eta)
+        p = kwargs.pop("p")
+        p = pt.concatenate(
+            [
+                pt.shape_padright(p[..., 0]),
+                p[..., 1:] - p[..., :-1],
+                pt.shape_padright(1 - p[..., -1]),
+            ],
+            axis=-1,
+        )
+        kwargs["p"] = p
+        kwargs.pop("threshold", None)  # this is not passed to the likelihood function
+        return kwargs
 
 
 class Gamma(UnivariateFamily):

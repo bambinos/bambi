@@ -55,14 +55,16 @@ class Multinomial(MultivariateFamily):
         return kwargs
 
     @staticmethod
-    def transform_backend_nu(nu, data):
+    def transform_backend_eta(eta, kwargs):
+        data = kwargs["observed"]
+
         # Add column of zeros to the linear predictor for the reference level (the first one)
         shape = (data.shape[0], 1)
 
         # The first line makes sure the intercept-only models work
-        nu = np.ones(shape) * nu  # (response_levels, ) -> (n, response_levels)
-        nu = pt.concatenate([np.zeros(shape), nu], axis=1)
-        return nu
+        eta = np.ones(shape) * eta  # (response_levels, ) -> (n, response_levels)
+        eta = pt.concatenate([np.zeros(shape), eta], axis=1)
+        return eta
 
 
 class DirichletMultinomial(MultivariateFamily):

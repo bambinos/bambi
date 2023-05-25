@@ -3,7 +3,7 @@ from typing import Sequence
 import ast
 import textwrap
 
-from formulae.terms.call import Call
+import formulae as fm
 
 from bambi.transformations import HSGP
 
@@ -150,7 +150,7 @@ def is_single_component(term):
 
 
 def is_call_component(component):
-    return isinstance(component, Call)
+    return isinstance(component, fm.terms.call.Call)
 
 
 def has_stateful_transform(component):
@@ -166,3 +166,9 @@ def is_hsgp_term(term):
     if not has_stateful_transform(component):
         return False
     return isinstance(component.call.stateful_transform, HSGP)
+
+
+def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.DesignMatrices:
+    dm.common.terms.pop("Intercept")
+    dm.common.slices.pop("Intercept")
+    return dm

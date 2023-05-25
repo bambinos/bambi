@@ -1,11 +1,15 @@
 import pytensor.tensor as pt
 import pymc as pm
 
+MAPPING = {"Cumulative": pm.Categorical}
+
 
 def get_distribution(dist):
     """Return a PyMC distribution."""
     if isinstance(dist, str):
-        if hasattr(pm, dist):
+        if dist in MAPPING:
+            dist = MAPPING[dist]
+        elif hasattr(pm, dist):
             dist = getattr(pm, dist)
         else:
             raise ValueError(f"The Distribution '{dist}' was not found in PyMC")
