@@ -4,20 +4,34 @@
 
 ### New features
 
+### Maintenance and fixes
+
+### Documentation
+
+### Deprecation
+
+## 0.11.0
+
+### New features
+
 * Add support for Gaussian Processes via the HSGP approximation (#632) 
 * Add new families: `"zero_inflated_poisson"`, `"zero_inflated_binomial"`, and `"zero_inflated_negativebinomial"` (#654)
 * Add new families: `"beta_binomial"` and `"dirichlet_multinomial"` (#659)
+* Allow `plot_cap()` to show predictions at the observation level (#668)
+* Add new families: `"hurdle_gamma"`, `"hurdle_lognormal"`, `"hurdle_negativebinomial"`, and `"hurdle_poisson"` (#676)
 
 ### Maintenance and fixes
 
 * Modify how HSGP is built in PyMC when there are groups (#661)
 * Modify how Bambi is imported in the tests (#662)
 * Prevent underscores from being removed in dim names (#664)
+* Bump sphix dependency to a version greater than 7 (#672)
 
 ### Documentation
 
 * Document how to use custom priors (#656)
 * Fix name of arviz traceplot function in the docs (#666)
+* Add example that shows how `plot_cap()` works (#670)
 
 ### Deprecation
 
