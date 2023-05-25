@@ -885,3 +885,25 @@ def test_zero_inflated_negativebinomial():
     model = bmb.Model(formula, df, family="zero_inflated_negativebinomial", priors=priors)
     idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
     model.predict(idata, kind="pps")
+
+
+def test_hurlde_families():
+    df = pd.DataFrame({"y": pm.draw(pm.HurdlePoisson.dist(0.5, mu=3.5), 1000)}) 
+    model = bmb.Model("y ~ 1", df, family="hurdle_poisson")
+    idata = model.fit()
+    model.predict(idata, kind="pps")
+
+    df = pd.DataFrame({"y": pm.draw(pm.HurdleNegativeBinomial.dist(0.6, 5, 3), 1000)})
+    model = bmb.Model("y ~ 1", df, family="hurdle_negativebinomial")
+    idata = model.fit()
+    model.predict(idata, kind="pps")
+
+    df = pd.DataFrame({"y": pm.draw(pm.HurdleGamma.dist(0.8, alpha=10, beta=1), 1000)})
+    model = bmb.Model("y ~ 1", df, family="hurdle_gamma")
+    idata = model.fit()
+    model.predict(idata, kind="pps")
+
+    df = pd.DataFrame({"y": pm.draw(pm.HurdleLogNormal.dist(0.7, mu=0, sigma=0.2), 1000)})
+    model = bmb.Model("y ~ 1", df, family="hurdle_lognormal")
+    idata = model.fit()
+    model.predict(idata, kind="pps")

@@ -151,6 +151,40 @@ class Gaussian(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "sigma": ["log"]}
 
 
+class HurdleGamma(UnivariateFamily):
+    SUPPORTED_LINKS = {
+        "mu": ["identity", "log", "inverse"],
+        "alpha": ["log"],
+        "psi": ["logit", "probit", "cloglog"],
+    }
+
+    @staticmethod
+    def transform_backend_kwargs(kwargs):
+        alpha = kwargs.pop("alpha")
+        kwargs["sigma"] = kwargs["mu"] / (alpha**0.5)
+        return kwargs
+
+
+class HurdleLogNormal(UnivariateFamily):
+    SUPPORTED_LINKS = {
+        "mu": ["identity", "log", "inverse"],
+        "sigma": ["log"],
+        "psi": ["logit", "probit", "cloglog"],
+    }
+
+
+class HurdleNegativeBinomial(UnivariateFamily):
+    SUPPORTED_LINKS = {
+        "mu": ["identity", "log", "cloglog"],
+        "alpha": ["log"],
+        "psi": ["logit", "probit", "cloglog"],
+    }
+
+
+class HurdlePoisson(UnivariateFamily):
+    SUPPORTED_LINKS = {"mu": ["identity", "log"], "psi": ["logit", "probit", "cloglog"]}
+
+
 class NegativeBinomial(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "cloglog"], "alpha": ["log"]}
 
