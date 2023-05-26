@@ -31,7 +31,7 @@ from bambi.version import __version__
 
 _log = logging.getLogger("bambi")
 
-ORDINAL_FAMILIES = (univariate.Cumulative,)
+ORDINAL_FAMILIES = (univariate.Cumulative, univariate.StoppingRatio)
 
 
 class Model:

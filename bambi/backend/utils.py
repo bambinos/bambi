@@ -1,7 +1,7 @@
 import pytensor.tensor as pt
 import pymc as pm
 
-MAPPING = {"Cumulative": pm.Categorical}
+MAPPING = {"Cumulative": pm.Categorical, "StoppingRatio": pm.Categorical}
 
 
 def get_distribution(dist):

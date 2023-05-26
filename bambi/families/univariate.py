@@ -231,6 +231,42 @@ class Poisson(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log"]}
 
 
+class StoppingRatio(UnivariateFamily):
+    SUPPORTED_LINKS = {"p": ["logit", "probit", "cloglog"], "threshold": ["identity"]}
+
+    def get_data(self, response):
+        return np.nonzero(response.term.data)[1]
+
+    @staticmethod
+    def transform_backend_eta(eta, kwargs):
+        # shape(threshold) = (K, )
+        # shape(eta) = (n, )
+        # shape(threshold - shape_padright(eta)) = (n, K)
+        threshold = kwargs["threshold"]
+        eta_shifted = threshold - pt.shape_padright(eta)
+        return eta_shifted
+
+    @staticmethod
+    def transform_backend_kwargs(kwargs):
+        # P(Y = k) = F(threshold_k - eta) * \prod_{j=1}^{k-1}{1 - F(threshold_j - eta)}
+        p = kwargs.pop("p")
+        n_columns = p.type.shape[-1]
+        p = pt.concatenate(
+            [
+                pt.shape_padright(p[..., 0]),
+                *[
+                    pt.shape_padright(p[..., j] * pt.prod(1 - p[..., :j], axis=-1))
+                    for j in range(1, n_columns)
+                ],
+                pt.shape_padright(pt.prod(1 - p, axis=-1)),
+            ],
+            axis=-1,
+        )
+        kwargs["p"] = p
+        kwargs.pop("threshold", None)  # this is not passed to the likelihood function
+        return kwargs
+
+
 class StudentT(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "sigma": ["log"], "nu": ["log"]}
 

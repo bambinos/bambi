@@ -16,6 +16,7 @@ from bambi.families.univariate import (
     NegativeBinomial,
     Laplace,
     Poisson,
+    StoppingRatio,
     StudentT,
     VonMises,
     Wald,
@@ -201,6 +202,16 @@ BUILTIN_FAMILIES = {
         },
         "link": {"mu": "log"},
         "family": Poisson,
+    },
+    "sratio": {
+        "likelihood": {
+            "name": "StoppingRatio",
+            "params": ["p", "threshold"],
+            "parent": "p",
+        },
+        "link": {"p": "logit", "threshold": "identity"},
+        "family": StoppingRatio,
+        "default_priors": {"threshold": "Normal"},
     },
     "t": {
         "likelihood": {

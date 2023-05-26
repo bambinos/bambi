@@ -1,12 +1,9 @@
 import numpy as np
 import pymc as pm
 
-from bambi.families.univariate import Cumulative, Gaussian, StudentT, VonMises
+from bambi.families.univariate import Cumulative, Gaussian, StoppingRatio, StudentT, VonMises
 from bambi.model_components import ConstantComponent
 from bambi.priors.prior import Prior
-
-
-ORDINAL_FAMILIES = (Cumulative,)
 
 
 class PriorScaler:
@@ -102,7 +99,7 @@ class PriorScaler:
         term.prior.args["sigma"].update(sigma=np.squeeze(np.atleast_1d(sigma)))
 
     def scale_threshold(self):
-        if isinstance(self.model.family, ORDINAL_FAMILIES):
+        if isinstance(self.model.family, Cumulative):
             threshold = self.model.components["threshold"]
             if isinstance(threshold, ConstantComponent) and threshold.prior.auto_scale:
                 response_level_n = len(np.unique(self.response_component.response_term.data))
@@ -113,6 +110,13 @@ class PriorScaler:
                     sigma=1,
                     transform=pm.distributions.transforms.univariate_ordered,
                 )
+        elif isinstance(self.model.family, StoppingRatio):
+            threshold = self.model.components["threshold"]
+            # NOTE: This could be improved. We should have  proper dims for thresholds
+            if isinstance(threshold, ConstantComponent) and threshold.prior.auto_scale:
+                response_level_n = len(np.unique(self.response_component.response_term.data))
+                mu = np.round(np.linspace(-2, 2, num=response_level_n - 1), 2)
+                threshold.prior = Prior("Normal", mu=mu, sigma=1)
 
     def scale(self):
         # Scale response
