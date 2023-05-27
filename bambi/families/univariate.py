@@ -22,6 +22,13 @@ class BinomialBaseFamily(UnivariateFamily):
         return super().posterior_predictive(model, posterior, n=trials)
 
     @staticmethod
+    def transform_backend_kwargs(kwargs):
+        observed = kwargs.pop("observed")
+        kwargs["observed"] = observed[:, 0].squeeze()
+        kwargs["n"] = observed[:, 1].squeeze()
+        return kwargs
+
+    @staticmethod
     def transform_kwargs(kwargs):
         observed = kwargs.pop("observed")
         kwargs["observed"] = observed[:, 0].squeeze()
