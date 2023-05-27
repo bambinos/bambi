@@ -263,12 +263,12 @@ class PyMCModel:
 
         # NOTE: This seems hacky, we need to improve it.
         # Perhaps "threshold__dim" is a good alternative.
-        dims_threshold = [c for c in idata.posterior.dims if c.endswith("_threshold_dim_0")]
+        # dims_threshold = [c for c in idata.posterior.dims if c.endswith("_threshold_dim_0")]
 
         # Keep the original order in dims_original
         dims_original_set = set(dims_original) - set(dims_group)
         dims_original = [c for c in dims_original if c in dims_original_set]
-        dims_new = ["chain", "draw"] + dims_original + dims_group + dims_threshold
+        dims_new = ["chain", "draw"] + dims_original + dims_group  # + dims_threshold
         idata.posterior = idata.posterior.transpose(*dims_new)
 
         # Compute the actual intercept in all distributional components that have an intercept

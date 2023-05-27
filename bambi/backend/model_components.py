@@ -5,8 +5,11 @@ from pytensor import tensor as pt
 from bambi.backend.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, InterceptTerm, ResponseTerm
 from bambi.backend.utils import get_distribution_from_prior
 from bambi.families.multivariate import MultivariateFamily
-from bambi.families.univariate import Categorical
+from bambi.families.univariate import Categorical, Cumulative, StoppingRatio
 from bambi.utils import get_aliased_name
+
+
+ORDINAL_FAMILIES = (Cumulative, StoppingRatio)
 
 
 class ConstantComponent:
@@ -14,19 +17,28 @@ class ConstantComponent:
         self.component = component
         self.output = 0
 
-    def build(self, pymc_backend, bmb_model):  # pylint: disable = unused-argument
+    def build(self, pymc_backend, bmb_model):
+        extra_args = {}
+
+        if self.component.alias:
+            label = self.component.alias
+        else:
+            label = self.component.name
+
+        if isinstance(bmb_model.family, ORDINAL_FAMILIES):
+            threshold_dim = label + "_dim"
+            threshold_values = np.arange(len(bmb_model.response_component.response_term.levels) - 1)
+            extra_args["dims"] = threshold_dim
+            pymc_backend.model.add_coords({threshold_dim: threshold_values})
+
         with pymc_backend.model:
-            if self.component.alias:
-                label = self.component.alias
-            else:
-                label = self.component.name
-            # It's set to a constant value
+            # Set to a constant value
             if isinstance(self.component.prior, (int, float)):
                 self.output = self.component.prior
             # Set to a distribution
             else:
                 dist = get_distribution_from_prior(self.component.prior)
-                self.output = dist(label, **self.component.prior.args)
+                self.output = dist(label, **self.component.prior.args, **extra_args)
 
 
 class DistributionalComponent:

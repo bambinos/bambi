@@ -1,6 +1,7 @@
 # pylint: disable=unused-argument
 import numpy as np
 import pytensor.tensor as pt
+import xarray as xr
 
 from bambi.families.family import Family
 from bambi.transformations import transformations_namespace
@@ -15,7 +16,10 @@ class Multinomial(MultivariateFamily):
     SUPPORTED_LINKS = {"p": ["softmax"]}
     INVLINK_KWARGS = {"axis": -1}
 
-    def transform_linear_predictor(self, model, linear_predictor):
+    @staticmethod
+    def transform_linear_predictor(
+        model, linear_predictor: xr.DataArray, posterior: xr.DataArray
+    ) -> xr.DataArray:  # pylint: disable = unused-variable
         response_name = get_aliased_name(model.response_component.response_term)
         response_levels_dim = response_name + "_reduced_dim"
         linear_predictor = linear_predictor.pad({response_levels_dim: (1, 0)}, constant_values=0)
@@ -50,8 +54,7 @@ class Multinomial(MultivariateFamily):
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
-        if "observed" in kwargs:
-            kwargs["n"] = kwargs["observed"].sum(axis=1).astype(int)
+        kwargs["n"] = kwargs["observed"].sum(axis=1).astype(int)
         return kwargs
 
     @staticmethod
@@ -88,6 +91,5 @@ class DirichletMultinomial(MultivariateFamily):
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
-        if "observed" in kwargs:
-            kwargs["n"] = kwargs["observed"].sum(axis=1).astype(int)
+        kwargs["n"] = kwargs["observed"].sum(axis=1).astype(int)
         return kwargs

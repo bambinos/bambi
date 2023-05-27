@@ -4,6 +4,7 @@ import ast
 import textwrap
 
 import formulae as fm
+import numpy as np
 
 from bambi.transformations import HSGP
 
@@ -170,5 +171,6 @@ def is_hsgp_term(term):
 
 def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.DesignMatrices:
     dm.common.terms.pop("Intercept")
-    dm.common.slices.pop("Intercept")
+    intercept_slice = dm.common.slices.pop("Intercept")
+    dm.common.design_matrix = np.delete(dm.common.design_matrix, intercept_slice, axis=1)
     return dm

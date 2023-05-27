@@ -1,5 +1,6 @@
 import numpy as np
 import pytensor.tensor as pt
+import xarray as xr
 
 from bambi.families.family import Family
 from bambi.utils import get_aliased_name
@@ -21,12 +22,10 @@ class BinomialBaseFamily(UnivariateFamily):
         return super().posterior_predictive(model, posterior, n=trials)
 
     @staticmethod
-    def transform_backend_kwargs(kwargs):
-        # Only used when fitting data, not when getting draws from posterior predictive distribution
-        if "observed" in kwargs:
-            observed = kwargs.pop("observed")
-            kwargs["observed"] = observed[:, 0].squeeze()
-            kwargs["n"] = observed[:, 1].squeeze()
+    def transform_kwargs(kwargs):
+        observed = kwargs.pop("observed")
+        kwargs["observed"] = observed[:, 0].squeeze()
+        kwargs["n"] = observed[:, 1].squeeze()
         return kwargs
 
 
@@ -70,6 +69,14 @@ class Beta(UnivariateFamily):
         kwargs["beta"] = (1 - mu) * kappa
         return kwargs
 
+    @staticmethod
+    def transform_kwargs(kwargs):
+        mu = kwargs.pop("mu")
+        kappa = kwargs.pop("kappa")
+        kwargs["alpha"] = mu * kappa
+        kwargs["beta"] = (1 - mu) * kappa
+        return kwargs
+
 
 class BetaBinomial(BinomialBaseFamily):
     """BetaBinomial family
@@ -87,7 +94,17 @@ class BetaBinomial(BinomialBaseFamily):
         kwargs["alpha"] = mu * kappa
         kwargs["beta"] = (1 - mu) * kappa
         # Then transform the parameters of the binomial component
-        return BinomialBaseFamily.transform_backend_kwargs(kwargs)
+        return BinomialBaseFamily.transform_kwargs(kwargs)
+
+    @staticmethod
+    def transform_kwargs(kwargs):
+        # First, transform the parameters of the beta component
+        mu = kwargs.pop("mu")
+        kappa = kwargs.pop("kappa")
+        kwargs["alpha"] = mu * kappa
+        kwargs["beta"] = (1 - mu) * kappa
+        # Then transform the parameters of the binomial component
+        return BinomialBaseFamily.transform_kwargs(kwargs)
 
 
 class Binomial(BinomialBaseFamily):
@@ -98,7 +115,11 @@ class Categorical(UnivariateFamily):
     SUPPORTED_LINKS = {"p": ["softmax"]}
     INVLINK_KWARGS = {"axis": -1}
 
-    def transform_linear_predictor(self, model, linear_predictor):
+    # pylint: disable = unused-argument
+    @staticmethod
+    def transform_linear_predictor(
+        model, linear_predictor: xr.DataArray, posterior: xr.DataArray
+    ) -> xr.DataArray:
         response_name = get_aliased_name(model.response_component.response_term)
         response_levels_dim = response_name + "_reduced_dim"
         linear_predictor = linear_predictor.pad({response_levels_dim: (1, 0)}, constant_values=0)
@@ -144,6 +165,39 @@ class Cumulative(UnivariateFamily):
         return np.nonzero(response.term.data)[1]
 
     @staticmethod
+    def transform_linear_predictor(
+        model, linear_predictor: xr.DataArray, posterior: xr.DataArray
+    ) -> xr.DataArray:
+        """Computes threshold_k - eta"""
+        threshold_component = model.components["threshold"]
+        response_name = get_aliased_name(model.response_component.response_term)
+        threshold_name = threshold_component.alias if threshold_component.alias else "threshold"
+        threshold_name = f"{response_name}_{threshold_name}"
+        threshold = posterior[threshold_name]
+        return threshold - linear_predictor
+
+    @staticmethod
+    def transform_mean(model, mean: xr.DataArray) -> xr.DataArray:
+        """Computes P(Y = k) = F(threshold_k - eta) - F(threshold_{k - 1} - eta)"""
+        threshold_component = model.components["threshold"]
+        response_name = get_aliased_name(model.response_component.response_term)
+        threshold_name = threshold_component.alias if threshold_component.alias else "threshold"
+        threshold_dim = f"{response_name}_{threshold_name}_dim"
+        response_dim = response_name + "_dim"
+        mean = xr.concat(
+            [
+                mean.isel({threshold_dim: 0}),
+                mean.diff(threshold_dim),
+                1 - mean.isel({threshold_dim: -1}),
+            ],
+            dim=threshold_dim,
+        )
+        mean = mean.rename({threshold_dim: response_dim})
+        mean = mean.assign_coords({response_dim: model.response_component.response_term.levels})
+        mean = mean.transpose(..., response_dim)  # make sure response levels is the last dim
+        return mean
+
+    @staticmethod
     def transform_backend_eta(eta, kwargs):
         # shape(threshold) = (K, )
         # shape(eta) = (n, )
@@ -168,6 +222,11 @@ class Cumulative(UnivariateFamily):
         kwargs.pop("threshold", None)  # this is not passed to the likelihood function
         return kwargs
 
+    @staticmethod
+    def transform_kwargs(kwargs):
+        kwargs.pop("threshold", None)  # this is not passed to the likelihood function
+        return kwargs
+
 
 class Gamma(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "alpha": ["log"]}
@@ -176,6 +235,12 @@ class Gamma(UnivariateFamily):
     def transform_backend_kwargs(kwargs):
         # Gamma distribution is specified using mu and sigma, but we request prior for alpha.
         # We build sigma from mu and alpha.
+        alpha = kwargs.pop("alpha")
+        kwargs["sigma"] = kwargs["mu"] / (alpha**0.5)
+        return kwargs
+
+    @staticmethod
+    def transform_kwargs(kwargs):
         alpha = kwargs.pop("alpha")
         kwargs["sigma"] = kwargs["mu"] / (alpha**0.5)
         return kwargs
@@ -194,6 +259,12 @@ class HurdleGamma(UnivariateFamily):
 
     @staticmethod
     def transform_backend_kwargs(kwargs):
+        alpha = kwargs.pop("alpha")
+        kwargs["sigma"] = kwargs["mu"] / (alpha**0.5)
+        return kwargs
+
+    @staticmethod
+    def transform_kwargs(kwargs):
         alpha = kwargs.pop("alpha")
         kwargs["sigma"] = kwargs["mu"] / (alpha**0.5)
         return kwargs
@@ -238,6 +309,48 @@ class StoppingRatio(UnivariateFamily):
         return np.nonzero(response.term.data)[1]
 
     @staticmethod
+    def transform_linear_predictor(
+        model, linear_predictor: xr.DataArray, posterior: xr.DataArray
+    ) -> xr.DataArray:
+        """Computes threshold_k - eta"""
+        threshold_component = model.components["threshold"]
+        response_name = get_aliased_name(model.response_component.response_term)
+        threshold_name = threshold_component.alias if threshold_component.alias else "threshold"
+        threshold_name = f"{response_name}_{threshold_name}"
+        threshold = posterior[threshold_name]
+        return threshold - linear_predictor
+
+    @staticmethod
+    def transform_mean(model, mean: xr.DataArray) -> xr.DataArray:
+        """Computes P(Y = k) = F(threshold_k - eta) - F(threshold_{k - 1} - eta)"""
+        threshold_component = model.components["threshold"]
+        response_name = get_aliased_name(model.response_component.response_term)
+        threshold_name = threshold_component.alias if threshold_component.alias else "threshold"
+        threshold_dim = f"{response_name}_{threshold_name}_dim"
+        response_dim = response_name + "_dim"
+        threshold_n = len(mean[threshold_dim])
+
+        # the `.assign_coords`` is needed for the concat to work
+        mean = xr.concat(
+            [
+                mean.isel({threshold_dim: 0}),
+                *[
+                    (
+                        mean.isel({threshold_dim: j})
+                        * (1 - mean).isel({threshold_dim: slice(None, j)}).prod(threshold_dim)
+                    )
+                    for j in range(1, threshold_n)
+                ],
+                (1 - mean).prod(threshold_dim).assign_coords({threshold_dim: threshold_n + 1}),
+            ],
+            dim=threshold_dim,
+        )
+        mean = mean.rename({threshold_dim: response_dim})
+        mean = mean.assign_coords({response_dim: model.response_component.response_term.levels})
+        mean = mean.transpose(..., response_dim)  # make sure response levels is the last dim
+        return mean
+
+    @staticmethod
     def transform_backend_eta(eta, kwargs):
         # shape(threshold) = (K, )
         # shape(eta) = (n, )
@@ -263,6 +376,11 @@ class StoppingRatio(UnivariateFamily):
             axis=-1,
         )
         kwargs["p"] = p
+        kwargs.pop("threshold", None)  # this is not passed to the likelihood function
+        return kwargs
+
+    @staticmethod
+    def transform_kwargs(kwargs):
         kwargs.pop("threshold", None)  # this is not passed to the likelihood function
         return kwargs
 

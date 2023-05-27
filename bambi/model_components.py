@@ -286,7 +286,9 @@ class DistributionalComponent:
 
         # Handle more special cases
         if hasattr(family, "transform_linear_predictor"):
-            linear_predictor = family.transform_linear_predictor(self.spec, linear_predictor)
+            linear_predictor = family.transform_linear_predictor(
+                self.spec, linear_predictor, posterior
+            )
 
         if self.response_kind == "data":
             linkinv = family.link[family.likelihood.parent].linkinv
@@ -298,6 +300,9 @@ class DistributionalComponent:
 
         if hasattr(family, "transform_coords"):
             response = family.transform_coords(self.spec, response)
+
+        if hasattr(family, "transform_mean"):
+            response = family.transform_mean(self.spec, response)
 
         return response
 

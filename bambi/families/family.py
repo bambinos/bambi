@@ -170,14 +170,15 @@ class Family:
                 continue
             kwargs[key] = expand_array(values, ndims_max)
 
-        if hasattr(model.family, "transform_backend_kwargs"):
-            kwargs = model.family.transform_backend_kwargs(kwargs)
+        if hasattr(model.family, "transform_kwargs"):
+            kwargs = model.family.transform_kwargs(kwargs)
 
         output_array = pm.draw(response_dist.dist(**kwargs))
         output_coords_all = xr.merge(output_dataset_list).coords
 
         coord_names = ["chain", "draw", response_aliased_name + "_obs"]
-        if hasattr(model.family, "KIND") and model.family.KIND == "Multivariate":
+        is_multivariate = hasattr(model.family, "KIND") and model.family.KIND == "Multivariate"
+        if is_multivariate:
             coord_names.append(response_aliased_name + "_dim")
 
         output_coords = {}
@@ -206,8 +207,12 @@ def get_response_dist(family):
     pm.Distribution
         The response distribution
     """
+    mapping = {"Cumulative": pm.Categorical, "StoppingRatio": pm.Categorical}
+
     if family.likelihood.dist:
         dist = family.likelihood.dist
+    elif family.likelihood.name in mapping:
+        dist = mapping[family.likelihood.name]
     else:
         dist = getattr(pm, family.likelihood.name)
     return dist
