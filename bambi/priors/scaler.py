@@ -112,7 +112,6 @@ class PriorScaler:
                 )
         elif isinstance(self.model.family, StoppingRatio):
             threshold = self.model.components["threshold"]
-            # NOTE: This could be improved. We should have  proper dims for thresholds
             if isinstance(threshold, ConstantComponent) and threshold.prior.auto_scale:
                 response_level_n = len(np.unique(self.response_component.response_term.data))
                 mu = np.round(np.linspace(-2, 2, num=response_level_n - 1), 2)
