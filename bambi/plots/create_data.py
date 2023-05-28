@@ -12,7 +12,7 @@ import bambi as bmb
 from bambi.utils import clean_formula_lhs
 from bambi.plots.utils import enforce_dtypes, make_group_panel_values, \
     set_default_values, make_main_values, make_group_values, get_covariates, \
-    get_unique_levels, get_group_offset 
+    get_unique_levels, get_group_offset, set_default_contrast_values
 
 
 def create_cap_data(
@@ -102,10 +102,11 @@ def create_comparisons_data(
         When the number of covariates is larger than 2.
         When either the main or the group covariates are not numeric or categoric.
     """
-        
+    print(f"contrast_predictor: {contrast_predictor}")
     data = model.data
     covariates = get_covariates(conditional)
     main, group, panel = covariates.main, covariates.group, covariates.panel
+    print(f"main: {main}, group: {group}, panel: {panel}")
 
     model_covariates = clean_formula_lhs(str(model.formula.main)).strip()
     model_covariates = model_covariates.split(" ")
@@ -115,24 +116,35 @@ def create_comparisons_data(
     if user_passed:
         data_dict = {**conditional}
     else:
-        # if user did not pass data, then compute default values
+        # if user did not pass data, then compute default values for the
+        # covariates specified in the `conditional` arg.
         main_values = make_main_values(data[main], grid_n)
         data_dict = {main: main_values}
         data_dict = make_group_panel_values(
             data, data_dict, main, group, panel, kind='comparison'
             )
     
-    # TO DO: remove hard coding of index? (it seems to work though)
+    ## Build contrast data ##
+
+    # use key. value pairs to specify the contrast name and value
     if isinstance(contrast_predictor, dict):
         main_predictor = list(contrast_predictor.keys())[0] 
         contrast = list(contrast_predictor.values())[0]
         data_dict[main_predictor] = contrast
-    elif isinstance(contrast_predictor, list):
-        print("default")
+    # obtain default values for the contrast predictor
+    elif isinstance(contrast_predictor, (list, str)):
+        if isinstance(contrast_predictor, list):
+            contrast_predictor = ' '.join(contrast_predictor)
+        data_dict[contrast_predictor] = set_default_contrast_values(
+            model, data, contrast_predictor
+        )
     elif not isinstance(contrast_predictor, (list, dict, str)):
         raise TypeError("`contrast_predictor` must be a list, dict, or string")
     
+    
+    print(f"data_dict: {data_dict.keys()}")
     comparison_data = set_default_values(model, data, data_dict, kind='comparison')
+    print(f"comparison_data: {comparison_data.keys()}")
     # use cartesian product (cross join) to create contrasts
     keys, values = zip(*comparison_data.items())
     contrast_dict = [dict(zip(keys, v)) for v in itertools.product(*values)]

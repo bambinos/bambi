@@ -17,7 +17,7 @@ import bambi as bmb
 from bambi.utils import listify, get_aliased_name
 from bambi.plots.create_data import create_cap_data, create_comparisons_data
 from bambi.plots.plot_types import plot_numeric, plot_categoric
-from bambi.plots.utils import identity
+from bambi.plots.utils import identity, contrast_dtype
 
 
 def plot_cap(
@@ -160,12 +160,12 @@ def plot_cap(
 
 
 def plot_comparison(
-        model,
-        idata,
+        model: bmb.Model,
+        idata: az.InferenceData,
         contrast_predictor: Union[str, dict, list],
         conditional: Union[str, dict, list],
-        target="mean",
-        use_hdi=True,
+        target: str = "mean",
+        use_hdi: bool = True,
         hdi_prob=None,
         transforms=None,
         legend=True,
@@ -215,7 +215,7 @@ def plot_comparison(
         When the main covariate is not numeric or categoric.
     """
 
-    contrast_df = comparison(
+    comparisons_df, contrast_df, idata = comparison(
         model=model,
         idata=idata,
         contrast_predictor=contrast_predictor,
@@ -301,7 +301,8 @@ def plot_comparison(
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
         ax.set(xlabel=main, ylabel=ylabel)
 
-    return fig, axes
+    return fig, axes, comparisons_df, contrast_df, idata
+    #return comparisons_df, contrast_df, idata
 
 
 def comparison(
@@ -340,7 +341,15 @@ def comparison(
         conditional = {k: listify(v) for k, v in conditional.items()}
         conditional = dict(zip(covariate_kinds, conditional))
     
-    contrast_name, contrast = next(iter(contrast_predictor.items()))
+    #print(comparisons_df)
+
+    # RE DO THIS
+    if isinstance(contrast_predictor, dict):
+        contrast_name, contrast = next(iter(contrast_predictor.items()))
+    elif isinstance(contrast_predictor, list):
+        contrast_name = contrast_predictor[0]
+    elif isinstance(contrast_predictor, str):
+        contrast_name = contrast_predictor
     
     if hdi_prob is None:
         hdi_prob = az.rcParams["stats.hdi_prob"]
@@ -388,6 +397,9 @@ def comparison(
     group = conditional.get("color")
     panel = conditional.get("panel")
 
+    print(comparisons_df.shape)
+    print(contrast_comparison.shape)
+
     # TO DO: create a utility function for building contrasts dataframe
     N = contrast_comparison.shape[0]
     if np.unique(comparisons_df[main]).shape[0] == 1:
@@ -399,9 +411,18 @@ def comparison(
         main_values = np.unique(comparisons_df[main])
         main_n = len(main_values)
         number_repeats = N // main_n
-        values = np.repeat(main_values, number_repeats)
-        contrast_comparison[main] = values
-    
+        if is_numeric_dtype(comparisons_df[main]):
+            X_unique = (comparisons_df[model_covariates]
+                        .drop_duplicates()
+                        .reset_index(drop=True)
+            )
+            contrast_comparison[main] = X_unique[main]
+        else:
+            # main_n = len(main_values)
+            # number_repeats = N // main_n
+            values = np.repeat(main_values, number_repeats)
+            contrast_comparison[main] = values
+
     if group and not panel:
         group_values = np.unique(comparisons_df[group])
         group_n = len(group_values)
@@ -419,4 +440,4 @@ def comparison(
             f"{upper}": "contrast_comparison_upper"
         }
     )
-    return contrast_comparison
+    return comparisons_df, contrast_comparison, idata
