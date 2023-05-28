@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from statistics import mode
+import itertools
 from typing import Callable, Union, Tuple, Any
 
 import numpy as np
@@ -13,6 +14,26 @@ class Covariates:
     main: str
     group: Union[str, None]
     panel: Union[str, None]
+
+
+@dataclass
+class Contrast:
+    contrast_name: Union[str, list]
+    contrast_value: Union[list, np.ndarray, None]
+
+
+def get_model_terms(model) -> dict:
+    """
+    """
+    terms = {}
+    for component in model.distributional_components.values():
+        if component.design.common:
+            terms.update(component.design.common.terms)
+
+        if component.design.group:
+            terms.update(component.design.group.terms)
+
+    return terms
 
 
 def get_covariates(covariates: dict) -> Covariates:
@@ -51,6 +72,26 @@ def enforce_dtypes(data, df: pd.DataFrame) -> pd.DataFrame:
             df[col] = df[col].astype(observed_dtypes[col])
     return df
 
+
+def contrast_dtype(model, contrast_predictor):
+
+    if isinstance(contrast_predictor, list):
+        contrast_predictor = " ".join(contrast_predictor)
+
+    terms = get_model_terms(model)
+
+    if contrast_predictor in terms.keys():
+        term = terms.get(contrast_predictor)
+        if hasattr(term, "components"):
+            for component in term.components:
+                if isinstance(component, Call):
+                    names = [arg.name for arg in component.call.args]
+                else:
+                    names = [component.name]
+                for name in names:
+                    if name == contrast_predictor:
+                        return component.kind
+                        
 
 def make_group_panel_values(
         data,
@@ -108,13 +149,7 @@ def make_group_panel_values(
 def set_default_values(model, data, data_dict: dict, kind: str) -> pd.DataFrame:
     """
     """
-    terms = {}
-    for component in model.distributional_components.values():
-        if component.design.common:
-            terms.update(component.design.common.terms)
-
-        if component.design.group:
-            terms.update(component.design.group.terms)
+    terms = get_model_terms(model)
 
     # Get default values for each variable in the model
     for term in terms.values():
@@ -127,6 +162,7 @@ def set_default_values(model, data, data_dict: dict, kind: str) -> pd.DataFrame:
                     names = [component.name]
                 for name in names:
                     if name not in data_dict:
+                        print(f"Setting default value for {name}")
                         # For numeric predictors, select the mean.
                         if component.kind == "numeric":
                             data_dict[name] = np.mean(data[name])
@@ -142,8 +178,49 @@ def set_default_values(model, data, data_dict: dict, kind: str) -> pd.DataFrame:
         return data_dict
     elif kind == 'predictions':
         return data_dict
-    else:
-        raise ValueError("kind must be 'comparison', 'predictions', or 'slopes'")
+
+
+def set_default_contrast_values(model, data, contrast_predictor):
+    """
+    """
+
+    def _numeric_difference(x, kind: str = 'centered'):
+        """
+        """
+        return [x - 0.5, x + 0.5]
+
+    def _categoric_difference(x: np.ndarray, kind: str = 'pairwise'):
+        """
+        """
+        return list(itertools.combinations(x, 2))
+        
+
+    terms = get_model_terms(model)
+
+    # Get default values for each variable in the model
+    if contrast_predictor in terms.keys():
+        term = terms.get(contrast_predictor)
+        # for term in terms.values():
+        if hasattr(term, "components"):
+            for component in term.components:
+                # If the component is a function call, use the argument names
+                if isinstance(component, Call):
+                    names = [arg.name for arg in component.call.args]
+                else:
+                    names = [component.name]
+                for name in names:
+                    if name == contrast_predictor:
+                        print(f"Setting default value for {name}")
+                        # For numeric predictors, select the mean.
+                        if component.kind == "numeric":
+                            contrast = _numeric_difference(np.mean(data[name]))
+                        # For categoric predictors, select the most frequent level.
+                        elif component.kind == "categoric":
+                            contrast = _categoric_difference(
+                                get_unique_levels(data[name])
+                            )
+
+    return contrast
 
 
 def make_main_values(x, grid_n: int = 200, groups_n: int = 5) -> np.ndarray:
