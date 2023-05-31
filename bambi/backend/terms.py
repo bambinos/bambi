@@ -225,13 +225,7 @@ class ResponseTerm:
         data = np.squeeze(self.term.data)
         parent = self.family.likelihood.parent
 
-        # The linear predictor for the parent parameter (usually the mean)
-        nu = pymc_backend.distributional_components[self.term.name].output
-
-        if hasattr(self.family, "transform_backend_nu"):
-            nu = self.family.transform_backend_nu(nu, data)
-
-        # Add auxiliary parameters
+        # Auxiliary parameters
         kwargs = {}
 
         # Constant parameters. No link function is used.
@@ -252,13 +246,21 @@ class ResponseTerm:
                 f"{self.name}_{aliased_name}", linkinv(component.output), dims=dims
             )
 
+        # Add observed and dims
+        kwargs["observed"] = data
+        kwargs["dims"] = dims
+
+        # The linear predictor for the parent parameter (usually the mean)
+        eta = pymc_backend.distributional_components[self.term.name].output
+
+        if hasattr(self.family, "transform_backend_eta"):
+            eta = self.family.transform_backend_eta(eta, kwargs)
+
         # Take the inverse link function that maps from linear predictor to the parent of likelihood
         linkinv = get_linkinv(self.family.link[parent], pymc_backend.INVLINKS)
 
-        # Add parent parameter and observed data. We don't need to pass dims.
-        kwargs[parent] = linkinv(nu)
-        kwargs["observed"] = data
-        kwargs["dims"] = dims
+        # Add parent parameter after the applying the linkinv transformation
+        kwargs[parent] = linkinv(eta)
 
         # Build the response distribution
         dist = self.build_response_distribution(kwargs, pymc_backend)

@@ -1,7 +1,8 @@
+import warnings
+
 from typing import Sequence
 
-from formulae import model_description
-from formulae.terms.variable import Variable
+import formulae as fm
 
 
 class Formula:
@@ -56,14 +57,14 @@ class Formula:
         ValueError
             If the response term is not a plain name
         """
-        response = model_description(additional).response
+        response = fm.model_description(additional).response
 
         # There's a response in the formula
         if response is None:
             raise ValueError("Additional formulas must contain a response name.")
 
         # The response is a name, not a function call for example
-        if not isinstance(response.term.components[0], Variable):
+        if not isinstance(response.term.components[0], fm.terms.variable.Variable):
             raise ValueError("The response must be a name.")
 
         self.additionals_lhs.append(response.term.name)
@@ -87,3 +88,16 @@ class Formula:
         formulas = [self.main] + list(self.additionals)
         middle = ", ".join([f"'{formula}'" for formula in formulas])
         return f"Formula({middle})"
+
+
+def formula_has_intercept(formula: str) -> bool:
+    description = fm.model_description(formula)
+    return any(isinstance(term, fm.terms.Intercept) for term in description.terms)
+
+
+def check_ordinal_formula(formula: Formula) -> Formula:
+    if len(formula.additionals) > 0:
+        raise ValueError("Ordinal families don't accept multiple formulas")
+    if formula_has_intercept(formula.main):
+        warnings.warn("The intercept is omitted in ordinal families")
+    return formula

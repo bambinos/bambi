@@ -5,31 +5,33 @@ import warnings
 
 from copy import deepcopy
 
+import formulae as fm
 import pymc as pm
 import pandas as pd
 
 from arviz.plots import plot_posterior
 
-from formulae import design_matrices
-
 from bambi.backend import PyMCModel
 from bambi.defaults import get_builtin_family
 from bambi.model_components import ConstantComponent, DistributionalComponent
 from bambi.families import Family, univariate
-from bambi.formula import Formula
+from bambi.formula import Formula, check_ordinal_formula
 from bambi.priors import Prior, PriorScaler
 from bambi.transformations import transformations_namespace
 from bambi.utils import (
     clean_formula_lhs,
     get_aliased_name,
     get_auxiliary_parameters,
-    listify,
     indentify,
+    listify,
+    remove_common_intercept,
     wrapify,
 )
 from bambi.version import __version__
 
 _log = logging.getLogger("bambi")
+
+ORDINAL_FAMILIES = (univariate.Cumulative, univariate.StoppingRatio)
 
 
 class Model:
@@ -133,9 +135,6 @@ class Model:
         # Obtain design matrices and related objects.
         na_action = "drop" if dropna else "error"
 
-        # Create family
-        self._set_family(family, link)
-
         # Handle additional namespaces
         additional_namespace = transformations_namespace.copy()
         if not isinstance(extra_namespace, (type(None), dict)):
@@ -144,8 +143,24 @@ class Model:
         if isinstance(extra_namespace, dict):
             additional_namespace.update(extra_namespace)
 
+        # Create family
+        self._set_family(family, link)
+
         ## Main component
-        design = design_matrices(self.formula.main, self.data, na_action, 1, additional_namespace)
+        if isinstance(self.family, ORDINAL_FAMILIES):
+            self.formula = check_ordinal_formula(self.formula)
+            # Notice the intercept is added so formulae constrains categorical predictors, avoiding
+            # linear dependencies with the cutpoints.
+            # Then the intercept is removed from the design matrix because of the cutpoints.
+            design = fm.design_matrices(
+                self.formula.main + " + 1", self.data, na_action, 1, additional_namespace
+            )
+            design = remove_common_intercept(design)
+        else:
+            design = fm.design_matrices(
+                self.formula.main, self.data, na_action, 1, additional_namespace
+            )
+
         if design.response is None:
             raise ValueError(
                 "No outcome variable is set! "
@@ -177,7 +192,7 @@ class Model:
                 )
 
             # Create design matrix, only for the response part
-            design = design_matrices(
+            design = fm.design_matrices(
                 clean_formula_lhs(extra_formula), self.data, na_action, 1, additional_namespace
             )
 

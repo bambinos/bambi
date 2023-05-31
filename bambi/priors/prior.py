@@ -53,7 +53,7 @@ class Prior:
     def __str__(self):
         args = ", ".join(
             [
-                f"{k}: {np.round_(v, 4)}" if not isinstance(v, type(self)) else f"{k}: {v}"
+                f"{k}: {format_arg(v, 4)}" if not isinstance(v, type(self)) else f"{k}: {v}"
                 for k, v in self.args.items()
             ]
         )
@@ -61,3 +61,14 @@ class Prior:
 
     def __repr__(self):
         return self.__str__()
+
+
+def format_arg(value, decimals):
+    try:
+        outcome = np.round_(value, decimals)
+    except:  # pylint: disable = bare-except
+        try:
+            outcome = value.name
+        except:  # pylint: disable = bare-except
+            outcome = value
+    return outcome

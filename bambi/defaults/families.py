@@ -6,6 +6,7 @@ from bambi.families.univariate import (
     BetaBinomial,
     Binomial,
     Categorical,
+    Cumulative,
     Gamma,
     Gaussian,
     HurdleGamma,
@@ -15,6 +16,7 @@ from bambi.families.univariate import (
     NegativeBinomial,
     Laplace,
     Poisson,
+    StoppingRatio,
     StudentT,
     VonMises,
     Wald,
@@ -37,7 +39,6 @@ BUILTIN_FAMILIES = {
         "family": AsymmetricLaplace,
         "default_priors": {"b": "HalfNormal", "kappa": "HalfNormal"}
     },
-
     "bernoulli": {
         "likelihood": {
             "name": "Bernoulli",
@@ -84,6 +85,16 @@ BUILTIN_FAMILIES = {
         },
         "link": {"p": "softmax"},
         "family": Categorical,
+    },
+    "cumulative": {
+        "likelihood": {
+            "name": "Cumulative",
+            "params": ["p", "threshold"],
+            "parent": "p",
+        },
+        "link": {"p": "logit", "threshold": "identity"},
+        "family": Cumulative,
+        "default_priors": {"threshold": "Normal"},
     },
     "dirichlet_multinomial": {
         "likelihood": {
@@ -191,6 +202,16 @@ BUILTIN_FAMILIES = {
         },
         "link": {"mu": "log"},
         "family": Poisson,
+    },
+    "sratio": {
+        "likelihood": {
+            "name": "StoppingRatio",
+            "params": ["p", "threshold"],
+            "parent": "p",
+        },
+        "link": {"p": "logit", "threshold": "identity"},
+        "family": StoppingRatio,
+        "default_priors": {"threshold": "Normal"},
     },
     "t": {
         "likelihood": {

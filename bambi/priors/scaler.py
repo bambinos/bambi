@@ -1,6 +1,7 @@
 import numpy as np
+import pymc as pm
 
-from bambi.families.univariate import Gaussian, StudentT, VonMises
+from bambi.families.univariate import Cumulative, Gaussian, StoppingRatio, StudentT, VonMises
 from bambi.model_components import ConstantComponent
 from bambi.priors.prior import Prior
 
@@ -97,6 +98,25 @@ class PriorScaler:
                 sigma[i] = self.get_slope_sigma(value)
         term.prior.args["sigma"].update(sigma=np.squeeze(np.atleast_1d(sigma)))
 
+    def scale_threshold(self):
+        if isinstance(self.model.family, Cumulative):
+            threshold = self.model.components["threshold"]
+            if isinstance(threshold, ConstantComponent) and threshold.prior.auto_scale:
+                response_level_n = len(np.unique(self.response_component.response_term.data))
+                mu = np.round(np.linspace(-2, 2, num=response_level_n - 1), 2)
+                threshold.prior = Prior(
+                    "Normal",
+                    mu=mu,
+                    sigma=1,
+                    transform=pm.distributions.transforms.univariate_ordered,
+                )
+        elif isinstance(self.model.family, StoppingRatio):
+            threshold = self.model.components["threshold"]
+            if isinstance(threshold, ConstantComponent) and threshold.prior.auto_scale:
+                response_level_n = len(np.unique(self.response_component.response_term.data))
+                mu = np.round(np.linspace(-2, 2, num=response_level_n - 1), 2)
+                threshold.prior = Prior("Normal", mu=mu, sigma=1)
+
     def scale(self):
         # Scale response
         self.scale_response()
@@ -116,3 +136,6 @@ class PriorScaler:
         for term in self.response_component.group_specific_terms.values():
             if term.prior.auto_scale:
                 self.scale_group_specific(term)
+
+        # Scale threshold parameters in ordinal families
+        self.scale_threshold()

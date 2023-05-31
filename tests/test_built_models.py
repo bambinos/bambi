@@ -907,3 +907,38 @@ def test_hurlde_families():
     model = bmb.Model("y ~ 1", df, family="hurdle_lognormal")
     idata = model.fit()
     model.predict(idata, kind="pps")
+
+@pytest.mark.parametrize(
+    "family, link",
+    [
+        ("cumulative", "logit"),
+        ("cumulative", "probit"),
+        ("cumulative", "cloglog"),
+        ("sratio", "logit"),
+        ("sratio", "probit"),
+        ("sratio", "cloglog"),
+    ]
+)
+def test_ordinal_families(inhaler, family, link):
+    data = inhaler.copy()
+    data["carry"] = pd.Categorical(data["carry"]) # To have both numeric and categoric predictors
+    model = bmb.Model("rating ~ period + carry + treat", data, family=family, link=link)
+    idata = model.fit(tune=100, draws=100)
+    model.predict(idata, kind="pps")
+    assert np.allclose(idata.posterior["rating_mean"].sum("rating_dim").to_numpy(), 1)
+    assert np.all(np.unique(idata.posterior_predictive["rating"]) == np.array([0, 1, 2, 3]))
+
+
+def test_cumulative_family_priors(inhaler):
+    priors = {
+        "threshold": bmb.Prior(
+            "Normal", 
+            mu=[-0.5, 0, 0.5], 
+            sigma=1.5, 
+            transform=pm.distributions.transforms.univariate_ordered
+        )
+    }
+    model = bmb.Model(
+        "rating ~ period + carry + treat", inhaler, family="cumulative", priors=priors
+    )
+    model.fit(tune=100, draws=100)
