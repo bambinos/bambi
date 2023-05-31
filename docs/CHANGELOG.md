@@ -4,6 +4,8 @@
 
 ### New features
 
+* Implement new families `"ordinal"` and `"sratio"` for modeling of ordinal responses (#678)
+
 ### Maintenance and fixes
 
 ### Documentation

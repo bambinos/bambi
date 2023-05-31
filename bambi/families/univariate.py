@@ -28,13 +28,6 @@ class BinomialBaseFamily(UnivariateFamily):
         kwargs["n"] = observed[:, 1].squeeze()
         return kwargs
 
-    @staticmethod
-    def transform_kwargs(kwargs):
-        observed = kwargs.pop("observed")
-        kwargs["observed"] = observed[:, 0].squeeze()
-        kwargs["n"] = observed[:, 1].squeeze()
-        return kwargs
-
 
 class AsymmetricLaplace(UnivariateFamily):
     SUPPORTED_LINKS = {
@@ -101,17 +94,17 @@ class BetaBinomial(BinomialBaseFamily):
         kwargs["alpha"] = mu * kappa
         kwargs["beta"] = (1 - mu) * kappa
         # Then transform the parameters of the binomial component
-        return BinomialBaseFamily.transform_kwargs(kwargs)
+        return BinomialBaseFamily.transform_backend_kwargs(kwargs)
 
     @staticmethod
     def transform_kwargs(kwargs):
         # First, transform the parameters of the beta component
+        print(kwargs)
         mu = kwargs.pop("mu")
         kappa = kwargs.pop("kappa")
         kwargs["alpha"] = mu * kappa
         kwargs["beta"] = (1 - mu) * kappa
-        # Then transform the parameters of the binomial component
-        return BinomialBaseFamily.transform_kwargs(kwargs)
+        return kwargs
 
 
 class Binomial(BinomialBaseFamily):
