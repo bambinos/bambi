@@ -61,16 +61,15 @@ def test_distributional_model(my_data):
 
     assert list(idata.posterior.coords) == ["chain", "draw", "response_obs"]
     assert set(idata.posterior.data_vars) == {
+        "response_mean",
         "y_a",
         "y_b",
         "sigma_a",
         "sigma_b",
-        "response_s",
-        "response_s",
-        "response_mean",
+        "s",
     }
     assert list(idata.posterior["response_mean"].coords) == ["chain", "draw", "response_obs"]
-    assert list(idata.posterior["response_s"].coords) == ["chain", "draw", "response_obs"]
+    assert list(idata.posterior["s"].coords) == ["chain", "draw", "response_obs"]
 
 
 def test_non_distributional_model_with_categories(anes):
@@ -91,3 +90,10 @@ def test_non_distributional_model_with_categories(anes):
     assert list(idata.posterior["y_mean"].coords) == ["chain", "draw", "y_obs"]
     assert list(idata.posterior["γ"].coords) == ["chain", "draw", "γ_dim"]
     assert set(idata.posterior["γ_dim"].values) == {"independent", "republican"}
+
+
+def test_alias_equal_to_name(my_data):
+    model = bmb.Model("y ~ 1 + x", my_data)
+    model.set_alias({"sigma": "sigma"})
+    idata = model.fit(tune=100, draws=100)
+    set(idata.posterior.data_vars) == {"Intercept", "y_mean", "x", "sigma"}

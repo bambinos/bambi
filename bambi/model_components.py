@@ -21,14 +21,12 @@ class ConstantComponent:
         The name of the component. For example "sigma", "alpha", or "kappa".
     priors : bambi.priors.Prior
         The prior distribution for the parameter
-    response_name : str
-        The name of the response variable. It's used to get the suffixed name of the component.
     spec : bambi.Model
         The Bambi model
     """
 
-    def __init__(self, name, prior, response_name, spec):
-        self.name = with_suffix(response_name, name)
+    def __init__(self, name, prior, spec):
+        self.name = name
         self.prior = prior
         self.spec = spec
         self.alias = None

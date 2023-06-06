@@ -145,19 +145,27 @@ class Family:
             # Extract posterior draws for the parent parameter
             if param == model.family.likelihood.parent:
                 component = model.components[model.response_name]
-                var_name = f"{response_aliased_name}_mean"
+                var_name = response_aliased_name + "_mean"
                 kwargs[param] = posterior[var_name].to_numpy()
                 output_dataset_list.append(posterior[var_name])
             else:
                 # Extract posterior draws for non-parent parameters
                 component = model.components[param]
-                component_aliased_name = component.alias if component.alias else param
-                var_name = f"{response_aliased_name}_{component_aliased_name}"
+                if component.alias:
+                    var_name = component.alias
+                else:
+                    var_name = f"{response_aliased_name}_{param}"
+
                 if var_name in posterior:
                     kwargs[param] = posterior[var_name].to_numpy()
                     output_dataset_list.append(posterior[var_name])
                 elif hasattr(component, "prior") and isinstance(component.prior, (int, float)):
                     kwargs[param] = np.asarray(component.prior)
+                else:
+                    raise ValueError(
+                        "Non-parent parameter not found in posterior."
+                        "This error shouldn't have happened!"
+                    )
 
         # Determine the array with largest number of dimensions
         ndims_max = max(x.ndim for x in kwargs.values())

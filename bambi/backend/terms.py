@@ -242,9 +242,7 @@ class ResponseTerm:
                 bmb_component.alias if bmb_component.alias else bmb_component.response_name
             )
             linkinv = get_linkinv(self.family.link[name], pymc_backend.INVLINKS)
-            kwargs[name] = pm.Deterministic(
-                f"{self.name}_{aliased_name}", linkinv(component.output), dims=dims
-            )
+            kwargs[name] = pm.Deterministic(aliased_name, linkinv(component.output), dims=dims)
 
         # Add observed and dims
         kwargs["observed"] = data

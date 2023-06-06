@@ -9,7 +9,7 @@ from bambi.priors.prior import Prior
 class PriorScaler:
     """Scale prior distributions parameters."""
 
-    # Standard deviation multiplier.
+    # Standard deviation multipliefr.
     STD = 2.5
 
     def __init__(self, model):
