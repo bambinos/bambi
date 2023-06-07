@@ -1,6 +1,7 @@
 # pylint: disable = protected-access
 # pylint: disable = too-many-function-args
 # pylint: disable = too-many-nested-blocks
+from dataclasses import dataclass
 from typing import Union, Callable, Tuple, Any
 
 import arviz as az
@@ -10,10 +11,16 @@ from pandas.api.types import is_numeric_dtype
 
 import bambi as bmb
 from bambi.utils import listify, get_aliased_name
-from bambi.plots.create_data import create_cap_data, create_comparisons_data
+from bambi.plots.create_data import create_comparisons_data
 from bambi.plots.utils import identity
 
 
+@dataclass
+class Comparison:
+    model: bmb.Model
+    contrast_predictor: Union[str, dict, list]
+    conditional: Union[str, dict, list]
+    comparison_type: str
 
 
 def comparisons(
@@ -21,13 +28,13 @@ def comparisons(
         idata: az.InferenceData,
         contrast_predictor: Union[str, dict, list],
         conditional: Union[str, dict, list],
+        comparison: str = "difference",
         target: str = "mean",
         use_hdi: bool = True,
         hdi_prob=None,
         transforms=None,
     ) -> pd.DataFrame:
     """
-    
     """
 
     covariate_kinds = ("horizontal", "color", "panel")
@@ -36,18 +43,24 @@ def comparisons(
         conditional = listify(conditional)
         conditional = dict(zip(covariate_kinds, conditional))
         comparisons_df = create_comparisons_data(
-            model,
-            contrast_predictor,
-            conditional,
+            Comparison(
+                model, 
+                contrast_predictor,
+                conditional,
+                comparison
+            ),
             user_passed=False
         )
     # if dict, user passed values to condition on
     elif isinstance(conditional, dict):
         comparisons_df = create_comparisons_data(
-            model,
-            contrast_predictor,
-            conditional,
-            user_passed=True
+            Comparison(
+                model, 
+                contrast_predictor,
+                conditional,
+                comparison
+            ),
+            user_passed=False
         )
         conditional = {k: listify(v) for k, v in conditional.items()}
         conditional = dict(zip(covariate_kinds, conditional))
@@ -146,4 +159,5 @@ def comparisons(
             f"{upper}": "contrast_comparison_upper"
         }
     )
+    print("HERE")
     return comparisons_df, contrast_comparison, idata
