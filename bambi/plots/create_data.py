@@ -141,10 +141,7 @@ def create_comparisons_data(
     elif not isinstance(contrast_predictor, (list, dict, str)):
         raise TypeError("`contrast_predictor` must be a list, dict, or string")
     
-    
-    print(f"data_dict: {data_dict.keys()}")
     comparison_data = set_default_values(model, data, data_dict, kind='comparison')
-    print(f"comparison_data: {comparison_data.keys()}")
     # use cartesian product (cross join) to create contrasts
     keys, values = zip(*comparison_data.items())
     contrast_dict = [dict(zip(keys, v)) for v in itertools.product(*values)]
