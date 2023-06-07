@@ -162,7 +162,6 @@ def set_default_values(model, data, data_dict: dict, kind: str) -> pd.DataFrame:
                     names = [component.name]
                 for name in names:
                     if name not in data_dict:
-                        print(f"Setting default value for {name}")
                         # For numeric predictors, select the mean.
                         if component.kind == "numeric":
                             data_dict[name] = np.mean(data[name])
@@ -210,7 +209,6 @@ def set_default_contrast_values(model, data, contrast_predictor):
                     names = [component.name]
                 for name in names:
                     if name == contrast_predictor:
-                        print(f"Setting default value for {name}")
                         # For numeric predictors, select the mean.
                         if component.kind == "numeric":
                             contrast = _numeric_difference(np.mean(data[name]))
