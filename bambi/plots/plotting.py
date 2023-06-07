@@ -164,11 +164,12 @@ def plot_comparison(
         idata: az.InferenceData,
         contrast_predictor: Union[str, dict, list],
         conditional: Union[str, dict, list],
+        #comparison: str = "diff",
         target: str = "mean",
         use_hdi: bool = True,
         hdi_prob=None,
-        transforms=None,
-        legend=True,
+        transforms= None,
+        legend: bool =True,
         ax=None,
         fig_kwargs=None
 ):    
@@ -185,6 +186,8 @@ def plot_comparison(
         The predictor name whose contrast we would like to compare.
     conditional : str, dict, list
         The covariates we would like to condition on.
+    comparison : str, optional
+        The type of comparison to plot. Defaults to 'diff'.
     target : str
         Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only
         works when pps is False as the target may not be available in the posterior predictive
@@ -340,8 +343,6 @@ def comparison(
         )
         conditional = {k: listify(v) for k, v in conditional.items()}
         conditional = dict(zip(covariate_kinds, conditional))
-    
-    #print(comparisons_df)
 
     # RE DO THIS
     if isinstance(contrast_predictor, dict):
@@ -397,8 +398,7 @@ def comparison(
     group = conditional.get("color")
     panel = conditional.get("panel")
 
-    print(comparisons_df.shape)
-    print(contrast_comparison.shape)
+    print(f"model covariates: {model_covariates}")
 
     # TO DO: create a utility function for building contrasts dataframe
     N = contrast_comparison.shape[0]
@@ -418,8 +418,6 @@ def comparison(
             )
             contrast_comparison[main] = X_unique[main]
         else:
-            # main_n = len(main_values)
-            # number_repeats = N // main_n
             values = np.repeat(main_values, number_repeats)
             contrast_comparison[main] = values
 
@@ -427,7 +425,8 @@ def comparison(
         group_values = np.unique(comparisons_df[group])
         group_n = len(group_values)
         number_repeats = N // group_n
-        values = np.repeat(group_values, number_repeats)
+        values = np.tile(group_values, number_repeats)
+        # values = np.repeat(group_values, number_repeats)
         contrast_comparison[group] = values
     elif group and panel:
         raise ValueError("Not implemented: TO DO!!!")
