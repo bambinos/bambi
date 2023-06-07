@@ -6,7 +6,7 @@ from .plot_types import plot_numeric, plot_categoric
 
 __all__ = [
     "create_cap_data", "create_comparisons_data",
-    "comparisons", # cap and slopes go here
+    "comparisons",
     "plot_cap", "plot_comparison",
     "plot_numeric", "plot_categoric"
 ]

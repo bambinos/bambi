@@ -9,6 +9,7 @@ from formulae.terms.call import Call
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
 
 import bambi as bmb
+from .effects import Comparison
 from bambi.utils import clean_formula_lhs
 from bambi.plots.utils import enforce_dtypes, make_group_panel_values, \
     set_default_values, make_main_values, make_group_values, get_covariates, \
@@ -65,9 +66,10 @@ def create_cap_data(
 
 
 def create_comparisons_data(
-            model: bmb.Model,
-            contrast_predictor: Union[list, dict, str], 
-            conditional: Union[list, dict, str],
+            #model: bmb.Model,
+            #contrast_predictor: Union[list, dict, str], 
+            #conditional: Union[list, dict, str],
+            comparisons: Comparison,
             user_passed: bool = False,
             grid_n: int = 200
 ) -> pd.DataFrame:
@@ -102,10 +104,20 @@ def create_comparisons_data(
         When the number of covariates is larger than 2.
         When either the main or the group covariates are not numeric or categoric.
     """
+    
+    model, contrast_predictor, conditional, comparison_type = (
+        comparisons.model, 
+        comparisons.contrast_predictor, 
+        comparisons.conditional, 
+        comparisons.comparison_type
+    )
+    
     print(f"contrast_predictor: {contrast_predictor}")
+
     data = model.data
     covariates = get_covariates(conditional)
     main, group, panel = covariates.main, covariates.group, covariates.panel
+    
     print(f"main: {main}, group: {group}, panel: {panel}")
 
     model_covariates = clean_formula_lhs(str(model.formula.main)).strip()
@@ -123,7 +135,7 @@ def create_comparisons_data(
         data_dict = make_group_panel_values(
             data, data_dict, main, group, panel, kind='comparison'
             )
-    
+        
     ## Build contrast data ##
 
     # use key. value pairs to specify the contrast name and value
