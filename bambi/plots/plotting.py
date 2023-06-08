@@ -165,7 +165,7 @@ def plot_comparison(
         idata: az.InferenceData,
         contrast_predictor: Union[str, dict, list],
         conditional: Union[str, dict, list],
-        comparison: str = "diff",
+        comparison_type: str = "diff",
         target: str = "mean",
         use_hdi: bool = True,
         hdi_prob=None,
@@ -224,7 +224,7 @@ def plot_comparison(
         idata=idata,
         contrast_predictor=contrast_predictor,
         conditional=conditional,
-        comparison=comparison,
+        comparison_type=comparison_type,
         target=target,
         use_hdi=use_hdi,
         hdi_prob=hdi_prob,
@@ -263,7 +263,7 @@ def plot_comparison(
     main = conditional.get("horizontal")
 
     y_hat_bounds = np.transpose(
-        contrast_df[["contrast_comparison_lower", "contrast_comparison_upper"]].values
+        contrast_df[["hdi_3%", "hdi_97%"]].values
     )
 
     if is_numeric_dtype(contrast_df[main]):
@@ -273,7 +273,7 @@ def plot_comparison(
             axes = plot_categoric(
                 conditional,
                 contrast_df,
-                contrast_df["contrast_comparison"],
+                contrast_df["estimate"],
                 y_hat_bounds,
                 legend,
                 axes
@@ -282,7 +282,7 @@ def plot_comparison(
             axes = plot_numeric(
                 conditional, 
                 contrast_df,
-                contrast_df["contrast_comparison"],
+                contrast_df["estimate"],
                 y_hat_bounds,
                 transforms,
                 legend,
@@ -293,7 +293,7 @@ def plot_comparison(
         axes = plot_categoric(
             conditional, 
             contrast_df,
-            contrast_df["contrast_comparison"],
+            contrast_df["estimate"],
             y_hat_bounds,
             legend,
             axes
