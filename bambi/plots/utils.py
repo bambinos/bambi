@@ -16,12 +16,6 @@ class Covariates:
     panel: Union[str, None]
 
 
-@dataclass
-class Contrast:
-    contrast_name: Union[str, list]
-    contrast_value: Union[list, np.ndarray, None]
-
-
 def get_model_terms(model) -> dict:
     """
     """

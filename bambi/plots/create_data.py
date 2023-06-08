@@ -1,15 +1,9 @@
-from dataclasses import dataclass
-from statistics import mode
-from typing import Callable, Union
-
-import numpy as np
 import pandas as pd
 import itertools
-from formulae.terms.call import Call
-from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
+from typing import Callable
 
 import bambi as bmb
-from .effects import Comparison
+#from .effects import Comparison
 from bambi.utils import clean_formula_lhs
 from bambi.plots.utils import enforce_dtypes, make_group_panel_values, \
     set_default_values, make_main_values, make_group_values, get_covariates, \
@@ -51,6 +45,7 @@ def create_cap_data(
     """
     data = model.data
 
+    # re-do: use class with attributes instead of dict
     main = covariates.get("horizontal")
     group = covariates.get("color", None)
     panel = covariates.get("panel", None)
@@ -66,10 +61,7 @@ def create_cap_data(
 
 
 def create_comparisons_data(
-            #model: bmb.Model,
-            #contrast_predictor: Union[list, dict, str], 
-            #conditional: Union[list, dict, str],
-            comparisons: Comparison,
+            comparisons: Callable,
             user_passed: bool = False,
             grid_n: int = 200
 ) -> pd.DataFrame:
@@ -105,20 +97,18 @@ def create_comparisons_data(
         When either the main or the group covariates are not numeric or categoric.
     """
     
-    model, contrast_predictor, conditional, comparison_type = (
+    model, contrast_predictor, conditional = (
         comparisons.model, 
         comparisons.contrast_predictor, 
-        comparisons.conditional, 
-        comparisons.comparison_type
+        comparisons.conditional
     )
-    
-    print(f"contrast_predictor: {contrast_predictor}")
 
     data = model.data
     covariates = get_covariates(conditional)
     main, group, panel = covariates.main, covariates.group, covariates.panel
     
-    print(f"main: {main}, group: {group}, panel: {panel}")
+    print(f"contrast_predictor: {contrast_predictor}")
+    print(f"model covariates: {vars(covariates)}")
 
     model_covariates = clean_formula_lhs(str(model.formula.main)).strip()
     model_covariates = model_covariates.split(" ")
@@ -135,18 +125,16 @@ def create_comparisons_data(
         data_dict = make_group_panel_values(
             data, data_dict, main, group, panel, kind='comparison'
             )
-        
-    ## Build contrast data ##
 
     # use key. value pairs to specify the contrast name and value
     if isinstance(contrast_predictor, dict):
-        main_predictor = list(contrast_predictor.keys())[0] 
-        contrast = list(contrast_predictor.values())[0]
-        data_dict[main_predictor] = contrast
-    # obtain default values for the contrast predictor
+        contrast_name = list(contrast_predictor.keys())[0] 
+        contrast_vals = list(contrast_predictor.values())[0]
+        data_dict[contrast_name] = contrast_vals
+    # obtain default values for the contrast predictor if list or str
     elif isinstance(contrast_predictor, (list, str)):
         if isinstance(contrast_predictor, list):
-            contrast_predictor = ' '.join(contrast_predictor)
+            contrast_name = ' '.join(contrast_predictor)
         data_dict[contrast_predictor] = set_default_contrast_values(
             model, data, contrast_predictor
         )
