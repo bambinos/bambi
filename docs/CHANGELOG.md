@@ -10,6 +10,8 @@
 
 ### Documentation
 
+* Add families to the Getting Started guide (#683)
+
 ### Deprecation
 
 ## 0.11.0
