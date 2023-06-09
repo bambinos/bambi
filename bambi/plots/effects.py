@@ -41,7 +41,7 @@ def comparisons(
     ) -> pd.DataFrame:
     """
     """
-
+    
     covariate_kinds = ("horizontal", "color", "panel")
     # if not dict, then user did not pass values to condition on
     if not isinstance(conditional, dict):
@@ -67,7 +67,7 @@ def comparisons(
         )
         conditional = {k: listify(v) for k, v in conditional.items()}
         conditional = dict(zip(covariate_kinds, conditional))
-
+    
     if isinstance(contrast_predictor, dict):
         contrast_name, contrast = next(iter(contrast_predictor.items()))
     elif isinstance(contrast_predictor, list):
@@ -89,29 +89,27 @@ def comparisons(
 
     response_name = get_aliased_name(model.response_component.response_term)
     response_transform = transforms.get(response_name, identity)
-    response_preds_term = f"{response_name}_{target}_preds"
 
     # perform predictions on new data
     idata = model.predict(idata, data=comparisons_df, inplace=False)
     y_hat = response_transform(idata.posterior[f"{response_name}_{target}"])
     y_hat_mean = y_hat.mean(("chain", "draw"))
-    comparisons_df[response_preds_term] = y_hat_mean
+    comparisons_df["estimate"] = y_hat_mean
 
     if use_hdi:
          y_hat_bounds = az.hdi(y_hat, hdi_prob)[f"{response_name}_{target}"].T
 
-    lower = f"{response_preds_term}_hdi_3%"
-    upper = f"{response_preds_term}_hdi_97%"
-    comparisons_df[lower] = y_hat_bounds[0]
-    comparisons_df[upper] = y_hat_bounds[1]
+    comparisons_df["hdi_3%"] = y_hat_bounds[0]
+    comparisons_df["hdi_97%"] = y_hat_bounds[1]
 
     # obtain covariaties used in the model to perform group by operations
     model_covariates = list(
         comparisons_df.columns[~comparisons_df.columns
-                               .isin([contrast_name, response_preds_term, lower, upper])]
+                               .isin([contrast_name, "estimate", "hdi_3%", "hdi_97%"])]
                                )
     
     def _compute_contrast_estimate(
+            contrast: Contrast,
             comparisons_df: pd.DataFrame,
             model_covariates: list,
             groupby_vals: list,
@@ -127,6 +125,10 @@ def comparisons(
         elif comparison_type == "div":
             func = pd.DataFrame.div
 
+        # TO DO: add support for more than 2 values
+        if len(contrast.value) > 2:
+            raise ValueError("Contrast must have 2 values to compute estimate.")
+    
         return pd.DataFrame((comparisons_df
                              .groupby(model_covariates)[groupby_vals]
                              .apply(func)
@@ -136,9 +138,10 @@ def comparisons(
                             )
     
     contrast_comparison = _compute_contrast_estimate(
+        contrast,
         comparisons_df,
         model_covariates, 
-        [response_preds_term, lower, upper], 
+        ["estimate", "hdi_3%", "hdi_97%"], 
         comparison_type
     )
 
@@ -154,9 +157,10 @@ def comparisons(
         """
 
         main, group, panel = covariates.main, covariates.group, covariates.panel
-        N = contrast_df.shape[0]        
+        N = contrast_df.shape[0]
+        # add contrast term and values to contrast_df        
         contrast_df["term"] = contrast.term
-        contrast_df["contrast"] = list(np.tile(np.round(contrast.value, 2), N).reshape(N, 2))
+        contrast_df["contrast"] = list(np.tile(contrast.value, N).reshape(N, 2))
 
         if np.unique(comparisons_df[main]).shape[0] == 1:
             number_repeats = N
@@ -194,12 +198,6 @@ def comparisons(
         contrast,
         comparisons_df, 
         contrast_comparison
-    ).rename(
-        columns={
-            f"{response_preds_term}": "estimate",
-            f"{lower}": "hdi_3%",
-            f"{upper}": "hdi_97%"
-        }
     )
 
     return comparisons_df, contrast_df_final, idata
