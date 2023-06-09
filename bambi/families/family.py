@@ -232,6 +232,11 @@ def expand_array(x, ndim):
     If x.ndim < ndim, it adds ndim - x.ndim dimensions after the last axis. If not, it is left
     untouched.
 
+    For example, if we have a normal regression model with n = 1000, chains = 2, and draws = 500
+    the shape of the draws of mu will be (2, 500, 1000) but the shape of the draws of sigma will be
+    (2, 500). This function makes sure the shape of the draws of sigma is (2, 500, 1) which is
+    comaptible with (2, 500, 1000).
+
     Parameters
     ----------
     x : np.ndarray
