@@ -145,19 +145,27 @@ class Family:
             # Extract posterior draws for the parent parameter
             if param == model.family.likelihood.parent:
                 component = model.components[model.response_name]
-                var_name = f"{response_aliased_name}_mean"
+                var_name = response_aliased_name + "_mean"
                 kwargs[param] = posterior[var_name].to_numpy()
                 output_dataset_list.append(posterior[var_name])
             else:
                 # Extract posterior draws for non-parent parameters
                 component = model.components[param]
-                component_aliased_name = component.alias if component.alias else param
-                var_name = f"{response_aliased_name}_{component_aliased_name}"
+                if component.alias:
+                    var_name = component.alias
+                else:
+                    var_name = f"{response_aliased_name}_{param}"
+
                 if var_name in posterior:
                     kwargs[param] = posterior[var_name].to_numpy()
                     output_dataset_list.append(posterior[var_name])
                 elif hasattr(component, "prior") and isinstance(component.prior, (int, float)):
                     kwargs[param] = np.asarray(component.prior)
+                else:
+                    raise ValueError(
+                        "Non-parent parameter not found in posterior."
+                        "This error shouldn't have happened!"
+                    )
 
         # Determine the array with largest number of dimensions
         ndims_max = max(x.ndim for x in kwargs.values())
@@ -223,6 +231,11 @@ def expand_array(x, ndim):
 
     If x.ndim < ndim, it adds ndim - x.ndim dimensions after the last axis. If not, it is left
     untouched.
+
+    For example, if we have a normal regression model with n = 1000, chains = 2, and draws = 500
+    the shape of the draws of mu will be (2, 500, 1000) but the shape of the draws of sigma will be
+    (2, 500). This function makes sure the shape of the draws of sigma is (2, 500, 1) which is
+    comaptible with (2, 500, 1000).
 
     Parameters
     ----------

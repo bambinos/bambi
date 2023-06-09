@@ -210,9 +210,7 @@ class Model:
         ### Constant
         for name in auxiliary_parameters:
             component_prior = priors.get(name, None)
-            self.components[name] = ConstantComponent(
-                name, component_prior, self.response_name, self
-            )
+            self.components[name] = ConstantComponent(name, component_prior, self)
 
         # Build priors
         self._build_priors()
@@ -760,10 +758,12 @@ class Model:
         response_dim = response_aliased_name + "_obs"
         for name, component in self.distributional_components.items():
             if name == self.response_name:
-                var_name = f"{response_aliased_name}_mean"
+                var_name = response_aliased_name + "_mean"
             else:
-                component_aliased_name = component.alias if component.alias else name
-                var_name = f"{response_aliased_name}_{component_aliased_name}"
+                if component.alias:
+                    var_name = component.alias
+                else:
+                    var_name = f"{response_aliased_name}_{name}"
 
             means_dict[var_name] = component.predict(idata, data, include_group_specific, hsgp_dict)
 

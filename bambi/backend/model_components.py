@@ -18,13 +18,15 @@ class ConstantComponent:
         self.output = 0
 
     def build(self, pymc_backend, bmb_model):
-        extra_args = {}
-
+        response_aliased_name = get_aliased_name(bmb_model.response_component.response_term)
         if self.component.alias:
             label = self.component.alias
         else:
-            label = self.component.name
+            label = f"{response_aliased_name}_{self.component.name}"
 
+        # NOTE: This could be handled in a different manner in the future, only applies to
+        # thresholds and assumes we always do it when using ordinal families.
+        extra_args = {}
         if isinstance(bmb_model.family, ORDINAL_FAMILIES):
             threshold_dim = label + "_dim"
             threshold_values = np.arange(len(bmb_model.response_component.response_term.levels) - 1)
