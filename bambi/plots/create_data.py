@@ -96,19 +96,16 @@ def create_comparisons_data(
         When the number of covariates is larger than 2.
         When either the main or the group covariates are not numeric or categoric.
     """
-    
+
     model, contrast_predictor, conditional = (
         comparisons.model, 
         comparisons.contrast_predictor, 
         comparisons.conditional
     )
-
+    
     data = model.data
     covariates = get_covariates(conditional)
     main, group, panel = covariates.main, covariates.group, covariates.panel
-    
-    print(f"contrast_predictor: {contrast_predictor}")
-    print(f"model covariates: {vars(covariates)}")
 
     model_covariates = clean_formula_lhs(str(model.formula.main)).strip()
     model_covariates = model_covariates.split(" ")
@@ -134,7 +131,7 @@ def create_comparisons_data(
     # obtain default values for the contrast predictor if list or str
     elif isinstance(contrast_predictor, (list, str)):
         if isinstance(contrast_predictor, list):
-            contrast_name = ' '.join(contrast_predictor)
+            contrast_predictor = ' '.join(contrast_predictor)
         data_dict[contrast_predictor] = set_default_contrast_values(
             model, data, contrast_predictor
         )

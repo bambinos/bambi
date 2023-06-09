@@ -6,30 +6,9 @@ import numpy as np
 from bambi.plots.utils import identity, get_unique_levels, get_group_offset
 
 
-
-# TO DO: instead of str: str, it should be bmb.response_distribution
-# and Callable
-pps_plot_kinds = {
-    "Bernoulli": "bar",
-    "Binomial": "bar",
-    "Beta": "line",
-    "Exponential": "line",
-    "Gamma": "line",
-    "Normal": "line",
-    "NegativeBinomial": "bar",
-    "Poisson": "bar",
-    "StudentT": "line",
-    "VonMises": "line",
-    "InverseGaussian": "line",
-    "Categorical": "bar"
-}
-
-
 def plot_numeric(
         covariates, 
-        plot_data, 
-        y_hat_mean, 
-        y_hat_bounds, 
+        plot_data,
         transforms, 
         legend, 
         axes
@@ -46,6 +25,8 @@ def plot_numeric(
     """
     main = covariates.get("horizontal")
     transform_main = transforms.get(main, identity)
+    y_hat_mean = plot_data["estimate"]
+    y_hat_bounds = np.transpose(plot_data[["hdi_3%", "hdi_97%"]].values)
 
     if len(covariates) == 1:
         ax = axes[0]
@@ -137,7 +118,7 @@ def plot_numeric(
     return axes
 
 
-def plot_categoric(covariates, plot_data, y_hat_mean, y_hat_bounds, legend, axes):
+def plot_categoric(covariates, plot_data, legend, axes):
     """Plotting of categorical data types.
 
     Parameters
@@ -153,6 +134,8 @@ def plot_categoric(covariates, plot_data, y_hat_mean, y_hat_bounds, legend, axes
     main_levels = get_unique_levels(plot_data[main])
     main_levels_n = len(main_levels)
     idxs_main = np.arange(main_levels_n)
+    y_hat_mean = plot_data["estimate"]
+    y_hat_bounds = np.transpose(plot_data[["hdi_3%", "hdi_97%"]].values)
 
     if "color" in covariates:
         color = covariates.get("color")

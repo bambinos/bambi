@@ -186,14 +186,14 @@ def set_default_contrast_values(model, data, contrast_predictor):
         """
         """
         return list(itertools.combinations(x, 2))
-        
+    
 
     terms = get_model_terms(model)
 
     # Get default values for each variable in the model
-    if contrast_predictor in terms.keys():
-        term = terms.get(contrast_predictor)
-        # for term in terms.values():
+    # if contrast_predictor in terms.keys():
+    #     term = terms.get(contrast_predictor)
+    for term in terms.values():
         if hasattr(term, "components"):
             for component in term.components:
                 # If the component is a function call, use the argument names
@@ -208,9 +208,10 @@ def set_default_contrast_values(model, data, contrast_predictor):
                             contrast = _numeric_difference(np.mean(data[name]))
                         # For categoric predictors, select the most frequent level.
                         elif component.kind == "categoric":
-                            contrast = _categoric_difference(
-                                get_unique_levels(data[name])
-                            )
+                            # contrast = _categoric_difference(
+                            #     get_unique_levels(data[name])
+                            # )
+                            contrast = get_unique_levels(data[name])
 
     return contrast
 

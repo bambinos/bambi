@@ -18,7 +18,7 @@ from bambi.utils import listify, get_aliased_name
 from bambi.plots.create_data import create_cap_data, create_comparisons_data
 from bambi.plots.effects import comparisons
 from bambi.plots.plot_types import plot_numeric, plot_categoric
-from bambi.plots.utils import identity, contrast_dtype
+from bambi.plots.utils import identity, contrast_dtype, get_covariates
 
 
 def plot_cap(
@@ -169,8 +169,8 @@ def plot_comparison(
         target: str = "mean",
         use_hdi: bool = True,
         hdi_prob=None,
-        transforms= None,
-        legend: bool =True,
+        transforms=None,
+        legend: bool = True,
         ax=None,
         fig_kwargs=None
 ):    
@@ -229,7 +229,7 @@ def plot_comparison(
         use_hdi=use_hdi,
         hdi_prob=hdi_prob,
         transforms=transforms,
-    )
+    ) # type: ignore
     
     covariate_kinds = ("horizontal", "color", "panel")
     # if not dict, then user did not pass values to condition on
@@ -240,6 +240,9 @@ def plot_comparison(
     elif isinstance(conditional, dict):
         conditional = {k: listify(v) for k, v in conditional.items()}
         conditional = dict(zip(covariate_kinds, conditional))
+
+    covariates = get_covariates(conditional)
+    main, group, panel = covariates.main, covariates.group, covariates.panel
     
     if transforms is None:
         transforms = {}
@@ -248,7 +251,7 @@ def plot_comparison(
 
     if ax is None:
         fig_kwargs = {} if fig_kwargs is None else fig_kwargs
-        panel = conditional.get("panel", None)
+        # panel = conditional.get("panel", None)
         panels_n = len(np.unique(contrast_df[panel])) if panel else 1
         rows, cols = default_grid(panels_n)
         fig, axes = create_axes_grid(panels_n, rows, cols, backend_kwargs=fig_kwargs)
@@ -259,47 +262,34 @@ def plot_comparison(
             fig = axes[0][0].get_figure()
         else:
             fig = axes[0].get_figure()
-    
-    main = conditional.get("horizontal")
-
-    y_hat_bounds = np.transpose(
-        contrast_df[["hdi_3%", "hdi_97%"]].values
-    )
 
     if is_numeric_dtype(contrast_df[main]):
-        # main condition variable can be numeric, but only a few values
-        # so it is treated as categoric
+        # main condition variable can be numeric but at the same time only
+        # a few values, so it is treated as categoric
         if np.unique(contrast_df[main]).shape[0] <= 5:
             axes = plot_categoric(
                 conditional,
                 contrast_df,
-                contrast_df["estimate"],
-                y_hat_bounds,
                 legend,
                 axes
             )
         else:
             axes = plot_numeric(
-                conditional, 
+                conditional,
                 contrast_df,
-                contrast_df["estimate"],
-                y_hat_bounds,
                 transforms,
                 legend,
                 axes
             )
-
     elif is_categorical_dtype(contrast_df[main]) or is_string_dtype(contrast_df[main]):
         axes = plot_categoric(
-            conditional, 
-            contrast_df,
-            contrast_df["estimate"],
-            y_hat_bounds,
-            legend,
-            axes
+                conditional,
+                contrast_df,
+                legend,
+                axes
         )
     else:
-        raise ValueError("Main covariate must be numeric or categoric.")
+        raise TypeError("Main covariate must be numeric or categoric.")
     
     response_name = get_aliased_name(model.response_component.response_term)
     ylabel = response_name if target == "mean" else target
