@@ -92,6 +92,9 @@ def comparisons(
 
     # perform predictions on new data
     idata = model.predict(idata, data=comparisons_df, inplace=False)
+
+    return comparisons_df, idata
+
     y_hat = response_transform(idata.posterior[f"{response_name}_{target}"])
     y_hat_mean = y_hat.mean(("chain", "draw"))
     comparisons_df["estimate"] = y_hat_mean
