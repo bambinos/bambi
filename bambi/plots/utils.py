@@ -212,6 +212,10 @@ def set_default_contrast_values(model, data, contrast_predictor):
                             #     get_unique_levels(data[name])
                             # )
                             contrast = get_unique_levels(data[name])
+                            if len(contrast) > 1:
+                                raise UserWarning(
+                                    f"Categoric predictors must have only one level. {name} has {len(contrast)} levels." 
+                                )
 
     return contrast
 

@@ -219,8 +219,7 @@ def plot_comparison(
         When the main covariate is not numeric or categoric.
     """
 
-    # NOTE: Early return
-    return comparisons(
+    comparisons_df, contrast_df, idata = comparisons(
         model=model,
         idata=idata,
         contrast_predictor=contrast_predictor,
@@ -231,18 +230,6 @@ def plot_comparison(
         hdi_prob=hdi_prob,
         transforms=transforms,
     ) # type: ignore
-
-    # comparisons_df, contrast_df, idata = comparisons(
-    #     model=model,
-    #     idata=idata,
-    #     contrast_predictor=contrast_predictor,
-    #     conditional=conditional,
-    #     comparison_type=comparison_type,
-    #     target=target,
-    #     use_hdi=use_hdi,
-    #     hdi_prob=hdi_prob,
-    #     transforms=transforms,
-    # ) # type: ignore
     
     covariate_kinds = ("horizontal", "color", "panel")
     # if not dict, then user did not pass values to condition on
@@ -264,7 +251,6 @@ def plot_comparison(
 
     if ax is None:
         fig_kwargs = {} if fig_kwargs is None else fig_kwargs
-        # panel = conditional.get("panel", None)
         panels_n = len(np.unique(contrast_df[panel])) if panel else 1
         rows, cols = default_grid(panels_n)
         fig, axes = create_axes_grid(panels_n, rows, cols, backend_kwargs=fig_kwargs)

@@ -2,12 +2,14 @@
 # pylint: disable = too-many-function-args
 # pylint: disable = too-many-nested-blocks
 from dataclasses import dataclass
-from typing import Union, Callable
+import itertools
+from typing import Union, Callable, Tuple
 
 import arviz as az
 import numpy as np
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
+import xarray as xr
 
 import bambi as bmb
 from bambi.utils import listify, get_aliased_name
@@ -28,6 +30,18 @@ class Contrast:
     value: Union[list, np.ndarray, None]
 
 
+@dataclass
+class Response:
+    name: str
+    target: str
+
+
+@dataclass
+class ContrastEstimate:
+    comparison: np.ndarray
+    hdi: xr.Dataset
+
+
 def comparisons(
         model: bmb.Model,
         idata: az.InferenceData,
@@ -39,9 +53,37 @@ def comparisons(
         hdi_prob=None,
         transforms=None,
     ) -> pd.DataFrame:
+    """Plot Conditional Adjusted Comparisons
+
+    Parameters
+    ----------
+    model : bambi.Model
+        The model for which we want to plot the predictions.
+    idata : arviz.InferenceData
+        The InferenceData object that contains the samples from the posterior distribution of
+        the model.
+    contrast_predictor : str, dict, list
+        The predictor name whose contrast we would like to compare.
+    conditional : str, dict, list
+        The covariates we would like to condition on.
+    comparison_type : str, optional
+        The type of comparison to plot. Defaults to 'diff'.
+    target : str
+        Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only
+        works when pps is False as the target may not be available in the posterior predictive
+        distribution.
+    use_hdi : bool, optional
+        Whether to compute the highest density interval (defaults to True) or the quantiles.
+    hdi_prob : float, optional
+        The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
+        Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
+    legend : bool, optional
+        Whether to automatically include a legend in the plot. Defaults to ``True``.
+    transforms : dict, optional
+        Transformations that are applied to each of the variables being plotted. The keys are the
+        name of the variables, and the values are functions to be applied. Defaults to ``None``.
     """
-    """
-    
+
     covariate_kinds = ("horizontal", "color", "panel")
     # if not dict, then user did not pass values to condition on
     if not isinstance(conditional, dict):
@@ -70,13 +112,14 @@ def comparisons(
     
     if isinstance(contrast_predictor, dict):
         contrast_name, contrast = next(iter(contrast_predictor.items()))
+        if len(contrast) > 2:
+            raise ValueError(
+                f"Length of contrast values must be 1. It is {len(contrast)}."
+            )
     elif isinstance(contrast_predictor, list):
         contrast_name = contrast_predictor[0]
     elif isinstance(contrast_predictor, str):
         contrast_name = contrast_predictor
-
-    contrast_vals = np.sort(np.unique(comparisons_df[contrast_name]))
-    contrast = Contrast(contrast_name, contrast_vals)
     
     if hdi_prob is None:
         hdi_prob = az.rcParams["stats.hdi_prob"]
@@ -93,114 +136,96 @@ def comparisons(
     # perform predictions on new data
     idata = model.predict(idata, data=comparisons_df, inplace=False)
 
-    return comparisons_df, idata
-
-    y_hat = response_transform(idata.posterior[f"{response_name}_{target}"])
-    y_hat_mean = y_hat.mean(("chain", "draw"))
-    comparisons_df["estimate"] = y_hat_mean
-
-    if use_hdi:
-         y_hat_bounds = az.hdi(y_hat, hdi_prob)[f"{response_name}_{target}"].T
-
-    comparisons_df["hdi_3%"] = y_hat_bounds[0]
-    comparisons_df["hdi_97%"] = y_hat_bounds[1]
-
-    # obtain covariaties used in the model to perform group by operations
-    model_covariates = list(
-        comparisons_df.columns[~comparisons_df.columns
-                               .isin([contrast_name, "estimate", "hdi_3%", "hdi_97%"])]
-                               )
-    
+        
     def _compute_contrast_estimate(
             contrast: Contrast,
+            response: Response,
             comparisons_df: pd.DataFrame,
-            model_covariates: list,
-            groupby_vals: list,
+            idata: az.InferenceData,
             comparison_type: str = comparison_type
+    ) -> ContrastEstimate:
+        """
+        """
+        assert comparison_type in ("diff", "ratio"), \
+            "comparison_type must be 'diff' or 'ratio'"
+        
+        # subset draw by observation using contrast mask
+        draws = {}
+        for idx, val in enumerate(contrast.value):
+            mask = np.array(comparisons_df[contrast.term] == contrast.value[idx])
+            select_draw = (idata
+                        .posterior[f"{response.name}_{response.target}"]
+                        .sel({f"{response.name}_obs": mask})
+            )
+            select_draw = select_draw.assign_coords(
+                {f"{response.name}_obs": np.arange(len(select_draw.coords[f"{response.name}_obs"]))}
+            )
+            draws[val] = select_draw
+        
+        # iterate over pairwise combinations of contrast values
+        pairwise_contrasts = list(itertools.combinations(contrast.value, 2))
+
+        # choose which function to use for comparison
+        functions = {
+            "diff": lambda x, y: x - y,
+            "ratio": lambda x, y: x / y
+        }
+        function = functions[comparison_type]
+
+        # compute mean comparison and HDI for each pairwise comparison
+        mean_comparison = {}
+        for idx, pair in enumerate(pairwise_contrasts):
+            mean_comparison[pair] = function(draws[pair[0]], draws[pair[1]]).mean(("chain", "draw")) * -1
+            hdi = az.hdi(function(draws[pair[0]], draws[pair[1]]), hdi_prob) * -1
+        mean_comparison = np.array(list(mean_comparison.values())).flatten()
+
+        return ContrastEstimate(mean_comparison, hdi)
+
+
+    def _build_contrasts_df(
+        contrast: Contrast,
+        response: Response,
+        comparisons_df: pd.DataFrame,
+        idata: az.InferenceData
     ) -> pd.DataFrame:
         """
         """
-        assert comparison_type in ("diff", "div"), \
-            "comparison_type must be 'diff' or 'div'"
+        contrast_estimate = _compute_contrast_estimate(
+            contrast,
+            response,
+            comparisons_df,
+            idata,
+            comparison_type
+        )
 
-        if comparison_type == "diff":
-            func = pd.DataFrame.diff
-        elif comparison_type == "div":
-            func = pd.DataFrame.div
-
-        # TO DO: add support for more than 2 values
-        if len(contrast.value) > 2:
-            raise ValueError("Contrast must have 2 values to compute estimate.")
-    
-        return pd.DataFrame((comparisons_df
-                             .groupby(model_covariates)[groupby_vals]
-                             .apply(func)
-                             .dropna()
-                             .reset_index(drop=True)
-                             )
-                            )
-    
-    contrast_comparison = _compute_contrast_estimate(
-        contrast,
-        comparisons_df,
-        model_covariates, 
-        ["estimate", "hdi_3%", "hdi_97%"], 
-        comparison_type
-    )
-
-    covariates = get_covariates(conditional)
-
-    def _build_contrasts_df(
-            covariates: Callable,
-            contrast: Contrast,
-            comparisons_df: pd.DataFrame,
-            contrast_df: pd.DataFrame
-        ) -> pd.DataFrame:
-        """
-        """
-
-        main, group, panel = covariates.main, covariates.group, covariates.panel
+        y_hat = response_transform(idata.posterior[f"{response.name}_{response.target}"])
+        y_hat_mean = y_hat.mean(("chain", "draw"))
+        comparisons_df["pred_estimate"] = y_hat_mean
+        
+        # build contrast dataframe
+        contrast_df = (comparisons_df
+                    .drop_duplicates(list(conditional.values()))
+                    .reset_index(drop=True)
+        )
+        contrast_df = contrast_df.drop(columns=contrast.term)
         N = contrast_df.shape[0]
-        # add contrast term and values to contrast_df        
         contrast_df["term"] = contrast.term
         contrast_df["contrast"] = list(np.tile(contrast.value, N).reshape(N, 2))
+        contrast_df["estimate"] = contrast_estimate.comparison
+        contrast_df["hdi_3%"] = (contrast_estimate.hdi[f"{response_name}_{target}"]
+                                 .sel(hdi="lower").values)
+        contrast_df["hdi_97%"] = (contrast_estimate.hdi[f"{response_name}_{target}"]
+                                  .sel(hdi="higher").values)
 
-        if np.unique(comparisons_df[main]).shape[0] == 1:
-            number_repeats = N
-            contrast_df[main] = np.repeat(
-                np.unique(comparisons_df[main]), number_repeats
-            )
-        else:
-            main_values = np.unique(comparisons_df[main])
-            main_n = len(main_values)
-            number_repeats = N // main_n
-            if is_numeric_dtype(comparisons_df[main]):
-                X_unique = (comparisons_df[model_covariates]
-                            .drop_duplicates()
-                            .reset_index(drop=True)
-                )
-                contrast_df[main] = X_unique[main]
-            else:
-                values = np.repeat(main_values, number_repeats)
-                contrast_df[main] = values
-
-        if group and not panel:
-            group_values = np.unique(comparisons_df[group])
-            group_n = len(group_values)
-            number_repeats = N // group_n
-            values = np.tile(group_values, number_repeats)
-            contrast_df[group] = values
-        elif group and panel:
-            raise UserWarning("Not implemented: TO DO!!!")
-    
         return contrast_df
+    
 
-
-    contrast_df_final = _build_contrasts_df(
-        covariates, 
-        contrast,
-        comparisons_df, 
-        contrast_comparison
+    contrast_vals = np.sort(np.unique(comparisons_df[contrast_name]))
+    contrast_df = _build_contrasts_df(
+        Contrast(contrast_name, contrast_vals),
+        Response(response_name, target),
+        comparisons_df,
+        idata
     )
 
-    return comparisons_df, contrast_df_final, idata
+    return comparisons_df, contrast_df, idata
