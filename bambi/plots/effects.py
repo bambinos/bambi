@@ -3,18 +3,108 @@
 # pylint: disable = too-many-nested-blocks
 from dataclasses import dataclass
 import itertools
-from typing import Union, Callable, Tuple
+from typing import Union
 
 import arviz as az
 import numpy as np
 import pandas as pd
-from pandas.api.types import is_numeric_dtype
 import xarray as xr
 
 import bambi as bmb
 from bambi.utils import listify, get_aliased_name
-from bambi.plots.create_data import create_comparisons_data
-from bambi.plots.utils import identity, get_covariates 
+from bambi.plots.create_data import create_cap_data, create_comparisons_data
+from bambi.plots.utils import identity 
+
+
+
+def predictions(
+    model: bmb.Model,
+    idata: az.InferenceData,
+    covariates: Union[str, dict, list],
+    target: str = "mean",
+    pps: bool = False,
+    use_hdi: bool = True,
+    hdi_prob=None,
+    transforms=None
+) -> pd.DataFrame:
+    """Compute Conditional Adjusted Predictions
+
+    Parameters
+    ----------
+    model : bambi.Model
+        The model for which we want to plot the predictions.
+    idata : arviz.InferenceData
+        The InferenceData object that contains the samples from the posterior distribution of
+        the model.
+    covariates : list or dict
+        A sequence of between one and three names of variables or a dict of length between one
+        and three.
+        If a sequence, the first variable is taken as the main variable,
+        mapped to the horizontal axis. If present, the second name is a coloring/grouping variable,
+        and the third is mapped to different plot panels.
+        If a dictionary, keys must be taken from ("horizontal", "color", "panel") and the values
+        are the names of the variables.
+    target : str
+        Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only
+        works when pps is False as the target may not be available in the posterior predictive
+        distribution.
+    pps: bool, optional
+        Whether to plot the posterior predictive samples. Defaults to ``False``.
+    use_hdi : bool, optional
+        Whether to compute the highest density interval (defaults to True) or the quantiles.
+    hdi_prob : float, optional
+        The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
+        Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
+    transforms : dict, optional
+        Transformations that are applied to each of the variables being plotted. The keys are the
+        name of the variables, and the values are functions to be applied. Defaults to ``None``.
+
+    Returns
+    -------
+
+
+    Raises
+    ------
+
+    """
+    
+    if hdi_prob is None:
+        hdi_prob = az.rcParams["stats.hdi_prob"]
+
+    if not 0 < hdi_prob < 1:
+        raise ValueError(f"'hdi_prob' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
+
+    cap_data = create_cap_data(model, covariates)
+
+    if transforms is None:
+        transforms = {}
+
+    response_name = get_aliased_name(model.response_component.response_term)
+    response_transform = transforms.get(response_name, identity)
+
+    if pps:
+        idata = model.predict(idata, data=cap_data, inplace=False, kind="pps")
+        y_hat = response_transform(idata.posterior_predictive[response_name])
+        y_hat_mean = y_hat.mean(("chain", "draw"))
+    else:
+        idata = model.predict(idata, data=cap_data, inplace=False)
+        y_hat = response_transform(idata.posterior[f"{response_name}_{target}"])
+        y_hat_mean = y_hat.mean(("chain", "draw"))
+
+    if use_hdi and pps:
+        y_hat_bounds = az.hdi(y_hat, hdi_prob)[response_name].T
+    elif use_hdi:
+        y_hat_bounds = az.hdi(y_hat, hdi_prob)[f"{response_name}_{target}"].T
+    else:
+        lower_bound = round((1 - hdi_prob) / 2, 4)
+        upper_bound = 1 - lower_bound
+        y_hat_bounds = y_hat.quantile(q=(lower_bound, upper_bound), dim=("chain", "draw"))
+    
+    cap_data["estimate"] = y_hat_mean
+    cap_data["hdi_3%"] = y_hat_bounds[0]
+    cap_data["hdi_97%"] = y_hat_bounds[1]
+
+    return cap_data
 
 
 @dataclass
@@ -53,7 +143,7 @@ def comparisons(
         hdi_prob=None,
         transforms=None,
     ) -> pd.DataFrame:
-    """Plot Conditional Adjusted Comparisons
+    """Compute Conditional Adjusted Comparisons
 
     Parameters
     ----------
@@ -113,7 +203,7 @@ def comparisons(
     if isinstance(contrast_predictor, dict):
         contrast_name, contrast = next(iter(contrast_predictor.items()))
         if len(contrast) > 2:
-            raise ValueError(
+            raise UserWarning(
                 f"Length of contrast values must be 1. It is {len(contrast)}."
             )
     elif isinstance(contrast_predictor, list):
@@ -197,16 +287,13 @@ def comparisons(
             idata,
             comparison_type
         )
-
-        y_hat = response_transform(idata.posterior[f"{response.name}_{response.target}"])
-        y_hat_mean = y_hat.mean(("chain", "draw"))
-        comparisons_df["pred_estimate"] = y_hat_mean
         
         # build contrast dataframe
         contrast_df = (comparisons_df
                     .drop_duplicates(list(conditional.values()))
                     .reset_index(drop=True)
         )
+
         contrast_df = contrast_df.drop(columns=contrast.term)
         N = contrast_df.shape[0]
         contrast_df["term"] = contrast.term
@@ -228,4 +315,4 @@ def comparisons(
         idata
     )
 
-    return comparisons_df, contrast_df, idata
+    return contrast_df
