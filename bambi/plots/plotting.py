@@ -1,24 +1,20 @@
 # pylint: disable = protected-access
 # pylint: disable = too-many-function-args
 # pylint: disable = too-many-nested-blocks
-from statistics import mode
-from typing import Union, Callable, Tuple, Any
+from typing import Union
 
 import arviz as az
 import numpy as np
-import pandas as pd
 
 from arviz.plots.backends.matplotlib import create_axes_grid
 from arviz.plots.plot_utils import default_grid
-from formulae.terms.call import Call
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
 
 import bambi as bmb
 from bambi.utils import listify, get_aliased_name
-from bambi.plots.create_data import create_cap_data, create_comparisons_data
-from bambi.plots.effects import comparisons
+from bambi.plots.effects import predictions, comparisons
 from bambi.plots.plot_types import plot_numeric, plot_categoric
-from bambi.plots.utils import identity, contrast_dtype, get_covariates
+from bambi.plots.utils import get_covariates
 
 
 def plot_cap(
@@ -93,41 +89,26 @@ def plot_cap(
 
     assert 1 <= len(covariates) <= 3
 
-    if hdi_prob is None:
-        hdi_prob = az.rcParams["stats.hdi_prob"]
-
-    if not 0 < hdi_prob < 1:
-        raise ValueError(f"'hdi_prob' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
-
-    cap_data = create_cap_data(model, covariates)
-
     if transforms is None:
         transforms = {}
+    
+    cap_data = predictions(
+        model,
+        idata,
+        covariates,
+        target=target,
+        pps=pps,
+        use_hdi=use_hdi,
+        hdi_prob=hdi_prob,
+        transforms=transforms
+    )
 
     response_name = get_aliased_name(model.response_component.response_term)
-    response_transform = transforms.get(response_name, identity)
-
-    if pps:
-        idata = model.predict(idata, data=cap_data, inplace=False, kind="pps")
-        y_hat = response_transform(idata.posterior_predictive[response_name])
-        y_hat_mean = y_hat.mean(("chain", "draw"))
-    else:
-        idata = model.predict(idata, data=cap_data, inplace=False)
-        y_hat = response_transform(idata.posterior[f"{response_name}_{target}"])
-        y_hat_mean = y_hat.mean(("chain", "draw"))
-
-    if use_hdi and pps:
-        y_hat_bounds = az.hdi(y_hat, hdi_prob)[response_name].T
-    elif use_hdi:
-        y_hat_bounds = az.hdi(y_hat, hdi_prob)[f"{response_name}_{target}"].T
-    else:
-        lower_bound = round((1 - hdi_prob) / 2, 4)
-        upper_bound = 1 - lower_bound
-        y_hat_bounds = y_hat.quantile(q=(lower_bound, upper_bound), dim=("chain", "draw"))
+    covariates = get_covariates(covariates)
+    main, group, panel = covariates.main, covariates.group, covariates.panel
 
     if ax is None:
         fig_kwargs = {} if fig_kwargs is None else fig_kwargs
-        panel = covariates.get("panel", None)
         panels_n = len(np.unique(cap_data[panel])) if panel else 1
         rows, cols = default_grid(panels_n)
         fig, axes = create_axes_grid(panels_n, rows, cols, backend_kwargs=fig_kwargs)
@@ -139,17 +120,10 @@ def plot_cap(
         else:
             fig = axes[0].get_figure()
 
-    main = covariates.get("horizontal")
     if is_numeric_dtype(cap_data[main]):
-        # axes = _plot_cap_numeric(
-        #     covariates, cap_data, y_hat_mean, y_hat_bounds, transforms, legend, axes
-        # )
-        axes = plot_numeric(
-            covariates, cap_data, y_hat_mean, y_hat_bounds, transforms, legend, axes
-        )
+        axes = plot_numeric(covariates, cap_data, transforms, legend, axes)
     elif is_categorical_dtype(cap_data[main]) or is_string_dtype(cap_data[main]):
-        # axes = _plot_cap_categoric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, axes)
-        axes = plot_categoric(covariates, cap_data, y_hat_mean, y_hat_bounds, legend, axes)
+        axes = plot_categoric(covariates, cap_data, legend, axes)
     else:
         raise ValueError("Main covariate must be numeric or categoric.")
 
@@ -157,7 +131,7 @@ def plot_cap(
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
         ax.set(xlabel=main, ylabel=ylabel)
 
-    return fig, axes
+    return fig, ax, cap_data
 
 
 def plot_comparison(
@@ -219,7 +193,7 @@ def plot_comparison(
         When the main covariate is not numeric or categoric.
     """
 
-    comparisons_df, contrast_df, idata = comparisons(
+    contrast_df = comparisons(
         model=model,
         idata=idata,
         contrast_predictor=contrast_predictor,
@@ -229,7 +203,7 @@ def plot_comparison(
         use_hdi=use_hdi,
         hdi_prob=hdi_prob,
         transforms=transforms,
-    ) # type: ignore
+    )
     
     covariate_kinds = ("horizontal", "color", "panel")
     # if not dict, then user did not pass values to condition on
@@ -267,14 +241,14 @@ def plot_comparison(
         # a few values, so it is treated as categoric
         if np.unique(contrast_df[main]).shape[0] <= 5:
             axes = plot_categoric(
-                conditional,
+                covariates,
                 contrast_df,
                 legend,
                 axes
             )
         else:
             axes = plot_numeric(
-                conditional,
+                covariates,
                 contrast_df,
                 transforms,
                 legend,
@@ -282,7 +256,7 @@ def plot_comparison(
             )
     elif is_categorical_dtype(contrast_df[main]) or is_string_dtype(contrast_df[main]):
         axes = plot_categoric(
-                conditional,
+                covariates,
                 contrast_df,
                 legend,
                 axes
@@ -295,4 +269,4 @@ def plot_comparison(
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
         ax.set(xlabel=main, ylabel=ylabel)
 
-    return fig, axes, comparisons_df, contrast_df, idata
+    return fig, axes
