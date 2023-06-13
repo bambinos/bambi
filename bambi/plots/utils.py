@@ -208,11 +208,8 @@ def set_default_contrast_values(model, data, contrast_predictor):
                             contrast = _numeric_difference(np.mean(data[name]))
                         # For categoric predictors, select the most frequent level.
                         elif component.kind == "categoric":
-                            # contrast = _categoric_difference(
-                            #     get_unique_levels(data[name])
-                            # )
                             contrast = get_unique_levels(data[name])
-                            if len(contrast) > 1:
+                            if len(contrast) > 2:
                                 raise UserWarning(
                                     f"Categoric predictors must have only one level. {name} has {len(contrast)} levels." 
                                 )
@@ -220,7 +217,7 @@ def set_default_contrast_values(model, data, contrast_predictor):
     return contrast
 
 
-def make_main_values(x, grid_n: int = 200, groups_n: int = 5) -> np.ndarray:
+def make_main_values(x, grid_n: int = 50) -> np.ndarray:
     """
     """
     if is_numeric_dtype(x):
