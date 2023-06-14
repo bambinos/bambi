@@ -261,7 +261,7 @@ class ResponseTerm:
         kwargs[parent] = linkinv(eta)
 
         # Build the response distribution
-        dist = self.build_response_distribution(kwargs, pymc_backend, bmb_model)
+        dist = self.build_response_distribution(kwargs, pymc_backend)
 
         return dist
 
