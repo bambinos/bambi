@@ -261,18 +261,18 @@ class ResponseTerm:
         kwargs[parent] = linkinv(eta)
 
         # Build the response distribution
-        dist = self.build_response_distribution(kwargs, pymc_backend)
+        dist = self.build_response_distribution(kwargs, pymc_backend, bmb_model)
 
         return dist
 
-    def build_response_distribution(self, kwargs, pymc_backend):
+    def build_response_distribution(self, kwargs, pymc_backend, bmb_model):
         # Get likelihood distribution
         distribution = get_distribution_from_likelihood(self.family.likelihood)
 
         # Families can implement specific transformations of parameters that are passed to the
         # likelihood function
         if hasattr(self.family, "transform_backend_kwargs"):
-            kwargs = self.family.transform_backend_kwargs(kwargs)
+            kwargs = self.family.transform_backend_kwargs(kwargs, bmb_model=bmb_model)
 
         kwargs = self.robustify_dims(pymc_backend, kwargs)
         return distribution(self.name, **kwargs)
