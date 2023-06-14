@@ -184,8 +184,6 @@ class Family:
         output_array = pm.draw(response_dist.dist(**kwargs))
         output_coords_all = xr.merge(output_dataset_list).coords
 
-        print(output_coords_all)
-
         coord_names = ["chain", "draw", response_aliased_name + "_obs"]
         is_multivariate = hasattr(model.family, "KIND") and model.family.KIND == "Multivariate"
 
@@ -195,8 +193,6 @@ class Family:
             new_coords = model.family.create_extra_pps_coord()
             coord_names.append(response_aliased_name + "_dim")
             output_coords_all[response_aliased_name + "_dim"] = new_coords
-
-        print(output_coords_all)
 
         output_coords = {}
         for coord_name in coord_names:
