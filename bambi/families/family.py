@@ -196,6 +196,8 @@ class Family:
             coord_names.append(response_aliased_name + "_dim")
             output_coords_all[response_aliased_name + "_dim"] = new_coords
 
+        print(output_coords_all)
+
         output_coords = {}
         for coord_name in coord_names:
             output_coords[coord_name] = output_coords_all[coord_name]
