@@ -191,7 +191,7 @@ class Family:
 
         if is_multivariate:
             coord_names.append(response_aliased_name + "_dim")
-        elif hasattr(model.family.create_extra_pps_coord):
+        elif hasattr(model.family, "create_extra_pps_coord"):
             new_coords = model.family.add_pps_coords()
             coord_names.append(response_aliased_name + "_dim")
             output_coords_all[response_aliased_name + "_dim"] = new_coords
