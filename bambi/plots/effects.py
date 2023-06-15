@@ -13,7 +13,7 @@ import xarray as xr
 import bambi as bmb
 from bambi.utils import listify, get_aliased_name
 from bambi.plots.create_data import create_cap_data, create_comparisons_data
-from bambi.plots.utils import identity 
+from bambi.plots.utils import identity, Comparison
 
 
 
@@ -68,6 +68,19 @@ def predictions(
 
     """
     
+    covariate_kinds = ("horizontal", "color", "panel")
+    if not isinstance(covariates, dict):
+        covariates = listify(covariates)
+        covariates = dict(zip(covariate_kinds, covariates))
+    else:
+        assert covariate_kinds[0] in covariates
+        assert set(covariates).issubset(set(covariate_kinds))
+
+    assert 1 <= len(covariates) <= 3
+
+    if transforms is None:
+        transforms = {}
+    
     if hdi_prob is None:
         hdi_prob = az.rcParams["stats.hdi_prob"]
 
@@ -75,10 +88,6 @@ def predictions(
         raise ValueError(f"'hdi_prob' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
 
     cap_data = create_cap_data(model, covariates)
-
-    if transforms is None:
-        transforms = {}
-
     response_name = get_aliased_name(model.response_component.response_term)
     response_transform = transforms.get(response_name, identity)
 
@@ -105,13 +114,6 @@ def predictions(
     cap_data["hdi_97%"] = y_hat_bounds[1]
 
     return cap_data
-
-
-@dataclass
-class Comparison:
-    model: bmb.Model
-    contrast_predictor: Union[str, dict, list]
-    conditional: Union[str, dict, list]
 
 
 @dataclass
@@ -172,7 +174,37 @@ def comparisons(
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to ``None``.
+    
+    Returns
+    -------
+    pandas.DataFrame
+        A dataframe with the comparison values, highest density interval, contrast name, 
+        contrast value, and conditional values.
+    
+    Raises
+    ------
+    ValueError
+        If the user provided more than one level for the contrast predictor.
     """
+
+    if isinstance(contrast_predictor, dict):
+        contrast_name, contrast = next(iter(contrast_predictor.items()))
+        if len(contrast) > 2:
+            raise ValueError(
+                f"Length of contrast values must be 1. It is {len(contrast)}."
+            )
+    elif isinstance(contrast_predictor, list):
+        contrast_name = contrast_predictor[0]
+    elif isinstance(contrast_predictor, str):
+        contrast_name = contrast_predictor
+
+    if hdi_prob is None:
+        hdi_prob = az.rcParams["stats.hdi_prob"]
+    
+    if not 0 < hdi_prob < 1:
+        raise ValueError(
+            f"'hdi_prob' must be greater than 0 and smaller than 1. It is {hdi_prob}."
+        )
 
     covariate_kinds = ("horizontal", "color", "panel")
     # if not dict, then user did not pass values to condition on
@@ -200,28 +232,10 @@ def comparisons(
         conditional = {k: listify(v) for k, v in conditional.items()}
         conditional = dict(zip(covariate_kinds, conditional))
     
-    if isinstance(contrast_predictor, dict):
-        contrast_name, contrast = next(iter(contrast_predictor.items()))
-        if len(contrast) > 2:
-            raise UserWarning(
-                f"Length of contrast values must be 1. It is {len(contrast)}."
-            )
-    elif isinstance(contrast_predictor, list):
-        contrast_name = contrast_predictor[0]
-    elif isinstance(contrast_predictor, str):
-        contrast_name = contrast_predictor
-    
-    if hdi_prob is None:
-        hdi_prob = az.rcParams["stats.hdi_prob"]
-    
-    if not 0 < hdi_prob < 1:
-        raise ValueError(f"'hdi_prob' must be greater than 0 and smaller than 1. It is {hdi_prob}.")
-    
     if transforms is None:
         transforms = {}
 
     response_name = get_aliased_name(model.response_component.response_term)
-    response_transform = transforms.get(response_name, identity)
 
     # perform predictions on new data
     idata = model.predict(idata, data=comparisons_df, inplace=False)
@@ -235,6 +249,8 @@ def comparisons(
             comparison_type: str = comparison_type
     ) -> ContrastEstimate:
         """
+        Computes the contrast comparison estimate and highest density interval
+        for a given contrast and response.
         """
         assert comparison_type in ("diff", "ratio"), \
             "comparison_type must be 'diff' or 'ratio'"
@@ -263,10 +279,12 @@ def comparisons(
         function = functions[comparison_type]
 
         # compute mean comparison and HDI for each pairwise comparison
+        # flip sign of mean comparison to match contrast (multiply by -1)
         mean_comparison = {}
         for idx, pair in enumerate(pairwise_contrasts):
             mean_comparison[pair] = function(draws[pair[0]], draws[pair[1]]).mean(("chain", "draw")) * -1
             hdi = az.hdi(function(draws[pair[0]], draws[pair[1]]), hdi_prob) * -1
+        # flattening does not allow for multiple contrast level comparisons
         mean_comparison = np.array(list(mean_comparison.values())).flatten()
 
         return ContrastEstimate(mean_comparison, hdi)
@@ -279,6 +297,9 @@ def comparisons(
         idata: az.InferenceData
     ) -> pd.DataFrame:
         """
+        Builds a dataframe with the comparison values and highest density interval
+        from ``_compute_contrast_estimate`` along with the contrast name, contrast value,
+        and conditional values.
         """
         contrast_estimate = _compute_contrast_estimate(
             contrast,
@@ -288,7 +309,6 @@ def comparisons(
             comparison_type
         )
         
-        # build contrast dataframe
         contrast_df = (comparisons_df
                     .drop_duplicates(list(conditional.values()))
                     .reset_index(drop=True)

@@ -18,15 +18,15 @@ from bambi.plots.utils import get_covariates
 
 
 def plot_cap(
-    model,
-    idata,
-    covariates,
-    target="mean",
-    pps=False,
-    use_hdi=True,
+    model: bmb.Model,
+    idata: az.InferenceData,
+    covariates: Union[str, list],
+    target: str = "mean",
+    pps: bool = False,
+    use_hdi: bool = True,
     hdi_prob=None,
     transforms=None,
-    legend=True,
+    legend: bool = True,
     ax=None,
     fig_kwargs=None,
 ):
@@ -146,7 +146,8 @@ def plot_comparison(
         transforms=None,
         legend: bool = True,
         ax=None,
-        fig_kwargs=None
+        fig_kwargs=None,
+        subplot_kwargs=None,
 ):    
     """Plot Conditional Adjusted Comparisons
 
@@ -180,17 +181,20 @@ def plot_comparison(
     ax : matplotlib.axes._subplots.AxesSubplot, optional
         A matplotlib axes object or a sequence of them. If None, this function instantiates a
         new axes object. Defaults to ``None``.
+    fig_kwargs : optional
+        Keyword arguments passed to the matplotlib figure function as a dict. For example,
+        ``fig_kwargs=dict(figsize=(11, 8)), sharey=True`` would make the figure 11 inches wide 
+        by 8 inches high and would share the y-axis values.
+    subplot_kwargs : optional
+        Keyword arguments passed to the matplotlib subplot function as a dict. This allows you
+        to determine the covariates used for the horizontal, color, and panel axes. For example,
+        ``subplot_kwargs=dict(horizontal="x", color="y", panel="z")`` would plot the horizontal
+        axis as ``x``, the color axis as ``y``, and the panel axis as ``z``.
 
     Returns
     -------
     matplotlib.figure.Figure, matplotlib.axes._subplots.AxesSubplot
         A tuple with the figure and the axes.
-
-    Raises
-    ------
-    ValueError
-        When ``level`` is not within 0 and 1.
-        When the main covariate is not numeric or categoric.
     """
 
     contrast_df = comparisons(
@@ -216,7 +220,10 @@ def plot_comparison(
         conditional = dict(zip(covariate_kinds, conditional))
 
     covariates = get_covariates(conditional)
-    main, group, panel = covariates.main, covariates.group, covariates.panel
+
+    if subplot_kwargs:
+        for key, value in subplot_kwargs.items():
+            setattr(covariates, key, value)
     
     if transforms is None:
         transforms = {}
@@ -225,7 +232,7 @@ def plot_comparison(
 
     if ax is None:
         fig_kwargs = {} if fig_kwargs is None else fig_kwargs
-        panels_n = len(np.unique(contrast_df[panel])) if panel else 1
+        panels_n = len(np.unique(contrast_df[covariates.panel])) if covariates.panel else 1
         rows, cols = default_grid(panels_n)
         fig, axes = create_axes_grid(panels_n, rows, cols, backend_kwargs=fig_kwargs)
         axes = np.atleast_1d(axes)
@@ -236,10 +243,10 @@ def plot_comparison(
         else:
             fig = axes[0].get_figure()
 
-    if is_numeric_dtype(contrast_df[main]):
+    if is_numeric_dtype(contrast_df[covariates.main]):
         # main condition variable can be numeric but at the same time only
         # a few values, so it is treated as categoric
-        if np.unique(contrast_df[main]).shape[0] <= 5:
+        if np.unique(contrast_df[covariates.main]).shape[0] <= 5:
             axes = plot_categoric(
                 covariates,
                 contrast_df,
@@ -254,7 +261,8 @@ def plot_comparison(
                 legend,
                 axes
             )
-    elif is_categorical_dtype(contrast_df[main]) or is_string_dtype(contrast_df[main]):
+    elif is_categorical_dtype(contrast_df[covariates.main]) or \
+        is_string_dtype(contrast_df[covariates.main]):
         axes = plot_categoric(
                 covariates,
                 contrast_df,
@@ -267,6 +275,6 @@ def plot_comparison(
     response_name = get_aliased_name(model.response_component.response_term)
     ylabel = response_name if target == "mean" else target
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
-        ax.set(xlabel=main, ylabel=ylabel)
+        ax.set(xlabel=covariates.main, ylabel=ylabel)
 
     return fig, axes
