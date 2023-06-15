@@ -8,6 +8,15 @@ import pandas as pd
 from formulae.terms.call import Call
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
 
+import bambi as bmb
+
+
+@dataclass
+class Comparison:
+    model: bmb.Model
+    contrast_predictor: Union[str, dict, list]
+    conditional: Union[str, dict, list]
+
 
 @dataclass
 class Covariates:
@@ -18,6 +27,8 @@ class Covariates:
 
 def get_model_terms(model) -> dict:
     """
+    Loops through the distributional components of a bambi model and
+    returns a dictionary of terms.
     """
     terms = {}
     for component in model.distributional_components.values():
@@ -32,6 +43,8 @@ def get_model_terms(model) -> dict:
 
 def get_covariates(covariates: dict) -> Covariates:
     """
+    Obtain the main, group, and panel covariates from the user's
+    conditional dict.
     """
     covariate_kinds = ("horizontal", "color", "panel")
     if any(key in covariate_kinds for key in covariates.keys()):
@@ -68,6 +81,9 @@ def enforce_dtypes(data, df: pd.DataFrame) -> pd.DataFrame:
 
 
 def contrast_dtype(model, contrast_predictor):
+    """
+    Obtain the dtype of the contrast predictor.
+    """
 
     if isinstance(contrast_predictor, list):
         contrast_predictor = " ".join(contrast_predictor)
@@ -97,6 +113,7 @@ def make_group_panel_values(
         groups_n: int = 5
     ):
     """
+    Compute group and panel values based on original data.
     """
     
     # If available, obtain groups for grouping variable
@@ -112,8 +129,6 @@ def make_group_panel_values(
     main_values = data_dict[main]
     main_n = len(main_values)
 
-    # TO DO: is there a more concise way than logic and passing of
-    # kind = ... argument?
     if kind == 'predictions':
         if group and not panel:
             main_values = np.tile(main_values, group_n)
@@ -142,6 +157,8 @@ def make_group_panel_values(
 
 def set_default_values(model, data, data_dict: dict, kind: str) -> pd.DataFrame:
     """
+    Set default values for each variable in the model if the user did not
+    pass them in the data_dict.
     """
     terms = get_model_terms(model)
 
@@ -175,24 +192,20 @@ def set_default_values(model, data, data_dict: dict, kind: str) -> pd.DataFrame:
 
 def set_default_contrast_values(model, data, contrast_predictor):
     """
+    Set the default contrast value for the contrast predictor based on the
+    contrast predictor dtype.
     """
 
     def _numeric_difference(x, kind: str = 'centered'):
         """
+        Centered difference for numeric predictors results in a default contrast
+        of a 1 unit increase
         """
         return [x - 0.5, x + 0.5]
-
-    def _categoric_difference(x: np.ndarray, kind: str = 'pairwise'):
-        """
-        """
-        return list(itertools.combinations(x, 2))
-    
 
     terms = get_model_terms(model)
 
     # Get default values for each variable in the model
-    # if contrast_predictor in terms.keys():
-    #     term = terms.get(contrast_predictor)
     for term in terms.values():
         if hasattr(term, "components"):
             for component in term.components:
@@ -209,16 +222,14 @@ def set_default_contrast_values(model, data, contrast_predictor):
                         # For categoric predictors, select the most frequent level.
                         elif component.kind == "categoric":
                             contrast = get_unique_levels(data[name])
-                            if len(contrast) > 2:
-                                raise UserWarning(
-                                    f"Categoric predictors must have only one level. {name} has {len(contrast)} levels." 
-                                )
 
     return contrast
 
 
 def make_main_values(x, grid_n: int = 50) -> np.ndarray:
     """
+    Compuet main values based on original data using a grid of evenly spaced
+    values for numeric predictors and unique levels for categoric predictors.
     """
     if is_numeric_dtype(x):
         return np.linspace(np.min(x), np.max(x), grid_n)
@@ -229,6 +240,8 @@ def make_main_values(x, grid_n: int = 50) -> np.ndarray:
 
 def make_group_values(x, groups_n: int = 5) -> np.ndarray:
     """
+    Compute group values based on original data using unique levels for 
+    categoric predictors and quantiles for numeric predictors.
     """
     if is_string_dtype(x) or is_categorical_dtype(x):
         return np.unique(x)
@@ -239,6 +252,7 @@ def make_group_values(x, groups_n: int = 5) -> np.ndarray:
 
 def get_unique_levels(x) -> Union[list, np.ndarray]:
     """
+    Get unique levels of a categoric variable.
     """
     if hasattr(x, "dtype") and hasattr(x.dtype, "categories"):
         levels = list(x.dtype.categories)

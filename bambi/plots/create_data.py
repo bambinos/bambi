@@ -1,20 +1,17 @@
 import pandas as pd
 import itertools
-from typing import Callable
 
 import bambi as bmb
-#from .effects import Comparison
 from bambi.utils import clean_formula_lhs
 from bambi.plots.utils import enforce_dtypes, make_group_panel_values, \
-    set_default_values, make_main_values, make_group_values, get_covariates, \
-    get_unique_levels, get_group_offset, set_default_contrast_values
+    set_default_values, make_main_values, get_covariates, set_default_contrast_values, \
+    Comparison
 
 
 def create_cap_data(
           model: bmb.Model,
           covariates: dict,
-          grid_n: int = 200,
-          groups_n: int = 5          
+          grid_n: int = 200       
 ) -> pd.DataFrame:
     """Create data for a Conditional Adjusted Predictions
 
@@ -44,11 +41,8 @@ def create_cap_data(
         When either the main or the group covariates are not numeric or categoric.
     """
     data = model.data
-
-    # re-do: use class with attributes instead of dict
-    main = covariates.get("horizontal")
-    group = covariates.get("color", None)
-    panel = covariates.get("panel", None)
+    covariates = get_covariates(covariates)
+    main, group, panel = covariates.main, covariates.group, covariates.panel
 
     # Obtain data for main variable
     main_values = make_main_values(data[main], grid_n)
@@ -61,7 +55,7 @@ def create_cap_data(
 
 
 def create_comparisons_data(
-            comparisons: Callable,
+            comparisons: Comparison,
             user_passed: bool = False,
             grid_n: int = 200
 ) -> pd.DataFrame:
