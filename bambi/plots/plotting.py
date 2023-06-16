@@ -137,7 +137,7 @@ def plot_cap(
 def plot_comparison(
         model: bmb.Model,
         idata: az.InferenceData,
-        contrast_predictor: Union[str, dict, list],
+        contrast: Union[str, dict, list],
         conditional: Union[str, dict, list],
         comparison_type: str = "diff",
         target: str = "mean",
@@ -158,7 +158,7 @@ def plot_comparison(
     idata : arviz.InferenceData
         The InferenceData object that contains the samples from the posterior distribution of
         the model.
-    contrast_predictor : str, dict, list
+    contrast : str, dict, list
         The predictor name whose contrast we would like to compare.
     conditional : str, dict, list
         The covariates we would like to condition on.
@@ -195,12 +195,24 @@ def plot_comparison(
     -------
     matplotlib.figure.Figure, matplotlib.axes._subplots.AxesSubplot
         A tuple with the figure and the axes.
+    
+    Raises
+    ------
+    ValueError
+        When number of ``contrast_values`` is greater than 2.
     """
+
+    if isinstance(contrast, dict):
+        contrast_name, contrast_level = next(iter(contrast.items()))
+        if len(contrast_level) > 2:
+            raise ValueError(
+                f"Contrast {contrast_name} has {len(contrast_level)} values. It must be == 2."
+            )
 
     contrast_df = comparisons(
         model=model,
         idata=idata,
-        contrast_predictor=contrast_predictor,
+        contrast=contrast,
         conditional=conditional,
         comparison_type=comparison_type,
         target=target,
