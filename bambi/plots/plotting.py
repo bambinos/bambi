@@ -2,6 +2,7 @@
 # pylint: disable = too-many-function-args
 # pylint: disable = too-many-nested-blocks
 from typing import Union
+import warnings
 
 import arviz as az
 import numpy as np
@@ -91,7 +92,7 @@ def plot_cap(
 
     if transforms is None:
         transforms = {}
-    
+
     cap_data = predictions(
         model,
         idata,
@@ -100,7 +101,7 @@ def plot_cap(
         pps=pps,
         use_hdi=use_hdi,
         hdi_prob=hdi_prob,
-        transforms=transforms
+        transforms=transforms,
     )
 
     response_name = get_aliased_name(model.response_component.response_term)
@@ -131,24 +132,24 @@ def plot_cap(
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
         ax.set(xlabel=main, ylabel=ylabel)
 
-    return fig, ax, cap_data
+    return fig, axes
 
 
 def plot_comparison(
-        model: bmb.Model,
-        idata: az.InferenceData,
-        contrast: Union[str, dict, list],
-        conditional: Union[str, dict, list],
-        comparison_type: str = "diff",
-        target: str = "mean",
-        use_hdi: bool = True,
-        hdi_prob=None,
-        transforms=None,
-        legend: bool = True,
-        ax=None,
-        fig_kwargs=None,
-        subplot_kwargs=None,
-):    
+    model: bmb.Model,
+    idata: az.InferenceData,
+    contrast: Union[str, dict, list],
+    conditional: Union[str, dict, list],
+    comparison_type: str = "diff",
+    target: str = "mean",
+    use_hdi: bool = True,
+    hdi_prob=None,
+    transforms=None,
+    legend: bool = True,
+    ax=None,
+    fig_kwargs=None,
+    subplot_kwargs=None,
+):
     """Plot Conditional Adjusted Comparisons
 
     Parameters
@@ -183,7 +184,7 @@ def plot_comparison(
         new axes object. Defaults to ``None``.
     fig_kwargs : optional
         Keyword arguments passed to the matplotlib figure function as a dict. For example,
-        ``fig_kwargs=dict(figsize=(11, 8)), sharey=True`` would make the figure 11 inches wide 
+        ``fig_kwargs=dict(figsize=(11, 8)), sharey=True`` would make the figure 11 inches wide
         by 8 inches high and would share the y-axis values.
     subplot_kwargs : optional
         Keyword arguments passed to the matplotlib subplot function as a dict. This allows you
@@ -195,18 +196,18 @@ def plot_comparison(
     -------
     matplotlib.figure.Figure, matplotlib.axes._subplots.AxesSubplot
         A tuple with the figure and the axes.
-    
+
     Raises
     ------
-    ValueError
+    Warning
         When number of ``contrast_values`` is greater than 2.
     """
 
     if isinstance(contrast, dict):
         contrast_name, contrast_level = next(iter(contrast.items()))
         if len(contrast_level) > 2:
-            raise ValueError(
-                f"Contrast {contrast_name} has {len(contrast_level)} values. It must be == 2."
+            warnings.warn(
+                f"Attempting to plot when contrast {contrast_name} has {len(contrast_level)} values."
             )
 
     contrast_df = comparisons(
@@ -220,7 +221,7 @@ def plot_comparison(
         hdi_prob=hdi_prob,
         transforms=transforms,
     )
-    
+
     covariate_kinds = ("horizontal", "color", "panel")
     # if not dict, then user did not pass values to condition on
     if not isinstance(conditional, dict):
@@ -236,7 +237,7 @@ def plot_comparison(
     if subplot_kwargs:
         for key, value in subplot_kwargs.items():
             setattr(covariates, key, value)
-    
+
     if transforms is None:
         transforms = {}
 
@@ -259,34 +260,18 @@ def plot_comparison(
         # main condition variable can be numeric but at the same time only
         # a few values, so it is treated as categoric
         if np.unique(contrast_df[covariates.main]).shape[0] <= 5:
-            axes = plot_categoric(
-                covariates,
-                contrast_df,
-                legend,
-                axes
-            )
+            axes = plot_categoric(covariates, contrast_df, legend, axes)
         else:
-            axes = plot_numeric(
-                covariates,
-                contrast_df,
-                transforms,
-                legend,
-                axes
-            )
-    elif is_categorical_dtype(contrast_df[covariates.main]) or \
-        is_string_dtype(contrast_df[covariates.main]):
-        axes = plot_categoric(
-                covariates,
-                contrast_df,
-                legend,
-                axes
-        )
+            axes = plot_numeric(covariates, contrast_df, transforms, legend, axes)
+    elif is_categorical_dtype(contrast_df[covariates.main]) or is_string_dtype(
+        contrast_df[covariates.main]
+    ):
+        axes = plot_categoric(covariates, contrast_df, legend, axes)
     else:
         raise TypeError("Main covariate must be numeric or categoric.")
-    
+
     response_name = get_aliased_name(model.response_component.response_term)
     ylabel = response_name if target == "mean" else target
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
         ax.set(xlabel=covariates.main, ylabel=ylabel)
-
     return fig, axes

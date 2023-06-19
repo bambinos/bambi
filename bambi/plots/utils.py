@@ -25,7 +25,7 @@ class Covariates:
     panel: Union[str, None]
 
 
-def get_model_terms(model) -> dict:
+def get_model_terms(model: bmb.Model) -> dict:
     """
     Loops through the distributional components of a bambi model and
     returns a dictionary of terms.
@@ -39,6 +39,25 @@ def get_model_terms(model) -> dict:
             terms.update(component.design.group.terms)
 
     return terms
+
+
+def get_model_covariates(model: bmb.Model):
+    """
+    Return covariates specified in the model.
+    """
+
+    terms = get_model_terms(model)
+    names = []
+    for term in terms.values():
+        if hasattr(term, "components"):
+            for component in term.components:
+                # If the component is a function call, use the argument names
+                if isinstance(component, Call):
+                    names.append([arg.name for arg in component.call.args])
+                else:
+                    names.append([component.name])
+
+    return np.unique(names)
 
 
 def get_covariates(covariates: dict) -> Covariates:
@@ -69,7 +88,7 @@ def get_covariates(covariates: dict) -> Covariates:
     return Covariates(main, group, panel)
 
 
-def enforce_dtypes(data, df: pd.DataFrame) -> pd.DataFrame:
+def enforce_dtypes(data: pd.DataFrame, df: pd.DataFrame) -> pd.DataFrame:
     """
     Enforce dtypes of the original data to the new data.
     """
@@ -80,7 +99,7 @@ def enforce_dtypes(data, df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def contrast_dtype(model, contrast_predictor):
+def contrast_dtype(model: bmb.Model, contrast_predictor: str):
     """
     Obtain the dtype of the contrast predictor.
     """
@@ -101,21 +120,21 @@ def contrast_dtype(model, contrast_predictor):
                 for name in names:
                     if name == contrast_predictor:
                         return component.kind
-                        
+
 
 def make_group_panel_values(
-        data,
-        data_dict, 
-        main, 
-        group, 
-        panel, 
-        kind,
-        groups_n: int = 5
-    ):
+    data: pd.DataFrame,
+    data_dict: dict,
+    main: str,
+    group: Union[str, None],
+    panel: Union[str, None],
+    kind: str,
+    groups_n: int = 5,
+) -> dict:
     """
     Compute group and panel values based on original data.
     """
-    
+
     # If available, obtain groups for grouping variable
     if group:
         group_values = make_group_values(data[group], groups_n)
@@ -129,7 +148,7 @@ def make_group_panel_values(
     main_values = data_dict[main]
     main_n = len(main_values)
 
-    if kind == 'predictions':
+    if kind == "predictions":
         if group and not panel:
             main_values = np.tile(main_values, group_n)
             group_values = np.repeat(group_values, main_n)
@@ -155,7 +174,9 @@ def make_group_panel_values(
     return data_dict
 
 
-def set_default_values(model, data, data_dict: dict, kind: str) -> pd.DataFrame:
+def set_default_values(
+    model: bmb.Model, data: pd.DataFrame, data_dict: dict, kind: str
+) -> pd.DataFrame:
     """
     Set default values for each variable in the model if the user did not
     pass them in the data_dict.
@@ -180,23 +201,25 @@ def set_default_values(model, data, data_dict: dict, kind: str) -> pd.DataFrame:
                         elif component.kind == "categoric":
                             data_dict[name] = mode(data[name])
 
-    if kind == 'comparison':
+    if kind == "comparison":
         # if value in dict is not a list then convert to a list
         for key, value in data_dict.items():
             if not isinstance(value, (list, np.ndarray)):
                 data_dict[key] = [value]
         return data_dict
-    elif kind == 'predictions':
+    elif kind == "predictions":
         return data_dict
 
 
-def set_default_contrast_values(model, data, contrast_predictor):
+def set_default_contrast_values(
+    model: bmb.Model, data: pd.DataFrame, contrast_predictor: str
+) -> Union[list, np.ndarray]:
     """
     Set the default contrast value for the contrast predictor based on the
     contrast predictor dtype.
     """
 
-    def _numeric_difference(x, kind: str = 'centered'):
+    def _numeric_difference(x, kind: str = "centered"):
         """
         Centered difference for numeric predictors results in a default contrast
         of a 1 unit increase
@@ -240,7 +263,7 @@ def make_main_values(x, grid_n: int = 50) -> np.ndarray:
 
 def make_group_values(x, groups_n: int = 5) -> np.ndarray:
     """
-    Compute group values based on original data using unique levels for 
+    Compute group values based on original data using unique levels for
     categoric predictors and quantiles for numeric predictors.
     """
     if is_string_dtype(x) or is_categorical_dtype(x):

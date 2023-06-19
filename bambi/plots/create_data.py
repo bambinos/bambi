@@ -3,16 +3,18 @@ import itertools
 
 import bambi as bmb
 from bambi.utils import clean_formula_lhs
-from bambi.plots.utils import enforce_dtypes, make_group_panel_values, \
-    set_default_values, make_main_values, get_covariates, set_default_contrast_values, \
-    Comparison
+from bambi.plots.utils import (
+    enforce_dtypes,
+    make_group_panel_values,
+    set_default_values,
+    make_main_values,
+    get_covariates,
+    set_default_contrast_values,
+    Comparison,
+)
 
 
-def create_cap_data(
-          model: bmb.Model,
-          covariates: dict,
-          grid_n: int = 200       
-) -> pd.DataFrame:
+def create_cap_data(model: bmb.Model, covariates: dict, grid_n: int = 200) -> pd.DataFrame:
     """Create data for a Conditional Adjusted Predictions
 
     Parameters
@@ -33,12 +35,6 @@ def create_cap_data(
     -------
     pandas.DataFrame
         The data for the Conditional Adjusted Predictions plot.
-
-    Raises
-    ------
-    ValueError
-        When the number of covariates is larger than 2.
-        When either the main or the group covariates are not numeric or categoric.
     """
     data = model.data
     covariates = get_covariates(covariates)
@@ -55,9 +51,7 @@ def create_cap_data(
 
 
 def create_comparisons_data(
-            comparisons: Comparison,
-            user_passed: bool = False,
-            grid_n: int = 200
+    comparisons: Comparison, user_passed: bool = False, grid_n: int = 200
 ) -> pd.DataFrame:
     """Create data for a Conditional Adjusted Comparisons
 
@@ -83,28 +77,22 @@ def create_comparisons_data(
     -------
     pandas.DataFrame
         The data for the Conditional Adjusted Predictions plot.
-
-    Raises
-    ------
-    ValueError
-        When the number of covariates is larger than 2.
-        When either the main or the group covariates are not numeric or categoric.
     """
 
     model, contrast_predictor, conditional = (
-        comparisons.model, 
-        comparisons.contrast_predictor, 
-        comparisons.conditional
+        comparisons.model,
+        comparisons.contrast_predictor,
+        comparisons.conditional,
     )
-    
+
     data = model.data
     covariates = get_covariates(conditional)
     main, group, panel = covariates.main, covariates.group, covariates.panel
 
     model_covariates = clean_formula_lhs(str(model.formula.main)).strip()
     model_covariates = model_covariates.split(" ")
-    
-    # if user passed data, then only need to compute default values for 
+
+    # if user passed data, then only need to compute default values for
     # unspecified covariates in the model
     if user_passed:
         data_dict = {**conditional}
@@ -113,26 +101,22 @@ def create_comparisons_data(
         # covariates specified in the `conditional` arg.
         main_values = make_main_values(data[main], grid_n)
         data_dict = {main: main_values}
-        data_dict = make_group_panel_values(
-            data, data_dict, main, group, panel, kind='comparison'
-            )
+        data_dict = make_group_panel_values(data, data_dict, main, group, panel, kind="comparison")
 
     # use key. value pairs to specify the contrast name and value
     if isinstance(contrast_predictor, dict):
-        contrast_name = list(contrast_predictor.keys())[0] 
+        contrast_name = list(contrast_predictor.keys())[0]
         contrast_vals = list(contrast_predictor.values())[0]
         data_dict[contrast_name] = contrast_vals
     # obtain default values for the contrast predictor if list or str
     elif isinstance(contrast_predictor, (list, str)):
         if isinstance(contrast_predictor, list):
-            contrast_predictor = ' '.join(contrast_predictor)
-        data_dict[contrast_predictor] = set_default_contrast_values(
-            model, data, contrast_predictor
-        )
+            contrast_predictor = " ".join(contrast_predictor)
+        data_dict[contrast_predictor] = set_default_contrast_values(model, data, contrast_predictor)
     elif not isinstance(contrast_predictor, (list, dict, str)):
         raise TypeError("`contrast_predictor` must be a list, dict, or string")
-    
-    comparison_data = set_default_values(model, data, data_dict, kind='comparison')
+
+    comparison_data = set_default_values(model, data, data_dict, kind="comparison")
     # use cartesian product (cross join) to create contrasts
     keys, values = zip(*comparison_data.items())
     contrast_dict = [dict(zip(keys, v)) for v in itertools.product(*values)]
