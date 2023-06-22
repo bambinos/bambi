@@ -25,7 +25,7 @@ For inference, Bambi supports both MCMC and variational inference. MCMC is the d
 Bambi also supports multiple backends for MCMC, including NumPyro, and BlackJax
 (see API for "fit" method for more details [here](https://bambinos.github.io/bambi/api_reference.html)).
 
-Can infernece in Bambi be sped up using GPUs/TPUs?
+Can inference in Bambi be sped up using GPUs/TPUs?
 ----------------------------
 Yes, Bambi supports inference on GPUs and TPUs using the numpyro and blackjax backends. 
 See the API for "fit" method for more details 
