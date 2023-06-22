@@ -23,13 +23,13 @@ What sampling methods are available?
 The sampler used is automatically selected given the type of variables used in the model.
 For inference, Bambi supports both MCMC and variational inference. MCMC is the default, but you can specify variational inference by passing `inference_method='vi'` to `Model.fit()`.
 Bambi also supports multiple backends for MCMC, including NumPyro, and BlackJax
-(see API for "fit" method for more details [here](https://bambinos.github.io/bambi/api_reference.html)).
+(see API for "fit" method for more details `here <https://bambinos.github.io/bambi/api_reference.html>`).
 
 Can inference in Bambi be sped up using GPUs/TPUs?
 ----------------------------
 Yes, Bambi supports inference on GPUs and TPUs using the numpyro and blackjax backends. 
 See the API for "fit" method for more details 
-[here](https://bambinos.github.io/bambi/api_reference.html).
+`here <https://bambinos.github.io/bambi/api_reference.html>`.
 
 Model Specification Questions
 ====================
@@ -38,14 +38,14 @@ My data has a non-normal distributions, can I still use Bambi?
 ----------------------------
 Yes, Bambi supports a wide range of distributions which can be specified using the "family"
 argument to the "Model". You can find examples of how to specify these distributions 
-in the [Bambi examples](https://bambinos.github.io/bambi/examples.html).
+in the `Bambi examples <https://bambinos.github.io/bambi/examples.html>`.
 
 How do I find out what priors are available?
 ----------------------------
-You can use any valid PyMC distribution as a prior. You can find a list of all the distributions available in PyMC [here](https://www.pymc.io/projects/docs/en/stable/api/distributions.html).  You can also find examples of how to specify priors in the [Bambi examples](https://bambinos.github.io/bambi/examples.html), and in the [Getting Started Guide](https://bambinos.github.io/bambi/notebooks/getting_started.html#Specifying-priors).
+You can use any valid PyMC distribution as a prior. You can find a list of all the distributions available in PyMC `here <https://www.pymc.io/projects/docs/en/stable/api/distributions.html>`.  You can also find examples of how to specify priors in the `Bambi examples <https://bambinos.github.io/bambi/examples.html>`, and in the `Getting Started Guide <https://bambinos.github.io/bambi/notebooks/getting_started.html#Specifying-priors>`.
 
 Does bambi come with pre-specified regression models?
 ----------------------------
 To allow building of bespoke models, Bambi does not come with pre-specified regression models.
 However, you can find examples of how to specify models in the 
-[Bambi examples](https://bambinos.github.io/bambi/examples.html).
+`Bambi examples <https://bambinos.github.io/bambi/examples.html>`.
