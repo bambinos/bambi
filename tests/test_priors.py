@@ -264,17 +264,23 @@ def test_set_response_prior():
     priors = {"sigma": bmb.Prior("Uniform", lower=0, upper=50)}
     model = bmb.Model("y ~ x", data)
     model.set_priors(priors)
-    assert model.constant_components["sigma"].prior == bmb.Prior("Uniform", False, lower=0, upper=50)
+    assert model.constant_components["sigma"].prior == bmb.Prior(
+        "Uniform", False, lower=0, upper=50
+    )
 
     priors = {"alpha": bmb.Prior("Uniform", lower=1, upper=20)}
     model = bmb.Model("y ~ x", data, family="negativebinomial")
     model.set_priors(priors)
-    assert model.constant_components["alpha"].prior == bmb.Prior("Uniform", False, lower=1, upper=20)
+    assert model.constant_components["alpha"].prior == bmb.Prior(
+        "Uniform", False, lower=1, upper=20
+    )
 
     priors = {"alpha": bmb.Prior("Uniform", lower=0, upper=50)}
     model = bmb.Model("y ~ x", data, family="gamma")
     model.set_priors(priors)
-    assert model.constant_components["alpha"].prior == bmb.Prior("Uniform", False, lower=0, upper=50)
+    assert model.constant_components["alpha"].prior == bmb.Prior(
+        "Uniform", False, lower=0, upper=50
+    )
 
 
 def test_prior_shape():

@@ -82,6 +82,7 @@ def test_with_panel(mtcars, pps):
     # Horizontal: categorical. Group: categorical
     plot_cap(model, idata, {"horizontal": "gear", "panel": "cyl"}, pps=pps)
 
+
 @pytest.mark.parametrize("pps", [False, True])
 def test_with_group_and_panel(mtcars, pps):
     model, idata = mtcars
@@ -124,11 +125,7 @@ def test_fig_kwargs(mtcars, pps):
 def test_use_hdi(mtcars, pps):
     model, idata = mtcars
     plot_cap(
-        model, 
-        idata, 
-        {"horizontal": "hp", "color": "cyl", "panel": "gear"}, 
-        pps=pps,
-        use_hdi=False
+        model, idata, {"horizontal": "hp", "color": "cyl", "panel": "gear"}, pps=pps, use_hdi=False
     )
 
 
@@ -136,38 +133,36 @@ def test_use_hdi(mtcars, pps):
 def test_hdi_prob(mtcars, pps):
     model, idata = mtcars
     plot_cap(
-        model, 
-        idata,
-        {"horizontal": "hp", "color": "cyl", "panel": "gear"}, 
-        pps=pps,
-        hdi_prob=0.9
+        model, idata, {"horizontal": "hp", "color": "cyl", "panel": "gear"}, pps=pps, hdi_prob=0.9
     )
 
     with pytest.raises(
         ValueError, match="'hdi_prob' must be greater than 0 and smaller than 1. It is 1.1."
     ):
         plot_cap(
-            model, 
-            idata, 
-            {"horizontal": "hp", "color": "cyl", "panel": "gear"}, 
+            model,
+            idata,
+            {"horizontal": "hp", "color": "cyl", "panel": "gear"},
             pps=pps,
-            hdi_prob=1.1)
+            hdi_prob=1.1,
+        )
 
     with pytest.raises(
         ValueError, match="'hdi_prob' must be greater than 0 and smaller than 1. It is -0.1."
     ):
         plot_cap(
-            model, 
-            idata, 
-            {"horizontal": "hp", "color": "cyl", "panel": "gear"}, 
+            model,
+            idata,
+            {"horizontal": "hp", "color": "cyl", "panel": "gear"},
             pps=pps,
-            hdi_prob=-0.1)
+            hdi_prob=-0.1,
+        )
 
 
 @pytest.mark.parametrize("pps", [False, True])
 def test_legend(mtcars, pps):
     model, idata = mtcars
-    plot_cap(model, idata, ["hp"], pps=pps,legend=False)
+    plot_cap(model, idata, ["hp"], pps=pps, legend=False)
 
 
 @pytest.mark.parametrize("pps", [False, True])
@@ -199,6 +194,6 @@ def test_multiple_outputs(pps):
     model = bmb.Model(formula, data_gamma, family="gamma")
     idata = model.fit(tune=100, draws=100, random_seed=1234)
     # Test default target
-    plot_cap(model, idata,  "x", pps=pps)
+    plot_cap(model, idata, "x", pps=pps)
     # Test user supplied target argument
     plot_cap(model, idata, "x", "alpha", pps=pps)
