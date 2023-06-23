@@ -228,7 +228,9 @@ def test_predict_categorical(inhaler):
     model.predict(idata, data=inhaler.iloc[:20, :])
     assert np.allclose(idata.posterior["rating_mean"].values.sum(-1), 1)
 
-    model = bmb.Model("rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical")
+    model = bmb.Model(
+        "rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical"
+    )
     idata = model.fit(tune=100, draws=100)
 
     model.predict(idata)

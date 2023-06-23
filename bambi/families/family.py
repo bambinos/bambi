@@ -186,8 +186,13 @@ class Family:
 
         coord_names = ["chain", "draw", response_aliased_name + "_obs"]
         is_multivariate = hasattr(model.family, "KIND") and model.family.KIND == "Multivariate"
+
         if is_multivariate:
             coord_names.append(response_aliased_name + "_dim")
+        elif hasattr(model.family, "create_extra_pps_coord"):
+            new_coords = model.family.create_extra_pps_coord()
+            coord_names.append(response_aliased_name + "_dim")
+            output_coords_all[response_aliased_name + "_dim"] = new_coords
 
         output_coords = {}
         for coord_name in coord_names:

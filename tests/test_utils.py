@@ -8,6 +8,7 @@ from bambi.utils import listify
 from bambi.backend.pymc import probit, cloglog
 from bambi.transformations import censored
 
+
 def test_listify():
     assert listify(None) == []
     assert listify([1, 2, 3]) == [1, 2, 3]

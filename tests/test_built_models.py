@@ -646,13 +646,8 @@ def test_potentials():
 
     pot0 = model.backend.model.potentials[0].get_parents()[0]
     pot1 = model.backend.model.potentials[1].get_parents()[0]
-    assert pot0.__str__() == (
-        "Elemwise{switch,no_inplace}(Elemwise{lt,no_inplace}.0, " "Intercept, TensorConstant{-inf})"
-    )
-    assert pot1.__str__() == (
-        "Elemwise{switch,no_inplace}(Elemwise{gt,no_inplace}.0, "
-        "TensorConstant{0}, TensorConstant{-inf})"
-    )
+    assert pot0.__str__() == "Switch(Lt.0, Intercept, -inf)"
+    assert pot1.__str__() == "Switch(Gt.0, 0, -inf)"
 
 
 def test_binomial_regression():
@@ -688,7 +683,9 @@ def test_categorical_family(inhaler):
 
 
 def test_categorical_family_varying_intercept(inhaler):
-    model = bmb.Model("rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical")
+    model = bmb.Model(
+        "rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical"
+    )
     model.fit(draws=10, tune=10)
 
 
@@ -888,7 +885,7 @@ def test_zero_inflated_negativebinomial():
 
 
 def test_hurlde_families():
-    df = pd.DataFrame({"y": pm.draw(pm.HurdlePoisson.dist(0.5, mu=3.5), 1000)}) 
+    df = pd.DataFrame({"y": pm.draw(pm.HurdlePoisson.dist(0.5, mu=3.5), 1000)})
     model = bmb.Model("y ~ 1", df, family="hurdle_poisson")
     idata = model.fit()
     model.predict(idata, kind="pps")
@@ -908,6 +905,7 @@ def test_hurlde_families():
     idata = model.fit()
     model.predict(idata, kind="pps")
 
+
 @pytest.mark.parametrize(
     "family, link",
     [
@@ -917,11 +915,11 @@ def test_hurlde_families():
         ("sratio", "logit"),
         ("sratio", "probit"),
         ("sratio", "cloglog"),
-    ]
+    ],
 )
 def test_ordinal_families(inhaler, family, link):
     data = inhaler.copy()
-    data["carry"] = pd.Categorical(data["carry"]) # To have both numeric and categoric predictors
+    data["carry"] = pd.Categorical(data["carry"])  # To have both numeric and categoric predictors
     model = bmb.Model("rating ~ period + carry + treat", data, family=family, link=link)
     idata = model.fit(tune=100, draws=100)
     model.predict(idata, kind="pps")
@@ -932,10 +930,10 @@ def test_ordinal_families(inhaler, family, link):
 def test_cumulative_family_priors(inhaler):
     priors = {
         "threshold": bmb.Prior(
-            "Normal", 
-            mu=[-0.5, 0, 0.5], 
-            sigma=1.5, 
-            transform=pm.distributions.transforms.univariate_ordered
+            "Normal",
+            mu=[-0.5, 0, 0.5],
+            sigma=1.5,
+            transform=pm.distributions.transforms.univariate_ordered,
         )
     }
     model = bmb.Model(
