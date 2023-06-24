@@ -67,17 +67,6 @@ class TestCommon:
                 pps=pps,
                 prob=1.1)
 
-<<<<<<< HEAD
-    with pytest.raises(
-        ValueError, match="'hdi_prob' must be greater than 0 and smaller than 1. It is -0.1."
-    ):
-        plot_cap(
-            model, 
-            idata, 
-            {"horizontal": "hp", "color": "cyl", "panel": "gear"}, 
-            pps=pps,
-            hdi_prob=-0.1)
-=======
         with pytest.raises(
             ValueError, match="'prob' must be greater than 0 and smaller than 1. It is -0.1."
         ):
@@ -88,7 +77,6 @@ class TestCommon:
                 ["hp", "cyl", "gear"], 
                 pps=pps,
                 prob=-0.1)
->>>>>>> 0588deb (added test_subplot_kwargs functions for both  and)
 
 
     @pytest.mark.parametrize("pps", [False, True])
