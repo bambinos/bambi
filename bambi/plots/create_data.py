@@ -1,20 +1,21 @@
-import pandas as pd
 import itertools
 
-import bambi as bmb
+import pandas as pd
+
+from bambi.models import Model
 from bambi.utils import clean_formula_lhs
 from bambi.plots.utils import (
-    enforce_dtypes,
-    make_group_panel_values,
-    set_default_values,
-    make_main_values,
-    get_covariates,
-    set_default_contrast_values,
     Comparison,
+    enforce_dtypes,
+    get_covariates,
+    make_group_panel_values,
+    make_main_values,
+    set_default_contrast_values,
+    set_default_values,
 )
 
 
-def create_cap_data(model: bmb.Model, covariates: dict, grid_n: int = 200) -> pd.DataFrame:
+def create_cap_data(model: Model, covariates: dict) -> pd.DataFrame:
     """Create data for a Conditional Adjusted Predictions
 
     Parameters
@@ -25,23 +26,19 @@ def create_cap_data(model: bmb.Model, covariates: dict, grid_n: int = 200) -> pd
         A dictionary of length between one and three.
         Keys must be taken from ("horizontal", "color", "panel").
         The values indicate the names of variables.
-    grid_n : int, optional
-        The number of points used to evaluate the main covariate. Defaults to 200.
-    groups_n : int, optional
-        The number of groups to create when the grouping variable is numeric. Groups are based on
-        equally spaced points. Defaults to 5.
 
     Returns
     -------
     pandas.DataFrame
-        The data for the Conditional Adjusted Predictions plot.
+        The data for the Conditional Adjusted Predictions dataframe and or
+        plotting.
     """
     data = model.data
     covariates = get_covariates(covariates)
     main, group, panel = covariates.main, covariates.group, covariates.panel
 
     # Obtain data for main variable
-    main_values = make_main_values(data[main], grid_n)
+    main_values = make_main_values(data[main])
     data_dict = {main: main_values}
 
     # Obtain data for group and panel variables if not None
@@ -51,7 +48,7 @@ def create_cap_data(model: bmb.Model, covariates: dict, grid_n: int = 200) -> pd
 
 
 def create_comparisons_data(
-    comparisons: Comparison, user_passed: bool = False, grid_n: int = 200
+    model: Model, comparisons: Comparison, user_passed: bool = False
 ) -> pd.DataFrame:
     """Create data for a Conditional Adjusted Comparisons
 
@@ -59,24 +56,16 @@ def create_comparisons_data(
     ----------
     model : bambi.Model
         An instance of a Bambi model
-    contrast_predictor : Union[list, dict, str]
+    comparisons : Union[list, dict, str]
         The name of the predictor to be used in the comparisons.
-    conditional : Union[list, dict, str]
-        A dictionary of length between one and three.
-        Keys must be taken from ("horizontal", "color", "panel").
-        The values indicate the names of variables.
     user_passed : bool, optional
         Whether the user passed data to the model. Defaults to False.
-    grid_n : int, optional
-        The number of points used to evaluate the main covariate. Defaults to 200.
-    groups_n : int, optional
-        The number of groups to create when the grouping variable is numeric. Groups are based on
-        equally spaced points. Defaults to 5.
 
     Returns
     -------
     pandas.DataFrame
-        The data for the Conditional Adjusted Predictions plot.
+        The data for the Conditional Adjusted Comparisons dataframe and or
+        plotting.
     """
 
     model, contrast_predictor, conditional = (
@@ -99,7 +88,7 @@ def create_comparisons_data(
     else:
         # if user did not pass data, then compute default values for the
         # covariates specified in the `conditional` arg.
-        main_values = make_main_values(data[main], grid_n)
+        main_values = make_main_values(data[main])
         data_dict = {main: main_values}
         data_dict = make_group_panel_values(data, data_dict, main, group, panel, kind="comparison")
 

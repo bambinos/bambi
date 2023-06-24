@@ -3,7 +3,7 @@ from matplotlib.patches import Patch
 import numpy as np
 import pandas as pd
 
-from bambi.plots.utils import identity, get_unique_levels, get_group_offset, Covariates
+from bambi.plots.utils import Covariates, get_unique_levels, get_group_offset, identity
 
 
 def plot_numeric(
@@ -33,7 +33,7 @@ def plot_numeric(
     covariates = {k: v for k, v in vars(covariates).items() if v is not None}
     transform_main = transforms.get(main, identity)
     y_hat_mean = plot_data["estimate"]
-    y_hat_bounds = np.transpose(plot_data[["hdi_3%", "hdi_97%"]].values)
+    y_hat_bounds = np.transpose(plot_data[plot_data.columns[-2:]].values)
 
     if len(covariates) == 1:
         ax = axes[0]
@@ -131,7 +131,7 @@ def plot_categoric(covariates: Covariates, plot_data: pd.DataFrame, legend: bool
     main_levels_n = len(main_levels)
     idxs_main = np.arange(main_levels_n)
     y_hat_mean = plot_data["estimate"]
-    y_hat_bounds = np.transpose(plot_data[["hdi_3%", "hdi_97%"]].values)
+    y_hat_bounds = np.transpose(plot_data[plot_data.columns[-2:]].values)
 
     if "group" in covariates:
         colors = get_unique_levels(plot_data[color])

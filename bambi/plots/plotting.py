@@ -5,31 +5,31 @@ from typing import Union
 import warnings
 
 import arviz as az
-import numpy as np
-
 from arviz.plots.backends.matplotlib import create_axes_grid
 from arviz.plots.plot_utils import default_grid
+import numpy as np
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
 
-import bambi as bmb
-from bambi.utils import listify, get_aliased_name
-from bambi.plots.effects import predictions, comparisons
-from bambi.plots.plot_types import plot_numeric, plot_categoric
+from bambi.models import Model
+from bambi.plots.effects import comparisons, predictions
+from bambi.plots.plot_types import plot_categoric, plot_numeric
 from bambi.plots.utils import get_covariates
+from bambi.utils import get_aliased_name, listify
 
 
 def plot_cap(
-    model: bmb.Model,
+    model: Model,
     idata: az.InferenceData,
     covariates: Union[str, list],
     target: str = "mean",
     pps: bool = False,
     use_hdi: bool = True,
-    hdi_prob=None,
+    prob=None,
     transforms=None,
     legend: bool = True,
     ax=None,
     fig_kwargs=None,
+    subplot_kwargs=None,
 ):
     """Plot Conditional Adjusted Predictions
 
@@ -41,13 +41,7 @@ def plot_cap(
         The InferenceData object that contains the samples from the posterior distribution of
         the model.
     covariates : list or dict
-        A sequence of between one and three names of variables or a dict of length between one
-        and three.
-        If a sequence, the first variable is taken as the main variable,
-        mapped to the horizontal axis. If present, the second name is a coloring/grouping variable,
-        and the third is mapped to different plot panels.
-        If a dictionary, keys must be taken from ("horizontal", "color", "panel") and the values
-        are the names of the variables.
+        A sequence of between one and three names of variables in the model.
     target : str
         Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only
         works when pps is False as the target may not be available in the posterior predictive
@@ -67,6 +61,11 @@ def plot_cap(
     ax : matplotlib.axes._subplots.AxesSubplot, optional
         A matplotlib axes object or a sequence of them. If None, this function instantiates a
         new axes object. Defaults to ``None``.
+    subplot_kwargs : optional
+        Keyword arguments passed to the matplotlib subplot function as a dict. This allows you
+        to determine the covariates used for the horizontal, group, and panel axes. For example,
+        ``subplot_kwargs=dict(main="x", group="y", panel="z")`` would plot the horizontal
+        axis as ``x``, the color (hue) as ``y``, and the panel axis as ``z``.
 
     Returns
     -------
@@ -78,10 +77,15 @@ def plot_cap(
     ValueError
         When ``level`` is not within 0 and 1.
         When the main covariate is not numeric or categoric.
+
+    TypeError
+        When ``covariates`` is not a string or a list of strings.
     """
 
-    covariate_kinds = ("horizontal", "color", "panel")
-    if not isinstance(covariates, dict):
+    covariate_kinds = ("main", "group", "panel")
+    if isinstance(covariates, dict):
+        raise TypeError("covariates must be a string or a list of strings.")
+    elif not isinstance(covariates, dict):
         covariates = listify(covariates)
         covariates = dict(zip(covariate_kinds, covariates))
     else:
@@ -100,17 +104,20 @@ def plot_cap(
         target=target,
         pps=pps,
         use_hdi=use_hdi,
-        hdi_prob=hdi_prob,
+        prob=prob,
         transforms=transforms,
     )
 
     response_name = get_aliased_name(model.response_component.response_term)
     covariates = get_covariates(covariates)
-    main, group, panel = covariates.main, covariates.group, covariates.panel
+
+    if subplot_kwargs:
+        for key, value in subplot_kwargs.items():
+            setattr(covariates, key, value)
 
     if ax is None:
         fig_kwargs = {} if fig_kwargs is None else fig_kwargs
-        panels_n = len(np.unique(cap_data[panel])) if panel else 1
+        panels_n = len(np.unique(cap_data[covariates.panel])) if covariates.panel else 1
         rows, cols = default_grid(panels_n)
         fig, axes = create_axes_grid(panels_n, rows, cols, backend_kwargs=fig_kwargs)
         axes = np.atleast_1d(axes)
@@ -121,29 +128,31 @@ def plot_cap(
         else:
             fig = axes[0].get_figure()
 
-    if is_numeric_dtype(cap_data[main]):
+    if is_numeric_dtype(cap_data[covariates.main]):
         axes = plot_numeric(covariates, cap_data, transforms, legend, axes)
-    elif is_categorical_dtype(cap_data[main]) or is_string_dtype(cap_data[main]):
+    elif is_categorical_dtype(cap_data[covariates.main]) or is_string_dtype(
+        cap_data[covariates.main]
+    ):
         axes = plot_categoric(covariates, cap_data, legend, axes)
     else:
         raise ValueError("Main covariate must be numeric or categoric.")
 
     ylabel = response_name if target == "mean" else target
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
-        ax.set(xlabel=main, ylabel=ylabel)
+        ax.set(xlabel=covariates.main, ylabel=ylabel)
 
     return fig, axes
 
 
 def plot_comparison(
-    model: bmb.Model,
+    model: Model,
     idata: az.InferenceData,
     contrast: Union[str, dict, list],
     conditional: Union[str, dict, list],
+    average_by: Union[str, list, None] = None,
     comparison_type: str = "diff",
-    target: str = "mean",
     use_hdi: bool = True,
-    hdi_prob=None,
+    prob=None,
     transforms=None,
     legend: bool = True,
     ax=None,
@@ -163,12 +172,8 @@ def plot_comparison(
         The predictor name whose contrast we would like to compare.
     conditional : str, dict, list
         The covariates we would like to condition on.
-    comparison : str, optional
+    comparison_type : str, optional
         The type of comparison to plot. Defaults to 'diff'.
-    target : str
-        Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only
-        works when pps is False as the target may not be available in the posterior predictive
-        distribution.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     hdi_prob : float, optional
@@ -188,9 +193,9 @@ def plot_comparison(
         by 8 inches high and would share the y-axis values.
     subplot_kwargs : optional
         Keyword arguments passed to the matplotlib subplot function as a dict. This allows you
-        to determine the covariates used for the horizontal, color, and panel axes. For example,
-        ``subplot_kwargs=dict(horizontal="x", color="y", panel="z")`` would plot the horizontal
-        axis as ``x``, the color axis as ``y``, and the panel axis as ``z``.
+        to determine the covariates used for the horizontal, group, and panel axes. For example,
+        ``subplot_kwargs=dict(main="x", group="y", panel="z")`` would plot the horizontal
+        axis as ``x``, the color (hue) as ``y``, and the panel axis as ``z``.
 
     Returns
     -------
@@ -215,14 +220,14 @@ def plot_comparison(
         idata=idata,
         contrast=contrast,
         conditional=conditional,
+        average_by=average_by,
         comparison_type=comparison_type,
-        target=target,
         use_hdi=use_hdi,
-        hdi_prob=hdi_prob,
+        prob=prob,
         transforms=transforms,
     )
 
-    covariate_kinds = ("horizontal", "color", "panel")
+    covariate_kinds = ("main", "group", "panel")
     # if not dict, then user did not pass values to condition on
     if not isinstance(conditional, dict):
         conditional = listify(conditional)
@@ -234,9 +239,14 @@ def plot_comparison(
 
     covariates = get_covariates(conditional)
 
-    if subplot_kwargs:
+    if (subplot_kwargs and not average_by) or (subplot_kwargs and average_by):
         for key, value in subplot_kwargs.items():
             setattr(covariates, key, value)
+    elif average_by and not subplot_kwargs:
+        if not isinstance(average_by, list):
+            average_by = listify(average_by)
+        average_by = dict(zip(covariate_kinds, average_by))
+        covariates = get_covariates(average_by)
 
     if transforms is None:
         transforms = {}
@@ -271,7 +281,6 @@ def plot_comparison(
         raise TypeError("Main covariate must be numeric or categoric.")
 
     response_name = get_aliased_name(model.response_component.response_term)
-    ylabel = response_name if target == "mean" else target
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
-        ax.set(xlabel=covariates.main, ylabel=ylabel)
+        ax.set(xlabel=covariates.main, ylabel=response_name)
     return fig, axes
