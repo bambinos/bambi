@@ -33,13 +33,13 @@ class TestCommon:
     as figure object and uncertainty arguments.
     """
     @pytest.mark.parametrize("pps", [False, True])
-    def test_usi_hdi(self, mtcars, pps):
+    def test_use_hdi(self, mtcars, pps):
         model, idata = mtcars
         plot_comparison(model, idata, "hp", "am", use_hdi=False)
         plot_cap(
             model, 
             idata, 
-            {"horizontal": "hp", "color": "cyl", "panel": "gear"}, 
+            ["hp", "cyl", "gear"], 
             pps=pps,
             use_hdi=False
         )
@@ -47,26 +47,27 @@ class TestCommon:
     @pytest.mark.parametrize("pps", [False, True])
     def test_hdi_prob(self, mtcars, pps):
         model, idata = mtcars
-        plot_comparison(model, idata, "am", "hp", hdi_prob=0.8)
+        plot_comparison(model, idata, "am", "hp", prob=0.8)
         plot_cap(
             model, 
             idata,
-            {"horizontal": "hp", "color": "cyl", "panel": "gear"}, 
-            pps=pps,
-            hdi_prob=0.9
+            ["hp", "cyl", "gear"], 
+            pps=pps, 
+            prob=0.9
         )
 
         with pytest.raises(
-        ValueError, match="'hdi_prob' must be greater than 0 and smaller than 1. It is 1.1."
+        ValueError, match="'prob' must be greater than 0 and smaller than 1. It is 1.1."
         ):
-            plot_comparison(model, idata, "am", "hp", hdi_prob=1.1)
+            plot_comparison(model, idata, "am", "hp", prob=1.1)
             plot_cap(
                 model, 
                 idata, 
-                {"horizontal": "hp", "color": "cyl", "panel": "gear"}, 
+                ["hp", "cyl", "gear"], 
                 pps=pps,
-                hdi_prob=1.1)
+                prob=1.1)
 
+<<<<<<< HEAD
     with pytest.raises(
         ValueError, match="'hdi_prob' must be greater than 0 and smaller than 1. It is -0.1."
     ):
@@ -76,6 +77,18 @@ class TestCommon:
             {"horizontal": "hp", "color": "cyl", "panel": "gear"}, 
             pps=pps,
             hdi_prob=-0.1)
+=======
+        with pytest.raises(
+            ValueError, match="'prob' must be greater than 0 and smaller than 1. It is -0.1."
+        ):
+            plot_comparison(model, idata, "am", "hp", prob=-0.1)
+            plot_cap(
+                model, 
+                idata, 
+                ["hp", "cyl", "gear"], 
+                pps=pps,
+                prob=-0.1)
+>>>>>>> 0588deb (added test_subplot_kwargs functions for both  and)
 
 
     @pytest.mark.parametrize("pps", [False, True])
@@ -111,8 +124,8 @@ class TestCap:
     @pytest.mark.parametrize("pps", [False, True])
     @pytest.mark.parametrize(
         "covariates", (
-        {"horizontal": "hp"}, # Horizontal variable is numeric
-        {"horizontal": "gear"}, # Horizontal variable is categorical
+        "hp", # Main variable is numeric
+        "gear", # Main variable is categorical
         ["hp"], # Using list
         ["gear"] # Using list
         )
@@ -125,14 +138,10 @@ class TestCap:
     @pytest.mark.parametrize("pps", [False, True])
     @pytest.mark.parametrize(
         "covariates", (
-        {"horizontal": "hp", "color": "wt"}, # Horizontal: numeric. Group: numeric
-        {"horizontal": "hp", "color": "cyl"}, # Horizontal: numeric. Group: categorical
-        {"horizontal": "gear", "color": "wt"}, # Horizontal: categorical. Group: numeric
-        {"horizontal": "gear", "color": "cyl"}, # Horizontal: categorical. Group: categorical
-        ["hp", "wt"], # Using list
-        ["hp", "cyl"], # Using list
-        ["gear", "wt"], # Using list
-        ["gear", "cyl"] # Using list
+        ["hp", "wt"], # Main: numeric. Group: numeric
+        ["hp", "cyl"], # Main: numeric. Group: categorical
+        ["gear", "wt"], # Main: categorical. Group: numeric
+        ["gear", "cyl"] # Main: categorical. Group: categorical
         )
     )
     def test_with_groups(self, mtcars, covariates, pps):
@@ -143,23 +152,6 @@ class TestCap:
     @pytest.mark.parametrize("pps", [False, True])
     @pytest.mark.parametrize(
         "covariates", (
-        {"horizontal": "hp", "panel": "wt"}, # Horizontal: numeric. Panel: numeric
-        {"horizontal": "hp", "panel": "cyl"}, # Horizontal: numeric. Panel: categorical
-        {"horizontal": "gear", "panel": "wt"}, # Horizontal: categorical. Panel: numeric
-        {"horizontal": "gear", "panel": "cyl"}, # Horizontal: categorical. Panel: categorical
-        )
-    )
-    def test_with_panel(self, mtcars, covariates, pps):
-        model, idata = mtcars
-        plot_cap(model, idata, covariates, pps=pps)
-
-
-    @pytest.mark.parametrize("pps", [False, True])
-    @pytest.mark.parametrize(
-        "covariates", (
-        {"horizontal": "hp", "color": "cyl", "panel": "gear"},
-        {"horizontal": "cyl", "color": "hp", "panel": "gear"},
-        {"horizontal": "cyl", "color": "gear", "panel": "hp"},
         ["hp", "cyl", "gear"],
         ["cyl", "hp", "gear"],
         ["cyl", "gear", "hp"]
@@ -176,9 +168,21 @@ class TestCap:
         plot_cap(
             model,
             idata,
-            {"horizontal": "hp", "color": "cyl", "panel": "gear"},
+            [ "hp", "cyl", "gear"],
             pps=pps,
             fig_kwargs={"figsize": (15, 5), "dpi": 120, "sharey": True},
+        )
+    
+
+    @pytest.mark.parametrize("pps", [False, True])
+    def test_subplot_kwargs(self, mtcars, pps):
+        model, idata = mtcars
+        plot_cap(
+            model,
+            idata,
+            ["hp", "drat"],
+            pps=pps,
+            subplot_kwargs={"main": "hp", "group": "drat", "panel": "drat"},
         )
 
 
@@ -226,7 +230,7 @@ class TestComparison:
                 ("am", "hp"), # categorical & numeric
                 ]
     )
-    def test_comparison_basic(self, mtcars, contrast, conditional):
+    def test_basic(self, mtcars, contrast, conditional):
         model, idata = mtcars
         plot_comparison(model, idata, contrast, conditional)
     
@@ -255,7 +259,7 @@ class TestComparison:
 
     @pytest.mark.parametrize(
             "contrast, conditional, subplot_kwargs", [
-                ("drat", ["hp", "am"], {"main": "hp", "group": "am", "panel": "am"})
+                ("drat", ["hp", "am"],  {"main": "hp",  "group": "am",  "panel": "am"})
                 ]
     )
     def test_subplot_kwargs(self, mtcars, contrast, conditional, subplot_kwargs):
@@ -272,4 +276,10 @@ class TestComparison:
     def test_transforms(self, mtcars, contrast, conditional, transforms):
         model, idata = mtcars
         plot_comparison(model, idata, contrast, conditional, transforms=transforms)
+    
+
+    @pytest.mark.parametrize("average_by", ["am", "drat", ["am", "drat"]])
+    def test_average_by(self, mtcars, average_by):
+        model, idata = mtcars
+        plot_comparison(model, idata, "hp", ["am", "drat"], average_by)
     
