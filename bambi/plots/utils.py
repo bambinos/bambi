@@ -173,11 +173,13 @@ def make_group_panel_values(
                 group_values = np.tile(np.repeat(group_values, main_n), panel_n)
                 panel_values = np.repeat(panel_values, main_n * group_n)
                 data_dict.update({main: main_values, group: group_values, panel: panel_values})
-    else:
+    elif kind == "comparison":
+        # for comparisons, we need unique values for numeric and categorical
+        # group/panel covariates since we iterate over pairwise combinations of values
         if group and not panel:
-            data_dict.update({group: group_values})
+            data_dict.update({group: np.unique(group_values)})
         elif group and panel:
-            data_dict.update({group: group_values, panel: np.unique(panel_values)})
+            data_dict.update({group: np.unique(group_values), panel: np.unique(panel_values)})
 
     return data_dict
 
