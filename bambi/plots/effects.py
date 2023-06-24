@@ -298,9 +298,6 @@ def comparisons(
         and conditional values.
         """
         contrast_estimate = _compute_contrast_estimate(contrast, response, comparisons_df, idata)
-
-        print(f"response name: {response.name}, response target: {response.target}")
-
         # if two contrast values, then can drop duplicates to build contrast_df
         if len(contrast.value) < 3:
             contrast_df = comparisons_df.drop_duplicates(list(conditional.values())).reset_index(
