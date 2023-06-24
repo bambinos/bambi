@@ -1,19 +1,18 @@
 from dataclasses import dataclass
 from statistics import mode
-import itertools
-from typing import Callable, Union, Tuple, Any
+from typing import Union
 
 import numpy as np
-import pandas as pd
 from formulae.terms.call import Call
+import pandas as pd
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
 
-import bambi as bmb
+from bambi import Model
 
 
 @dataclass
 class Comparison:
-    model: bmb.Model
+    model: Model
     contrast_predictor: Union[str, dict, list]
     conditional: Union[str, dict, list]
 
@@ -25,7 +24,14 @@ class Covariates:
     panel: Union[str, None]
 
 
-def get_model_terms(model: bmb.Model) -> dict:
+def average_by_group(data: pd.DataFrame, covariate: Union[str, list]) -> pd.DataFrame:
+    """
+    Average estimates by specified covariate in the model.
+    """
+    return data.groupby(covariate, as_index=False)[data.columns[-3:]].mean()
+
+
+def get_model_terms(model: Model) -> dict:
     """
     Loops through the distributional components of a bambi model and
     returns a dictionary of terms.
@@ -41,7 +47,7 @@ def get_model_terms(model: bmb.Model) -> dict:
     return terms
 
 
-def get_model_covariates(model: bmb.Model):
+def get_model_covariates(model: Model):
     """
     Return covariates specified in the model.
     """
@@ -65,11 +71,11 @@ def get_covariates(covariates: dict) -> Covariates:
     Obtain the main, group, and panel covariates from the user's
     conditional dict.
     """
-    covariate_kinds = ("horizontal", "color", "panel")
+    covariate_kinds = ("main", "group", "panel")
     if any(key in covariate_kinds for key in covariates.keys()):
         # default if user did not pass their own conditional dict
-        main = covariates.get("horizontal")
-        group = covariates.get("color", None)
+        main = covariates.get("main")
+        group = covariates.get("group", None)
         panel = covariates.get("panel", None)
     else:
         # assign main, group, panel based on the number of variables
@@ -99,7 +105,7 @@ def enforce_dtypes(data: pd.DataFrame, df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def contrast_dtype(model: bmb.Model, contrast_predictor: str):
+def contrast_dtype(model: Model, contrast_predictor: str):
     """
     Obtain the dtype of the contrast predictor.
     """
@@ -170,12 +176,14 @@ def make_group_panel_values(
     else:
         if group and not panel:
             data_dict.update({group: group_values})
+        elif group and panel:
+            data_dict.update({group: group_values, panel: np.unique(panel_values)})
 
     return data_dict
 
 
 def set_default_values(
-    model: bmb.Model, data: pd.DataFrame, data_dict: dict, kind: str
+    model: Model, data: pd.DataFrame, data_dict: dict, kind: str
 ) -> pd.DataFrame:
     """
     Set default values for each variable in the model if the user did not
@@ -212,14 +220,14 @@ def set_default_values(
 
 
 def set_default_contrast_values(
-    model: bmb.Model, data: pd.DataFrame, contrast_predictor: str
+    model: Model, data: pd.DataFrame, contrast_predictor: str
 ) -> Union[list, np.ndarray]:
     """
     Set the default contrast value for the contrast predictor based on the
     contrast predictor dtype.
     """
 
-    def _numeric_difference(x, kind: str = "centered"):
+    def _numeric_difference(x):
         """
         Centered difference for numeric predictors results in a default contrast
         of a 1 unit increase
@@ -249,7 +257,7 @@ def set_default_contrast_values(
     return contrast
 
 
-def make_main_values(x, grid_n: int = 50) -> np.ndarray:
+def make_main_values(x: np.ndarray, grid_n: int = 50) -> np.ndarray:
     """
     Compuet main values based on original data using a grid of evenly spaced
     values for numeric predictors and unique levels for categoric predictors.
@@ -261,7 +269,7 @@ def make_main_values(x, grid_n: int = 50) -> np.ndarray:
     raise ValueError("Main covariate must be numeric or categoric.")
 
 
-def make_group_values(x, groups_n: int = 5) -> np.ndarray:
+def make_group_values(x: np.ndarray, groups_n: int = 5) -> np.ndarray:
     """
     Compute group values based on original data using unique levels for
     categoric predictors and quantiles for numeric predictors.
@@ -273,7 +281,7 @@ def make_group_values(x, groups_n: int = 5) -> np.ndarray:
     raise ValueError("Group covariate must be numeric or categoric.")
 
 
-def get_unique_levels(x) -> Union[list, np.ndarray]:
+def get_unique_levels(x: np.ndarray) -> Union[list, np.ndarray]:
     """
     Get unique levels of a categoric variable.
     """
