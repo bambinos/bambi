@@ -632,9 +632,9 @@ depending on the value of <code class="docutils literal notranslate"><span class
 <li><p><strong>idata</strong> (<em>InferenceData</em>) – The <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> instance returned by <code class="docutils literal notranslate"><span class="pre">.fit()</span></code>.</p></li>
 <li><p><strong>kind</strong> (<em>str</em>) – Indicates the type of prediction required. Can be <code class="docutils literal notranslate"><span class="pre">&quot;mean&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;pps&quot;</span></code>. The
 first returns draws from the posterior distribution of the mean, while the latter
-returns the draws from the posterior predictive distribution
-(i.e. the posterior probability distribution for a new observation).
-Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;mean&quot;</span></code>.</p></li>
+returns the draws from the posterior predictive distribution (i.e. the posterior
+probability distribution for a new observation) in addition to the mean posterior
+distribution. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;mean&quot;</span></code>.</p></li>
 <li><p><strong>data</strong> (<em>pandas.DataFrame</em><em> or </em><em>None</em>) – An optional data frame with values for the predictors that are used to obtain
 out-of-sample predictions. If omitted, the original dataset is used.</p></li>
 <li><p><strong>include_group_specific</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> make predictions including the group specific effects. Otherwise,
