@@ -551,7 +551,7 @@ class Model:
                         for term in component.group_specific_terms.values():
                             if name in term.prior.args:
                                 term.hyperprior_alias = {name: alias}
-        
+
                         # Add any aliases not used in prior logic to unused alias list
                         if (
                             not any(
