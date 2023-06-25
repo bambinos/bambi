@@ -722,9 +722,9 @@ class Model:
         kind : str
             Indicates the type of prediction required. Can be ``"mean"`` or ``"pps"``. The
             first returns draws from the posterior distribution of the mean, while the latter
-            returns the draws from the posterior predictive distribution
-            (i.e. the posterior probability distribution for a new observation).
-            Defaults to ``"mean"``.
+            returns the draws from the posterior predictive distribution (i.e. the posterior
+            probability distribution for a new observation) in addition to the mean posterior
+            distribution. Defaults to ``"mean"``.
         data : pandas.DataFrame or None
             An optional data frame with values for the predictors that are used to obtain
             out-of-sample predictions. If omitted, the original dataset is used.
