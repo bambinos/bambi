@@ -491,6 +491,7 @@ class Model:
             raise ValueError(f"'aliases' must be a dictionary, not a {type(aliases)}.")
 
         response_name = get_aliased_name(self.response_component.response_term)
+        # Keep track of any passed aliases that are not used
         missing_names = []
 
         # If there is a single distributional component (the response)
@@ -519,6 +520,7 @@ class Model:
                     if name in term.prior.args:
                         term.hyperprior_alias = {name: alias}
 
+                # Add any aliases not used in prior logic to unused alias list
                 if (
                     not any(
                         name in term.prior.args
@@ -549,7 +551,8 @@ class Model:
                         for term in component.group_specific_terms.values():
                             if name in term.prior.args:
                                 term.hyperprior_alias = {name: alias}
-
+        
+                        # Add any aliases not used in prior logic to unused alias list
                         if (
                             not any(
                                 name in term.prior.args
@@ -560,13 +563,16 @@ class Model:
                         ):
                             missing_names.append(name)
 
+        # Report unused aliases
         if missing_names:
+            # If only a few, tell user explicitly which aren't used
             if len(missing_names) <= 5:
                 warnings.warn(
                     "The following names do not match any terms, their aliases were "
                     f"not assigned: {', '.join(missing_names)}",
                     UserWarning,
                 )
+            # If many, throw a generic warning
             else:
                 warnings.warn(
                     f"There are {len(missing_names)} names that do not match any terms, "
