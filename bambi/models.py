@@ -491,6 +491,7 @@ class Model:
             raise ValueError(f"'aliases' must be a dictionary, not a {type(aliases)}.")
 
         response_name = get_aliased_name(self.response_component.response_term)
+        missing_names = []
 
         # If there is a single distributional component (the response)
         #   * Keys are the names of the terms and the values are their aliases.
@@ -517,6 +518,17 @@ class Model:
                 for term in self.response_component.group_specific_terms.values():
                     if name in term.prior.args:
                         term.hyperprior_alias = {name: alias}
+
+                if (
+                    not any(
+                        name in term.prior.args
+                        for term in self.response_component.group_specific_terms.values()
+                    )
+                    and name not in self.response_component.terms
+                    and name not in self.constant_components
+                    and name != response_name
+                ):
+                    missing_names.append(name)
         else:
             for component_name, component_aliases in aliases.items():
                 if component_name in self.constant_components:
@@ -538,6 +550,29 @@ class Model:
                             if name in term.prior.args:
                                 term.hyperprior_alias = {name: alias}
 
+                        if (
+                            not any(
+                                name in term.prior.args
+                                for term in component.group_specific_terms.values()
+                            )
+                            and name not in component.terms
+                            and name != component.response_name
+                        ):
+                            missing_names.append(name)
+
+        if missing_names:
+            if len(missing_names) <= 5:
+                warnings.warn(
+                    "The following names do not match any terms, their aliases were "
+                    f"not assigned: {', '.join(missing_names)}",
+                    UserWarning,
+                )
+            else:
+                warnings.warn(
+                    f"There are {len(missing_names)} names that do not match any terms, "
+                    "so their aliases were not assigned.",
+                    UserWarning,
+                )
         # Model needs to be rebuilt after modifying aliases
         self.built = False
 
