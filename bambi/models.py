@@ -506,31 +506,32 @@ class Model:
         if len(self.distributional_components) == 1:  # pylint: disable=too-many-nested-blocks
             for name, alias in aliases.items():
                 assert isinstance(alias, str)
+
+                # Monitor if this particular alias is used
+                is_used = False
+
                 if name in self.response_component.terms:
                     self.response_component.terms[name].alias = alias
+                    is_used = True
 
                 if name in self.constant_components:
                     self.constant_components[name].alias = alias
+                    is_used = True
 
                 if name == response_name:
                     self.response_component.response_term.alias = alias
+                    is_used = True
 
                 # Now add aliases for hyperpriors in group specific terms
                 for term in self.response_component.group_specific_terms.values():
                     if name in term.prior.args:
                         term.hyperprior_alias = {name: alias}
+                        is_used = True
 
                 # Add any aliases not used in prior logic to unused alias list
-                if (
-                    not any(
-                        name in term.prior.args
-                        for term in self.response_component.group_specific_terms.values()
-                    )
-                    and name not in self.response_component.terms
-                    and name not in self.constant_components
-                    and name != response_name
-                ):
+                if is_used is False:
                     missing_names.append(name)
+
         else:
             for component_name, component_aliases in aliases.items():
                 if component_name in self.constant_components:
@@ -541,26 +542,25 @@ class Model:
                     assert component_name in self.distributional_components
                     component = self.distributional_components[component_name]
                     for name, alias in component_aliases.items():
+
+                        is_used = False
+
                         if name in component.terms:
                             component.terms[name].alias = alias
+                            is_used = True
 
                         # Useful for non-response distributional components
                         if name == component.response_name:
                             component.alias = alias
+                            is_used = True
 
                         for term in component.group_specific_terms.values():
                             if name in term.prior.args:
                                 term.hyperprior_alias = {name: alias}
+                                is_used = True
 
                         # Add any aliases not used in prior logic to unused alias list
-                        if (
-                            not any(
-                                name in term.prior.args
-                                for term in component.group_specific_terms.values()
-                            )
-                            and name not in component.terms
-                            and name != component.response_name
-                        ):
+                        if is_used is False:
                             missing_names.append(name)
 
         # Report unused aliases
