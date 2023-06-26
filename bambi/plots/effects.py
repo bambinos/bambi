@@ -372,7 +372,7 @@ def comparisons(
             contrast_df[f"lower_{lower_bound}%"] = np.array(lower).flatten()
             contrast_df[f"upper_{upper_bound}%"] = np.array(upper).flatten()
 
-        contrast_df["contrast"] = contrast_df["contrast"].apply(tuple).apply(lambda x: str(x))
+        contrast_df["contrast"] = contrast_df["contrast"].apply(tuple)
 
         if average_by:
             if len(conditional) <= 1:
