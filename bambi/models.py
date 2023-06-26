@@ -660,7 +660,7 @@ class Model:
         unobserved_rvs_names = []
         flat_rvs = []
         for unobserved in self.backend.model.unobserved_RVs:
-            if "Flat" in unobserved.__str__():
+            if "Flat" in str(unobserved):
                 flat_rvs.append(unobserved.name)
             else:
                 unobserved_rvs_names.append(unobserved.name)
