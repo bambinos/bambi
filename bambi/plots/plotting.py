@@ -85,7 +85,8 @@ def plot_cap(
     covariate_kinds = ("main", "group", "panel")
     if isinstance(covariates, dict):
         raise TypeError("covariates must be a string or a list of strings.")
-    elif not isinstance(covariates, dict):
+
+    if not isinstance(covariates, dict):
         covariates = listify(covariates)
         covariates = dict(zip(covariate_kinds, covariates))
     else:
@@ -212,7 +213,8 @@ def plot_comparison(
         contrast_name, contrast_level = next(iter(contrast.items()))
         if len(contrast_level) > 2:
             warnings.warn(
-                f"Attempting to plot when contrast {contrast_name} has {len(contrast_level)} values."
+                f"Attempting to plot when contrast {contrast_name} has"
+                f"{len(contrast_level)} values."
             )
 
     contrast_df = comparisons(

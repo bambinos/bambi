@@ -207,7 +207,7 @@ def comparisons(
     if comparison_type not in ("diff", "ratio"):
         raise ValueError("'comparison_type' must be 'diff' or 'ratio'")
 
-    COMPARISON_FUNCTIONS = {"diff": lambda x, y: x - y, "ratio": lambda x, y: x / y}
+    comparison_functions = {"diff": lambda x, y: x - y, "ratio": lambda x, y: x / y}
 
     if prob is None:
         prob = az.rcParams["stats.hdi_prob"]
@@ -252,7 +252,7 @@ def comparisons(
         Computes the contrast comparison estimate and highest density interval
         for a given contrast and response.
         """
-        function = COMPARISON_FUNCTIONS[comparison_type]
+        function = comparison_functions[comparison_type]
 
         # subset draw by observation using contrast mask
         draws = {}
@@ -304,9 +304,11 @@ def comparisons(
                 drop=True
             )
             contrast_df = contrast_df.drop(columns=contrast.term)
-            N = contrast_df.shape[0]
+            num_rows = contrast_df.shape[0]
             contrast_df.insert(0, "term", contrast.term)
-            contrast_df.insert(1, "contrast", list(np.tile(contrast.value, N).reshape(N, 2)))
+            contrast_df.insert(
+                1, "contrast", list(np.tile(contrast.value, num_rows).reshape(num_rows, 2))
+            )
             contrast_df["estimate"] = contrast_estimate.comparison[tuple(contrast.value)].to_numpy()
 
             if use_hdi:
@@ -334,11 +336,11 @@ def comparisons(
 
         # if > 2 contrast values, then need the full dataframe to build contrast_df
         elif len(contrast.value) >= 3:
-            N = comparisons_df.shape[0]
+            num_rows = comparisons_df.shape[0]
             contrast_df = comparisons_df.drop(columns=contrast.term)
             contrast_df.insert(0, "term", contrast.term)
             contrast_keys = [list(elem) for elem in list(contrast_estimate.comparison.keys())]
-            contrast_df.insert(1, "contrast", contrast_keys * (N // len(contrast.value)))
+            contrast_df.insert(1, "contrast", contrast_keys * (num_rows // len(contrast.value)))
 
             estimates = []
             for val in contrast_estimate.comparison.values():
