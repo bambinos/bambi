@@ -271,6 +271,11 @@ class DistributionalComponent:
             Z = xr.DataArray(Z, dims=design_matrix_dims)
             linear_predictor += xr.dot(Z, u)
 
+            # TODO: Here add contribution for new groups
+            # 1. Detect if there are new groups
+            # 2. Check the value of `sample_new_levels` for new groups
+            # 3. Get the draws
+
         # If model contains offsets, add them directly to the linear predictor
         if x_offsets:
             linear_predictor += np.column_stack(x_offsets).sum(axis=1)[:, np.newaxis, np.newaxis]
