@@ -115,7 +115,7 @@ def contrast_dtype(model: Model, contrast_predictor: str):
 
     terms = get_model_terms(model)
 
-    if contrast_predictor in terms.keys():
+    if contrast_predictor in terms:
         term = terms.get(contrast_predictor)
         if hasattr(term, "components"):
             for component in term.components:
@@ -126,6 +126,8 @@ def contrast_dtype(model: Model, contrast_predictor: str):
                 for name in names:
                     if name == contrast_predictor:
                         return component.kind
+
+    return None
 
 
 def make_group_panel_values(
@@ -184,16 +186,20 @@ def make_group_panel_values(
     return data_dict
 
 
-def set_default_values(
-    model: Model, data: pd.DataFrame, data_dict: dict, kind: str
-) -> pd.DataFrame:
+def set_default_values(model: Model, data: pd.DataFrame, data_dict: dict, kind: str):
     """
     Set default values for each variable in the model if the user did not
     pass them in the data_dict.
     """
+    assert kind in [
+        "comparison",
+        "predictions",
+    ], "kind must be either 'comparison' or 'predictions'"
+
     terms = get_model_terms(model)
 
     # Get default values for each variable in the model
+    # pylint: disable=R1702
     for term in terms.values():
         if hasattr(term, "components"):
             for component in term.components:
@@ -219,6 +225,8 @@ def set_default_values(
         return data_dict
     elif kind == "predictions":
         return data_dict
+    else:
+        return None
 
 
 def set_default_contrast_values(
@@ -239,6 +247,7 @@ def set_default_contrast_values(
     terms = get_model_terms(model)
 
     # Get default values for each variable in the model
+    # pylint: disable=R1702
     for term in terms.values():
         if hasattr(term, "components"):
             for component in term.components:
