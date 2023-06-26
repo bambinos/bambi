@@ -97,3 +97,32 @@ def test_alias_equal_to_name(my_data):
     model.set_alias({"sigma": "sigma"})
     idata = model.fit(tune=100, draws=100)
     set(idata.posterior.data_vars) == {"Intercept", "y_mean", "x", "sigma"}
+
+
+def test_set_alias_warnings(my_data):
+    # Create a model to use aliases on
+    formula = bmb.Formula("y ~ x")
+    model = bmb.Model(formula, my_data)
+
+    # Define cases that throw the various warnings
+    test_cases = [
+        # Only one unused alias, explicitly tell user the name
+        (
+            {"unused_alias": "ua"},
+            "The following names do not match any terms, "
+            "their aliases were not assigned: unused_alias",
+        ),
+        # Many unused aliases, generic response
+        (
+            {f"unused_alias{i}": f"ua{i}" for i in range(6)},
+            "There are 6 names that do not match any terms, so their aliases were not assigned.",
+        ),
+    ]
+
+    # Evaluate each case
+    for alias_dict, expected_warning in test_cases:
+        with pytest.warns(UserWarning) as record:
+            model.set_alias(alias_dict)
+            print(model.constant_components)
+        assert len(record) == 1
+        assert str(record[0].message) == expected_warning
