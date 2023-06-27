@@ -345,9 +345,11 @@ class DistributionalComponent:
                         names_list.append(aliased_term_name)
 
                         if term.alias:
+                            expr_dim = term.alias + "__expr_dim"
                             factor_dim = term.alias + "__factor_dim"
                         else:
-                            _, factor = term.name.split("|")
+                            expr, factor = term.name.split("|")
+                            expr_dim = expr + "__expr_dim"
                             factor_dim = factor + "__factor_dim"
 
                         # For a given factor, we select the same draws to account for correlations.
@@ -361,20 +363,29 @@ class DistributionalComponent:
                             factor_idxs[factor] = factor_sampled_idxs
 
                         draws_original = posterior[aliased_term_name].to_numpy()
+
                         # Numeric predictors
                         if draws_original.ndim == 3:
                             draws_new_group = draws_original[:, seq_draw, factor_sampled_idxs]
+                            coords = {
+                                "chain": seq_chain,
+                                "draw": seq_draw,
+                                factor_dim: ["__NEW_FACTOR_GROUP__"],
+                            }
                         # Categoric predictors
                         elif draws_original.ndim == 4:
                             draws_new_group = draws_original[:, seq_draw, :, factor_sampled_idxs]
+                            # Don't know why, but the previous indexing swaps axes, we fix it here
+                            draws_new_group = np.swapaxes(draws_new_group, 0, 1)
+                            expr_levels = posterior.coords[expr_dim].to_numpy()
+                            coords = {
+                                "chain": seq_chain,
+                                "draw": seq_draw,
+                                expr_dim: expr_levels,
+                                factor_dim: ["__NEW_FACTOR_GROUP__"],
+                            }
                         else:
                             raise ValueError("Wrong dimension in group-specific effect.")
-
-                        coords = {
-                            "chain": seq_chain,
-                            "draw": seq_draw,
-                            factor_dim: ["__NEW_FACTOR_GROUP__"],
-                        }
 
                         draws_new_group = xr.DataArray(
                             draws_new_group[..., np.newaxis], coords=coords
