@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from statistics import mode
 from typing import Union
 
@@ -11,9 +11,32 @@ from bambi import Model
 
 
 @dataclass
-class Comparison:
+class ContrastInfo:
+    contrast: Union[str, dict, list]
     model: Model
-    contrast_predictor: Union[str, dict, list]
+    name: str = field(init=False)
+    values: Union[int, float] = field(init=False)
+
+    def __post_init__(self):
+        """
+        """
+        if isinstance(self.contrast, dict):
+            self.values = list(self.contrast.values())[0]
+            self.name = list(self.contrast.keys())[0]
+        elif isinstance(self.contrast, (list, str)):
+            if isinstance(self.contrast, list):
+                self.name = " ".join(self.contrast)
+            else:
+                self.name = self.contrast
+            self.values = set_default_contrast_values(self.model, self.contrast)
+        elif not isinstance(self.contrast, (list, dict, str)):
+            raise TypeError("`contrast` must be a list, dict, or string") 
+
+
+@dataclass
+class ComparisonInfo:
+    model: Model
+    contrast_predictor: Union[str, dict, list] # should return ContrastInfo???
     conditional: Union[str, dict, list]
 
 
@@ -24,11 +47,14 @@ class Covariates:
     panel: Union[str, None]
 
 
-def average_by_group(data: pd.DataFrame, covariate: Union[str, list]) -> pd.DataFrame:
+def average_over(data: pd.DataFrame, covariate: Union[str, list, None]) -> pd.DataFrame:
     """
     Average estimates by specified covariate in the model.
     """
-    return data.groupby(covariate, as_index=False)[data.columns[-3:]].mean()
+    if covariate is None:
+        return pd.DataFrame(data[data.columns[-3:]].mean()).T
+    else:
+        return data.groupby(covariate, as_index=False)[data.columns[-3:]].mean()
 
 
 def get_model_terms(model: Model) -> dict:
@@ -186,7 +212,7 @@ def make_group_panel_values(
     return data_dict
 
 
-def set_default_values(model: Model, data: pd.DataFrame, data_dict: dict, kind: str):
+def set_default_values(model: Model, data_dict: dict, kind: str):
     """
     Set default values for each variable in the model if the user did not
     pass them in the data_dict.
@@ -212,10 +238,10 @@ def set_default_values(model: Model, data: pd.DataFrame, data_dict: dict, kind: 
                     if name not in data_dict:
                         # For numeric predictors, select the mean.
                         if component.kind == "numeric":
-                            data_dict[name] = np.mean(data[name])
+                            data_dict[name] = np.mean(model.data[name])
                         # For categoric predictors, select the most frequent level.
                         elif component.kind == "categoric":
-                            data_dict[name] = mode(data[name])
+                            data_dict[name] = mode(model.data[name])
 
     if kind == "comparison":
         # if value in dict is not a list then convert to a list
@@ -229,9 +255,7 @@ def set_default_values(model: Model, data: pd.DataFrame, data_dict: dict, kind: 
         return None
 
 
-def set_default_contrast_values(
-    model: Model, data: pd.DataFrame, contrast_predictor: str
-) -> Union[list, np.ndarray]:
+def set_default_contrast_values(model: Model, contrast_predictor: str) -> Union[list, np.ndarray]:
     """
     Set the default contrast value for the contrast predictor based on the
     contrast predictor dtype.
@@ -260,10 +284,10 @@ def set_default_contrast_values(
                     if name == contrast_predictor:
                         # For numeric predictors, select the mean.
                         if component.kind == "numeric":
-                            contrast = _numeric_difference(np.mean(data[name]))
+                            contrast = _numeric_difference(np.mean(model.data[name]))
                         # For categoric predictors, select the most frequent level.
                         elif component.kind == "categoric":
-                            contrast = get_unique_levels(data[name])
+                            contrast = get_unique_levels(model.data[name])
 
     return contrast
 
