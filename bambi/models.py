@@ -710,7 +710,15 @@ class Model:
 
         return idata
 
-    def predict(self, idata, kind="mean", data=None, inplace=True, include_group_specific=True):
+    def predict(
+        self,
+        idata,
+        kind="mean",
+        data=None,
+        inplace=True,
+        include_group_specific=True,
+        sample_new_groups=False,
+    ):
         """Predict method for Bambi models
 
         Obtains in-sample and out-of-sample predictions from a fitted Bambi model.
@@ -728,16 +736,22 @@ class Model:
         data : pandas.DataFrame or None
             An optional data frame with values for the predictors that are used to obtain
             out-of-sample predictions. If omitted, the original dataset is used.
-        include_group_specific : bool
-            If ``True`` make predictions including the group specific effects. Otherwise,
-            predictions are made with common effects only (i.e. group specific are set
-            to zero).
         inplace : bool
             If ``True`` it will modify ``idata`` in-place. Otherwise, it will return a copy of
             ``idata`` with the predictions added. If ``kind="mean"``, a new variable ending in
             ``"_mean"`` is added to the ``posterior`` group. If ``kind="pps"``, it appends a
             ``posterior_predictive`` group to ``idata``. If any of these already exist, it will be
             overwritten.
+        include_group_specific : bool
+            Determines if predictions incorporate group-specific effects. If ``False``, predictions
+            are made with common effects only (i.e. group specific are set to zero). Defaults to
+            ``True``.
+        sample_new_groups : bool
+            Specifies if it is allowed to obtain predictions for new groups of group-specific terms.
+            When ``True``, each posterior sample for the new groups is drawn from the posterior
+            draws of a randomly selected existing group. Since different groups may be selected at
+            each draw, the end result represents the variation across existing groups.
+            The method implemented is quivalent to `sample_new_levels="uncertainty"` in brms.
 
         Returns
         -------
@@ -765,7 +779,9 @@ class Model:
                 else:
                     var_name = f"{response_aliased_name}_{name}"
 
-            means_dict[var_name] = component.predict(idata, data, include_group_specific, hsgp_dict)
+            means_dict[var_name] = component.predict(
+                idata, data, include_group_specific, hsgp_dict, sample_new_groups
+            )
 
             # Drop var/dim if already present. Needed for out-of-sample predictions.
             if var_name in idata.posterior.data_vars:
