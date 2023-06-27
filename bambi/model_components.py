@@ -1,3 +1,4 @@
+import formulae as fm
 import numpy as np
 import xarray as xr
 
@@ -260,21 +261,89 @@ class DistributionalComponent:
         if self.design.group and include_group_specific:
             if in_sample:
                 Z = self.design.group.design_matrix
+                # Create DataArray
+                Z_terms = [get_aliased_name(term) for term in self.group_specific_terms.values()]
+                u = posterior[Z_terms].to_stacked_array("__variables__", to_stack_dims)
             else:
-                Z = self.design.group.evaluate_new_data(data).design_matrix
+                # TODO: Make this implementation cleaner
+                fm_eval_unseen_categories_original = fm.config["EVAL_UNSEEN_CATEGORIES"]
+                fm.config["EVAL_UNSEEN_CATEGORIES"] = "silent"
+                group = self.design.group.evaluate_new_data(data)
+                fm.config["EVAL_UNSEEN_CATEGORIES"] = fm_eval_unseen_categories_original
+                Z = group.design_matrix
 
-            # Create DataArray
-            Z_terms = [get_aliased_name(term) for term in self.group_specific_terms.values()]
-            u = posterior[Z_terms].to_stacked_array("__variables__", to_stack_dims)
+                factors_with_new_levels = group.factors_with_new_levels
+
+                if factors_with_new_levels:
+                    u_list = []
+                    names_list = []
+                    draw_n = len(posterior.coords["draw"])
+                    chain_n = len(posterior.coords["chain"])
+                    for factor in factors_with_new_levels:
+                        term_names = self.group_specific_groups[factor]
+                        for name in term_names:
+                            term = self.group_specific_terms[name]
+                            aliased_term_name = get_aliased_name(term)
+                            names_list.append(aliased_term_name)
+
+                            if term.alias:
+                                factor_dim = term.alias + "__factor_dim"
+                            else:
+                                _, factor = term.name.split("|")
+                                factor_dim = factor + "__factor_dim"
+
+                            factor_levels = posterior.coords[factor_dim]
+                            factor_sampled_idxs = np.random.choice(
+                                np.arange(len(factor_levels)), size=draw_n
+                            )
+
+                            # NOTE: How does it work with categoric predictors?
+                            draws_original = posterior[aliased_term_name].to_numpy()
+                            draws_new_group = draws_original[
+                                ..., np.arange(draw_n), factor_sampled_idxs
+                            ]
+
+                            coords = {
+                                "chain": np.arange(chain_n),
+                                "draw": np.arange(draw_n),
+                                factor_dim: ["__NEW_FACTOR_GROUP__"],
+                            }
+
+                            draws_new_group = xr.DataArray(
+                                draws_new_group[..., np.newaxis], coords=coords
+                            )
+
+                            u_list.append(
+                                xr.concat(
+                                    [posterior[aliased_term_name], draws_new_group], dim=factor_dim
+                                )
+                            )
+                    # Get a new xr.Dataset with the terms that have new groups
+                    u = xr.Dataset(dict(zip(names_list, u_list)))
+
+                    # Get a xr.Dataset with the terms that don't have new groups
+                    Z_terms = [
+                        get_aliased_name(term)
+                        for term in self.group_specific_terms.values()
+                        if get_aliased_name(term) not in names_list
+                    ]
+                    if Z_terms:
+                        u = xr.merge([u, posterior[Z_terms]])
+
+                    # Make sure it always follow the same order
+                    Z_terms = [
+                        get_aliased_name(term) for term in self.group_specific_terms.values()
+                    ]
+                    u = u[Z_terms].to_stacked_array("__variables__", to_stack_dims)
+                else:
+                    Z_terms = [
+                        get_aliased_name(term) for term in self.group_specific_terms.values()
+                    ]
+                    u = posterior[Z_terms].to_stacked_array("__variables__", to_stack_dims)
 
             # Add contribution due to the group specific terms
             Z = xr.DataArray(Z, dims=design_matrix_dims)
             linear_predictor += xr.dot(Z, u)
-
-            # TODO: Here add contribution for new groups
-            # 1. Detect if there are new groups
-            # 2. Check the value of `sample_new_levels` for new groups
-            # 3. Get the draws
 
         # If model contains offsets, add them directly to the linear predictor
         if x_offsets:
