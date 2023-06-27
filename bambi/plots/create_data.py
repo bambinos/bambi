@@ -1,13 +1,17 @@
+from dataclasses import dataclass
 import itertools
 
+import numpy as np
 import pandas as pd
 
 from bambi.models import Model
 from bambi.utils import clean_formula_lhs
 from bambi.plots.utils import (
-    Comparison,
+    ComparisonInfo,
+    ContrastInfo,
     enforce_dtypes,
     get_covariates,
+    get_model_covariates,
     make_group_panel_values,
     make_main_values,
     set_default_contrast_values,
@@ -43,20 +47,18 @@ def create_cap_data(model: Model, covariates: dict) -> pd.DataFrame:
 
     # Obtain data for group and panel variables if not None
     data_dict = make_group_panel_values(data, data_dict, main, group, panel, kind="predictions")
-    data_dict = set_default_values(model, data, data_dict, kind="predictions")
+    data_dict = set_default_values(model, data_dict, kind="predictions")
     return enforce_dtypes(data, pd.DataFrame(data_dict))
 
 
-def create_comparisons_data(
-    model: Model, comparisons: Comparison, user_passed: bool = False
-) -> pd.DataFrame:
+def create_comparisons_data(comparisons: ComparisonInfo, user_passed: bool = False):
     """Create data for a Conditional Adjusted Comparisons
 
     Parameters
     ----------
     model : bambi.Model
         An instance of a Bambi model
-    comparisons : Union[list, dict, str]
+    comparisons : ComparisonInfo
         The name of the predictor to be used in the comparisons.
     user_passed : bool, optional
         Whether the user passed data to the model. Defaults to False.
@@ -68,45 +70,62 @@ def create_comparisons_data(
         plotting.
     """
 
-    model, contrast_predictor, conditional = (
-        comparisons.model,
-        comparisons.contrast_predictor,
-        comparisons.conditional,
-    )
+    def grid_level(comparisons: ComparisonInfo, contrast: ContrastInfo):
+        """
+        """
+        covariates = get_covariates(comparisons.conditional)
+        model_covariates = clean_formula_lhs(str(comparisons.model.formula.main)).strip()
+        model_covariates = model_covariates.split(" ")
 
-    data = model.data
-    covariates = get_covariates(conditional)
-    main, group, panel = covariates.main, covariates.group, covariates.panel
+        # if user passed data, then only need to compute default values for
+        # unspecified covariates in the model
+        if user_passed:
+            data_dict = {**comparisons.conditional}
+        else:
+            # if user did not pass data, then compute default values for the
+            # covariates specified in the `conditional` arg.
+            main_values = make_main_values(comparisons.model.data[covariates.main])
+            data_dict = {covariates.main: main_values}
+            data_dict = make_group_panel_values(
+                comparisons.model.data, 
+                data_dict, 
+                covariates.main, 
+                covariates.group, 
+                covariates.panel, 
+                kind="comparison"
+            )
 
-    model_covariates = clean_formula_lhs(str(model.formula.main)).strip()
-    model_covariates = model_covariates.split(" ")
+        data_dict[contrast.name] = contrast.values
+        comparison_data = set_default_values(comparisons.model, data_dict, kind="comparison")
+        # use cartesian product (cross join) to create contrasts
+        keys, values = zip(*comparison_data.items())
+        contrast_dict = [dict(zip(keys, v)) for v in itertools.product(*values)]
+        
+        return enforce_dtypes(comparisons.model.data, pd.DataFrame(contrast_dict))
 
-    # if user passed data, then only need to compute default values for
-    # unspecified covariates in the model
-    if user_passed:
-        data_dict = {**conditional}
+
+    def unit_level(comparisons: ComparisonInfo, contrast: ContrastInfo):
+        """
+        """
+        covariates = get_model_covariates(comparisons.model)
+        df = comparisons.model.data[covariates].drop(labels=contrast.name, axis=1)
+
+        contrast_vals = np.array(contrast.values)[..., None]
+        contrast_vals = np.repeat(contrast_vals, comparisons.model.data.shape[0], axis=1)
+
+        contrast_df_dict = {}
+        for idx, value in enumerate(contrast_vals):
+            contrast_df_dict[f"contrast_{idx}"] = df.copy()
+            contrast_df_dict[f"contrast_{idx}"][contrast.name] = value
+
+        return pd.concat(contrast_df_dict.values())  
+
+
+    contrast = ContrastInfo(comparisons.contrast_predictor, comparisons.model)
+
+    if not comparisons.conditional:
+        df = unit_level(comparisons, contrast)
     else:
-        # if user did not pass data, then compute default values for the
-        # covariates specified in the `conditional` arg.
-        main_values = make_main_values(data[main])
-        data_dict = {main: main_values}
-        data_dict = make_group_panel_values(data, data_dict, main, group, panel, kind="comparison")
-
-    # use key. value pairs to specify the contrast name and value
-    if isinstance(contrast_predictor, dict):
-        contrast_name = list(contrast_predictor.keys())[0]
-        contrast_vals = list(contrast_predictor.values())[0]
-        data_dict[contrast_name] = contrast_vals
-    # obtain default values for the contrast predictor if list or str
-    elif isinstance(contrast_predictor, (list, str)):
-        if isinstance(contrast_predictor, list):
-            contrast_predictor = " ".join(contrast_predictor)
-        data_dict[contrast_predictor] = set_default_contrast_values(model, data, contrast_predictor)
-    elif not isinstance(contrast_predictor, (list, dict, str)):
-        raise TypeError("`contrast_predictor` must be a list, dict, or string")
-
-    comparison_data = set_default_values(model, data, data_dict, kind="comparison")
-    # use cartesian product (cross join) to create contrasts
-    keys, values = zip(*comparison_data.items())
-    contrast_dict = [dict(zip(keys, v)) for v in itertools.product(*values)]
-    return enforce_dtypes(data, pd.DataFrame(contrast_dict))
+        df = grid_level(comparisons, contrast)
+    
+    return df

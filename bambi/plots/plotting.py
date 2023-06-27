@@ -216,7 +216,7 @@ def plot_comparison(
                 f"Attempting to plot when contrast {contrast_name} has"
                 f"{len(contrast_level)} values."
             )
-
+    
     contrast_df = comparisons(
         model=model,
         idata=idata,
