@@ -327,121 +327,9 @@ class DistributionalComponent:
                         f"There are new groups for the factors {factors_with_new_levels} and "
                         "'sample_new_groups' is False."
                     )
-                u_list = []
-                names_list = []
-                draw_n = len(posterior.coords["draw"])
-                chain_n = len(posterior.coords["chain"])
-                rng = np.random.default_rng()
-                seq_draw = np.arange(draw_n)
-                seq_chain = np.arange(chain_n)
-
-                factor_idxs = {}
-
-                if len(to_stack_dims) == 2:  # univariate response
-                    offset = 0
-                elif len(to_stack_dims) == 3:  # multivariate response
-                    offset = 1
-
-                for factor in factors_with_new_levels:
-                    term_names = self.group_specific_groups[factor]
-                    for name in term_names:
-                        term = self.group_specific_terms[name]
-                        aliased_term_name = get_aliased_name(term)
-                        names_list.append(aliased_term_name)
-
-                        if term.alias:
-                            expr_dim = term.alias + "__expr_dim"
-                            factor_dim = term.alias + "__factor_dim"
-                        else:
-                            expr, factor = term.name.split("|")
-                            expr_dim = expr + "__expr_dim"
-                            factor_dim = factor + "__factor_dim"
-
-                        # For a given factor, we select the same draws to account for correlations.
-                        if factor in factor_idxs:
-                            factor_sampled_idxs = factor_idxs[factor]
-                        else:
-                            factor_levels = posterior.coords[factor_dim]
-                            factor_sampled_idxs = rng.choice(
-                                np.arange(len(factor_levels)), size=draw_n
-                            )
-                            factor_idxs[factor] = factor_sampled_idxs
-
-                        draws_original = posterior[aliased_term_name].to_numpy()
-
-                        if offset == 0:
-                            # Numeric predictors
-                            if draws_original.ndim == 3:
-                                draws_new_group = draws_original[:, seq_draw, factor_sampled_idxs]
-                                coords = {
-                                    "chain": seq_chain,
-                                    "draw": seq_draw,
-                                    factor_dim: ["__NEW_FACTOR_GROUP__"],
-                                }
-                            # Categoric predictors
-                            elif draws_original.ndim == 4:
-                                draws_new_group = draws_original[
-                                    :, seq_draw, :, factor_sampled_idxs
-                                ]
-                                # Don't know why, but the previous indexing swaps axes, we fix it
-                                draws_new_group = np.swapaxes(draws_new_group, 0, 1)
-                                expr_levels = posterior.coords[expr_dim].to_numpy()
-                                coords = {
-                                    "chain": seq_chain,
-                                    "draw": seq_draw,
-                                    expr_dim: expr_levels,
-                                    factor_dim: ["__NEW_FACTOR_GROUP__"],
-                                }
-                            else:
-                                raise ValueError("Wrong dimension in group-specific effect.")
-                        else:
-                            response_dim = to_stack_dims[-1]
-                            if draws_original.ndim == 4:
-                                draws_new_group = draws_original[
-                                    :, seq_draw, :, factor_sampled_idxs
-                                ]
-                                draws_new_group = np.swapaxes(draws_new_group, 0, 1)
-                                coords = {
-                                    "chain": seq_chain,
-                                    "draw": seq_draw,
-                                    response_dim: posterior.coords[response_dim].to_numpy(),
-                                    factor_dim: ["__NEW_FACTOR_GROUP__"],
-                                }
-                            if draws_original.ndim == 5:
-                                draws_new_group = draws_original[
-                                    :, seq_draw, :, :, factor_sampled_idxs
-                                ]
-                                draws_new_group = np.swapaxes(draws_new_group, 0, 1)
-                                expr_levels = posterior.coords[expr_dim].to_numpy()
-                                coords = {
-                                    "chain": seq_chain,
-                                    "draw": seq_draw,
-                                    response_dim: posterior.coords[response_dim].to_numpy(),
-                                    expr_dim: expr_levels,
-                                    factor_dim: ["__NEW_FACTOR_GROUP__"],
-                                }
-
-                        draws_new_group = xr.DataArray(
-                            draws_new_group[..., np.newaxis], coords=coords
-                        )
-
-                        u_list.append(
-                            xr.concat(
-                                [posterior[aliased_term_name], draws_new_group], dim=factor_dim
-                            )
-                        )
-
-                # Get a new xr.Dataset with the draws of the terms that have new groups
-                u = xr.Dataset(dict(zip(names_list, u_list)))
-
-                # Get a xr.Dataset with the draws of the terms that don't have new groups
-                Z_terms = [
-                    get_aliased_name(term)
-                    for term in self.group_specific_terms.values()
-                    if get_aliased_name(term) not in names_list
-                ]
-                if Z_terms:
-                    u = xr.merge([u, posterior[Z_terms]])
+                u = self._construct_u_with_new_groups(
+                    posterior, to_stack_dims, factors_with_new_levels
+                )
             else:
                 u = posterior
 
@@ -485,6 +373,110 @@ class DistributionalComponent:
         u = xr.DataArray(u, dims=u_dims)
         Z = xr.DataArray(Z, dims=design_matrix_dims)
         return xr.dot(Z, u)
+
+    def _construct_u_with_new_groups(self, posterior, to_stack_dims, factors_with_new_levels):
+        u_list = []
+        names_list = []
+        factor_idxs = {}
+        draw_n = len(posterior.coords["draw"])
+        chain_n = len(posterior.coords["chain"])
+        rng = np.random.default_rng()
+        seq_draw = np.arange(draw_n)
+        seq_chain = np.arange(chain_n)
+
+        if len(to_stack_dims) == 2:  # univariate response
+            is_univariate = True
+        elif len(to_stack_dims) == 3:  # multivariate response
+            is_univariate = False
+
+        for factor in factors_with_new_levels:
+            term_names = self.group_specific_groups[factor]
+            for name in term_names:
+                term = self.group_specific_terms[name]
+                aliased_term_name = get_aliased_name(term)
+                names_list.append(aliased_term_name)
+
+                if term.alias:
+                    expr_dim = term.alias + "__expr_dim"
+                    factor_dim = term.alias + "__factor_dim"
+                else:
+                    expr, factor = term.name.split("|")
+                    expr_dim = expr + "__expr_dim"
+                    factor_dim = factor + "__factor_dim"
+
+                # For a given factor, we select the same draws to account for correlations.
+                if factor in factor_idxs:
+                    factor_sampled_idxs = factor_idxs[factor]
+                else:
+                    factor_levels = posterior.coords[factor_dim]
+                    factor_sampled_idxs = rng.choice(np.arange(len(factor_levels)), size=draw_n)
+                    factor_idxs[factor] = factor_sampled_idxs
+
+                draws_original = posterior[aliased_term_name].to_numpy()
+
+                if is_univariate:
+                    # Numeric predictors
+                    if draws_original.ndim == 3:
+                        draws_new_group = draws_original[:, seq_draw, factor_sampled_idxs]
+                        coords = {
+                            "chain": seq_chain,
+                            "draw": seq_draw,
+                            factor_dim: ["__NEW_FACTOR_GROUP__"],
+                        }
+                    # Categoric predictors
+                    elif draws_original.ndim == 4:
+                        draws_new_group = draws_original[:, seq_draw, :, factor_sampled_idxs]
+                        # Don't know why, but the previous indexing swaps axes, we fix it
+                        draws_new_group = np.swapaxes(draws_new_group, 0, 1)
+                        expr_levels = posterior.coords[expr_dim].to_numpy()
+                        coords = {
+                            "chain": seq_chain,
+                            "draw": seq_draw,
+                            expr_dim: expr_levels,
+                            factor_dim: ["__NEW_FACTOR_GROUP__"],
+                        }
+                else:
+                    response_dim = to_stack_dims[-1]
+                    if draws_original.ndim == 4:
+                        draws_new_group = draws_original[:, seq_draw, :, factor_sampled_idxs]
+                        draws_new_group = np.swapaxes(draws_new_group, 0, 1)
+                        coords = {
+                            "chain": seq_chain,
+                            "draw": seq_draw,
+                            response_dim: posterior.coords[response_dim].to_numpy(),
+                            factor_dim: ["__NEW_FACTOR_GROUP__"],
+                        }
+                    elif draws_original.ndim == 5:
+                        draws_new_group = draws_original[:, seq_draw, :, :, factor_sampled_idxs]
+                        draws_new_group = np.swapaxes(draws_new_group, 0, 1)
+                        expr_levels = posterior.coords[expr_dim].to_numpy()
+                        coords = {
+                            "chain": seq_chain,
+                            "draw": seq_draw,
+                            response_dim: posterior.coords[response_dim].to_numpy(),
+                            expr_dim: expr_levels,
+                            factor_dim: ["__NEW_FACTOR_GROUP__"],
+                        }
+
+                draws_new_group = xr.DataArray(draws_new_group[..., np.newaxis], coords=coords)
+
+                u_list.append(
+                    xr.concat([posterior[aliased_term_name], draws_new_group], dim=factor_dim)
+                )
+
+        # Get a new xr.Dataset with the draws of the terms that have new groups
+        u = xr.Dataset(dict(zip(names_list, u_list)))
+
+        # Get a xr.Dataset with the draws of the terms that don't have new groups
+        Z_terms = [
+            get_aliased_name(term)
+            for term in self.group_specific_terms.values()
+            if get_aliased_name(term) not in names_list
+        ]
+        if Z_terms:
+            u = xr.merge([u, posterior[Z_terms]])
+
+        return u
 
     @property
     def group_specific_groups(self):
