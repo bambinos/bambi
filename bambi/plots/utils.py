@@ -8,12 +8,13 @@ import pandas as pd
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
 
 from bambi import Model
+from bambi.utils import listify
 
 
 @dataclass
 class ContrastInfo:
-    contrast: Union[str, dict, list]
     model: Model
+    contrast: Union[str, dict, list]
     name: str = field(init=False)
     values: Union[int, float] = field(init=False)
 
@@ -28,16 +29,30 @@ class ContrastInfo:
                 self.name = " ".join(self.contrast)
             else:
                 self.name = self.contrast
-            self.values = set_default_contrast_values(self.model, self.contrast)
+            self.values = set_default_contrast_values(self.model, self.name)
         elif not isinstance(self.contrast, (list, dict, str)):
             raise TypeError("`contrast` must be a list, dict, or string") 
 
 
+
 @dataclass
-class ComparisonInfo:
+class ConditionalInfo:
     model: Model
-    contrast_predictor: Union[str, dict, list] # should return ContrastInfo???
     conditional: Union[str, dict, list]
+    covariates: dict = field(init=False)
+
+    def __post_init__(self):
+        """
+        """
+        covariate_kinds = ("main", "group", "panel")
+
+        if not isinstance(self.conditional, dict):
+            self.covariates = listify(self.conditional)
+            self.covariates = dict(zip(covariate_kinds, self.conditional))
+        # if dict, user passed values to condition on 
+        elif isinstance(self.conditional, dict):
+            self.covariates = {k: listify(v) for k, v in self.conditional.items()}
+            self.covariates = dict(zip(covariate_kinds, self.conditional))
 
 
 @dataclass
