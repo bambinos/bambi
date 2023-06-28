@@ -149,8 +149,8 @@ def plot_comparison(
     model: Model,
     idata: az.InferenceData,
     contrast: Union[str, dict, list],
-    conditional: Union[str, dict, list],
-    average_by: Union[str, list, None] = None,
+    conditional: Union[str, dict, list, None] = None,
+    average_by: Union[str, list] = None,
     comparison_type: str = "diff",
     use_hdi: bool = True,
     prob=None,
@@ -173,6 +173,9 @@ def plot_comparison(
         The predictor name whose contrast we would like to compare.
     conditional : str, dict, list
         The covariates we would like to condition on.
+    average_by: str, list, optional
+        The covariates we would like to average by. The passed covariate(s) will marginalize
+        over the other covariates in the model. Defaults to ``None``.
     comparison_type : str, optional
         The type of comparison to plot. Defaults to 'diff'.
     use_hdi : bool, optional
@@ -205,9 +208,20 @@ def plot_comparison(
 
     Raises
     ------
+    ValueError
+        When ``conditional`` and ``average_by`` are both ``None``.
+
     Warning
         When number of ``contrast_values`` is greater than 2.
     """
+    if conditional is None and average_by is None:
+        raise ValueError("Must specify at least one of 'conditional' or 'average_by'.")
+    elif conditional is not None:
+        if len(conditional) > 3 and average_by is None:
+            raise ValueError(
+                "Must specify a covariate to 'average_by' when number of covariates"
+                "passed to 'conditional' is greater than 3."
+            )
 
     if isinstance(contrast, dict):
         contrast_name, contrast_level = next(iter(contrast.items()))
@@ -217,6 +231,9 @@ def plot_comparison(
                 f"{len(contrast_level)} values."
             )
     
+    # todo: class for logic to define conditional should go here
+    # todo: and can then check type of arg. passed in comparisons
+
     contrast_df = comparisons(
         model=model,
         idata=idata,
@@ -238,8 +255,9 @@ def plot_comparison(
     elif isinstance(conditional, dict):
         conditional = {k: listify(v) for k, v in conditional.items()}
         conditional = dict(zip(covariate_kinds, conditional))
-
-    covariates = get_covariates(conditional)
+    
+    if conditional: 
+        covariates = get_covariates(conditional)
 
     if (subplot_kwargs and not average_by) or (subplot_kwargs and average_by):
         for key, value in subplot_kwargs.items():
@@ -249,6 +267,8 @@ def plot_comparison(
             average_by = listify(average_by)
         average_by = dict(zip(covariate_kinds, average_by))
         covariates = get_covariates(average_by)
+    else:
+        covariates = get_covariates(conditional)
 
     if transforms is None:
         transforms = {}

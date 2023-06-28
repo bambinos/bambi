@@ -7,14 +7,13 @@ import pandas as pd
 from bambi.models import Model
 from bambi.utils import clean_formula_lhs
 from bambi.plots.utils import (
-    ComparisonInfo,
+    ConditionalInfo,
     ContrastInfo,
     enforce_dtypes,
     get_covariates,
     get_model_covariates,
     make_group_panel_values,
     make_main_values,
-    set_default_contrast_values,
     set_default_values,
 )
 
@@ -51,17 +50,21 @@ def create_cap_data(model: Model, covariates: dict) -> pd.DataFrame:
     return enforce_dtypes(data, pd.DataFrame(data_dict))
 
 
-def create_comparisons_data(comparisons: ComparisonInfo, user_passed: bool = False):
+def create_comparisons_data(
+        condition: ConditionalInfo,
+        contrast: ContrastInfo, 
+        user_passed: bool = False
+    ) -> pd.DataFrame:
     """Create data for a Conditional Adjusted Comparisons
 
     Parameters
     ----------
-    model : bambi.Model
-        An instance of a Bambi model
     comparisons : ComparisonInfo
-        The name of the predictor to be used in the comparisons.
+        An dataclass instance containing the model, contrast, and conditional
+        covariates to be used in the comparisons.
     user_passed : bool, optional
-        Whether the user passed data to the model. Defaults to False.
+        Whether the user passed their own 'conditional' data to determine the 
+        conditional data. Defaults to False.
 
     Returns
     -------
@@ -70,24 +73,22 @@ def create_comparisons_data(comparisons: ComparisonInfo, user_passed: bool = Fal
         plotting.
     """
 
-    def grid_level(comparisons: ComparisonInfo, contrast: ContrastInfo):
+    def _grid_level(condition: ConditionalInfo, contrast: ContrastInfo):
         """
+        Creates the data for grid-level contrasts by using the covariates passed
+        into the `conditional` arg. Values for the grid are either: (1) computed
+        using a equally spaced grid, mean, and or mode (depending on the covariate
+        dtype), and (2) a user specified value or range of values. 
         """
-        covariates = get_covariates(comparisons.conditional)
-        model_covariates = clean_formula_lhs(str(comparisons.model.formula.main)).strip()
-        model_covariates = model_covariates.split(" ")
+        covariates = get_covariates(condition.conditional)
 
-        # if user passed data, then only need to compute default values for
-        # unspecified covariates in the model
         if user_passed:
-            data_dict = {**comparisons.conditional}
+            data_dict = {**condition.conditional}
         else:
-            # if user did not pass data, then compute default values for the
-            # covariates specified in the `conditional` arg.
-            main_values = make_main_values(comparisons.model.data[covariates.main])
+            main_values = make_main_values(condition.model.data[covariates.main])
             data_dict = {covariates.main: main_values}
             data_dict = make_group_panel_values(
-                comparisons.model.data, 
+                condition.model.data, 
                 data_dict, 
                 covariates.main, 
                 covariates.group, 
@@ -96,36 +97,39 @@ def create_comparisons_data(comparisons: ComparisonInfo, user_passed: bool = Fal
             )
 
         data_dict[contrast.name] = contrast.values
-        comparison_data = set_default_values(comparisons.model, data_dict, kind="comparison")
+        comparison_data = set_default_values(condition.model, data_dict, kind="comparison")
         # use cartesian product (cross join) to create contrasts
         keys, values = zip(*comparison_data.items())
         contrast_dict = [dict(zip(keys, v)) for v in itertools.product(*values)]
         
-        return enforce_dtypes(comparisons.model.data, pd.DataFrame(contrast_dict))
+        return enforce_dtypes(condition.model.data, pd.DataFrame(contrast_dict))
 
 
-    def unit_level(comparisons: ComparisonInfo, contrast: ContrastInfo):
+    def _unit_level(comparisons: ConditionalInfo, contrast: ContrastInfo):
         """
+        Creates the data for unit-level contrasts by using the observed (empirical)
+        data. All covariates in the model are included in the data, except for the
+        contrast predictor. The contrast predictor is replaced with either: (1) the
+        default contrast value, or (2) the user specified contrast value.
         """
-        covariates = get_model_covariates(comparisons.model)
-        df = comparisons.model.data[covariates].drop(labels=contrast.name, axis=1)
+        covariates = get_model_covariates(contrast.model)
+        df = contrast.model.data[covariates].drop(labels=contrast.name, axis=1)
 
         contrast_vals = np.array(contrast.values)[..., None]
-        contrast_vals = np.repeat(contrast_vals, comparisons.model.data.shape[0], axis=1)
+        contrast_vals = np.repeat(contrast_vals, contrast.model.data.shape[0], axis=1)
 
         contrast_df_dict = {}
         for idx, value in enumerate(contrast_vals):
             contrast_df_dict[f"contrast_{idx}"] = df.copy()
             contrast_df_dict[f"contrast_{idx}"][contrast.name] = value
 
-        return pd.concat(contrast_df_dict.values())  
+        return pd.concat(contrast_df_dict.values())
 
 
-    contrast = ContrastInfo(comparisons.contrast_predictor, comparisons.model)
-
-    if not comparisons.conditional:
-        df = unit_level(comparisons, contrast)
+    if not condition.conditional:
+        df = _unit_level(condition, contrast)
     else:
-        df = grid_level(comparisons, contrast)
+        df = _grid_level(condition, contrast)
     
     return df
+ 
