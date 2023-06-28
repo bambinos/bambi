@@ -310,8 +310,7 @@ class DistributionalComponent:
     ):
         if in_sample:
             Z = self.design.group.design_matrix
-            Z_terms = [get_aliased_name(term) for term in self.group_specific_terms.values()]
-            u = posterior[Z_terms].to_stacked_array("__variables__", to_stack_dims)
+            u = posterior
         else:
             # We temporarily allow for the evaluation of new groups
             fm_eval_unseen_categories_original = fm.config["EVAL_UNSEEN_CATEGORIES"]
@@ -337,6 +336,12 @@ class DistributionalComponent:
                 seq_chain = np.arange(chain_n)
 
                 factor_idxs = {}
+
+                if len(to_stack_dims) == 2:  # univariate response
+                    offset = 0
+                elif len(to_stack_dims) == 3:  # multivariate response
+                    offset = 1
+
                 for factor in factors_with_new_levels:
                     term_names = self.group_specific_groups[factor]
                     for name in term_names:
@@ -364,28 +369,57 @@ class DistributionalComponent:
 
                         draws_original = posterior[aliased_term_name].to_numpy()
 
-                        # Numeric predictors
-                        if draws_original.ndim == 3:
-                            draws_new_group = draws_original[:, seq_draw, factor_sampled_idxs]
-                            coords = {
-                                "chain": seq_chain,
-                                "draw": seq_draw,
-                                factor_dim: ["__NEW_FACTOR_GROUP__"],
-                            }
-                        # Categoric predictors
-                        elif draws_original.ndim == 4:
-                            draws_new_group = draws_original[:, seq_draw, :, factor_sampled_idxs]
-                            # Don't know why, but the previous indexing swaps axes, we fix it here
-                            draws_new_group = np.swapaxes(draws_new_group, 0, 1)
-                            expr_levels = posterior.coords[expr_dim].to_numpy()
-                            coords = {
-                                "chain": seq_chain,
-                                "draw": seq_draw,
-                                expr_dim: expr_levels,
-                                factor_dim: ["__NEW_FACTOR_GROUP__"],
-                            }
+                        if offset == 0:
+                            # Numeric predictors
+                            if draws_original.ndim == 3:
+                                draws_new_group = draws_original[:, seq_draw, factor_sampled_idxs]
+                                coords = {
+                                    "chain": seq_chain,
+                                    "draw": seq_draw,
+                                    factor_dim: ["__NEW_FACTOR_GROUP__"],
+                                }
+                            # Categoric predictors
+                            elif draws_original.ndim == 4:
+                                draws_new_group = draws_original[
+                                    :, seq_draw, :, factor_sampled_idxs
+                                ]
+                                # Don't know why, but the previous indexing swaps axes, we fix it
+                                draws_new_group = np.swapaxes(draws_new_group, 0, 1)
+                                expr_levels = posterior.coords[expr_dim].to_numpy()
+                                coords = {
+                                    "chain": seq_chain,
+                                    "draw": seq_draw,
+                                    expr_dim: expr_levels,
+                                    factor_dim: ["__NEW_FACTOR_GROUP__"],
+                                }
+                            else:
+                                raise ValueError("Wrong dimension in group-specific effect.")
                         else:
-                            raise ValueError("Wrong dimension in group-specific effect.")
+                            response_dim = to_stack_dims[-1]
+                            if draws_original.ndim == 4:
+                                draws_new_group = draws_original[
+                                    :, seq_draw, :, factor_sampled_idxs
+                                ]
+                                draws_new_group = np.swapaxes(draws_new_group, 0, 1)
+                                coords = {
+                                    "chain": seq_chain,
+                                    "draw": seq_draw,
+                                    response_dim: posterior.coords[response_dim].to_numpy(),
+                                    factor_dim: ["__NEW_FACTOR_GROUP__"],
+                                }
+                            if draws_original.ndim == 5:
+                                draws_new_group = draws_original[
+                                    :, seq_draw, :, :, factor_sampled_idxs
+                                ]
+                                draws_new_group = np.swapaxes(draws_new_group, 0, 1)
+                                expr_levels = posterior.coords[expr_dim].to_numpy()
+                                coords = {
+                                    "chain": seq_chain,
+                                    "draw": seq_draw,
+                                    response_dim: posterior.coords[response_dim].to_numpy(),
+                                    expr_dim: expr_levels,
+                                    factor_dim: ["__NEW_FACTOR_GROUP__"],
+                                }
 
                         draws_new_group = xr.DataArray(
                             draws_new_group[..., np.newaxis], coords=coords
@@ -408,15 +442,47 @@ class DistributionalComponent:
                 ]
                 if Z_terms:
                     u = xr.merge([u, posterior[Z_terms]])
-
-                # Make sure it follows the same order than in the group specific terms
-                Z_terms = [get_aliased_name(term) for term in self.group_specific_terms.values()]
-                u = u[Z_terms].to_stacked_array("__variables__", to_stack_dims)
             else:
-                Z_terms = [get_aliased_name(term) for term in self.group_specific_terms.values()]
-                u = posterior[Z_terms].to_stacked_array("__variables__", to_stack_dims)
+                u = posterior
 
-        # Add contribution due to the group specific terms
+        # Construct "u"
+        # Previously, we used to use `.to_stacked_array()`.
+        # Turns out the MultiIndex it used had it components sorted alphabetically, which is NOT
+        # how columns are sorted in Z. This was problematic when the expression contained a
+        # categoric variable.
+        # I couldn't find how to do it with xarray, I think it's not possible.
+        # So I'm doing it with NumPy.
+        u_arrays = []
+        for term in self.group_specific_terms.values():
+            aliased_term_name = get_aliased_name(term)
+            if term.alias:
+                expr_dim = term.alias + "__expr_dim"
+                factor_dim = term.alias + "__factor_dim"
+            else:
+                expr, factor = term.name.split("|")
+                expr_dim = expr + "__expr_dim"
+                factor_dim = factor + "__factor_dim"
+
+            draws = u[aliased_term_name]
+
+            if len(to_stack_dims) == 2:  # univariate response
+                offset = 0
+            elif len(to_stack_dims) == 3:  # multivariate response
+                offset = 1
+
+            if len(draws.coords) == 3 + offset:  # numeric
+                u_columns = draws.to_numpy()
+            elif len(draws.coords) == 4 + offset:  # categoric
+                u_columns = draws.stack(column=(factor_dim, expr_dim)).to_numpy()
+
+            u_arrays.append(u_columns)
+
+        u_dims = ["chain", "draw", "__variables__"]
+        if len(to_stack_dims) == 3:
+            u_dims.insert(2, to_stack_dims[-1])
+
+        u = np.concatenate(u_arrays, axis=-1)
+        u = xr.DataArray(u, dims=u_dims)
         Z = xr.DataArray(Z, dims=design_matrix_dims)
         return xr.dot(Z, u)
 
