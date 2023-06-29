@@ -13,7 +13,7 @@ from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_d
 from bambi.models import Model
 from bambi.plots.effects import comparisons, predictions
 from bambi.plots.plot_types import plot_categoric, plot_numeric
-from bambi.plots.utils import get_covariates
+from bambi.plots.utils import get_covariates, ConditionalInfo
 from bambi.utils import get_aliased_name, listify
 
 
@@ -209,19 +209,21 @@ def plot_comparison(
     Raises
     ------
     ValueError
-        When ``conditional`` and ``average_by`` are both ``None``.
+        If ``conditional`` and ``average_by`` are both ``None``.
+        If length of ``conditional`` is greater than 3 and ``average_by`` is ``None``.
 
     Warning
-        When number of ``contrast_values`` is greater than 2.
+        If length of ``contrast`` is greater than 2.
     """
     if conditional is None and average_by is None:
         raise ValueError("Must specify at least one of 'conditional' or 'average_by'.")
     elif conditional is not None:
-        if len(conditional) > 3 and average_by is None:
-            raise ValueError(
-                "Must specify a covariate to 'average_by' when number of covariates"
-                "passed to 'conditional' is greater than 3."
-            )
+        if not isinstance(conditional, str):
+            if len(conditional) > 3 and average_by is None:
+                raise ValueError(
+                    "Must specify a covariate to 'average_by' when number of covariates"
+                    "passed to 'conditional' is greater than 3."
+                )
 
     if isinstance(contrast, dict):
         contrast_name, contrast_level = next(iter(contrast.items()))
@@ -230,9 +232,6 @@ def plot_comparison(
                 f"Attempting to plot when contrast {contrast_name} has"
                 f"{len(contrast_level)} values."
             )
-    
-    # todo: class for logic to define conditional should go here
-    # todo: and can then check type of arg. passed in comparisons
 
     contrast_df = comparisons(
         model=model,
@@ -246,29 +245,20 @@ def plot_comparison(
         transforms=transforms,
     )
 
-    covariate_kinds = ("main", "group", "panel")
-    # if not dict, then user did not pass values to condition on
-    if not isinstance(conditional, dict):
-        conditional = listify(conditional)
-        conditional = dict(zip(covariate_kinds, conditional))
-    # if dict, user passed values to condition on
-    elif isinstance(conditional, dict):
-        conditional = {k: listify(v) for k, v in conditional.items()}
-        conditional = dict(zip(covariate_kinds, conditional))
-    
-    if conditional: 
-        covariates = get_covariates(conditional)
+    conditional_info = ConditionalInfo(model, conditional)
 
     if (subplot_kwargs and not average_by) or (subplot_kwargs and average_by):
         for key, value in subplot_kwargs.items():
-            setattr(covariates, key, value)
+            conditional_info.covariates.update({key: value})
+        covariates = get_covariates(conditional_info.covariates)
     elif average_by and not subplot_kwargs:
         if not isinstance(average_by, list):
             average_by = listify(average_by)
+        covariate_kinds = ("main", "group", "panel")
         average_by = dict(zip(covariate_kinds, average_by))
         covariates = get_covariates(average_by)
     else:
-        covariates = get_covariates(conditional)
+        covariates = get_covariates(conditional_info.covariates)
 
     if transforms is None:
         transforms = {}
@@ -305,4 +295,5 @@ def plot_comparison(
     response_name = get_aliased_name(model.response_component.response_term)
     for ax in axes.ravel():  # pylint: disable = redefined-argument-from-local
         ax.set(xlabel=covariates.main, ylabel=response_name)
+
     return fig, axes

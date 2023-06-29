@@ -51,10 +51,8 @@ def create_cap_data(model: Model, covariates: dict) -> pd.DataFrame:
 
 
 def create_comparisons_data(
-        condition: ConditionalInfo,
-        contrast: ContrastInfo, 
-        user_passed: bool = False
-    ) -> pd.DataFrame:
+    condition: ConditionalInfo, contrast: ContrastInfo, user_passed: bool = False
+) -> pd.DataFrame:
     """Create data for a Conditional Adjusted Comparisons
 
     Parameters
@@ -63,7 +61,7 @@ def create_comparisons_data(
         An dataclass instance containing the model, contrast, and conditional
         covariates to be used in the comparisons.
     user_passed : bool, optional
-        Whether the user passed their own 'conditional' data to determine the 
+        Whether the user passed their own 'conditional' data to determine the
         conditional data. Defaults to False.
 
     Returns
@@ -78,9 +76,9 @@ def create_comparisons_data(
         Creates the data for grid-level contrasts by using the covariates passed
         into the `conditional` arg. Values for the grid are either: (1) computed
         using a equally spaced grid, mean, and or mode (depending on the covariate
-        dtype), and (2) a user specified value or range of values. 
+        dtype), and (2) a user specified value or range of values.
         """
-        covariates = get_covariates(condition.conditional)
+        covariates = get_covariates(condition.covariates)
 
         if user_passed:
             data_dict = {**condition.conditional}
@@ -88,12 +86,12 @@ def create_comparisons_data(
             main_values = make_main_values(condition.model.data[covariates.main])
             data_dict = {covariates.main: main_values}
             data_dict = make_group_panel_values(
-                condition.model.data, 
-                data_dict, 
-                covariates.main, 
-                covariates.group, 
-                covariates.panel, 
-                kind="comparison"
+                condition.model.data,
+                data_dict,
+                covariates.main,
+                covariates.group,
+                covariates.panel,
+                kind="comparison",
             )
 
         data_dict[contrast.name] = contrast.values
@@ -101,11 +99,10 @@ def create_comparisons_data(
         # use cartesian product (cross join) to create contrasts
         keys, values = zip(*comparison_data.items())
         contrast_dict = [dict(zip(keys, v)) for v in itertools.product(*values)]
-        
+
         return enforce_dtypes(condition.model.data, pd.DataFrame(contrast_dict))
 
-
-    def _unit_level(comparisons: ConditionalInfo, contrast: ContrastInfo):
+    def _unit_level(contrast: ContrastInfo):
         """
         Creates the data for unit-level contrasts by using the observed (empirical)
         data. All covariates in the model are included in the data, except for the
@@ -125,11 +122,9 @@ def create_comparisons_data(
 
         return pd.concat(contrast_df_dict.values())
 
-
     if not condition.conditional:
-        df = _unit_level(condition, contrast)
+        df = _unit_level(contrast)
     else:
         df = _grid_level(condition, contrast)
-    
+
     return df
- 
