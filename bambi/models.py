@@ -542,7 +542,6 @@ class Model:
                     assert component_name in self.distributional_components
                     component = self.distributional_components[component_name]
                     for name, alias in component_aliases.items():
-
                         is_used = False
 
                         if name in component.terms:
