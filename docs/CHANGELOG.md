@@ -6,6 +6,7 @@
 
 * Implement new families `"ordinal"` and `"sratio"` for modeling of ordinal responses (#678)
 * Allow families to implement a custom `create_extra_pps_coord()` (#688)
+* Allow predictions on new groups (#693)
 
 ### Maintenance and fixes
 

@@ -1,6 +1,7 @@
 from os.path import dirname, join
 
 import logging
+import re
 
 import pytest
 
@@ -36,6 +37,7 @@ def crossed_data():
 
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "crossed_random.csv"))
+    data["subj"] = data["subj"].astype(str)
     return data
 
 
@@ -65,6 +67,7 @@ def inhaler():
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "inhaler.csv"))
     data["rating"] = pd.Categorical(data["rating"], categories=[1, 2, 3, 4])
+    data["treat"] = pd.Categorical(data["treat"])
     return data
 
 
@@ -113,6 +116,11 @@ def data_1000():
         }
     )
     return data
+
+
+@pytest.fixture(scope="module")
+def sleepstudy():
+    return bmb.load_data("sleepstudy")
 
 
 def test_empty_model(crossed_data):
@@ -940,3 +948,52 @@ def test_cumulative_family_priors(inhaler):
         "rating ~ period + carry + treat", inhaler, family="cumulative", priors=priors
     )
     model.fit(tune=100, draws=100)
+
+
+def test_predict_new_groups_fail(sleepstudy):
+    model = bmb.Model("Reaction ~ 1 + Days + (1 + Days | Subject)", sleepstudy)
+    idata = model.fit(tune=20, draws=20)
+
+    df_new = sleepstudy.head(10).reset_index(drop=True)
+    df_new["Subject"] = "xxx"
+    to_match = "There are new groups for the factors ('Subject',) and 'sample_new_groups' is False."
+    with pytest.raises(ValueError, match=re.escape(to_match)):
+        model.predict(idata, data=df_new)
+
+
+@pytest.mark.parametrize(
+    "data,formula,family,df_new",
+    [
+        (
+            "sleepstudy",
+            "Reaction ~ 1 + Days + (1 + Days | Subject)",
+            "gaussian",
+            pd.DataFrame({"Days": [1, 2, 3], "Subject": ["x", "y", "z"]}),
+        ),
+        (
+            "inhaler",
+            "rating ~ 1 + period + treat + (1 + treat|subject)",
+            "categorical",
+            pd.DataFrame(
+                {
+                    "subject": [1, 999],
+                    "rating": [1, 1],
+                    "treat": [0.5, 0.5],
+                    "period": [0.5, 0.5],
+                    "carry": [0, 0],
+                }
+            ),
+        ),
+        (
+            "crossed_data",
+            "Y ~ 0 + threecats + (0 + threecats | subj)",
+            "gaussian",
+            pd.DataFrame({"threecats": ["a", "a"], "subj": ["0", "11"]}),
+        ),
+    ],
+)
+def test_predict_new_groups(data, formula, family, df_new, request):
+    data = request.getfixturevalue(data)
+    model = bmb.Model(formula, data, family=family)
+    idata = model.fit(tune=100, draws=100)
+    model.predict(idata, data=df_new, sample_new_groups=True)
