@@ -157,6 +157,10 @@ def comparisons(
         The predictor name whose contrast we would like to compare.
     conditional : str, dict, list
         The covariates we would like to condition on.
+    average_by: str, list, bool, optional
+        The covariates we would like to average by. The passed covariate(s) will marginalize
+        over the other covariates in the model. If True, it averages over all covariates
+        in the model to obtain the average estimate. Defaults to ``None``.
     comparison_type : str, optional
         The type of comparison to plot. Defaults to 'diff'.
     use_hdi : bool, optional
@@ -164,8 +168,6 @@ def comparisons(
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
         Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
-    legend : bool, optional
-        Whether to automatically include a legend in the plot. Defaults to ``True``.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to ``None``.
@@ -179,9 +181,10 @@ def comparisons(
     Raises
     ------
     ValueError
-        When length of ``contrast`` is greater than 1.
-        When ``contrast`` is not a string, dictionary, or list.
-        When ``prob`` is not > 0 and < 1.
+        If length of ``contrast`` is greater than 1.
+        If ``contrast`` is not a string, dictionary, or list.
+        If ``comparison_type`` is not 'diff' or 'ratio'.
+        If ``prob`` is not > 0 and < 1.
     """
 
     if not isinstance(contrast, (dict, list, str)):
@@ -205,27 +208,12 @@ def comparisons(
     upper_bound = 1 - lower_bound
 
     contrast_info = ContrastInfo(model, contrast)
-    covariate_kinds = ("main", "group", "panel") #todo: 'comparisons' should not be restricted to these...
-    # if not dict, then user:
-    #   1.) passed a covariate, but not values to condtion on, or
-    #   2.) passed None
-    if not isinstance(conditional, dict):
-        conditional = listify(conditional)
-        conditional = dict(zip(covariate_kinds, conditional))
-        comparisons_df = create_comparisons_data(
-            ConditionalInfo(model, conditional), 
-            contrast_info,
-            user_passed=False
-        )
-    # if dict, user passed values to condition on 
-    elif isinstance(conditional, dict):
-        comparisons_df = create_comparisons_data(
-            ConditionalInfo(model, conditional), 
-            contrast_info,
-            user_passed=True
-        )
-        conditional = {k: listify(v) for k, v in conditional.items()}
-        conditional = dict(zip(covariate_kinds, conditional))
+    conditional_info = ConditionalInfo(model, conditional)
+
+    # todo: 'comparisons' should not be restricted to ("main", "group", "panel")
+    comparisons_df = create_comparisons_data(
+        conditional_info, contrast_info, user_passed=conditional_info.user_passed
+    )
 
     if transforms is None:
         transforms = {}
@@ -244,11 +232,13 @@ def comparisons(
     ) -> ContrastEstimate:
         """
         Computes the contrast comparison estimate and highest density interval
-        for a given contrast and response.
+        for a given contrast and response by first subsetting posterior draws
+        using a contrast mask. Then, pairwise comparisons are computed for the
+        contrast values. Finally, the mean comparison and lower/upper bounds
+        are computed for each pairwise comparison.
         """
         function = comparison_functions[comparison_type]
 
-        # subset draw by observation using contrast mask
         draws = {}
         for idx, val in enumerate(contrast.values):
             mask = np.array(comparisons_df[contrast.name] == contrast.values[idx])
@@ -260,10 +250,8 @@ def comparisons(
             )
             draws[val] = select_draw
 
-        # iterate over pairwise combinations of contrast values
         pairwise_contrasts = list(itertools.combinations(contrast.values, 2))
 
-        # compute mean comparison and HDI for each pairwise comparison
         comparison_mean = {}
         comparison_bounds = {}
         for idx, pair in enumerate(pairwise_contrasts):
@@ -281,39 +269,44 @@ def comparisons(
 
     def _build_contrasts_df(
         contrast: ContrastInfo,
+        condition: ConditionalInfo,
         response: Response,
         comparisons_df: pd.DataFrame,
         idata: az.InferenceData,
         average_by,
     ) -> pd.DataFrame:
         """
-        Builds a dataframe with the comparison values and highest density interval
-        from ``_compute_contrast_estimate`` along with the contrast name, contrast value,
+        Builds a dataframe with the comparison values and lower / upper bounds from
+        ``_compute_contrast_estimate`` along with the contrast name, contrast value,
         and conditional values.
         """
         contrast_estimate = _compute_contrast_estimate(contrast, response, comparisons_df, idata)
 
         # if two contrast values, then can drop duplicates to build contrast_df
         if len(contrast.values) < 3:
-            if not any(conditional.values()):
+            if not any(condition.covariates.values()):
                 contrast_df = model.data[comparisons_df.columns].drop(columns=contrast.name)
                 num_rows = contrast_df.shape[0]
                 contrast_df.insert(0, "term", contrast.name)
                 contrast_df.insert(
                     1, "contrast", list(np.tile(contrast.values, num_rows).reshape(num_rows, 2))
                 )
-                contrast_df["estimate"] = contrast_estimate.comparison[tuple(contrast.values)].to_numpy()
+                contrast_df["estimate"] = contrast_estimate.comparison[
+                    tuple(contrast.values)
+                ].to_numpy()
             else:
-                contrast_df = comparisons_df.drop_duplicates(list(conditional.values())).reset_index(
-                    drop=True
-                )
+                contrast_df = comparisons_df.drop_duplicates(
+                    list(condition.covariates.values())
+                ).reset_index(drop=True)
                 contrast_df = contrast_df.drop(columns=contrast.name)
                 num_rows = contrast_df.shape[0]
                 contrast_df.insert(0, "term", contrast.name)
                 contrast_df.insert(
                     1, "contrast", list(np.tile(contrast.values, num_rows).reshape(num_rows, 2))
                 )
-                contrast_df["estimate"] = contrast_estimate.comparison[tuple(contrast.values)].to_numpy()
+                contrast_df["estimate"] = contrast_estimate.comparison[
+                    tuple(contrast.values)
+                ].to_numpy()
 
             if use_hdi:
                 contrast_df[f"hdi_{lower_bound}%"] = (
@@ -383,9 +376,9 @@ def comparisons(
                 contrast_df_avg = average_over(contrast_df, None)
                 contrast_df_avg.insert(0, "term", contrast.name)
                 contrast_df_avg.insert(
-                    1, 
-                    "contrast", 
-                    np.tile(contrast_df["contrast"].drop_duplicates(), len(contrast_df_avg))
+                    1,
+                    "contrast",
+                    np.tile(contrast_df["contrast"].drop_duplicates(), len(contrast_df_avg)),
                 )
             else:
                 contrast_df_avg = average_over(contrast_df, average_by)
@@ -395,17 +388,15 @@ def comparisons(
                     "contrast",
                     np.tile(contrast_df["contrast"].drop_duplicates(), len(contrast_df_avg)),
                 )
-            return contrast_df_avg
+            return contrast_df_avg.reset_index(drop=True)
         else:
-            return contrast_df
+            return contrast_df.reset_index(drop=True)
 
-
-    contrast_df = _build_contrasts_df(
+    return _build_contrasts_df(
         contrast_info,
+        conditional_info,
         response,
         comparisons_df,
         idata,
         average_by,
     )
-
-    return contrast_df

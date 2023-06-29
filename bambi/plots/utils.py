@@ -19,8 +19,7 @@ class ContrastInfo:
     values: Union[int, float] = field(init=False)
 
     def __post_init__(self):
-        """
-        """
+        """ """
         if isinstance(self.contrast, dict):
             self.values = list(self.contrast.values())[0]
             self.name = list(self.contrast.keys())[0]
@@ -31,8 +30,7 @@ class ContrastInfo:
                 self.name = self.contrast
             self.values = set_default_contrast_values(self.model, self.name)
         elif not isinstance(self.contrast, (list, dict, str)):
-            raise TypeError("`contrast` must be a list, dict, or string") 
-
+            raise TypeError("`contrast` must be a list, dict, or string")
 
 
 @dataclass
@@ -40,19 +38,23 @@ class ConditionalInfo:
     model: Model
     conditional: Union[str, dict, list]
     covariates: dict = field(init=False)
+    user_passed: bool = field(init=False)
 
     def __post_init__(self):
         """
+        Sets the covariates attributes based on if the user passed a dictionary
+        or not.
         """
         covariate_kinds = ("main", "group", "panel")
 
         if not isinstance(self.conditional, dict):
             self.covariates = listify(self.conditional)
-            self.covariates = dict(zip(covariate_kinds, self.conditional))
-        # if dict, user passed values to condition on 
+            self.covariates = dict(zip(covariate_kinds, self.covariates))
+            self.user_passed = False
         elif isinstance(self.conditional, dict):
             self.covariates = {k: listify(v) for k, v in self.conditional.items()}
             self.covariates = dict(zip(covariate_kinds, self.conditional))
+            self.user_passed = True
 
 
 @dataclass
@@ -144,31 +146,6 @@ def enforce_dtypes(data: pd.DataFrame, df: pd.DataFrame) -> pd.DataFrame:
         if col in observed_dtypes.index:
             df[col] = df[col].astype(observed_dtypes[col])
     return df
-
-
-def contrast_dtype(model: Model, contrast_predictor: str):
-    """
-    Obtain the dtype of the contrast predictor.
-    """
-
-    if isinstance(contrast_predictor, list):
-        contrast_predictor = " ".join(contrast_predictor)
-
-    terms = get_model_terms(model)
-
-    if contrast_predictor in terms:
-        term = terms.get(contrast_predictor)
-        if hasattr(term, "components"):
-            for component in term.components:
-                if isinstance(component, Call):
-                    names = [arg.name for arg in component.call.args]
-                else:
-                    names = [component.name]
-                for name in names:
-                    if name == contrast_predictor:
-                        return component.kind
-
-    return None
 
 
 def make_group_panel_values(
@@ -281,9 +258,10 @@ def set_default_contrast_values(model: Model, contrast_predictor: str) -> Union[
         Centered difference for numeric predictors results in a default contrast
         of a 1 unit increase
         """
-        return [x - 0.5, x + 0.5]
+        return np.array([x - 0.5, x + 0.5])
 
     terms = get_model_terms(model)
+    contrast_dtype = model.data[contrast_predictor].dtype
 
     # Get default values for each variable in the model
     # pylint: disable=R1702
@@ -299,7 +277,9 @@ def set_default_contrast_values(model: Model, contrast_predictor: str) -> Union[
                     if name == contrast_predictor:
                         # For numeric predictors, select the mean.
                         if component.kind == "numeric":
-                            contrast = _numeric_difference(np.mean(model.data[name]))
+                            contrast = _numeric_difference(np.mean(model.data[name])).astype(
+                                contrast_dtype
+                            )
                         # For categoric predictors, select the most frequent level.
                         elif component.kind == "categoric":
                             contrast = get_unique_levels(model.data[name])
