@@ -1,11 +1,9 @@
-from dataclasses import dataclass
 import itertools
 
 import numpy as np
 import pandas as pd
 
 from bambi.models import Model
-from bambi.utils import clean_formula_lhs
 from bambi.plots.utils import (
     ConditionalInfo,
     ContrastInfo,

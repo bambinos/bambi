@@ -189,7 +189,7 @@ def comparisons(
 
     if not isinstance(contrast, (dict, list, str)):
         raise ValueError("'contrast' must be a string, dictionary, or list.")
-    elif isinstance(contrast, (dict, list)):
+    if isinstance(contrast, (dict, list)):
         if len(contrast) > 1:
             raise ValueError(
                 f"Only one contrast predictor can be passed. {len(contrast)} were passed."
@@ -210,7 +210,7 @@ def comparisons(
     contrast_info = ContrastInfo(model, contrast)
     conditional_info = ConditionalInfo(model, conditional)
 
-    # todo: 'comparisons' should not be restricted to ("main", "group", "panel")
+    # 'comparisons' should not be restricted to ("main", "group", "panel")
     comparisons_df = create_comparisons_data(
         conditional_info, contrast_info, user_passed=conditional_info.user_passed
     )

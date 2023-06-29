@@ -217,7 +217,7 @@ def plot_comparison(
     """
     if conditional is None and average_by is None:
         raise ValueError("Must specify at least one of 'conditional' or 'average_by'.")
-    elif conditional is not None:
+    if conditional is not None:
         if not isinstance(conditional, str):
             if len(conditional) > 3 and average_by is None:
                 raise ValueError(
