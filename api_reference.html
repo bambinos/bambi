@@ -623,7 +623,7 @@ depending on the value of <code class="docutils literal notranslate"><span class
 
 <dl class="py method">
 <dt class="sig sig-object py" id="bambi.models.Model.predict">
-<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_group_specific</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.predict" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">predict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">idata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inplace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_group_specific</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_new_groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/models.html#Model.predict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.models.Model.predict" title="Permalink to this definition">#</a></dt>
 <dd><p>Predict method for Bambi models</p>
 <p>Obtains in-sample and out-of-sample predictions from a fitted Bambi model.</p>
 <dl class="field-list simple">
@@ -637,14 +637,19 @@ probability distribution for a new observation) in addition to the mean posterio
 distribution. Defaults to <code class="docutils literal notranslate"><span class="pre">&quot;mean&quot;</span></code>.</p></li>
 <li><p><strong>data</strong> (<em>pandas.DataFrame</em><em> or </em><em>None</em>) – An optional data frame with values for the predictors that are used to obtain
 out-of-sample predictions. If omitted, the original dataset is used.</p></li>
-<li><p><strong>include_group_specific</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> make predictions including the group specific effects. Otherwise,
-predictions are made with common effects only (i.e. group specific are set
-to zero).</p></li>
 <li><p><strong>inplace</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> it will modify <code class="docutils literal notranslate"><span class="pre">idata</span></code> in-place. Otherwise, it will return a copy of
 <code class="docutils literal notranslate"><span class="pre">idata</span></code> with the predictions added. If <code class="docutils literal notranslate"><span class="pre">kind=&quot;mean&quot;</span></code>, a new variable ending in
 <code class="docutils literal notranslate"><span class="pre">&quot;_mean&quot;</span></code> is added to the <code class="docutils literal notranslate"><span class="pre">posterior</span></code> group. If <code class="docutils literal notranslate"><span class="pre">kind=&quot;pps&quot;</span></code>, it appends a
 <code class="docutils literal notranslate"><span class="pre">posterior_predictive</span></code> group to <code class="docutils literal notranslate"><span class="pre">idata</span></code>. If any of these already exist, it will be
 overwritten.</p></li>
+<li><p><strong>include_group_specific</strong> (<em>bool</em>) – Determines if predictions incorporate group-specific effects. If <code class="docutils literal notranslate"><span class="pre">False</span></code>, predictions
+are made with common effects only (i.e. group specific are set to zero). Defaults to
+<code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>sample_new_groups</strong> (<em>bool</em>) – Specifies if it is allowed to obtain predictions for new groups of group-specific terms.
+When <code class="docutils literal notranslate"><span class="pre">True</span></code>, each posterior sample for the new groups is drawn from the posterior
+draws of a randomly selected existing group. Since different groups may be selected at
+each draw, the end result represents the variation across existing groups.
+The method implemented is quivalent to <cite>sample_new_levels=”uncertainty”</cite> in brms.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>

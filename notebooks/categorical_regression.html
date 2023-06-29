@@ -502,7 +502,7 @@ NUTS: [Intercept, x]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:05&lt;00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:04&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -510,7 +510,8 @@ NUTS: [Intercept, x]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics
 </pre></div></div>
 </div>
 <p>Note that we pass the <code class="docutils literal notranslate"><span class="pre">family=&quot;categorical&quot;</span></code> argument to Bambi’s <code class="docutils literal notranslate"><span class="pre">Model</span></code> method in order to call the categorical family. Here, the response variable are strings (“A”, “B”, “C”), however they can also be <code class="docutils literal notranslate"><span class="pre">pd.Categorical</span></code> objects.</p>
@@ -534,7 +535,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <span class="n">p</span> <span class="o">=</span> <span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;y_mean&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">draw</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
 
 <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="s2">&quot;ABC&quot;</span><span class="p">):</span>
-   <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;y_mean_dim&quot;</span><span class="p">:</span><span class="n">g</span><span class="p">})</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+   <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;y_dim&quot;</span><span class="p">:</span><span class="n">g</span><span class="p">})</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">samples</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">);</span>
@@ -698,7 +699,7 @@ NUTS: [Intercept, sepal_length, sepal_width, petal_length, petal_width]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:18&lt;00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:21&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput docutils container">
@@ -706,7 +707,8 @@ NUTS: [Intercept, sepal_length, sepal_width, petal_length, petal_width]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 19 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 21 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -746,123 +748,123 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
   <tbody>
     <tr>
       <th>Intercept[versicolor]</th>
-      <td>-7.067</td>
-      <td>7.923</td>
-      <td>-21.384</td>
-      <td>8.505</td>
-      <td>0.219</td>
-      <td>0.170</td>
-      <td>1324.0</td>
-      <td>1293.0</td>
-      <td>1.00</td>
+      <td>-6.751</td>
+      <td>7.897</td>
+      <td>-21.261</td>
+      <td>8.474</td>
+      <td>0.214</td>
+      <td>0.156</td>
+      <td>1369.0</td>
+      <td>1374.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>Intercept[virginica]</th>
-      <td>-22.703</td>
-      <td>9.543</td>
-      <td>-40.931</td>
-      <td>-5.092</td>
-      <td>0.228</td>
-      <td>0.167</td>
-      <td>1763.0</td>
-      <td>1393.0</td>
-      <td>1.00</td>
+      <td>-22.546</td>
+      <td>9.566</td>
+      <td>-40.257</td>
+      <td>-5.208</td>
+      <td>0.229</td>
+      <td>0.164</td>
+      <td>1761.0</td>
+      <td>1556.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>sepal_length[versicolor]</th>
-      <td>3.143</td>
-      <td>1.693</td>
-      <td>0.008</td>
-      <td>6.382</td>
-      <td>0.052</td>
+      <td>3.140</td>
+      <td>1.690</td>
+      <td>0.049</td>
+      <td>6.365</td>
+      <td>0.053</td>
       <td>0.037</td>
-      <td>1073.0</td>
-      <td>1145.0</td>
-      <td>1.00</td>
+      <td>1031.0</td>
+      <td>1124.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>sepal_length[virginica]</th>
-      <td>2.369</td>
-      <td>1.787</td>
-      <td>-1.125</td>
-      <td>5.627</td>
-      <td>0.052</td>
-      <td>0.039</td>
-      <td>1168.0</td>
-      <td>1135.0</td>
-      <td>1.00</td>
+      <td>2.361</td>
+      <td>1.754</td>
+      <td>-0.823</td>
+      <td>5.755</td>
+      <td>0.055</td>
+      <td>0.040</td>
+      <td>1020.0</td>
+      <td>974.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>sepal_width[versicolor]</th>
-      <td>-4.694</td>
-      <td>1.978</td>
-      <td>-8.436</td>
-      <td>-1.194</td>
-      <td>0.073</td>
-      <td>0.052</td>
-      <td>741.0</td>
-      <td>996.0</td>
-      <td>1.00</td>
+      <td>-4.777</td>
+      <td>1.967</td>
+      <td>-8.792</td>
+      <td>-1.408</td>
+      <td>0.063</td>
+      <td>0.046</td>
+      <td>973.0</td>
+      <td>1096.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>sepal_width[virginica]</th>
-      <td>-6.575</td>
-      <td>2.335</td>
-      <td>-10.766</td>
-      <td>-2.183</td>
+      <td>-6.681</td>
+      <td>2.368</td>
+      <td>-11.597</td>
+      <td>-2.590</td>
       <td>0.076</td>
-      <td>0.054</td>
-      <td>915.0</td>
-      <td>1017.0</td>
-      <td>1.00</td>
+      <td>0.055</td>
+      <td>974.0</td>
+      <td>909.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>petal_length[versicolor]</th>
-      <td>1.106</td>
-      <td>0.899</td>
-      <td>-0.697</td>
-      <td>2.690</td>
-      <td>0.026</td>
+      <td>1.060</td>
+      <td>0.915</td>
+      <td>-0.630</td>
+      <td>2.735</td>
+      <td>0.027</td>
       <td>0.019</td>
-      <td>1222.0</td>
-      <td>1240.0</td>
-      <td>1.01</td>
+      <td>1187.0</td>
+      <td>1316.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>petal_length[virginica]</th>
-      <td>3.960</td>
-      <td>1.075</td>
-      <td>2.013</td>
-      <td>6.020</td>
+      <td>3.986</td>
+      <td>1.071</td>
+      <td>1.972</td>
+      <td>5.882</td>
       <td>0.029</td>
       <td>0.021</td>
       <td>1340.0</td>
-      <td>1166.0</td>
-      <td>1.00</td>
+      <td>1187.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>petal_width[versicolor]</th>
-      <td>1.891</td>
-      <td>2.040</td>
-      <td>-1.931</td>
-      <td>5.773</td>
-      <td>0.061</td>
-      <td>0.044</td>
-      <td>1112.0</td>
-      <td>1008.0</td>
-      <td>1.00</td>
+      <td>1.905</td>
+      <td>2.024</td>
+      <td>-1.927</td>
+      <td>5.871</td>
+      <td>0.060</td>
+      <td>0.045</td>
+      <td>1153.0</td>
+      <td>1113.0</td>
+      <td>1.0</td>
     </tr>
     <tr>
       <th>petal_width[virginica]</th>
-      <td>9.075</td>
-      <td>2.250</td>
-      <td>4.800</td>
-      <td>13.100</td>
-      <td>0.066</td>
-      <td>0.047</td>
-      <td>1149.0</td>
-      <td>1004.0</td>
-      <td>1.00</td>
+      <td>9.021</td>
+      <td>2.247</td>
+      <td>5.098</td>
+      <td>13.457</td>
+      <td>0.063</td>
+      <td>0.046</td>
+      <td>1264.0</td>
+      <td>1198.0</td>
+      <td>1.0</td>
     </tr>
   </tbody>
 </table>
@@ -1016,7 +1018,7 @@ NUTS: [Intercept, length, sex]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='4000' class='' max='4000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [4000/4000 00:06&lt;00:00 Sampling 2 chains, 0 divergences]
+  100.00% [4000/4000 00:04&lt;00:00 Sampling 2 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -1024,7 +1026,8 @@ NUTS: [Intercept, length, sex]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 6 seconds.
+Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 5 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics
 </pre></div></div>
 </div>
 <p>We can then look at how the food choices vary by length for both male and female alligators.</p>
@@ -1041,8 +1044,8 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Other&quot;</span><span class="p">,</span> <span class="s2">&quot;Invertebrates&quot;</span><span class="p">,</span> <span class="s2">&quot;Fish&quot;</span><span class="p">]</span>
 
 <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">choice</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">choices</span><span class="p">):</span>
-   <span class="n">males</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;choice_mean_dim&quot;</span><span class="p">:</span><span class="n">choice</span><span class="p">,</span> <span class="s2">&quot;choice_obs&quot;</span><span class="p">:</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">49</span><span class="p">)})</span>
-   <span class="n">females</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;choice_mean_dim&quot;</span><span class="p">:</span><span class="n">choice</span><span class="p">,</span> <span class="s2">&quot;choice_obs&quot;</span><span class="p">:</span><span class="nb">slice</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">)})</span>
+   <span class="n">males</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;choice_dim&quot;</span><span class="p">:</span><span class="n">choice</span><span class="p">,</span> <span class="s2">&quot;choice_obs&quot;</span><span class="p">:</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">49</span><span class="p">)})</span>
+   <span class="n">females</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="s2">&quot;choice_dim&quot;</span><span class="p">:</span><span class="n">choice</span><span class="p">,</span> <span class="s2">&quot;choice_obs&quot;</span><span class="p">:</span><span class="nb">slice</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">)})</span>
    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">new_length</span><span class="p">,</span> <span class="n">males</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">new_length</span><span class="p">,</span> <span class="n">females</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">)),</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
    <span class="n">az</span><span class="o">.</span><span class="n">plot_hdi</span><span class="p">(</span><span class="n">new_length</span><span class="p">,</span> <span class="n">males</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C</span><span class="si">{</span><span class="n">j</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
@@ -1070,7 +1073,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/tmp/ipykernel_21156/2509692565.py:21: UserWarning: This figure was using a layout engine that is incompatible with subplots_adjust and/or tight_layout; not calling subplots_adjust.
+/tmp/ipykernel_30893/358310275.py:21: UserWarning: This figure was using a layout engine that is incompatible with subplots_adjust and/or tight_layout; not calling subplots_adjust.
   fig.subplots_adjust(left=0.05, right=0.975, bottom=0.075, top=0.85)
 </pre></div></div>
 </div>
@@ -1123,19 +1126,18 @@ class.</p>
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Thu Jan 05 2023
+Last updated: Wed Jun 28 2023
 
 Python implementation: CPython
 Python version       : 3.10.4
 IPython version      : 8.5.0
 
-matplotlib: 3.6.2
-sys       : 3.10.4 (main, Mar 31 2022, 08:41:55) [GCC 7.5.0]
-pandas    : 1.5.2
 arviz     : 0.14.0
+bambi     : 0.12.0.dev0
+pandas    : 2.0.2
+numpy     : 1.25.0
+matplotlib: 3.6.2
 seaborn   : 0.12.2
-numpy     : 1.23.5
-bambi     : 0.9.3
 
 Watermark: 2.3.1
 
