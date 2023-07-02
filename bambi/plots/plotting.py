@@ -50,7 +50,7 @@ def plot_cap(
         Whether to plot the posterior predictive samples. Defaults to ``False``.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
-    hdi_prob : float, optional
+    prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
         Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
     legend : bool, optional
@@ -61,6 +61,10 @@ def plot_cap(
     ax : matplotlib.axes._subplots.AxesSubplot, optional
         A matplotlib axes object or a sequence of them. If None, this function instantiates a
         new axes object. Defaults to ``None``.
+    fig_kwargs : optional
+        Keyword arguments passed to the matplotlib figure function as a dict. For example,
+        ``fig_kwargs=dict(figsize=(11, 8)), sharey=True`` would make the figure 11 inches wide
+        by 8 inches high and would share the y-axis values.
     subplot_kwargs : optional
         Keyword arguments used to determine the covariates used for the horizontal, group,
         and panel axes. For example, ``subplot_kwargs=dict(main="x", group="y", panel="z")`` would
@@ -153,8 +157,8 @@ def plot_comparison(
     comparison_type: str = "diff",
     use_hdi: bool = True,
     prob=None,
-    transforms=None,
     legend: bool = True,
+    transforms=None,
     ax=None,
     fig_kwargs=None,
     subplot_kwargs=None,
@@ -179,7 +183,7 @@ def plot_comparison(
         The type of comparison to plot. Defaults to 'diff'.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
-    hdi_prob : float, optional
+    prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
         Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
     legend : bool, optional
