@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>bambi.models &#8212; Bambi 0.11.0 documentation</title>
+    <title>bambi.models &#8212; Bambi 0.12.0 documentation</title>
   
   
   
@@ -399,31 +399,33 @@ document.write(`
 
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
 
+<span class="kn">import</span> <span class="nn">formulae</span> <span class="k">as</span> <span class="nn">fm</span>
 <span class="kn">import</span> <span class="nn">pymc</span> <span class="k">as</span> <span class="nn">pm</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">from</span> <span class="nn">arviz.plots</span> <span class="kn">import</span> <span class="n">plot_posterior</span>
 
-<span class="kn">from</span> <span class="nn">formulae</span> <span class="kn">import</span> <span class="n">design_matrices</span>
-
 <span class="kn">from</span> <span class="nn">bambi.backend</span> <span class="kn">import</span> <span class="n">PyMCModel</span>
 <span class="kn">from</span> <span class="nn">bambi.defaults</span> <span class="kn">import</span> <span class="n">get_builtin_family</span>
 <span class="kn">from</span> <span class="nn">bambi.model_components</span> <span class="kn">import</span> <span class="n">ConstantComponent</span><span class="p">,</span> <span class="n">DistributionalComponent</span>
 <span class="kn">from</span> <span class="nn">bambi.families</span> <span class="kn">import</span> <span class="n">Family</span><span class="p">,</span> <span class="n">univariate</span>
-<span class="kn">from</span> <span class="nn">bambi.formula</span> <span class="kn">import</span> <span class="n">Formula</span>
+<span class="kn">from</span> <span class="nn">bambi.formula</span> <span class="kn">import</span> <span class="n">Formula</span><span class="p">,</span> <span class="n">check_ordinal_formula</span>
 <span class="kn">from</span> <span class="nn">bambi.priors</span> <span class="kn">import</span> <span class="n">Prior</span><span class="p">,</span> <span class="n">PriorScaler</span>
 <span class="kn">from</span> <span class="nn">bambi.transformations</span> <span class="kn">import</span> <span class="n">transformations_namespace</span>
 <span class="kn">from</span> <span class="nn">bambi.utils</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">clean_formula_lhs</span><span class="p">,</span>
     <span class="n">get_aliased_name</span><span class="p">,</span>
     <span class="n">get_auxiliary_parameters</span><span class="p">,</span>
-    <span class="n">listify</span><span class="p">,</span>
     <span class="n">indentify</span><span class="p">,</span>
+    <span class="n">listify</span><span class="p">,</span>
+    <span class="n">remove_common_intercept</span><span class="p">,</span>
     <span class="n">wrapify</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">bambi.version</span> <span class="kn">import</span> <span class="n">__version__</span>
 
 <span class="n">_log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;bambi&quot;</span><span class="p">)</span>
+
+<span class="n">ORDINAL_FAMILIES</span> <span class="o">=</span> <span class="p">(</span><span class="n">univariate</span><span class="o">.</span><span class="n">Cumulative</span><span class="p">,</span> <span class="n">univariate</span><span class="o">.</span><span class="n">StoppingRatio</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Model"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model">[docs]</a><span class="k">class</span> <span class="nc">Model</span><span class="p">:</span>
@@ -527,9 +529,6 @@ document.write(`
         <span class="c1"># Obtain design matrices and related objects.</span>
         <span class="n">na_action</span> <span class="o">=</span> <span class="s2">&quot;drop&quot;</span> <span class="k">if</span> <span class="n">dropna</span> <span class="k">else</span> <span class="s2">&quot;error&quot;</span>
 
-        <span class="c1"># Create family</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_family</span><span class="p">(</span><span class="n">family</span><span class="p">,</span> <span class="n">link</span><span class="p">)</span>
-
         <span class="c1"># Handle additional namespaces</span>
         <span class="n">additional_namespace</span> <span class="o">=</span> <span class="n">transformations_namespace</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra_namespace</span><span class="p">,</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">),</span> <span class="nb">dict</span><span class="p">)):</span>
@@ -538,8 +537,24 @@ document.write(`
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">extra_namespace</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
             <span class="n">additional_namespace</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">extra_namespace</span><span class="p">)</span>
 
+        <span class="c1"># Create family</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_family</span><span class="p">(</span><span class="n">family</span><span class="p">,</span> <span class="n">link</span><span class="p">)</span>
+
         <span class="c1">## Main component</span>
-        <span class="n">design</span> <span class="o">=</span> <span class="n">design_matrices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formula</span><span class="o">.</span><span class="n">main</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">na_action</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">additional_namespace</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="n">ORDINAL_FAMILIES</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">formula</span> <span class="o">=</span> <span class="n">check_ordinal_formula</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">formula</span><span class="p">)</span>
+            <span class="c1"># Notice the intercept is added so formulae constrains categorical predictors, avoiding</span>
+            <span class="c1"># linear dependencies with the cutpoints.</span>
+            <span class="c1"># Then the intercept is removed from the design matrix because of the cutpoints.</span>
+            <span class="n">design</span> <span class="o">=</span> <span class="n">fm</span><span class="o">.</span><span class="n">design_matrices</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">formula</span><span class="o">.</span><span class="n">main</span> <span class="o">+</span> <span class="s2">&quot; + 1&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">na_action</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">additional_namespace</span>
+            <span class="p">)</span>
+            <span class="n">design</span> <span class="o">=</span> <span class="n">remove_common_intercept</span><span class="p">(</span><span class="n">design</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">design</span> <span class="o">=</span> <span class="n">fm</span><span class="o">.</span><span class="n">design_matrices</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">formula</span><span class="o">.</span><span class="n">main</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">na_action</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">additional_namespace</span>
+            <span class="p">)</span>
+
         <span class="k">if</span> <span class="n">design</span><span class="o">.</span><span class="n">response</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;No outcome variable is set! &quot;</span>
@@ -571,7 +586,7 @@ document.write(`
                 <span class="p">)</span>
 
             <span class="c1"># Create design matrix, only for the response part</span>
-            <span class="n">design</span> <span class="o">=</span> <span class="n">design_matrices</span><span class="p">(</span>
+            <span class="n">design</span> <span class="o">=</span> <span class="n">fm</span><span class="o">.</span><span class="n">design_matrices</span><span class="p">(</span>
                 <span class="n">clean_formula_lhs</span><span class="p">(</span><span class="n">extra_formula</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">na_action</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">additional_namespace</span>
             <span class="p">)</span>
 
@@ -589,9 +604,7 @@ document.write(`
         <span class="c1">### Constant</span>
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">auxiliary_parameters</span><span class="p">:</span>
             <span class="n">component_prior</span> <span class="o">=</span> <span class="n">priors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConstantComponent</span><span class="p">(</span>
-                <span class="n">name</span><span class="p">,</span> <span class="n">component_prior</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_name</span><span class="p">,</span> <span class="bp">self</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ConstantComponent</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">component_prior</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
 
         <span class="c1"># Build priors</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_build_priors</span><span class="p">()</span>
@@ -872,6 +885,8 @@ document.write(`
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;aliases&#39; must be a dictionary, not a </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">aliases</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
 
         <span class="n">response_name</span> <span class="o">=</span> <span class="n">get_aliased_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">response_term</span><span class="p">)</span>
+        <span class="c1"># Keep track of any passed aliases that are not used</span>
+        <span class="n">missing_names</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># If there is a single distributional component (the response)</span>
         <span class="c1">#   * Keys are the names of the terms and the values are their aliases.</span>
@@ -885,19 +900,32 @@ document.write(`
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distributional_components</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-many-nested-blocks</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">aliases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">alias</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+
+                <span class="c1"># Monitor if this particular alias is used</span>
+                <span class="n">is_used</span> <span class="o">=</span> <span class="kc">False</span>
+
                 <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">terms</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">terms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="n">alias</span>
+                    <span class="n">is_used</span> <span class="o">=</span> <span class="kc">True</span>
 
                 <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant_components</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">constant_components</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="n">alias</span>
+                    <span class="n">is_used</span> <span class="o">=</span> <span class="kc">True</span>
 
                 <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">response_name</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">response_term</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="n">alias</span>
+                    <span class="n">is_used</span> <span class="o">=</span> <span class="kc">True</span>
 
                 <span class="c1"># Now add aliases for hyperpriors in group specific terms</span>
                 <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">group_specific_terms</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                     <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">term</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
                         <span class="n">term</span><span class="o">.</span><span class="n">hyperprior_alias</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">alias</span><span class="p">}</span>
+                        <span class="n">is_used</span> <span class="o">=</span> <span class="kc">True</span>
+
+                <span class="c1"># Add any aliases not used in prior logic to unused alias list</span>
+                <span class="k">if</span> <span class="n">is_used</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="n">missing_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
         <span class="k">else</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">component_name</span><span class="p">,</span> <span class="n">component_aliases</span> <span class="ow">in</span> <span class="n">aliases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="k">if</span> <span class="n">component_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">constant_components</span><span class="p">:</span>
@@ -908,17 +936,43 @@ document.write(`
                     <span class="k">assert</span> <span class="n">component_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">distributional_components</span>
                     <span class="n">component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distributional_components</span><span class="p">[</span><span class="n">component_name</span><span class="p">]</span>
                     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">alias</span> <span class="ow">in</span> <span class="n">component_aliases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+                        <span class="n">is_used</span> <span class="o">=</span> <span class="kc">False</span>
+
                         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">terms</span><span class="p">:</span>
                             <span class="n">component</span><span class="o">.</span><span class="n">terms</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="n">alias</span>
+                            <span class="n">is_used</span> <span class="o">=</span> <span class="kc">True</span>
 
                         <span class="c1"># Useful for non-response distributional components</span>
                         <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="n">component</span><span class="o">.</span><span class="n">response_name</span><span class="p">:</span>
                             <span class="n">component</span><span class="o">.</span><span class="n">alias</span> <span class="o">=</span> <span class="n">alias</span>
+                            <span class="n">is_used</span> <span class="o">=</span> <span class="kc">True</span>
 
                         <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">component</span><span class="o">.</span><span class="n">group_specific_terms</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
                             <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">term</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">args</span><span class="p">:</span>
                                 <span class="n">term</span><span class="o">.</span><span class="n">hyperprior_alias</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">alias</span><span class="p">}</span>
+                                <span class="n">is_used</span> <span class="o">=</span> <span class="kc">True</span>
 
+                        <span class="c1"># Add any aliases not used in prior logic to unused alias list</span>
+                        <span class="k">if</span> <span class="n">is_used</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                            <span class="n">missing_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c1"># Report unused aliases</span>
+        <span class="k">if</span> <span class="n">missing_names</span><span class="p">:</span>
+            <span class="c1"># If only a few, tell user explicitly which aren&#39;t used</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing_names</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;The following names do not match any terms, their aliases were &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;not assigned: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing_names</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="ne">UserWarning</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="c1"># If many, throw a generic warning</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;There are </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">missing_names</span><span class="p">)</span><span class="si">}</span><span class="s2"> names that do not match any terms, &quot;</span>
+                    <span class="s2">&quot;so their aliases were not assigned.&quot;</span><span class="p">,</span>
+                    <span class="ne">UserWarning</span><span class="p">,</span>
+                <span class="p">)</span>
         <span class="c1"># Model needs to be rebuilt after modifying aliases</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="o">=</span> <span class="kc">False</span></div>
 
@@ -1091,7 +1145,15 @@ document.write(`
 
         <span class="k">return</span> <span class="n">idata</span></div>
 
-<div class="viewcode-block" id="Model.predict"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">include_group_specific</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Model.predict"><a class="viewcode-back" href="../../api_reference.html#bambi.models.Model.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">idata</span><span class="p">,</span>
+        <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+        <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">include_group_specific</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">sample_new_groups</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Predict method for Bambi models</span>
 
 <span class="sd">        Obtains in-sample and out-of-sample predictions from a fitted Bambi model.</span>
@@ -1103,22 +1165,28 @@ document.write(`
 <span class="sd">        kind : str</span>
 <span class="sd">            Indicates the type of prediction required. Can be ``&quot;mean&quot;`` or ``&quot;pps&quot;``. The</span>
 <span class="sd">            first returns draws from the posterior distribution of the mean, while the latter</span>
-<span class="sd">            returns the draws from the posterior predictive distribution</span>
-<span class="sd">            (i.e. the posterior probability distribution for a new observation).</span>
-<span class="sd">            Defaults to ``&quot;mean&quot;``.</span>
+<span class="sd">            returns the draws from the posterior predictive distribution (i.e. the posterior</span>
+<span class="sd">            probability distribution for a new observation) in addition to the mean posterior</span>
+<span class="sd">            distribution. Defaults to ``&quot;mean&quot;``.</span>
 <span class="sd">        data : pandas.DataFrame or None</span>
 <span class="sd">            An optional data frame with values for the predictors that are used to obtain</span>
 <span class="sd">            out-of-sample predictions. If omitted, the original dataset is used.</span>
-<span class="sd">        include_group_specific : bool</span>
-<span class="sd">            If ``True`` make predictions including the group specific effects. Otherwise,</span>
-<span class="sd">            predictions are made with common effects only (i.e. group specific are set</span>
-<span class="sd">            to zero).</span>
 <span class="sd">        inplace : bool</span>
 <span class="sd">            If ``True`` it will modify ``idata`` in-place. Otherwise, it will return a copy of</span>
 <span class="sd">            ``idata`` with the predictions added. If ``kind=&quot;mean&quot;``, a new variable ending in</span>
 <span class="sd">            ``&quot;_mean&quot;`` is added to the ``posterior`` group. If ``kind=&quot;pps&quot;``, it appends a</span>
 <span class="sd">            ``posterior_predictive`` group to ``idata``. If any of these already exist, it will be</span>
 <span class="sd">            overwritten.</span>
+<span class="sd">        include_group_specific : bool</span>
+<span class="sd">            Determines if predictions incorporate group-specific effects. If ``False``, predictions</span>
+<span class="sd">            are made with common effects only (i.e. group specific are set to zero). Defaults to</span>
+<span class="sd">            ``True``.</span>
+<span class="sd">        sample_new_groups : bool</span>
+<span class="sd">            Specifies if it is allowed to obtain predictions for new groups of group-specific terms.</span>
+<span class="sd">            When ``True``, each posterior sample for the new groups is drawn from the posterior</span>
+<span class="sd">            draws of a randomly selected existing group. Since different groups may be selected at</span>
+<span class="sd">            each draw, the end result represents the variation across existing groups.</span>
+<span class="sd">            The method implemented is quivalent to `sample_new_levels=&quot;uncertainty&quot;` in brms.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -1139,12 +1207,16 @@ document.write(`
         <span class="n">response_dim</span> <span class="o">=</span> <span class="n">response_aliased_name</span> <span class="o">+</span> <span class="s2">&quot;_obs&quot;</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">component</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">distributional_components</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">response_name</span><span class="p">:</span>
-                <span class="n">var_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">response_aliased_name</span><span class="si">}</span><span class="s2">_mean&quot;</span>
+                <span class="n">var_name</span> <span class="o">=</span> <span class="n">response_aliased_name</span> <span class="o">+</span> <span class="s2">&quot;_mean&quot;</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">component_aliased_name</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">alias</span> <span class="k">if</span> <span class="n">component</span><span class="o">.</span><span class="n">alias</span> <span class="k">else</span> <span class="n">name</span>
-                <span class="n">var_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">response_aliased_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">component_aliased_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="n">component</span><span class="o">.</span><span class="n">alias</span><span class="p">:</span>
+                    <span class="n">var_name</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">alias</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">var_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">response_aliased_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
 
-            <span class="n">means_dict</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">include_group_specific</span><span class="p">,</span> <span class="n">hsgp_dict</span><span class="p">)</span>
+            <span class="n">means_dict</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span>
+                <span class="n">idata</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">include_group_specific</span><span class="p">,</span> <span class="n">hsgp_dict</span><span class="p">,</span> <span class="n">sample_new_groups</span>
+            <span class="p">)</span>
 
             <span class="c1"># Drop var/dim if already present. Needed for out-of-sample predictions.</span>
             <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="o">.</span><span class="n">data_vars</span><span class="p">:</span>

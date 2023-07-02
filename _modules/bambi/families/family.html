@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>bambi.families.family &#8212; Bambi 0.11.0 documentation</title>
+    <title>bambi.families.family &#8212; Bambi 0.12.0 documentation</title>
   
   
   
@@ -539,19 +539,27 @@ document.write(`
             <span class="c1"># Extract posterior draws for the parent parameter</span>
             <span class="k">if</span> <span class="n">param</span> <span class="o">==</span> <span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">parent</span><span class="p">:</span>
                 <span class="n">component</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">response_name</span><span class="p">]</span>
-                <span class="n">var_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">response_aliased_name</span><span class="si">}</span><span class="s2">_mean&quot;</span>
+                <span class="n">var_name</span> <span class="o">=</span> <span class="n">response_aliased_name</span> <span class="o">+</span> <span class="s2">&quot;_mean&quot;</span>
                 <span class="n">kwargs</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
                 <span class="n">output_dataset_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">posterior</span><span class="p">[</span><span class="n">var_name</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Extract posterior draws for non-parent parameters</span>
                 <span class="n">component</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">param</span><span class="p">]</span>
-                <span class="n">component_aliased_name</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">alias</span> <span class="k">if</span> <span class="n">component</span><span class="o">.</span><span class="n">alias</span> <span class="k">else</span> <span class="n">param</span>
-                <span class="n">var_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">response_aliased_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">component_aliased_name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="n">component</span><span class="o">.</span><span class="n">alias</span><span class="p">:</span>
+                    <span class="n">var_name</span> <span class="o">=</span> <span class="n">component</span><span class="o">.</span><span class="n">alias</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">var_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">response_aliased_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&quot;</span>
+
                 <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">posterior</span><span class="p">:</span>
                     <span class="n">kwargs</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
                     <span class="n">output_dataset_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">posterior</span><span class="p">[</span><span class="n">var_name</span><span class="p">])</span>
                 <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="s2">&quot;prior&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
                     <span class="n">kwargs</span><span class="p">[</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">component</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;Non-parent parameter not found in posterior.&quot;</span>
+                        <span class="s2">&quot;This error shouldn&#39;t have happened!&quot;</span>
+                    <span class="p">)</span>
 
         <span class="c1"># Determine the array with largest number of dimensions</span>
         <span class="n">ndims_max</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
@@ -564,15 +572,21 @@ document.write(`
                 <span class="k">continue</span>
             <span class="n">kwargs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">expand_array</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">ndims_max</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="s2">&quot;transform_backend_kwargs&quot;</span><span class="p">):</span>
-            <span class="n">kwargs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">transform_backend_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="s2">&quot;transform_kwargs&quot;</span><span class="p">):</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">transform_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">output_array</span> <span class="o">=</span> <span class="n">pm</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">response_dist</span><span class="o">.</span><span class="n">dist</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
         <span class="n">output_coords_all</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">output_dataset_list</span><span class="p">)</span><span class="o">.</span><span class="n">coords</span>
 
         <span class="n">coord_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">,</span> <span class="n">response_aliased_name</span> <span class="o">+</span> <span class="s2">&quot;_obs&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="s2">&quot;KIND&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">KIND</span> <span class="o">==</span> <span class="s2">&quot;Multivariate&quot;</span><span class="p">:</span>
+        <span class="n">is_multivariate</span> <span class="o">=</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="s2">&quot;KIND&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">KIND</span> <span class="o">==</span> <span class="s2">&quot;Multivariate&quot;</span>
+
+        <span class="k">if</span> <span class="n">is_multivariate</span><span class="p">:</span>
             <span class="n">coord_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response_aliased_name</span> <span class="o">+</span> <span class="s2">&quot;_dim&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="p">,</span> <span class="s2">&quot;create_extra_pps_coord&quot;</span><span class="p">):</span>
+            <span class="n">new_coords</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">family</span><span class="o">.</span><span class="n">create_extra_pps_coord</span><span class="p">()</span>
+            <span class="n">coord_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">response_aliased_name</span> <span class="o">+</span> <span class="s2">&quot;_dim&quot;</span><span class="p">)</span>
+            <span class="n">output_coords_all</span><span class="p">[</span><span class="n">response_aliased_name</span> <span class="o">+</span> <span class="s2">&quot;_dim&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_coords</span>
 
         <span class="n">output_coords</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">coord_name</span> <span class="ow">in</span> <span class="n">coord_names</span><span class="p">:</span>
@@ -600,8 +614,12 @@ document.write(`
 <span class="sd">    pm.Distribution</span>
 <span class="sd">        The response distribution</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Cumulative&quot;</span><span class="p">:</span> <span class="n">pm</span><span class="o">.</span><span class="n">Categorical</span><span class="p">,</span> <span class="s2">&quot;StoppingRatio&quot;</span><span class="p">:</span> <span class="n">pm</span><span class="o">.</span><span class="n">Categorical</span><span class="p">}</span>
+
     <span class="k">if</span> <span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">dist</span><span class="p">:</span>
         <span class="n">dist</span> <span class="o">=</span> <span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">dist</span>
+    <span class="k">elif</span> <span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">mapping</span><span class="p">:</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">mapping</span><span class="p">[</span><span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">dist</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pm</span><span class="p">,</span> <span class="n">family</span><span class="o">.</span><span class="n">likelihood</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">dist</span>
@@ -612,6 +630,11 @@ document.write(`
 
 <span class="sd">    If x.ndim &lt; ndim, it adds ndim - x.ndim dimensions after the last axis. If not, it is left</span>
 <span class="sd">    untouched.</span>
+
+<span class="sd">    For example, if we have a normal regression model with n = 1000, chains = 2, and draws = 500</span>
+<span class="sd">    the shape of the draws of mu will be (2, 500, 1000) but the shape of the draws of sigma will be</span>
+<span class="sd">    (2, 500). This function makes sure the shape of the draws of sigma is (2, 500, 1) which is</span>
+<span class="sd">    comaptible with (2, 500, 1000).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
