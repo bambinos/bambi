@@ -1,7 +1,7 @@
 # pylint: disable = protected-access
 # pylint: disable = too-many-function-args
 # pylint: disable = too-many-nested-blocks
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import itertools
 from typing import Dict, Union
 
@@ -14,6 +14,27 @@ from bambi.models import Model
 from bambi.plots.create_data import create_cap_data, create_comparisons_data
 from bambi.plots.utils import average_over, ConditionalInfo, ContrastInfo, identity
 from bambi.utils import get_aliased_name, listify
+
+
+@dataclass
+class ResponseInfo:
+    name: str
+    target: str = "mean"
+    lower_bound: float = 0.03
+    upper_bound: float = 0.97
+    name_target: str = field(init=False)
+    name_obs: str = field(init=False)
+    lower_bound_name: str = field(init=False)
+    upper_bound_name: str = field(init=False)
+
+    def __post_init__(self):
+        """
+        Assigns commonly used f-strings for indexing and column names as attributes.
+        """
+        self.name_target = f"{self.name}_{self.target}"
+        self.name_obs = f"{self.name}_obs"
+        self.lower_bound_name = f"lower_{self.lower_bound * 100}%"
+        self.upper_bound_name = f"upper_{self.upper_bound * 100}%"
 
 
 def predictions(
@@ -90,22 +111,24 @@ def predictions(
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
     cap_data = create_cap_data(model, covariates)
+
     response_name = get_aliased_name(model.response_component.response_term)
+    response = ResponseInfo(response_name, target)
     response_transform = transforms.get(response_name, identity)
 
     if pps:
         idata = model.predict(idata, data=cap_data, inplace=False, kind="pps")
-        y_hat = response_transform(idata.posterior_predictive[response_name])
+        y_hat = response_transform(idata.posterior_predictive[response.name])
         y_hat_mean = y_hat.mean(("chain", "draw"))
     else:
         idata = model.predict(idata, data=cap_data, inplace=False)
-        y_hat = response_transform(idata.posterior[f"{response_name}_{target}"])
+        y_hat = response_transform(idata.posterior[response.name_target])
         y_hat_mean = y_hat.mean(("chain", "draw"))
 
     if use_hdi and pps:
-        y_hat_bounds = az.hdi(y_hat, prob)[response_name].T
+        y_hat_bounds = az.hdi(y_hat, prob)[response.name].T
     elif use_hdi:
-        y_hat_bounds = az.hdi(y_hat, prob)[f"{response_name}_{target}"].T
+        y_hat_bounds = az.hdi(y_hat, prob)[response.name_target].T
     else:
         lower_bound = round((1 - prob) / 2, 4)
         upper_bound = 1 - lower_bound
@@ -113,18 +136,13 @@ def predictions(
 
     lower_bound = round((1 - prob) / 2, 4)
     upper_bound = 1 - lower_bound
+    response.lower_bound, response.upper_bound = lower_bound, upper_bound
 
     cap_data["estimate"] = y_hat_mean
-    cap_data[f"lower_{lower_bound}%"] = y_hat_bounds[0]
-    cap_data[f"upper_{upper_bound}%"] = y_hat_bounds[1]
+    cap_data[response.lower_bound_name] = y_hat_bounds[0]
+    cap_data[response.upper_bound_name] = y_hat_bounds[1]
 
     return cap_data
-
-
-@dataclass
-class Response:
-    name: str
-    target: str = "mean"
 
 
 @dataclass
@@ -219,14 +237,14 @@ def comparisons(
         transforms = {}
 
     response_name = get_aliased_name(model.response_component.response_term)
-    response = Response(response_name)
+    response = ResponseInfo(response_name, lower_bound=lower_bound, upper_bound=upper_bound)
 
     # perform predictions on new data
     idata = model.predict(idata, data=comparisons_df, inplace=False)
 
     def _compute_contrast_estimate(
         contrast: ContrastInfo,
-        response: Response,
+        response: ResponseInfo,
         comparisons_df: pd.DataFrame,
         idata: az.InferenceData,
     ) -> ContrastEstimate:
@@ -242,11 +260,9 @@ def comparisons(
         draws = {}
         for idx, val in enumerate(contrast.values):
             mask = np.array(comparisons_df[contrast.name] == contrast.values[idx])
-            select_draw = idata.posterior[f"{response.name}_{response.target}"].sel(
-                {f"{response.name}_obs": mask}
-            )
+            select_draw = idata.posterior[response.name_target].sel({response.name_obs: mask})
             select_draw = select_draw.assign_coords(
-                {f"{response.name}_obs": np.arange(len(select_draw.coords[f"{response.name}_obs"]))}
+                {response.name_obs: np.arange(len(select_draw.coords[response.name_obs]))}
             )
             draws[val] = select_draw
 
@@ -257,12 +273,11 @@ def comparisons(
         for idx, pair in enumerate(pairwise_contrasts):
             comparison_estimate = function(draws[pair[1]], draws[pair[0]])
             comparison_mean[pair] = comparison_estimate.mean(("chain", "draw"))
-
             if use_hdi:
                 comparison_bounds[pair] = az.hdi(comparison_estimate, prob)
             else:
                 comparison_bounds[pair] = comparison_estimate.quantile(
-                    q=(lower_bound, upper_bound), dim=("chain", "draw")
+                    q=(response.lower_bound, response.upper_bound), dim=("chain", "draw")
                 )
 
         return ContrastEstimate(comparison_mean, comparison_bounds)
@@ -270,7 +285,7 @@ def comparisons(
     def _build_contrasts_df(
         contrast: ContrastInfo,
         condition: ConditionalInfo,
-        response: Response,
+        response: ResponseInfo,
         comparisons_df: pd.DataFrame,
         idata: az.InferenceData,
         average_by,
@@ -281,6 +296,7 @@ def comparisons(
         and conditional values.
         """
         contrast_estimate = _compute_contrast_estimate(contrast, response, comparisons_df, idata)
+        # lower_bound, upper_bound = lower_bound * 100, upper_bound * 100
 
         # if two contrast values, then can drop duplicates to build contrast_df
         if len(contrast.values) < 3:
@@ -309,25 +325,21 @@ def comparisons(
                 ].to_numpy()
 
             if use_hdi:
-                contrast_df[f"hdi_{lower_bound}%"] = (
-                    contrast_estimate.hdi[tuple(contrast.values)][
-                        f"{response.name}_{response.target}"
-                    ]
+                contrast_df[response.lower_bound_name] = (
+                    contrast_estimate.hdi[tuple(contrast.values)][response.name_target]
                     .sel(hdi="lower")
                     .values
                 )
-                contrast_df[f"hdi_{upper_bound}%"] = (
-                    contrast_estimate.hdi[tuple(contrast.values)][
-                        f"{response.name}_{response.target}"
-                    ]
+                contrast_df[response.upper_bound_name] = (
+                    contrast_estimate.hdi[tuple(contrast.values)][response.name_target]
                     .sel(hdi="higher")
                     .values
                 )
             else:
-                contrast_df[f"lower_{lower_bound}%"] = contrast_estimate.hdi[
+                contrast_df[response.lower_bound_name] = contrast_estimate.hdi[
                     tuple(contrast.values)
                 ].sel(quantile=lower_bound)
-                contrast_df[f"upper_{upper_bound}%"] = contrast_estimate.hdi[
+                contrast_df[response.upper_bound_name] = contrast_estimate.hdi[
                     tuple(contrast.values)
                 ].sel(quantile=upper_bound)
 
@@ -350,14 +362,14 @@ def comparisons(
                 if use_hdi:
                     lower.append(
                         (
-                            contrast_estimate.hdi[tuple(pair)][f"{response.name}_{response.target}"]
+                            contrast_estimate.hdi[tuple(pair)][response.name_target]
                             .sel(hdi="lower")
                             .values
                         )
                     )
                     upper.append(
                         (
-                            contrast_estimate.hdi[tuple(pair)][f"{response.name}_{response.target}"]
+                            contrast_estimate.hdi[tuple(pair)][response.name_target]
                             .sel(hdi="higher")
                             .values
                         )
@@ -366,8 +378,8 @@ def comparisons(
                     lower.append(contrast_estimate.hdi[tuple(pair)].sel(quantile=lower_bound))
                     upper.append(contrast_estimate.hdi[tuple(pair)].sel(quantile=upper_bound))
 
-            contrast_df[f"lower_{lower_bound}%"] = np.array(lower).flatten()
-            contrast_df[f"upper_{upper_bound}%"] = np.array(upper).flatten()
+            contrast_df[response.lower_bound_name] = np.array(lower).flatten()
+            contrast_df[response.upper_bound_name] = np.array(upper).flatten()
 
         contrast_df["contrast"] = contrast_df["contrast"].apply(tuple)
 
