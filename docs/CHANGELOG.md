@@ -1,6 +1,19 @@
 # Changelog
 
+
 ## 0.X.X
+
+### New features
+
+### Maintenance and fixes
+
+### Documentation
+
+
+### Deprecation
+
+
+## 0.12.0
 
 ### New features
 
@@ -9,6 +22,12 @@
 * Allow predictions on new groups (#693)
 
 ### Maintenance and fixes
+
+* Robustify how Bambi handles dims (#682)
+* Fix links in FAQ (#686)
+* Update additional dependencies install command (#689)
+* Update predict pps docstring (#690)
+* Add warning for aliases athat aren't used (#691)
 
 ### Documentation
 
