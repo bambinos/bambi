@@ -55,12 +55,13 @@ def create_comparisons_data(
 
     Parameters
     ----------
-    comparisons : ComparisonInfo
-        An dataclass instance containing the model, contrast, and conditional
+    condition: ComparisonInfo
+        A dataclass instance containing the model, contrast, and conditional
         covariates to be used in the comparisons.
-    user_passed : bool, optional
-        Whether the user passed their own 'conditional' data to determine the
-        conditional data. Defaults to False.
+    contrast: ContrastInfo
+        A dataclass instance containing the model, and contrast name and values.
+    user_passed: bool, optional
+        Whether the user passed their own 'conditional' data. Defaults to False.
 
     Returns
     -------
