@@ -62,10 +62,9 @@ def plot_cap(
         A matplotlib axes object or a sequence of them. If None, this function instantiates a
         new axes object. Defaults to ``None``.
     subplot_kwargs : optional
-        Keyword arguments passed to the matplotlib subplot function as a dict. This allows you
-        to determine the covariates used for the horizontal, group, and panel axes. For example,
-        ``subplot_kwargs=dict(main="x", group="y", panel="z")`` would plot the horizontal
-        axis as ``x``, the color (hue) as ``y``, and the panel axis as ``z``.
+        Keyword arguments used to determine the covariates used for the horizontal, group,
+        and panel axes. For example, ``subplot_kwargs=dict(main="x", group="y", panel="z")`` would
+        plot the horizontal axis as ``x``, the color (hue) as ``y``, and the panel axis as ``z``.
 
     Returns
     -------
@@ -196,10 +195,9 @@ def plot_comparison(
         ``fig_kwargs=dict(figsize=(11, 8)), sharey=True`` would make the figure 11 inches wide
         by 8 inches high and would share the y-axis values.
     subplot_kwargs : optional
-        Keyword arguments passed to the matplotlib subplot function as a dict. This allows you
-        to determine the covariates used for the horizontal, group, and panel axes. For example,
-        ``subplot_kwargs=dict(main="x", group="y", panel="z")`` would plot the horizontal
-        axis as ``x``, the color (hue) as ``y``, and the panel axis as ``z``.
+        Keyword arguments used to determine the covariates used for the horizontal, group,
+        and panel axes. For example, ``subplot_kwargs=dict(main="x", group="y", panel="z")`` would
+        plot the horizontal axis as ``x``, the color (hue) as ``y``, and the panel axis as ``z``.
 
     Returns
     -------
