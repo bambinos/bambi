@@ -55,7 +55,7 @@ def create_comparisons_data(
 
     Parameters
     ----------
-    condition: ComparisonInfo
+    condition: ConditionalInfo
         A dataclass instance containing the model, contrast, and conditional
         covariates to be used in the comparisons.
     contrast: ContrastInfo
@@ -65,7 +65,7 @@ def create_comparisons_data(
 
     Returns
     -------
-    pandas.DataFrame
+    pd.DataFrame
         The data for the Conditional Adjusted Comparisons dataframe and or
         plotting.
     """
