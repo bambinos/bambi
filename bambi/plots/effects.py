@@ -12,7 +12,7 @@ import xarray as xr
 
 from bambi.models import Model
 from bambi.plots.create_data import create_cap_data, create_comparisons_data
-from bambi.plots.utils import average_over, ConditionalInfo, ContrastInfo, identity
+from bambi.plots.utils import average_over, ConditionalInfo, ContrastInfo, enforce_dtypes, identity
 from bambi.utils import get_aliased_name, listify
 
 
@@ -296,7 +296,6 @@ def comparisons(
         and conditional values.
         """
         contrast_estimate = _compute_contrast_estimate(contrast, response, comparisons_df, idata)
-        # lower_bound, upper_bound = lower_bound * 100, upper_bound * 100
 
         # if two contrast values, then can drop duplicates to build contrast_df
         if len(contrast.values) < 3:
@@ -345,16 +344,26 @@ def comparisons(
 
         # if > 2 contrast values, then need the full dataframe to build contrast_df
         elif len(contrast.values) >= 3:
-            num_rows = comparisons_df.shape[0]
-            contrast_df = comparisons_df.drop(columns=contrast.name)
-            contrast_df.insert(0, "term", contrast.name)
             contrast_keys = [list(elem) for elem in list(contrast_estimate.comparison.keys())]
-            contrast_df.insert(1, "contrast", contrast_keys * (num_rows // len(contrast.values)))
+            covariate_cols = comparisons_df.drop(columns=contrast.name).columns
+            covariate_vals = (
+                comparisons_df.drop(columns=contrast.name).drop_duplicates().reset_index(drop=True)
+            ).values
+            covariate_vals = np.tile(np.transpose(covariate_vals), len(contrast.values))
 
-            estimates = []
-            for val in contrast_estimate.comparison.values():
-                estimates.append(val)
-            contrast_df["estimate"] = np.array(estimates).flatten()
+            contrast_df = (
+                pd.DataFrame(contrast_estimate.comparison)
+                .unstack()
+                .reset_index()
+                .rename(columns={0: "estimate"})
+            )
+
+            # this hardcoded subset will not work for cross-contrasts
+            contrast_df.insert(0, "term", contrast.name)
+            contrast_df.insert(
+                1, "contrast", tuple(zip(contrast_df["level_0"], contrast_df["level_1"]))
+            )
+            contrast_df = contrast_df.drop(["level_0", "level_1", "level_2"], axis=1)
 
             lower = []
             upper = []
@@ -378,8 +387,10 @@ def comparisons(
                     lower.append(contrast_estimate.hdi[tuple(pair)].sel(quantile=lower_bound))
                     upper.append(contrast_estimate.hdi[tuple(pair)].sel(quantile=upper_bound))
 
+            contrast_df[covariate_cols] = np.transpose(covariate_vals)
             contrast_df[response.lower_bound_name] = np.array(lower).flatten()
             contrast_df[response.upper_bound_name] = np.array(upper).flatten()
+            contrast_df = enforce_dtypes(model.data, contrast_df)
 
         contrast_df["contrast"] = contrast_df["contrast"].apply(tuple)
 
