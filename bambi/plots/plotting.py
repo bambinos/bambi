@@ -2,7 +2,6 @@
 # pylint: disable = too-many-function-args
 # pylint: disable = too-many-nested-blocks
 from typing import Union
-import warnings
 
 import arviz as az
 from arviz.plots.backends.matplotlib import create_axes_grid
@@ -230,9 +229,9 @@ def plot_comparison(
     if isinstance(contrast, dict):
         contrast_name, contrast_level = next(iter(contrast.items()))
         if len(contrast_level) > 2:
-            warnings.warn(
-                f"Attempting to plot when contrast {contrast_name} has"
-                f"{len(contrast_level)} values."
+            raise ValueError(
+                f"Plotting when 'contrast' has > 2 values is not supported. "
+                f"{contrast_name} has {len(contrast_level)} values."
             )
 
     contrast_df = comparisons(
