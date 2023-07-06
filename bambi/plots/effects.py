@@ -367,7 +367,7 @@ def comparisons(
 
             lower = []
             upper = []
-            for pair, val in zip(contrast_keys, contrast_estimate.hdi.values()):
+            for pair in contrast_keys:
                 if use_hdi:
                     lower.append(
                         (
@@ -390,6 +390,9 @@ def comparisons(
             contrast_df[covariate_cols] = np.transpose(covariate_vals)
             contrast_df[response.lower_bound_name] = np.array(lower).flatten()
             contrast_df[response.upper_bound_name] = np.array(upper).flatten()
+            contrast_df.insert(
+                len(contrast_df.columns) - 3, "estimate", contrast_df.pop("estimate")
+            )
             contrast_df = enforce_dtypes(model.data, contrast_df)
 
         contrast_df["contrast"] = contrast_df["contrast"].apply(tuple)
