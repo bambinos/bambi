@@ -605,6 +605,7 @@ class Model:
         omit_offsets=True,
         omit_group_specific=True,
         ax=None,
+        **kwargs,
     ):
         """
         Samples from the prior distribution and plots its marginals.
@@ -707,6 +708,7 @@ class Model:
                 kind=kind,
                 bins=bins,
                 ax=ax,
+                **kwargs,
             )
         return axes
 
@@ -1016,7 +1018,11 @@ class Model:
         return {k: v for k, v in self.components.items() if isinstance(v, DistributionalComponent)}
 
 
-def with_categorical_cols(data, columns):
+def with_categorical_cols(data: pd.DataFrame, columns) -> pd.DataFrame:
+    """Convert selected columns of a DataFrame to categorical type.
+
+    It converts all object columns plus columns specified in the `columns` argument.
+    """
     # Convert 'object' and explicitly asked columns to categorical.
     object_columns = list(data.select_dtypes("object").columns)
     to_convert = list(set(object_columns + listify(columns)))
@@ -1026,11 +1032,13 @@ def with_categorical_cols(data, columns):
     return data
 
 
-def prior_repr(term):
+def prior_repr(term) -> str:
+    """Get a string representation of a Bambi term."""
     return f"{term.name} ~ {term.prior}"
 
 
-def hsgp_repr(term):
+def hsgp_repr(term) -> str:
+    """Get a string representation of a Bambi HSGP term."""
     output_list = [f"cov: {term.cov}", *[f"{key} ~ {value}" for key, value in term.prior.items()]]
     output_list = ["    " + element for element in output_list]
     output_list.insert(0, term.name)
@@ -1038,6 +1046,7 @@ def hsgp_repr(term):
 
 
 def make_priors_summary(component: DistributionalComponent) -> str:
+    """Get a summary of terms and priors in a distributional component."""
     # Common effects
     priors_common = [
         prior_repr(term) for term in component.common_terms.values() if term.kind != "offset"
