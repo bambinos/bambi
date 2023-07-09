@@ -924,37 +924,47 @@ Run <code class="docutils literal notranslate"><span class="pre">bmb.clear_data_
 <section id="module-bambi.plots">
 <span id="bambi-plots"></span><h2><a class="reference internal" href="#module-bambi.plots" title="bambi.plots"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.plots</span></code></a><a class="headerlink" href="#module-bambi.plots" title="Permalink to this heading">#</a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="bambi.plots.create_cap_data">
-<span class="sig-prename descclassname"><span class="pre">bambi.plots.</span></span><span class="sig-name descname"><span class="pre">create_cap_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">groups_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/plots/plot_cap.html#create_cap_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.plots.create_cap_data" title="Permalink to this definition">#</a></dt>
-<dd><p>Create data for a Conditional Adjusted Predictions plot</p>
+<dt class="sig sig-object py" id="bambi.plots.comparisons">
+<span class="sig-prename descclassname"><span class="pre">bambi.plots.</span></span><span class="sig-name descname"><span class="pre">comparisons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bambi.models.Model" title="bambi.models.Model"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">idata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">InferenceData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contrast</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comparison_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'diff'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hdi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/bambi/plots/effects.html#comparisons"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.plots.comparisons" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute Conditional Adjusted Comparisons</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>model</strong> (<em>bambi.Model</em>) – An instance of a Bambi model</p></li>
-<li><p><strong>covariates</strong> (<em>dict</em>) – A dictionary of length between one and three.
-Keys must be taken from (“horizontal”, “color”, “panel”).
-The values indicate the names of variables.</p></li>
-<li><p><strong>grid_n</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of points used to evaluate the main covariate. Defaults to 200.</p></li>
-<li><p><strong>groups_n</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of groups to create when the grouping variable is numeric. Groups are based on
-equally spaced points. Defaults to 5.</p></li>
+<li><p><strong>model</strong> (<em>bambi.Model</em>) – The model for which we want to plot the predictions.</p></li>
+<li><p><strong>idata</strong> (<em>arviz.InferenceData</em>) – The InferenceData object that contains the samples from the posterior distribution of
+the model.</p></li>
+<li><p><strong>contrast</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – The predictor name whose contrast we would like to compare.</p></li>
+<li><p><strong>conditional</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – The covariates we would like to condition on.</p></li>
+<li><p><strong>average_by</strong> (<em>str</em><em>, </em><em>list</em><em>, </em><em>bool</em><em>, </em><em>optional</em>) – The covariates we would like to average by. The passed covariate(s) will marginalize
+over the other covariates in the model. If True, it averages over all covariates
+in the model to obtain the average estimate. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>comparison_type</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of comparison to plot. Defaults to ‘diff’.</p></li>
+<li><p><strong>use_hdi</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to compute the highest density interval (defaults to True) or the quantiles.</p></li>
+<li><p><strong>prob</strong> (<em>float</em><em>, </em><em>optional</em>) – The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
+Changing the global variable <code class="docutils literal notranslate"><span class="pre">az.rcParam[&quot;stats.hdi_prob&quot;]</span></code> affects this default.</p></li>
+<li><p><strong>transforms</strong> (<em>dict</em><em>, </em><em>optional</em>) – Transformations that are applied to each of the variables being plotted. The keys are the
+name of the variables, and the values are functions to be applied. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The data for the Conditional Adjusted Predictions plot.</p>
+<dd class="field-even"><p>A dataframe with the comparison values, highest density interval, contrast name,
+contrast value, and conditional values.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>pandas.DataFrame</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – When the number of covariates is larger than 2.
-    When either the main or the group covariates are not numeric or categoric.</p>
+<dd class="field-even"><p><strong>ValueError</strong> – If length of <code class="docutils literal notranslate"><span class="pre">contrast</span></code> is greater than 1.
+    If <code class="docutils literal notranslate"><span class="pre">contrast</span></code> is not a string, dictionary, or list.
+    If <code class="docutils literal notranslate"><span class="pre">comparison_type</span></code> is not ‘diff’ or ‘ratio’.
+    If <code class="docutils literal notranslate"><span class="pre">prob</span></code> is not &gt; 0 and &lt; 1.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="bambi.plots.plot_cap">
-<span class="sig-prename descclassname"><span class="pre">bambi.plots.</span></span><span class="sig-name descname"><span class="pre">plot_cap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hdi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdi_prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/plots/plot_cap.html#plot_cap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.plots.plot_cap" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">bambi.plots.</span></span><span class="sig-name descname"><span class="pre">plot_cap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bambi.models.Model" title="bambi.models.Model"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">idata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">InferenceData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hdi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/plots/plotting.html#plot_cap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.plots.plot_cap" title="Permalink to this definition">#</a></dt>
 <dd><p>Plot Conditional Adjusted Predictions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -962,25 +972,25 @@ equally spaced points. Defaults to 5.</p></li>
 <li><p><strong>model</strong> (<em>bambi.Model</em>) – The model for which we want to plot the predictions.</p></li>
 <li><p><strong>idata</strong> (<em>arviz.InferenceData</em>) – The InferenceData object that contains the samples from the posterior distribution of
 the model.</p></li>
-<li><p><strong>covariates</strong> (<em>list</em><em> or </em><em>dict</em>) – A sequence of between one and three names of variables or a dict of length between one
-and three.
-If a sequence, the first variable is taken as the main variable,
-mapped to the horizontal axis. If present, the second name is a coloring/grouping variable,
-and the third is mapped to different plot panels.
-If a dictionary, keys must be taken from (“horizontal”, “color”, “panel”) and the values
-are the names of the variables.</p></li>
+<li><p><strong>covariates</strong> (<em>list</em><em> or </em><em>dict</em>) – A sequence of between one and three names of variables in the model.</p></li>
 <li><p><strong>target</strong> (<em>str</em>) – Which model parameter to plot. Defaults to ‘mean’. Passing a parameter into target only
 works when pps is False as the target may not be available in the posterior predictive
 distribution.</p></li>
 <li><p><strong>pps</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to plot the posterior predictive samples. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
 <li><p><strong>use_hdi</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to compute the highest density interval (defaults to True) or the quantiles.</p></li>
-<li><p><strong>hdi_prob</strong> (<em>float</em><em>, </em><em>optional</em>) – The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
+<li><p><strong>prob</strong> (<em>float</em><em>, </em><em>optional</em>) – The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
 Changing the global variable <code class="docutils literal notranslate"><span class="pre">az.rcParam[&quot;stats.hdi_prob&quot;]</span></code> affects this default.</p></li>
 <li><p><strong>legend</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to automatically include a legend in the plot. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
 <li><p><strong>transforms</strong> (<em>dict</em><em>, </em><em>optional</em>) – Transformations that are applied to each of the variables being plotted. The keys are the
 name of the variables, and the values are functions to be applied. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
 <li><p><strong>ax</strong> (<em>matplotlib.axes._subplots.AxesSubplot</em><em>, </em><em>optional</em>) – A matplotlib axes object or a sequence of them. If None, this function instantiates a
 new axes object. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>fig_kwargs</strong> (<em>optional</em>) – Keyword arguments passed to the matplotlib figure function as a dict. For example,
+<code class="docutils literal notranslate"><span class="pre">fig_kwargs=dict(figsize=(11,</span> <span class="pre">8)),</span> <span class="pre">sharey=True</span></code> would make the figure 11 inches wide
+by 8 inches high and would share the y-axis values.</p></li>
+<li><p><strong>subplot_kwargs</strong> (<em>optional</em>) – Keyword arguments used to determine the covariates used for the horizontal, group,
+and panel axes. For example, <code class="docutils literal notranslate"><span class="pre">subplot_kwargs=dict(main=&quot;x&quot;,</span> <span class="pre">group=&quot;y&quot;,</span> <span class="pre">panel=&quot;z&quot;)</span></code> would
+plot the horizontal axis as <code class="docutils literal notranslate"><span class="pre">x</span></code>, the color (hue) as <code class="docutils literal notranslate"><span class="pre">y</span></code>, and the panel axis as <code class="docutils literal notranslate"><span class="pre">z</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -990,8 +1000,100 @@ new axes object. Defaults to <code class="docutils literal notranslate"><span cl
 <dd class="field-odd"><p>matplotlib.figure.Figure, matplotlib.axes._subplots.AxesSubplot</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – When <code class="docutils literal notranslate"><span class="pre">level</span></code> is not within 0 and 1.
-    When the main covariate is not numeric or categoric.</p>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – When <code class="docutils literal notranslate"><span class="pre">level</span></code> is not within 0 and 1.
+    When the main covariate is not numeric or categoric.</p></li>
+<li><p><strong>TypeError</strong> – When <code class="docutils literal notranslate"><span class="pre">covariates</span></code> is not a string or a list of strings.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bambi.plots.plot_comparison">
+<span class="sig-prename descclassname"><span class="pre">bambi.plots.</span></span><span class="sig-name descname"><span class="pre">plot_comparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bambi.models.Model" title="bambi.models.Model"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">idata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">InferenceData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contrast</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditional</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_by</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comparison_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'diff'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hdi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bambi/plots/plotting.html#plot_comparison"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.plots.plot_comparison" title="Permalink to this definition">#</a></dt>
+<dd><p>Plot Conditional Adjusted Comparisons</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>bambi.Model</em>) – The model for which we want to plot the predictions.</p></li>
+<li><p><strong>idata</strong> (<em>arviz.InferenceData</em>) – The InferenceData object that contains the samples from the posterior distribution of
+the model.</p></li>
+<li><p><strong>contrast</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – The predictor name whose contrast we would like to compare.</p></li>
+<li><p><strong>conditional</strong> (<em>str</em><em>, </em><em>dict</em><em>, </em><em>list</em>) – The covariates we would like to condition on.</p></li>
+<li><p><strong>average_by</strong> (<em>str</em><em>, </em><em>list</em><em>, </em><em>optional</em>) – The covariates we would like to average by. The passed covariate(s) will marginalize
+over the other covariates in the model. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>comparison_type</strong> (<em>str</em><em>, </em><em>optional</em>) – The type of comparison to plot. Defaults to ‘diff’.</p></li>
+<li><p><strong>use_hdi</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to compute the highest density interval (defaults to True) or the quantiles.</p></li>
+<li><p><strong>prob</strong> (<em>float</em><em>, </em><em>optional</em>) – The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
+Changing the global variable <code class="docutils literal notranslate"><span class="pre">az.rcParam[&quot;stats.hdi_prob&quot;]</span></code> affects this default.</p></li>
+<li><p><strong>legend</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to automatically include a legend in the plot. Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>transforms</strong> (<em>dict</em><em>, </em><em>optional</em>) – Transformations that are applied to each of the variables being plotted. The keys are the
+name of the variables, and the values are functions to be applied. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes._subplots.AxesSubplot</em><em>, </em><em>optional</em>) – A matplotlib axes object or a sequence of them. If None, this function instantiates a
+new axes object. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>fig_kwargs</strong> (<em>optional</em>) – Keyword arguments passed to the matplotlib figure function as a dict. For example,
+<code class="docutils literal notranslate"><span class="pre">fig_kwargs=dict(figsize=(11,</span> <span class="pre">8)),</span> <span class="pre">sharey=True</span></code> would make the figure 11 inches wide
+by 8 inches high and would share the y-axis values.</p></li>
+<li><p><strong>subplot_kwargs</strong> (<em>optional</em>) – Keyword arguments used to determine the covariates used for the horizontal, group,
+and panel axes. For example, <code class="docutils literal notranslate"><span class="pre">subplot_kwargs=dict(main=&quot;x&quot;,</span> <span class="pre">group=&quot;y&quot;,</span> <span class="pre">panel=&quot;z&quot;)</span></code> would
+plot the horizontal axis as <code class="docutils literal notranslate"><span class="pre">x</span></code>, the color (hue) as <code class="docutils literal notranslate"><span class="pre">y</span></code>, and the panel axis as <code class="docutils literal notranslate"><span class="pre">z</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A tuple with the figure and the axes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.figure.Figure, matplotlib.axes._subplots.AxesSubplot</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">conditional</span></code> and <code class="docutils literal notranslate"><span class="pre">average_by</span></code> are both <code class="docutils literal notranslate"><span class="pre">None</span></code>.
+    If length of <code class="docutils literal notranslate"><span class="pre">conditional</span></code> is greater than 3 and <code class="docutils literal notranslate"><span class="pre">average_by</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>Warning</strong> – If length of <code class="docutils literal notranslate"><span class="pre">contrast</span></code> is greater than 2.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="bambi.plots.predictions">
+<span class="sig-prename descclassname"><span class="pre">bambi.plots.</span></span><span class="sig-name descname"><span class="pre">predictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#bambi.models.Model" title="bambi.models.Model"><span class="pre">Model</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">idata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">InferenceData</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">covariates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_hdi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prob</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transforms</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="_modules/bambi/plots/effects.html#predictions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bambi.plots.predictions" title="Permalink to this definition">#</a></dt>
+<dd><p>Compute Conditional Adjusted Predictions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>bambi.Model</em>) – The model for which we want to plot the predictions.</p></li>
+<li><p><strong>idata</strong> (<em>arviz.InferenceData</em>) – The InferenceData object that contains the samples from the posterior distribution of
+the model.</p></li>
+<li><p><strong>covariates</strong> (<em>list</em><em> or </em><em>dict</em>) – A sequence of between one and three names of variables or a dict of length between one
+and three.
+If a sequence, the first variable is taken as the main variable and is mapped to the
+horizontal axis. If present, the second name is a coloring/grouping variable,
+and the third is mapped to different plot panels.
+If a dictionary, keys must be taken from (“main”, “group”, “panel”) and the values
+are the names of the variables.</p></li>
+<li><p><strong>target</strong> (<em>str</em>) – Which model parameter to plot. Defaults to ‘mean’. Passing a parameter into target only
+works when pps is False as the target may not be available in the posterior predictive
+distribution.</p></li>
+<li><p><strong>pps</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to plot the posterior predictive samples. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>use_hdi</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to compute the highest density interval (defaults to True) or the quantiles.</p></li>
+<li><p><strong>prob</strong> (<em>float</em><em>, </em><em>optional</em>) – The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
+Changing the global variable <code class="docutils literal notranslate"><span class="pre">az.rcParam[&quot;stats.hdi_prob&quot;]</span></code> affects this default.</p></li>
+<li><p><strong>transforms</strong> (<em>dict</em><em>, </em><em>optional</em>) – Transformations that are applied to each of the variables being plotted. The keys are the
+name of the variables, and the values are functions to be applied. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>cap_data</strong> – A DataFrame with the <code class="docutils literal notranslate"><span class="pre">create_cap_data</span></code> and model predictions.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If <code class="docutils literal notranslate"><span class="pre">pps</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code> and <code class="docutils literal notranslate"><span class="pre">target</span></code> is not <code class="docutils literal notranslate"><span class="pre">&quot;mean&quot;</span></code>.
+    If passed <code class="docutils literal notranslate"><span class="pre">covariates</span></code> is not in correct key, value format.
+    If length of <code class="docutils literal notranslate"><span class="pre">covariates</span></code> is not between 1 and 3.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1084,8 +1186,10 @@ new axes object. Defaults to <code class="docutils literal notranslate"><span cl
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-bambi.plots"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.plots</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bambi.plots.create_cap_data"><code class="docutils literal notranslate"><span class="pre">create_cap_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bambi.plots.comparisons"><code class="docutils literal notranslate"><span class="pre">comparisons()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bambi.plots.plot_cap"><code class="docutils literal notranslate"><span class="pre">plot_cap()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bambi.plots.plot_comparison"><code class="docutils literal notranslate"><span class="pre">plot_comparison()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bambi.plots.predictions"><code class="docutils literal notranslate"><span class="pre">predictions()</span></code></a></li>
 </ul>
 </li>
 </ul>
