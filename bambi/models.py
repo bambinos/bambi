@@ -542,7 +542,6 @@ class Model:
                     assert component_name in self.distributional_components
                     component = self.distributional_components[component_name]
                     for name, alias in component_aliases.items():
-
                         is_used = False
 
                         if name in component.terms:
@@ -661,7 +660,7 @@ class Model:
         unobserved_rvs_names = []
         flat_rvs = []
         for unobserved in self.backend.model.unobserved_RVs:
-            if "Flat" in unobserved.__str__():
+            if "Flat" in str(unobserved):
                 flat_rvs.append(unobserved.name)
             else:
                 unobserved_rvs_names.append(unobserved.name)

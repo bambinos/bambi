@@ -1,3 +1,5 @@
-from .plot_cap import create_cap_data, plot_cap
+from bambi.plots.effects import comparisons, predictions
+from bambi.plots.plotting import plot_cap, plot_comparison
 
-__all__ = ["create_cap_data", "plot_cap"]
+
+__all__ = ["comparisons", "predictions", "plot_cap", "plot_comparison"]
