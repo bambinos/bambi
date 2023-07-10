@@ -200,6 +200,7 @@ class TestCap:
 
         formula = bmb.Formula("y ~ x", "alpha ~ x")
         model = bmb.Model(formula, data_gamma, family="gamma")
+
         # Without alias
         idata = model.fit(tune=100, draws=100, random_seed=1234)
         # Test default target
@@ -278,5 +279,5 @@ class TestComparison:
     @pytest.mark.parametrize("average_by", ["am", "drat", ["am", "drat"]])
     def test_average_by(self, mtcars, average_by):
         model, idata = mtcars
-        plot_comparison(model, idata, "hp", ["am", "drat"], average_by=average_by)
+        plot_comparison(model, idata, "hp", ["am", "drat"], average_by)
     
