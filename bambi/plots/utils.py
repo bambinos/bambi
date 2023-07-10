@@ -66,7 +66,8 @@ class Covariates:
 
 def average_over(data: pd.DataFrame, covariate: Union[str, list, None]) -> pd.DataFrame:
     """
-    Average estimates by specified covariate in the model.
+    Average estimates by specified covariate in the model. data.columns[-3:] are
+    the columns: 'estimate', 'lower', and 'upper'.
     """
     if covariate is None:
         return pd.DataFrame(data[data.columns[-3:]].mean()).T

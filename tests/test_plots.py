@@ -188,7 +188,7 @@ class TestCap:
 
 
     @pytest.mark.parametrize("pps", [False, True])
-    def test_multiple_outputs(self, pps):
+    def test_multiple_outputs_with_alias(self, pps):
         """Test plot cap default and specified values for target argument"""
         rng = np.random.default_rng(121195)
         N = 200
@@ -200,11 +200,21 @@ class TestCap:
 
         formula = bmb.Formula("y ~ x", "alpha ~ x")
         model = bmb.Model(formula, data_gamma, family="gamma")
+
+        # Without alias
         idata = model.fit(tune=100, draws=100, random_seed=1234)
         # Test default target
         plot_cap(model, idata,  "x", pps=pps)
         # Test user supplied target argument
-        plot_cap(model, idata, "x", "alpha", pps=pps)
+        plot_cap(model, idata, "x", "alpha", pps=False)
+
+        # With alias
+        alias = {"alpha": {"Intercept": "sd_intercept", "x": "sd_x", "alpha": "sd_alpha"}}
+        model.set_alias(alias)
+        idata = model.fit(tune=100, draws=100, random_seed=1234)
+
+        # Test user supplied target argument
+        plot_cap(model, idata, "x", "alpha", pps=False)
 
 
 class TestComparison:

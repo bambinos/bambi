@@ -557,9 +557,3 @@ def prepare_prior(prior, kind, auto_scale):
     else:
         raise ValueError("'prior' must be instance of Prior or None.")
     return prior
-
-
-def with_suffix(value, suffix):
-    if suffix:
-        return f"{value}_{suffix}"
-    return value

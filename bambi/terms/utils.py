@@ -1,60 +1,32 @@
-from formulae.terms.call import Call
+import formulae as fm
 from formulae.terms.call_resolver import get_function_from_module
 
 
-# pylint: disable = protected-access
-def get_reference_level(term):
-    if term.kind != "categoric":
-        return None
-
-    if term.levels is None:
-        return None
-
-    levels = term.levels
-    intermediate_data = term.components[0]._intermediate_data
-    if hasattr(intermediate_data, "_contrast"):
-        return intermediate_data._contrast.reference
-
-    return levels[0]
+def is_single_component(term) -> bool:
+    """Determines if formulae term contains a single component"""
+    return hasattr(term, "components") and len(term.components) == 1
 
 
-# pylint: disable = protected-access
-def get_success_level(term):
-    if term.kind != "categoric":
-        return None
-
-    if term.levels is None:
-        return term.components[0].reference
-
-    levels = term.levels
-    intermediate_data = term.components[0]._intermediate_data
-    if hasattr(intermediate_data, "_contrast"):
-        return intermediate_data._contrast.reference
-
-    return levels[0]
-
-
-def is_single_component(term):
-    return len(term.term.components) == 1
-
-
-def extract_first_component(term):
-    return term.term.components[0]
-
-
-def is_call_component(component):
-    return isinstance(component, Call)
+def is_call_component(component) -> bool:
+    """Determines if formulae component is the result of a function call"""
+    return isinstance(component, fm.terms.call.Call)
 
 
 def is_call_of_kind(call, kind):
+    """Determines if formulae call component is of certain kind
+
+    To do so, it checks whether the callee has metadata and whether the 'kind' slot matches the
+    kind passed to the function.
+    """
     function = get_function_from_module(call.call.callee, call.env)
     return hasattr(function, "__metadata__") and function.__metadata__["kind"] == kind
 
 
 def is_censored_response(term):
+    """Determines if a formulae term represents a censored response"""
     if not is_single_component(term):
         return False
-    component = extract_first_component(term)
+    component = term.term.components[0]  # get the first (and single) component
     if not is_call_component(component):
         return False
     return is_call_of_kind(component, "censored")

@@ -19,7 +19,7 @@ from bambi.utils import get_aliased_name, listify
 @dataclass
 class ResponseInfo:
     name: str
-    target: str = "mean"
+    target: Union[str, None] = None
     lower_bound: float = 0.03
     upper_bound: float = 0.97
     name_target: str = field(init=False)
@@ -31,7 +31,11 @@ class ResponseInfo:
         """
         Assigns commonly used f-strings for indexing and column names as attributes.
         """
-        self.name_target = f"{self.name}_{self.target}"
+        if self.target is None:
+            self.name_target = self.name
+        else:
+            self.name_target = f"{self.name}_{self.target}"
+
         self.name_obs = f"{self.name}_obs"
         self.lower_bound_name = f"lower_{self.lower_bound * 100}%"
         self.upper_bound_name = f"upper_{self.upper_bound * 100}%"
@@ -87,9 +91,13 @@ def predictions(
     Raises
     ------
     ValueError
+        If ``pps`` is ``True`` and ``target`` is not ``"mean"``.
         If passed ``covariates`` is not in correct key, value format.
         If length of ``covariates`` is not between 1 and 3.
     """
+
+    if pps and target != "mean":
+        raise ValueError("When passing 'pps=True', target must be 'mean'")
 
     covariate_kinds = ("main", "group", "panel")
     if not isinstance(covariates, dict):
@@ -112,7 +120,18 @@ def predictions(
 
     cap_data = create_cap_data(model, covariates)
 
-    response_name = get_aliased_name(model.response_component.response_term)
+    if target != "mean":
+        component = model.components[target]
+        if component.alias:
+            # use only the aliased name (without appended target)
+            response_name = get_aliased_name(component)
+            target = None
+        else:
+            # use the default response "y" and append target
+            response_name = get_aliased_name(model.response_component.response_term)
+    else:
+        response_name = get_aliased_name(model.response_component.response_term)
+
     response = ResponseInfo(response_name, target)
     response_transform = transforms.get(response_name, identity)
 
@@ -237,7 +256,9 @@ def comparisons(
         transforms = {}
 
     response_name = get_aliased_name(model.response_component.response_term)
-    response = ResponseInfo(response_name, lower_bound=lower_bound, upper_bound=upper_bound)
+    response = ResponseInfo(
+        response_name, target="mean", lower_bound=lower_bound, upper_bound=upper_bound
+    )
 
     # perform predictions on new data
     idata = model.predict(idata, data=comparisons_df, inplace=False)

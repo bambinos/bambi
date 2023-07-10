@@ -32,7 +32,11 @@ def multilinify(sequence: Sequence[str], sep: str = ",") -> str:
     return "\n" + sep.join(sequence)
 
 
-def wrapify(string, width=100, indentation=2):
+def wrapify(string: str, width: int = 100, indentation: int = 2) -> str:
+    """Wraps long strings into multiple lines.
+
+    This function is used to print the model summary.
+    """
     lines = string.splitlines(True)
     wrapper = textwrap.TextWrapper(width=width)
     for idx, line in enumerate(lines):
@@ -146,30 +150,42 @@ def get_aliased_name(term):
     return term.name
 
 
-def is_single_component(term):
+def is_single_component(term) -> bool:
+    """Determines if formulae term contains a single component"""
     return hasattr(term, "components") and len(term.components) == 1
 
 
-def is_call_component(component):
+def is_call_component(component) -> bool:
+    """Determines if formulae component is the result of a function call"""
     return isinstance(component, fm.terms.call.Call)
 
 
-def has_stateful_transform(component):
+def is_stateful_transform(component):
+    """Determines if formulae call component is a stateful transformation"""
     return component.call.stateful_transform is not None
 
 
 def is_hsgp_term(term):
+    """Determines if formulae term represents a HSGP term
+
+    Bambi uses this function to detect HSGP terms and treat them in a different way.
+    """
     if not is_single_component(term):
         return False
     component = term.components[0]
     if not is_call_component(component):
         return False
-    if not has_stateful_transform(component):
+    if not is_stateful_transform(component):
         return False
     return isinstance(component.call.stateful_transform, HSGP)
 
 
 def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.DesignMatrices:
+    """Removes the intercept from the common design matrix
+
+    This is used in ordinal families, where the intercept is requested but not used because its
+    inclusion, together with the cutpoints, would create a non-identifiability problem.
+    """
     dm.common.terms.pop("Intercept")
     intercept_slice = dm.common.slices.pop("Intercept")
     dm.common.design_matrix = np.delete(dm.common.design_matrix, intercept_slice, axis=1)

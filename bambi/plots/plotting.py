@@ -226,6 +226,13 @@ def plot_comparison(
                     "passed to 'conditional' is greater than 3."
                 )
 
+    if average_by is True:
+        raise ValueError(
+            "Plotting when 'average_by = True' is not possible as 'True' marginalizes "
+            "over all covariates resulting in a single comparison estimate. "
+            "Please specify a covariate(s) to 'average_by'."
+        )
+
     if isinstance(contrast, dict):
         contrast_name, contrast_level = next(iter(contrast.items()))
         if len(contrast_level) > 2:

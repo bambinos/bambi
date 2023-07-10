@@ -428,6 +428,10 @@ class ZeroInflatedPoisson(UnivariateFamily):
 
 # pylint: disable = protected-access
 def get_success_level(term):
+    """Returns the success level of a categorical term.
+
+    Whenever the concept of "success level" does not apply, it returns None.
+    """
     if term.kind != "categoric":
         return None
 
@@ -444,6 +448,10 @@ def get_success_level(term):
 
 # pylint: disable = protected-access
 def get_reference_level(term):
+    """Returns the reference level of a categorical term.
+
+    Whenever the concept of "reference level" does not apply, it returns None.
+    """
     if term.kind != "categoric":
         return None
 
