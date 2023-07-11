@@ -275,7 +275,30 @@ class ResponseTerm:
             kwargs = self.family.transform_backend_kwargs(kwargs)
 
         kwargs = self.robustify_dims(pymc_backend, kwargs)
-        return distribution(self.name, **kwargs)
+
+        if self.term.is_censored:
+            dims = kwargs.pop("dims", None)
+            data_matrix = kwargs.pop("observed")
+
+            # Get values of the response variable
+            observed = np.squeeze(data_matrix[:, 0])
+
+            # Get censoring codes
+            censoring_code = np.squeeze(data_matrix[:, 1])
+
+            is_left_censored = censoring_code == -1
+            is_right_censored = censoring_code == 1
+
+            lower = np.where(is_left_censored, observed, -np.inf)
+            upper = np.where(is_right_censored, observed, np.inf)
+            stateless_dist = distribution.dist(**kwargs)
+            dist_rv = pm.Censored(
+                self.name, stateless_dist, lower=lower, upper=upper, observed=observed, dims=dims
+            )
+        else:
+            dist_rv = distribution(self.name, **kwargs)
+
+        return dist_rv
 
     @property
     def name(self):
@@ -291,6 +314,9 @@ class ResponseTerm:
 
         # Don't do it for the Multinomial families (it's an exception)
         if isinstance(self.family, (Multinomial, DirichletMultinomial)):
+            return kwargs
+
+        if self.term.is_censored:
             return kwargs
 
         dims, data = kwargs["dims"], kwargs["observed"]

@@ -26,7 +26,7 @@ def is_censored_response(term):
     """Determines if a formulae term represents a censored response"""
     if not is_single_component(term):
         return False
-    component = term.term.components[0]  # get the first (and single) component
+    component = term.components[0]  # get the first (and single) component
     if not is_call_component(component):
         return False
     return is_call_of_kind(component, "censored")
