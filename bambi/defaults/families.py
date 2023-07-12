@@ -20,6 +20,7 @@ from bambi.families.univariate import (
     StudentT,
     VonMises,
     Wald,
+    Weibull,
     ZeroInflatedBinomial,
     ZeroInflatedNegativeBinomial,
     ZeroInflatedPoisson,
@@ -242,6 +243,16 @@ BUILTIN_FAMILIES = {
         "link": {"mu": "inverse_squared", "lam": "log"},
         "family": Wald,
         "default_priors": {"lam": "HalfCauchy"},
+    },
+    "weibull": {
+        "likelihood": {
+            "name": "Weibull",
+            "params": ["mu", "alpha"],
+            "parent": "mu",
+        },
+        "link": {"mu": "log", "alpha": "log"},
+        "family": Weibull,
+        "default_priors": {"alpha": "HalfCauchy"},
     },
     "zero_inflated_binomial": {
         "likelihood": {

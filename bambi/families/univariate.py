@@ -1,5 +1,6 @@
 import numpy as np
 import pytensor.tensor as pt
+import scipy.special as sp
 import xarray as xr
 
 from bambi.families.family import Family
@@ -405,6 +406,27 @@ class VonMises(UnivariateFamily):
 
 class Wald(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["inverse", "inverse_squared", "identity", "log"], "lam": ["log"]}
+
+
+class Weibull(UnivariateFamily):
+    SUPPORTED_LINKS = {"mu": ["log", "identity", "inverse"], "alpha": ["log"]}
+
+    @staticmethod
+    def transform_backend_kwargs(kwargs):
+        # The Weibull distribution is specified using alpha (shape) and beta (scale).
+        # We request a prior for alpha and we model 'mu' as a function of the linear predictor.
+        # Here we determine 'beta' out of the value of 'mu' and 'alpha'
+        mu = kwargs.pop("mu")
+        alpha = kwargs.get("alpha")
+        kwargs["beta"] = mu / pt.gamma(1 + 1 / alpha)
+        return kwargs
+
+    @staticmethod
+    def transform_kwargs(kwargs):
+        mu = kwargs.pop("mu")
+        alpha = kwargs.get("alpha")
+        kwargs["beta"] = mu / sp.gamma(1 + 1 / alpha)
+        return kwargs
 
 
 class ZeroInflatedBinomial(BinomialBaseFamily):
