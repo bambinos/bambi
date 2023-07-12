@@ -181,6 +181,14 @@ class Family:
         if hasattr(model.family, "transform_kwargs"):
             kwargs = model.family.transform_kwargs(kwargs)
 
+        # TODO: HERE DO THE CENSORING.
+        # HOW DO WE GET THE CENSORING INDICATORS?
+        # 1. check if the response is censored
+        # 2. if yes, get censoring indicators --> how do we request it?
+        #   we can have access to the name of the censoring indicator
+        #   we need to have acces to the data frame
+        #   if we manage to have that, then we can get the new censoring indicators
+        #   won't be trivial
         output_array = pm.draw(response_dist.dist(**kwargs))
         output_coords_all = xr.merge(output_dataset_list).coords
 
