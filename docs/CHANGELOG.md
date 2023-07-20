@@ -5,7 +5,7 @@
 ### New features
 
 * Bambi now supports censored responses (#697)
-* Implement `"weibull"` family (#697)
+* Implement `"exponential"` and `"weibull"` families (#697)
 * Add `"kidney"` dataset (#697)
 
 ### Maintenance and fixes

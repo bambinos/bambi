@@ -234,6 +234,22 @@ class Cumulative(UnivariateFamily):
         return kwargs
 
 
+class Exponential(UnivariateFamily):
+    SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"]}
+
+    @staticmethod
+    def transform_backend_kwargs(kwargs):
+        mu = kwargs.pop("mu")
+        kwargs["lam"] = 1 / mu
+        return kwargs
+
+    @staticmethod
+    def transform_kwargs(kwargs):
+        mu = kwargs.pop("mu")
+        kwargs["lam"] = 1 / mu
+        return kwargs
+
+
 class Gamma(UnivariateFamily):
     SUPPORTED_LINKS = {"mu": ["identity", "log", "inverse"], "alpha": ["log"]}
 
