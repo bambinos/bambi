@@ -997,3 +997,53 @@ def test_predict_new_groups(data, formula, family, df_new, request):
     model = bmb.Model(formula, data, family=family)
     idata = model.fit(tune=100, draws=100)
     model.predict(idata, data=df_new, sample_new_groups=True)
+
+
+def test_censored_response():
+    data = bmb.load_data("kidney")
+    data["status"] = np.where(data["censored"] == 0, "none", "right")
+
+    # Model 1, with intercept
+    priors = {
+        "Intercept": bmb.Prior("Normal", mu=0, sigma=1),
+        "sex": bmb.Prior("Normal", mu=0, sigma=2),
+        "age": bmb.Prior("Normal", mu=0, sigma=1),
+        "alpha": bmb.Prior("Gamma", alpha=3, beta=5),
+    }
+    model = bmb.Model(
+        "censored(time, status) ~ 1 + sex + age", data, family="weibull", link="log", priors=priors
+    )
+    idata = model.fit(tune=100, draws=100, random_seed=121195)
+    model.predict(idata, kind="pps")
+    model.predict(idata, data=data, kind="pps")
+
+    # Model 2, without intercept
+    priors = {
+        "sex": bmb.Prior("Normal", mu=0, sigma=2),
+        "age": bmb.Prior("Normal", mu=0, sigma=1),
+        "alpha": bmb.Prior("Gamma", alpha=3, beta=5),
+    }
+    model = bmb.Model(
+        "censored(time, status) ~ 0 + sex + age", data, family="weibull", link="log", priors=priors
+    )
+    idata = model.fit(tune=100, draws=100, random_seed=121195)
+    model.predict(idata, kind="pps")
+    model.predict(idata, data=data, kind="pps")
+
+    # Model 3, with group-specific effects
+    priors = {
+        "alpha": bmb.Prior("Gamma", alpha=3, beta=5),
+        "sex": bmb.Prior("Normal", mu=0, sigma=1),
+        "age": bmb.Prior("Normal", mu=0, sigma=1),
+        "1|patient": bmb.Prior("Normal", mu=0, sigma=bmb.Prior("InverseGamma", alpha=5, beta=10)),
+    }
+    model = bmb.Model(
+        "censored(time, status) ~ 1 + sex + age + (1|patient)",
+        data,
+        family="weibull",
+        link="log",
+        priors=priors,
+    )
+    idata = model.fit(tune=100, draws=100, random_seed=121195)
+    model.predict(idata, kind="pps")
+    model.predict(idata, data=data, kind="pps")
