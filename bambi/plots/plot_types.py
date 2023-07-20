@@ -45,8 +45,8 @@ def plot_numeric(
     if len(covariates) == 1:
         ax = axes[0]
         values_main = transform_main(plot_data[main])
-        ax.plot(values_main, y_hat_mean, solid_capstyle="butt", color="C0")
-        ax.fill_between(values_main, y_hat_bounds[0], y_hat_bounds[1], color="C0", alpha=0.4)
+        ax.plot(values_main, y_hat_mean, solid_capstyle="butt")
+        ax.fill_between(values_main, y_hat_bounds[0], y_hat_bounds[1], alpha=0.4)
     elif "group" in covariates and not "panel" in covariates:
         ax = axes[0]
         colors = get_unique_levels(plot_data[color])
@@ -155,8 +155,8 @@ def plot_categoric(covariates: Covariates, plot_data: pd.DataFrame, legend: bool
 
     if len(covariates) == 1:
         ax = axes[0]
-        ax.scatter(idxs_main, y_hat_mean, color="C0")
-        ax.vlines(idxs_main, y_hat_bounds[0], y_hat_bounds[1], color="C0")
+        ax.scatter(idxs_main, y_hat_mean)
+        ax.vlines(idxs_main, y_hat_bounds[0], y_hat_bounds[1])
     elif "group" in covariates and not "panel" in covariates:
         ax = axes[0]
         for i, clr in enumerate(colors):
