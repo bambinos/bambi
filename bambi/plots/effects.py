@@ -1,6 +1,3 @@
-# pylint: disable = protected-access
-# pylint: disable = too-many-function-args
-# pylint: disable = too-many-nested-blocks
 from dataclasses import dataclass, field
 import itertools
 from typing import Dict, Union
@@ -8,11 +5,17 @@ from typing import Dict, Union
 import arviz as az
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_categorical_dtype, is_string_dtype
 import xarray as xr
 
 from bambi.models import Model
-from bambi.plots.create_data import create_cap_data, create_comparisons_data
-from bambi.plots.utils import average_over, ConditionalInfo, ContrastInfo, enforce_dtypes, identity
+from bambi.plots.create_data import create_cap_data, create_differences_data
+from bambi.plots.utils import (
+    average_over,
+    ConditionalInfo,
+    identity,
+    VariableInfo,
+)
 from bambi.utils import get_aliased_name, listify
 
 
@@ -39,6 +42,172 @@ class ResponseInfo:
         self.name_obs = f"{self.name}_obs"
         self.lower_bound_name = f"lower_{self.lower_bound * 100}%"
         self.upper_bound_name = f"upper_{self.upper_bound * 100}%"
+
+
+@dataclass
+class Estimate:
+    mean: Dict[str, xr.DataArray]
+    hdi: Dict[str, xr.Dataset]
+    lower: xr.DataArray = field(init=False)
+    higher: xr.DataArray = field(init=False)
+
+    def __post_init__(self):
+        """ """
+        self.hdi_list = [self.hdi[key] for key in self.hdi]
+        self.mean = np.array([value for value in self.mean.values()]).flatten()
+        data_var = list(self.hdi_list[0].data_vars)[0]
+        # TODO: add logic for if not az.InferenceData
+        self.lower = np.array(
+            [self.hdi[key][data_var].sel(hdi="lower") for key in self.hdi]
+        ).flatten()
+        self.higher = np.array(
+            [self.hdi[key][data_var].sel(hdi="higher") for key in self.hdi]
+        ).flatten()
+
+
+SUPPORTED_SLOPES = ("dydx", "eyex")
+SUPPORTED_COMPARISONS = {
+    "diff": lambda x, y: x - y,
+    "ratio": lambda x, y: x / y,
+}
+
+
+@dataclass
+class PredictiveDifferences:
+    model: Model
+    idata: az.InferenceData
+    preds_data: pd.DataFrame
+    variable: VariableInfo
+    conditional: ConditionalInfo
+    response: ResponseInfo
+    use_hdi: bool
+    kind: str
+
+    def get_estimate(self, comparison_type: str = "diff", slope: str = "dydx", eps: float = None):
+        assert self.kind in ("slopes", "comparisons")
+        assert comparison_type in SUPPORTED_COMPARISONS.keys()
+
+        if self.kind == "slopes":
+            self.estimate_name = slope
+        else:
+            self.estimate_name = comparison_type
+
+        function = SUPPORTED_COMPARISONS[comparison_type]
+
+        if self.variable.values.ndim == 1:
+            self.variable.values = np.array(self.variable.values).reshape(-1, 1)
+
+        draws = {}
+        data = {}
+        for idx, _ in enumerate(self.variable.values):
+            mask = np.array(self.preds_data[self.variable.name].isin(self.variable.values[idx]))
+            select_draw = self.idata.posterior[self.response.name_target].sel(
+                {self.response.name_obs: mask}
+            )
+            select_draw = select_draw.assign_coords(
+                {self.response.name_obs: np.arange(len(select_draw.coords[self.response.name_obs]))}
+            )
+            draws[f"draw_mask_{idx}"] = select_draw
+            if slope == "eyex":
+                data[f"draw_mask_{idx}"] = self.preds_data[
+                    self.preds_data[self.variable.name].isin(self.variable.values[idx])
+                ][self.variable.name]
+
+        # TODO: could be a namedtuple so the code / indexing is more understanable???
+        keys = np.array(list(draws.keys()))
+        pairwise_variables = list(itertools.combinations(keys, 2))
+
+        difference_mean = {}
+        difference_bounds = {}
+        for idx, pair in enumerate(pairwise_variables):
+            predictive_difference = function(draws[pair[1]], draws[pair[0]])
+
+            # TODO: move slopes estimate to different func???
+            if self.kind == "slopes":
+                predictive_difference = predictive_difference / eps
+
+                if slope == "eyex":
+                    x1 = xr.DataArray(
+                        data[pair[1]],
+                        coords={self.response.name_obs: np.arange(0, len(data[pair[1]]))},
+                        dims=[self.response.name_obs],
+                    )
+                    y1 = draws[pair[1]]
+                    predictive_difference = (predictive_difference * (x1 / y1)).rename(
+                        self.response.name_target
+                    )
+
+            difference_mean[f"draw_{idx}"] = predictive_difference.mean(("chain", "draw"))
+
+            if self.use_hdi:
+                # TODO: add prob. arg.
+                difference_bounds[f"draw_{idx}"] = az.hdi(predictive_difference, 0.94)
+            else:
+                difference_bounds[f"draw_{idx}"] = difference_mean.quantile(
+                    q=(self.response.lower_bound, self.response.upper_bound), dim=("chain", "draw")
+                )
+
+        self.estimate = Estimate(difference_mean, difference_bounds)
+
+        return self
+
+    def get_summary_df(self) -> pd.DataFrame:
+        if len(self.variable.values) > 2:
+            self.summary_df = self.preds_data.drop(columns=self.variable.name).drop_duplicates()
+            covariates_cols = self.summary_df.columns
+            covariate_vals = np.tile(self.summary_df.T, len(self.variable.values))
+            self.summary_df = pd.DataFrame(data=covariate_vals.T, columns=covariates_cols)
+            self.contrast_values = list(itertools.combinations(self.variable.values.flatten(), 2))
+            self.contrast_values = np.repeat(
+                self.contrast_values, self.preds_data.shape[0] // len(self.contrast_values), axis=0
+            )
+            self.contrast_values = [tuple(elem) for elem in self.contrast_values]
+        else:
+            wrt = {}
+            for idx, _ in enumerate(self.variable.values):
+                mask = np.array(self.preds_data[self.variable.name].isin(self.variable.values[idx]))
+                wrt[f"draw_mask_{idx}"] = self.preds_data[mask][self.variable.name].reset_index(
+                    drop=True
+                )
+                # only need to get "a" dataframe since remaining N dataframes are identical
+                if idx == 0:
+                    self.summary_df = (
+                        self.preds_data[mask]
+                        .drop(columns=self.variable.name)
+                        .reset_index(drop=True)
+                    )
+            self.contrast_values = pd.concat(wrt.values(), axis=1).apply(tuple, axis=1)
+
+        # TODO: is it okay to assign self.summary_df = summary_df at the end
+        # TODO: of this method to avoid the code being littered with "self."???
+        self.summary_df.insert(0, "term", self.variable.name)
+        self.summary_df.insert(1, "estimate_type", self.estimate_name)
+        self.summary_df.insert(2, "value", self.contrast_values)
+        self.summary_df.insert(len(self.summary_df.columns), "estimate", self.estimate.mean)
+        self.summary_df.insert(
+            len(self.summary_df.columns), self.response.lower_bound_name, self.estimate.lower
+        )
+        self.summary_df.insert(
+            len(self.summary_df.columns), self.response.upper_bound_name, self.estimate.higher
+        )
+
+        return self.summary_df
+
+    def average_by(self, by: Union[bool, str]) -> pd.DataFrame:
+        if by is True:
+            contrast_df_avg = average_over(self.summary_df, None)
+            contrast_df_avg.insert(0, "term", self.variable.name)
+            contrast_df_avg.insert(1, "estimate_type", self.estimate_name)
+            if self.kind != "slopes":
+                contrast_df_avg.insert(2, "value", self.contrast_values)
+        else:
+            contrast_df_avg = average_over(self.summary_df, by)
+            contrast_df_avg.insert(0, "term", self.variable.name)
+            contrast_df_avg.insert(1, "estimate_type", self.estimate_name)
+            if self.kind != "slopes":
+                contrast_df_avg.insert(2, "value", self.contrast_values)
+
+        return contrast_df_avg.reset_index(drop=True)
 
 
 def predictions(
@@ -164,12 +333,6 @@ def predictions(
     return cap_data
 
 
-@dataclass
-class ContrastEstimate:
-    comparison: Dict[str, xr.DataArray]
-    hdi: Dict[str, xr.Dataset]
-
-
 def comparisons(
     model: Model,
     idata: az.InferenceData,
@@ -240,18 +403,13 @@ def comparisons(
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
-    comparison_functions = {"diff": lambda x, y: x - y, "ratio": lambda x, y: x / y}
     lower_bound = round((1 - prob) / 2, 4)
     upper_bound = 1 - lower_bound
 
-    contrast_info = ContrastInfo(model, contrast)
+    contrast_info = VariableInfo(model, contrast, "comparisons", eps=0.5)
     conditional_info = ConditionalInfo(model, conditional)
 
-    # 'comparisons' should not be restricted to ("main", "group", "panel")
-    comparisons_df = create_comparisons_data(
-        conditional_info, contrast_info, user_passed=conditional_info.user_passed
-    )
-
+    # TODO: this should be a input to 'PredictiveDifferences'
     if transforms is None:
         transforms = {}
 
@@ -260,190 +418,140 @@ def comparisons(
         response_name, target="mean", lower_bound=lower_bound, upper_bound=upper_bound
     )
 
-    # perform predictions on new data
-    idata = model.predict(idata, data=comparisons_df, inplace=False)
+    # TODO 'comparisons' not be limited to ("main", "group", "panel")
+    comparisons_data = create_differences_data(
+        conditional_info, contrast_info, conditional_info.user_passed, kind="comparisons"
+    )
+    idata = model.predict(idata, data=comparisons_data, inplace=False)
 
-    def _compute_contrast_estimate(
-        contrast: ContrastInfo,
-        response: ResponseInfo,
-        comparisons_df: pd.DataFrame,
-        idata: az.InferenceData,
-    ) -> ContrastEstimate:
-        """
-        Computes the contrast comparison estimate and highest density interval
-        for a given contrast and response by first subsetting posterior draws
-        using a contrast mask. Then, pairwise comparisons are computed for the
-        contrast values. Finally, the mean comparison and lower/upper bounds
-        are computed for each pairwise comparison.
-        """
-        function = comparison_functions[comparison_type]
-
-        draws = {}
-        for idx, val in enumerate(contrast.values):
-            mask = np.array(comparisons_df[contrast.name] == contrast.values[idx])
-            select_draw = idata.posterior[response.name_target].sel({response.name_obs: mask})
-            select_draw = select_draw.assign_coords(
-                {response.name_obs: np.arange(len(select_draw.coords[response.name_obs]))}
-            )
-            draws[val] = select_draw
-
-        pairwise_contrasts = list(itertools.combinations(contrast.values, 2))
-
-        comparison_mean = {}
-        comparison_bounds = {}
-        for idx, pair in enumerate(pairwise_contrasts):
-            comparison_estimate = function(draws[pair[1]], draws[pair[0]])
-            comparison_mean[pair] = comparison_estimate.mean(("chain", "draw"))
-            if use_hdi:
-                comparison_bounds[pair] = az.hdi(comparison_estimate, prob)
-            else:
-                comparison_bounds[pair] = comparison_estimate.quantile(
-                    q=(response.lower_bound, response.upper_bound), dim=("chain", "draw")
-                )
-
-        return ContrastEstimate(comparison_mean, comparison_bounds)
-
-    def _build_contrasts_df(
-        contrast: ContrastInfo,
-        condition: ConditionalInfo,
-        response: ResponseInfo,
-        comparisons_df: pd.DataFrame,
-        idata: az.InferenceData,
-        average_by,
-    ) -> pd.DataFrame:
-        """
-        Builds a dataframe with the comparison values and lower / upper bounds from
-        ``_compute_contrast_estimate`` along with the contrast name, contrast value,
-        and conditional values.
-        """
-        contrast_estimate = _compute_contrast_estimate(contrast, response, comparisons_df, idata)
-
-        # if two contrast values, then can drop duplicates to build contrast_df
-        if len(contrast.values) < 3:
-            if not any(condition.covariates.values()):
-                contrast_df = model.data[comparisons_df.columns].drop(columns=contrast.name)
-                num_rows = contrast_df.shape[0]
-                contrast_df.insert(0, "term", contrast.name)
-                contrast_df.insert(
-                    1, "contrast", list(np.tile(contrast.values, num_rows).reshape(num_rows, 2))
-                )
-                contrast_df["estimate"] = contrast_estimate.comparison[
-                    tuple(contrast.values)
-                ].to_numpy()
-            else:
-                contrast_df = comparisons_df.drop_duplicates(
-                    list(condition.covariates.values())
-                ).reset_index(drop=True)
-                contrast_df = contrast_df.drop(columns=contrast.name)
-                num_rows = contrast_df.shape[0]
-                contrast_df.insert(0, "term", contrast.name)
-                contrast_df.insert(
-                    1, "contrast", list(np.tile(contrast.values, num_rows).reshape(num_rows, 2))
-                )
-                contrast_df["estimate"] = contrast_estimate.comparison[
-                    tuple(contrast.values)
-                ].to_numpy()
-
-            if use_hdi:
-                contrast_df[response.lower_bound_name] = (
-                    contrast_estimate.hdi[tuple(contrast.values)][response.name_target]
-                    .sel(hdi="lower")
-                    .values
-                )
-                contrast_df[response.upper_bound_name] = (
-                    contrast_estimate.hdi[tuple(contrast.values)][response.name_target]
-                    .sel(hdi="higher")
-                    .values
-                )
-            else:
-                contrast_df[response.lower_bound_name] = contrast_estimate.hdi[
-                    tuple(contrast.values)
-                ].sel(quantile=lower_bound)
-                contrast_df[response.upper_bound_name] = contrast_estimate.hdi[
-                    tuple(contrast.values)
-                ].sel(quantile=upper_bound)
-
-        # if > 2 contrast values, then need the full dataframe to build contrast_df
-        elif len(contrast.values) >= 3:
-            contrast_keys = [list(elem) for elem in list(contrast_estimate.comparison.keys())]
-            covariate_cols = comparisons_df.drop(columns=contrast.name).columns
-            covariate_vals = (
-                comparisons_df.drop(columns=contrast.name).drop_duplicates().reset_index(drop=True)
-            ).values
-            covariate_vals = np.tile(np.transpose(covariate_vals), len(contrast.values))
-
-            contrast_df = (
-                pd.DataFrame(contrast_estimate.comparison)
-                .unstack()
-                .reset_index()
-                .rename(columns={0: "estimate"})
-            )
-
-            # this hardcoded subset will not work for cross-contrasts
-            contrast_df.insert(0, "term", contrast.name)
-            contrast_df.insert(
-                1, "contrast", tuple(zip(contrast_df["level_0"], contrast_df["level_1"]))
-            )
-            contrast_df = contrast_df.drop(["level_0", "level_1", "level_2"], axis=1)
-
-            lower = []
-            upper = []
-            for pair in contrast_keys:
-                if use_hdi:
-                    lower.append(
-                        (
-                            contrast_estimate.hdi[tuple(pair)][response.name_target]
-                            .sel(hdi="lower")
-                            .values
-                        )
-                    )
-                    upper.append(
-                        (
-                            contrast_estimate.hdi[tuple(pair)][response.name_target]
-                            .sel(hdi="higher")
-                            .values
-                        )
-                    )
-                else:
-                    lower.append(contrast_estimate.hdi[tuple(pair)].sel(quantile=lower_bound))
-                    upper.append(contrast_estimate.hdi[tuple(pair)].sel(quantile=upper_bound))
-
-            contrast_df[covariate_cols] = np.transpose(covariate_vals)
-            contrast_df[response.lower_bound_name] = np.array(lower).flatten()
-            contrast_df[response.upper_bound_name] = np.array(upper).flatten()
-            contrast_df.insert(
-                len(contrast_df.columns) - 3, "estimate", contrast_df.pop("estimate")
-            )
-            contrast_df = enforce_dtypes(model.data, contrast_df)
-
-        contrast_df["contrast"] = contrast_df["contrast"].apply(tuple)
-
-        if average_by:
-            if average_by is True:
-                contrast_df_avg = average_over(contrast_df, None)
-                contrast_df_avg.insert(0, "term", contrast.name)
-                contrast_df_avg.insert(
-                    1,
-                    "contrast",
-                    np.tile(contrast_df["contrast"].drop_duplicates(), len(contrast_df_avg)),
-                )
-            else:
-                contrast_df_avg = average_over(contrast_df, average_by)
-                contrast_df_avg.insert(0, "term", contrast.name)
-                contrast_df_avg.insert(
-                    1,
-                    "contrast",
-                    np.tile(contrast_df["contrast"].drop_duplicates(), len(contrast_df_avg)),
-                )
-            return contrast_df_avg.reset_index(drop=True)
-        else:
-            return contrast_df.reset_index(drop=True)
-
-    return _build_contrasts_df(
+    predictive_difference = PredictiveDifferences(
+        model,
+        idata,
+        comparisons_data,
         contrast_info,
         conditional_info,
         response,
-        comparisons_df,
-        idata,
-        average_by,
+        use_hdi,
+        kind="comparisons",
     )
+    comparisons_summary = predictive_difference.get_estimate(comparison_type).get_summary_df()
+
+    if average_by:
+        comparisons_summary = predictive_difference.average_by(average_by)
+
+    return comparisons_summary
+
+
+def slopes(
+    model: Model,
+    idata: az.InferenceData,
+    wrt: Union[str, dict],
+    conditional: Union[str, dict, list, None] = None,
+    average_by: Union[str, list, bool, None] = None,
+    eps: float = 1e-4,
+    slope: str = "dydx",
+    use_hdi: bool = True,
+    prob=None,
+    transforms=None,
+) -> pd.DataFrame:
+    """Compute Conditional Adjusted Effects
+
+    Parameters
+    ----------
+    model : bambi.Model
+        The model for which we want to plot the predictions.
+    idata : arviz.InferenceData
+        The InferenceData object that contains the samples from the posterior distribution of
+        the model.
+    wrt : str, dict
+        The slope of the regression with respect to (wrt) this predictor will be computed.
+    conditional : str, dict, list
+        The covariates we would like to condition on.
+    average_by: str, list, bool, optional
+        The covariates we would like to average by. The passed covariate(s) will marginalize
+        over the other covariates in the model. If True, it averages over all covariates
+        in the model to obtain the average estimate. Defaults to ``None``.
+    eps : float, optional
+        To compute the slope, 'wrt' is evaluated at wrt +/- 'eps'. The rate of change is then
+        computed as the difference between the two values divided by 'eps'. Defaults to 1e-4.
+    slope: str, optional
+        The type of slope to compute. Defaults to 'dydx'.
+        'dydx' represents a unit increase in 'wrt' is associated with n-unit change in the response.
+        'eyex' represents a percentage increase in 'wrt' is associated with n-percent change in
+        the response.
+    use_hdi : bool, optional
+        Whether to compute the highest density interval (defaults to True) or the quantiles.
+    prob : float, optional
+        The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
+        Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
+    transforms : dict, optional
+        Transformations that are applied to each of the variables being plotted. The keys are the
+        name of the variables, and the values are functions to be applied. Defaults to ``None``.
+
+    Returns
+    -------
+    pandas.DataFrame
+        A dataframe with the comparison values, highest density interval, ``wrt`` name,
+        contrast value, and conditional values.
+
+    Raises
+    ------
+    ValueError
+        If ``conditional`` is ``None`` and ``wrt`` is a dictionary.
+        If length of ``wrt`` is greater than 1.
+        If ``prob`` is not > 0 and < 1.
+    """
+    if conditional is None and isinstance(wrt, dict):
+        raise ValueError("If a value is passed with 'wrt', then 'conditional' cannot be 'None'.")
+
+    wrt_name = wrt
+    if isinstance(wrt, dict):
+        if len(wrt) > 1:
+            raise ValueError(f"Only one predictor can be passed to 'wrt'. {len(wrt)} were passed.")
+        wrt_name = list(wrt.keys())[0]
+
+    if prob is None:
+        prob = az.rcParams["stats.hdi_prob"]
+    if not 0 < prob < 1:
+        raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
+
+    # TODO 'slopes' not be limited to ("main", "group", "panel")
+    conditional_info = ConditionalInfo(model, conditional)
+
+    # TODO: this feels like a hack???
+    grid = False
+    if conditional_info.covariates:
+        grid = True
+
+    # if wrt is categorical or string dtype, call 'comparisons' to compute the
+    # difference between group means as the slope
+    effect_type = "slopes"
+    if is_categorical_dtype(model.data[wrt_name]) or is_string_dtype(model.data[wrt_name]):
+        effect_type = "comparisons"
+        eps = None
+    wrt_info = VariableInfo(model, wrt, effect_type, grid, eps)
+
+    lower_bound = round((1 - prob) / 2, 4)
+    upper_bound = 1 - lower_bound
+
+    # TODO: this should be a input to 'PredictiveDifferences'
+    if transforms is None:
+        transforms = {}
+
+    response_name = get_aliased_name(model.response_component.response_term)
+    response = ResponseInfo(response_name, "mean", lower_bound, upper_bound)
+
+    slopes_data = create_differences_data(
+        conditional_info, wrt_info, conditional_info.user_passed, effect_type
+    )
+    idata = model.predict(idata, data=slopes_data, inplace=False)
+
+    predictive_difference = PredictiveDifferences(
+        model, idata, slopes_data, wrt_info, conditional_info, response, use_hdi, effect_type
+    )
+    slopes_summary = predictive_difference.get_estimate("diff", slope, eps).get_summary_df()
+
+    if average_by:
+        slopes_summary = predictive_difference.average_by(average_by)
+
+    return slopes_summary
