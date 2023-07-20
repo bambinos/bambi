@@ -164,6 +164,27 @@ The following is a description of the variables:
 * gear: Number of forward gears
 """,
     ),
+    "kidney": FileMetadata(
+        filename="kidney.csv",
+        url="https://figshare.com/ndownloader/files/41645361",
+        checksum="46e49372b4e8c3044dca0ffbb4eb2244f56d7398746802e351baac6c12625564",
+        description="""
+It describes the first and second recurrence times of infection in kidney patients together with 
+information on risk variables such as age, sex, and disease type.
+This dataset is taken from McGilchrist and Aisbett (1991). 
+
+* time: Days to first or second recurrence of the infection, or the time of censoring
+* censored: Indicates censoring status. 0 indicates no censoring and 1 indicates right censoring
+* patient: Patient ID
+* recur: Indicates if the infection occurs for first or second time.
+* age: Age of the patient
+* sex: Sex of the patient
+* disease: The type of disease. Can be "AN", "GN", "PKG", or "other"
+
+McGilchrist, C. A., & Aisbett, C. W. (1991). Regression with frailty in survival analysis. 
+Biometrics, 47(2), 461-466
+""",
+    ),
 }
 
 

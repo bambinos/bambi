@@ -271,7 +271,11 @@ class PyMCModel:
 
         for pymc_component in self.distributional_components.values():
             bambi_component = pymc_component.component
-            if bambi_component.intercept_term and bambi_component.common_terms:
+            if (
+                bambi_component.intercept_term
+                and bambi_component.common_terms
+                and self.spec.center_predictors
+            ):
                 chain_n = len(idata.posterior["chain"])
                 draw_n = len(idata.posterior["draw"])
                 shape, dims = (chain_n, draw_n), ("chain", "draw")

@@ -104,6 +104,7 @@ class Model:
         dropna=False,
         auto_scale=True,
         noncentered=True,
+        center_predictors=True,
         extra_namespace=None,
     ):
         # attributes that are set later
@@ -121,6 +122,7 @@ class Model:
         self.formula = formula
         self.noncentered = noncentered
         self.potentials = potentials
+        self.center_predictors = center_predictors
 
         # Read and clean data
         if not isinstance(data, pd.DataFrame):

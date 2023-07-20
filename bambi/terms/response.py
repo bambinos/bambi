@@ -2,14 +2,14 @@ import formulae.terms
 
 from bambi.terms.base import BaseTerm
 
-# from bambi.new_terms.utils import is_censored_response
+from bambi.terms.utils import is_censored_response
 
 
 class ResponseTerm(BaseTerm):
     def __init__(self, response, family):
         self.term = response.term.term
         self.family = family
-        # self.is_censored = is_censored_response(self.term.term)
+        self.is_censored = is_censored_response(self.term)
 
     @property
     def term(self):

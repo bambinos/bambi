@@ -107,7 +107,7 @@ class DistributionalComponent:
 
             # If there's an intercept, center the data
             # Also store the design matrix without the intercept to uncenter the intercept later
-            if self.has_intercept:
+            if self.has_intercept and bmb_model.center_predictors:
                 self.design_matrix_without_intercept = data
                 data = data - data.mean(0)
 

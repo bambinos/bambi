@@ -3,7 +3,6 @@ import pytest
 import numpy as np
 import pandas as pd
 
-import bambi as bmb
 from bambi.utils import listify
 from bambi.backend.pymc import probit, cloglog
 from bambi.transformations import censored
@@ -25,7 +24,6 @@ def test_cloglog():
     assert (x > 0).all() and (x < 1).all()
 
 
-@pytest.mark.skip(reason="Censored still not ported")
 def test_censored():
     df = pd.DataFrame(
         {
@@ -39,9 +37,25 @@ def test_censored():
 
     x = censored(df["x"], df["status"])
     assert x.shape == (5, 2)
+    assert (x[:, -1] == np.array([0, 1, 2, -1, 0])).all()
 
     x = censored(df["x"], df["y"], df["status"])
     assert x.shape == (5, 3)
+    assert (x[:, -1] == np.array([0, 1, 2, -1, 0])).all()
 
-    with pytest.raises(AssertionError):
+    # Statuses are not the expected
+    with pytest.raises(AssertionError, match="Statuses must be in"):
         censored(df_bad["x"], df_bad["status"])
+
+    # Upper bound is not always larger than lower bound
+    df_bad = pd.DataFrame({"l": [1, 2], "r": [1, 1], "status": ["foo", "bar"]})
+
+    with pytest.raises(AssertionError, match="Upper bound must be larger than lower bound"):
+        censored(df_bad["l"], df_bad["r"], df_bad["status"])
+
+    # Bad number of arguments
+    with pytest.raises(ValueError, match="needs 2 or 3 argument values"):
+        censored(df["x"])
+
+    with pytest.raises(ValueError, match="needs 2 or 3 argument values"):
+        censored(df["x"], df["x"], df["x"], df["x"])
