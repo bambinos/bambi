@@ -1,3 +1,4 @@
+# pylint: disable = too-many-function-args
 from dataclasses import dataclass, field
 from statistics import mode
 from typing import Union
@@ -12,25 +13,71 @@ from bambi.utils import listify
 
 
 @dataclass
-class ContrastInfo:
+class VariableInfo:
     model: Model
-    contrast: Union[str, dict, list]
+    variable: Union[str, dict, list]
+    kind: str
+    grid: Union[bool, None] = None
+    eps: Union[float, None] = None
     name: str = field(init=False)
     values: Union[int, float] = field(init=False)
 
     def __post_init__(self):
-        """ """
-        if isinstance(self.contrast, dict):
-            self.values = list(self.contrast.values())[0]
-            self.name = list(self.contrast.keys())[0]
-        elif isinstance(self.contrast, (list, str)):
-            if isinstance(self.contrast, list):
-                self.name = " ".join(self.contrast)
-            else:
-                self.name = self.contrast
-            self.values = set_default_contrast_values(self.model, self.name)
-        elif not isinstance(self.contrast, (list, dict, str)):
-            raise TypeError("`contrast` must be a list, dict, or string")
+        """
+        Post init method that sets the name and values attributes based on the
+        the effect type (i.e., slopes or comparisons), if the user provided their
+        own values, and dtype of the variable
+        """
+        if isinstance(self.variable, dict):
+            self.values = np.array(list(self.variable.values())[0])
+            if self.kind == "slopes":
+                # TODO: does not work if users passes list or array
+                self.values = np.array([self.values, self.values + self.eps])
+            self.name = list(self.variable.keys())[0]
+        elif isinstance(self.variable, (list, str)):
+            self.name = self.variable
+            if isinstance(self.variable, list):
+                self.name = " ".join(self.variable)
+            self.values = self.set_default_variable_values()
+        elif not isinstance(self.variable, (list, dict, str)):
+            raise TypeError("`variable` must be a list, dict, or string")
+
+    def centered_difference(self, x, eps):
+        return np.array([x - eps, x + eps])
+
+    def epsilon_difference(self, x, eps):
+        return np.array([x, x + eps])
+
+    def set_default_variable_values(self):
+        terms = get_model_terms(self.model)
+        # Get default values for each variable in the model
+        for term in terms.values():
+            if hasattr(term, "components"):
+                for component in term.components:
+                    # If the component is a function call, use the argument names
+                    if isinstance(component, Call):
+                        names = [arg.name for arg in component.call.args]
+                    else:
+                        names = [component.name]
+                    for name in names:
+                        if name == self.name:
+                            # for numeric predictors, select the mean.
+                            predictor_data = self.model.data[name]
+                            dtype = predictor_data.dtype
+                            if component.kind == "numeric":
+                                if self.grid:
+                                    predictor_data = np.mean(predictor_data)
+
+                                if self.kind == "slopes":
+                                    values = self.epsilon_difference(predictor_data, self.eps)
+                                elif self.kind == "comparisons":
+                                    values = self.centered_difference(predictor_data, self.eps)
+                                    values = values.astype(dtype)
+
+                            elif component.kind == "categoric":
+                                values = get_unique_levels(predictor_data)
+
+        return values
 
 
 @dataclass
@@ -194,8 +241,8 @@ def make_group_panel_values(
                 group_values = np.tile(np.repeat(group_values, main_n), panel_n)
                 panel_values = np.repeat(panel_values, main_n * group_n)
                 data_dict.update({main: main_values, group: group_values, panel: panel_values})
-    elif kind == "comparison":
-        # for comparisons, we need unique values for numeric and categorical
+    elif kind == "comparisons" or kind == "slopes":
+        # for comparisons and slopes, we need unique values for numeric and categorical
         # group/panel covariates since we iterate over pairwise combinations of values
         if group and not panel:
             data_dict.update({group: np.unique(group_values)})
@@ -211,14 +258,14 @@ def set_default_values(model: Model, data_dict: dict, kind: str):
     pass them in the data_dict.
     """
     assert kind in [
-        "comparison",
+        "comparisons",
         "predictions",
-    ], "kind must be either 'comparison' or 'predictions'"
+        "slopes",
+    ], "kind must be either 'comparisons', 'slopes', or 'predictions'"
 
     terms = get_model_terms(model)
 
     # Get default values for each variable in the model
-    # pylint: disable=R1702
     for term in terms.values():
         if hasattr(term, "components"):
             for component in term.components:
@@ -236,7 +283,7 @@ def set_default_values(model: Model, data_dict: dict, kind: str):
                         elif component.kind == "categoric":
                             data_dict[name] = mode(model.data[name])
 
-    if kind == "comparison":
+    if kind == "comparisons" or kind == "slopes":
         # if value in dict is not a list then convert to a list
         for key, value in data_dict.items():
             if not isinstance(value, (list, np.ndarray)):
@@ -244,48 +291,6 @@ def set_default_values(model: Model, data_dict: dict, kind: str):
         return data_dict
     elif kind == "predictions":
         return data_dict
-    else:
-        return None
-
-
-def set_default_contrast_values(model: Model, contrast_predictor: str) -> Union[list, np.ndarray]:
-    """
-    Set the default contrast value for the contrast predictor based on the
-    contrast predictor dtype.
-    """
-
-    def _numeric_difference(x):
-        """
-        Centered difference for numeric predictors results in a default contrast
-        of a 1 unit increase
-        """
-        return np.array([x - 0.5, x + 0.5])
-
-    terms = get_model_terms(model)
-    contrast_dtype = model.data[contrast_predictor].dtype
-
-    # Get default values for each variable in the model
-    # pylint: disable=R1702
-    for term in terms.values():
-        if hasattr(term, "components"):
-            for component in term.components:
-                # If the component is a function call, use the argument names
-                if isinstance(component, Call):
-                    names = [arg.name for arg in component.call.args]
-                else:
-                    names = [component.name]
-                for name in names:
-                    if name == contrast_predictor:
-                        # For numeric predictors, select the mean.
-                        if component.kind == "numeric":
-                            contrast = _numeric_difference(np.mean(model.data[name])).astype(
-                                contrast_dtype
-                            )
-                        # For categoric predictors, select the most frequent level.
-                        elif component.kind == "categoric":
-                            contrast = get_unique_levels(model.data[name])
-
-    return contrast
 
 
 def make_main_values(x: np.ndarray, grid_n: int = 50) -> np.ndarray:
@@ -312,12 +317,13 @@ def make_group_values(x: np.ndarray, groups_n: int = 5) -> np.ndarray:
     raise ValueError("Group covariate must be numeric or categoric.")
 
 
-def get_unique_levels(x: np.ndarray) -> Union[list, np.ndarray]:
+def get_unique_levels(x: np.ndarray) -> np.ndarray:
     """
     Get unique levels of a categoric variable.
     """
     if hasattr(x, "dtype") and hasattr(x.dtype, "categories"):
-        levels = list(x.dtype.categories)
+        # levels = list(x.dtype.categories)
+        levels = np.array((x.dtype.categories))
     else:
         levels = np.unique(x)
     return levels
