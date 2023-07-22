@@ -1,4 +1,4 @@
-from bambi.plots.effects import comparisons, slopes, predictions
+from bambi.plots.effects import comparisons, predictions, slopes
 from bambi.plots.plotting import plot_cap, plot_comparison, plot_slopes
 
 
