@@ -14,7 +14,7 @@ from bambi.plots.utils import get_covariates, ConditionalInfo
 from bambi.utils import get_aliased_name, listify
 
 
-def plot_differences(
+def _plot_differences(
     model: Model,
     conditional_info: ConditionalInfo,
     summary_df: pd.DataFrame,
@@ -319,7 +319,7 @@ def plot_comparison(
         transforms=transforms,
     )
 
-    return plot_differences(
+    return _plot_differences(
         model=model,
         conditional_info=conditional_info,
         summary_df=contrast_summary,
@@ -348,7 +348,7 @@ def plot_slopes(
     fig_kwargs=None,
     subplot_kwargs=None,
 ):
-    """Plot Conditional Adjusted Comparisons
+    """Plot Conditional Adjusted Slopes
 
     Parameters
     ----------
@@ -357,15 +357,24 @@ def plot_slopes(
     idata : arviz.InferenceData
         The InferenceData object that contains the samples from the posterior distribution of
         the model.
-    contrast : str, dict, list
-        The predictor name whose contrast we would like to compare.
+    wrt : str, dict
+        The slope of the regression with respect to (wrt) this predictor will be computed.
+        If 'wrt' is numeric, the derivative is computed, else if string or categorical,
+        'comparisons' is called to compute difference in group means.
     conditional : str, dict, list
         The covariates we would like to condition on.
-    average_by: str, list, optional
+    average_by: str, list, bool, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
-        over the other covariates in the model. Defaults to ``None``.
-    comparison_type : str, optional
-        The type of comparison to plot. Defaults to 'diff'.
+        over the other covariates in the model. If True, it averages over all covariates
+        in the model to obtain the average estimate. Defaults to ``None``.
+    eps : float, optional
+        To compute the slope, 'wrt' is evaluated at wrt +/- 'eps'. The rate of change is then
+        computed as the difference between the two values divided by 'eps'. Defaults to 1e-4.
+    slope: str, optional
+        The type of slope to compute. Defaults to 'dydx'.
+        'dydx' represents a unit increase in 'wrt' is associated with an n-unit change in the response.
+        'eyex' represents a percentage increase in 'wrt' is associated with an n-percent change in
+        the response.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
@@ -423,7 +432,7 @@ def plot_slopes(
     if average_by is True:
         raise ValueError(
             "Plotting when 'average_by = True' is not possible as 'True' marginalizes "
-            "over all covariates resulting in a single 'dy/dx' estimate. "
+            "over all covariates resulting in a single slope estimate. "
             "Please specify a covariate(s) to 'average_by'."
         )
 
@@ -445,7 +454,7 @@ def plot_slopes(
         transforms=transforms,
     )
 
-    return plot_differences(
+    return _plot_differences(
         model=model,
         conditional_info=conditional_info,
         summary_df=slopes_summary,
