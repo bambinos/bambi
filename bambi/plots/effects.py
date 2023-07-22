@@ -47,22 +47,35 @@ class ResponseInfo:
 @dataclass
 class Estimate:
     mean: Dict[str, xr.DataArray]
-    hdi: Dict[str, xr.Dataset]
+    bounds: Dict[str, xr.Dataset]
     lower: xr.DataArray = field(init=False)
     higher: xr.DataArray = field(init=False)
 
     def __post_init__(self):
-        """ """
-        self.hdi_list = [self.hdi[key] for key in self.hdi]
+        """
+        Parses the mean and bounds dictionaries into arrays for inserting
+        the 'mean', 'lower', and 'upper' columns into the summary dataframe.
+        """
+        self.hdi_list = [self.bounds[key] for key in self.bounds]
         self.mean = np.array([value for value in self.mean.values()]).flatten()
-        data_var = list(self.hdi_list[0].data_vars)[0]
-        # TODO: add logic for if not az.InferenceData
-        self.lower = np.array(
-            [self.hdi[key][data_var].sel(hdi="lower") for key in self.hdi]
-        ).flatten()
-        self.higher = np.array(
-            [self.hdi[key][data_var].sel(hdi="higher") for key in self.hdi]
-        ).flatten()
+
+        try:
+            data_var = list(self.hdi_list[0].data_vars)[0]
+            self.lower = np.array(
+                [self.bounds[key][data_var].sel(hdi="lower") for key in self.bounds]
+            ).flatten()
+            self.higher = np.array(
+                [self.bounds[key][data_var].sel(hdi="higher") for key in self.bounds]
+            ).flatten()
+        except:
+            lower = self.hdi_list[0].coords["quantile"].values[0]
+            higher = self.hdi_list[0].coords["quantile"].values[1]
+            self.lower = np.array(
+                [self.bounds[key].sel(quantile=lower) for key in self.bounds]
+            ).flatten()
+            self.higher = np.array(
+                [self.bounds[key].sel(quantile=higher) for key in self.bounds]
+            ).flatten()
 
 
 SUPPORTED_SLOPES = ("dydx", "eyex")
@@ -83,16 +96,22 @@ class PredictiveDifferences:
     use_hdi: bool
     kind: str
 
-    def get_estimate(self, comparison_type: str = "diff", slope: str = "dydx", eps: float = None):
+    def get_estimate(
+        self,
+        comparison_type: str = "diff",
+        slope: str = "dydx",
+        eps: Union[float, None] = None,
+        prob: float = 0.94,
+    ):
         assert self.kind in ("slopes", "comparisons")
         assert comparison_type in SUPPORTED_COMPARISONS.keys()
+
+        function = SUPPORTED_COMPARISONS[comparison_type]
 
         if self.kind == "slopes":
             self.estimate_name = slope
         else:
             self.estimate_name = comparison_type
-
-        function = SUPPORTED_COMPARISONS[comparison_type]
 
         if self.variable.values.ndim == 1:
             self.variable.values = np.array(self.variable.values).reshape(-1, 1)
@@ -113,9 +132,18 @@ class PredictiveDifferences:
                     self.preds_data[self.variable.name].isin(self.variable.values[idx])
                 ][self.variable.name]
 
-        # TODO: could be a namedtuple so the code / indexing is more understanable???
+        # TODO: could be a diff. data structure so the code / indexing is more understandable?
         keys = np.array(list(draws.keys()))
         pairwise_variables = list(itertools.combinations(keys, 2))
+
+        # TODO: move this outside to different func?
+        if self.kind == "slopes" and self.variable.user_passed:
+            orig, orig_eps = (
+                keys[: self.variable.passed_values.size],
+                keys[self.variable.passed_values.size :],
+            )
+            pairwise_variables = np.dstack((orig, orig_eps))[0]
+            self.variable.values = self.variable.values.reshape(2, self.variable.passed_values.size)
 
         difference_mean = {}
         difference_bounds = {}
@@ -140,10 +168,9 @@ class PredictiveDifferences:
             difference_mean[f"draw_{idx}"] = predictive_difference.mean(("chain", "draw"))
 
             if self.use_hdi:
-                # TODO: add prob. arg.
-                difference_bounds[f"draw_{idx}"] = az.hdi(predictive_difference, 0.94)
+                difference_bounds[f"draw_{idx}"] = az.hdi(predictive_difference, prob)
             else:
-                difference_bounds[f"draw_{idx}"] = difference_mean.quantile(
+                difference_bounds[f"draw_{idx}"] = predictive_difference.quantile(
                     q=(self.response.lower_bound, self.response.upper_bound), dim=("chain", "draw")
                 )
 
@@ -152,11 +179,11 @@ class PredictiveDifferences:
         return self
 
     def get_summary_df(self) -> pd.DataFrame:
-        if len(self.variable.values) > 2:
-            self.summary_df = self.preds_data.drop(columns=self.variable.name).drop_duplicates()
-            covariates_cols = self.summary_df.columns
-            covariate_vals = np.tile(self.summary_df.T, len(self.variable.values))
-            self.summary_df = pd.DataFrame(data=covariate_vals.T, columns=covariates_cols)
+        if len(self.variable.values) > 2 and self.kind == "comparisons":
+            summary_df = self.preds_data.drop(columns=self.variable.name).drop_duplicates()
+            covariates_cols = summary_df.columns
+            covariate_vals = np.tile(summary_df.T, len(self.variable.values))
+            summary_df = pd.DataFrame(data=covariate_vals.T, columns=covariates_cols)
             self.contrast_values = list(itertools.combinations(self.variable.values.flatten(), 2))
             self.contrast_values = np.repeat(
                 self.contrast_values, self.preds_data.shape[0] // len(self.contrast_values), axis=0
@@ -171,25 +198,25 @@ class PredictiveDifferences:
                 )
                 # only need to get "a" dataframe since remaining N dataframes are identical
                 if idx == 0:
-                    self.summary_df = (
+                    summary_df = (
                         self.preds_data[mask]
                         .drop(columns=self.variable.name)
                         .reset_index(drop=True)
                     )
             self.contrast_values = pd.concat(wrt.values(), axis=1).apply(tuple, axis=1)
 
-        # TODO: is it okay to assign self.summary_df = summary_df at the end
-        # TODO: of this method to avoid the code being littered with "self."???
-        self.summary_df.insert(0, "term", self.variable.name)
-        self.summary_df.insert(1, "estimate_type", self.estimate_name)
-        self.summary_df.insert(2, "value", self.contrast_values)
-        self.summary_df.insert(len(self.summary_df.columns), "estimate", self.estimate.mean)
-        self.summary_df.insert(
-            len(self.summary_df.columns), self.response.lower_bound_name, self.estimate.lower
+        summary_df.insert(0, "term", self.variable.name)
+        summary_df.insert(1, "estimate_type", self.estimate_name)
+        summary_df.insert(2, "value", self.contrast_values)
+        summary_df.insert(len(summary_df.columns), "estimate", self.estimate.mean)
+        summary_df.insert(
+            len(summary_df.columns), self.response.lower_bound_name, self.estimate.lower
         )
-        self.summary_df.insert(
-            len(self.summary_df.columns), self.response.upper_bound_name, self.estimate.higher
+        summary_df.insert(
+            len(summary_df.columns), self.response.upper_bound_name, self.estimate.higher
         )
+
+        self.summary_df = summary_df
 
         return self.summary_df
 
@@ -454,7 +481,7 @@ def slopes(
     prob=None,
     transforms=None,
 ) -> pd.DataFrame:
-    """Compute Conditional Adjusted Effects
+    """Compute Conditional Adjusted Slopes
 
     Parameters
     ----------
@@ -476,8 +503,8 @@ def slopes(
         computed as the difference between the two values divided by 'eps'. Defaults to 1e-4.
     slope: str, optional
         The type of slope to compute. Defaults to 'dydx'.
-        'dydx' represents a unit increase in 'wrt' is associated with n-unit change in the response.
-        'eyex' represents a percentage increase in 'wrt' is associated with n-percent change in
+        'dydx' represents a unit increase in 'wrt' is associated with an n-unit change in the response.
+        'eyex' represents a percentage increase in 'wrt' is associated with an n-percent change in
         the response.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
@@ -518,7 +545,6 @@ def slopes(
     # TODO 'slopes' not be limited to ("main", "group", "panel")
     conditional_info = ConditionalInfo(model, conditional)
 
-    # TODO: this feels like a hack???
     grid = False
     if conditional_info.covariates:
         grid = True
