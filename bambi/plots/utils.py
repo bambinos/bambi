@@ -1,4 +1,5 @@
 # pylint: disable = too-many-function-args
+# pylint: disable = too-many-nested-blocks
 from dataclasses import dataclass, field
 from statistics import mode
 from typing import Union
@@ -26,7 +27,7 @@ class VariableInfo:
 
     def __post_init__(self):
         """
-        Post init method that sets the name and values attributes based on the
+        Post init that sets the name and values attributes based on the
         the effect type (i.e., slopes or comparisons), if the user provided their
         own values, and dtype of the variable
         """
@@ -76,7 +77,6 @@ class VariableInfo:
                                 elif self.kind == "comparisons":
                                     values = self.centered_difference(predictor_data, self.eps)
                                     values = values.astype(dtype)
-
                             elif component.kind == "categoric":
                                 values = get_unique_levels(predictor_data)
 
@@ -244,7 +244,7 @@ def make_group_panel_values(
                 group_values = np.tile(np.repeat(group_values, main_n), panel_n)
                 panel_values = np.repeat(panel_values, main_n * group_n)
                 data_dict.update({main: main_values, group: group_values, panel: panel_values})
-    elif kind == "comparisons" or kind == "slopes":
+    elif kind in ("comparisons", "slopes"):
         # for comparisons and slopes, we need unique values for numeric and categorical
         # group/panel covariates since we iterate over pairwise combinations of values
         if group and not panel:
@@ -260,11 +260,11 @@ def set_default_values(model: Model, data_dict: dict, kind: str):
     Set default values for each variable in the model if the user did not
     pass them in the data_dict.
     """
-    assert kind in [
+    assert kind in (
         "comparisons",
         "predictions",
         "slopes",
-    ], "kind must be either 'comparisons', 'slopes', or 'predictions'"
+    ), "kind must be either 'comparisons', 'slopes', or 'predictions'"
 
     terms = get_model_terms(model)
 
@@ -286,7 +286,7 @@ def set_default_values(model: Model, data_dict: dict, kind: str):
                         elif component.kind == "categoric":
                             data_dict[name] = mode(model.data[name])
 
-    if kind == "comparisons" or kind == "slopes":
+    if kind in ("comparisons", "slopes"):
         # if value in dict is not a list then convert to a list
         for key, value in data_dict.items():
             if not isinstance(value, (list, np.ndarray)):
