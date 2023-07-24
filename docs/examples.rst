@@ -28,3 +28,4 @@ Examples
   notebooks/hsgp_2d
   notebooks/plot_cap
   notebooks/plot_comparisons
+  notebooks/plot_slopes
