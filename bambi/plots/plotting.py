@@ -372,7 +372,8 @@ def plot_slopes(
         computed as the difference between the two values divided by 'eps'. Defaults to 1e-4.
     slope: str, optional
         The type of slope to compute. Defaults to 'dydx'.
-        'dydx' represents a unit increase in 'wrt' is associated with an n-unit change in the response.
+        'dydx' represents a unit increase in 'wrt' is associated with an n-unit change in the
+        response.
         'eyex' represents a percentage increase in 'wrt' is associated with an n-percent change in
         the response.
     use_hdi : bool, optional
@@ -436,8 +437,8 @@ def plot_slopes(
             "Please specify a covariate(s) to 'average_by'."
         )
 
-    if slope not in ("dydx", "eyex"):
-        raise ValueError("'slope' must be one of ('dydx', 'eyex')")
+    if slope not in ("dydx", "dyex", "eyex", "eydx"):
+        raise ValueError("'slope' must be one of ('dydx', 'dyex', 'eyex', 'eydx')")
 
     conditional_info = ConditionalInfo(model, conditional)
 
