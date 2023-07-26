@@ -46,9 +46,11 @@ def _grid_level(
     # use cartesian product (cross join) to create pairwise grid
     keys, values = zip(*comparison_data.items())
     pairwise_grid = pd.DataFrame([dict(zip(keys, v)) for v in itertools.product(*values)])
-    # cannot enfore dtypes if 'slopes' because it may remove floating point of dy/dx
+    # can't enforce dtype on numeric 'wrt' as it may remove floating point epsilons
     if kind == "comparisons":
         pairwise_grid = enforce_dtypes(condition_info.model.data, pairwise_grid)
+    elif kind == "slopes":
+        pairwise_grid = enforce_dtypes(condition_info.model.data, pairwise_grid, variable_info.name)
 
     return pairwise_grid
 

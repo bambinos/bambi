@@ -6,16 +6,12 @@ import matplotlib.pyplot as plt
 import pytest
 
 import bambi as bmb
-from bambi.plots import plot_cap, plot_comparison
+from bambi.plots import plot_cap, plot_comparison, plot_slopes
 
 
 @pytest.fixture(scope="module")
 def mtcars():
     data = bmb.load_data('mtcars')
-    data["cyl"] = data["cyl"].replace({4: "low", 6: "medium", 8: "high"})
-    data["gear"] = data["gear"].replace({3: "A", 4: "B", 5: "C"})
-    data["gear"] = pd.Categorical(data["gear"], ordered=False)
-    data["cyl"] = pd.Categorical(data["cyl"], categories=["low", "medium", "high"], ordered=True)
     data["am"] = pd.Categorical(data["am"], categories=[0, 1], ordered=True)
     model = bmb.Model("mpg ~ hp * drat * am", data)
     idata = model.fit(tune=500, draws=500, random_seed=1234)
@@ -29,8 +25,8 @@ def mtcars():
 
 class TestCommon:
     """
-    Tests argments that are common to both plot_cap and plot_comparison such
-    as figure object and uncertainty arguments.
+    Tests argments that are common to both 'plot_cap', 'plot_comparison',
+    and 'plot_slopes' such as figure object and uncertainty arguments.
     """
     @pytest.mark.parametrize("pps", [False, True])
     def test_use_hdi(self, mtcars, pps):
@@ -43,6 +39,8 @@ class TestCommon:
             pps=pps,
             use_hdi=False
         )
+        #plot_slopes(model, idata, "hp", "am", use_hdi=False)
+        
     
     @pytest.mark.parametrize("pps", [False, True])
     def test_hdi_prob(self, mtcars, pps):
@@ -53,11 +51,12 @@ class TestCommon:
             idata,
             ["hp", "cyl", "gear"], 
             pps=pps, 
-            prob=0.9
+            prob=0.8
         )
+        plot_slopes(model, idata, "hp", "am", prob=0.8)
 
         with pytest.raises(
-        ValueError, match="'prob' must be greater than 0 and smaller than 1. It is 1.1."
+            ValueError, match="'prob' must be greater than 0 and smaller than 1. It is 1.1."
         ):
             plot_comparison(model, idata, "am", "hp", prob=1.1)
             plot_cap(
@@ -66,6 +65,7 @@ class TestCommon:
                 ["hp", "cyl", "gear"], 
                 pps=pps,
                 prob=1.1)
+            plot_slopes(model, idata, "hp", "am", prob=1.1)
 
         with pytest.raises(
             ValueError, match="'prob' must be greater than 0 and smaller than 1. It is -0.1."
@@ -77,6 +77,7 @@ class TestCommon:
                 ["hp", "cyl", "gear"], 
                 pps=pps,
                 prob=-0.1)
+            plot_slopes(model, idata, "hp", "am", prob=0.1)
 
 
     @pytest.mark.parametrize("pps", [False, True])
@@ -84,6 +85,7 @@ class TestCommon:
         model, idata = mtcars
         plot_comparison(model, idata, "am", "hp", legend=False)
         plot_cap(model, idata, ["hp"], pps=pps,legend=False)
+        plot_slopes(model, idata, "hp", "am", legend=False)
     
 
     @pytest.mark.parametrize("pps", [False, True])
@@ -103,10 +105,17 @@ class TestCommon:
         assert fig is fig_r
         assert ax is ax_r[0]
 
+        fig, ax = plt.subplots()
+        fig_r, ax_r = plot_slopes(model, idata, "hp", "am", ax=ax)
+
+        assert isinstance(ax_r, np.ndarray)
+        assert fig is fig_r
+        assert ax is ax_r[0]
+
 
 class TestCap:
     """
-    Tests the plot_cap function for different combinations of main, group,
+    Tests the 'plot_cap' function for different combinations of main, group,
     and panel variables.
     """
     @pytest.mark.parametrize("pps", [False, True])
@@ -225,7 +234,7 @@ class TestComparison:
     @pytest.mark.parametrize(
             "contrast, conditional", [
                 ("hp", "am"), # numeric & categorical
-                ("am", "hp"), # categorical & numeric
+                ("am", "hp") # categorical & numeric
                 ]
     )
     def test_basic(self, mtcars, contrast, conditional):
@@ -236,7 +245,7 @@ class TestComparison:
     @pytest.mark.parametrize(
             "contrast, conditional", [
                 ("hp", ["am", "drat"]), # numeric & [categorical, numeric]
-                ("hp", ["drat", "am"]), # numeric & [numeric, categorical]
+                ("hp", ["drat", "am"]) # numeric & [numeric, categorical]
                 ]
     )
     def test_with_groups(self, mtcars, contrast, conditional):
@@ -279,5 +288,90 @@ class TestComparison:
     @pytest.mark.parametrize("average_by", ["am", "drat", ["am", "drat"]])
     def test_average_by(self, mtcars, average_by):
         model, idata = mtcars
+
+        # grid of values with average_by
         plot_comparison(model, idata, "hp", ["am", "drat"], average_by)
+        
+        # unit level with average by
+        plot_comparison(model, idata, "hp", None, average_by)
+
+
+class TestSlopes:
+    """
+    Tests the 'plot_slopes' function for different combinations, elasticity,
+    and effect types (unit and average slopes) of 'wrt' and 'conditional' 
+    variables.
+    """
+
+    @pytest.mark.parametrize(
+            "wrt, conditional", [
+                ("hp", "am"), # numeric & categorical
+                ("am", "hp") # categorical & numeric
+                ]
+    )
+    def test_basic(self, mtcars, wrt, conditional):
+        model, idata = mtcars
+        plot_slopes(model, idata, wrt, conditional)
     
+
+    @pytest.mark.parametrize(
+            "wrt, conditional", [
+                ("hp", ["am", "drat"]), # numeric & [categorical, numeric]
+                ("hp", ["drat", "am"]) # numeric & [numeric, categorical]
+                ]
+    )
+    def test_with_groups(self, mtcars, wrt, conditional):
+        model, idata = mtcars
+        plot_slopes(model, idata, wrt, conditional)
+    
+
+    @pytest.mark.parametrize(
+            "wrt, conditional, average_by", [
+                ({"hp": 150}, ["am", "drat"], None), # single 'wrt' values
+                ({"hp": 150}, {"am": [0, 1], "drat": [3, 4, 5]}, None), # single 'wrt' values
+                ({"hp": [150, 200]}, ["am", "drat"], "am"), # multiple 'wrt' values
+                ({"hp": [150, 200]}, {"am": [0, 1], "drat": [3, 4, 5]}, "drat") # multiple 'wrt' values
+                ]
+    )
+    def test_with_user_values(self, mtcars, wrt, conditional, average_by):
+        model, idata = mtcars
+        # need to average by if greater than 1 value is passed with 'wrt'
+        plot_slopes(model, idata, wrt, conditional, average_by=average_by)
+    
+    
+    @pytest.mark.parametrize("slope", ["dydx", "dyex", "eyex", "eydx"])
+    def test_elasticity(self, mtcars, slope):
+        model, idata = mtcars
+        plot_slopes(model, idata, "hp", "drat", slope=slope)
+    
+    
+    @pytest.mark.parametrize(
+            "wrt, conditional, subplot_kwargs", [
+                ("drat", ["hp", "am"],  {"main": "hp",  "group": "am",  "panel": "am"})
+                ]
+    )
+    def test_subplot_kwargs(self, mtcars, wrt, conditional, subplot_kwargs):
+        model, idata = mtcars
+        plot_slopes(model, idata, wrt, conditional, subplot_kwargs=subplot_kwargs)
+    
+
+    @pytest.mark.parametrize(
+            "wrt, conditional, transforms", [
+                ("drat", ["hp", "am"], {"hp": np.log}), # transform main numeric
+                ("drat", ["hp", "am"], {"mpg": np.log}), # transform response
+                ]
+    )
+    def test_transforms(self, mtcars, wrt, conditional, transforms):
+        model, idata = mtcars
+        plot_slopes(model, idata, wrt, conditional, transforms=transforms)
+    
+
+    @pytest.mark.parametrize("average_by", ["am", "drat", ["am", "drat"]])
+    def test_average_by(self, mtcars, average_by):
+        model, idata = mtcars
+
+        # grid of values with average_by
+        plot_slopes(model, idata, "hp", ["am", "drat"], average_by)
+
+        # unit level with average by
+        plot_slopes(model, idata, "hp", None, average_by)

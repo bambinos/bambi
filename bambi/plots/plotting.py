@@ -372,20 +372,24 @@ def plot_slopes(
         computed as the difference between the two values divided by 'eps'. Defaults to 1e-4.
     slope: str, optional
         The type of slope to compute. Defaults to 'dydx'.
-        'dydx' represents a unit increase in 'wrt' is associated with an n-unit change in the
-        response.
-        'eyex' represents a percentage increase in 'wrt' is associated with an n-percent change in
+        'dydx' represents a unit increase in 'wrt' is associated with an n-unit change in
         the response.
+        'eyex' represents a percentage increase in 'wrt' is associated with an n-percent
+        change in the response.
+        'eydx' represents a unit increase in 'wrt' is associated with an n-percent
+        change in the response.
+        'dyex' represents a percent change in 'wrt' is associated with a unit increase
+        in the response.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
         Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
-    legend : bool, optional
-        Whether to automatically include a legend in the plot. Defaults to ``True``.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to ``None``.
+    legend : bool, optional
+        Whether to automatically include a legend in the plot. Defaults to ``True``.
     ax : matplotlib.axes._subplots.AxesSubplot, optional
         A matplotlib axes object or a sequence of them. If None, this function instantiates a
         new axes object. Defaults to ``None``.
@@ -406,18 +410,20 @@ def plot_slopes(
     Raises
     ------
     ValueError
+        If number of values passed with ``conditional`` is >= 2 and 
+        ``average_by`` are both ``None``.
         If ``conditional`` and ``average_by`` are both ``None``.
         If length of ``conditional`` is greater than 3 and ``average_by`` is ``None``.
-
-    Warning
-        If length of ``contrast`` is greater than 2.
+        If ``slope`` is not one of ('dydx', 'dyex', 'eyex', 'eydx').
     """
     if isinstance(wrt, dict):
-        contrast_name, contrast_level = next(iter(wrt.items()))
-        if len(contrast_level) > 2:
+        contrast_level = next(iter(wrt.values()))
+        if not isinstance(contrast_level, (list, np.ndarray)):
+            contrast_level = [contrast_level]
+        if len(contrast_level) >= 2 and average_by is None:
             raise ValueError(
-                f"Plotting when 'wrt' has > 2 values is not supported. "
-                f"{contrast_name} has {len(contrast_level)} values."
+                "When plotting with more than 2 values for 'wrt', you must "
+                "pass a covariate to 'average_by'"
             )
 
     if conditional is None and average_by is None:
