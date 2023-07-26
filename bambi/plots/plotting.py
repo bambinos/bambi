@@ -413,11 +413,13 @@ def plot_slopes(
         If length of ``contrast`` is greater than 2.
     """
     if isinstance(wrt, dict):
-        contrast_name, contrast_level = next(iter(wrt.items()))
-        if len(contrast_level) > 2:
+        contrast_level = next(iter(wrt.values()))
+        if not isinstance(contrast_level, (list, np.ndarray)):
+            contrast_level = [contrast_level]
+        if len(contrast_level) >= 2 and average_by is None:
             raise ValueError(
-                f"Plotting when 'wrt' has > 2 values is not supported. "
-                f"{contrast_name} has {len(contrast_level)} values."
+                "When plotting with more than 2 values for 'wrt', you must "
+                "pass a covariate to 'average_by'"
             )
 
     if conditional is None and average_by is None:
