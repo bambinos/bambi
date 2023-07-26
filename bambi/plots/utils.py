@@ -48,8 +48,8 @@ class VariableInfo:
         elif not isinstance(self.variable, (list, dict, str)):
             raise TypeError("`variable` must be a list, dict, or string")
 
-    def centered_difference(self, x, eps):
-        return np.array([x - eps, x + eps])
+    def centered_difference(self, x, eps, dtype):
+        return np.array([x - eps, x + eps], dtype=dtype)
 
     def epsilon_difference(self, x, eps):
         return np.array([x, x + eps])
@@ -70,13 +70,14 @@ class VariableInfo:
                             predictor_data = self.model.data[name]
                             dtype = predictor_data.dtype
                             if component.kind == "numeric":
-                                if self.grid:
+                                if self.grid or self.kind == "comparisons":
                                     predictor_data = np.mean(predictor_data)
                                 if self.kind == "slopes":
                                     values = self.epsilon_difference(predictor_data, self.eps)
                                 elif self.kind == "comparisons":
-                                    values = self.centered_difference(predictor_data, self.eps)
-                                    values = values.astype(dtype)
+                                    values = self.centered_difference(
+                                        predictor_data, self.eps, dtype
+                                    )
                             elif component.kind == "categoric":
                                 values = get_unique_levels(predictor_data)
 
@@ -188,13 +189,13 @@ def get_covariates(covariates: dict) -> Covariates:
     return Covariates(main, group, panel)
 
 
-def enforce_dtypes(data: pd.DataFrame, df: pd.DataFrame) -> pd.DataFrame:
+def enforce_dtypes(data: pd.DataFrame, df: pd.DataFrame, except_col=None) -> pd.DataFrame:
     """
     Enforce dtypes of the original data to the new data.
     """
     observed_dtypes = data.dtypes
     for col in df.columns:
-        if col in observed_dtypes.index:
+        if col in observed_dtypes.index and not except_col:
             df[col] = df[col].astype(observed_dtypes[col])
     return df
 
@@ -292,8 +293,8 @@ def set_default_values(model: Model, data_dict: dict, kind: str):
             if not isinstance(value, (list, np.ndarray)):
                 data_dict[key] = [value]
         return data_dict
-    elif kind == "predictions":
-        return data_dict
+    # elif kind == "predictions":
+    return data_dict
 
 
 def make_main_values(x: np.ndarray, grid_n: int = 50) -> np.ndarray:
