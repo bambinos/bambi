@@ -87,6 +87,7 @@ SUPPORTED_COMPARISONS = {
 }
 
 
+# pylint: disable=consider-iterating-dictionary
 # pylint: disable=too-many-instance-attributes
 @dataclass
 class PredictiveDifferences:
@@ -156,6 +157,7 @@ class PredictiveDifferences:
     def get_estimate(
         self,
         idata: az.InferenceData,
+        response_transforms: dict,
         comparison_type: str = "diff",
         slope: str = "dydx",
         eps: Union[float, None] = None,
@@ -185,8 +187,8 @@ class PredictiveDifferences:
         variable_data = {}
         for idx, _ in enumerate(self.variable.values):
             mask = np.array(self.preds_data[self.variable.name].isin(self.variable.values[idx]))
-            select_draw = idata.posterior[self.response.name_target].sel(
-                {self.response.name_obs: mask}
+            select_draw = response_transforms(
+                idata.posterior[self.response.name_target].sel({self.response.name_obs: mask})
             )
             select_draw = select_draw.assign_coords(
                 {self.response.name_obs: np.arange(len(select_draw.coords[self.response.name_obs]))}
@@ -492,7 +494,6 @@ def comparisons(
     contrast_info = VariableInfo(model, contrast, "comparisons", eps=0.5)
     conditional_info = ConditionalInfo(model, conditional)
 
-    # TODO: this should be a input to 'PredictiveDifferences'
     if transforms is None:
         transforms = {}
 
@@ -500,6 +501,7 @@ def comparisons(
     response = ResponseInfo(
         response_name, target="mean", lower_bound=lower_bound, upper_bound=upper_bound
     )
+    response_transform = transforms.get(response_name, identity)
 
     # 'comparisons' not be limited to ("main", "group", "panel")
     comparisons_data = create_differences_data(
@@ -517,7 +519,7 @@ def comparisons(
         kind="comparisons",
     )
     comparisons_summary = predictive_difference.get_estimate(
-        idata, comparison_type, prob=prob
+        idata, response_transform, comparison_type, prob=prob
     ).get_summary_df()
 
     if average_by:
@@ -621,12 +623,12 @@ def slopes(
     lower_bound = round((1 - prob) / 2, 4)
     upper_bound = 1 - lower_bound
 
-    # TODO: this should be a input to 'PredictiveDifferences'
     if transforms is None:
         transforms = {}
 
     response_name = get_aliased_name(model.response_component.response_term)
     response = ResponseInfo(response_name, "mean", lower_bound, upper_bound)
+    response_transform = transforms.get(response_name, identity)
 
     slopes_data = create_differences_data(
         conditional_info, wrt_info, conditional_info.user_passed, effect_type
@@ -636,7 +638,9 @@ def slopes(
     predictive_difference = PredictiveDifferences(
         model, slopes_data, wrt_info, conditional_info, response, use_hdi, effect_type
     )
-    slopes_summary = predictive_difference.get_estimate(idata, "diff", slope, eps).get_summary_df()
+    slopes_summary = predictive_difference.get_estimate(
+        idata, response_transform, "diff", slope, eps
+    ).get_summary_df()
 
     if average_by:
         slopes_summary = predictive_difference.average_by(variable=average_by)
