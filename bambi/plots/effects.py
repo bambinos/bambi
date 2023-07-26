@@ -279,6 +279,10 @@ class PredictiveDifferences:
         return self.summary_df
 
     def average_by(self, variable: Union[bool, str]) -> pd.DataFrame:
+        """
+        Uses the original 'summary_df' to perform a marginal (if 'variable=True') 
+        or group by average if covariate(s) are passed.
+        """
         if variable is True:
             contrast_df_avg = average_over(self.summary_df, None)
             contrast_df_avg.insert(0, "term", self.variable.name)
@@ -566,6 +570,10 @@ def slopes(
         the response.
         'eyex' represents a percentage increase in 'wrt' is associated with an n-percent
         change in the response.
+        'eydx' represents a unit increase in 'wrt' is associated with an n-percent
+        change in the response.
+        'dyex' represents a percent change in 'wrt' is associated with a unit increase
+        in the response.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
@@ -584,8 +592,9 @@ def slopes(
     Raises
     ------
     ValueError
-        If ``conditional`` is ``None`` and ``wrt`` is a dictionary.
+        If ``conditional`` is ``None`` and values are passed to ``wrt``.
         If length of ``wrt`` is greater than 1.
+        If ``slope`` is not 'dydx', 'dyex', 'eyex', or 'eydx'.
         If ``prob`` is not > 0 and < 1.
     """
     if conditional is None and isinstance(wrt, dict):
