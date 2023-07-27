@@ -410,7 +410,7 @@ def plot_slopes(
     Raises
     ------
     ValueError
-        If number of values passed with ``conditional`` is >= 2 and 
+        If number of values passed with ``conditional`` is >= 2 and
         ``average_by`` are both ``None``.
         If ``conditional`` and ``average_by`` are both ``None``.
         If length of ``conditional`` is greater than 3 and ``average_by`` is ``None``.
