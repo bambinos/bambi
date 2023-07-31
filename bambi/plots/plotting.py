@@ -299,9 +299,10 @@ def plot_comparison(
 
     if isinstance(contrast, dict):
         contrast_name, contrast_level = next(iter(contrast.items()))
-        if len(contrast_level) > 2:
+        if len(contrast_level) >= 2 and average_by is None:
             raise ValueError(
-                f"Plotting when 'contrast' has > 2 values is not supported. "
+                "When plotting with more than 2 values for 'contrast', you must "
+                "pass a covariate to 'average_by'. "
                 f"{contrast_name} has {len(contrast_level)} values."
             )
 
@@ -417,14 +418,16 @@ def plot_slopes(
         If ``slope`` is not one of ('dydx', 'dyex', 'eyex', 'eydx').
     """
     if isinstance(wrt, dict):
-        contrast_level = next(iter(wrt.values()))
-        if not isinstance(contrast_level, (list, np.ndarray)):
-            contrast_level = [contrast_level]
-        if len(contrast_level) >= 2 and average_by is None:
-            raise ValueError(
-                "When plotting with more than 2 values for 'wrt', you must "
-                "pass a covariate to 'average_by'"
-            )
+        wrt_name, wrt_value = next(iter(wrt.items()))
+        if not isinstance(wrt_value, (list, np.ndarray)):
+            wrt_value = [wrt_value]
+
+        if not is_categorical_dtype(model.data[wrt_name]) or not is_string_dtype(model.data[wrt_name]):
+            if len(wrt_value) >= 2 and average_by is None:
+                raise ValueError(
+                    "When plotting with more than 2 values for 'wrt', you must "
+                    "pass a covariate to 'average_by'"
+                )
 
     if conditional is None and average_by is None:
         raise ValueError("Must specify at least one of 'conditional' or 'average_by'.")
