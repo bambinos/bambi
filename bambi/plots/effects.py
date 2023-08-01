@@ -132,7 +132,6 @@ class PredictiveDifferences:
         """
         Computes the slope estimate for 'dydx', 'dyex', 'eyex', 'eydx'.
         """
-
         predictive_difference = (predictive_difference / eps).rename(self.response.name_target)
 
         if slope in ("eyex", "dyex"):
@@ -239,11 +238,11 @@ class PredictiveDifferences:
         if len(self.variable.values) > 2 and self.kind == "comparisons":
             summary_df = self.preds_data.drop(columns=self.variable.name).drop_duplicates()
             covariates_cols = summary_df.columns
-            covariate_vals = np.tile(summary_df.T, len(self.variable.values))
-            summary_df = pd.DataFrame(data=covariate_vals.T, columns=covariates_cols)
             contrast_values = list(itertools.combinations(self.variable.values.flatten(), 2))
+            covariate_vals = np.tile(summary_df.T, len(contrast_values))
+            summary_df = pd.DataFrame(data=covariate_vals.T, columns=covariates_cols)
             contrast_values = np.repeat(
-                contrast_values, self.preds_data.shape[0] // len(contrast_values), axis=0
+                contrast_values, summary_df.shape[0] // len(contrast_values), axis=0
             )
             contrast_values = [tuple(elem) for elem in contrast_values]
         else:
@@ -287,13 +286,13 @@ class PredictiveDifferences:
             contrast_df_avg = average_over(self.summary_df, None)
             contrast_df_avg.insert(0, "term", self.variable.name)
             contrast_df_avg.insert(1, "estimate_type", self.estimate_name)
-            if self.kind != "slopes":
+            if self.kind != "slopes" and len(self.variable.values) < 3:
                 contrast_df_avg.insert(2, "value", self.contrast_values)
         else:
             contrast_df_avg = average_over(self.summary_df, variable)
             contrast_df_avg.insert(0, "term", self.variable.name)
             contrast_df_avg.insert(1, "estimate_type", self.estimate_name)
-            if self.kind != "slopes":
+            if self.kind != "slopes" and len(self.variable.values) < 3:
                 contrast_df_avg.insert(2, "value", self.contrast_values)
 
         return contrast_df_avg.reset_index(drop=True)
@@ -353,7 +352,6 @@ def predictions(
         If passed ``covariates`` is not in correct key, value format.
         If length of ``covariates`` is not between 1 and 3.
     """
-
     if pps and target != "mean":
         raise ValueError("When passing 'pps=True', target must be 'mean'")
 
@@ -475,7 +473,6 @@ def comparisons(
         If ``comparison_type`` is not 'diff' or 'ratio'.
         If ``prob`` is not > 0 and < 1.
     """
-
     if not isinstance(contrast, (dict, list, str)):
         raise ValueError("'contrast' must be a string, dictionary, or list.")
     if isinstance(contrast, (dict, list)):
