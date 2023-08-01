@@ -530,7 +530,6 @@ def comparisons(
         comparisons_summary = predictive_difference.average_by(variable=average_by)
 
     return comparisons_summary
-    # return comparisons_data, idata, comparisons_summary
 
 
 def slopes(
