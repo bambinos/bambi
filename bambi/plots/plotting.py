@@ -411,7 +411,7 @@ def plot_slopes(
     Raises
     ------
     ValueError
-        If number of values passed with ``conditional`` is >= 2 and 
+        If number of values passed with ``conditional`` is >= 2 and
         ``average_by`` are both ``None``.
         If ``conditional`` and ``average_by`` are both ``None``.
         If length of ``conditional`` is greater than 3 and ``average_by`` is ``None``.
@@ -422,7 +422,9 @@ def plot_slopes(
         if not isinstance(wrt_value, (list, np.ndarray)):
             wrt_value = [wrt_value]
 
-        if not is_categorical_dtype(model.data[wrt_name]) or not is_string_dtype(model.data[wrt_name]):
+        if not is_categorical_dtype(model.data[wrt_name]) or not is_string_dtype(
+            model.data[wrt_name]
+        ):
             if len(wrt_value) >= 2 and average_by is None:
                 raise ValueError(
                     "When plotting with more than 2 values for 'wrt', you must "

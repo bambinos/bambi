@@ -280,7 +280,7 @@ class PredictiveDifferences:
 
     def average_by(self, variable: Union[bool, str]) -> pd.DataFrame:
         """
-        Uses the original 'summary_df' to perform a marginal (if 'variable=True') 
+        Uses the original 'summary_df' to perform a marginal (if 'variable=True')
         or group by average if covariate(s) are passed.
         """
         if variable is True:
