@@ -299,7 +299,7 @@ def plot_comparison(
 
     if isinstance(contrast, dict):
         contrast_name, contrast_level = next(iter(contrast.items()))
-        if len(contrast_level) >= 2 and average_by is None:
+        if len(contrast_level) > 2 and average_by is None:
             raise ValueError(
                 "When plotting with more than 2 values for 'contrast', you must "
                 "pass a covariate to 'average_by'. "
