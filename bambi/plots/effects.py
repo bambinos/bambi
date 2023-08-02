@@ -423,7 +423,7 @@ def predictions(
 def comparisons(
     model: Model,
     idata: az.InferenceData,
-    contrast: Union[str, dict, list],
+    contrast: Union[str, dict],
     conditional: Union[str, dict, list, None] = None,
     average_by: Union[str, list, bool, None] = None,
     comparison_type: str = "diff",
@@ -440,7 +440,7 @@ def comparisons(
     idata : arviz.InferenceData
         The InferenceData object that contains the samples from the posterior distribution of
         the model.
-    contrast : str, dict, list
+    contrast : str, dict
         The predictor name whose contrast we would like to compare.
     conditional : str, dict, list
         The covariates we would like to condition on.
@@ -469,17 +469,35 @@ def comparisons(
     ------
     ValueError
         If length of ``contrast`` is greater than 1.
-        If ``contrast`` is not a string, dictionary, or list.
+        If length of ``contrast`` is greater than 2 and ``conditional`` is ``None``.
+        If ``conditional`` is None and ``contrast`` is categorical with > 2 values.
         If ``comparison_type`` is not 'diff' or 'ratio'.
         If ``prob`` is not > 0 and < 1.
     """
-    if not isinstance(contrast, (dict, list, str)):
-        raise ValueError("'contrast' must be a string, dictionary, or list.")
-    if isinstance(contrast, (dict, list)):
+
+    contrast_name = contrast
+    if isinstance(contrast, dict):
         if len(contrast) > 1:
             raise ValueError(
-                f"Only one contrast predictor can be passed. {len(contrast)} were passed."
+                f"Only one predictor can be passed to 'contrast'. {len(contrast)} were passed."
             )
+        contrast_name, contrast_values = next(iter(contrast.items()))
+        if len(contrast_values) > 2 and conditional is None:
+            raise ValueError(
+                "'conditional' must be specified when 'contrast' has more than 2 values."
+                f"{contrast_name} was passed {len(contrast_values)} values."
+            )
+
+    if conditional is None:
+        if is_categorical_dtype(model.data[contrast_name]) or is_string_dtype(
+            model.data[contrast_name]
+        ):
+            num_levels = len(model.data[contrast_name].unique())
+            if num_levels > 2:
+                raise ValueError(
+                    f"'conditional' must be specified when 'contrast' has more than 2 values. "
+                    f"{contrast_name} has {num_levels} unique values."
+                )
 
     if comparison_type not in ("diff", "ratio"):
         raise ValueError("'comparison_type' must be 'diff' or 'ratio'")
@@ -589,19 +607,33 @@ def slopes(
     Raises
     ------
     ValueError
-        If ``conditional`` is ``None`` and values are passed to ``wrt``.
         If length of ``wrt`` is greater than 1.
+        If ``conditional`` is ``None`` and ``wrt`` is passed more than 2 values.
+        If ``conditional`` is ``None`` and default ``wrt`` has more than 2 unique values.
         If ``slope`` is not 'dydx', 'dyex', 'eyex', or 'eydx'.
         If ``prob`` is not > 0 and < 1.
     """
-    if conditional is None and isinstance(wrt, dict):
-        raise ValueError("If a value is passed with 'wrt', then 'conditional' cannot be 'None'.")
-
     wrt_name = wrt
     if isinstance(wrt, dict):
         if len(wrt) > 1:
             raise ValueError(f"Only one predictor can be passed to 'wrt'. {len(wrt)} were passed.")
-        wrt_name = list(wrt.keys())[0]
+        wrt_name, wrt_values = next(iter(wrt.items()))
+        if not isinstance(wrt_values, (list, np.ndarray)):
+            wrt_values = [wrt_values]
+        if len(wrt_values) > 2 and conditional is None:
+            raise ValueError(
+                f"'conditional' must be specified when 'wrt' has more than 2 values. "
+                f"{wrt_name} was passed {len(wrt_values)} values."
+            )
+
+    if not isinstance(wrt, dict) and conditional is None:
+        if is_categorical_dtype(model.data[wrt_name]) or is_string_dtype(model.data[wrt_name]):
+            num_levels = len(model.data[wrt_name].unique())
+            if num_levels > 2:
+                raise ValueError(
+                    f"'conditional' must be specified when 'wrt' has more than 2 values. "
+                    f"{wrt_name} has {num_levels} unique values."
+                )
 
     if slope not in ("dydx", "dyex", "eyex", "eydx"):
         raise ValueError("'slope' must be one of ('dydx', 'dyex', 'eyex', 'eydx')")
@@ -611,7 +643,7 @@ def slopes(
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
-    # 'slopes' not be limited to ("main", "group", "panel")
+    # 'slopes' should not be limited to ("main", "group", "panel")
     conditional_info = ConditionalInfo(model, conditional)
 
     grid = False
