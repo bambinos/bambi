@@ -469,7 +469,7 @@ def comparisons(
     ------
     ValueError
         If `wrt` is a dict and length of ``contrast`` is greater than 1.
-        If `wrt` is a dict and length of ``contrast`` is greater than 2 and 
+        If `wrt` is a dict and length of ``contrast`` is greater than 2 and
         ``conditional`` is ``None``.
         If ``conditional`` is None and ``contrast`` is categorical with > 2 values.
         If ``comparison_type`` is not 'diff' or 'ratio'.
