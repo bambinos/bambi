@@ -26,7 +26,7 @@ def _plot_differences(
     subplot_kwargs=None,
 ):
     """
-    Common function used for both ``plot_comparisons`` and ``plot_slopes``
+    Common function used for both 'plot_comparisons' and 'plot_slopes'.
     """
 
     if (subplot_kwargs and not average_by) or (subplot_kwargs and average_by):
