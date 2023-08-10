@@ -18,12 +18,30 @@ from bambi.plots.utils import (
 
 def _grid_level(
     condition_info: ConditionalInfo, variable_info: VariableInfo, user_passed: bool, kind: str
-):
-    """
-    Creates a "grid" of data by using the covariates passed into the
+) -> pd.DataFrame:
+    """Creates a "grid" of data by using the covariates passed into the
     `conditional` argument. Values for the grid are either: (1) computed
     using a equally spaced grid, mean, and or mode (depending on the
     covariate dtype), and (2) a user specified value or range of values.
+
+    Parameters
+    ----------
+    condition_info : ConditionalInfo
+        Information about the conditional argument passed into the plot
+        function.
+    variable_info : VariableInfo
+        Information about the variable of interest. This is `contrast` for
+        'comparisons' and `wrt` for 'slopes'.
+    user_passed : bool
+        Whether the user passed a value(s) for the `conditional` argument.
+    kind : str
+        The kind of effect being computed. Either "comparisons" or "slopes".
+
+    Returns
+    -------
+    pd.DataFrame
+        A dataframe containing a pairwise grid of values used as input to the
+        fitted Bambi model to generate predictions.
     """
     covariates = get_covariates(condition_info.covariates)
 
@@ -56,11 +74,25 @@ def _grid_level(
 
 
 def _unit_level(variable_info: VariableInfo, kind: str) -> pd.DataFrame:
-    """
-    Creates the data for unit-level contrasts by using the observed (empirical)
+    """Creates the data for unit-level contrasts by using the observed (empirical)
     data. All covariates in the model are included in the data, except for the
     contrast predictor. The contrast predictor is replaced with either: (1) the
     default contrast value, or (2) the user specified contrast value.
+
+    Parameters
+    ----------
+    variable_info : VariableInfo
+        Information about the variable of interest. This is `contrast` for
+        'comparisons' and `wrt` for 'slopes'.
+    kind : str
+        The kind of effect being computed. Either "comparisons" or "slopes".
+
+    Returns
+    -------
+    pd.DataFrame
+        A dataframe containing the unit-level data for the variable of interest
+        value. This dataframe is the same length as the data used to fit the
+        Bambi model.
     """
     covariates = get_model_covariates(variable_info.model)
     df = variable_info.model.data[covariates].drop(labels=variable_info.name, axis=1)
@@ -71,20 +103,37 @@ def _unit_level(variable_info: VariableInfo, kind: str) -> pd.DataFrame:
         variable_vals = np.array(variable_info.values)[..., None]
         variable_vals = np.repeat(variable_vals, variable_info.model.data.shape[0], axis=1)
 
-    contrast_df_dict = {}
+    unit_level_df_dict = {}
     for idx, value in enumerate(variable_vals):
-        contrast_df_dict[f"contrast_{idx}"] = df.copy()
-        contrast_df_dict[f"contrast_{idx}"][variable_info.name] = value
+        unit_level_df_dict[f"contrast_{idx}"] = df.copy()
+        unit_level_df_dict[f"contrast_{idx}"][variable_info.name] = value
 
-    return pd.concat(contrast_df_dict.values())
+    return pd.concat(unit_level_df_dict.values())
 
 
 def create_differences_data(
     condition_info: ConditionalInfo, variable_info: VariableInfo, user_passed: bool, kind: str
 ) -> pd.DataFrame:
-    """
-    Creates either unit level or grid level data for 'comparisons' and 'slopes'
+    """Creates either unit level or grid level data for 'comparisons' and 'slopes'
     depending if the user passed covariate values.
+
+    Parameters
+    ----------
+    condition_info : ConditionalInfo
+        Information about the conditional argument passed into the plot
+        function.
+    variable_info : VariableInfo
+        Information about the variable of interest. This is `contrast` for
+        'comparisons' and `wrt` for 'slopes'.
+    user_passed : bool
+        Whether the user passed a value(s) for the `conditional` argument.
+    kind : str
+        The kind of effect being computed. Either "comparisons" or "slopes".
+
+    Returns
+    -------
+    pd.DataFrame
+        A dataframe containing the data used to generate predictions.
     """
 
     if not condition_info.covariates:
@@ -94,9 +143,20 @@ def create_differences_data(
 
 
 def create_cap_data(model: Model, covariates: dict) -> pd.DataFrame:
-    """
-    Creates a data grid for conditional adjusted predictions using the covariates
+    """Creates a data grid for conditional adjusted predictions using the covariates
     passed by the user.
+
+    Parameters
+    ----------
+    model : Model
+        A fitted Bambi model.
+    covariates : dict
+        A dictionary of covariates passed by the user.
+
+    Returns
+    -------
+    pd.DataFrame
+        A dataframe containing the data used to generate predictions.
     """
     data = model.data
     covariates = get_covariates(covariates)

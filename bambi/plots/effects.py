@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from pandas.api.types import is_categorical_dtype, is_string_dtype
 import xarray as xr
+from pandas.api.types import is_categorical_dtype, is_string_dtype
 
 from bambi.models import Model
 from bambi.plots.create_data import create_cap_data, create_differences_data
@@ -19,8 +20,32 @@ from bambi.plots.utils import (
 from bambi.utils import get_aliased_name, listify
 
 
+SUPPORTED_SLOPES = ("dydx", "eyex")
+SUPPORTED_COMPARISONS = {
+    "diff": lambda x, y: x - y,
+    "ratio": lambda x, y: x / y,
+}
+
+
 @dataclass
 class ResponseInfo:
+    """Stores metadata about the response variable for indexing data in az.InferenceData,
+    computing uncertainty intervals, and creating the summary dataframe in
+    'PredictiveDifferences'.
+
+    Parameters
+    ----------
+    model : Model
+        The fitted bambi Model object.
+    target : str
+        The target of the response variable such as 'mean' or 'sigma'. Defaults to
+        'mean'.
+    lower_bound : float
+        The percentile of the lower bound of the uncertainty interval. Defaults to 0.03.
+    upper_bound : float
+        The percentile of the upper bound of the uncertainty interval. Defaults to 0.97.
+    """
+
     name: str
     target: Union[str, None] = None
     lower_bound: float = 0.03
@@ -32,7 +57,8 @@ class ResponseInfo:
 
     def __post_init__(self):
         """
-        Assigns commonly used f-strings for indexing and column names as attributes.
+        Assigns commonly used f-strings for indexing and column names as attributes
+        in building the summary dataframe in 'PredictiveDifferences'.
         """
         if self.target is None:
             self.name_target = self.name
@@ -46,6 +72,20 @@ class ResponseInfo:
 
 @dataclass
 class Estimate:
+    """Stores the mean and bounds (uncertainty interval) of 'comparisons' and
+    'effects' estimates. Used in 'PredictiveDifferences' to store typed data
+    for the summary dataframe.
+
+    Parameters
+    ----------
+    mean : Dict[str, xr.DataArray]
+        The mean of the posterior distribution (chains and draws).
+    bounds : Dict[str, xr.Dataset]
+        The uncertainty interval of the posterior distribution (chains and draws).
+    use_hdi : bool
+        Whether to use the highest density interval (HDI) (True) or quantiles (False).
+    """
+
     mean: Dict[str, xr.DataArray]
     bounds: Dict[str, xr.Dataset]
     use_hdi: bool
@@ -80,17 +120,39 @@ class Estimate:
             ).flatten()
 
 
-SUPPORTED_SLOPES = ("dydx", "eyex")
-SUPPORTED_COMPARISONS = {
-    "diff": lambda x, y: x - y,
-    "ratio": lambda x, y: x / y,
-}
-
-
 # pylint: disable=consider-iterating-dictionary
 # pylint: disable=too-many-instance-attributes
 @dataclass
 class PredictiveDifferences:
+    """Computes predictive differences and their uncertainty intervals for
+    'comparisons' and 'slopes' effects and returns a summary dataframe of the
+    results.
+
+    Parameters
+    ----------
+    model : Model
+        Bambi model object.
+    preds_data : pd.DataFrame
+        Dataframe used to generate predictions.
+    variable : VariableInfo
+        Variable of interest with its name and values.
+    conditional : ConditionalInfo
+        Conditional covariates with their names and values (if any).
+    response : ResponseInfo
+        Response variable with its name and target.
+    use_hdi : bool
+        Whether to use the highest density interval (HDI) (True) or quantiles (False).
+    kind : str
+        Type of effect to compute. Either 'comparisons' or 'slopes'.
+
+    Returns
+    -------
+    summary_df : pd.DataFrame
+        Dataframe with the data used to generate predictions, the effect kind
+        and type, variable of interest name and value, and the mean and uncertainty
+        intervals of the predictive difference estimate.
+    """
+
     model: Model
     preds_data: pd.DataFrame
     variable: VariableInfo
@@ -103,7 +165,7 @@ class PredictiveDifferences:
     summary_df: pd.DataFrame = field(init=False)
     contrast_values: list = field(init=False)
 
-    def set_variable_values(self, draws):
+    def set_variable_values(self, draws: dict) -> np.ndarray:
         """
         Obtain pairwise combinations of the 'draws' keys. The dictionary keys
         represent the variable of interest's values. If 'comparisons', then
@@ -128,11 +190,18 @@ class PredictiveDifferences:
 
         return pairwise_variables
 
-    def get_slope_estimate(self, predictive_difference, pair, draws, slope, eps, wrt_x):
+    def get_slope_estimate(
+        self,
+        predictive_difference: xr.DataArray,
+        pair: tuple,
+        draws: dict,
+        slope: str,
+        eps: float,
+        wrt_x: xr.DataArray,
+    ) -> xr.DataArray:
         """
         Computes the slope estimate for 'dydx', 'dyex', 'eyex', 'eydx'.
         """
-
         predictive_difference = (predictive_difference / eps).rename(self.response.name_target)
 
         if slope in ("eyex", "dyex"):
@@ -163,12 +232,36 @@ class PredictiveDifferences:
         eps: Union[float, None] = None,
         prob: float = 0.94,
     ):
-        """
-        Obtain the effect ('comparisons' or 'slopes') estimate and uncertainty
+        """Obtain the effect ('comparisons' or 'slopes') estimate and uncertainty
         interval using the posterior samples. First, the posterior samples are
         subsetted by the variable of interest's values. Then, the effect is
         computed for each pairwise combination of the variable of interest's
         values.
+
+        Parameters
+        ----------
+        idata : az.InferenceData
+            InferenceData object containing the posterior samples for the model.
+        response_transforms : dict
+            Dictionary with the response variable name as key and the
+            transformation function as value.
+        comparison_type : str
+            Type of comparison to compute. Either 'diff' or 'ratio'. Defaults
+            to 'diff'.
+        slope : str
+            Type of slope to compute. Either 'dydx', 'dyex', 'eyex', 'eydx'.
+            Defaults to 'dydx'.
+        eps : float
+            Value to add to the variable of interest's values to compute the
+            slope. Defaults to None.
+        prob : float
+            Probability for the uncertainty interval. Defaults to 0.94.
+
+        Returns
+        -------
+        estimate : Estimate
+            Estimate object with the effect estimate mean  and uncertainty
+            interval.
         """
         assert self.kind in ("slopes", "comparisons")
         assert comparison_type in SUPPORTED_COMPARISONS.keys()
@@ -279,9 +372,19 @@ class PredictiveDifferences:
         return self.summary_df
 
     def average_by(self, variable: Union[bool, str]) -> pd.DataFrame:
-        """
-        Uses the original 'summary_df' to perform a marginal (if 'variable=True')
+        """Uses the original 'summary_df' to perform a marginal (if 'variable=True')
         or group by average if covariate(s) are passed.
+
+        Parameters
+        ----------
+        variable : Union[bool, str]
+            If 'True', then average over all covariates. If a string
+            is passed, then a group by average is performed.
+
+        Returns
+        -------
+        pd.DataFrame
+            A dataframe containing the marginal or group by average.
         """
         if variable is True:
             contrast_df_avg = average_over(self.summary_df, None)
@@ -353,7 +456,6 @@ def predictions(
         If passed ``covariates`` is not in correct key, value format.
         If length of ``covariates`` is not between 1 and 3.
     """
-
     if pps and target != "mean":
         raise ValueError("When passing 'pps=True', target must be 'mean'")
 
@@ -425,13 +527,13 @@ def predictions(
 def comparisons(
     model: Model,
     idata: az.InferenceData,
-    contrast: Union[str, dict, list],
+    contrast: Union[str, dict],
     conditional: Union[str, dict, list, None] = None,
     average_by: Union[str, list, bool, None] = None,
     comparison_type: str = "diff",
     use_hdi: bool = True,
-    prob=None,
-    transforms=None,
+    prob: Union[float, None] = None,
+    transforms: Union[dict, None] = None,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Comparisons
 
@@ -442,7 +544,7 @@ def comparisons(
     idata : arviz.InferenceData
         The InferenceData object that contains the samples from the posterior distribution of
         the model.
-    contrast : str, dict, list
+    contrast : str, dict
         The predictor name whose contrast we would like to compare.
     conditional : str, dict, list
         The covariates we would like to condition on.
@@ -470,19 +572,37 @@ def comparisons(
     Raises
     ------
     ValueError
-        If length of ``contrast`` is greater than 1.
-        If ``contrast`` is not a string, dictionary, or list.
+        If `wrt` is a dict and length of ``contrast`` is greater than 1.
+        If `wrt` is a dict and length of ``contrast`` is greater than 2 and
+        ``conditional`` is ``None``.
+        If ``conditional`` is None and ``contrast`` is categorical with > 2 values.
         If ``comparison_type`` is not 'diff' or 'ratio'.
         If ``prob`` is not > 0 and < 1.
     """
 
-    if not isinstance(contrast, (dict, list, str)):
-        raise ValueError("'contrast' must be a string, dictionary, or list.")
-    if isinstance(contrast, (dict, list)):
+    contrast_name = contrast
+    if isinstance(contrast, dict):
         if len(contrast) > 1:
             raise ValueError(
-                f"Only one contrast predictor can be passed. {len(contrast)} were passed."
+                f"Only one predictor can be passed to 'contrast'. {len(contrast)} were passed."
             )
+        contrast_name, contrast_values = next(iter(contrast.items()))
+        if len(contrast_values) > 2 and conditional is None:
+            raise ValueError(
+                "'conditional' must be specified when 'contrast' has more than 2 values."
+                f"{contrast_name} was passed {len(contrast_values)} values."
+            )
+
+    if conditional is None:
+        if is_categorical_dtype(model.data[contrast_name]) or is_string_dtype(
+            model.data[contrast_name]
+        ):
+            num_levels = len(model.data[contrast_name].unique())
+            if num_levels > 2:
+                raise ValueError(
+                    f"'conditional' must be specified when 'contrast' has more than 2 values. "
+                    f"{contrast_name} has {num_levels} unique values."
+                )
 
     if comparison_type not in ("diff", "ratio"):
         raise ValueError("'comparison_type' must be 'diff' or 'ratio'")
@@ -541,8 +661,8 @@ def slopes(
     eps: float = 1e-4,
     slope: str = "dydx",
     use_hdi: bool = True,
-    prob=None,
-    transforms=None,
+    prob: Union[float, None] = None,
+    transforms: Union[dict, None] = None,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Slopes
 
@@ -592,19 +712,33 @@ def slopes(
     Raises
     ------
     ValueError
-        If ``conditional`` is ``None`` and values are passed to ``wrt``.
         If length of ``wrt`` is greater than 1.
+        If ``conditional`` is ``None`` and ``wrt`` is passed more than 2 values.
+        If ``conditional`` is ``None`` and default ``wrt`` has more than 2 unique values.
         If ``slope`` is not 'dydx', 'dyex', 'eyex', or 'eydx'.
         If ``prob`` is not > 0 and < 1.
     """
-    if conditional is None and isinstance(wrt, dict):
-        raise ValueError("If a value is passed with 'wrt', then 'conditional' cannot be 'None'.")
-
     wrt_name = wrt
     if isinstance(wrt, dict):
         if len(wrt) > 1:
             raise ValueError(f"Only one predictor can be passed to 'wrt'. {len(wrt)} were passed.")
-        wrt_name = list(wrt.keys())[0]
+        wrt_name, wrt_values = next(iter(wrt.items()))
+        if not isinstance(wrt_values, (list, np.ndarray)):
+            wrt_values = [wrt_values]
+        if len(wrt_values) > 2 and conditional is None:
+            raise ValueError(
+                f"'conditional' must be specified when 'wrt' has more than 2 values. "
+                f"{wrt_name} was passed {len(wrt_values)} values."
+            )
+
+    if not isinstance(wrt, dict) and conditional is None:
+        if is_categorical_dtype(model.data[wrt_name]) or is_string_dtype(model.data[wrt_name]):
+            num_levels = len(model.data[wrt_name].unique())
+            if num_levels > 2:
+                raise ValueError(
+                    f"'conditional' must be specified when 'wrt' has more than 2 values. "
+                    f"{wrt_name} has {num_levels} unique values."
+                )
 
     if slope not in ("dydx", "dyex", "eyex", "eydx"):
         raise ValueError("'slope' must be one of ('dydx', 'dyex', 'eyex', 'eydx')")
@@ -614,7 +748,7 @@ def slopes(
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
-    # 'slopes' not be limited to ("main", "group", "panel")
+    # 'slopes' should not be limited to ("main", "group", "panel")
     conditional_info = ConditionalInfo(model, conditional)
 
     grid = False

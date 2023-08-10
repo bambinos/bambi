@@ -26,7 +26,7 @@ def _plot_differences(
     subplot_kwargs=None,
 ):
     """
-    Common function used for both ``plot_comparisons`` and ``plot_slopes``
+    Common function used for both 'plot_comparisons' and 'plot_slopes'.
     """
 
     if (subplot_kwargs and not average_by) or (subplot_kwargs and average_by):
@@ -281,8 +281,31 @@ def plot_comparison(
     Warning
         If length of ``contrast`` is greater than 2.
     """
+    contrast_name = contrast
+    if isinstance(contrast, dict):
+        contrast_name, contrast_levels = next(iter(contrast.items()))
+        if len(contrast_levels) > 2 and average_by is None:
+            raise ValueError(
+                "When plotting with more than 2 values for 'contrast', you must "
+                "pass a covariate to 'average_by'. "
+                f"{contrast_name} has {len(contrast_levels)} values."
+            )
+
+    if not isinstance(contrast, dict):
+        if is_categorical_dtype(model.data[contrast_name]) or is_string_dtype(
+            model.data[contrast_name]
+        ):
+            contrast_levels = len(model.data[contrast_name].unique())
+            if contrast_levels > 2 and average_by is None:
+                raise ValueError(
+                    "When plotting with more than 2 values for 'contrast', you must "
+                    f"pass a covariate to 'average_by'. {contrast_name} has "
+                    f"{contrast_levels} values."
+                )
+
     if conditional is None and average_by is None:
         raise ValueError("Must specify at least one of 'conditional' or 'average_by'.")
+
     if conditional is not None:
         if not isinstance(conditional, str):
             if len(conditional) > 3 and average_by is None:
@@ -296,15 +319,6 @@ def plot_comparison(
             "over all covariates resulting in a single comparison estimate. "
             "Please specify a covariate(s) to 'average_by'."
         )
-
-    if isinstance(contrast, dict):
-        contrast_name, contrast_level = next(iter(contrast.items()))
-        if len(contrast_level) > 2 and average_by is None:
-            raise ValueError(
-                "When plotting with more than 2 values for 'contrast', you must "
-                "pass a covariate to 'average_by'. "
-                f"{contrast_name} has {len(contrast_level)} values."
-            )
 
     conditional_info = ConditionalInfo(model, conditional)
 
@@ -417,18 +431,26 @@ def plot_slopes(
         If length of ``conditional`` is greater than 3 and ``average_by`` is ``None``.
         If ``slope`` is not one of ('dydx', 'dyex', 'eyex', 'eydx').
     """
+    wrt_name = wrt
     if isinstance(wrt, dict):
         wrt_name, wrt_value = next(iter(wrt.items()))
+
         if not isinstance(wrt_value, (list, np.ndarray)):
             wrt_value = [wrt_value]
 
-        if not is_categorical_dtype(model.data[wrt_name]) or not is_string_dtype(
-            model.data[wrt_name]
-        ):
-            if len(wrt_value) >= 2 and average_by is None:
+        if len(wrt_value) > 2 and average_by is None:
+            raise ValueError(
+                "When plotting with more than 2 values for 'wrt', you must "
+                "pass a covariate to 'average_by'"
+            )
+
+    if not isinstance(wrt, dict):
+        if is_categorical_dtype(model.data[wrt_name]) or is_string_dtype(model.data[wrt_name]):
+            num_values = len(model.data[wrt_name].unique())
+            if num_values > 2 and average_by is None:
                 raise ValueError(
                     "When plotting with more than 2 values for 'wrt', you must "
-                    "pass a covariate to 'average_by'"
+                    f"pass a covariate to 'average_by'. {wrt_name} has {num_values} values."
                 )
 
     if conditional is None and average_by is None:

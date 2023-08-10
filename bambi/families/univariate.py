@@ -100,7 +100,6 @@ class BetaBinomial(BinomialBaseFamily):
     @staticmethod
     def transform_kwargs(kwargs):
         # First, transform the parameters of the beta component
-        print(kwargs)
         mu = kwargs.pop("mu")
         kappa = kwargs.pop("kappa")
         kwargs["alpha"] = mu * kappa

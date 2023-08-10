@@ -15,10 +15,40 @@ from bambi.utils import listify
 
 @dataclass
 class VariableInfo:
+    """
+    Stores information about the variable (covariate) passed into the 'contrast'
+    or 'wrt' argument for comparisons and slopes. Depending on the effect type
+    ('slopes' or 'comparisons'), the values attribute is either: (1) the values
+    passed with the 'contrast' or 'wrt' argument, or (2) default are values
+    computed by calling 'set_default_variable_values()'.
+
+    'VariableInfo' is used to create 'slopes' and 'comparisons' data as well as
+    computing the estimates for the 'slopes' and 'comparisons' effects.
+
+    Parameters
+    ----------
+    model : Model
+        The bambi Model object.
+    variable : str, dict, or list
+        The variable of interest passed by the user. `contrast` if 'comparisons'
+        and `wrt` if 'slopes'.
+    kind : str
+        The effect type. Either 'slopes' or 'comparisons'.
+    grid : bool or None, optional
+        Whether a grid of pairwise values should be used as the data for generating
+        predictions. Defaults to False.
+    eps : float or None, optional
+        The epsilon value used to add to the variable of interest's values when
+        computing the 'slopes' effect. Defualts to None.
+    user_passed : bool, optional
+        Whether the user passed their own values for the variable of interest.
+        Defaults to False.
+    """
+
     model: Model
     variable: Union[str, dict, list]
     kind: str
-    grid: Union[bool, None] = None
+    grid: Union[bool, None] = False
     eps: Union[float, None] = None
     user_passed: bool = False
     name: str = field(init=False)
@@ -27,9 +57,9 @@ class VariableInfo:
 
     def __post_init__(self):
         """
-        Post init that sets the name and values attributes based on the
-        the effect type (i.e., slopes or comparisons), if the user provided their
-        own values, and dtype of the variable
+        Sets the name and values attributes based on the the effect type
+        ('slopes' or 'comparisons'), if the user provided their own values,
+        and dtype of the 'variable'.
         """
         if isinstance(self.variable, dict):
             self.user_passed = True
@@ -48,19 +78,33 @@ class VariableInfo:
         elif not isinstance(self.variable, (list, dict, str)):
             raise TypeError("`variable` must be a list, dict, or string")
 
-    def centered_difference(self, x, eps, dtype):
+    def centered_difference(self, x, eps, dtype) -> np.ndarray:
         return np.array([x - eps, x + eps], dtype=dtype)
 
-    def epsilon_difference(self, x, eps):
+    def epsilon_difference(self, x, eps) -> np.ndarray:
         return np.array([x, x + eps])
 
-    def set_default_variable_values(self):
+    def set_default_variable_values(self) -> np.ndarray:
+        """
+        Returns default values for the variable of interest ('contrast' and 'wrt')
+        for the 'slopes' and 'comparisons' effects depending on the dtype of the
+        variable of interest, effect type, and if self.grid is True. The scenarios
+        are described below:
+
+        If numeric dtype and kind is 'comparisons', the returned value is a
+        centered difference based on the mean of `variable'.
+
+        If numeric dtype and kind is 'slopes', the returned value is an epsilon
+        difference based on the mean of `variable'.
+
+        If categoric dtype the returned value is the unique levels of `variable'.
+        """
         terms = get_model_terms(self.model)
-        # Get default values for each variable in the model
+        # get default values for each variable in the model
         for term in terms.values():
             if hasattr(term, "components"):
                 for component in term.components:
-                    # If the component is a function call, use the argument names
+                    # if the component is a function call, use the argument names
                     if isinstance(component, Call):
                         names = [arg.name for arg in component.call.args]
                     else:
@@ -86,6 +130,21 @@ class VariableInfo:
 
 @dataclass
 class ConditionalInfo:
+    """
+    Stores information about the conditional (covariates) passed into the
+    'conditional' argument for 'comparisons' and 'slopes' effects.
+
+    'ConditionalInfo' is used to create 'slopes' and 'comparisons' data as well
+    as computing the estimates for the 'slopes' and 'comparisons' effects.
+
+    Parameters
+    ----------
+    model : bambi.Model
+        The bambi model object.
+    conditional : str, dict, or list
+        The covariate(s) specified by the user to condition on.
+    """
+
     model: Model
     conditional: Union[str, dict, list]
     covariates: dict = field(init=False)
@@ -103,13 +162,17 @@ class ConditionalInfo:
             self.covariates = dict(zip(covariate_kinds, self.covariates))
             self.user_passed = False
         elif isinstance(self.conditional, dict):
-            self.covariates = {k: listify(v) for k, v in self.conditional.items()}
             self.covariates = dict(zip(covariate_kinds, self.conditional))
             self.user_passed = True
 
 
 @dataclass
 class Covariates:
+    """
+    Stores the 'main', 'group', and 'panel' covariates from the 'conditional'
+    argument in 'slopes' and 'comparisons'.
+    """
+
     main: str
     group: Union[str, None]
     panel: Union[str, None]
@@ -142,7 +205,7 @@ def get_model_terms(model: Model) -> dict:
     return terms
 
 
-def get_model_covariates(model: Model):
+def get_model_covariates(model: Model) -> np.ndarray:
     """
     Return covariates specified in the model.
     """
@@ -256,7 +319,7 @@ def make_group_panel_values(
     return data_dict
 
 
-def set_default_values(model: Model, data_dict: dict, kind: str):
+def set_default_values(model: Model, data_dict: dict, kind: str) -> dict:
     """
     Set default values for each variable in the model if the user did not
     pass them in the data_dict.
@@ -293,13 +356,12 @@ def set_default_values(model: Model, data_dict: dict, kind: str):
             if not isinstance(value, (list, np.ndarray)):
                 data_dict[key] = [value]
         return data_dict
-    # elif kind == "predictions":
     return data_dict
 
 
 def make_main_values(x: np.ndarray, grid_n: int = 50) -> np.ndarray:
     """
-    Compuet main values based on original data using a grid of evenly spaced
+    Compute main values based on original data using a grid of evenly spaced
     values for numeric predictors and unique levels for categoric predictors.
     """
     if is_numeric_dtype(x):
