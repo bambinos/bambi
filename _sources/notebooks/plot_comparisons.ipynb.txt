@@ -29,15 +29,15 @@
     "\n",
     "Here, we adopt the notation from Chapter 14.4 of [Regression and Other Stories](https://avehtari.github.io/ROS-Examples/) to describe average predictive differences. Assume we have fit a Bambi model predicting an outcome $Y$ based on inputs $X$ and parameters $\\theta$. Consider the following scalar inputs:\n",
     "\n",
-    "$$u: \\text{the input of interest}$$\n",
-    "$$v: \\text{all the other inputs}$$\n",
-    "$$X = (u, v)$$\n",
+    "$$w: \\text{the input of interest}$$\n",
+    "$$c: \\text{all the other inputs}$$\n",
+    "$$X = (w, c)$$\n",
     "\n",
-    "Suppose for the input of interest, we are interested in comparing $u^{\\text{high}}$ to $u^{\\text{low}}$ (perhaps age = $60$ and $40$ respectively) with all other inputs $v$ held constant. The _predictive difference_ in the outcome changing **only** $u$ is:\n",
+    "Suppose for the input of interest, we are interested in comparing $w^{\\text{high}}$ to $w^{\\text{low}}$ (perhaps age = $60$ and $40$ respectively) with all other inputs $c$ held constant. The _predictive difference_ in the outcome changing **only** $w$ is:\n",
     "\n",
-    "$$\\text{average predictive difference} = \\mathbb{E}(y|u^{\\text{high}}, v, \\theta) - \\mathbb{E}(y|u^{\\text{low}}, v, \\theta)$$\n",
+    "$$\\text{average predictive difference} = \\mathbb{E}(y|w^{\\text{high}}, c, \\theta) - \\mathbb{E}(y|w^{\\text{low}}, c, \\theta)$$\n",
     "\n",
-    "Selecting the maximum and minimum values of $u$ and averaging over all other inputs $v$ in the data gives you a new \"hypothetical\" dataset and corresponds to counting all pairs of transitions of $(u^\\text{low})$ to $(u^\\text{high})$, i.e., differences in $u$ with $v$ held constant. The difference between these two terms is the average predictive difference."
+    "Selecting the maximum and minimum values of $w$ and averaging over all other inputs $c$ in the data gives you a new \"hypothetical\" dataset and corresponds to counting all pairs of transitions of $(w^\\text{low})$ to $(w^\\text{high})$, i.e., differences in $w$ with $c$ held constant. The difference between these two terms is the average predictive difference."
    ]
   },
   {
@@ -47,13 +47,13 @@
    "source": [
     "### Computing Average Predictive Differences\n",
     "\n",
-    "The objective of `comparisons` and `plot_comparisons` is to compute the expected difference in the outcome corresponding to three different scenarios for $u$ and $v$ where $u$ is either provided by the user, else a default value is computed by Bambi (described in the default values section). The three scenarios are:\n",
+    "The objective of `comparisons` and `plot_comparisons` is to compute the expected difference in the outcome corresponding to three different scenarios for $w$ and $c$ where $w$ is either provided by the user, else a default value is computed by Bambi (described in the default values section). The three scenarios are:\n",
     "\n",
-    "1. user provided values for $v$.\n",
-    "2. a grid of equally spaced and central values for $v$.\n",
-    "3. empirical distribution (original data used to fit the model) for $v$. \n",
+    "1. user provided values for $c$.\n",
+    "2. a grid of equally spaced and central values for $c$.\n",
+    "3. empirical distribution (original data used to fit the model) for $c$. \n",
     "\n",
-    "In the case of (1) and (2) above, Bambi assembles all pairwise combinations (transitions) of $u$ and $v$ into a new \"hypothetical\" dataset. In (3), Bambi uses the original $v$, but replaces $u$ with the user provided value or the default value computed by Bambi. In each scenario, predictions are made on the data using the fitted model. Once the predictions are made, comparisons are computed using the posterior samples by taking the difference in the predicted outcome for each pair of transitions. The average of these differences is the average predictive difference. \n",
+    "In the case of (1) and (2) above, Bambi assembles all pairwise combinations (transitions) of $w$ and $c$ into a new \"hypothetical\" dataset. In (3), Bambi uses the original $c$, but replaces $w$ with the user provided value or the default value computed by Bambi. In each scenario, predictions are made on the data using the fitted model. Once the predictions are made, comparisons are computed using the posterior samples by taking the difference in the predicted outcome for each pair of transitions. The average of these differences is the average predictive difference. \n",
     "\n",
     "Thus, the goal of `comparisons` and `plot_comparisons` is to provide the modeler with a summary and visualization of the average predictive difference. Below, we demonstrate how to compute and plot average predictive differences with `comparisons` and `plot_comparions` using several examples."
    ]
@@ -86,7 +86,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "We model and predict how many fish are caught by visitors at a state park using survey [data](\"https://stats.idre.ucla.edu/stat/data/fish.csv\"). Many visitors catch zero fish, either because they did not fish at all, or because they were unlucky. We would like to explicitly model this bimodal behavior (zero versus non-zero) using a Zero Inflated Poisson model, and to compare how different inputs of interest $u$ and other covariate values $v$ are associated with the number of fish caught. The dataset contains data on 250 groups that went to a state park to fish. Each group was questioned about how many fish they caught (`count`), how many children were in the group (`child`), how many people were in the group (`persons`), if they used a live bait and whether or not they brought a camper to the park (`camper`)."
+    "We model and predict how many fish are caught by visitors at a state park using survey [data](\"https://stats.idre.ucla.edu/stat/data/fish.csv\"). Many visitors catch zero fish, either because they did not fish at all, or because they were unlucky. We would like to explicitly model this bimodal behavior (zero versus non-zero) using a Zero Inflated Poisson model, and to compare how different inputs of interest $w$ and other covariate values $c$ are associated with the number of fish caught. The dataset contains data on 250 groups that went to a state park to fish. Each group was questioned about how many fish they caught (`count`), how many children were in the group (`child`), how many people were in the group (`persons`), if they used a live bait and whether or not they brought a camper to the park (`camper`)."
    ]
   },
   {
@@ -191,7 +191,7 @@
    "source": [
     "### User Provided Values\n",
     "\n",
-    "First, an example of scenario 1 (user provided values) is given below. In both `plot_comparisons` and `comparisons`, $u$ and $v$ are represented by `contrast` and `conditional`, respectively. The modeler has the ability to pass their own values for `contrast` and `conditional` by using a dictionary where the key-value pairs are the covariate and value(s) of interest. For example, if we wanted to compare the number of fish caught for $4$ versus $1$ `persons` conditional on a range of `child` and `livebait` values, we would pass the following dictionary in the code block below. By default, for $u$, Bambi compares $u^\\text{high}$ to $u^\\text{low}$. Thus, in this example, $u^\\text{high}$ = 4 and $u^\\text{low}$ = 1. The user is not limited to passing a list for the values. A `np.array` can also be used. Furthermore, Bambi by default, maps the order of the dict keys to the main, group, and panel of the matplotlib figure. Below, since `child` is the first key, this is used for the x-axis, and `livebait` is used for the group (color). If a third key was passed, it would be used for the panel (facet)."
+    "First, an example of scenario 1 (user provided values) is given below. In both `plot_comparisons` and `comparisons`, $w$ and $c$ are represented by `contrast` and `conditional`, respectively. The modeler has the ability to pass their own values for `contrast` and `conditional` by using a dictionary where the key-value pairs are the covariate and value(s) of interest. For example, if we wanted to compare the number of fish caught for $4$ versus $1$ `persons` conditional on a range of `child` and `livebait` values, we would pass the following dictionary in the code block below. By default, for $w$, Bambi compares $w^\\text{high}$ to $w^\\text{low}$. Thus, in this example, $w^\\text{high}$ = 4 and $w^\\text{low}$ = 1. The user is not limited to passing a list for the values. A `np.array` can also be used. Furthermore, Bambi by default, maps the order of the dict keys to the main, group, and panel of the matplotlib figure. Below, since `child` is the first key, this is used for the x-axis, and `livebait` is used for the group (color). If a third key was passed, it would be used for the panel (facet)."
    ]
   },
   {
@@ -227,7 +227,7 @@
    "source": [
     "The plot above shows that, comparing $4$ to $1$ persons given $0$ children and using livebait, the expected difference is about $26$ fish. When not using livebait, the expected difference decreases substantially to about $5$ fish. Using livebait with a group of people is associated with a much larger expected difference in the number of fish caught. \n",
     "\n",
-    "`comparisons` can be called to view a summary dataframe that includes the term $u$ and its contrast, the specified `conditional` covariate, and the expected difference in the outcome with the uncertainty interval (by default the 94% highest density interval is computed). "
+    "`comparisons` can be called to view a summary dataframe that includes the term $w$ and its contrast, the specified `conditional` covariate, and the expected difference in the outcome with the uncertainty interval (by default the 94% highest density interval is computed). "
    ]
   },
   {
@@ -366,7 +366,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "But why is `camper` also in the summary dataframe? This is because in order to peform predictions, Bambi is expecting a value for each covariate used to fit the model. Additionally, with GLM models, average predictive comparisons are conditional in the sense that the estimate depends on the values of all the covariates in the model. Thus, for unspecified covariates, `comparisons` and `plot_comparisons` computes a default value (mean or mode based on the data type of the covariate). Thus, $v$ = `child`, `livebait`, `camper`. Each row in the summary dataframe is read as \"comparing $4$ to $1$ persons conditional on $v$, the expected difference in the outcome is $y$.\""
+    "But why is `camper` also in the summary dataframe? This is because in order to peform predictions, Bambi is expecting a value for each covariate used to fit the model. Additionally, with GLM models, average predictive comparisons are conditional in the sense that the estimate depends on the values of all the covariates in the model. Thus, for unspecified covariates, `comparisons` and `plot_comparisons` computes a default value (mean or mode based on the data type of the covariate). Thus, $c$ = `child`, `livebait`, `camper`. Each row in the summary dataframe is read as \"comparing $4$ to $1$ persons conditional on $c$, the expected difference in the outcome is $y$.\""
    ]
   },
   {
@@ -681,7 +681,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Notice how the contrast $u$ varies while the covariates $v$ are held constant. Currently, however, plotting multiple contrast values can be difficult to interpret since the contrast is \"abstracted\" away onto the y-axis. Thus, it would be difficult to interpret which portion of the plot corresponds to which contrast value. Therefore, it is currently recommended that if you want to plot multiple contrast values, call `comparisons` directly to obtain the summary dataframe and plot the results yourself."
+    "Notice how the contrast $w$ varies while the covariates $c$ are held constant. Currently, however, plotting multiple contrast values can be difficult to interpret since the contrast is \"abstracted\" away onto the y-axis. Thus, it would be difficult to interpret which portion of the plot corresponds to which contrast value. Therefore, it is currently recommended that if you want to plot multiple contrast values, call `comparisons` directly to obtain the summary dataframe and plot the results yourself."
    ]
   },
   {
@@ -693,7 +693,7 @@
     "\n",
     "Now, we move onto scenario 2 described above (grid of equally spaced and central values) in computing average predictive comparisons. You are not required to pass values for `contrast` and `conditional`. If you do not pass values, Bambi will compute default values for you. Below, it is described how these default values are computed.\n",
     "\n",
-    "The default value for `contrast` is a _centered difference_ at the mean for a contrast variable with a numeric dtype, and _unique levels_ for a contrast varaible with a categorical dtype. For example, if the modeler is interested in the comparison of a $5$ unit increase in $u$ where $u$ is a numeric variable, Bambi computes the mean and then subtracts and adds $2.5$ units to the mean to obtain a _centered difference_. By default, if no value is passed for the contrast covariate, Bambi computes a one unit centered difference at the mean. For example, if only `contrast=\"persons\"` is passed, then $\\pm$ $0.5$ is applied to the mean of persons. If $u$ is a categorical variable, Bambi computes and returns the unique levels. For example, if $u$ has levels [\"high scool\", \"vocational\", \"university\"], Bambi computes and returns the unique values of this variable.\n",
+    "The default value for `contrast` is a _centered difference_ at the mean for a contrast variable with a numeric dtype, and _unique levels_ for a contrast varaible with a categorical dtype. For example, if the modeler is interested in the comparison of a $5$ unit increase in $w$ where $w$ is a numeric variable, Bambi computes the mean and then subtracts and adds $2.5$ units to the mean to obtain a _centered difference_. By default, if no value is passed for the contrast covariate, Bambi computes a one unit centered difference at the mean. For example, if only `contrast=\"persons\"` is passed, then $\\pm$ $0.5$ is applied to the mean of persons. If $w$ is a categorical variable, Bambi computes and returns the unique levels. For example, if $w$ has levels [\"high scool\", \"vocational\", \"university\"], Bambi computes and returns the unique values of this variable.\n",
     "\n",
     "The default values for `conditional` are more involved. Currently, by default, if a dict or list is passed to `conditional`, Bambi uses the ordering (keys if dict and elements if list) to determine which covariate to use as the main, group (color), and panel (facet) variable. This is the same logic used in `plot_comparisons` described above. Subsequently, the default values used for the `conditional` covariates depend on their ordering **and** dtype. Below, the psuedocode used for computing default values covariates passed to `conditional` is outlined:\n",
     "\n",
@@ -993,7 +993,7 @@
    "source": [
     "### Unit level contrasts\n",
     "\n",
-    "Evaluating average predictive comparisons at central values for the conditional covariates $v$ can be problematic when the inputs have a large variance since no single central value (mean, median, etc.) is representative of the covariate. This is especially true when $v$ exhibits bi or multimodality. Thus, it may be desireable to use the empirical distribution of $v$ to compute the predictive comparisons, and then average over a specific or set of covariates to obtain the average predictive comparisons. To achieve unit level contrasts, do not pass a parameter into `conditional` and or specify `None`."
+    "Evaluating average predictive comparisons at central values for the conditional covariates $c$ can be problematic when the inputs have a large variance since no single central value (mean, median, etc.) is representative of the covariate. This is especially true when $c$ exhibits bi or multimodality. Thus, it may be desireable to use the empirical distribution of $c$ to compute the predictive comparisons, and then average over a specific or set of covariates to obtain the average predictive comparisons. To achieve unit level contrasts, do not pass a parameter into `conditional` and or specify `None`."
    ]
   },
   {
@@ -1345,7 +1345,7 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "Above, `unit_level` is the comparisons summary dataframe and `fish_model.data` is the empirical data. Notice how the values for $v$ are identical in both dataframes. However, for $u$, the values are different. However, these unit level contrasts are difficult to interpret as each row corresponds to _that_ unit's contrast. Therefore, it is useful to average over (marginalize) the estimates to summarize the unit level predictive comparisons."
+    "Above, `unit_level` is the comparisons summary dataframe and `fish_model.data` is the empirical data. Notice how the values for $c$ are identical in both dataframes. However, for $w$, the values are different. However, these unit level contrasts are difficult to interpret as each row corresponds to _that_ unit's contrast. Therefore, it is useful to average over (marginalize) the estimates to summarize the unit level predictive comparisons."
    ]
   },
   {
