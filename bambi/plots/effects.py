@@ -1,3 +1,4 @@
+# pylint: disable=ungrouped-imports
 from dataclasses import dataclass, field
 import itertools
 from typing import Dict, Union
@@ -5,8 +6,8 @@ from typing import Dict, Union
 import arviz as az
 import numpy as np
 import pandas as pd
-import xarray as xr
 from pandas.api.types import is_categorical_dtype, is_string_dtype
+import xarray as xr
 
 from bambi.models import Model
 from bambi.plots.create_data import create_cap_data, create_differences_data

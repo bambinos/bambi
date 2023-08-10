@@ -356,7 +356,6 @@ def set_default_values(model: Model, data_dict: dict, kind: str) -> dict:
             if not isinstance(value, (list, np.ndarray)):
                 data_dict[key] = [value]
         return data_dict
-
     return data_dict
 
 
