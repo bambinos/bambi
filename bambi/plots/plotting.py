@@ -81,7 +81,7 @@ def _plot_differences(
     return fig, axes
 
 
-def plot_cap(
+def plot_predictions(
     model: Model,
     idata: az.InferenceData,
     covariates: Union[str, list],
@@ -212,7 +212,7 @@ def plot_cap(
     return fig, axes
 
 
-def plot_comparison(
+def plot_comparisons(
     model: Model,
     idata: az.InferenceData,
     contrast: Union[str, dict, list],

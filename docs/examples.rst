@@ -26,6 +26,6 @@ Examples
   notebooks/distributional_models
   notebooks/hsgp_1d
   notebooks/hsgp_2d
-  notebooks/plot_cap
+  notebooks/plot_predictions
   notebooks/plot_comparisons
   notebooks/plot_slopes

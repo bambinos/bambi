@@ -10,7 +10,7 @@ from pandas.api.types import is_categorical_dtype, is_string_dtype
 import xarray as xr
 
 from bambi.models import Model
-from bambi.plots.create_data import create_cap_data, create_differences_data
+from bambi.plots.create_data import create_differences_data, create_predictions_data
 from bambi.plots.utils import (
     average_over,
     ConditionalInfo,
@@ -478,7 +478,7 @@ def predictions(
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
-    cap_data = create_cap_data(model, covariates)
+    cap_data = create_predictions_data(model, covariates)
 
     if target != "mean":
         component = model.components[target]
