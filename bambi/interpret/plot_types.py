@@ -3,7 +3,7 @@ from matplotlib.patches import Patch
 import numpy as np
 import pandas as pd
 
-from bambi.plots.utils import Covariates, get_unique_levels, get_group_offset, identity
+from bambi.interpret.utils import Covariates, get_unique_levels, get_group_offset, identity
 
 
 def plot_numeric(

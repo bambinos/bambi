@@ -6,6 +6,7 @@ from .backend import PyMCModel
 from .data import clear_data_home, load_data
 from .families import Family, Likelihood, Link
 from .formula import Formula
+from . import interpret
 from .models import Model
 from .priors import Prior
 from .version import __version__
@@ -21,7 +22,7 @@ __all__ = [
     "Formula",
     "clear_data_home",
     "load_data",
-    "math",
+    "math"
 ]
 
 _log = logging.getLogger("bambi")

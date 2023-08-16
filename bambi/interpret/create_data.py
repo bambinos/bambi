@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from bambi.models import Model
-from bambi.plots.utils import (
+from bambi.interpret.utils import (
     ConditionalInfo,
     enforce_dtypes,
     get_covariates,

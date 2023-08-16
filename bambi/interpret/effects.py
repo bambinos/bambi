@@ -10,8 +10,8 @@ from pandas.api.types import is_categorical_dtype, is_string_dtype
 import xarray as xr
 
 from bambi.models import Model
-from bambi.plots.create_data import create_differences_data, create_predictions_data
-from bambi.plots.utils import (
+from bambi.interpret.create_data import create_differences_data, create_predictions_data
+from bambi.interpret.utils import (
     average_over,
     ConditionalInfo,
     identity,

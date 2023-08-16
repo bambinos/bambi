@@ -8,9 +8,9 @@ import pandas as pd
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
 
 from bambi.models import Model
-from bambi.plots.effects import comparisons, slopes, predictions
-from bambi.plots.plot_types import plot_categoric, plot_numeric
-from bambi.plots.utils import get_covariates, ConditionalInfo
+from bambi.interpret.effects import comparisons, slopes, predictions
+from bambi.interpret.plot_types import plot_categoric, plot_numeric
+from bambi.interpret.utils import get_covariates, ConditionalInfo
 from bambi.utils import get_aliased_name, listify
 
 
