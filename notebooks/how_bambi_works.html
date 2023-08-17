@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -397,9 +397,9 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Basic-building-blocks">
-<h1>Basic building blocks<a class="headerlink" href="#Basic-building-blocks" title="Permalink to this heading">#</a></h1>
+<h1>Basic building blocks<a class="headerlink" href="#Basic-building-blocks" title="Link to this heading">#</a></h1>
 <section id="Linear-predictor">
-<h2>Linear predictor<a class="headerlink" href="#Linear-predictor" title="Permalink to this heading">#</a></h2>
+<h2>Linear predictor<a class="headerlink" href="#Linear-predictor" title="Link to this heading">#</a></h2>
 <p>Bambi builds <strong>linear predictors</strong> of the form</p>
 <div class="math notranslate nohighlight">
 \[\pmb{\eta} = \mathbf{X}\pmb{\beta} + \mathbf{Z}\pmb{u}\]</div>
@@ -411,7 +411,7 @@ document.write(`
 <p>Both contributions obey the same rule: A dot product between a data object and a parameter object.</p>
 </section>
 <section id="Design-matrix">
-<h2>Design matrix<a class="headerlink" href="#Design-matrix" title="Permalink to this heading">#</a></h2>
+<h2>Design matrix<a class="headerlink" href="#Design-matrix" title="Link to this heading">#</a></h2>
 <p>The following objects are <strong>design matrices</strong></p>
 <div class="math notranslate nohighlight">
 \[\begin{array}{c}
@@ -424,7 +424,7 @@ document.write(`
 </ul>
 </section>
 <section id="Parameter-vector">
-<h2>Parameter vector<a class="headerlink" href="#Parameter-vector" title="Permalink to this heading">#</a></h2>
+<h2>Parameter vector<a class="headerlink" href="#Parameter-vector" title="Link to this heading">#</a></h2>
 <p>The following objects are <strong>parameter vectors</strong></p>
 <div class="math notranslate nohighlight">
 \[\begin{array}{c}
@@ -440,7 +440,7 @@ document.write(`
 <p>Linear predictors (or a function of them) describe the functional relationship between one or more parameters of the response distribution and the predictors.</p>
 </section>
 <section id="Example:-Linear-regression">
-<h2>Example: Linear regression<a class="headerlink" href="#Example:-Linear-regression" title="Permalink to this heading">#</a></h2>
+<h2>Example: Linear regression<a class="headerlink" href="#Example:-Linear-regression" title="Link to this heading">#</a></h2>
 <p>A classical linear regression model is a special case where there is no group-specific contribution and a linear predictor is mapped to the mean parameter of the response distribution.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
@@ -451,7 +451,7 @@ Y_i  &amp;\sim \text{Normal}(\eta_i, \sigma)
 \end{aligned}\end{split}\]</div>
 </section>
 <section id="Link-functions">
-<h2>Link functions<a class="headerlink" href="#Link-functions" title="Permalink to this heading">#</a></h2>
+<h2>Link functions<a class="headerlink" href="#Link-functions" title="Link to this heading">#</a></h2>
 <p>Link functions turn linear models in <strong>generalized linear models</strong>. A link function, <span class="math notranslate nohighlight">\(g\)</span>, is a function that maps a parameter of the response distribution to the linear predictor. When people talk about generalized linear models, they mean there’s a link function mapping the mean of the response distribution to the linear predictor. But as we will see later, Bambi allows to use linear predictors and link functions to model any parameter of the response distribution – these are known as
 distributional models or <strong>generalized linear models for location, scale, and shape</strong>.</p>
 <div class="math notranslate nohighlight">
@@ -464,7 +464,7 @@ g(\pmb{\mu}) &amp;= \text{logit}(\pmb{\mu}) = \log \left(\frac{\pmb{\mu}}{1 - \p
 \end{aligned}\end{split}\]</div>
 </section>
 <section id="Example:-Logistic-regression">
-<h2>Example: Logistic regression<a class="headerlink" href="#Example:-Logistic-regression" title="Permalink to this heading">#</a></h2>
+<h2>Example: Logistic regression<a class="headerlink" href="#Example:-Logistic-regression" title="Link to this heading">#</a></h2>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
 g(\pmb{\mu})  &amp;= \mathbf{X}\pmb{\beta}  \\
@@ -474,7 +474,7 @@ Y_i    &amp;\sim \text{Bernoulli}(\mu = g^{-1}(\mathbf{X}\pmb{\beta} )_i)
 <p>where <span class="math notranslate nohighlight">\(g = \text{logit}\)</span> and <span class="math notranslate nohighlight">\(g^{-1} = \text{logistic}\)</span> also known as <span class="math notranslate nohighlight">\(\text{expit}\)</span>.</p>
 </section>
 <section id="Generalized-linear-models-for-location,-scale,-and-shape">
-<h2>Generalized linear models for location, scale, and shape<a class="headerlink" href="#Generalized-linear-models-for-location,-scale,-and-shape" title="Permalink to this heading">#</a></h2>
+<h2>Generalized linear models for location, scale, and shape<a class="headerlink" href="#Generalized-linear-models-for-location,-scale,-and-shape" title="Link to this heading">#</a></h2>
 <p>This is an extension to generalized linear models. In a generalized linear model a linear predictor and a link function are used to explain the relationship between the mean (location) of the response distribution and the predictors. In this type of models we are able to use linear predictors and link functions to represent the relationship between <strong>any parameter of the response distribution</strong> and the predictors.</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
@@ -486,7 +486,7 @@ Y_i &amp;\sim \text{Distribution}(\theta_{1i}, \theta_{2i}, \dots, \theta_{ki})
 \end{aligned}\end{split}\]</div>
 </section>
 <section id="Example:-Heteroskedastic-linear-regression">
-<h2>Example: Heteroskedastic linear regression<a class="headerlink" href="#Example:-Heteroskedastic-linear-regression" title="Permalink to this heading">#</a></h2>
+<h2>Example: Heteroskedastic linear regression<a class="headerlink" href="#Example:-Heteroskedastic-linear-regression" title="Link to this heading">#</a></h2>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
 g_1(\pmb{\mu})     &amp;= \mathbf{X}_1\pmb{\beta}_1  \\
@@ -507,7 +507,7 @@ Y_i  &amp;\sim \text{Normal}(\mu_i, \sigma_i)
 </ul>
 </section>
 <section id="What-can-be-included-in-a-design-matrix">
-<h2>What can be included in a design matrix<a class="headerlink" href="#What-can-be-included-in-a-design-matrix" title="Permalink to this heading">#</a></h2>
+<h2>What can be included in a design matrix<a class="headerlink" href="#What-can-be-included-in-a-design-matrix" title="Link to this heading">#</a></h2>
 <p>A design matrix is… a matrix. As such, it’s filled up with numbers. However, it does not mean it cannot encode non-numerical variables. In a design matrix we can encode the following</p>
 <ul class="simple">
 <li><p><strong>Numerical</strong> predictors</p></li>
@@ -547,7 +547,7 @@ Y_i  &amp;\sim \text{Normal}(\mu_i, \sigma_i)
 <p><strong>These all can be expressed as a single set of columns of a design matrix that are matched with a subset of the parameter vector of the same length</strong></p>
 </section>
 <section id="Who-takes-care-of-each-step?">
-<h2>Who takes care of each step?<a class="headerlink" href="#Who-takes-care-of-each-step?" title="Permalink to this heading">#</a></h2>
+<h2>Who takes care of each step?<a class="headerlink" href="#Who-takes-care-of-each-step?" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p>Data matrices are built by <code class="docutils literal notranslate"><span class="pre">formulae</span></code>.</p>
 <ul>
@@ -564,7 +564,7 @@ Y_i  &amp;\sim \text{Normal}(\mu_i, \sigma_i)
 </section>
 </section>
 <section id="Example">
-<h1>Example<a class="headerlink" href="#Example" title="Permalink to this heading">#</a></h1>
+<h1>Example<a class="headerlink" href="#Example" title="Link to this heading">#</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
@@ -1109,7 +1109,7 @@ CommonTerm(
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

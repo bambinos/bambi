@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -402,12 +402,12 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Hierarchical-Linear-Regression-(Radon-Contamination-dataset)">
-<h1>Hierarchical Linear Regression (Radon Contamination dataset)<a class="headerlink" href="#Hierarchical-Linear-Regression-(Radon-Contamination-dataset)" title="Permalink to this heading">#</a></h1>
+<h1>Hierarchical Linear Regression (Radon Contamination dataset)<a class="headerlink" href="#Hierarchical-Linear-Regression-(Radon-Contamination-dataset)" title="Link to this heading">#</a></h1>
 <p>In this notebook we want to revisit the classical hierarchical linear regression model based on the dataset of the <em>Radon Contamination</em> by Gelman and Hill. In particular, we want to show how easy is to port the <a class="reference external" href="https://docs.pymc.io/en/v3/">PyMC</a> models, presented in the very complete article <a class="reference external" href="https://docs.pymc.io/projects/examples/en/latest/case_studies/multilevel_modeling.html">A Primer on Bayesian Methods for Multilevel Modeling</a>, to
 <a class="reference external" href="https://bambinos.github.io/bambi/main/index.html">Bambi</a> using the more concise formula specification for the models.</p>
 <p>This example has been ported from PyMC by Juan Orduz (<a class="reference external" href="https://github.com/juanitorduz">&#64;juanitorduz</a>) and Bambi developers.</p>
 <section id="Prepare-Notebook">
-<h2>Prepare Notebook<a class="headerlink" href="#Prepare-Notebook" title="Permalink to this heading">#</a></h2>
+<h2>Prepare Notebook<a class="headerlink" href="#Prepare-Notebook" title="Link to this heading">#</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -442,7 +442,7 @@ Generator(PCG64) at 0x7FDEF2EFEC00
 </div>
 </section>
 <section id="Read-Data">
-<h2>Read Data<a class="headerlink" href="#Read-Data" title="Permalink to this heading">#</a></h2>
+<h2>Read Data<a class="headerlink" href="#Read-Data" title="Link to this heading">#</a></h2>
 <p>Let us load the data into a pandas data frame.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -750,7 +750,7 @@ Generator(PCG64) at 0x7FDEF2EFEC00
 </div>
 </section>
 <section id="Preprocess-Data">
-<h2>Preprocess Data<a class="headerlink" href="#Preprocess-Data" title="Permalink to this heading">#</a></h2>
+<h2>Preprocess Data<a class="headerlink" href="#Preprocess-Data" title="Link to this heading">#</a></h2>
 <p>We are going to preprocess the data as done in the article <a class="reference external" href="https://docs.pymc.io/projects/examples/en/latest/case_studies/multilevel_modeling.html">A Primer on Bayesian Methods for Multilevel Modeling</a>.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
@@ -794,7 +794,7 @@ Generator(PCG64) at 0x7FDEF2EFEC00
 <p>In this exercise, we model the logarithm of the Radon measurements. This is because the distribution of the Radon level is approximately log-normal. We also add a small number, 0.1, to prevent us from trying to compute the logarithm of 0.</p>
 </section>
 <section id="EDA">
-<h2>EDA<a class="headerlink" href="#EDA" title="Permalink to this heading">#</a></h2>
+<h2>EDA<a class="headerlink" href="#EDA" title="Link to this heading">#</a></h2>
 <p>In order to get a glimpse of the data, we are going to do some exploratory data analysis. First, let’s have a look at the global distribution of the untransformed radon levels.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -918,11 +918,11 @@ Number of counties: 85
 </div>
 </section>
 <section id="Models:-Conventional-Approaches">
-<h2>Models: Conventional Approaches<a class="headerlink" href="#Models:-Conventional-Approaches" title="Permalink to this heading">#</a></h2>
+<h2>Models: Conventional Approaches<a class="headerlink" href="#Models:-Conventional-Approaches" title="Link to this heading">#</a></h2>
 <section id="Complete-Pooling">
-<h3>Complete Pooling<a class="headerlink" href="#Complete-Pooling" title="Permalink to this heading">#</a></h3>
+<h3>Complete Pooling<a class="headerlink" href="#Complete-Pooling" title="Link to this heading">#</a></h3>
 <section id="Model">
-<h4>Model<a class="headerlink" href="#Model" title="Permalink to this heading">#</a></h4>
+<h4>Model<a class="headerlink" href="#Model" title="Link to this heading">#</a></h4>
 <p>For this first model we only consider the predictor <code class="docutils literal notranslate"><span class="pre">floor</span></code>, which represents the floor level. The following equation describes the linear model that we are going to build with Bambi</p>
 <div class="math notranslate nohighlight">
 \[y = \beta_{j} + \varepsilon\]</div>
@@ -936,16 +936,16 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 <p>Each <span class="math notranslate nohighlight">\(j\)</span> indexes a different floor level. In this case, <span class="math notranslate nohighlight">\(j=1\)</span> means <code class="docutils literal notranslate"><span class="pre">&quot;basement&quot;</span></code> and <span class="math notranslate nohighlight">\(j=2\)</span> means <code class="docutils literal notranslate"><span class="pre">&quot;floor&quot;</span></code>.</p>
 </section>
 <section id="Priors">
-<h4>Priors<a class="headerlink" href="#Priors" title="Permalink to this heading">#</a></h4>
+<h4>Priors<a class="headerlink" href="#Priors" title="Link to this heading">#</a></h4>
 <section id="Common-effects">
-<h5>Common effects<a class="headerlink" href="#Common-effects" title="Permalink to this heading">#</a></h5>
+<h5>Common effects<a class="headerlink" href="#Common-effects" title="Link to this heading">#</a></h5>
 <p>The only common effect in this model is the floor effect represented by the <span class="math notranslate nohighlight">\(\beta_{j}\)</span> coefficients. We have</p>
 <div class="math notranslate nohighlight">
 \[\beta_{j} \sim \text{Normal}(0, \sigma_{\beta_j})\]</div>
 <p>for <span class="math notranslate nohighlight">\(j: 1, 2\)</span>, where <span class="math notranslate nohighlight">\(\sigma_{\beta_j}\)</span> is a positive constant that we set to 10 for all <span class="math notranslate nohighlight">\(j\)</span>.</p>
 </section>
 <section id="Residual-error">
-<h5>Residual error<a class="headerlink" href="#Residual-error" title="Permalink to this heading">#</a></h5>
+<h5>Residual error<a class="headerlink" href="#Residual-error" title="Link to this heading">#</a></h5>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
 \varepsilon &amp; \sim \text{Normal}(0, \sigma) \\
@@ -1309,10 +1309,10 @@ Name: activity, dtype: float64
 </section>
 </section>
 <section id="No-Pooling">
-<h3>No Pooling<a class="headerlink" href="#No-Pooling" title="Permalink to this heading">#</a></h3>
+<h3>No Pooling<a class="headerlink" href="#No-Pooling" title="Link to this heading">#</a></h3>
 <p>The following model uses both <code class="docutils literal notranslate"><span class="pre">floor</span></code> and <code class="docutils literal notranslate"><span class="pre">county</span></code> as predictors. They are represented with an interaction effect. It means the predicted radon level for a given measurement depends both on the floor level as well as the county. This interaction coefficient allows the floor effect to vary across counties. Or said analogously, the county effect can vary across floor levels.</p>
 <section id="id1">
-<h4>Model<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h4>
+<h4>Model<a class="headerlink" href="#id1" title="Link to this heading">#</a></h4>
 <div class="math notranslate nohighlight">
 \[y = \gamma_{jk} + \varepsilon\]</div>
 <p>where</p>
@@ -1324,9 +1324,9 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 \end{aligned}\end{split}\]</div>
 </section>
 <section id="id2">
-<h4>Priors<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h4>
+<h4>Priors<a class="headerlink" href="#id2" title="Link to this heading">#</a></h4>
 <section id="id3">
-<h5>Common effects<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h5>
+<h5>Common effects<a class="headerlink" href="#id3" title="Link to this heading">#</a></h5>
 <p>The common effect is the interaction between <code class="docutils literal notranslate"><span class="pre">floor</span></code> and <code class="docutils literal notranslate"><span class="pre">county</span></code>. The prior is</p>
 <div class="math notranslate nohighlight">
 \[\gamma_{jk} \sim \text{Normal}(0, \sigma_{\gamma_{jk}})\]</div>
@@ -1336,7 +1336,7 @@ y &amp;= \text{Response for the (log) radon measurement }\\
 </div>
 </section>
 <section id="id4">
-<h5>Residual error<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h5>
+<h5>Residual error<a class="headerlink" href="#id4" title="Link to this heading">#</a></h5>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
 \varepsilon_i &amp; \sim \text{Normal}(0, \sigma) \\
@@ -1550,14 +1550,14 @@ floor level (plus prior smoothing) as is reflected in the diagonal scatterplot a
 </section>
 </section>
 <section id="Multilevel-and-hierarchical-models">
-<h2>Multilevel and hierarchical models<a class="headerlink" href="#Multilevel-and-hierarchical-models" title="Permalink to this heading">#</a></h2>
+<h2>Multilevel and hierarchical models<a class="headerlink" href="#Multilevel-and-hierarchical-models" title="Link to this heading">#</a></h2>
 <p>In this section we are going to explore various types of hierarchical models. If you’re familiar with the PyMC way of using hierarchies, the Bambi way (borrowed from mixed effects models way) may be a bit unfamiliar in the beginning, but as we will see, the notation is very convenient. A good explanation is found in <a class="reference external" href="https://www.bayesrulesbook.com/chapter-16.html">Chapter 16 from Bayes Rules book</a>, specifically <a class="reference external" href="https://www.bayesrulesbook.com/chapter-16.html#another-way-to-think-about-it">section
 16.3.2</a>. Moreover, you can also take a look into the <a class="reference external" href="https://bambinos.github.io/bambi/main/examples.html">Bambi examples section</a> where you can find other use cases.</p>
 <section id="Partial-pooling-model">
-<h3>Partial pooling model<a class="headerlink" href="#Partial-pooling-model" title="Permalink to this heading">#</a></h3>
+<h3>Partial pooling model<a class="headerlink" href="#Partial-pooling-model" title="Link to this heading">#</a></h3>
 <p>We start with a model that considers a global intercept and varying intercepts for each county. The dispersion parameter of the prior for these varying intercepts is an <em>hyperprior</em> that is common to all the counties. As we are going to conclude later, this is what causes the <strong>partial pooling</strong> in the model estimates.</p>
 <section id="id5">
-<h4>Model<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h4>
+<h4>Model<a class="headerlink" href="#id5" title="Link to this heading">#</a></h4>
 <p>Let us use greek letters for common effects and roman letters for varying effects. In this case, <span class="math notranslate nohighlight">\(\alpha\)</span> is a common intercept and <span class="math notranslate nohighlight">\(u\)</span> is a group-specific intercept.</p>
 <div class="math notranslate nohighlight">
 \[y = \alpha + u_j + \varepsilon\]</div>
@@ -1571,16 +1571,16 @@ u_j &amp;= \text{Intercept specific to the county } j \\
 \end{aligned}\end{split}\]</div>
 </section>
 <section id="id6">
-<h4>Priors<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h4>
+<h4>Priors<a class="headerlink" href="#id6" title="Link to this heading">#</a></h4>
 <section id="id7">
-<h5>Common effects<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h5>
+<h5>Common effects<a class="headerlink" href="#id7" title="Link to this heading">#</a></h5>
 <p>The only common effect in this model is the intercept <span class="math notranslate nohighlight">\(\alpha\)</span>. We have</p>
 <div class="math notranslate nohighlight">
 \[\alpha \sim \text{Normal}(0, \sigma_\alpha)\]</div>
 <p>where <span class="math notranslate nohighlight">\(\sigma_\alpha\)</span> is a positive constant that we set to 10.</p>
 </section>
 <section id="Group-specific-effects">
-<h5>Group-specific effects<a class="headerlink" href="#Group-specific-effects" title="Permalink to this heading">#</a></h5>
+<h5>Group-specific effects<a class="headerlink" href="#Group-specific-effects" title="Link to this heading">#</a></h5>
 <div class="math notranslate nohighlight">
 \[u_j \sim \text{Normal}(0, \sigma_u)\]</div>
 <p>for all <span class="math notranslate nohighlight">\(j: 1, \cdots, 85\)</span>.</p>
@@ -1591,7 +1591,7 @@ u_j &amp;= \text{Intercept specific to the county } j \\
 <p>and <span class="math notranslate nohighlight">\(\tau\)</span> is a positive constant that we set to <span class="math notranslate nohighlight">\(1\)</span>.</p>
 </section>
 <section id="id8">
-<h5>Residual error<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h5>
+<h5>Residual error<a class="headerlink" href="#id8" title="Link to this heading">#</a></h5>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
 \varepsilon &amp; \sim \text{Normal}(0, \sigma) \\
@@ -1601,7 +1601,7 @@ u_j &amp;= \text{Intercept specific to the county } j \\
 </section>
 </section>
 <section id="Notes">
-<h4>Notes<a class="headerlink" href="#Notes" title="Permalink to this heading">#</a></h4>
+<h4>Notes<a class="headerlink" href="#Notes" title="Link to this heading">#</a></h4>
 <p>The common intercept <span class="math notranslate nohighlight">\(\alpha\)</span> represents the mean response across all counties and floor levels.</p>
 <p>On top of it, the county-specific intercept terms <span class="math notranslate nohighlight">\(u_j\)</span> represent county-specific deviations from that global mean. This type of term is also known as a vaying intercept in the statistical literature.</p>
 <div class="nbinput docutils container">
@@ -3489,11 +3489,11 @@ hyperprior in this case because it is a prior on top of a prior. And that hyperp
 </section>
 </section>
 <section id="County-specific-intercepts-and-common-predictors">
-<h3>County-specific intercepts and common predictors<a class="headerlink" href="#County-specific-intercepts-and-common-predictors" title="Permalink to this heading">#</a></h3>
+<h3>County-specific intercepts and common predictors<a class="headerlink" href="#County-specific-intercepts-and-common-predictors" title="Link to this heading">#</a></h3>
 <p>Next, we add the <code class="docutils literal notranslate"><span class="pre">floor</span></code> global feature (i.e. does not depend on the <code class="docutils literal notranslate"><span class="pre">county</span></code>) into the model above. We remove the global intercept so Bambi keeps one coefficient for each <code class="docutils literal notranslate"><span class="pre">floor</span></code> level.</p>
 <p>In the original PyMC example, this model is introduced under the <a class="reference external" href="https://docs.pymc.io/projects/examples/en/latest/case_studies/multilevel_modeling.html#varying-intercept-model">Varying intercept model</a> title. We feel that “County-specific intercepts and common predictors” is a more accurate representation of the model we build in Bambi. It is correct to say this is a varying intercept model, because of the county-specific intercepts, but so was the last model we built.</p>
 <section id="id9">
-<h4>Model<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h4>
+<h4>Model<a class="headerlink" href="#id9" title="Link to this heading">#</a></h4>
 <div class="math notranslate nohighlight">
 \[y = \beta_j + u_k + \varepsilon\]</div>
 <p>where</p>
@@ -3506,16 +3506,16 @@ u_k &amp;= \text{Intercept specific to the county } k \\
 \end{aligned}\end{split}\]</div>
 </section>
 <section id="id10">
-<h4>Priors<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h4>
+<h4>Priors<a class="headerlink" href="#id10" title="Link to this heading">#</a></h4>
 <section id="id11">
-<h5>Common effects<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h5>
+<h5>Common effects<a class="headerlink" href="#id11" title="Link to this heading">#</a></h5>
 <p>The common effect in this model is the floor term <span class="math notranslate nohighlight">\(\beta_j\)</span></p>
 <div class="math notranslate nohighlight">
 \[\beta_j \sim \text{Normal}(0, \sigma_{\beta_j})\]</div>
 <p>for all <span class="math notranslate nohighlight">\(j: 1, 2\)</span> and <span class="math notranslate nohighlight">\(\sigma_{\beta_j}\)</span> is a positive constant that we set to <span class="math notranslate nohighlight">\(10\)</span>.</p>
 </section>
 <section id="id12">
-<h5>Group-specific effects<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h5>
+<h5>Group-specific effects<a class="headerlink" href="#id12" title="Link to this heading">#</a></h5>
 <div class="math notranslate nohighlight">
 \[u_k \sim \text{Normal}(0, \sigma_u)\]</div>
 <p>for all <span class="math notranslate nohighlight">\(j:1, \cdots, 85\)</span>. The hyperprior is</p>
@@ -3525,7 +3525,7 @@ u_k &amp;= \text{Intercept specific to the county } k \\
 <p>and <span class="math notranslate nohighlight">\(\tau\)</span> is a positive constant that we set to <span class="math notranslate nohighlight">\(1\)</span>.</p>
 </section>
 <section id="id13">
-<h5>Residual error<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h5>
+<h5>Residual error<a class="headerlink" href="#id13" title="Link to this heading">#</a></h5>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
 \varepsilon &amp; \sim \text{Normal}(0, \sigma) \\
@@ -3534,7 +3534,7 @@ u_k &amp;= \text{Intercept specific to the county } k \\
 <p>where <span class="math notranslate nohighlight">\(\lambda\)</span> is a positive constant that we set to <span class="math notranslate nohighlight">\(1\)</span>.</p>
 </section>
 <section id="id14">
-<h5>Notes<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h5>
+<h5>Notes<a class="headerlink" href="#id14" title="Link to this heading">#</a></h5>
 <p><span class="math notranslate nohighlight">\(\beta_j\)</span> and <span class="math notranslate nohighlight">\(u_k\)</span> may look similar. The difference is that the latter is a hierarchical effect (it has a hyperprior), while the former is not.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
@@ -3671,10 +3671,10 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </section>
 </section>
 <section id="Varying-intercept-and-slope-model">
-<h3>Varying intercept and slope model<a class="headerlink" href="#Varying-intercept-and-slope-model" title="Permalink to this heading">#</a></h3>
+<h3>Varying intercept and slope model<a class="headerlink" href="#Varying-intercept-and-slope-model" title="Link to this heading">#</a></h3>
 <p>Next we want to include a hierarchical structure in the floor effect.</p>
 <section id="id15">
-<h4>Model<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h4>
+<h4>Model<a class="headerlink" href="#id15" title="Link to this heading">#</a></h4>
 <div class="math notranslate nohighlight">
 \[y = \beta_j + b_{jk} + \varepsilon\]</div>
 <p>where</p>
@@ -3687,16 +3687,16 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 \end{aligned}\end{split}\]</div>
 </section>
 <section id="id16">
-<h4>Priors<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h4>
+<h4>Priors<a class="headerlink" href="#id16" title="Link to this heading">#</a></h4>
 <section id="id17">
-<h5>Common effects<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h5>
+<h5>Common effects<a class="headerlink" href="#id17" title="Link to this heading">#</a></h5>
 <p>The common effect in this model is the floor term <span class="math notranslate nohighlight">\(\beta_j\)</span></p>
 <div class="math notranslate nohighlight">
 \[\beta_j \sim \text{Normal}(0, \sigma_{\beta_j})\]</div>
 <p>where <span class="math notranslate nohighlight">\(\sigma_{\beta_j}\)</span> is a positive constant that we set to <span class="math notranslate nohighlight">\(10\)</span>.</p>
 </section>
 <section id="id18">
-<h5>Group-specific effects<a class="headerlink" href="#id18" title="Permalink to this heading">#</a></h5>
+<h5>Group-specific effects<a class="headerlink" href="#id18" title="Link to this heading">#</a></h5>
 <p>Here, again, we have the floor effects</p>
 <div class="math notranslate nohighlight">
 \[b_{jk} \sim \text{Normal}(0, \sigma_{b_j})\]</div>
@@ -3708,7 +3708,7 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 <p><span class="math notranslate nohighlight">\(\tau\)</span> is a positive constant that we set to <span class="math notranslate nohighlight">\(1\)</span>.</p>
 </section>
 <section id="id19">
-<h5>Residual error<a class="headerlink" href="#id19" title="Permalink to this heading">#</a></h5>
+<h5>Residual error<a class="headerlink" href="#id19" title="Link to this heading">#</a></h5>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
 \varepsilon &amp; \sim \text{Normal}(0, \sigma) \\
@@ -3717,7 +3717,7 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 <p>where <span class="math notranslate nohighlight">\(\lambda\)</span> is a positive constant that we set to 1.</p>
 </section>
 <section id="id20">
-<h5>Notes<a class="headerlink" href="#id20" title="Permalink to this heading">#</a></h5>
+<h5>Notes<a class="headerlink" href="#id20" title="Link to this heading">#</a></h5>
 <p>Both <span class="math notranslate nohighlight">\(\beta_j\)</span> and <span class="math notranslate nohighlight">\(b_{jk}\)</span> are floor effects. The difference is that the first one is a common effect, while the second is a group-specific effect. In other words, the second floor effect varies from county to county. These effects represent the county specific deviations from the common floor effect <span class="math notranslate nohighlight">\(\beta_j\)</span>. Because of the hyperprior, the <span class="math notranslate nohighlight">\(b_{jk}\)</span> effects aren’t independent and result in the partial-pooling effect.</p>
 <p>In this case the Bambi model specification is quite easy, namely <code class="docutils literal notranslate"><span class="pre">log_radon</span> <span class="pre">~</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">floor</span> <span class="pre">+</span> <span class="pre">(0</span> <span class="pre">+</span> <span class="pre">floor|county)</span></code>. This formula represents the following terms:</p>
 <ul class="simple">
@@ -3871,10 +3871,10 @@ Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws 
 </section>
 </section>
 <section id="Adding-group-level-predictors">
-<h3>Adding group-level predictors<a class="headerlink" href="#Adding-group-level-predictors" title="Permalink to this heading">#</a></h3>
+<h3>Adding group-level predictors<a class="headerlink" href="#Adding-group-level-predictors" title="Link to this heading">#</a></h3>
 <p>We now want to consider a county-level predictor, namely the (log) uranium level. This is not a county-level predictor in the sense that we use a county-specific coefficient, but in the sense that all the uranium concentrations were measured per county. Thus all the houses in the same county have the same uranium level.</p>
 <section id="id21">
-<h4>Model<a class="headerlink" href="#id21" title="Permalink to this heading">#</a></h4>
+<h4>Model<a class="headerlink" href="#id21" title="Link to this heading">#</a></h4>
 <div class="math notranslate nohighlight">
 \[y = \beta_j + \xi x + b_{jk} + \varepsilon\]</div>
 <p>where</p>
@@ -3889,9 +3889,9 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 \end{aligned}\end{split}\]</div>
 </section>
 <section id="id22">
-<h4>Priors<a class="headerlink" href="#id22" title="Permalink to this heading">#</a></h4>
+<h4>Priors<a class="headerlink" href="#id22" title="Link to this heading">#</a></h4>
 <section id="id23">
-<h5>Common effects<a class="headerlink" href="#id23" title="Permalink to this heading">#</a></h5>
+<h5>Common effects<a class="headerlink" href="#id23" title="Link to this heading">#</a></h5>
 <p>This model has two common effects:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
@@ -3901,7 +3901,7 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 <p>where <span class="math notranslate nohighlight">\(j:1, 2\)</span> and all <span class="math notranslate nohighlight">\(\sigma_{\beta_j}\)</span> and <span class="math notranslate nohighlight">\(\sigma_{\xi}\)</span> are set to <span class="math notranslate nohighlight">\(10\)</span>.</p>
 </section>
 <section id="id24">
-<h5>Group-specific effects<a class="headerlink" href="#id24" title="Permalink to this heading">#</a></h5>
+<h5>Group-specific effects<a class="headerlink" href="#id24" title="Link to this heading">#</a></h5>
 <p>Here, again, we have the floor effects</p>
 <div class="math notranslate nohighlight">
 \[b_{jk} \sim \text{Normal}(0, \sigma_{b_j})\]</div>
@@ -3913,7 +3913,7 @@ b_{jk} &amp;= \text{Coefficient for the floor level } j \text{ specific to the c
 <p><span class="math notranslate nohighlight">\(\tau\)</span> is a positive constant that we set to <span class="math notranslate nohighlight">\(1\)</span>.</p>
 </section>
 <section id="id25">
-<h5>Residual error<a class="headerlink" href="#id25" title="Permalink to this heading">#</a></h5>
+<h5>Residual error<a class="headerlink" href="#id25" title="Link to this heading">#</a></h5>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{aligned}
 \varepsilon &amp; \sim \text{Normal}(0, \sigma) \\
@@ -4143,7 +4143,7 @@ Sampling 2 chains for 2_000 tune and 2_000 draw iterations (4_000 + 4_000 draws 
 </section>
 <hr class="docutils" />
 <section id="Summary">
-<h2>Summary<a class="headerlink" href="#Summary" title="Permalink to this heading">#</a></h2>
+<h2>Summary<a class="headerlink" href="#Summary" title="Link to this heading">#</a></h2>
 <p>Let us dig deeper into the model comparison for the pooled, unpooled, and partial pooling models. To do so we are generate predictions for each model ad county level, where we aggregate by taking the mean, and plot them against the observed values.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
@@ -4423,7 +4423,7 @@ Watermark: 2.3.1
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

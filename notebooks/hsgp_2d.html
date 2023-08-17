@@ -35,16 +35,16 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/hsgp_2d';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Plot Conditional Adjusted Predictions" href="plot_cap.html" />
+    <link rel="next" title="Plot Conditional Adjusted Predictions" href="plot_predictions.html" />
     <link rel="prev" title="Gaussian Processes" href="hsgp_1d.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -402,7 +402,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Gaussian-Processes-in-2D">
-<h1>Gaussian Processes in 2D<a class="headerlink" href="#Gaussian-Processes-in-2D" title="Permalink to this heading">#</a></h1>
+<h1>Gaussian Processes in 2D<a class="headerlink" href="#Gaussian-Processes-in-2D" title="Link to this heading">#</a></h1>
 <p>This article demonstrates how to use Bambi with Gaussian Processes with 2 dimensional predictors. Bambi supports Gaussian Processes through the low-rank approximation known as Hilbert Space Gaussian Processes. For references see <a class="reference external" href="https://arxiv.org/abs/1401.5508">Hilbert Space Methods for Reduced-Rank Gaussian Process Regression</a> and <a class="reference external" href="https://arxiv.org/abs/2004.11408">Practical Hilbert Space Approximate Bayesian Gaussian Processes for Probabilistic Programming</a>.</p>
 <p>For a demonstration of Gaussian Processes in 1D together with a more in depth explanation see <strong>To Do</strong>.</p>
 <div class="nbinput nblast docutils container">
@@ -442,11 +442,11 @@ document.write(`
 </pre></div></div>
 </div>
 <section id="Isotropic-samples">
-<h2>Isotropic samples<a class="headerlink" href="#Isotropic-samples" title="Permalink to this heading">#</a></h2>
+<h2>Isotropic samples<a class="headerlink" href="#Isotropic-samples" title="Link to this heading">#</a></h2>
 <p>In modeling multi-dimensional data with a Gaussian Process, we must choose between using an isotropic or an anisotropic Gaussian Process. An isotropic GP applies the same degree of smoothing to all predictors and is rotationally invariant. On the other hand, an anisotropic GP assigns different degrees of smoothing to each predictor and is not rotationally invariant.</p>
 <p>Furthermore, as the <code class="docutils literal notranslate"><span class="pre">hsgp()</span></code> function allows for the creation of separate GP contribution terms for the levels of a categorical variable through its <code class="docutils literal notranslate"><span class="pre">by</span></code> argument, we also examine both single-group and multiple-group scenarios.</p>
 <section id="A-single-group">
-<h3>A single group<a class="headerlink" href="#A-single-group" title="Permalink to this heading">#</a></h3>
+<h3>A single group<a class="headerlink" href="#A-single-group" title="Link to this heading">#</a></h3>
 <p>We create a covariance kernel using <code class="docutils literal notranslate"><span class="pre">ExpQuad</span></code> from the <code class="docutils literal notranslate"><span class="pre">gp</span></code> submodule in PyMC. Note that the lengthscale and amplitude for both dimensions are 2 and 1.2, respectively. Then, we simply use NumPy to get a random draw from the 144-dimensional multivariate normal distribution.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
@@ -665,7 +665,7 @@ Transformation time =  0:00:00.628279
 </ul>
 </section>
 <section id="Multiple-groups---same-covariance-function">
-<h3>Multiple groups - same covariance function<a class="headerlink" href="#Multiple-groups---same-covariance-function" title="Permalink to this heading">#</a></h3>
+<h3>Multiple groups - same covariance function<a class="headerlink" href="#Multiple-groups---same-covariance-function" title="Link to this heading">#</a></h3>
 <p>In this scenario we have multiple groups that share the same covariance function.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
@@ -835,7 +835,7 @@ Transformation time =  0:00:00.838094
 <p>While we have three groups, we only have one <code class="docutils literal notranslate"><span class="pre">hsgp_sigma</span></code> and one <code class="docutils literal notranslate"><span class="pre">hsgp_ell</span></code> for all groups. This is because, by default, the HSGP contributions by groups use the same instance of the covariance function.</p>
 </section>
 <section id="Multiple-groups---different-covariance-function">
-<h3>Multiple groups - different covariance function<a class="headerlink" href="#Multiple-groups---different-covariance-function" title="Permalink to this heading">#</a></h3>
+<h3>Multiple groups - different covariance function<a class="headerlink" href="#Multiple-groups---different-covariance-function" title="Link to this heading">#</a></h3>
 <p>Again we have multiple groups. But this time, each group has specific values for the amplitude and the lengthscale.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
@@ -1016,10 +1016,10 @@ Transformation time =  0:00:00.801181
 </section>
 </section>
 <section id="Anisotropic-samples">
-<h2>Anisotropic samples<a class="headerlink" href="#Anisotropic-samples" title="Permalink to this heading">#</a></h2>
+<h2>Anisotropic samples<a class="headerlink" href="#Anisotropic-samples" title="Link to this heading">#</a></h2>
 <p>In this second part we repeat exactly the same that we did for the isotropic case. First, we start with a single group. Then, we continue with multiple groups that share the covariance function. And finally, multiple groups with different covariance functions. The main difference is that we use <code class="docutils literal notranslate"><span class="pre">iso=False</span></code>, which asks to use an anisotropic GP.</p>
 <section id="id1">
-<h3>A single group<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<h3>A single group<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
@@ -1183,7 +1183,7 @@ Transformation time =  0:00:00.173091
 </div>
 </section>
 <section id="id2">
-<h3>Multiple groups - same covariance function<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<h3>Multiple groups - same covariance function<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
 </pre></div>
@@ -1350,7 +1350,7 @@ Transformation time =  0:00:00.249682
 </div>
 </section>
 <section id="id3">
-<h3>Multiple groups - different covariance function<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
+<h3>Multiple groups - different covariance function<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
 </pre></div>
@@ -1526,7 +1526,7 @@ Transformation time =  0:00:00.513813
 </section>
 </section>
 <section id="A-more-complex-example:-Poisson-likelihood-with-group-specific-effects">
-<h2>A more complex example: Poisson likelihood with group-specific effects<a class="headerlink" href="#A-more-complex-example:-Poisson-likelihood-with-group-specific-effects" title="Permalink to this heading">#</a></h2>
+<h2>A more complex example: Poisson likelihood with group-specific effects<a class="headerlink" href="#A-more-complex-example:-Poisson-likelihood-with-group-specific-effects" title="Link to this heading">#</a></h2>
 <p>For this final demonstration we’re going to use a simulated dataset where the outcome is a count variable. For the predictors, we have the location in terms of the latitude and longitude, as well as other variables such as the year of the measurement, the site where the measure was made, and one continuous predictor.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[42]:
@@ -1845,7 +1845,7 @@ Transformation time =  0:00:00.668909
       </div>
     </a>
     <a class="right-next"
-       href="plot_cap.html"
+       href="plot_predictions.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
@@ -1927,7 +1927,7 @@ Transformation time =  0:00:00.668909
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

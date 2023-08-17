@@ -34,9 +34,9 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=e937bb23"></script>
+    <script src="_static/documentation_options.js?v=3e2352eb"></script>
     <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'faq';</script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -395,11 +395,11 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="frequently-asked-questions">
-<h1>Frequently Asked Questions<a class="headerlink" href="#frequently-asked-questions" title="Permalink to this heading">#</a></h1>
+<h1>Frequently Asked Questions<a class="headerlink" href="#frequently-asked-questions" title="Link to this heading">#</a></h1>
 <section id="general-questions">
-<h2>General Questions<a class="headerlink" href="#general-questions" title="Permalink to this heading">#</a></h2>
+<h2>General Questions<a class="headerlink" href="#general-questions" title="Link to this heading">#</a></h2>
 <section id="what-is-the-difference-between-bambi-and-pymc">
-<h3>What is the difference between Bambi and PyMC?<a class="headerlink" href="#what-is-the-difference-between-bambi-and-pymc" title="Permalink to this heading">#</a></h3>
+<h3>What is the difference between Bambi and PyMC?<a class="headerlink" href="#what-is-the-difference-between-bambi-and-pymc" title="Link to this heading">#</a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><dl class="simple">
@@ -420,35 +420,35 @@ inference using PyMC.</p>
 </section>
 </section>
 <section id="inference-questions">
-<h2>Inference Questions<a class="headerlink" href="#inference-questions" title="Permalink to this heading">#</a></h2>
+<h2>Inference Questions<a class="headerlink" href="#inference-questions" title="Link to this heading">#</a></h2>
 <section id="what-sampling-methods-are-available">
-<h3>What sampling methods are available?<a class="headerlink" href="#what-sampling-methods-are-available" title="Permalink to this heading">#</a></h3>
+<h3>What sampling methods are available?<a class="headerlink" href="#what-sampling-methods-are-available" title="Link to this heading">#</a></h3>
 <p>The sampler used is automatically selected given the type of variables used in the model.
 For inference, Bambi supports both MCMC and variational inference. MCMC is the default, but you can specify variational inference by passing <cite>inference_method=’vi’</cite> to <cite>Model.fit()</cite>.
 Bambi also supports multiple backends for MCMC, including NumPyro, and BlackJax
 (see API for “fit” method for more details <a class="reference external" href="https://bambinos.github.io/bambi/api_reference.html">here</a>).</p>
 </section>
 <section id="can-inference-in-bambi-be-sped-up-using-gpus-tpus">
-<h3>Can inference in Bambi be sped up using GPUs/TPUs?<a class="headerlink" href="#can-inference-in-bambi-be-sped-up-using-gpus-tpus" title="Permalink to this heading">#</a></h3>
+<h3>Can inference in Bambi be sped up using GPUs/TPUs?<a class="headerlink" href="#can-inference-in-bambi-be-sped-up-using-gpus-tpus" title="Link to this heading">#</a></h3>
 <p>Yes, Bambi supports inference on GPUs and TPUs using the numpyro and blackjax backends.
 See the API for “fit” method for more details
 <a class="reference external" href="https://bambinos.github.io/bambi/api_reference.html">here</a>.</p>
 </section>
 </section>
 <section id="model-specification-questions">
-<h2>Model Specification Questions<a class="headerlink" href="#model-specification-questions" title="Permalink to this heading">#</a></h2>
+<h2>Model Specification Questions<a class="headerlink" href="#model-specification-questions" title="Link to this heading">#</a></h2>
 <section id="my-data-has-a-non-normal-distributions-can-i-still-use-bambi">
-<h3>My data has a non-normal distributions, can I still use Bambi?<a class="headerlink" href="#my-data-has-a-non-normal-distributions-can-i-still-use-bambi" title="Permalink to this heading">#</a></h3>
+<h3>My data has a non-normal distributions, can I still use Bambi?<a class="headerlink" href="#my-data-has-a-non-normal-distributions-can-i-still-use-bambi" title="Link to this heading">#</a></h3>
 <p>Yes, Bambi supports a wide range of distributions which can be specified using the “family”
 argument to the “Model”. You can find examples of how to specify these distributions
 in the <a class="reference external" href="https://bambinos.github.io/bambi/examples.html">Bambi examples</a>.</p>
 </section>
 <section id="how-do-i-find-out-what-priors-are-available">
-<h3>How do I find out what priors are available?<a class="headerlink" href="#how-do-i-find-out-what-priors-are-available" title="Permalink to this heading">#</a></h3>
+<h3>How do I find out what priors are available?<a class="headerlink" href="#how-do-i-find-out-what-priors-are-available" title="Link to this heading">#</a></h3>
 <p>You can use any valid PyMC distribution as a prior. You can find a list of all the distributions available in PyMC <a class="reference external" href="https://www.pymc.io/projects/docs/en/stable/api/distributions.html">here</a>.  You can also find examples of how to specify priors in the <a class="reference external" href="https://bambinos.github.io/bambi/examples.html">Bambi examples</a>, and in the <a class="reference external" href="https://bambinos.github.io/bambi/notebooks/getting_started.html#Specifying-priors">Getting Started Guide</a>.</p>
 </section>
 <section id="does-bambi-come-with-pre-specified-regression-models">
-<h3>Does bambi come with pre-specified regression models?<a class="headerlink" href="#does-bambi-come-with-pre-specified-regression-models" title="Permalink to this heading">#</a></h3>
+<h3>Does bambi come with pre-specified regression models?<a class="headerlink" href="#does-bambi-come-with-pre-specified-regression-models" title="Link to this heading">#</a></h3>
 <p>To allow building of bespoke models, Bambi does not come with pre-specified regression models.
 However, you can find examples of how to specify models in the
 <a class="reference external" href="https://bambinos.github.io/bambi/examples.html">Bambi examples</a>.</p>
@@ -552,7 +552,7 @@ However, you can find examples of how to specify models in the
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

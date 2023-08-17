@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -402,7 +402,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Bayesian-Workflow-(Strack-RRR-Analysis-Replication)">
-<h1>Bayesian Workflow (Strack RRR Analysis Replication)<a class="headerlink" href="#Bayesian-Workflow-(Strack-RRR-Analysis-Replication)" title="Permalink to this heading">#</a></h1>
+<h1>Bayesian Workflow (Strack RRR Analysis Replication)<a class="headerlink" href="#Bayesian-Workflow-(Strack-RRR-Analysis-Replication)" title="Link to this heading">#</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -430,7 +430,7 @@ participants rated cartoons as more funny when the participants held a pen in th
 2016, a Registered Replication Report led by Wagenmakers and colleagues attempted to replicate Study 1 from Strack, Martin, &amp; Stepper (1988) in 17 independent experiments comprising over 2,500 participants. The RRR reported no evidence in support of the effect.</p>
 <p>Because the emphasis here is on fitting models in Bambi, we spend very little time on quality control and data exploration; our goal is simply to show how one can replicate and extend the primary analysis reported in the RRR in a few lines of Bambi code.</p>
 <section id="Reading-in-the-data">
-<h2>Reading in the data<a class="headerlink" href="#Reading-in-the-data" title="Permalink to this heading">#</a></h2>
+<h2>Reading in the data<a class="headerlink" href="#Reading-in-the-data" title="Link to this heading">#</a></h2>
 <p>The data for the RRR of Strack, Martin, &amp; Stepper (henceforth <em>SMS</em>) is available as a set of CSV files from the project’s repository on the Open Science Framework. For the sake of completeness, we’ll show how to go from the raw CSV to the “long” data format that Bambi can use.</p>
 <p>One slightly annoying thing about these 17 CSV files–each of which represents a different replication site–is that they don’t all contain exactly the same columns. Some labs added a column or two at the end (mostly for notes). To keep things simple, we’ll just truncate each dataset to only the first 22 columns. Because the variable names are structured in a bit of a confusing way, we’ll also just drop the first two rows in each file, and manually set the column names for all 22 variables. Once
 we’ve done that, we can simply concatenate all of the 17 datasets along the row axis to create one big dataset.</p>
@@ -644,7 +644,7 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 </div>
 </section>
 <section id="Reshaping-the-data">
-<h2>Reshaping the data<a class="headerlink" href="#Reshaping-the-data" title="Permalink to this heading">#</a></h2>
+<h2>Reshaping the data<a class="headerlink" href="#Reshaping-the-data" title="Link to this heading">#</a></h2>
 <p>At this point we have our data in a pandas DataFrame with shape of (2612, 24). Unfortunately, we can’t use the data in this form. We’ll need to (a) conduct some basic quality control, and (b) “melt” the dataset–currently in so-called “wide” format, with each subject in a separate row–into long format, where each row is a single trial. Fortunately, we can do this easily in pandas:</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -830,7 +830,7 @@ we’ve done that, we can simply concatenate all of the 17 datasets along the ro
 <p>Notice that in the <code class="docutils literal notranslate"><span class="pre">melt()</span></code> call above, we’re treating not only the unique subject ID (uid) as an identifying variable, but also gender, experimental condition, age, and study name. Since these are all between-subject variables, these columns are all completely redundant with <code class="docutils literal notranslate"><span class="pre">uid</span></code>, and adding them does nothing to change the structure of our data. The point of explicitly listing them is just to keep them around in the dataset, so that we can easily add them to our models.</p>
 </section>
 <section id="Fitting-the-model">
-<h2>Fitting the model<a class="headerlink" href="#Fitting-the-model" title="Permalink to this heading">#</a></h2>
+<h2>Fitting the model<a class="headerlink" href="#Fitting-the-model" title="Link to this heading">#</a></h2>
 <p>Now that we’re all done with our (minimal) preprocessing, it’s time to fit the model! This turns out to be a snap in Bambi. We’ll begin with a very naive (and, as we’ll see later, incorrect) model that includes only the following terms:</p>
 <ul class="simple">
 <li><p>An overall (common) intercept.</p></li>
@@ -907,7 +907,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <p>Notice that, in Bambi, the common and group specific effects are specified in the same formula. This is the same convention used by other similar packages like <a class="reference external" href="https://CRAN.R-project.org/package=brms">brms</a>.</p>
 </section>
 <section id="Inspecting-results">
-<h2>Inspecting results<a class="headerlink" href="#Inspecting-results" title="Permalink to this heading">#</a></h2>
+<h2>Inspecting results<a class="headerlink" href="#Inspecting-results" title="Link to this heading">#</a></h2>
 <p>We can plot the prior distributions for all parameters with a call to the <code class="docutils literal notranslate"><span class="pre">plot_priors()</span></code> method.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
@@ -1049,7 +1049,7 @@ Sampling: [1|uid_sigma, Intercept, condition, value_sigma]
 </div>
 </section>
 <section id="Expanding-the-model">
-<h2>Expanding the model<a class="headerlink" href="#Expanding-the-model" title="Permalink to this heading">#</a></h2>
+<h2>Expanding the model<a class="headerlink" href="#Expanding-the-model" title="Link to this heading">#</a></h2>
 <p>Looking at the parameter estimates produced by our model, it seems pretty clear that there’s no meaningful effect of condition. The posterior distribution is centered almost exactly on 0, with most of the probability mass on very small values. The 94% HDI spans from <span class="math notranslate nohighlight">\(\approx -0.14\)</span> to <span class="math notranslate nohighlight">\(\approx 0.08\)</span>–in other words, the plausible effect of the experimental manipulation is, at best, to produce a change of &lt; 0.2 on cartoon ratings made on a 10-point scale. For perspective, the
 variation between subjects is enormous in comparison–the standard deviation for group specific effects <code class="docutils literal notranslate"><span class="pre">1|uid_sigma</span></code> is around 0.3. We can also see that the model is behaving well, and the sampler seems to have converged nicely (the traces for all parameters look stationary).</p>
 <p>Unfortunately, our first model has at least two pretty serious problems. First, it gives no consideration to between-study variation–we’re simply lumping all 1,728 subjects together, as if they came from the same study. A better model would properly account for study-level variation. We could model study as either a common or a group specific factor in this case–both choices are defensible, depending on whether we want to think of the 17 studies in this dataset as the only sites of interest,
@@ -1151,7 +1151,7 @@ Sampling 2 chains for 2_000 tune and 1_000 draw iterations (4_000 + 2_000 draws 
 </div>
 </section>
 <section id="And-the-answer-is...">
-<h2>And the answer is…<a class="headerlink" href="#And-the-answer-is..." title="Permalink to this heading">#</a></h2>
+<h2>And the answer is…<a class="headerlink" href="#And-the-answer-is..." title="Link to this heading">#</a></h2>
 <p>No. There’s still no discernible effect. Modeling the data using a mixed-effects model does highlight a number of other interesting features, however: * The stimulus-level standard deviation <code class="docutils literal notranslate"><span class="pre">1|stimulus_sigma</span></code> is quite large compared to the other factors. This is potentially problematic, because it suggests that a more conventional analysis that left individual stimulus effects out of the model could potentially run a high false positive rate. Note that this is a problem that affects both the
 RRR and the original Strack study equally; the moral of the story is <a class="reference external" href="http://jakewestfall.org/publications/crossed_power_JEPG.pdf">to deliberately sample large numbers of stimuli and explicitly model their influence</a>. * Older people seem to rate cartoons as being (a little bit) funnier. * The variation across sites is surprisingly small–in terms of both the group specific intercepts (<code class="docutils literal notranslate"><span class="pre">1|study</span></code>) and the group specific slopes (<code class="docutils literal notranslate"><span class="pre">condition|study</span></code>). In other words, the constitution of the
 sample, the gender of the experimenter, or any of the hundreds of others of between-site differences that one might conceivably have expected to matter, don’t really seem to make much of a difference to participants’ ratings of the cartoons.</p>
@@ -1284,7 +1284,7 @@ Watermark: 2.3.1
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

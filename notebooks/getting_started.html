@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -399,7 +399,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Getting-Started">
-<h1>Getting Started<a class="headerlink" href="#Getting-Started" title="Permalink to this heading">#</a></h1>
+<h1>Getting Started<a class="headerlink" href="#Getting-Started" title="Link to this heading">#</a></h1>
 <p>Bambi requires a working Python interpreter (3.7+). We recommend installing Python and key numerical libraries using the <a class="reference external" href="https://www.anaconda.com/products/individual">Anaconda Distribution</a>, which has one-click installers available on all major platforms.</p>
 <p>Assuming a standard Python environment is installed on your machine (including pip), Bambi itself can be installed in one line using pip:</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>pip install bambi
@@ -410,7 +410,7 @@ document.write(`
 </pre></div>
 </div>
 <section id="Quickstart">
-<h2>Quickstart<a class="headerlink" href="#Quickstart" title="Permalink to this heading">#</a></h2>
+<h2>Quickstart<a class="headerlink" href="#Quickstart" title="Link to this heading">#</a></h2>
 <p>Suppose we have data for a typical within-subjects psychology experiment with 2 experimental conditions. Stimuli are nested within condition, and subjects are crossed with condition. We want to fit a model predicting reaction time (RT) from the common effect of condition, group specific intercepts for subjects, group specific condition slopes for students, and group specific intercepts for stimuli. Using Bambi we can fit this model and summarize its results as follows:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
 
@@ -423,9 +423,9 @@ document.write(`
 </div>
 </section>
 <section id="User-Guide">
-<h2>User Guide<a class="headerlink" href="#User-Guide" title="Permalink to this heading">#</a></h2>
+<h2>User Guide<a class="headerlink" href="#User-Guide" title="Link to this heading">#</a></h2>
 <section id="Setup">
-<h3>Setup<a class="headerlink" href="#Setup" title="Permalink to this heading">#</a></h3>
+<h3>Setup<a class="headerlink" href="#Setup" title="Link to this heading">#</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -447,7 +447,7 @@ document.write(`
 </div>
 </section>
 <section id="Creating-a-model">
-<h3>Creating a model<a class="headerlink" href="#Creating-a-model" title="Permalink to this heading">#</a></h3>
+<h3>Creating a model<a class="headerlink" href="#Creating-a-model" title="Link to this heading">#</a></h3>
 <p>Creating a new model in Bambi is simple:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -487,7 +487,7 @@ document.write(`
 <p>Typically, we will initialize a Bambi <code class="docutils literal notranslate"><span class="pre">Model</span></code> by passing it a model formula and a pandas <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code>. Other arguments such as family, priors, and link are available. By default, it uses <code class="docutils literal notranslate"><span class="pre">family=&quot;gaussian&quot;</span></code> which implies a linear regression with normal error. We get back a model that we can immediately fit by calling <code class="docutils literal notranslate"><span class="pre">model.fit()</span></code>.</p>
 </section>
 <section id="Data-format">
-<h3>Data format<a class="headerlink" href="#Data-format" title="Permalink to this heading">#</a></h3>
+<h3>Data format<a class="headerlink" href="#Data-format" title="Link to this heading">#</a></h3>
 <p>As with most mixed effect modeling packages, Bambi expects data in “long” format–meaning that each row should reflects a single observation at the most fine-grained level of analysis. For example, given a model where students are nested into classrooms and classrooms are nested into schools, we would want data with the following kind of structure:</p>
 <center><table class="table">
 <thead>
@@ -558,7 +558,7 @@ document.write(`
 </center></section>
 </section>
 <section id="Formula-based-specification">
-<h2>Formula-based specification<a class="headerlink" href="#Formula-based-specification" title="Permalink to this heading">#</a></h2>
+<h2>Formula-based specification<a class="headerlink" href="#Formula-based-specification" title="Link to this heading">#</a></h2>
 <p>Models are specified in Bambi using a formula-based syntax similar to what one might find in R packages like lme4 or brms using the Python <a class="reference external" href="https://github.com/bambinos/formulae">formulae</a> library. A couple of examples illustrate the breadth of models that can be easily specified in Bambi:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -866,14 +866,14 @@ Automatically removing 33/6940 rows from the dataset.
 </pre></div>
 </div>
 <section id="Coding-of-categorical-variables">
-<h3>Coding of categorical variables<a class="headerlink" href="#Coding-of-categorical-variables" title="Permalink to this heading">#</a></h3>
+<h3>Coding of categorical variables<a class="headerlink" href="#Coding-of-categorical-variables" title="Link to this heading">#</a></h3>
 <p>When a categorical common effect with N levels is added to a model, by default, it is coded by N-1 dummy variables (i.e., reduced-rank coding). For example, suppose we write <code class="docutils literal notranslate"><span class="pre">&quot;y</span> <span class="pre">~</span> <span class="pre">condition</span> <span class="pre">+</span> <span class="pre">age</span> <span class="pre">+</span> <span class="pre">gender&quot;</span></code>, where condition is a categorical variable with 4 levels, and age and gender are continuous variables. Then our model would contain an intercept term (added to the model by default, as in R), three dummy-coded variables (each contrasting the first level of <code class="docutils literal notranslate"><span class="pre">condition</span></code> with one of the
 subsequent levels), and continuous predictors for age and gender. Suppose, however, that we would rather use full-rank coding of conditions. If we explicitly remove the intercept –as in <code class="docutils literal notranslate"><span class="pre">&quot;y</span> <span class="pre">~</span> <span class="pre">0</span> <span class="pre">+</span> <span class="pre">condition</span> <span class="pre">+</span> <span class="pre">age</span> <span class="pre">+</span> <span class="pre">gender&quot;</span></code>– then we get the desired effect. Now, the intercept is no longer included, and condition will be coded using 4 dummy indicators, each one coding for the presence or absence of the respective condition without reference to the other conditions.</p>
 <p>Group specific effects are handled in a comparable way. When adding group specific intercepts, coding is always full-rank (e.g., when adding group specific intercepts for 100 schools, one gets 100 dummy-coded indicators coding each school separately, and not 99 indicators contrasting each school with the very first one). For group specific slopes, coding proceeds the same way as for common effects. The group specific effects specification <code class="docutils literal notranslate"><span class="pre">&quot;(condition|subject)&quot;</span></code> would add an intercept for each
 subject, plus N-1 condition slopes (each coded with respect to the first, omitted, level as the referent). If we instead specify <code class="docutils literal notranslate"><span class="pre">&quot;(0+condition|subject)&quot;</span></code>, we get N condition slopes and no intercepts.</p>
 </section>
 <section id="Fitting-the-model">
-<h3>Fitting the model<a class="headerlink" href="#Fitting-the-model" title="Permalink to this heading">#</a></h3>
+<h3>Fitting the model<a class="headerlink" href="#Fitting-the-model" title="Link to this heading">#</a></h3>
 <p>Once a model is fully specified, we need to run the PyMC sampler to generate parameter estimates. If we’re using the one-line <code class="docutils literal notranslate"><span class="pre">fit()</span></code> interface, sampling will begin right away:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
@@ -986,7 +986,7 @@ Sampling: [1|uid_sigma, Intercept, age, condition, gender, value_sigma]
 </section>
 </section>
 <section id="Specifying-priors">
-<h2>Specifying priors<a class="headerlink" href="#Specifying-priors" title="Permalink to this heading">#</a></h2>
+<h2>Specifying priors<a class="headerlink" href="#Specifying-priors" title="Link to this heading">#</a></h2>
 <p>Bayesian inference requires one to specify prior probability distributions that represent the analyst’s belief (in advance of seeing the data) about the likely values of the model parameters. In practice, analysts often lack sufficient information to formulate well-defined priors, and instead opt to use “weakly informative” priors that mainly serve to keep the model from exploring completely pathological parts of the parameter space (e.g., when defining a prior on the distribution of human
 heights, a value of 3,000 cms should be assigned a probability of exactly 0).</p>
 <p>By default, Bambi will intelligently generate weakly informative priors for all model terms, by loosely scaling them to the observed data. Currently, Bambi uses a methodology very similar to the one described in the documentation of the R package <a class="reference external" href="https://mc-stan.org/rstanarm/articles/priors.html">rstanarm</a>. While the default priors will behave well in most typical settings, there are many cases where an analyst will want to specify their own priors–and in general, when informative priors
@@ -1081,7 +1081,7 @@ Automatically removing 9/6940 rows from the dataset.
 <p>It’s important to note that explicitly setting priors by passing in <code class="docutils literal notranslate"><span class="pre">Prior</span></code> objects will disable Bambi’s default behavior of scaling priors to the data in order to ensure that they remain weakly informative. This means that if you specify your own prior, you have to be sure not only to specify the distribution you want, but also any relevant scale parameters. For example, the 0.5 in <code class="docutils literal notranslate"><span class="pre">Prior(&quot;Normal&quot;,</span> <span class="pre">mu=0,</span> <span class="pre">sd=0.5)</span></code> will be specified on the scale of the data, not the bounded partial
 correlation scale that Bambi uses for default priors. This means that if your outcome variable has a mean value of 10,000 and a standard deviation of, say, 1,000, you could potentially have some problems getting the model to produce reasonable estimates, since from the perspective of the data, you’re specifying an extremely strong prior.</p>
 <section id="Custom-Prior">
-<h3>Custom Prior<a class="headerlink" href="#Custom-Prior" title="Permalink to this heading">#</a></h3>
+<h3>Custom Prior<a class="headerlink" href="#Custom-Prior" title="Link to this heading">#</a></h3>
 <p>Bambi’s priors are a thin layer on top of <a class="reference external" href="https://www.pymc.io/projects/docs/en/latest/api/distributions.html">PyMC distributions</a>. If you want to ask for a prior distribution by name, it must be the name of a PyMC distribution. But sometimes we want to use more complex distributions as priors. For all those cases, Bambi’s <code class="docutils literal notranslate"><span class="pre">Prior</span></code> class allow users to pass a function that returns a distribution that will be used as the prior. See the following example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">CustomPrior</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">pm</span><span class="o">.</span><span class="n">Normal</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">dims</span><span class="o">=</span><span class="n">dims</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -1100,7 +1100,7 @@ correlation scale that Bambi uses for default priors. This means that if your ou
 </section>
 </section>
 <section id="Generalized-linear-mixed-models">
-<h2>Generalized linear mixed models<a class="headerlink" href="#Generalized-linear-mixed-models" title="Permalink to this heading">#</a></h2>
+<h2>Generalized linear mixed models<a class="headerlink" href="#Generalized-linear-mixed-models" title="Link to this heading">#</a></h2>
 <p>Bambi supports the construction of mixed models with non-normal response distributions (i.e., generalized linear mixed models, or GLMMs). GLMMs are specified in the same way as LMMs, except that the user must specify the distribution to use for the response, and (optionally) the link function with which to transform the linear model prediction into the desired non-normal response. The easiest way to construct a GLMM is to simple set the <code class="docutils literal notranslate"><span class="pre">family</span></code> when creating the model:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
@@ -1282,7 +1282,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 </table>
 </center></section>
 <section id="Families">
-<h2>Families<a class="headerlink" href="#Families" title="Permalink to this heading">#</a></h2>
+<h2>Families<a class="headerlink" href="#Families" title="Link to this heading">#</a></h2>
 <p>Following the convention used in many R packages, the response distribution to use for a GLMM is specified in a <code class="docutils literal notranslate"><span class="pre">Family</span></code> class that indicates how the response variable is distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility. In the following example, we show how the
 built-in Bernoulli family could be constructed on-the-fly:</p>
 <div class="nbinput docutils container">
@@ -1377,11 +1377,11 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <p>One complication in specifying a custom <code class="docutils literal notranslate"><span class="pre">Family</span></code> is that one must pass both a link function and an inverse link function which must be able to operate over PyTensor tensors rather than numpy arrays, so you’ll probably need to rely on tensor operations provided in <code class="docutils literal notranslate"><span class="pre">aesara.tensor</span></code> (many of which are also wrapped by PyMC) when defining a new link.</p>
 </section>
 <section id="Results">
-<h2>Results<a class="headerlink" href="#Results" title="Permalink to this heading">#</a></h2>
+<h2>Results<a class="headerlink" href="#Results" title="Link to this heading">#</a></h2>
 <p>When a model is fitted, it returns a <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object containing data related to the model and the posterior. This object can be passed to many functions in ArviZ to obtain numerical and visuals diagnostics and plot in general.</p>
 </section>
 <section id="Plotting">
-<h2>Plotting<a class="headerlink" href="#Plotting" title="Permalink to this heading">#</a></h2>
+<h2>Plotting<a class="headerlink" href="#Plotting" title="Link to this heading">#</a></h2>
 <p>To visualize a plot of the posterior estimates and sample traces for all parameters, simply pass the <code class="docutils literal notranslate"><span class="pre">InferenceData</span></code> object to the arviz function <code class="docutils literal notranslate"><span class="pre">az._plot_trace</span></code>:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
@@ -1401,7 +1401,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <p>More details on this plot are available in the <a class="reference external" href="https://arviz-devs.github.io/arviz/_modules/arviz/plots/traceplot.html">ArviZ documentation</a>.</p>
 </section>
 <section id="Summarizing">
-<h2>Summarizing<a class="headerlink" href="#Summarizing" title="Permalink to this heading">#</a></h2>
+<h2>Summarizing<a class="headerlink" href="#Summarizing" title="Link to this heading">#</a></h2>
 <p>If you prefer numerical summaries of the posterior estimates, you can use the <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code> function from <a class="reference external" href="https://arviz-devs.github.io/arviz/generated/arviz.summary.html#arviz.summary">ArviZ</a> which provides a pandas DataFrame with some key summary and diagnostics info on the model parameters, such as the 94% highest posterior density intervals</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
@@ -1520,7 +1520,7 @@ Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws 
 <p>You can find detailed, worked examples of fitting Bambi models and working with the results in the example notebooks <a class="reference external" href="../examples.html">here</a>.</p>
 </section>
 <section id="Accessing-back-end-objects">
-<h2>Accessing back-end objects<a class="headerlink" href="#Accessing-back-end-objects" title="Permalink to this heading">#</a></h2>
+<h2>Accessing back-end objects<a class="headerlink" href="#Accessing-back-end-objects" title="Link to this heading">#</a></h2>
 <p>Bambi is just a high-level interface to PyMC. As such, Bambi internally stores virtually all objects generated by PyMC, making it easy for users to retrieve, inspect, and modify those objects. For example, the <code class="docutils literal notranslate"><span class="pre">Model</span></code> class created by PyMC (as opposed to the Bambi class of the same name) is accessible from <code class="docutils literal notranslate"><span class="pre">model.backend.model</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
@@ -1711,7 +1711,7 @@ $$
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

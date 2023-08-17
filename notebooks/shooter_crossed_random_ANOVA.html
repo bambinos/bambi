@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -402,7 +402,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Bayesian-Workflow-(Police-Officer's-Dilemma)">
-<h1>Bayesian Workflow (Police Officer’s Dilemma)<a class="headerlink" href="#Bayesian-Workflow-(Police-Officer's-Dilemma)" title="Permalink to this heading">#</a></h1>
+<h1>Bayesian Workflow (Police Officer’s Dilemma)<a class="headerlink" href="#Bayesian-Workflow-(Police-Officer's-Dilemma)" title="Link to this heading">#</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -433,7 +433,7 @@ Subjects receive points for correct and timely responses in each trial; subjects
 <li><p>Subjects are more likely to shoot black targets than white targets, whether they are armed or not.</p></li>
 </ul>
 <section id="Load-and-examine-data">
-<h2>Load and examine data<a class="headerlink" href="#Load-and-examine-data" title="Permalink to this heading">#</a></h2>
+<h2>Load and examine data<a class="headerlink" href="#Load-and-examine-data" title="Link to this heading">#</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -1574,9 +1574,9 @@ more convenient for us by allowing us to use some fairly standard distributional
 </div>
 </section>
 <section id="Fit-response-rate-models">
-<h2>Fit response rate models<a class="headerlink" href="#Fit-response-rate-models" title="Permalink to this heading">#</a></h2>
+<h2>Fit response rate models<a class="headerlink" href="#Fit-response-rate-models" title="Link to this heading">#</a></h2>
 <section id="Subject-specific-effects-only">
-<h3>Subject specific effects only<a class="headerlink" href="#Subject-specific-effects-only" title="Permalink to this heading">#</a></h3>
+<h3>Subject specific effects only<a class="headerlink" href="#Subject-specific-effects-only" title="Link to this heading">#</a></h3>
 <p>Our first model is analogous to how the data from the shooter task are usually analyzed: incorporating all subject-level sources of variability, but ignoring the sampling variability due to the sample of 50 targets. This is a Bayesian generalized linear mixed model (GLMM) with a Normal response and with intercepts and slopes that vary randomly across subjects.</p>
 <p>Of note here is the <code class="docutils literal notranslate"><span class="pre">S(x)</span></code> syntax, which is from the <a class="reference external" href="https://bambinos.github.io/formulae/">Formulae library</a> that we use to parse model formulas. This instructs Bambi to use contrast codes of -1 and +1 for the two levels of each of the common factors of <code class="docutils literal notranslate"><span class="pre">race</span></code> (black vs. white) and <code class="docutils literal notranslate"><span class="pre">object</span></code> (gun vs. no gun), so that the <code class="docutils literal notranslate"><span class="pre">race</span></code> and <code class="docutils literal notranslate"><span class="pre">object</span></code> coefficients can be interpreted as simple effects on average across the levels of the other factor (directly analogous, but not quite
 equivalent, to the main effects). This is the standard coding used in ANOVA.</p>
@@ -1867,7 +1867,7 @@ Sampling: [1|subject_sigma, Intercept, S(object), S(object)|subject_sigma, S(rac
 <p>The take-home message from the analysis seems to be that we do find evidence for the usual finding that subjects are especially quick to respond (presumably with a shoot response) to armed black targets and especially slow to respond to unarmed black targets (while unarmed white targets receive “don’t shoot” responses with less hesitation). We see this in the fact that the marginal posterior for the <code class="docutils literal notranslate"><span class="pre">S(race):S(object)</span></code> interaction coefficient is concentrated strongly away from 0.</p>
 </section>
 <section id="Stimulus-specific-effects">
-<h3>Stimulus specific effects<a class="headerlink" href="#Stimulus-specific-effects" title="Permalink to this heading">#</a></h3>
+<h3>Stimulus specific effects<a class="headerlink" href="#Stimulus-specific-effects" title="Link to this heading">#</a></h3>
 <p>A major flaw in the analysis above is that stimulus specific effects are ignored. The model does include group specific effects for subjects, reflecting the fact that the subjects we observed are but a sample from the broader population of subjects we are interested in and that potentially could have appeared in our study. But the targets we observed – the 50 photographs of white and black men that subjets responded to – are also but a sample from the broader theoretical population of targets
 we are interested in talking about, and that we could have just as easily and justifiably used as the experimental stimuli in the study. Since the stimuli comprise a random sample, they are subject to sampling variability, and this sampling variability should be accounted in the analysis by including stimulus specific effects. For some more information on this, <a class="reference external" href="http://jakewestfall.org/publications/JWK.pdf">see here, particularly pages 62-63</a>.</p>
 <p>To account for this, we let the intercept and slope for <code class="docutils literal notranslate"><span class="pre">object</span></code> be different for each <code class="docutils literal notranslate"><span class="pre">target</span></code>. Specific slopes for object across targets are possible because, if you recall, the design of the study was such that each target gets viewed twice by each subject, once with a gun and once without a gun. However, because each target is always either white or black, it’s not possible to add group specific slopes for the <code class="docutils literal notranslate"><span class="pre">race</span></code> factor or the interaction.</p>
@@ -2517,7 +2517,7 @@ easier to confuse with a gun, so subjects take longer to decide on the correct r
 </section>
 </section>
 <section id="Fit-response-models">
-<h2>Fit response models<a class="headerlink" href="#Fit-response-models" title="Permalink to this heading">#</a></h2>
+<h2>Fit response models<a class="headerlink" href="#Fit-response-models" title="Link to this heading">#</a></h2>
 <p>Here we seek evidence of the second traditional finding, that subjects are more likely to response ‘shoot’ toward black targets than toward white targets, regardless of whether they are armed or not. Currently the dataset just records whether the given response was correct or not, so first we transformed this into whether the response was ‘shoot’ or ‘dontshoot’.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
@@ -3600,7 +3600,7 @@ Watermark: 2.3.1
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

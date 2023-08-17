@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -402,7 +402,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Regression-for-Binary-responses:-Alternative-link-functions">
-<h1>Regression for Binary responses: Alternative link functions<a class="headerlink" href="#Regression-for-Binary-responses:-Alternative-link-functions" title="Permalink to this heading">#</a></h1>
+<h1>Regression for Binary responses: Alternative link functions<a class="headerlink" href="#Regression-for-Binary-responses:-Alternative-link-functions" title="Link to this heading">#</a></h1>
 <p>In this example we use a simple dataset to fit a Generalized Linear Model for a binary response using different link functions.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -429,7 +429,7 @@ document.write(`
 </div>
 </div>
 <section id="Generalized-linear-models-for-binary-response">
-<h2>Generalized linear models for binary response<a class="headerlink" href="#Generalized-linear-models-for-binary-response" title="Permalink to this heading">#</a></h2>
+<h2>Generalized linear models for binary response<a class="headerlink" href="#Generalized-linear-models-for-binary-response" title="Link to this heading">#</a></h2>
 <p>First of all, let’s review some concepts. A Generalized Linear Model (GLM) is made of three components.</p>
 <p><strong>1. Random component</strong></p>
 <p>A set of independent and identically distributed random variables <span class="math notranslate nohighlight">\(Y_i\)</span>. Their (conditional) probability distribution belongs to the same family <span class="math notranslate nohighlight">\(f\)</span> with a mean given by <span class="math notranslate nohighlight">\(\mu_i\)</span>.</p>
@@ -527,7 +527,7 @@ other words, the logit function has heavier tails than the probit.</p>
 <p>On the other hand, the <strong>cloglog</strong> does not present this symmetry, and we can clearly see it since the green line does not cross the point (0, 0.5). This function approaches faster the 1 than 0 as we move away from <span class="math notranslate nohighlight">\(x=0\)</span>.</p>
 </section>
 <section id="Load-data">
-<h2>Load data<a class="headerlink" href="#Load-data" title="Permalink to this heading">#</a></h2>
+<h2>Load data<a class="headerlink" href="#Load-data" title="Link to this heading">#</a></h2>
 <p>We use a data set consisting of the numbers of beetles dead after five hours of exposure to gaseous carbon disulphide at various concentrations. This data can be found in <em>An Introduction to Generalized Linear Models by A. J. Dobson and A. G. Barnett</em>, but the original source is (Bliss, 1935).</p>
 <table class="table">
 <thead>
@@ -586,7 +586,7 @@ other words, the logit function has heavier tails than the probit.</p>
 </div>
 </section>
 <section id="Build-the-models">
-<h2>Build the models<a class="headerlink" href="#Build-the-models" title="Permalink to this heading">#</a></h2>
+<h2>Build the models<a class="headerlink" href="#Build-the-models" title="Link to this heading">#</a></h2>
 <p>Bambi has two families to model binary data: Bernoulli and Binomial. The first one can be used when each row represents a single observation with a column containing the binary outcome, while the second is used when each row represents a group of observations or realizations and there’s one column for the number of successes and another column for the number of trials.</p>
 <p>Since we have aggregated data, we’re going to use the Binomial family. This family requires using the function <code class="docutils literal notranslate"><span class="pre">proportion(y,</span> <span class="pre">n)</span></code> on the left side of the model formula to indicate we want to model the proportion between two variables. This function can be replaced by any of its aliases <code class="docutils literal notranslate"><span class="pre">prop(y,</span> <span class="pre">n)</span></code> or <code class="docutils literal notranslate"><span class="pre">p(y,</span> <span class="pre">n)</span></code>. Let’s use the shortest one here.</p>
 <div class="nbinput nblast docutils container">
@@ -598,7 +598,7 @@ other words, the logit function has heavier tails than the probit.</p>
 </div>
 </div>
 <section id="Logit-link">
-<h3>Logit link<a class="headerlink" href="#Logit-link" title="Permalink to this heading">#</a></h3>
+<h3>Logit link<a class="headerlink" href="#Logit-link" title="Link to this heading">#</a></h3>
 <p>The logit link is the default link when we say <code class="docutils literal notranslate"><span class="pre">family=&quot;binomial&quot;</span></code>, so there’s no need to add it.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -659,7 +659,7 @@ Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws 
 </div>
 </section>
 <section id="Probit-link">
-<h3>Probit link<a class="headerlink" href="#Probit-link" title="Permalink to this heading">#</a></h3>
+<h3>Probit link<a class="headerlink" href="#Probit-link" title="Link to this heading">#</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
@@ -719,7 +719,7 @@ Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws 
 </div>
 </section>
 <section id="Cloglog-link">
-<h3>Cloglog link<a class="headerlink" href="#Cloglog-link" title="Permalink to this heading">#</a></h3>
+<h3>Cloglog link<a class="headerlink" href="#Cloglog-link" title="Link to this heading">#</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
@@ -780,7 +780,7 @@ Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws 
 </section>
 </section>
 <section id="Results">
-<h2>Results<a class="headerlink" href="#Results" title="Permalink to this heading">#</a></h2>
+<h2>Results<a class="headerlink" href="#Results" title="Link to this heading">#</a></h2>
 <p>We can use the samples from the posteriors to see the mean estimate for the probability of dying at each concentration level. To do so, we use a little helper function that will help us to write less code. This function leverages the power of the new <code class="docutils literal notranslate"><span class="pre">Model.predict()</span></code> method that is helpful to obtain both in-sample and out-of-sample predictions.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
@@ -969,7 +969,7 @@ Watermark: 2.3.1
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

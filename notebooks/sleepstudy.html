@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -402,7 +402,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Hierarchical-Linear-Regression-(Sleepstudy-example)">
-<h1>Hierarchical Linear Regression (Sleepstudy example)<a class="headerlink" href="#Hierarchical-Linear-Regression-(Sleepstudy-example)" title="Permalink to this heading">#</a></h1>
+<h1>Hierarchical Linear Regression (Sleepstudy example)<a class="headerlink" href="#Hierarchical-Linear-Regression-(Sleepstudy-example)" title="Link to this heading">#</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -427,7 +427,7 @@ document.write(`
 <p>In this example we are going to use <strong>sleepstudy</strong> dataset. It is derived from the study described in <a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/12603781/">Belenky et al. (2003)</a> and popularized in the <a class="reference external" href="https://CRAN.R-project.org/package=lme4">lme4</a> R package. This dataset contains the average reaction time per day (in milliseconds) on a series of tests for the most sleep-deprived group in a sleep deprivation study. The first two days of the study are considered as adaptation and training, the third
 day is a baseline, and sleep deprivation started after day 3. The subjects in this group were restricted to 3 hours of sleep per night.</p>
 <section id="Load-data">
-<h2>Load data<a class="headerlink" href="#Load-data" title="Permalink to this heading">#</a></h2>
+<h2>Load data<a class="headerlink" href="#Load-data" title="Link to this heading">#</a></h2>
 <p>The <strong>sleepstudy</strong> dataset can be loaded using the <code class="docutils literal notranslate"><span class="pre">load_data()</span></code> function:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -541,7 +541,7 @@ day is a baseline, and sleep deprivation started after day 3. The subjects in th
 <p>The response variable is <code class="docutils literal notranslate"><span class="pre">Reaction</span></code>, the average of the reaction time measurements on a given subject for a given day. The two covariates are <code class="docutils literal notranslate"><span class="pre">Days</span></code>, the number of days of sleep deprivation, and <code class="docutils literal notranslate"><span class="pre">Subject</span></code>, the identifier of the subject on which the observation was made.</p>
 </section>
 <section id="Explore-data">
-<h2>Explore data<a class="headerlink" href="#Explore-data" title="Permalink to this heading">#</a></h2>
+<h2>Explore data<a class="headerlink" href="#Explore-data" title="Link to this heading">#</a></h2>
 <p>Let’s get started by displaying the data in a multi-panel layout. There’s a panel for each subject in the study. This allows us to observe and compare the association of Days and Reaction between subjects.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
@@ -592,7 +592,7 @@ day is a baseline, and sleep deprivation started after day 3. The subjects in th
 neither substantial nor systematic.</p>
 </section>
 <section id="The-model">
-<h2>The model<a class="headerlink" href="#The-model" title="Permalink to this heading">#</a></h2>
+<h2>The model<a class="headerlink" href="#The-model" title="Link to this heading">#</a></h2>
 <p>Our main goal is to measure the association between Days and Reaction times. We are interested both in the common effect across all subjects, as well as the effects associated with each individual. To do this, we’re going to use a hierarchical linear regression model that includes the effect of a common intercept and slope, as well as intercepts and slopes specific to each subject. These types of effects are also known as fixed and random effects in the statistical literature.</p>
 <p>The model can be written as follows:</p>
 <div class="math notranslate nohighlight">
@@ -709,7 +709,7 @@ Sampling 2 chains for 1_000 tune and 2_000 draw iterations (2_000 + 4_000 draws 
 </div>
 </section>
 <section id="Analyze-results">
-<h2>Analyze results<a class="headerlink" href="#Analyze-results" title="Permalink to this heading">#</a></h2>
+<h2>Analyze results<a class="headerlink" href="#Analyze-results" title="Link to this heading">#</a></h2>
 <p>First of all, let’s obtain a summary of the posterior distribution of the <code class="docutils literal notranslate"><span class="pre">Intercept</span></code> and <code class="docutils literal notranslate"><span class="pre">Days</span></code> effects.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
@@ -1001,7 +1001,7 @@ Watermark: 2.3.1
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

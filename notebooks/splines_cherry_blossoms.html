@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -402,7 +402,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Regression-splines-(Cherry-blossom-example)">
-<h1>Regression splines (Cherry blossom example)<a class="headerlink" href="#Regression-splines-(Cherry-blossom-example)" title="Permalink to this heading">#</a></h1>
+<h1>Regression splines (Cherry blossom example)<a class="headerlink" href="#Regression-splines-(Cherry-blossom-example)" title="Link to this heading">#</a></h1>
 <p>This example shows how to specify and fit a spline regression in Bambi. This example is based on <a class="reference external" href="https://github.com/pymc-devs/pymc-examples/blob/main/examples/splines/spline.ipynb">this example</a> from the PyMC docs.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -426,7 +426,7 @@ document.write(`
 </div>
 </div>
 <section id="Load-Cherry-Blossom-data">
-<h2>Load Cherry Blossom data<a class="headerlink" href="#Load-Cherry-Blossom-data" title="Permalink to this heading">#</a></h2>
+<h2>Load Cherry Blossom data<a class="headerlink" href="#Load-Cherry-Blossom-data" title="Link to this heading">#</a></h2>
 <p>Richard McElreath popularized the Cherry Blossom dataset in the second edition of his excellent book Statistical Rethinking. This data represents the day in the year when the first bloom is observed for Japanese cherry blossoms between years 801 and 2015. In his book, Richard McElreath uses this dataset to introduce Basis Splines, or B-Splines in short.</p>
 <p>Here we use Bambi to fit a linear model using B-Splines with the Cherry Blossom data. This dataset can be loaded with Bambi as follows:</p>
 <div class="nbinput docutils container">
@@ -583,7 +583,7 @@ document.write(`
 </div>
 </section>
 <section id="Explore-the-data">
-<h2>Explore the data<a class="headerlink" href="#Explore-the-data" title="Permalink to this heading">#</a></h2>
+<h2>Explore the data<a class="headerlink" href="#Explore-the-data" title="Link to this heading">#</a></h2>
 <p>Let’s get started by creating a scatterplot to explore the values of <code class="docutils literal notranslate"><span class="pre">&quot;doy&quot;</span></code> for each year in the dataset.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
@@ -618,7 +618,7 @@ document.write(`
 <p>We can observe the day of the first bloom ranges between 85 and 125 approximately, which correspond to late March and early May respectively. On average, the first bloom occurs on the 105th day of the year, which is middle April.</p>
 </section>
 <section id="Determine-knots">
-<h2>Determine knots<a class="headerlink" href="#Determine-knots" title="Permalink to this heading">#</a></h2>
+<h2>Determine knots<a class="headerlink" href="#Determine-knots" title="Link to this heading">#</a></h2>
 <p>The spline will have 15 knots. These knots are the boundaries of the basis functions. These knots split the range of the <code class="docutils literal notranslate"><span class="pre">&quot;year&quot;</span></code> variable into 16 contiguous sections. The basis functions make up a piecewise continuous polynomial, and so they are enforced to meet at the knots. We use the default degree for each piecewise polynomial, which is 3. The result is known as a <strong>cubic spline</strong>.</p>
 <p>Because of using quantiles and not having observations for all the years in the time window under study, the knots are distributed unevenly over the range of <code class="docutils literal notranslate"><span class="pre">&quot;year&quot;</span></code> in such a way that the same proportion of values fall between each section.</p>
 <div class="nbinput nblast docutils container">
@@ -660,7 +660,7 @@ document.write(`
 <p>The previous chart makes it easy to see the knots, represented by the vertical lines, are spaced unevenly over the years.</p>
 </section>
 <section id="The-model">
-<h2>The model<a class="headerlink" href="#The-model" title="Permalink to this heading">#</a></h2>
+<h2>The model<a class="headerlink" href="#The-model" title="Link to this heading">#</a></h2>
 <p>The B-spline model we are about to create is simply a linear regression model with synthetic predictor variables. These predictors are the basis functions that are derived from the original <code class="docutils literal notranslate"><span class="pre">year</span></code> predictor.</p>
 <p>In math notation, we usa a <span class="math notranslate nohighlight">\(\text{Normal}\)</span> distribution for the conditional distribution of <span class="math notranslate nohighlight">\(Y\)</span> when <span class="math notranslate nohighlight">\(X = x_i\)</span>, i.e. <span class="math notranslate nohighlight">\(Y_i\)</span>, the distribution of the day of the first bloom in a given year.</p>
 <div class="math notranslate nohighlight">
@@ -760,7 +760,7 @@ w_j &amp; \sim \text{Normal}(0, 10)\\
 </div>
 </section>
 <section id="Fit-model">
-<h2>Fit model<a class="headerlink" href="#Fit-model" title="Permalink to this heading">#</a></h2>
+<h2>Fit model<a class="headerlink" href="#Fit-model" title="Link to this heading">#</a></h2>
 <p>Now we fit the model. In Bambi, it is as easy as calling the <code class="docutils literal notranslate"><span class="pre">.fit()</span></code> method on the <code class="docutils literal notranslate"><span class="pre">Model</span></code> instance.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
@@ -822,7 +822,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </section>
 <section id="Analisys-of-the-results">
-<h2>Analisys of the results<a class="headerlink" href="#Analisys-of-the-results" title="Permalink to this heading">#</a></h2>
+<h2>Analisys of the results<a class="headerlink" href="#Analisys-of-the-results" title="Link to this heading">#</a></h2>
 <p>It is always good to use <code class="docutils literal notranslate"><span class="pre">az.summary()</span></code> to verify parameter estimates as well as effective sample sizes and R hat values. In this case, the main goal is not to interpret the coefficients of the basis spline, but analyze the <code class="docutils literal notranslate"><span class="pre">ess</span></code> and <code class="docutils literal notranslate"><span class="pre">r_hat</span></code> diagnostics. In first place, effective sample sizes don’t look impressively high. Most of them are between 300 and 700, which is low compared to the 2000 draws obtained. The only exception is the residual standard deviation <code class="docutils literal notranslate"><span class="pre">sigma</span></code>. Finally, the
 <code class="docutils literal notranslate"><span class="pre">r_hat</span></code> diagnostic is not always 1 for all the parameters, indicating there may be some issues with the mix of the chains.</p>
 <div class="nbinput docutils container">
@@ -1139,7 +1139,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </section>
 <section id="Plot-predictions-and-credible-bands">
-<h2>Plot predictions and credible bands<a class="headerlink" href="#Plot-predictions-and-credible-bands" title="Permalink to this heading">#</a></h2>
+<h2>Plot predictions and credible bands<a class="headerlink" href="#Plot-predictions-and-credible-bands" title="Link to this heading">#</a></h2>
 <p>Let’s create a function to plot the predicted mean value as well as credible bands for it.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
@@ -1204,7 +1204,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </section>
 <section id="Advanced:-Watch-out-the-underlying-design-matrix">
-<h2>Advanced: Watch out the underlying design matrix<a class="headerlink" href="#Advanced:-Watch-out-the-underlying-design-matrix" title="Permalink to this heading">#</a></h2>
+<h2>Advanced: Watch out the underlying design matrix<a class="headerlink" href="#Advanced:-Watch-out-the-underlying-design-matrix" title="Link to this heading">#</a></h2>
 <p>We can write linear regression models in matrix form as</p>
 <div class="math notranslate nohighlight">
 \[\mathbf{y} = \mathbf{X}\boldsymbol{\beta}\]</div>
@@ -1808,7 +1808,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 </div>
 </section>
 <section id="Final-comments">
-<h2>Final comments<a class="headerlink" href="#Final-comments" title="Permalink to this heading">#</a></h2>
+<h2>Final comments<a class="headerlink" href="#Final-comments" title="Link to this heading">#</a></h2>
 <p>Another option could have been to use stronger priors on the coefficients associated with the spline functions. For example, the example written in PyMC uses <span class="math notranslate nohighlight">\(\text{Normal}(0, 3)\)</span> priors on them instead of <span class="math notranslate nohighlight">\(\text{Normal}(0, 10)\)</span>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
@@ -1942,7 +1942,7 @@ Watermark: 2.3.1
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

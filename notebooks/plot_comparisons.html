@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -45,7 +45,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Plot Slopes" href="plot_slopes.html" />
-    <link rel="prev" title="Plot Conditional Adjusted Predictions" href="plot_cap.html" />
+    <link rel="prev" title="Plot Conditional Adjusted Predictions" href="plot_predictions.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -402,7 +402,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Plot-Comparisons">
-<h1>Plot Comparisons<a class="headerlink" href="#Plot-Comparisons" title="Permalink to this heading">#</a></h1>
+<h1>Plot Comparisons<a class="headerlink" href="#Plot-Comparisons" title="Link to this heading">#</a></h1>
 <p><code class="docutils literal notranslate"><span class="pre">comparisons</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_comparisons</span></code> are a part of Bambi’s sub-package <code class="docutils literal notranslate"><span class="pre">plots</span></code> that feature a set of functions used to interpret complex regression models. This sub-package is inspired by the R package <a class="reference external" href="https://vincentarelbundock.github.io/marginaleffects/articles/predictions.html#conditional-adjusted-predictions-plot">marginaleffects</a>. These two functions allow the modeler to <strong>compare</strong> the predictions made by a model for different contrast and covariate values. Below, it is described
 why comparing predictions is useful in interpreting generalized linear models (GLMs), how this methodology is implemented in Bambi, and how to use <code class="docutils literal notranslate"><span class="pre">comparisons</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_comparisons</span></code>. It is assumed that the reader is familiar with the basics of GLMs. If not, refer to the Bambi <a class="reference external" href="https://bambinos.github.io/bambi/notebooks/how_bambi_works.html#Link-functions">Basic Building Blocks</a> example.</p>
 <p>Due to the link function in a GLM, there are typically three quantities of interest to interpret:</p>
@@ -415,7 +415,7 @@ why comparing predictions is useful in interpreting generalized linear models (G
 Referring back to logistic regression, a specified difference in one of the <span class="math notranslate nohighlight">\(x\)</span> variables does <em>not</em> correspond to a constant difference in the the probability of the outcome.</p>
 <p>It is often helpful with GLMs, for the modeler and audience, to have a summary that gives the expected difference in the outcome corresponding to a unit difference in each of the input variables. Thus, the goal of <code class="docutils literal notranslate"><span class="pre">comparisons</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_comparisons</span></code> is to provide the modeler with a summary and visualization of the average predicted difference.</p>
 <section id="Average-Predictive-Differences">
-<h2>Average Predictive Differences<a class="headerlink" href="#Average-Predictive-Differences" title="Permalink to this heading">#</a></h2>
+<h2>Average Predictive Differences<a class="headerlink" href="#Average-Predictive-Differences" title="Link to this heading">#</a></h2>
 <p>Here, we adopt the notation from Chapter 14.4 of <a class="reference external" href="https://avehtari.github.io/ROS-Examples/">Regression and Other Stories</a> to describe average predictive differences. Assume we have fit a Bambi model predicting an outcome <span class="math notranslate nohighlight">\(Y\)</span> based on inputs <span class="math notranslate nohighlight">\(X\)</span> and parameters <span class="math notranslate nohighlight">\(\theta\)</span>. Consider the following scalar inputs:</p>
 <div class="math notranslate nohighlight">
 \[w: \text{the input of interest}\]</div>
@@ -428,7 +428,7 @@ Referring back to logistic regression, a specified difference in one of the <spa
 \[\text{average predictive difference} = \mathbb{E}(y|w^{\text{high}}, c, \theta) - \mathbb{E}(y|w^{\text{low}}, c, \theta)\]</div>
 <p>Selecting the maximum and minimum values of <span class="math notranslate nohighlight">\(w\)</span> and averaging over all other inputs <span class="math notranslate nohighlight">\(c\)</span> in the data gives you a new “hypothetical” dataset and corresponds to counting all pairs of transitions of <span class="math notranslate nohighlight">\((w^\text{low})\)</span> to <span class="math notranslate nohighlight">\((w^\text{high})\)</span>, i.e., differences in <span class="math notranslate nohighlight">\(w\)</span> with <span class="math notranslate nohighlight">\(c\)</span> held constant. The difference between these two terms is the average predictive difference.</p>
 <section id="Computing-Average-Predictive-Differences">
-<h3>Computing Average Predictive Differences<a class="headerlink" href="#Computing-Average-Predictive-Differences" title="Permalink to this heading">#</a></h3>
+<h3>Computing Average Predictive Differences<a class="headerlink" href="#Computing-Average-Predictive-Differences" title="Link to this heading">#</a></h3>
 <p>The objective of <code class="docutils literal notranslate"><span class="pre">comparisons</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_comparisons</span></code> is to compute the expected difference in the outcome corresponding to three different scenarios for <span class="math notranslate nohighlight">\(w\)</span> and <span class="math notranslate nohighlight">\(c\)</span> where <span class="math notranslate nohighlight">\(w\)</span> is either provided by the user, else a default value is computed by Bambi (described in the default values section). The three scenarios are:</p>
 <ol class="arabic simple">
 <li><p>user provided values for <span class="math notranslate nohighlight">\(c\)</span>.</p></li>
@@ -439,7 +439,7 @@ Referring back to logistic regression, a specified difference in one of the <spa
 each pair of transitions. The average of these differences is the average predictive difference.</p>
 <p>Thus, the goal of <code class="docutils literal notranslate"><span class="pre">comparisons</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_comparisons</span></code> is to provide the modeler with a summary and visualization of the average predictive difference. Below, we demonstrate how to compute and plot average predictive differences with <code class="docutils literal notranslate"><span class="pre">comparisons</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_comparions</span></code> using several examples.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
@@ -448,18 +448,18 @@ each pair of transitions. The average of these differences is the average predic
 
 
 <span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
-<span class="kn">from</span> <span class="nn">bambi.plots</span> <span class="kn">import</span> <span class="n">comparisons</span><span class="p">,</span> <span class="n">plot_comparison</span>
+<span class="kn">from</span> <span class="nn">bambi.plots</span> <span class="kn">import</span> <span class="n">comparisons</span><span class="p">,</span> <span class="n">plot_comparisons</span>
 </pre></div>
 </div>
 </div>
 </section>
 </section>
 <section id="Zero-Inflated-Poisson">
-<h2>Zero Inflated Poisson<a class="headerlink" href="#Zero-Inflated-Poisson" title="Permalink to this heading">#</a></h2>
+<h2>Zero Inflated Poisson<a class="headerlink" href="#Zero-Inflated-Poisson" title="Link to this heading">#</a></h2>
 <p>We model and predict how many fish are caught by visitors at a state park using survey <a class="reference external" href="%22https://stats.idre.ucla.edu/stat/data/fish.csv%22">data</a>. Many visitors catch zero fish, either because they did not fish at all, or because they were unlucky. We would like to explicitly model this bimodal behavior (zero versus non-zero) using a Zero Inflated Poisson model, and to compare how different inputs of interest <span class="math notranslate nohighlight">\(w\)</span> and other covariate values <span class="math notranslate nohighlight">\(c\)</span> are associated with the number of
 fish caught. The dataset contains data on 250 groups that went to a state park to fish. Each group was questioned about how many fish they caught (<code class="docutils literal notranslate"><span class="pre">count</span></code>), how many children were in the group (<code class="docutils literal notranslate"><span class="pre">child</span></code>), how many people were in the group (<code class="docutils literal notranslate"><span class="pre">persons</span></code>), if they used a live bait and whether or not they brought a camper to the park (<code class="docutils literal notranslate"><span class="pre">camper</span></code>).</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fish_data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_stata</span><span class="p">(</span><span class="s2">&quot;http://www.stata-press.com/data/r11/fish.dta&quot;</span><span class="p">)</span>
@@ -471,7 +471,7 @@ fish caught. The dataset contains data on 250 groups that went to a state park t
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fish_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
@@ -503,31 +503,10 @@ NUTS: [count_psi, Intercept, livebait, camper, persons, child]
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area rendered_html docutils container">
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area rendered_html docutils container">
-<div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:03&lt;00:00 Sampling 4 chains, 0 divergences]
-</div></div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ |████████████████████████████████| 100.00% [8000/8000 00:03&lt;00:00 Sampling 4 chains, 0 divergences]
+</pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
@@ -538,15 +517,15 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </pre></div></div>
 </div>
 <section id="User-Provided-Values">
-<h3>User Provided Values<a class="headerlink" href="#User-Provided-Values" title="Permalink to this heading">#</a></h3>
+<h3>User Provided Values<a class="headerlink" href="#User-Provided-Values" title="Link to this heading">#</a></h3>
 <p>First, an example of scenario 1 (user provided values) is given below. In both <code class="docutils literal notranslate"><span class="pre">plot_comparisons</span></code> and <code class="docutils literal notranslate"><span class="pre">comparisons</span></code>, <span class="math notranslate nohighlight">\(w\)</span> and <span class="math notranslate nohighlight">\(c\)</span> are represented by <code class="docutils literal notranslate"><span class="pre">contrast</span></code> and <code class="docutils literal notranslate"><span class="pre">conditional</span></code>, respectively. The modeler has the ability to pass their own values for <code class="docutils literal notranslate"><span class="pre">contrast</span></code> and <code class="docutils literal notranslate"><span class="pre">conditional</span></code> by using a dictionary where the key-value pairs are the covariate and value(s) of interest. For example, if we wanted to compare the number of fish caught for <span class="math notranslate nohighlight">\(4\)</span> versus <span class="math notranslate nohighlight">\(1\)</span> <code class="docutils literal notranslate"><span class="pre">persons</span></code>
 conditional on a range of <code class="docutils literal notranslate"><span class="pre">child</span></code> and <code class="docutils literal notranslate"><span class="pre">livebait</span></code> values, we would pass the following dictionary in the code block below. By default, for <span class="math notranslate nohighlight">\(w\)</span>, Bambi compares <span class="math notranslate nohighlight">\(w^\text{high}\)</span> to <span class="math notranslate nohighlight">\(w^\text{low}\)</span>. Thus, in this example, <span class="math notranslate nohighlight">\(w^\text{high}\)</span> = 4 and <span class="math notranslate nohighlight">\(w^\text{low}\)</span> = 1. The user is not limited to passing a list for the values. A <code class="docutils literal notranslate"><span class="pre">np.array</span></code> can also be used. Furthermore, Bambi by default, maps the order of the dict keys to the main, group, and panel of the matplotlib
 figure. Below, since <code class="docutils literal notranslate"><span class="pre">child</span></code> is the first key, this is used for the x-axis, and <code class="docutils literal notranslate"><span class="pre">livebait</span></code> is used for the group (color). If a third key was passed, it would be used for the panel (facet).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_comparison</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_comparisons</span><span class="p">(</span>
     <span class="n">model</span><span class="o">=</span><span class="n">fish_model</span><span class="p">,</span>
     <span class="n">idata</span><span class="o">=</span><span class="n">fish_idata</span><span class="p">,</span>
     <span class="n">contrast</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;persons&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]},</span>
@@ -566,7 +545,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
 <p>The plot above shows that, comparing <span class="math notranslate nohighlight">\(4\)</span> to <span class="math notranslate nohighlight">\(1\)</span> persons given <span class="math notranslate nohighlight">\(0\)</span> children and using livebait, the expected difference is about <span class="math notranslate nohighlight">\(26\)</span> fish. When not using livebait, the expected difference decreases substantially to about <span class="math notranslate nohighlight">\(5\)</span> fish. Using livebait with a group of people is associated with a much larger expected difference in the number of fish caught.</p>
 <p><code class="docutils literal notranslate"><span class="pre">comparisons</span></code> can be called to view a summary dataframe that includes the term <span class="math notranslate nohighlight">\(w\)</span> and its contrast, the specified <code class="docutils literal notranslate"><span class="pre">conditional</span></code> covariate, and the expected difference in the outcome with the uncertainty interval (by default the 94% highest density interval is computed).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">comparisons</span><span class="p">(</span>
@@ -579,7 +558,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -602,7 +581,8 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr style="text-align: right;">
       <th></th>
       <th>term</th>
-      <th>contrast</th>
+      <th>estimate_type</th>
+      <th>value</th>
       <th>child</th>
       <th>livebait</th>
       <th>camper</th>
@@ -615,7 +595,8 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>0</th>
       <td>persons</td>
-      <td>(1, 4)</td>
+      <td>diff</td>
+      <td>(1.0, 4.0)</td>
       <td>0.0</td>
       <td>0.0</td>
       <td>1.0</td>
@@ -626,7 +607,8 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>1</th>
       <td>persons</td>
-      <td>(1, 4)</td>
+      <td>diff</td>
+      <td>(1.0, 4.0)</td>
       <td>0.0</td>
       <td>1.0</td>
       <td>1.0</td>
@@ -637,7 +619,8 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>2</th>
       <td>persons</td>
-      <td>(1, 4)</td>
+      <td>diff</td>
+      <td>(1.0, 4.0)</td>
       <td>1.0</td>
       <td>0.0</td>
       <td>1.0</td>
@@ -648,7 +631,8 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>3</th>
       <td>persons</td>
-      <td>(1, 4)</td>
+      <td>diff</td>
+      <td>(1.0, 4.0)</td>
       <td>1.0</td>
       <td>1.0</td>
       <td>1.0</td>
@@ -659,7 +643,8 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>4</th>
       <td>persons</td>
-      <td>(1, 4)</td>
+      <td>diff</td>
+      <td>(1.0, 4.0)</td>
       <td>2.0</td>
       <td>0.0</td>
       <td>1.0</td>
@@ -670,7 +655,8 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>5</th>
       <td>persons</td>
-      <td>(1, 4)</td>
+      <td>diff</td>
+      <td>(1.0, 4.0)</td>
       <td>2.0</td>
       <td>1.0</td>
       <td>1.0</td>
@@ -686,10 +672,10 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
 <span class="math notranslate nohighlight">\(c\)</span> = <code class="docutils literal notranslate"><span class="pre">child</span></code>, <code class="docutils literal notranslate"><span class="pre">livebait</span></code>, <code class="docutils literal notranslate"><span class="pre">camper</span></code>. Each row in the summary dataframe is read as “comparing <span class="math notranslate nohighlight">\(4\)</span> to <span class="math notranslate nohighlight">\(1\)</span> persons conditional on <span class="math notranslate nohighlight">\(c\)</span>, the expected difference in the outcome is <span class="math notranslate nohighlight">\(y\)</span>.”</p>
 </section>
 <section id="Multiple-contrast-values">
-<h3>Multiple contrast values<a class="headerlink" href="#Multiple-contrast-values" title="Permalink to this heading">#</a></h3>
+<h3>Multiple contrast values<a class="headerlink" href="#Multiple-contrast-values" title="Link to this heading">#</a></h3>
 <p>Users can also perform comparisons on multiple contrast values. For example, if we wanted to compare the number of fish caught between <span class="math notranslate nohighlight">\((1, 2)\)</span>, <span class="math notranslate nohighlight">\((1, 4)\)</span>, and <span class="math notranslate nohighlight">\((2, 4)\)</span> <code class="docutils literal notranslate"><span class="pre">persons</span></code> conditional on a range of values for <code class="docutils literal notranslate"><span class="pre">child</span></code> and <code class="docutils literal notranslate"><span class="pre">livebait</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">multiple_values</span> <span class="o">=</span> <span class="n">comparisons</span><span class="p">(</span>
@@ -704,7 +690,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -727,7 +713,8 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr style="text-align: right;">
       <th></th>
       <th>term</th>
-      <th>contrast</th>
+      <th>estimate_type</th>
+      <th>value</th>
       <th>child</th>
       <th>livebait</th>
       <th>camper</th>
@@ -740,6 +727,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>0</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(1, 2)</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -751,6 +739,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>1</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(1, 2)</td>
       <td>0.0</td>
       <td>1.0</td>
@@ -762,6 +751,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>2</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(1, 2)</td>
       <td>1.0</td>
       <td>0.0</td>
@@ -773,6 +763,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>3</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(1, 2)</td>
       <td>1.0</td>
       <td>1.0</td>
@@ -784,6 +775,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>4</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(1, 2)</td>
       <td>2.0</td>
       <td>0.0</td>
@@ -795,6 +787,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>5</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(1, 2)</td>
       <td>2.0</td>
       <td>1.0</td>
@@ -806,6 +799,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>6</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(1, 4)</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -817,6 +811,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>7</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(1, 4)</td>
       <td>0.0</td>
       <td>1.0</td>
@@ -828,6 +823,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>8</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(1, 4)</td>
       <td>1.0</td>
       <td>0.0</td>
@@ -839,6 +835,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>9</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(1, 4)</td>
       <td>1.0</td>
       <td>1.0</td>
@@ -850,6 +847,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>10</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(1, 4)</td>
       <td>2.0</td>
       <td>0.0</td>
@@ -861,6 +859,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>11</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(1, 4)</td>
       <td>2.0</td>
       <td>1.0</td>
@@ -872,6 +871,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>12</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(2, 4)</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -883,6 +883,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>13</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(2, 4)</td>
       <td>0.0</td>
       <td>1.0</td>
@@ -894,6 +895,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>14</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(2, 4)</td>
       <td>1.0</td>
       <td>0.0</td>
@@ -905,6 +907,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>15</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(2, 4)</td>
       <td>1.0</td>
       <td>1.0</td>
@@ -916,6 +919,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>16</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(2, 4)</td>
       <td>2.0</td>
       <td>0.0</td>
@@ -927,6 +931,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
     <tr>
       <th>17</th>
       <td>persons</td>
+      <td>diff</td>
       <td>(2, 4)</td>
       <td>2.0</td>
       <td>1.0</td>
@@ -943,7 +948,7 @@ figure. Below, since <code class="docutils literal notranslate"><span class="pre
 results yourself.</p>
 </section>
 <section id="Default-contrast-and-conditional-values">
-<h3>Default contrast and conditional values<a class="headerlink" href="#Default-contrast-and-conditional-values" title="Permalink to this heading">#</a></h3>
+<h3>Default contrast and conditional values<a class="headerlink" href="#Default-contrast-and-conditional-values" title="Link to this heading">#</a></h3>
 <p>Now, we move onto scenario 2 described above (grid of equally spaced and central values) in computing average predictive comparisons. You are not required to pass values for <code class="docutils literal notranslate"><span class="pre">contrast</span></code> and <code class="docutils literal notranslate"><span class="pre">conditional</span></code>. If you do not pass values, Bambi will compute default values for you. Below, it is described how these default values are computed.</p>
 <p>The default value for <code class="docutils literal notranslate"><span class="pre">contrast</span></code> is a <em>centered difference</em> at the mean for a contrast variable with a numeric dtype, and <em>unique levels</em> for a contrast varaible with a categorical dtype. For example, if the modeler is interested in the comparison of a <span class="math notranslate nohighlight">\(5\)</span> unit increase in <span class="math notranslate nohighlight">\(w\)</span> where <span class="math notranslate nohighlight">\(w\)</span> is a numeric variable, Bambi computes the mean and then subtracts and adds <span class="math notranslate nohighlight">\(2.5\)</span> units to the mean to obtain a <em>centered difference</em>. By default, if no value is passed for the contrast
 covariate, Bambi computes a one unit centered difference at the mean. For example, if only <code class="docutils literal notranslate"><span class="pre">contrast=&quot;persons&quot;</span></code> is passed, then <span class="math notranslate nohighlight">\(\pm\)</span> <span class="math notranslate nohighlight">\(0.5\)</span> is applied to the mean of persons. If <span class="math notranslate nohighlight">\(w\)</span> is a categorical variable, Bambi computes and returns the unique levels. For example, if <span class="math notranslate nohighlight">\(w\)</span> has levels [“high scool”, “vocational”, “university”], Bambi computes and returns the unique values of this variable.</p>
@@ -973,7 +978,7 @@ computing default values covariates passed to <code class="docutils literal notr
 </div>
 <p>Thus, letting Bambi compute default values for <code class="docutils literal notranslate"><span class="pre">conditional</span></code> is equivalent to creating a hypothetical “data grid” of new values. Lets say we are interested in comparing the number of fish caught for the contrast <code class="docutils literal notranslate"><span class="pre">livebait</span></code> conditional on <code class="docutils literal notranslate"><span class="pre">persons</span></code> and <code class="docutils literal notranslate"><span class="pre">child</span></code>. This time, lets call <code class="docutils literal notranslate"><span class="pre">comparisons</span></code> first to gain an understanding of the data generating the plot.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">contrast_df</span> <span class="o">=</span> <span class="n">comparisons</span><span class="p">(</span>
@@ -988,7 +993,7 @@ computing default values covariates passed to <code class="docutils literal notr
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1011,7 +1016,8 @@ computing default values covariates passed to <code class="docutils literal notr
     <tr style="text-align: right;">
       <th></th>
       <th>term</th>
-      <th>contrast</th>
+      <th>estimate_type</th>
+      <th>value</th>
       <th>persons</th>
       <th>child</th>
       <th>camper</th>
@@ -1024,6 +1030,7 @@ computing default values covariates passed to <code class="docutils literal notr
     <tr>
       <th>0</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.000000</td>
       <td>0.0</td>
@@ -1035,6 +1042,7 @@ computing default values covariates passed to <code class="docutils literal notr
     <tr>
       <th>1</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.000000</td>
       <td>1.0</td>
@@ -1046,6 +1054,7 @@ computing default values covariates passed to <code class="docutils literal notr
     <tr>
       <th>2</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.000000</td>
       <td>3.0</td>
@@ -1057,6 +1066,7 @@ computing default values covariates passed to <code class="docutils literal notr
     <tr>
       <th>3</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.061224</td>
       <td>0.0</td>
@@ -1068,6 +1078,7 @@ computing default values covariates passed to <code class="docutils literal notr
     <tr>
       <th>4</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.061224</td>
       <td>1.0</td>
@@ -1079,6 +1090,7 @@ computing default values covariates passed to <code class="docutils literal notr
     <tr>
       <th>5</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.061224</td>
       <td>3.0</td>
@@ -1090,6 +1102,7 @@ computing default values covariates passed to <code class="docutils literal notr
     <tr>
       <th>6</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.122449</td>
       <td>0.0</td>
@@ -1101,6 +1114,7 @@ computing default values covariates passed to <code class="docutils literal notr
     <tr>
       <th>7</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.122449</td>
       <td>1.0</td>
@@ -1112,6 +1126,7 @@ computing default values covariates passed to <code class="docutils literal notr
     <tr>
       <th>8</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.122449</td>
       <td>3.0</td>
@@ -1123,6 +1138,7 @@ computing default values covariates passed to <code class="docutils literal notr
     <tr>
       <th>9</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.183674</td>
       <td>0.0</td>
@@ -1138,10 +1154,10 @@ computing default values covariates passed to <code class="docutils literal notr
 <p>As <code class="docutils literal notranslate"><span class="pre">livebait</span></code> was encoded as a categorical dtype, Bambi returned the unique levels of <span class="math notranslate nohighlight">\([0, 1]\)</span> for the contrast. <code class="docutils literal notranslate"><span class="pre">persons</span></code> and <code class="docutils literal notranslate"><span class="pre">child</span></code> were passed as the first and second element and thus act as the main and group variables, respectively. It can be see from the output above, that an equally spaced grid was used to compute the values for <code class="docutils literal notranslate"><span class="pre">persons</span></code>, whereas a quantile based grid was used for <code class="docutils literal notranslate"><span class="pre">child</span></code>. Furthermore, as <code class="docutils literal notranslate"><span class="pre">camper</span></code> was unspecified, the mode was used as the default
 value. Lets go ahead and plot the commparisons.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_comparison</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_comparisons</span><span class="p">(</span>
     <span class="n">model</span><span class="o">=</span><span class="n">fish_model</span><span class="p">,</span>
     <span class="n">idata</span><span class="o">=</span><span class="n">fish_idata</span><span class="p">,</span>
     <span class="n">contrast</span><span class="o">=</span><span class="s2">&quot;livebait&quot;</span><span class="p">,</span>
@@ -1161,10 +1177,10 @@ value. Lets go ahead and plot the commparisons.</p>
 <p>The plot shows us that the expected differences in fish caught comparing a group of people who use livebait and no livebait is not only conditional on the number of persons, but also children. However, the plotted comparisons for <code class="docutils literal notranslate"><span class="pre">child</span></code> = <span class="math notranslate nohighlight">\(3\)</span> is difficult to interpret on a single plot. Thus, it can be useful to pass specific <code class="docutils literal notranslate"><span class="pre">group</span></code> and <code class="docutils literal notranslate"><span class="pre">panel</span></code> arguments to aid in the interpretation of the plot. Therefore, <code class="docutils literal notranslate"><span class="pre">subplot_kwargs</span></code> allows the user to manipulate the plotting by passing a
 dictionary where the keys are <code class="docutils literal notranslate"><span class="pre">{&quot;main&quot;:</span> <span class="pre">...,</span> <span class="pre">&quot;group&quot;:</span> <span class="pre">...,</span> <span class="pre">&quot;panel&quot;:</span> <span class="pre">...}</span></code> and the values are the names of the covariates to be plotted. Below, we plot the same comparisons as above, but this time we specify <code class="docutils literal notranslate"><span class="pre">group</span></code> and <code class="docutils literal notranslate"><span class="pre">panel</span></code> to both be <code class="docutils literal notranslate"><span class="pre">child</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_comparison</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_comparisons</span><span class="p">(</span>
     <span class="n">model</span><span class="o">=</span><span class="n">fish_model</span><span class="p">,</span>
     <span class="n">idata</span><span class="o">=</span><span class="n">fish_idata</span><span class="p">,</span>
     <span class="n">contrast</span><span class="o">=</span><span class="s2">&quot;livebait&quot;</span><span class="p">,</span>
@@ -1185,11 +1201,11 @@ dictionary where the keys are <code class="docutils literal notranslate"><span c
 </div>
 </section>
 <section id="Unit-level-contrasts">
-<h3>Unit level contrasts<a class="headerlink" href="#Unit-level-contrasts" title="Permalink to this heading">#</a></h3>
+<h3>Unit level contrasts<a class="headerlink" href="#Unit-level-contrasts" title="Link to this heading">#</a></h3>
 <p>Evaluating average predictive comparisons at central values for the conditional covariates <span class="math notranslate nohighlight">\(c\)</span> can be problematic when the inputs have a large variance since no single central value (mean, median, etc.) is representative of the covariate. This is especially true when <span class="math notranslate nohighlight">\(c\)</span> exhibits bi or multimodality. Thus, it may be desireable to use the empirical distribution of <span class="math notranslate nohighlight">\(c\)</span> to compute the predictive comparisons, and then average over a specific or set of covariates to obtain the
 average predictive comparisons. To achieve unit level contrasts, do not pass a parameter into <code class="docutils literal notranslate"><span class="pre">conditional</span></code> and or specify <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unit_level</span> <span class="o">=</span> <span class="n">comparisons</span><span class="p">(</span>
@@ -1214,7 +1230,7 @@ True
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1237,7 +1253,8 @@ True
     <tr style="text-align: right;">
       <th></th>
       <th>term</th>
-      <th>contrast</th>
+      <th>estimate_type</th>
+      <th>value</th>
       <th>camper</th>
       <th>child</th>
       <th>persons</th>
@@ -1250,6 +1267,7 @@ True
     <tr>
       <th>0</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1261,6 +1279,7 @@ True
     <tr>
       <th>1</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.0</td>
       <td>0.0</td>
@@ -1272,6 +1291,7 @@ True
     <tr>
       <th>2</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1283,6 +1303,7 @@ True
     <tr>
       <th>3</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.0</td>
       <td>1.0</td>
@@ -1294,6 +1315,7 @@ True
     <tr>
       <th>4</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>0.0</td>
       <td>0.0</td>
@@ -1305,6 +1327,7 @@ True
     <tr>
       <th>5</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.0</td>
       <td>2.0</td>
@@ -1316,6 +1339,7 @@ True
     <tr>
       <th>6</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>0.0</td>
       <td>1.0</td>
@@ -1327,6 +1351,7 @@ True
     <tr>
       <th>7</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>0.0</td>
       <td>3.0</td>
@@ -1338,6 +1363,7 @@ True
     <tr>
       <th>8</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.0</td>
       <td>2.0</td>
@@ -1349,6 +1375,7 @@ True
     <tr>
       <th>9</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.0</td>
       <td>0.0</td>
@@ -1362,7 +1389,7 @@ True
 </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># empirical (observed) data used to fit the model</span>
@@ -1371,7 +1398,7 @@ True
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1487,10 +1514,10 @@ True
 </div>
 <p>Above, <code class="docutils literal notranslate"><span class="pre">unit_level</span></code> is the comparisons summary dataframe and <code class="docutils literal notranslate"><span class="pre">fish_model.data</span></code> is the empirical data. Notice how the values for <span class="math notranslate nohighlight">\(c\)</span> are identical in both dataframes. However, for <span class="math notranslate nohighlight">\(w\)</span>, the values are different. However, these unit level contrasts are difficult to interpret as each row corresponds to <em>that</em> unit’s contrast. Therefore, it is useful to average over (marginalize) the estimates to summarize the unit level predictive comparisons.</p>
 <section id="Marginalizing-over-covariates">
-<h4>Marginalizing over covariates<a class="headerlink" href="#Marginalizing-over-covariates" title="Permalink to this heading">#</a></h4>
+<h4>Marginalizing over covariates<a class="headerlink" href="#Marginalizing-over-covariates" title="Link to this heading">#</a></h4>
 <p>Since the empirical distrubution is used for computing the average predictive comparisons, the same number of rows (250) is returned as the data used to fit the model. To average over a covariate, use the <code class="docutils literal notranslate"><span class="pre">average_by</span></code> argument. If <code class="docutils literal notranslate"><span class="pre">True</span></code> is passed, then <code class="docutils literal notranslate"><span class="pre">comparisons</span></code> averages over all covariates. Else, if a single or list of covariates are passed, then <code class="docutils literal notranslate"><span class="pre">comparisons</span></code> averages by the covariates passed.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># marginalize over all covariates</span>
@@ -1505,7 +1532,7 @@ True
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1528,7 +1555,8 @@ True
     <tr style="text-align: right;">
       <th></th>
       <th>term</th>
-      <th>contrast</th>
+      <th>estimate_type</th>
+      <th>value</th>
       <th>estimate</th>
       <th>lower_3.0%</th>
       <th>upper_97.0%</th>
@@ -1538,6 +1566,7 @@ True
     <tr>
       <th>0</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>3.649691</td>
       <td>2.956185</td>
@@ -1549,7 +1578,7 @@ True
 </div>
 <p>Passing <code class="docutils literal notranslate"><span class="pre">True</span></code> to <code class="docutils literal notranslate"><span class="pre">average_by</span></code> averages over all covariates and is equivalent to taking the mean of the <code class="docutils literal notranslate"><span class="pre">estimate</span></code> and uncertainty columns. For example:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unit_level</span> <span class="o">=</span> <span class="n">comparisons</span><span class="p">(</span>
@@ -1564,7 +1593,7 @@ True
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="output_area docutils container">
@@ -1577,10 +1606,10 @@ dtype: float64
 </div>
 </section>
 <section id="Average-by-subgroups">
-<h4>Average by subgroups<a class="headerlink" href="#Average-by-subgroups" title="Permalink to this heading">#</a></h4>
+<h4>Average by subgroups<a class="headerlink" href="#Average-by-subgroups" title="Link to this heading">#</a></h4>
 <p>Averaging over all covariates may not be desired, and you would rather average by a group or specific covariate. To perform averaging by subgroups, users can pass a single or list of covariates to <code class="docutils literal notranslate"><span class="pre">average_by</span></code> to average over specific covariates. For example, if we wanted to average by <code class="docutils literal notranslate"><span class="pre">persons</span></code>:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># average by number of persons</span>
@@ -1595,6 +1624,98 @@ dtype: float64
 </div>
 </div>
 <div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>term</th>
+      <th>estimate_type</th>
+      <th>value</th>
+      <th>persons</th>
+      <th>estimate</th>
+      <th>lower_3.0%</th>
+      <th>upper_97.0%</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>livebait</td>
+      <td>diff</td>
+      <td>(0.0, 1.0)</td>
+      <td>1.0</td>
+      <td>1.374203</td>
+      <td>1.011290</td>
+      <td>1.708711</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>livebait</td>
+      <td>diff</td>
+      <td>(0.0, 1.0)</td>
+      <td>2.0</td>
+      <td>1.963362</td>
+      <td>1.543330</td>
+      <td>2.376636</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>livebait</td>
+      <td>diff</td>
+      <td>(0.0, 1.0)</td>
+      <td>3.0</td>
+      <td>3.701510</td>
+      <td>3.056586</td>
+      <td>4.357385</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>livebait</td>
+      <td>diff</td>
+      <td>(0.0, 1.0)</td>
+      <td>4.0</td>
+      <td>7.358662</td>
+      <td>6.047642</td>
+      <td>8.655654</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># average by number of persons and camper by passing a list</span>
+<span class="n">comparisons</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">fish_model</span><span class="p">,</span>
+    <span class="n">idata</span><span class="o">=</span><span class="n">fish_idata</span><span class="p">,</span>
+    <span class="n">contrast</span><span class="o">=</span><span class="s2">&quot;livebait&quot;</span><span class="p">,</span>
+    <span class="n">conditional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">average_by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;persons&quot;</span><span class="p">,</span> <span class="s2">&quot;camper&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
@@ -1618,94 +1739,8 @@ dtype: float64
     <tr style="text-align: right;">
       <th></th>
       <th>term</th>
-      <th>contrast</th>
-      <th>persons</th>
-      <th>estimate</th>
-      <th>lower_3.0%</th>
-      <th>upper_97.0%</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>livebait</td>
-      <td>(0.0, 1.0)</td>
-      <td>1.0</td>
-      <td>1.374203</td>
-      <td>1.011290</td>
-      <td>1.708711</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>livebait</td>
-      <td>(0.0, 1.0)</td>
-      <td>2.0</td>
-      <td>1.963362</td>
-      <td>1.543330</td>
-      <td>2.376636</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>livebait</td>
-      <td>(0.0, 1.0)</td>
-      <td>3.0</td>
-      <td>3.701510</td>
-      <td>3.056586</td>
-      <td>4.357385</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>livebait</td>
-      <td>(0.0, 1.0)</td>
-      <td>4.0</td>
-      <td>7.358662</td>
-      <td>6.047642</td>
-      <td>8.655654</td>
-    </tr>
-  </tbody>
-</table>
-</div></div>
-</div>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># average by number of persons and camper by passing a list</span>
-<span class="n">comparisons</span><span class="p">(</span>
-    <span class="n">model</span><span class="o">=</span><span class="n">fish_model</span><span class="p">,</span>
-    <span class="n">idata</span><span class="o">=</span><span class="n">fish_idata</span><span class="p">,</span>
-    <span class="n">contrast</span><span class="o">=</span><span class="s2">&quot;livebait&quot;</span><span class="p">,</span>
-    <span class="n">conditional</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">average_by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;persons&quot;</span><span class="p">,</span> <span class="s2">&quot;camper&quot;</span><span class="p">]</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>term</th>
-      <th>contrast</th>
+      <th>estimate_type</th>
+      <th>value</th>
       <th>persons</th>
       <th>camper</th>
       <th>estimate</th>
@@ -1717,6 +1752,7 @@ dtype: float64
     <tr>
       <th>0</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.0</td>
       <td>0.0</td>
@@ -1727,6 +1763,7 @@ dtype: float64
     <tr>
       <th>1</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>1.0</td>
       <td>1.0</td>
@@ -1737,6 +1774,7 @@ dtype: float64
     <tr>
       <th>2</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>2.0</td>
       <td>0.0</td>
@@ -1747,6 +1785,7 @@ dtype: float64
     <tr>
       <th>3</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>2.0</td>
       <td>1.0</td>
@@ -1757,6 +1796,7 @@ dtype: float64
     <tr>
       <th>4</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>3.0</td>
       <td>0.0</td>
@@ -1767,6 +1807,7 @@ dtype: float64
     <tr>
       <th>5</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>3.0</td>
       <td>1.0</td>
@@ -1777,6 +1818,7 @@ dtype: float64
     <tr>
       <th>6</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>4.0</td>
       <td>0.0</td>
@@ -1787,6 +1829,7 @@ dtype: float64
     <tr>
       <th>7</th>
       <td>livebait</td>
+      <td>diff</td>
       <td>(0.0, 1.0)</td>
       <td>4.0</td>
       <td>1.0</td>
@@ -1801,10 +1844,10 @@ dtype: float64
 <p>It is still possible to use <code class="docutils literal notranslate"><span class="pre">plot_comparisons</span></code> when passing an argument to <code class="docutils literal notranslate"><span class="pre">average_by</span></code>. In the plot below, the empirical distribution is used to compute unit level contrasts for <code class="docutils literal notranslate"><span class="pre">livebait</span></code> and then averaged over <code class="docutils literal notranslate"><span class="pre">persons</span></code> to obtain the average predictive comparisons. The plot below is similar to the second plot in this notebook. The differences being that: (1) a pairwise transition grid is defined for the second plot above, whereas the empirical distribution is used in the plot below,
 and (2) in the plot below, we marginalized over the other covariates in the model (thus the reason for not having a <code class="docutils literal notranslate"><span class="pre">camper</span></code> or <code class="docutils literal notranslate"><span class="pre">child</span></code> group and panel, and a reduction in the uncertainty interval).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_comparison</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_comparisons</span><span class="p">(</span>
     <span class="n">model</span><span class="o">=</span><span class="n">fish_model</span><span class="p">,</span>
     <span class="n">idata</span><span class="o">=</span><span class="n">fish_idata</span><span class="p">,</span>
     <span class="n">contrast</span><span class="o">=</span><span class="s2">&quot;livebait&quot;</span><span class="p">,</span>
@@ -1826,11 +1869,11 @@ and (2) in the plot below, we marginalized over the other covariates in the mode
 </section>
 </section>
 <section id="Logistic-Regression">
-<h2>Logistic Regression<a class="headerlink" href="#Logistic-Regression" title="Permalink to this heading">#</a></h2>
+<h2>Logistic Regression<a class="headerlink" href="#Logistic-Regression" title="Link to this heading">#</a></h2>
 <p>To showcase an additional functionality of <code class="docutils literal notranslate"><span class="pre">comparisons</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_comparisons</span></code>, we fit a logistic regression model to the <a class="reference external" href="https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/Titanic.csv">titanic dataset</a> with interaction terms to model the probability of survival. The titanic dataset gives the values of four categorical attributes for each of the 2201 people on board the Titanic when it struck an iceberg and sank. The attributes are social class (first class, second class,
 third class, crewmember), age, sex (0 = female, 1 = male), and whether or not the person survived (0 = deceased, 1 = survived).</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dat</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;https://vincentarelbundock.github.io/Rdatasets/csv/Stat2Data/Titanic.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -1846,7 +1889,7 @@ third class, crewmember), age, sex (0 = female, 1 = male), and whether or not th
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">titanic_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
@@ -1873,31 +1916,10 @@ NUTS: [Intercept, PClass, SexCode, PClass:SexCode, Age, PClass:Age, SexCode:Age,
 <div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
-<div class="output_area rendered_html docutils container">
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style></div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area rendered_html docutils container">
-<div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:15&lt;00:00 Sampling 4 chains, 0 divergences]
-</div></div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ |████████████████████████████████| 100.00% [8000/8000 00:15&lt;00:00 Sampling 4 chains, 0 divergences]
+</pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
@@ -1908,14 +1930,14 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </pre></div></div>
 </div>
 <section id="Comparison-types">
-<h3>Comparison types<a class="headerlink" href="#Comparison-types" title="Permalink to this heading">#</a></h3>
+<h3>Comparison types<a class="headerlink" href="#Comparison-types" title="Link to this heading">#</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">comparisons</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_comparisons</span></code> also allow you to specify the type of comparison to be computed. By default, a difference is used. However, it is also possible to take the ratio where comparisons would then become <em>average predictive ratios</em>. To achieve this, pass <code class="docutils literal notranslate"><span class="pre">&quot;ratio&quot;</span></code> into the argument <code class="docutils literal notranslate"><span class="pre">comparison_type</span></code>. Using different comparison types offers a way to produce alternative insights; especially when there are interaction terms as the value of one covariate depends on the value
 of the other covariate.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_comparison</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_comparisons</span><span class="p">(</span>
     <span class="n">model</span><span class="o">=</span><span class="n">titanic_model</span><span class="p">,</span>
     <span class="n">idata</span><span class="o">=</span><span class="n">titanic_idata</span><span class="p">,</span>
     <span class="n">contrast</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;PClass&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]},</span>
@@ -1953,7 +1975,7 @@ of the other covariate.</p>
     <div class="footer-article-item"><!-- Previous / next buttons -->
 <div class="prev-next-area">
     <a class="left-prev"
-       href="plot_cap.html"
+       href="plot_predictions.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
@@ -2050,7 +2072,7 @@ of the other covariate.</p>
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

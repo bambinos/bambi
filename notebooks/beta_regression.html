@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -402,7 +402,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Beta-Regression">
-<h1>Beta Regression<a class="headerlink" href="#Beta-Regression" title="Permalink to this heading">#</a></h1>
+<h1>Beta Regression<a class="headerlink" href="#Beta-Regression" title="Link to this heading">#</a></h1>
 <p>This example has been contributed by Tyler James Burch (<a class="reference external" href="https://github.com/tjburch">&#64;tjburch</a> on GitHub).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -428,7 +428,7 @@ document.write(`
 </div>
 <p>In this example, we’ll look at using the <strong>Beta distribution</strong> for regression models. The Beta distribution is a probability distribution bounded on the interval [0, 1], which makes it well-suited to model probabilities or proportions. In fact, in much of the Bayesian literature, the Beta distribution is introduced as a prior distribution for the probability <span class="math notranslate nohighlight">\(p\)</span> parameter of the Binomial distribution (in fact, it’s the conjugate prior for the Binomial distribution).</p>
 <section id="Simulated-Beta-Distribution">
-<h2>Simulated Beta Distribution<a class="headerlink" href="#Simulated-Beta-Distribution" title="Permalink to this heading">#</a></h2>
+<h2>Simulated Beta Distribution<a class="headerlink" href="#Simulated-Beta-Distribution" title="Link to this heading">#</a></h2>
 <p>To start getting an intuitive sense of the Beta distribution, we’ll model coin flipping probabilities. Say we grab all the coins out of our pocket, we might have some fresh from the mint, but we might also have some old ones. Due to the variation, some may be slightly biased toward heads or tails, and our goal is to model distribution of the probabilities of flipping heads for the coins in our pocket.</p>
 <p>Since we trust the mint, we’ll say the <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> are both large, we’ll use 1,000 for each, which gives a distribution spanning from 0.45 to 0.55.</p>
 <div class="nbinput docutils container">
@@ -676,7 +676,7 @@ Beta - mean: 1006.0, 95% HDI: 978.0 - 1032.0
 <p>We’ve managed to recover our parameters with an intercept-only model.</p>
 </section>
 <section id="Beta-Regression-with-Predictors">
-<h2>Beta Regression with Predictors<a class="headerlink" href="#Beta-Regression-with-Predictors" title="Permalink to this heading">#</a></h2>
+<h2>Beta Regression with Predictors<a class="headerlink" href="#Beta-Regression-with-Predictors" title="Link to this heading">#</a></h2>
 <p>Perhaps we have a little more information on the coins in our pocket. We notice that the coins have accumulated dirt on either side, which would shift the probability of getting a tails or heads. In reality, we would not know how much the dirt affects the probability distribution, we would like to recover that parameter. We’ll construct this toy example by saying that each micron of dirt shifts the <span class="math notranslate nohighlight">\(\alpha\)</span> parameter by 5.0. Further, the amount of dirt is distributed according to a Half
 Normal distribution with a standard deviation of 25 per side.</p>
 <p>We’ll start by looking at the difference in probability for a coin with a lot of dirt on either side.</p>
@@ -1113,7 +1113,7 @@ Mean effect: 0.5012
 <p>The recovered effect is very close to the true effect of 0.5.</p>
 </section>
 <section id="Example---Revisiting-Baseball-Data">
-<h2>Example - Revisiting Baseball Data<a class="headerlink" href="#Example---Revisiting-Baseball-Data" title="Permalink to this heading">#</a></h2>
+<h2>Example - Revisiting Baseball Data<a class="headerlink" href="#Example---Revisiting-Baseball-Data" title="Link to this heading">#</a></h2>
 <p>In the <a class="reference external" href="https://bambinos.github.io/bambi/main/notebooks/hierarchical_binomial_bambi.html">Hierarchical Logistic regression with Binomial family</a> notebook, we modeled baseball batting averages (times a player reached first via a hit per times at bat) via a Hierarchical Logisitic regression model. If we’re interested in league-wide effects, we could look at a Beta regression. We work off the assumption that the league-wide batting average follows a Beta distribution, and that individual
 player’s batting averages are samples from that distribution.</p>
 <p>First, load the Batting dataset again, and re-calculate batting average as hits/at-bat. In order to make sure that we have a sufficient sample, we’ll require at least 100 at-bats in order consider a batter. Last, we’ll focus on 1990-2018.</p>
@@ -1817,7 +1817,7 @@ Watermark: 2.3.1
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

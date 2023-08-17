@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -402,7 +402,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Gaussian-Processes">
-<h1>Gaussian Processes<a class="headerlink" href="#Gaussian-Processes" title="Permalink to this heading">#</a></h1>
+<h1>Gaussian Processes<a class="headerlink" href="#Gaussian-Processes" title="Link to this heading">#</a></h1>
 <p>This article demonstrates the how to use Bambi with Gaussian Processes with 1 dimensional predictors. Bambi supports Gaussian Processes through the approximation known as Hilbert Space Gaussian Processes (HSGP).</p>
 <p>HSGP is a framework that falls under the class of low-rank approximations that are based on forming a basis function approximation with <span class="math notranslate nohighlight">\(m\)</span> basis functions, where <span class="math notranslate nohighlight">\(m\)</span> is usually much less smaller than <span class="math notranslate nohighlight">\(n\)</span>, the number of observations.</p>
 <p>For references see <a class="reference external" href="https://arxiv.org/abs/1401.5508">Hilbert Space Methods for Reduced-Rank Gaussian Process Regression</a> and <a class="reference external" href="https://arxiv.org/abs/2004.11408">Practical Hilbert Space Approximate Bayesian Gaussian Processes for Probabilistic Programming</a>.</p>
@@ -424,7 +424,7 @@ document.write(`
 </div>
 </div>
 <section id="A-basic-example">
-<h2>A basic example<a class="headerlink" href="#A-basic-example" title="Permalink to this heading">#</a></h2>
+<h2>A basic example<a class="headerlink" href="#A-basic-example" title="Link to this heading">#</a></h2>
 <p>Let’s get started simulating some data from a smooth function. The goal is to fit a normal likelihood model where a Gaussian process term contributes to the mean.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
@@ -857,7 +857,7 @@ Transformation time =  0:00:00.028475
 </div>
 </section>
 <section id="How-does-hsgp()-work?">
-<h2>How does <code class="docutils literal notranslate"><span class="pre">hsgp()</span></code> work?<a class="headerlink" href="#How-does-hsgp()-work?" title="Permalink to this heading">#</a></h2>
+<h2>How does <code class="docutils literal notranslate"><span class="pre">hsgp()</span></code> work?<a class="headerlink" href="#How-does-hsgp()-work?" title="Link to this heading">#</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">hsgp()</span></code> is a transformation that is available in the namespace where the model formula is evaluated. In plain english, <code class="docutils literal notranslate"><span class="pre">hsgp()</span></code> is like a function you can use in your model formulas. You don’t need to worry about the details, Bambi knows how to handle them.But if still you want to see the actual code, you can have a look at the implementation of the <code class="docutils literal notranslate"><span class="pre">HSGP</span></code> class in <a class="reference external" href="bambi/transformations.py">bambi/transformations.py</a>.</p>
 <p>What users do need to care about is the arguments the <code class="docutils literal notranslate"><span class="pre">hsgp()</span></code> transformation support. There are a bunch of arguments that can be passed after the variable number of non-keyword arguments representing the variables of the HSGP contribution. Below is a brief overview of these arguments and their respective descriptions.</p>
 <ul class="simple">
@@ -876,7 +876,7 @@ Transformation time =  0:00:00.028475
 <!-- **To Do:** Add link --><p>So far, we showcased how to use <code class="docutils literal notranslate"><span class="pre">m</span></code>, <code class="docutils literal notranslate"><span class="pre">c</span></code> and <code class="docutils literal notranslate"><span class="pre">centered</span></code>. In the remainder of this article we’re going to see how <code class="docutils literal notranslate"><span class="pre">by</span></code> and <code class="docutils literal notranslate"><span class="pre">share_cov</span></code> are used when we add a GP contribution by groups.</p>
 </section>
 <section id="HSGP-by-levels-of-a-categorical-covariate">
-<h2>HSGP by levels of a categorical covariate<a class="headerlink" href="#HSGP-by-levels-of-a-categorical-covariate" title="Permalink to this heading">#</a></h2>
+<h2>HSGP by levels of a categorical covariate<a class="headerlink" href="#HSGP-by-levels-of-a-categorical-covariate" title="Link to this heading">#</a></h2>
 <p>In this section we fit a model with a HSGP contribution by levels of a categorical variable. The data was simulated with the <code class="docutils literal notranslate"><span class="pre">gamSim()</span></code> function from the R package <code class="docutils literal notranslate"><span class="pre">{mgcv}</span></code> by Simon Wood.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
@@ -1422,7 +1422,7 @@ Transformation time =  0:00:00.519422
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -402,7 +402,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Logistic-Regression-(Vote-intention-with-ANES-data)">
-<h1>Logistic Regression (Vote intention with ANES data)<a class="headerlink" href="#Logistic-Regression-(Vote-intention-with-ANES-data)" title="Permalink to this heading">#</a></h1>
+<h1>Logistic Regression (Vote intention with ANES data)<a class="headerlink" href="#Logistic-Regression-(Vote-intention-with-ANES-data)" title="Link to this heading">#</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -425,7 +425,7 @@ document.write(`
 </div>
 </div>
 <section id="Load-and-examine-American-National-Election-Studies-(ANES)-data">
-<h2>Load and examine American National Election Studies (ANES) data<a class="headerlink" href="#Load-and-examine-American-National-Election-Studies-(ANES)-data" title="Permalink to this heading">#</a></h2>
+<h2>Load and examine American National Election Studies (ANES) data<a class="headerlink" href="#Load-and-examine-American-National-Election-Studies-(ANES)-data" title="Link to this heading">#</a></h2>
 <p>These data are from the 2016 pilot study. The full study consisted of 1200 people, but here we’ve selected the subset of 487 people who responded to a question about whether they would vote for Hillary Clinton or Donald Trump.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -636,7 +636,7 @@ Name: party_id, dtype: int64
 <p>But our main question here will be: How is respondent age related to voting intentions, and is this relationship different for different party affiliations? For this we will use a logistic regression.</p>
 </section>
 <section id="Build-clinton_model">
-<h2>Build <code class="docutils literal notranslate"><span class="pre">clinton_model</span></code><a class="headerlink" href="#Build-clinton_model" title="Permalink to this heading">#</a></h2>
+<h2>Build <code class="docutils literal notranslate"><span class="pre">clinton_model</span></code><a class="headerlink" href="#Build-clinton_model" title="Link to this heading">#</a></h2>
 <p>To keep this simple, let’s look at only the data from people who indicated that they would vote for either Clinton or Trump, and we’ll model the probability of voting for Clinton.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
@@ -711,7 +711,7 @@ Name: party_id, dtype: int64
 </div></div>
 </div>
 <section id="Logistic-regression">
-<h3>Logistic regression<a class="headerlink" href="#Logistic-regression" title="Permalink to this heading">#</a></h3>
+<h3>Logistic regression<a class="headerlink" href="#Logistic-regression" title="Link to this heading">#</a></h3>
 <p>We’ll use a logistic regression model to estimate the probability of voting for Clinton as a function of age and party affiliation. We can think we have a response variable <span class="math notranslate nohighlight">\(Y\)</span> defined as</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}Y =
@@ -732,7 +732,7 @@ Name: party_id, dtype: int64
 <p>Since we’re Bayesian folks who draw samples from posteriors, we need to specify a prior for the parameters as well as a likelihood function before accomplishing our task. In this occasion, we’re going to use the default priors in Bambi and just note the likelihood is the product of <span class="math notranslate nohighlight">\(n\)</span> Bernoulli trials, <span class="math notranslate nohighlight">\(\prod_{i=1}^{n}{p_i^y(1-p_i)^{1-y_i}}\)</span> where <span class="math notranslate nohighlight">\(p_i = P(Y=1)\)</span> and <span class="math notranslate nohighlight">\(y_i = 1\)</span> if the vote intention is for Clinton and <span class="math notranslate nohighlight">\(y_i = 0\)</span> if Trump.</p>
 </section>
 <section id="Specify-and-fit-model-in-Bambi">
-<h3>Specify and fit model in Bambi<a class="headerlink" href="#Specify-and-fit-model-in-Bambi" title="Permalink to this heading">#</a></h3>
+<h3>Specify and fit model in Bambi<a class="headerlink" href="#Specify-and-fit-model-in-Bambi" title="Link to this heading">#</a></h3>
 <p>Specifying and fitting the model is simple. Bambi is good and doesn’t ask us to translate all the math to code. We just need to specify our model using the formula syntax and pass the correct <code class="docutils literal notranslate"><span class="pre">family</span></code> argument. Notice the (optional) syntax that we use on the left-hand-side of the formula: We say <code class="docutils literal notranslate"><span class="pre">vote[clinton]</span></code> to instruct Bambi that we wish the model the probability that <code class="docutils literal notranslate"><span class="pre">vote=='clinton'</span></code>, rather than the probability that <code class="docutils literal notranslate"><span class="pre">vote=='trump'</span></code>. If we leave this unspecified, Bambi will just
 pick one of the events to model, but will inform you which one it picked when you build the model (and again when you look at model summaries).</p>
 <p>On the right-hand-side of the formula we use <code class="docutils literal notranslate"><span class="pre">party_id</span> <span class="pre">+</span> <span class="pre">party_id:age</span></code> to instruct Bambi that we want to use <code class="docutils literal notranslate"><span class="pre">party_id</span></code> and the interaction between <code class="docutils literal notranslate"><span class="pre">party_id</span></code> and <code class="docutils literal notranslate"><span class="pre">age</span></code> as the explanatory variables in the model.</p>
@@ -990,10 +990,10 @@ Sampling: [Intercept, party_id, party_id:age]
 </section>
 </section>
 <section id="Model-assessment">
-<h2>Model assessment<a class="headerlink" href="#Model-assessment" title="Permalink to this heading">#</a></h2>
+<h2>Model assessment<a class="headerlink" href="#Model-assessment" title="Link to this heading">#</a></h2>
 <p>Before moving forward to inference, we can evaluate the quality of the model’s fit. We will take a look at two different ways of assessing how good is the model’s fit using its predictions.</p>
 <section id="Separation-plot">
-<h3>Separation plot<a class="headerlink" href="#Separation-plot" title="Permalink to this heading">#</a></h3>
+<h3>Separation plot<a class="headerlink" href="#Separation-plot" title="Link to this heading">#</a></h3>
 <p>There is a way of assessing the performance of a model with binary outcomes (such as logistic regression) in a visual way called <a class="reference external" href="https://onlinelibrary.wiley.com/doi/abs/10.1111/j.1540-5907.2011.00525.x">separation plot</a>. In a separation plot, the model’s predictions are averaged, ordered and represented as consecutive vertical lines. These vertical lines are colored according to the class indicated by their corresponding observed value, in this case light blue indicates class 0
 (<code class="docutils literal notranslate"><span class="pre">vote</span> <span class="pre">==</span> <span class="pre">'Trump'</span></code>) and blue represents class 1 (<code class="docutils literal notranslate"><span class="pre">vote</span> <span class="pre">=='Clinton'</span></code>). We can use the ArviZ’ implementation of the separation plot, but first we have to obtain the model’s predictions.</p>
 <div class="nbinput nblast docutils container">
@@ -1023,7 +1023,7 @@ Sampling: [Intercept, party_id, party_id:age]
 </section>
 </section>
 <section id="\hat-\kappa-parameter">
-<h2><span class="math notranslate nohighlight">\(\hat \kappa\)</span> parameter<a class="headerlink" href="#\hat-\kappa-parameter" title="Permalink to this heading">#</a></h2>
+<h2><span class="math notranslate nohighlight">\(\hat \kappa\)</span> parameter<a class="headerlink" href="#\hat-\kappa-parameter" title="Link to this heading">#</a></h2>
 <p>We can also use ArviZ to compute <a class="reference external" href="https://arxiv.org/abs/1507.04544">LOO</a> and find influential observations using the estimated <span class="math notranslate nohighlight">\(\hat \kappa\)</span> parameter value.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
@@ -1511,7 +1511,7 @@ to compute LOO are no longer reliable for <span class="math notranslate nohighli
 <p>This assessment helped us to further understand the model and quality of the fit. It also illustrates the intuition that we should be cautious when predicting for under represented age groups and voting behaviours.</p>
 </section>
 <section id="Run-Inference">
-<h2>Run Inference<a class="headerlink" href="#Run-Inference" title="Permalink to this heading">#</a></h2>
+<h2>Run Inference<a class="headerlink" href="#Run-Inference" title="Link to this heading">#</a></h2>
 <p>Grab the posteriors samples of the <code class="docutils literal notranslate"><span class="pre">age</span></code> slopes for the three <code class="docutils literal notranslate"><span class="pre">party_id</span></code> categories.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
@@ -1655,7 +1655,7 @@ to answer probability questions that involve both of them. The fact that logical
 <p>Finally, all these comments may have not been necessary since we didn’t need to mention anything about marginal or joint distributions when performing the calculations, we’ve just grabbed the samples and applied some basic math. But that’s an advantage of Bambi and the Bayesian approach. Things that are not so simple, became simpler :)</p>
 </section>
 <section id="Spaghetti-plot-of-model-predictions">
-<h2>Spaghetti plot of model predictions<a class="headerlink" href="#Spaghetti-plot-of-model-predictions" title="Permalink to this heading">#</a></h2>
+<h2>Spaghetti plot of model predictions<a class="headerlink" href="#Spaghetti-plot-of-model-predictions" title="Link to this heading">#</a></h2>
 <p>Here we make use of the <code class="docutils literal notranslate"><span class="pre">Model.predict()</span></code> method to predict the probability of voting for Clinton for an out-of-sample dataset that we create.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
@@ -1952,7 +1952,7 @@ Watermark: 2.3.1
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

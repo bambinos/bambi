@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -402,7 +402,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Comparison-of-two-means-(T-test)">
-<h1>Comparison of two means (T-test)<a class="headerlink" href="#Comparison-of-two-means-(T-test)" title="Permalink to this heading">#</a></h1>
+<h1>Comparison of two means (T-test)<a class="headerlink" href="#Comparison-of-two-means-(T-test)" title="Link to this heading">#</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -426,7 +426,7 @@ document.write(`
 </div>
 <p>In this notebook we demo two equivalent ways of performing a two-sample Bayesian t-test to compare the mean value of two Gaussian populations using Bambi.</p>
 <section id="Generate-data">
-<h2>Generate data<a class="headerlink" href="#Generate-data" title="Permalink to this heading">#</a></h2>
+<h2>Generate data<a class="headerlink" href="#Generate-data" title="Link to this heading">#</a></h2>
 <p>We generate 160 values from a Gaussian with <span class="math notranslate nohighlight">\(\mu=6\)</span> and <span class="math notranslate nohighlight">\(\sigma=2.5\)</span> and another 120 values from a Gaussian’ with <span class="math notranslate nohighlight">\(\mu=8\)</span> and <span class="math notranslate nohighlight">\(\sigma=2\)</span></p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -529,7 +529,7 @@ document.write(`
 </div>
 <p>When we carry out a two sample t-test we are implicitly using a linear model that can be specified in different ways. One of these approaches is the following:</p>
 <section id="Model-1">
-<h3>Model 1<a class="headerlink" href="#Model-1" title="Permalink to this heading">#</a></h3>
+<h3>Model 1<a class="headerlink" href="#Model-1" title="Link to this heading">#</a></h3>
 <div class="math notranslate nohighlight">
 \[\mu_i = \beta_0 + \beta_1 (i) + \epsilon_i\]</div>
 <p>where <span class="math notranslate nohighlight">\(i = 0\)</span> represents the population 1, <span class="math notranslate nohighlight">\(i = 1\)</span> the population 2 and <span class="math notranslate nohighlight">\(\epsilon_i\)</span> is a random error with mean 0. If we replace the indicator variables for the two groups we have</p>
@@ -545,7 +545,7 @@ document.write(`
 <p>Thus, we can see that testing whether the mean of the two populations are equal is equivalent to testing whether <span class="math notranslate nohighlight">\(\beta_1\)</span> is 0.</p>
 </section>
 <section id="Analysis">
-<h3>Analysis<a class="headerlink" href="#Analysis" title="Permalink to this heading">#</a></h3>
+<h3>Analysis<a class="headerlink" href="#Analysis" title="Link to this heading">#</a></h3>
 <p>We start by instantiating our model and specifying the model previously described.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
@@ -797,7 +797,7 @@ Sampling: [Group, Intercept, Val_sigma]
 <p>The linear model implicit in the t-test can also be specified without an intercept term, such is the case of Model 2.</p>
 </section>
 <section id="Model-2">
-<h3>Model 2<a class="headerlink" href="#Model-2" title="Permalink to this heading">#</a></h3>
+<h3>Model 2<a class="headerlink" href="#Model-2" title="Link to this heading">#</a></h3>
 <p>When we carry out a two sample t-test we’re implicitly using the following model:</p>
 <div class="math notranslate nohighlight">
 \[\mu_i = \beta_i + \epsilon_i\]</div>
@@ -813,7 +813,7 @@ Sampling: [Group, Intercept, Val_sigma]
 <p>Thus, we can see that testing whether the mean of the two populations are equal is equivalent to testing whether <span class="math notranslate nohighlight">\(\beta_0 = \beta_1\)</span>.</p>
 </section>
 <section id="id1">
-<h3>Analysis<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<h3>Analysis<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
 <p>We start by instantiating our model and specifying the model previously described. In this model we will bypass the intercept that Bambi adds by default by setting it to zero, even though setting to -1 has the same effect.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
@@ -1194,7 +1194,7 @@ Watermark: 2.3.1
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

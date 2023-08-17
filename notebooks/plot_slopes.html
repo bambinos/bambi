@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -402,11 +402,11 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Plot-Slopes">
-<h1>Plot Slopes<a class="headerlink" href="#Plot-Slopes" title="Permalink to this heading">#</a></h1>
+<h1>Plot Slopes<a class="headerlink" href="#Plot-Slopes" title="Link to this heading">#</a></h1>
 <p>The Bambi’s sub-package <code class="docutils literal notranslate"><span class="pre">plots</span></code> features a set of functions to help interpret complex regression models. This sub-package is inspired by the R package <a class="reference external" href="https://vincentarelbundock.github.io/marginaleffects/articles/predictions.html#conditional-adjusted-predictions-plot">marginaleffects</a>. In this notebook we will discuss two functions <code class="docutils literal notranslate"><span class="pre">slopes</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code>. These two functions allow the modeler to easier interpret slopes, either by a inspecting a summary output or plotting them.</p>
 <p>Below, it is described why estimating the slope of the prediction function is useful in interpreting generalized linear models (GLMs), how this methodology is implemented in Bambi, and how to use <code class="docutils literal notranslate"><span class="pre">slopes</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code>. It is assumed that the reader is familiar with the basics of GLMs. If not, refer to the Bambi <a class="reference external" href="https://bambinos.github.io/bambi/notebooks/how_bambi_works.html#Link-functions">Basic Building Blocks</a> example.</p>
 <section id="Interpretation-of-Regression-Coefficients">
-<h2>Interpretation of Regression Coefficients<a class="headerlink" href="#Interpretation-of-Regression-Coefficients" title="Permalink to this heading">#</a></h2>
+<h2>Interpretation of Regression Coefficients<a class="headerlink" href="#Interpretation-of-Regression-Coefficients" title="Link to this heading">#</a></h2>
 <p>Assuming we have fit a linear regression model of the form</p>
 <div class="math notranslate nohighlight">
 \[y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \dots + \beta_k x_k + \epsilon\]</div>
@@ -415,7 +415,7 @@ document.write(`
 in <span class="math notranslate nohighlight">\(y\)</span>”. First, the logits must be converted to the probability scale. Secondly, a one unit change in <span class="math notranslate nohighlight">\(x_k\)</span> may produce a larger or smaller change in the outcome, depending upon how far away from zero the logits are.</p>
 <p><code class="docutils literal notranslate"><span class="pre">slopes</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code>, by default, computes quantities of interest on the response scale for GLMs. For example, for a logistic regression model, this is the probability scale, and for a Poisson regression model, this is the count scale.</p>
 <section id="Interpreting-interaction-effects">
-<h3>Interpreting interaction effects<a class="headerlink" href="#Interpreting-interaction-effects" title="Permalink to this heading">#</a></h3>
+<h3>Interpreting interaction effects<a class="headerlink" href="#Interpreting-interaction-effects" title="Link to this heading">#</a></h3>
 <p>Specifying interactions in a regression model is a way of allowing parameters to be conditional on certain aspects of the data. By contrast, for a model with no interactions, the parameters are <strong>not</strong> conditional and thus, the value of one parameter is not dependent on the value of another covariate. However, once interactions exist, multiple parameters are always in play at the same time. Additionally, interactions can be specified for either categorical, continuous, or both types of
 covariates. Thus, making the interpretation of the parameters more difficult.</p>
 <p>With GLMs, every covariate essentially interacts with itself because of the link function. To demonstrate parameters interacting with themselves, consider the mean of a Gaussian linear model with an identity link function</p>
@@ -432,7 +432,7 @@ covariates. Thus, making the interpretation of the parameters more difficult.</p
 </section>
 </section>
 <section id="Average-Predictive-Slopes">
-<h2>Average Predictive Slopes<a class="headerlink" href="#Average-Predictive-Slopes" title="Permalink to this heading">#</a></h2>
+<h2>Average Predictive Slopes<a class="headerlink" href="#Average-Predictive-Slopes" title="Link to this heading">#</a></h2>
 <p>Here, we adopt the notation from Chapter 14.4 of <a class="reference external" href="https://avehtari.github.io/ROS-Examples/">Regression and Other Stories</a> to first describe average predictive differences which is essential to computing <code class="docutils literal notranslate"><span class="pre">slopes</span></code>, and then secondly, average predictive slopes. Assume we have fit a Bambi model predicting an outcome <span class="math notranslate nohighlight">\(Y\)</span> based on inputs <span class="math notranslate nohighlight">\(X\)</span> and parameters <span class="math notranslate nohighlight">\(\theta\)</span>. Consider the following scalar inputs:</p>
 <div class="math notranslate nohighlight">
 \[w: \text{the input of interest}\]</div>
@@ -449,7 +449,7 @@ covariates. Thus, making the interpretation of the parameters more difficult.</p
 \[\text{average predictive slope} = \frac{\mathbb{E}(y|w^{\text{value}}, c, \theta) - \mathbb{E}(y|w^{\text{value}+\epsilon}, c, \theta)}{\epsilon}\]</div>
 </section>
 <section id="Computing-Slopes">
-<h2>Computing Slopes<a class="headerlink" href="#Computing-Slopes" title="Permalink to this heading">#</a></h2>
+<h2>Computing Slopes<a class="headerlink" href="#Computing-Slopes" title="Link to this heading">#</a></h2>
 <p>The objective of <code class="docutils literal notranslate"><span class="pre">slopes</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code> is to compute the rate of change (slope) in the mean of the response <span class="math notranslate nohighlight">\(y\)</span> with respect to a small change <span class="math notranslate nohighlight">\(\epsilon\)</span> in the predictor <span class="math notranslate nohighlight">\(x\)</span> conditional on other covariates <span class="math notranslate nohighlight">\(c\)</span> specified in the model. <span class="math notranslate nohighlight">\(w\)</span> is specified by the user and the original value is either provided by the user, else a default value (the mean) is computed by Bambi. The values for the other covariates <span class="math notranslate nohighlight">\(c\)</span> specified in the model can be determined
 under the following three scenarios:</p>
 <ol class="arabic simple">
@@ -475,7 +475,7 @@ of transitions and dividing by <span class="math notranslate nohighlight">\(\eps
 </div>
 </section>
 <section id="Logistic-Regression">
-<h2>Logistic Regression<a class="headerlink" href="#Logistic-Regression" title="Permalink to this heading">#</a></h2>
+<h2>Logistic Regression<a class="headerlink" href="#Logistic-Regression" title="Link to this heading">#</a></h2>
 <p>To demonstrate <code class="docutils literal notranslate"><span class="pre">slopes</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code>, we will use the <a class="reference external" href="https://vincentarelbundock.github.io/Rdatasets/doc/carData/Wells.html">well switching dataset</a> to model the probability a household in Bangladesh switches water wells. The data are for an area of Arahazar Upazila, Bangladesh. The researchers labelled each well with its level of arsenic and an indication of whether the well was “safe” or “unsafe”. Those using unsafe wells were encouraged to switch. After several years, it was
 determined whether each household using an unsafe well had changed its well. The data contains <span class="math notranslate nohighlight">\(3020\)</span> observations on the following five variables:</p>
 <ul class="simple">
@@ -654,7 +654,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </pre></div></div>
 </div>
 <section id="User-provided-values">
-<h3>User provided values<a class="headerlink" href="#User-provided-values" title="Permalink to this heading">#</a></h3>
+<h3>User provided values<a class="headerlink" href="#User-provided-values" title="Link to this heading">#</a></h3>
 <p>First, an example of scenario 1 (user provided values) is given below. In both <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code> and <code class="docutils literal notranslate"><span class="pre">slopes</span></code>, <span class="math notranslate nohighlight">\(w\)</span> and <span class="math notranslate nohighlight">\(c\)</span> are represented by <code class="docutils literal notranslate"><span class="pre">wrt</span></code> (with respect to) and <code class="docutils literal notranslate"><span class="pre">conditional</span></code>, respectively. The modeler has the ability to pass their own values for <code class="docutils literal notranslate"><span class="pre">wrt</span></code> and <code class="docutils literal notranslate"><span class="pre">conditional</span></code> by using a dictionary where the key-value pairs are the covariate and value(s) of interest.</p>
 <p>For example, if we wanted to compute the slope of the probability of switching wells for a typical <code class="docutils literal notranslate"><span class="pre">arsenic</span></code> value of <span class="math notranslate nohighlight">\(1.3\)</span> conditional on a range of <code class="docutils literal notranslate"><span class="pre">dist</span></code> and <code class="docutils literal notranslate"><span class="pre">educ</span></code> values, we would pass the following dictionary in the code block below. By default, for <span class="math notranslate nohighlight">\(w\)</span>, Bambi compares <span class="math notranslate nohighlight">\(w^\text{value}\)</span> to <span class="math notranslate nohighlight">\(w^{\text{value} + \epsilon}\)</span> where <span class="math notranslate nohighlight">\(\epsilon =\)</span> <code class="docutils literal notranslate"><span class="pre">1e-4</span></code>. However, the value for <span class="math notranslate nohighlight">\(\epsilon\)</span> can be changed by passing a value to the argument <code class="docutils literal notranslate"><span class="pre">eps</span></code>.</p>
 <p>Thus, in this example, <span class="math notranslate nohighlight">\(w^\text{value} = 1.3\)</span> and <span class="math notranslate nohighlight">\(w^{\text{value} + \epsilon} = 1.3001\)</span>. The user is not limited to passing a list for the values. A <code class="docutils literal notranslate"><span class="pre">np.array</span></code> can also be used. Furthermore, Bambi by default, maps the order of the dict keys to the main, group, and panel of the matplotlib figure. Below, since <code class="docutils literal notranslate"><span class="pre">dist100</span></code> is the first key, this is used for the x-axis, and <code class="docutils literal notranslate"><span class="pre">educ4</span></code> is used for the group (color). If a third key was passed, it would be used for the panel (facet).</p>
@@ -840,7 +840,7 @@ for a unit increase in <code class="docutils literal notranslate"><span class="p
 covariates, <code class="docutils literal notranslate"><span class="pre">slopes</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code> computes a default value (mean or mode based on the data type of the covariate). Each row in the summary dataframe is read as “the slope (or rate of change) of the probability of switching wells with respect to a small change in <span class="math notranslate nohighlight">\(w\)</span> conditional on <span class="math notranslate nohighlight">\(c\)</span> is <span class="math notranslate nohighlight">\(y\)</span>”.</p>
 </section>
 <section id="Multiple-slope-values">
-<h3>Multiple slope values<a class="headerlink" href="#Multiple-slope-values" title="Permalink to this heading">#</a></h3>
+<h3>Multiple slope values<a class="headerlink" href="#Multiple-slope-values" title="Link to this heading">#</a></h3>
 <p>Users can also compute slopes on multiple values for <code class="docutils literal notranslate"><span class="pre">wrt</span></code>. For example, if we want to compute the slope of <span class="math notranslate nohighlight">\(y\)</span> with respect to <code class="docutils literal notranslate"><span class="pre">arsenic</span></code> <span class="math notranslate nohighlight">\(= 1.5\)</span>, <span class="math notranslate nohighlight">\(2.0\)</span>, and <span class="math notranslate nohighlight">\(2.5\)</span>, simply pass a list or numpy array as the dictionary values for <code class="docutils literal notranslate"><span class="pre">wrt</span></code>. Keeping the conditional covariate and values the same, the following slope estimates are computed below.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
@@ -967,7 +967,7 @@ covariates, <code class="docutils literal notranslate"><span class="pre">slopes<
 <p>The output above is essentially the same as the summary dataframe when we only passed one value to <code class="docutils literal notranslate"><span class="pre">wrt</span></code>. However, now each element (value) in the list gets a small amount <span class="math notranslate nohighlight">\(\epsilon\)</span> added to it, and the slope is calculated for each of these values.</p>
 </section>
 <section id="Conditional-slopes">
-<h3>Conditional slopes<a class="headerlink" href="#Conditional-slopes" title="Permalink to this heading">#</a></h3>
+<h3>Conditional slopes<a class="headerlink" href="#Conditional-slopes" title="Link to this heading">#</a></h3>
 <p>As stated in the <em>interpreting interaction effects</em> section, interpreting coefficients of multiple interaction terms can be difficult and cumbersome. Thus, <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code> provides an effective way to visualize the conditional slopes of the interaction effects. Below, we will use the same well switching dataset, but with interaction terms. Specifically, one interaction is added between <code class="docutils literal notranslate"><span class="pre">dist100</span></code> and <code class="docutils literal notranslate"><span class="pre">educ4</span></code>, and another between <code class="docutils literal notranslate"><span class="pre">arsenic</span></code> and <code class="docutils literal notranslate"><span class="pre">educ4</span></code>.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -1211,7 +1211,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <p>For the non-interaction model, conditional on a range of values for <code class="docutils literal notranslate"><span class="pre">educ4</span></code> and <code class="docutils literal notranslate"><span class="pre">dist100</span></code>, the slopes of the outcome are nearly identical.</p>
 </section>
 <section id="Unit-level-slopes">
-<h3>Unit level slopes<a class="headerlink" href="#Unit-level-slopes" title="Permalink to this heading">#</a></h3>
+<h3>Unit level slopes<a class="headerlink" href="#Unit-level-slopes" title="Link to this heading">#</a></h3>
 <p>Evaluating average predictive slopes at central values for the conditional covariates <span class="math notranslate nohighlight">\(c\)</span> can be problematic when the inputs have a large variance since no single central value (mean, median, etc.) is representative of the covariate. This is especially true when <span class="math notranslate nohighlight">\(c\)</span> exhibits bi or multimodality. Thus, it may be desireable to use the empirical distribution of <span class="math notranslate nohighlight">\(c\)</span> to compute the predictive slopes, and then average over a specific or set of covariates to obtain average slopes. To
 achieve unit level slopes, do not pass a parameter into <code class="docutils literal notranslate"><span class="pre">conditional</span></code> and or specify <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 <div class="nbinput docutils container">
@@ -1535,7 +1535,7 @@ True
 <p>Above, <code class="docutils literal notranslate"><span class="pre">unit_level</span></code> is the slopes summary dataframe and <code class="docutils literal notranslate"><span class="pre">well_model_interact.data</span></code> is the empirical data used to fit the model. Notice how the values for <span class="math notranslate nohighlight">\(c\)</span> are identical in both dataframes. However, for <span class="math notranslate nohighlight">\(w\)</span>, the values are the original <span class="math notranslate nohighlight">\(w\)</span> value plus <span class="math notranslate nohighlight">\(\epsilon\)</span>. Thus, the <code class="docutils literal notranslate"><span class="pre">estimate</span></code> value represents the instantaneous rate of change for that unit of observation. However, these unit level slopes are difficult to interpret since each row may have a different slope
 estimate. Therefore, it is useful to average over (marginalize) the estimates to summarize the unit level predictive slopes.</p>
 <section id="Marginalizing-over-covariates">
-<h4>Marginalizing over covariates<a class="headerlink" href="#Marginalizing-over-covariates" title="Permalink to this heading">#</a></h4>
+<h4>Marginalizing over covariates<a class="headerlink" href="#Marginalizing-over-covariates" title="Link to this heading">#</a></h4>
 <p>Since the empirical distrubution is used for computing the average predictive slopes, the same number of rows (<span class="math notranslate nohighlight">\(3020\)</span>) is returned as the data used to fit the model. To average over a covariate, use the <code class="docutils literal notranslate"><span class="pre">average_by</span></code> argument. If <code class="docutils literal notranslate"><span class="pre">True</span></code> is passed, then <code class="docutils literal notranslate"><span class="pre">slopes</span></code> averages over all covariates. Else, if a single or list of covariates are passed, then <code class="docutils literal notranslate"><span class="pre">slopes</span></code> averages by the covariates passed.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
@@ -1617,7 +1617,7 @@ dtype: float64
 </div>
 </section>
 <section id="Average-by-subgroups">
-<h4>Average by subgroups<a class="headerlink" href="#Average-by-subgroups" title="Permalink to this heading">#</a></h4>
+<h4>Average by subgroups<a class="headerlink" href="#Average-by-subgroups" title="Link to this heading">#</a></h4>
 <p>Averaging over all covariates may not be desired, and you would rather average by a group or specific covariate. To perform averaging by subgroups, users can pass a single or list of covariates to <code class="docutils literal notranslate"><span class="pre">average_by</span></code> to average over specific covariates. For example, if we wanted to average by <code class="docutils literal notranslate"><span class="pre">educ4</span></code>:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
@@ -2021,7 +2021,7 @@ dtype: float64
 </section>
 </section>
 <section id="Interpreting-coefficients-as-an-elasticity">
-<h3>Interpreting coefficients as an elasticity<a class="headerlink" href="#Interpreting-coefficients-as-an-elasticity" title="Permalink to this heading">#</a></h3>
+<h3>Interpreting coefficients as an elasticity<a class="headerlink" href="#Interpreting-coefficients-as-an-elasticity" title="Link to this heading">#</a></h3>
 <p>In some fields, such as economics, it is useful to interpret the results of a regression model in terms of an elasticity (a percent change in <span class="math notranslate nohighlight">\(x\)</span> is associated with a percent change in <span class="math notranslate nohighlight">\(y\)</span>) or semi-elasticity (a unit change in <span class="math notranslate nohighlight">\(x\)</span> is associated with a percent change in <span class="math notranslate nohighlight">\(y\)</span>, or vice versa). Typically, this is achieved by fitting a model where either the outcome and or the covariates are log-transformed. However, since the log transformation is performed by the modeler, to
 compute elasticities for <code class="docutils literal notranslate"><span class="pre">slopes</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code>, Bambi “post-processes” the predictions to compute the elasticities. Below, it is shown the possible elasticity arguments and how they are computed for <code class="docutils literal notranslate"><span class="pre">slopes</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code>:</p>
 <ul class="simple">
@@ -2241,7 +2241,7 @@ compute elasticities for <code class="docutils literal notranslate"><span class=
 </div>
 </section>
 <section id="Categorical-covariates">
-<h3>Categorical covariates<a class="headerlink" href="#Categorical-covariates" title="Permalink to this heading">#</a></h3>
+<h3>Categorical covariates<a class="headerlink" href="#Categorical-covariates" title="Link to this heading">#</a></h3>
 <p>As mentioned in the <em>computing slopes</em> section, if you pass a variable with a string or categorical data type, the <code class="docutils literal notranslate"><span class="pre">comparisons</span></code> function will be called to compute the expected difference in group means. Here, we fit the same interaction model as above, albeit, by specifying <code class="docutils literal notranslate"><span class="pre">educ4</span></code> as an ordinal data type.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
@@ -2534,7 +2534,7 @@ Watermark: 2.3.1
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

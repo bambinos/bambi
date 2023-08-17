@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -402,7 +402,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Categorical-Regression">
-<h1>Categorical Regression<a class="headerlink" href="#Categorical-Regression" title="Permalink to this heading">#</a></h1>
+<h1>Categorical Regression<a class="headerlink" href="#Categorical-Regression" title="Link to this heading">#</a></h1>
 <p>In this example, we will use the categorical family to model outcomes with more than two categories. The examples in this notebook were constructed by Tomás Capretto, and assembled into this example by Tyler James Burch (<a class="reference external" href="https://github.com/tjburch">&#64;tjburch</a> on GitHub).</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
@@ -430,7 +430,7 @@ document.write(`
 </div>
 <p>When modeling binary outcomes with Bambi, the Bernoulli family is used. The multivariate generalization of the Bernoulli family is the Categorical family, and with it, we can model an arbitrary number of outcome categories.</p>
 <section id="Example-with-toy-data">
-<h2>Example with toy data<a class="headerlink" href="#Example-with-toy-data" title="Permalink to this heading">#</a></h2>
+<h2>Example with toy data<a class="headerlink" href="#Example-with-toy-data" title="Link to this heading">#</a></h2>
 <p>To start, we will create a toy dataset with three classes.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -552,7 +552,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <p>Here, we can notice that the probability phases between classes from left to right. At all points across <span class="math notranslate nohighlight">\(x\)</span>, sum of the class probabilities is 1, since in our generative model, it must be one of these three outcomes.</p>
 </section>
 <section id="The-iris-dataset">
-<h2>The iris dataset<a class="headerlink" href="#The-iris-dataset" title="Permalink to this heading">#</a></h2>
+<h2>The iris dataset<a class="headerlink" href="#The-iris-dataset" title="Link to this heading">#</a></h2>
 <p>Next, we will look at the classic “iris” dataset, which contains samples from 3 different species of iris plants. Using properties of the plant, we will try to model its species.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
@@ -888,7 +888,7 @@ We recommend running at least 4 chains for robust computation of convergence dia
 <p>We can see that this has fit quite nicely. You’ll notice there are <span class="math notranslate nohighlight">\(n-1\)</span> parameters to fit, where <span class="math notranslate nohighlight">\(n\)</span> is the number of categories. In the minimal binary case, recall there’s only one parameter set, since it models probability <span class="math notranslate nohighlight">\(p\)</span> of being in a class, and probability <span class="math notranslate nohighlight">\(1-p\)</span> of being in the other class. Using the categorical distribution, this extends, so we have <span class="math notranslate nohighlight">\(p_1\)</span> for class 1, <span class="math notranslate nohighlight">\(p_2\)</span> for class 2, and <span class="math notranslate nohighlight">\(1-(p_1+p_2)\)</span> for the final class.</p>
 </section>
 <section id="Using-numerical-and-categorical-predictors">
-<h2>Using numerical and categorical predictors<a class="headerlink" href="#Using-numerical-and-categorical-predictors" title="Permalink to this heading">#</a></h2>
+<h2>Using numerical and categorical predictors<a class="headerlink" href="#Using-numerical-and-categorical-predictors" title="Link to this heading">#</a></h2>
 <p>Next we will look at an example from chapter 8 of Alan Agresti’s <em>Categorical Data Analysis</em>, looking at the primary food choice for 64 alligators caught in Lake George, Florida. We will use their length (a continuous variable) and sex (a categorical variable) as predictors to model their food choice.</p>
 <p>First, reproducing the dataset,</p>
 <div class="nbinput docutils container">
@@ -1110,7 +1110,7 @@ class.</p>
 </div>
 <p>which depicts posterior predicted probability for each possible food choice for an alligator, which reinforces fish being the most likely food choice, followed by invertebrates.</p>
 <section id="References">
-<h3>References<a class="headerlink" href="#References" title="Permalink to this heading">#</a></h3>
+<h3>References<a class="headerlink" href="#References" title="Link to this heading">#</a></h3>
 <p>Agresti, A. (2013) Categorical Data Analysis. 3rd Edition, John Wiley &amp; Sons Inc., Hoboken.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
@@ -1243,7 +1243,7 @@ Watermark: 2.3.1
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>

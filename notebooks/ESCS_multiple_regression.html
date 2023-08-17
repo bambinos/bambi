@@ -35,9 +35,9 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
 
-    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js?v=e937bb23"></script>
+    <script src="../_static/documentation_options.js?v=3e2352eb"></script>
     <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
     <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -402,7 +402,7 @@ document.write(`
                 <article class="bd-article" role="main">
                   
   <section id="Multiple-linear-regression">
-<h1>Multiple linear regression<a class="headerlink" href="#Multiple-linear-regression" title="Permalink to this heading">#</a></h1>
+<h1>Multiple linear regression<a class="headerlink" href="#Multiple-linear-regression" title="Link to this heading">#</a></h1>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
@@ -427,7 +427,7 @@ document.write(`
 </div>
 </div>
 <section id="Load-and-examine-Eugene-Springfield-community-sample-data">
-<h2>Load and examine Eugene-Springfield community sample data<a class="headerlink" href="#Load-and-examine-Eugene-Springfield-community-sample-data" title="Permalink to this heading">#</a></h2>
+<h2>Load and examine Eugene-Springfield community sample data<a class="headerlink" href="#Load-and-examine-Eugene-Springfield-community-sample-data" title="Link to this heading">#</a></h2>
 <p>Bambi comes with several datasets. These can be accessed via the <code class="docutils literal notranslate"><span class="pre">load_data()</span></code> function.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
@@ -643,7 +643,7 @@ document.write(`
 <p>We can easily see all the predictors are more or less symmetrically distributed without outliers and the pairwise correlations between them are not strong.</p>
 </section>
 <section id="Specify-model-and-examine-priors">
-<h2>Specify model and examine priors<a class="headerlink" href="#Specify-model-and-examine-priors" title="Permalink to this heading">#</a></h2>
+<h2>Specify model and examine priors<a class="headerlink" href="#Specify-model-and-examine-priors" title="Link to this heading">#</a></h2>
 <p>We’re going to fit a pretty straightforward additive multiple regression model predicting drug index from all 5 personality dimension scores. It’s simple to specify the model using a familiar formula interface. Here we also tell Bambi to run two parallel Markov Chain Monte Carlo (MCMC) chains, each one with 2000 draws. The first 1000 draws are tuning steps that we discard and the last 1000 draws are considered to be taken from the joint posterior distribution of all the parameters (to be
 confirmed when we analyze the convergence of the chains).</p>
 <div class="nbinput docutils container">
@@ -809,7 +809,7 @@ sigma: HalfStudentT(nu: 4, sigma: 0.6482)
 the partial correlation scale!</p>
 </section>
 <section id="Examine-the-model-results">
-<h2>Examine the model results<a class="headerlink" href="#Examine-the-model-results" title="Permalink to this heading">#</a></h2>
+<h2>Examine the model results<a class="headerlink" href="#Examine-the-model-results" title="Link to this heading">#</a></h2>
 <p>Let’s start with a pretty picture of the parameter estimates!</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
@@ -963,7 +963,7 @@ we would be concerned about the convergence of the chains.</p>
 <p>When there are multiple MCMC chains, the default summary output includes some basic convergence diagnostic info (the effective MCMC sample sizes and the Gelman-Rubin “R-hat” statistics), although in this case it’s pretty clear from the trace plots above that the chains have converged just fine.</p>
 </section>
 <section id="Summarize-effects-on-partial-correlation-scale">
-<h2>Summarize effects on partial correlation scale<a class="headerlink" href="#Summarize-effects-on-partial-correlation-scale" title="Permalink to this heading">#</a></h2>
+<h2>Summarize effects on partial correlation scale<a class="headerlink" href="#Summarize-effects-on-partial-correlation-scale" title="Link to this heading">#</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
@@ -1453,7 +1453,7 @@ Data variables:
 </div>
 </section>
 <section id="Relative-importance:-Which-predictors-have-the-strongest-effects-(defined-in-terms-of-squared-partial-correlation?">
-<h2>Relative importance: Which predictors have the strongest effects (defined in terms of squared partial correlation?<a class="headerlink" href="#Relative-importance:-Which-predictors-have-the-strongest-effects-(defined-in-terms-of-squared-partial-correlation?" title="Permalink to this heading">#</a></h2>
+<h2>Relative importance: Which predictors have the strongest effects (defined in terms of squared partial correlation?<a class="headerlink" href="#Relative-importance:-Which-predictors-have-the-strongest-effects-(defined-in-terms-of-squared-partial-correlation?" title="Link to this heading">#</a></h2>
 <p>We just take the square of the partial correlation coefficients, so it’s easy to get posteriors on that scale too:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
@@ -1582,7 +1582,7 @@ dtype: float64
 </div>
 </section>
 <section id="Posterior-Predictive">
-<h2>Posterior Predictive<a class="headerlink" href="#Posterior-Predictive" title="Permalink to this heading">#</a></h2>
+<h2>Posterior Predictive<a class="headerlink" href="#Posterior-Predictive" title="Link to this heading">#</a></h2>
 <p>Once we have computed the posterior distribution, we can use it to compute the posterior predictive distribution. As the name implies, these are predictions assuming the model’s parameter are distributed as the posterior. Thus, the posterior predictive includes the uncertainty about the parameters.</p>
 <p>With bambi we can use the model’s <code class="docutils literal notranslate"><span class="pre">predict()</span></code> method with the fitted az.InferenceData to generate a posterior predictive samples, which are then automatically added to the az.InferenceData object</p>
 <div class="nbinput docutils container">
@@ -3841,7 +3841,7 @@ Watermark: 2.3.1
       
         <div class="footer-item">
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.1.2.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     <br/>
   </p>
 </div>
