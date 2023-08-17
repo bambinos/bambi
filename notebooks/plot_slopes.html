@@ -45,7 +45,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="API Reference" href="../api_reference.html" />
-    <link rel="prev" title="Plot Comparisons" href="plot_comparisons.html" />
+    <link rel="prev" title="Plot Conditional Adjusted Predictions" href="plot_comparisons.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -403,7 +403,7 @@ document.write(`
                   
   <section id="Plot-Slopes">
 <h1>Plot Slopes<a class="headerlink" href="#Plot-Slopes" title="Link to this heading">#</a></h1>
-<p>The Bambi’s sub-package <code class="docutils literal notranslate"><span class="pre">plots</span></code> features a set of functions to help interpret complex regression models. This sub-package is inspired by the R package <a class="reference external" href="https://vincentarelbundock.github.io/marginaleffects/articles/predictions.html#conditional-adjusted-predictions-plot">marginaleffects</a>. In this notebook we will discuss two functions <code class="docutils literal notranslate"><span class="pre">slopes</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code>. These two functions allow the modeler to easier interpret slopes, either by a inspecting a summary output or plotting them.</p>
+<p>Bambi’s sub-package <code class="docutils literal notranslate"><span class="pre">interpret</span></code> features a set of functions to help interpret complex regression models. The sub-package is inspired by the R package <a class="reference external" href="https://vincentarelbundock.github.io/marginaleffects/articles/predictions.html#conditional-adjusted-predictions-plot">marginaleffects</a>. In this notebook we will discuss two functions <code class="docutils literal notranslate"><span class="pre">slopes</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code>. These two functions allow the modeler to easier interpret slopes, either by a inspecting a summary output or plotting them.</p>
 <p>Below, it is described why estimating the slope of the prediction function is useful in interpreting generalized linear models (GLMs), how this methodology is implemented in Bambi, and how to use <code class="docutils literal notranslate"><span class="pre">slopes</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code>. It is assumed that the reader is familiar with the basics of GLMs. If not, refer to the Bambi <a class="reference external" href="https://bambinos.github.io/bambi/notebooks/how_bambi_works.html#Link-functions">Basic Building Blocks</a> example.</p>
 <section id="Interpretation-of-Regression-Coefficients">
 <h2>Interpretation of Regression Coefficients<a class="headerlink" href="#Interpretation-of-Regression-Coefficients" title="Link to this heading">#</a></h2>
@@ -462,14 +462,13 @@ of transitions and dividing by <span class="math notranslate nohighlight">\(\eps
 <p>For variables <span class="math notranslate nohighlight">\(w\)</span> with a string or categorical data type, the <code class="docutils literal notranslate"><span class="pre">comparisons</span></code> function is called to compute the expected difference in group means. Please refer to the <a class="reference external" href="https://bambinos.github.io/bambi/notebooks/plot_comparisons.html">comparisons</a> documentation for more details.</p>
 <p>Below, we present several examples showing how to use Bambi to perform these computations for us, and to return either a summary dataframe, or a visualization of the results.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 <span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
-<span class="kn">from</span> <span class="nn">bambi.plots</span> <span class="kn">import</span> <span class="n">slopes</span><span class="p">,</span> <span class="n">plot_slopes</span>
 </pre></div>
 </div>
 </div>
@@ -487,7 +486,7 @@ determined whether each household using an unsafe well had changed its well. The
 </ul>
 <p>First, a logistic regression model with no interactions is fit to the data. Subsequently, to demonstrate the benefits of <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code> in interpreting interactions, we will fit a logistic regression model with an interaction term.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;http://www.stat.columbia.edu/~gelman/arm/examples/arsenic/wells.dat&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
@@ -499,7 +498,7 @@ determined whether each household using an unsafe well had changed its well. The
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -586,7 +585,7 @@ determined whether each household using an unsafe well had changed its well. The
 </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">well_model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
@@ -659,10 +658,10 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <p>For example, if we wanted to compute the slope of the probability of switching wells for a typical <code class="docutils literal notranslate"><span class="pre">arsenic</span></code> value of <span class="math notranslate nohighlight">\(1.3\)</span> conditional on a range of <code class="docutils literal notranslate"><span class="pre">dist</span></code> and <code class="docutils literal notranslate"><span class="pre">educ</span></code> values, we would pass the following dictionary in the code block below. By default, for <span class="math notranslate nohighlight">\(w\)</span>, Bambi compares <span class="math notranslate nohighlight">\(w^\text{value}\)</span> to <span class="math notranslate nohighlight">\(w^{\text{value} + \epsilon}\)</span> where <span class="math notranslate nohighlight">\(\epsilon =\)</span> <code class="docutils literal notranslate"><span class="pre">1e-4</span></code>. However, the value for <span class="math notranslate nohighlight">\(\epsilon\)</span> can be changed by passing a value to the argument <code class="docutils literal notranslate"><span class="pre">eps</span></code>.</p>
 <p>Thus, in this example, <span class="math notranslate nohighlight">\(w^\text{value} = 1.3\)</span> and <span class="math notranslate nohighlight">\(w^{\text{value} + \epsilon} = 1.3001\)</span>. The user is not limited to passing a list for the values. A <code class="docutils literal notranslate"><span class="pre">np.array</span></code> can also be used. Furthermore, Bambi by default, maps the order of the dict keys to the main, group, and panel of the matplotlib figure. Below, since <code class="docutils literal notranslate"><span class="pre">dist100</span></code> is the first key, this is used for the x-axis, and <code class="docutils literal notranslate"><span class="pre">educ4</span></code> is used for the group (color). If a third key was passed, it would be used for the panel (facet).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_slopes</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_slopes</span><span class="p">(</span>
     <span class="n">well_model</span><span class="p">,</span>
     <span class="n">well_idata</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;arsenic&quot;</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">},</span>
@@ -684,10 +683,10 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 for a unit increase in <code class="docutils literal notranslate"><span class="pre">arsenic</span></code> conditional on the specified covariates.</p>
 <p><code class="docutils literal notranslate"><span class="pre">slopes</span></code> can be called directly to view a summary dataframe that includes the term name, estimate type (discussed in detail in the <em>interpreting coefficients as an elasticity</em> section), values <span class="math notranslate nohighlight">\(w\)</span> used to compute the estimate, the specified conditional covariates <span class="math notranslate nohighlight">\(c\)</span>, and the expected slope of the outcome with the uncertainty interval (by default the <span class="math notranslate nohighlight">\(94\)</span>% highest density interval is computed).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slopes</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">slopes</span><span class="p">(</span>
     <span class="n">well_model</span><span class="p">,</span>
     <span class="n">well_idata</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;arsenic&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">},</span>
@@ -700,7 +699,7 @@ for a unit increase in <code class="docutils literal notranslate"><span class="p
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -843,10 +842,10 @@ covariates, <code class="docutils literal notranslate"><span class="pre">slopes<
 <h3>Multiple slope values<a class="headerlink" href="#Multiple-slope-values" title="Link to this heading">#</a></h3>
 <p>Users can also compute slopes on multiple values for <code class="docutils literal notranslate"><span class="pre">wrt</span></code>. For example, if we want to compute the slope of <span class="math notranslate nohighlight">\(y\)</span> with respect to <code class="docutils literal notranslate"><span class="pre">arsenic</span></code> <span class="math notranslate nohighlight">\(= 1.5\)</span>, <span class="math notranslate nohighlight">\(2.0\)</span>, and <span class="math notranslate nohighlight">\(2.5\)</span>, simply pass a list or numpy array as the dictionary values for <code class="docutils literal notranslate"><span class="pre">wrt</span></code>. Keeping the conditional covariate and values the same, the following slope estimates are computed below.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">multiple_values</span> <span class="o">=</span> <span class="n">slopes</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">multiple_values</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">slopes</span><span class="p">(</span>
     <span class="n">well_model</span><span class="p">,</span>
     <span class="n">well_idata</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;arsenic&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">]},</span>
@@ -861,7 +860,7 @@ covariates, <code class="docutils literal notranslate"><span class="pre">slopes<
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -970,7 +969,7 @@ covariates, <code class="docutils literal notranslate"><span class="pre">slopes<
 <h3>Conditional slopes<a class="headerlink" href="#Conditional-slopes" title="Link to this heading">#</a></h3>
 <p>As stated in the <em>interpreting interaction effects</em> section, interpreting coefficients of multiple interaction terms can be difficult and cumbersome. Thus, <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code> provides an effective way to visualize the conditional slopes of the interaction effects. Below, we will use the same well switching dataset, but with interaction terms. Specifically, one interaction is added between <code class="docutils literal notranslate"><span class="pre">dist100</span></code> and <code class="docutils literal notranslate"><span class="pre">educ4</span></code>, and another between <code class="docutils literal notranslate"><span class="pre">arsenic</span></code> and <code class="docutils literal notranslate"><span class="pre">educ4</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">well_model_interact</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
@@ -1038,7 +1037,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># summary of coefficients</span>
@@ -1047,7 +1046,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1162,10 +1161,10 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <p>Thus, lets use <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code> to visually see how the slope changes with respect to <code class="docutils literal notranslate"><span class="pre">arsenic</span></code> conditional on <code class="docutils literal notranslate"><span class="pre">dist100</span></code> and <code class="docutils literal notranslate"><span class="pre">educ4</span></code> changing. Notice in the code block below how parameters are passed to the <code class="docutils literal notranslate"><span class="pre">subplot_kwargs</span></code> and <code class="docutils literal notranslate"><span class="pre">fig_kwargs</span></code> arguments. At times, it can be useful to pass specific <code class="docutils literal notranslate"><span class="pre">group</span></code> and <code class="docutils literal notranslate"><span class="pre">panel</span></code> arguments to aid in the interpretation of the plot. Therefore, <code class="docutils literal notranslate"><span class="pre">subplot_kwargs</span></code> allows the user to manipulate the plotting by passing a dictionary where the keys are
 <code class="docutils literal notranslate"><span class="pre">{&quot;main&quot;:</span> <span class="pre">...,</span> <span class="pre">&quot;group&quot;:</span> <span class="pre">...,</span> <span class="pre">&quot;panel&quot;:</span> <span class="pre">...}</span></code> and the values are the names of the covariates to be plotted. <code class="docutils literal notranslate"><span class="pre">fig_kwargs</span></code> are figure level key word arguments such as <code class="docutils literal notranslate"><span class="pre">figsize</span></code> and <code class="docutils literal notranslate"><span class="pre">sharey</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_slopes</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_slopes</span><span class="p">(</span>
     <span class="n">well_model_interact</span><span class="p">,</span>
     <span class="n">well_idata_interact</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="s2">&quot;arsenic&quot;</span><span class="p">,</span>
@@ -1186,10 +1185,10 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <p>With interaction terms now defined, it can be seen how the slope of the outcome with respect to <code class="docutils literal notranslate"><span class="pre">arsenic</span></code> differ depending on the value of <code class="docutils literal notranslate"><span class="pre">educ4</span></code>. Especially in the case of <code class="docutils literal notranslate"><span class="pre">educ4</span></code> <span class="math notranslate nohighlight">\(= 4.25\)</span>, the slope is more “constant”, but with greater uncertainty. Lets compare this with the model that does not include any interaction terms.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_slopes</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_slopes</span><span class="p">(</span>
     <span class="n">well_model</span><span class="p">,</span>
     <span class="n">well_idata</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="s2">&quot;arsenic&quot;</span><span class="p">,</span>
@@ -1215,10 +1214,10 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <p>Evaluating average predictive slopes at central values for the conditional covariates <span class="math notranslate nohighlight">\(c\)</span> can be problematic when the inputs have a large variance since no single central value (mean, median, etc.) is representative of the covariate. This is especially true when <span class="math notranslate nohighlight">\(c\)</span> exhibits bi or multimodality. Thus, it may be desireable to use the empirical distribution of <span class="math notranslate nohighlight">\(c\)</span> to compute the predictive slopes, and then average over a specific or set of covariates to obtain average slopes. To
 achieve unit level slopes, do not pass a parameter into <code class="docutils literal notranslate"><span class="pre">conditional</span></code> and or specify <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unit_level</span> <span class="o">=</span> <span class="n">slopes</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unit_level</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">slopes</span><span class="p">(</span>
     <span class="n">well_model_interact</span><span class="p">,</span>
     <span class="n">well_idata_interact</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="s2">&quot;arsenic&quot;</span><span class="p">,</span>
@@ -1240,7 +1239,7 @@ True
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1538,10 +1537,10 @@ estimate. Therefore, it is useful to average over (marginalize) the estimates to
 <h4>Marginalizing over covariates<a class="headerlink" href="#Marginalizing-over-covariates" title="Link to this heading">#</a></h4>
 <p>Since the empirical distrubution is used for computing the average predictive slopes, the same number of rows (<span class="math notranslate nohighlight">\(3020\)</span>) is returned as the data used to fit the model. To average over a covariate, use the <code class="docutils literal notranslate"><span class="pre">average_by</span></code> argument. If <code class="docutils literal notranslate"><span class="pre">True</span></code> is passed, then <code class="docutils literal notranslate"><span class="pre">slopes</span></code> averages over all covariates. Else, if a single or list of covariates are passed, then <code class="docutils literal notranslate"><span class="pre">slopes</span></code> averages by the covariates passed.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slopes</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">slopes</span><span class="p">(</span>
     <span class="n">well_model_interact</span><span class="p">,</span>
     <span class="n">well_idata_interact</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="s2">&quot;arsenic&quot;</span><span class="p">,</span>
@@ -1552,7 +1551,7 @@ estimate. Therefore, it is useful to average over (marginalize) the estimates to
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1620,11 +1619,11 @@ dtype: float64
 <h4>Average by subgroups<a class="headerlink" href="#Average-by-subgroups" title="Link to this heading">#</a></h4>
 <p>Averaging over all covariates may not be desired, and you would rather average by a group or specific covariate. To perform averaging by subgroups, users can pass a single or list of covariates to <code class="docutils literal notranslate"><span class="pre">average_by</span></code> to average over specific covariates. For example, if we wanted to average by <code class="docutils literal notranslate"><span class="pre">educ4</span></code>:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># average by educ4</span>
-<span class="n">slopes</span><span class="p">(</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">slopes</span><span class="p">(</span>
     <span class="n">well_model_interact</span><span class="p">,</span>
     <span class="n">well_idata_interact</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="s2">&quot;arsenic&quot;</span><span class="p">,</span>
@@ -1635,7 +1634,7 @@ dtype: float64
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1833,11 +1832,11 @@ dtype: float64
 </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># average by both educ4 and dist100</span>
-<span class="n">slopes</span><span class="p">(</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">slopes</span><span class="p">(</span>
     <span class="n">well_model_interact</span><span class="p">,</span>
     <span class="n">well_idata_interact</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="s2">&quot;arsenic&quot;</span><span class="p">,</span>
@@ -1848,7 +1847,7 @@ dtype: float64
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -1997,10 +1996,10 @@ dtype: float64
 </div>
 <p>It is still possible to use <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code> when passing an argument to <code class="docutils literal notranslate"><span class="pre">average_by</span></code>. In the plot below, the empirical distribution is used to compute unit level slopes with respect to <code class="docutils literal notranslate"><span class="pre">arsenic</span></code> and then averaged over <code class="docutils literal notranslate"><span class="pre">educ4</span></code> to obtain the average predictive slopes.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_slopes</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_slopes</span><span class="p">(</span>
     <span class="n">well_model_interact</span><span class="p">,</span>
     <span class="n">well_idata_interact</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="s2">&quot;arsenic&quot;</span><span class="p">,</span>
@@ -2041,10 +2040,10 @@ compute elasticities for <code class="docutils literal notranslate"><span class=
 \[\frac{\partial \hat{y}}{\partial x_1} * x_1\]</div>
 <p>Below, each code cell shows the same model, and <code class="docutils literal notranslate"><span class="pre">wrt</span></code> and <code class="docutils literal notranslate"><span class="pre">conditional</span></code> argument, but with a different elasticity (<code class="docutils literal notranslate"><span class="pre">slope</span></code>) argument. By default, <code class="docutils literal notranslate"><span class="pre">dydx</span></code> (a derivative with no post-processing) is used.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slopes</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">slopes</span><span class="p">(</span>
     <span class="n">well_model_interact</span><span class="p">,</span>
     <span class="n">well_idata_interact</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="s2">&quot;arsenic&quot;</span><span class="p">,</span>
@@ -2056,7 +2055,7 @@ compute elasticities for <code class="docutils literal notranslate"><span class=
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -2099,10 +2098,10 @@ compute elasticities for <code class="docutils literal notranslate"><span class=
 </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slopes</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">slopes</span><span class="p">(</span>
     <span class="n">well_model_interact</span><span class="p">,</span>
     <span class="n">well_idata_interact</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="s2">&quot;arsenic&quot;</span><span class="p">,</span>
@@ -2114,7 +2113,7 @@ compute elasticities for <code class="docutils literal notranslate"><span class=
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -2157,10 +2156,10 @@ compute elasticities for <code class="docutils literal notranslate"><span class=
 </div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slopes</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">slopes</span><span class="p">(</span>
     <span class="n">well_model_interact</span><span class="p">,</span>
     <span class="n">well_idata_interact</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="s2">&quot;arsenic&quot;</span><span class="p">,</span>
@@ -2172,7 +2171,7 @@ compute elasticities for <code class="docutils literal notranslate"><span class=
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
 </pre></div>
 </div>
 <div class="output_area rendered_html docutils container">
@@ -2216,10 +2215,10 @@ compute elasticities for <code class="docutils literal notranslate"><span class=
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">slope</span></code> is also an argument for <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code>. Below, we visualize the elasticity with respect to <code class="docutils literal notranslate"><span class="pre">arsenic</span></code> conditional on a range of <code class="docutils literal notranslate"><span class="pre">dist100</span></code> and <code class="docutils literal notranslate"><span class="pre">educ4</span></code> values (notice this is the same plot as in the <em>conditional slopes</em> section).</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_slopes</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_slopes</span><span class="p">(</span>
     <span class="n">well_model_interact</span><span class="p">,</span>
     <span class="n">well_idata_interact</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="s2">&quot;arsenic&quot;</span><span class="p">,</span>
@@ -2244,7 +2243,7 @@ compute elasticities for <code class="docutils literal notranslate"><span class=
 <h3>Categorical covariates<a class="headerlink" href="#Categorical-covariates" title="Link to this heading">#</a></h3>
 <p>As mentioned in the <em>computing slopes</em> section, if you pass a variable with a string or categorical data type, the <code class="docutils literal notranslate"><span class="pre">comparisons</span></code> function will be called to compute the expected difference in group means. Here, we fit the same interaction model as above, albeit, by specifying <code class="docutils literal notranslate"><span class="pre">educ4</span></code> as an ordinal data type.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;http://www.stat.columbia.edu/~gelman/arm/examples/arsenic/wells.dat&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">)</span>
@@ -2255,7 +2254,7 @@ compute elasticities for <code class="docutils literal notranslate"><span class=
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">well_model_interact</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span>
@@ -2311,7 +2310,7 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 04:30&lt;00:00 Sampling 4 chains, 0 divergences]
+  100.00% [8000/8000 05:18&lt;00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -2319,14 +2318,14 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 271 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 319 seconds.
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_slopes</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_slopes</span><span class="p">(</span>
     <span class="n">well_model_interact</span><span class="p">,</span>
     <span class="n">well_idata_interact</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="s2">&quot;educ4&quot;</span><span class="p">,</span>
@@ -2346,12 +2345,10 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <p>As the model was fit with <code class="docutils literal notranslate"><span class="pre">educ4</span></code> as a categorical data type, Bambi recognized this, and calls <code class="docutils literal notranslate"><span class="pre">comparisons</span></code> to compute the differences between each level of <code class="docutils literal notranslate"><span class="pre">educ4</span></code>. As <code class="docutils literal notranslate"><span class="pre">educ4</span></code> contains many category levels, a covariate must be passed to <code class="docutils literal notranslate"><span class="pre">average_by</span></code> in order to perform plotting. Below, we can see this plot is equivalent to <code class="docutils literal notranslate"><span class="pre">plot_comparisons</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bambi.plots</span> <span class="kn">import</span> <span class="n">plot_comparison</span>
-
-<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_comparison</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_comparisons</span><span class="p">(</span>
     <span class="n">well_model_interact</span><span class="p">,</span>
     <span class="n">well_idata_interact</span><span class="p">,</span>
     <span class="n">contrast</span><span class="o">=</span><span class="s2">&quot;educ4&quot;</span><span class="p">,</span>
@@ -2372,10 +2369,10 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <p>However, computing the predictive difference between each <code class="docutils literal notranslate"><span class="pre">educ4</span></code> level may not be desired. Thus, in <code class="docutils literal notranslate"><span class="pre">plot_slopes</span></code>, as in <code class="docutils literal notranslate"><span class="pre">plot_comparisons</span></code>, if <code class="docutils literal notranslate"><span class="pre">wrt</span></code> is a categorical or string data type, it is possible to specify the <code class="docutils literal notranslate"><span class="pre">wrt</span></code> values. For example, if we wanted to compute the expected difference in probability of switching wells for when <code class="docutils literal notranslate"><span class="pre">educ4</span></code> is <span class="math notranslate nohighlight">\(4\)</span> versus <span class="math notranslate nohighlight">\(1\)</span> conditional on a range of <code class="docutils literal notranslate"><span class="pre">dist100</span></code> and <code class="docutils literal notranslate"><span class="pre">arsenic</span></code> values, we would pass the following dictionary in the code
 block below. Please refer to the <a class="reference external" href="https://bambinos.github.io/bambi/notebooks/plot_comparisons.html">comparisons</a> documentation for more details.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[27]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_slopes</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_slopes</span><span class="p">(</span>
     <span class="n">well_model_interact</span><span class="p">,</span>
     <span class="n">well_idata_interact</span><span class="p">,</span>
     <span class="n">wrt</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;educ4&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">]},</span>
@@ -2394,7 +2391,7 @@ block below. Please refer to the <a class="reference external" href="https://bam
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[29]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[28]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
@@ -2407,7 +2404,7 @@ block below. Please refer to the <a class="reference external" href="https://bam
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-Last updated: Tue Aug 01 2023
+Last updated: Wed Aug 16 2023
 
 Python implementation: CPython
 Python version       : 3.11.0
@@ -2442,7 +2439,7 @@ Watermark: 2.3.1
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Plot Comparisons</p>
+        <p class="prev-next-title">Plot Conditional Adjusted Predictions</p>
       </div>
     </a>
     <a class="right-next"

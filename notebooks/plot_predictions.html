@@ -44,7 +44,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'notebooks/plot_predictions';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Plot Comparisons" href="plot_comparisons.html" />
+    <link rel="next" title="Plot Conditional Adjusted Predictions" href="plot_comparisons.html" />
     <link rel="prev" title="Gaussian Processes in 2D" href="hsgp_2d.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -403,7 +403,7 @@ document.write(`
                   
   <section id="Plot-Conditional-Adjusted-Predictions">
 <h1>Plot Conditional Adjusted Predictions<a class="headerlink" href="#Plot-Conditional-Adjusted-Predictions" title="Link to this heading">#</a></h1>
-<p>This notebook shows how to use, and the capabilities, of the <code class="docutils literal notranslate"><span class="pre">plot_predictions</span></code> function. The <code class="docutils literal notranslate"><span class="pre">plot_predictions</span></code> function is a part of Bambi’s sub-package <code class="docutils literal notranslate"><span class="pre">plots</span></code> that features a set of tools used to interpret complex regression models that is inspired by the R package <a class="reference external" href="https://vincentarelbundock.github.io/marginaleffects/articles/predictions.html#conditional-adjusted-predictions-plot">marginaleffects</a>.</p>
+<p>This notebook shows how to use, and the capabilities, of the <code class="docutils literal notranslate"><span class="pre">plot_predictions</span></code> function. The <code class="docutils literal notranslate"><span class="pre">plot_predictions</span></code> function is a part of Bambi’s sub-package <code class="docutils literal notranslate"><span class="pre">interpret</span></code> that features a set of tools used to interpret complex regression models that is inspired by the R package <a class="reference external" href="https://vincentarelbundock.github.io/marginaleffects/articles/predictions.html#conditional-adjusted-predictions-plot">marginaleffects</a>.</p>
 <section id="Interpreting-Generalized-Linear-Models">
 <h2>Interpreting Generalized Linear Models<a class="headerlink" href="#Interpreting-Generalized-Linear-Models" title="Link to this heading">#</a></h2>
 <p>The purpose of the <em>generalized linear model</em> (GLM) is to unify the approaches needed to analyze data for which either: (1) the assumption of a linear relation between <span class="math notranslate nohighlight">\(x\)</span> and <span class="math notranslate nohighlight">\(y\)</span>, or (2) the assumption of normal variation is not appropriate. GLMs are typically specified in three stages: 1. the linear predictor <span class="math notranslate nohighlight">\(\eta = X\beta\)</span> where <span class="math notranslate nohighlight">\(X\)</span> is an <span class="math notranslate nohighlight">\(n\)</span> x <span class="math notranslate nohighlight">\(p\)</span> matrix of explanatory variables. 2. the link function <span class="math notranslate nohighlight">\(g(\cdot)\)</span> that relates the linear predictor to
@@ -426,19 +426,15 @@ represents the specific predictor(s) and its values we would like to condition o
 the minimum and maximum values of the specified explanatory variable as the reference grid.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">plot_predictions</span></code> function uses the fitted model to then compute the predicted values of the model parameter at each value of the reference grid. The <code class="docutils literal notranslate"><span class="pre">plot_predictions</span></code> function then uses these predictions to plot the model parameter as a function of (some) explanatory variable.</p>
 <div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
-<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
-<span class="kn">from</span> <span class="nn">bambi.plots</span> <span class="kn">import</span> <span class="n">plot_predictions</span>
-
-<span class="o">%</span><span class="k">load_ext</span> autoreload
-<span class="o">%</span><span class="k">autoreload</span> 2
+<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
 </pre></div>
 </div>
 </div>
@@ -512,7 +508,7 @@ NUTS: [mpg_sigma, hp, wt, hp:wt, cyl, gear]
 <div class="output_area rendered_html docutils container">
 <div>
   <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 00:17&lt;00:00 Sampling 4 chains, 0 divergences]
+  100.00% [8000/8000 00:19&lt;00:00 Sampling 4 chains, 0 divergences]
 </div></div>
 </div>
 <div class="nboutput nblast docutils container">
@@ -520,7 +516,7 @@ NUTS: [mpg_sigma, hp, wt, hp:wt, cyl, gear]
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 18 seconds.
+Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 20 seconds.
 </pre></div></div>
 </div>
 <p>We can print the Bambi model object to obtain the model components. Below, we see that the Gaussian linear model uses an identity link function that results in no transformation of the linear predictor to the mean of the outcome variable, and the distrbution of the likelihood is Gaussian.</p>
@@ -532,7 +528,7 @@ customized.</p>
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
-<span class="n">plot_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;hp&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;hp&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -551,7 +547,7 @@ customized.</p>
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
-<span class="n">plot_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;hp&quot;</span><span class="p">,</span> <span class="n">pps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;hp&quot;</span><span class="p">,</span> <span class="n">pps</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -569,7 +565,7 @@ where the keys are <code class="docutils literal notranslate"><span class="pre">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_predictions</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_predictions</span><span class="p">(</span>
     <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
     <span class="n">idata</span><span class="o">=</span><span class="n">idata</span><span class="p">,</span>
     <span class="n">covariates</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;hp&quot;</span><span class="p">,</span> <span class="s2">&quot;wt&quot;</span><span class="p">],</span>
@@ -596,7 +592,7 @@ and the values are the names of the variables. By default, the first element of 
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
-<span class="n">plot_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;gear&quot;</span><span class="p">,</span> <span class="s2">&quot;cyl&quot;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;gear&quot;</span><span class="p">,</span> <span class="s2">&quot;cyl&quot;</span><span class="p">],</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -722,7 +718,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
-<span class="n">plot_predictions</span><span class="p">(</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_predictions</span><span class="p">(</span>
     <span class="n">model_interaction</span><span class="p">,</span>
     <span class="n">idata_interaction</span><span class="p">,</span>
     <span class="s2">&quot;math&quot;</span><span class="p">,</span>
@@ -741,11 +737,11 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <p>The plot above shows that as <code class="docutils literal notranslate"><span class="pre">math</span></code> increases, the mean <code class="docutils literal notranslate"><span class="pre">daysabs</span></code> decreases. However, as the model contains an interaction term, the effect of <code class="docutils literal notranslate"><span class="pre">math</span></code> on <code class="docutils literal notranslate"><span class="pre">daysabs</span></code> depends on the value of <code class="docutils literal notranslate"><span class="pre">prog</span></code>. Therefore, we will use <code class="docutils literal notranslate"><span class="pre">plot_predictions</span></code> to plot the conditional adjusted predictions for each level of <code class="docutils literal notranslate"><span class="pre">prog</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
-<span class="n">plot_predictions</span><span class="p">(</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_predictions</span><span class="p">(</span>
     <span class="n">model_interaction</span><span class="p">,</span>
     <span class="n">idata_interaction</span><span class="p">,</span>
     <span class="p">[</span><span class="s2">&quot;math&quot;</span><span class="p">,</span> <span class="s2">&quot;prog&quot;</span><span class="p">],</span>
@@ -764,10 +760,10 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <p>Passing specific <code class="docutils literal notranslate"><span class="pre">subplot_kwargs</span></code> can allow for a more interpretable plot. Especially when the posterior predictive distribution plot results in overlapping credible intervals.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_predictions</span><span class="p">(</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_predictions</span><span class="p">(</span>
     <span class="n">model_interaction</span><span class="p">,</span>
     <span class="n">idata_interaction</span><span class="p">,</span>
     <span class="n">covariates</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;math&quot;</span><span class="p">,</span> <span class="s2">&quot;prog&quot;</span><span class="p">],</span>
@@ -793,7 +789,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 movies in this dataset were selected for inclusion if they had a known length and had been rated by at least one imdb user. The dataset below contains 28,819 rows and 24 columns. The variables of interest in the dataset are the following: - title. Title of the movie. - year. Year of release. - budget. Total budget (if known) in US dollars - length. Length in minutes. - rating. Average IMDB user rating. - votes. Number of IMDB users who rated this movie. - r1-10. Multiplying by ten gives
 percentile (to nearest 10%) of users who rated this movie a 1. - mpaa. MPAA rating. - action, animation, comedy, drama, documentary, romance, short. Binary variables represent- ing if movie was classified as belonging to that genre.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;https://vincentarelbundock.github.io/Rdatasets/csv/ggplot2movies/movies.csv&quot;</span><span class="p">)</span>
@@ -843,22 +839,14 @@ NUTS: [length, style, length:style]
     }
 </style></div>
 </div>
-<div class="nboutput docutils container">
+<div class="nboutput nblast docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area rendered_html docutils container">
 <div>
-  <progress value='8000' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
-  100.00% [8000/8000 04:45&lt;00:00 Sampling 4 chains, 0 divergences]
+  <progress value='3485' class='' max='8000' style='width:300px; height:20px; vertical-align: middle;'></progress>
+  43.56% [3485/8000 04:04&lt;05:16 Sampling 4 chains, 0 divergences]
 </div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 286 seconds.
-</pre></div></div>
 </div>
 <p>The logistic regression model uses a logit link function and a Bernoulli likelihood. Therefore, the link scale is the log-odds of a successful response and the response scale is the probability of a successful response.</p>
 <div class="nbinput docutils container">
@@ -892,11 +880,11 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <p>Again, by default, the <code class="docutils literal notranslate"><span class="pre">plot_predictions</span></code> function plots the mean outcome on the response scale. Therefore, the plot below shows the probability of a successful response <code class="docutils literal notranslate"><span class="pre">certified_fresh</span></code> as a function of <code class="docutils literal notranslate"><span class="pre">length</span></code>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
-<span class="n">plot_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;length&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;length&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -909,11 +897,11 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 </div>
 <p>Additionally, we can see how the probability of <code class="docutils literal notranslate"><span class="pre">certified_fresh</span></code> varies as a function of categorical covariates.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
-<span class="n">plot_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;style&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;style&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -930,7 +918,7 @@ Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws 
 <p><code class="docutils literal notranslate"><span class="pre">plot_predictions</span></code> also has the argument <code class="docutils literal notranslate"><span class="pre">target</span></code> where <code class="docutils literal notranslate"><span class="pre">target</span></code> determines what parameter of the response distribution is plotted as a function of the explanatory variables. This argument is useful in distributional models, i.e., when the response distribution contains a parameter for location, scale and or shape. The default of this argument is <code class="docutils literal notranslate"><span class="pre">mean</span></code> and passing a parameter into <code class="docutils literal notranslate"><span class="pre">target</span></code> only works when the argument <code class="docutils literal notranslate"><span class="pre">pps=False</span></code> because when <code class="docutils literal notranslate"><span class="pre">pps=True</span></code> the posterior predictive
 distribution is plotted and thus, can only refer to the outcome variable (instead of any of the parameters of the response distribution). For this example, we will simulate our own dataset.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">121195</span><span class="p">)</span>
@@ -997,7 +985,7 @@ There were 25 divergences after tuning. Increase `target_accept` or reparameteri
 </pre></div></div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span>
@@ -1005,8 +993,7 @@ There were 25 divergences after tuning. Increase `target_accept` or reparameteri
 </div>
 </div>
 <div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
-</pre></div>
+<div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
@@ -1032,12 +1019,12 @@ There were 25 divergences after tuning. Increase `target_accept` or reparameteri
 </div>
 <p>The model we defined uses a <code class="docutils literal notranslate"><span class="pre">gamma</span></code> distribution parameterized by <code class="docutils literal notranslate"><span class="pre">alpha</span></code> and <code class="docutils literal notranslate"><span class="pre">mu</span></code> where <code class="docutils literal notranslate"><span class="pre">alpha</span></code> utilizes a log link and <code class="docutils literal notranslate"><span class="pre">mu</span></code> goes through an inverse link. Therefore, we can plot either: (1) the <code class="docutils literal notranslate"><span class="pre">mu</span></code> of the response distribution (which is the default), or (2) <code class="docutils literal notranslate"><span class="pre">alpha</span></code> of the response distribution as a function of the explanatory variable <span class="math notranslate nohighlight">\(x\)</span>.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># First, the mean of the response (default)</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
-<span class="n">plot_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1050,12 +1037,12 @@ There were 25 divergences after tuning. Increase `target_accept` or reparameteri
 </div>
 <p>Below, instead of plotting the default target, <code class="docutils literal notranslate"><span class="pre">target=mean</span></code>, we set <code class="docutils literal notranslate"><span class="pre">target=alpha</span></code> to visualize how the model parameter <code class="docutils literal notranslate"><span class="pre">alpha</span></code> varies as a function of the <code class="docutils literal notranslate"><span class="pre">x</span></code> predictor.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Second, another param. of the distribution: alpha</span>
 <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
-<span class="n">plot_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
+<span class="n">bmb</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">plot_predictions</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">idata</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">);</span>
 </pre></div>
 </div>
 </div>
@@ -1067,7 +1054,7 @@ There were 25 divergences after tuning. Increase `target_accept` or reparameteri
 </div>
 </div>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">load_ext</span> watermark
@@ -1124,7 +1111,7 @@ Watermark: 2.3.1
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Plot Comparisons</p>
+        <p class="prev-next-title">Plot Conditional Adjusted Predictions</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
