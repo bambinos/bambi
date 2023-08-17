@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import pytest
 
 import bambi as bmb
-from bambi.plots import plot_comparisons, plot_predictions, plot_slopes
+from bambi.interpret import plot_comparisons, plot_predictions, plot_slopes
 
 
 @pytest.fixture(scope="module")
