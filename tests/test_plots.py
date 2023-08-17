@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import pytest
 
 import bambi as bmb
-from bambi.plots import plot_cap, plot_comparison, plot_slopes
+from bambi.plots import plot_comparisons, plot_predictions, plot_slopes
 
 
 @pytest.fixture(scope="module")
@@ -25,28 +25,28 @@ def mtcars():
 
 class TestCommon:
     """
-    Tests argments that are common to both 'plot_cap', 'plot_comparison',
+    Tests argments that are common to both 'plot_predictions', 'plot_comparisons',
     and 'plot_slopes' such as figure object and uncertainty arguments.
     """
     @pytest.mark.parametrize("pps", [False, True])
     def test_use_hdi(self, mtcars, pps):
         model, idata = mtcars
-        plot_comparison(model, idata, "hp", "am", use_hdi=False)
-        plot_cap(
+        plot_comparisons(model, idata, "hp", "am", use_hdi=False)
+        plot_predictions(
             model, 
             idata, 
             ["hp", "cyl", "gear"], 
             pps=pps,
             use_hdi=False
         )
-        #plot_slopes(model, idata, "hp", "am", use_hdi=False)
+        plot_slopes(model, idata, "hp", "am", use_hdi=False)
         
     
     @pytest.mark.parametrize("pps", [False, True])
     def test_hdi_prob(self, mtcars, pps):
         model, idata = mtcars
-        plot_comparison(model, idata, "am", "hp", prob=0.8)
-        plot_cap(
+        plot_comparisons(model, idata, "am", "hp", prob=0.8)
+        plot_predictions(
             model, 
             idata,
             ["hp", "cyl", "gear"], 
@@ -58,8 +58,8 @@ class TestCommon:
         with pytest.raises(
             ValueError, match="'prob' must be greater than 0 and smaller than 1. It is 1.1."
         ):
-            plot_comparison(model, idata, "am", "hp", prob=1.1)
-            plot_cap(
+            plot_comparisons(model, idata, "am", "hp", prob=1.1)
+            plot_predictions(
                 model, 
                 idata, 
                 ["hp", "cyl", "gear"], 
@@ -70,8 +70,8 @@ class TestCommon:
         with pytest.raises(
             ValueError, match="'prob' must be greater than 0 and smaller than 1. It is -0.1."
         ):
-            plot_comparison(model, idata, "am", "hp", prob=-0.1)
-            plot_cap(
+            plot_comparisons(model, idata, "am", "hp", prob=-0.1)
+            plot_predictions(
                 model, 
                 idata, 
                 ["hp", "cyl", "gear"], 
@@ -83,8 +83,8 @@ class TestCommon:
     @pytest.mark.parametrize("pps", [False, True])
     def test_legend(self, mtcars, pps):
         model, idata = mtcars
-        plot_comparison(model, idata, "am", "hp", legend=False)
-        plot_cap(model, idata, ["hp"], pps=pps,legend=False)
+        plot_comparisons(model, idata, "am", "hp", legend=False)
+        plot_predictions(model, idata, ["hp"], pps=pps,legend=False)
         plot_slopes(model, idata, "hp", "am", legend=False)
     
 
@@ -92,14 +92,14 @@ class TestCommon:
     def test_ax(self, mtcars, pps):
         model, idata = mtcars
         fig, ax = plt.subplots()
-        fig_r, ax_r = plot_comparison(model, idata, "am", "hp", ax=ax)
+        fig_r, ax_r = plot_comparisons(model, idata, "am", "hp", ax=ax)
 
         assert isinstance(ax_r, np.ndarray)
         assert fig is fig_r
         assert ax is ax_r[0]
 
         fig, ax = plt.subplots()
-        fig_r, ax_r = plot_cap(model, idata, ["hp"], pps=pps, ax=ax)
+        fig_r, ax_r = plot_predictions(model, idata, ["hp"], pps=pps, ax=ax)
 
         assert isinstance(ax_r, np.ndarray)
         assert fig is fig_r
@@ -115,7 +115,7 @@ class TestCommon:
 
 class TestCap:
     """
-    Tests the 'plot_cap' function for different combinations of main, group,
+    Tests the 'plot_predictions' function for different combinations of main, group,
     and panel variables.
     """
     @pytest.mark.parametrize("pps", [False, True])
@@ -129,7 +129,7 @@ class TestCap:
     )
     def test_basic(self, mtcars, covariates, pps):
         model, idata = mtcars
-        plot_cap(model, idata, covariates, pps=pps)
+        plot_predictions(model, idata, covariates, pps=pps)
 
 
     @pytest.mark.parametrize("pps", [False, True])
@@ -143,7 +143,7 @@ class TestCap:
     )
     def test_with_groups(self, mtcars, covariates, pps):
         model, idata = mtcars
-        plot_cap(model, idata, covariates, pps=pps)
+        plot_predictions(model, idata, covariates, pps=pps)
 
 
     @pytest.mark.parametrize("pps", [False, True])
@@ -156,13 +156,13 @@ class TestCap:
     )
     def test_with_group_and_panel(self, mtcars, covariates, pps):
         model, idata = mtcars
-        plot_cap(model, idata, covariates, pps=pps)
+        plot_predictions(model, idata, covariates, pps=pps)
 
 
     @pytest.mark.parametrize("pps", [False, True])
     def test_fig_kwargs(self, mtcars, pps):
         model, idata = mtcars
-        plot_cap(
+        plot_predictions(
             model,
             idata,
             [ "hp", "cyl", "gear"],
@@ -174,7 +174,7 @@ class TestCap:
     @pytest.mark.parametrize("pps", [False, True])
     def test_subplot_kwargs(self, mtcars, pps):
         model, idata = mtcars
-        plot_cap(
+        plot_predictions(
             model,
             idata,
             ["hp", "drat"],
@@ -193,7 +193,7 @@ class TestCap:
     )
     def test_transforms(self, mtcars, transforms, pps):
         model, idata = mtcars
-        plot_cap(model, idata, ["hp"], pps=pps, transforms=transforms)
+        plot_predictions(model, idata, ["hp"], pps=pps, transforms=transforms)
 
 
     @pytest.mark.parametrize("pps", [False, True])
@@ -213,9 +213,9 @@ class TestCap:
         # Without alias
         idata = model.fit(tune=100, draws=100, random_seed=1234)
         # Test default target
-        plot_cap(model, idata,  "x", pps=pps)
+        plot_predictions(model, idata,  "x", pps=pps)
         # Test user supplied target argument
-        plot_cap(model, idata, "x", "alpha", pps=False)
+        plot_predictions(model, idata, "x", "alpha", pps=False)
 
         # With alias
         alias = {"alpha": {"Intercept": "sd_intercept", "x": "sd_x", "alpha": "sd_alpha"}}
@@ -223,12 +223,12 @@ class TestCap:
         idata = model.fit(tune=100, draws=100, random_seed=1234)
 
         # Test user supplied target argument
-        plot_cap(model, idata, "x", "alpha", pps=False)
+        plot_predictions(model, idata, "x", "alpha", pps=False)
 
 
 class TestComparison:
     """
-    Tests the plot_comparison function for different combinations of
+    Tests the plot_comparisons function for different combinations of
     contrast and conditional variables, and user inputs.
     """
     @pytest.mark.parametrize(
@@ -239,7 +239,7 @@ class TestComparison:
     )
     def test_basic(self, mtcars, contrast, conditional):
         model, idata = mtcars
-        plot_comparison(model, idata, contrast, conditional)
+        plot_comparisons(model, idata, contrast, conditional)
     
 
     @pytest.mark.parametrize(
@@ -250,7 +250,7 @@ class TestComparison:
     )
     def test_with_groups(self, mtcars, contrast, conditional):
         model, idata = mtcars
-        plot_comparison(model, idata, contrast, conditional)
+        plot_comparisons(model, idata, contrast, conditional)
     
 
     @pytest.mark.parametrize(
@@ -261,7 +261,7 @@ class TestComparison:
     )
     def test_with_user_values(self, mtcars, contrast, conditional):
         model, idata = mtcars
-        plot_comparison(model, idata, contrast, conditional)
+        plot_comparisons(model, idata, contrast, conditional)
     
 
     @pytest.mark.parametrize(
@@ -271,7 +271,7 @@ class TestComparison:
     )
     def test_subplot_kwargs(self, mtcars, contrast, conditional, subplot_kwargs):
         model, idata = mtcars
-        plot_comparison(model, idata, contrast, conditional, subplot_kwargs=subplot_kwargs)
+        plot_comparisons(model, idata, contrast, conditional, subplot_kwargs=subplot_kwargs)
 
     
     @pytest.mark.parametrize(
@@ -282,7 +282,7 @@ class TestComparison:
     )
     def test_transforms(self, mtcars, contrast, conditional, transforms):
         model, idata = mtcars
-        plot_comparison(model, idata, contrast, conditional, transforms=transforms)
+        plot_comparisons(model, idata, contrast, conditional, transforms=transforms)
     
 
     @pytest.mark.parametrize("average_by", ["am", "drat", ["am", "drat"]])
@@ -290,10 +290,10 @@ class TestComparison:
         model, idata = mtcars
 
         # grid of values with average_by
-        plot_comparison(model, idata, "hp", ["am", "drat"], average_by)
+        plot_comparisons(model, idata, "hp", ["am", "drat"], average_by)
         
         # unit level with average by
-        plot_comparison(model, idata, "hp", None, average_by)
+        plot_comparisons(model, idata, "hp", None, average_by)
 
 
 class TestSlopes:

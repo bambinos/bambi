@@ -142,7 +142,7 @@ def create_differences_data(
         return _grid_level(condition_info, variable_info, user_passed, kind)
 
 
-def create_cap_data(model: Model, covariates: dict) -> pd.DataFrame:
+def create_predictions_data(model: Model, covariates: dict) -> pd.DataFrame:
     """Creates a data grid for conditional adjusted predictions using the covariates
     passed by the user.
 
