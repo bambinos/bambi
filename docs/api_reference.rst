@@ -38,5 +38,5 @@ methods in the current release of Bambi.
 :mod:`bambi.plots`
 =====================
 
-.. automodule:: bambi.plots
+.. automodule:: bambi.interpret
     :members:
