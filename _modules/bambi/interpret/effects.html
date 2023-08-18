@@ -1,0 +1,1267 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>bambi.interpret.effects &#8212; Bambi 0.13.0.dev documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=fa44fd50" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script src="../../../_static/documentation_options.js?v=3e2352eb"></script>
+    <script src="../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/bambi/interpret/effects';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search the docs..."
+         aria-label="Search the docs..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+<div class="bd-header__inner bd-page-width">
+  <label class="sidebar-toggle primary-toggle" for="__primary">
+    <span class="fa-solid fa-bars"></span>
+  </label>
+  
+  <div class="navbar-header-items__start">
+    
+      <div class="navbar-item">
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/Bambi_logo.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../../../_static/Bambi_logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+    
+  </div>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../notebooks/getting_started.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../examples.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../api_reference.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../faq.html">
+                        Frequently Asked Questions
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+        </div>
+      
+      
+        <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/bambinos/bambi" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bambi/" title="PyPi" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+    </div>
+  
+
+  
+</div>
+
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          <div class="navbar-item"><nav class="navbar-nav">
+  <p class="sidebar-header-items__title"
+     role="heading"
+     aria-level="1"
+     aria-label="Site Navigation">
+    Site Navigation
+  </p>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../notebooks/getting_started.html">
+                        Getting Started
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../examples.html">
+                        Examples
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../api_reference.html">
+                        API Reference
+                      </a>
+                    </li>
+                
+
+                    <li class="nav-item">
+                      <a class="nav-link nav-internal" href="../../../faq.html">
+                        Frequently Asked Questions
+                      </a>
+                    </li>
+                
+  </ul>
+</nav></div>
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/bambinos/bambi" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://pypi.org/project/bambi/" title="PyPi" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fas fa-box"></i></span>
+            <label class="sr-only">PyPi</label></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<div id="searchbox"></div></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+
+
+<nav aria-label="Breadcrumbs">
+  <ul class="bd-breadcrumbs" role="navigation" aria-label="Breadcrumb">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page">bambi.interpret.effects</li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for bambi.interpret.effects</h1><div class="highlight"><pre>
+<span></span><span class="c1"># pylint: disable=ungrouped-imports</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pandas.api.types</span> <span class="kn">import</span> <span class="n">is_categorical_dtype</span><span class="p">,</span> <span class="n">is_string_dtype</span>
+<span class="kn">import</span> <span class="nn">xarray</span> <span class="k">as</span> <span class="nn">xr</span>
+
+<span class="kn">from</span> <span class="nn">bambi.models</span> <span class="kn">import</span> <span class="n">Model</span>
+<span class="kn">from</span> <span class="nn">bambi.interpret.create_data</span> <span class="kn">import</span> <span class="n">create_differences_data</span><span class="p">,</span> <span class="n">create_predictions_data</span>
+<span class="kn">from</span> <span class="nn">bambi.interpret.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">average_over</span><span class="p">,</span>
+    <span class="n">ConditionalInfo</span><span class="p">,</span>
+    <span class="n">identity</span><span class="p">,</span>
+    <span class="n">VariableInfo</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">bambi.utils</span> <span class="kn">import</span> <span class="n">get_aliased_name</span><span class="p">,</span> <span class="n">listify</span>
+
+
+<span class="n">SUPPORTED_SLOPES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;dydx&quot;</span><span class="p">,</span> <span class="s2">&quot;eyex&quot;</span><span class="p">)</span>
+<span class="n">SUPPORTED_COMPARISONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;diff&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">-</span> <span class="n">y</span><span class="p">,</span>
+    <span class="s2">&quot;ratio&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">/</span> <span class="n">y</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ResponseInfo</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stores metadata about the response variable for indexing data in az.InferenceData,</span>
+<span class="sd">    computing uncertainty intervals, and creating the summary dataframe in</span>
+<span class="sd">    &#39;PredictiveDifferences&#39;.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : Model</span>
+<span class="sd">        The fitted bambi Model object.</span>
+<span class="sd">    target : str</span>
+<span class="sd">        The target of the response variable such as &#39;mean&#39; or &#39;sigma&#39;. Defaults to</span>
+<span class="sd">        &#39;mean&#39;.</span>
+<span class="sd">    lower_bound : float</span>
+<span class="sd">        The percentile of the lower bound of the uncertainty interval. Defaults to 0.03.</span>
+<span class="sd">    upper_bound : float</span>
+<span class="sd">        The percentile of the upper bound of the uncertainty interval. Defaults to 0.97.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">target</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">lower_bound</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.03</span>
+    <span class="n">upper_bound</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.97</span>
+    <span class="n">name_target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">name_obs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">lower_bound_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">upper_bound_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Assigns commonly used f-strings for indexing and column names as attributes</span>
+<span class="sd">        in building the summary dataframe in &#39;PredictiveDifferences&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name_target</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name_target</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name_obs</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_obs&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lower_bound_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;lower_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">lower_bound</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">}</span><span class="s2">%&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">upper_bound_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;upper_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">upper_bound</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">}</span><span class="s2">%&quot;</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">Estimate</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Stores the mean and bounds (uncertainty interval) of &#39;comparisons&#39; and</span>
+<span class="sd">    &#39;effects&#39; estimates. Used in &#39;PredictiveDifferences&#39; to store typed data</span>
+<span class="sd">    for the summary dataframe.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mean : Dict[str, xr.DataArray]</span>
+<span class="sd">        The mean of the posterior distribution (chains and draws).</span>
+<span class="sd">    bounds : Dict[str, xr.Dataset]</span>
+<span class="sd">        The uncertainty interval of the posterior distribution (chains and draws).</span>
+<span class="sd">    use_hdi : bool</span>
+<span class="sd">        Whether to use the highest density interval (HDI) (True) or quantiles (False).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">mean</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">]</span>
+    <span class="n">bounds</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">]</span>
+    <span class="n">use_hdi</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">bounds_list</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">lower</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">higher</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses the mean and bounds dictionaries into arrays for inserting</span>
+<span class="sd">        the &#39;mean&#39;, &#39;lower&#39;, and &#39;upper&#39; columns into the summary dataframe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bounds_list</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mean</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mean</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_hdi</span><span class="p">:</span>
+            <span class="n">data_var</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data_vars</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">data_var</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">hdi</span><span class="o">=</span><span class="s2">&quot;lower&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">]</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">higher</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">data_var</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">hdi</span><span class="o">=</span><span class="s2">&quot;higher&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">]</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lower</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;quantile&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">higher</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="s2">&quot;quantile&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">quantile</span><span class="o">=</span><span class="n">lower</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">]</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">higher</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">quantile</span><span class="o">=</span><span class="n">higher</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">bounds</span><span class="p">]</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+
+
+<span class="c1"># pylint: disable=consider-iterating-dictionary</span>
+<span class="c1"># pylint: disable=too-many-instance-attributes</span>
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">PredictiveDifferences</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Computes predictive differences and their uncertainty intervals for</span>
+<span class="sd">    &#39;comparisons&#39; and &#39;slopes&#39; effects and returns a summary dataframe of the</span>
+<span class="sd">    results.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : Model</span>
+<span class="sd">        Bambi model object.</span>
+<span class="sd">    preds_data : pd.DataFrame</span>
+<span class="sd">        Dataframe used to generate predictions.</span>
+<span class="sd">    variable : VariableInfo</span>
+<span class="sd">        Variable of interest with its name and values.</span>
+<span class="sd">    conditional : ConditionalInfo</span>
+<span class="sd">        Conditional covariates with their names and values (if any).</span>
+<span class="sd">    response : ResponseInfo</span>
+<span class="sd">        Response variable with its name and target.</span>
+<span class="sd">    use_hdi : bool</span>
+<span class="sd">        Whether to use the highest density interval (HDI) (True) or quantiles (False).</span>
+<span class="sd">    kind : str</span>
+<span class="sd">        Type of effect to compute. Either &#39;comparisons&#39; or &#39;slopes&#39;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    summary_df : pd.DataFrame</span>
+<span class="sd">        Dataframe with the data used to generate predictions, the effect kind</span>
+<span class="sd">        and type, variable of interest name and value, and the mean and uncertainty</span>
+<span class="sd">        intervals of the predictive difference estimate.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">model</span><span class="p">:</span> <span class="n">Model</span>
+    <span class="n">preds_data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+    <span class="n">variable</span><span class="p">:</span> <span class="n">VariableInfo</span>
+    <span class="n">conditional</span><span class="p">:</span> <span class="n">ConditionalInfo</span>
+    <span class="n">response</span><span class="p">:</span> <span class="n">ResponseInfo</span>
+    <span class="n">use_hdi</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">estimate_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">estimate</span><span class="p">:</span> <span class="n">Estimate</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">summary_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">contrast_values</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_variable_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">draws</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Obtain pairwise combinations of the &#39;draws&#39; keys. The dictionary keys</span>
+<span class="sd">        represent the variable of interest&#39;s values. If &#39;comparisons&#39;, then</span>
+<span class="sd">        the keys are the contrast values. If &#39;slopes&#39;, then the keys are the</span>
+<span class="sd">        values of the variable of interest and the values of the variable of</span>
+<span class="sd">        interest plus &#39;eps&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># obtain pairwise combinations of the variable of interest&#39;s values (keys)</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">draws</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+        <span class="n">pairwise_variables</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="c1"># if &#39;slopes&#39; and user passed their own values, then need to index the</span>
+        <span class="c1"># original data, and the original data plus &#39;eps&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;slopes&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">user_passed</span><span class="p">:</span>
+            <span class="n">original_data</span><span class="p">,</span> <span class="n">original_data_plus_eps</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">keys</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">passed_values</span><span class="o">.</span><span class="n">size</span><span class="p">],</span>
+                <span class="n">keys</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">passed_values</span><span class="o">.</span><span class="n">size</span> <span class="p">:],</span>
+            <span class="p">)</span>
+            <span class="n">pairwise_variables</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dstack</span><span class="p">((</span><span class="n">original_data</span><span class="p">,</span> <span class="n">original_data_plus_eps</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">passed_values</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">pairwise_variables</span>
+
+    <span class="k">def</span> <span class="nf">get_slope_estimate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">predictive_difference</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+        <span class="n">pair</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
+        <span class="n">draws</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">slope</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="n">wrt_x</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the slope estimate for &#39;dydx&#39;, &#39;dyex&#39;, &#39;eyex&#39;, &#39;eydx&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">predictive_difference</span> <span class="o">=</span> <span class="p">(</span><span class="n">predictive_difference</span> <span class="o">/</span> <span class="n">eps</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">name_target</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">slope</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;eyex&quot;</span><span class="p">,</span> <span class="s2">&quot;dyex&quot;</span><span class="p">):</span>
+            <span class="n">wrt_x</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
+                <span class="n">wrt_x</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span>
+                <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">name_obs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">wrt_x</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]]))},</span>
+                <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">name_obs</span><span class="p">],</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">slope</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;eyex&quot;</span><span class="p">,</span> <span class="s2">&quot;eydx&quot;</span><span class="p">):</span>
+            <span class="n">y_hat</span> <span class="o">=</span> <span class="n">draws</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+
+        <span class="k">if</span> <span class="n">slope</span> <span class="o">==</span> <span class="s2">&quot;eyex&quot;</span><span class="p">:</span>
+            <span class="n">predictive_difference</span> <span class="o">=</span> <span class="n">predictive_difference</span> <span class="o">*</span> <span class="p">(</span><span class="n">wrt_x</span> <span class="o">/</span> <span class="n">y_hat</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">slope</span> <span class="o">==</span> <span class="s2">&quot;eydx&quot;</span><span class="p">:</span>
+            <span class="n">predictive_difference</span> <span class="o">=</span> <span class="n">predictive_difference</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">y_hat</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">slope</span> <span class="o">==</span> <span class="s2">&quot;dyex&quot;</span><span class="p">:</span>
+            <span class="n">predictive_difference</span> <span class="o">=</span> <span class="n">predictive_difference</span> <span class="o">*</span> <span class="n">wrt_x</span>
+
+        <span class="k">return</span> <span class="n">predictive_difference</span>
+
+    <span class="k">def</span> <span class="nf">get_estimate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">idata</span><span class="p">:</span> <span class="n">az</span><span class="o">.</span><span class="n">InferenceData</span><span class="p">,</span>
+        <span class="n">response_transforms</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+        <span class="n">comparison_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;diff&quot;</span><span class="p">,</span>
+        <span class="n">slope</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;dydx&quot;</span><span class="p">,</span>
+        <span class="n">eps</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">prob</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.94</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Obtain the effect (&#39;comparisons&#39; or &#39;slopes&#39;) estimate and uncertainty</span>
+<span class="sd">        interval using the posterior samples. First, the posterior samples are</span>
+<span class="sd">        subsetted by the variable of interest&#39;s values. Then, the effect is</span>
+<span class="sd">        computed for each pairwise combination of the variable of interest&#39;s</span>
+<span class="sd">        values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        idata : az.InferenceData</span>
+<span class="sd">            InferenceData object containing the posterior samples for the model.</span>
+<span class="sd">        response_transforms : dict</span>
+<span class="sd">            Dictionary with the response variable name as key and the</span>
+<span class="sd">            transformation function as value.</span>
+<span class="sd">        comparison_type : str</span>
+<span class="sd">            Type of comparison to compute. Either &#39;diff&#39; or &#39;ratio&#39;. Defaults</span>
+<span class="sd">            to &#39;diff&#39;.</span>
+<span class="sd">        slope : str</span>
+<span class="sd">            Type of slope to compute. Either &#39;dydx&#39;, &#39;dyex&#39;, &#39;eyex&#39;, &#39;eydx&#39;.</span>
+<span class="sd">            Defaults to &#39;dydx&#39;.</span>
+<span class="sd">        eps : float</span>
+<span class="sd">            Value to add to the variable of interest&#39;s values to compute the</span>
+<span class="sd">            slope. Defaults to None.</span>
+<span class="sd">        prob : float</span>
+<span class="sd">            Probability for the uncertainty interval. Defaults to 0.94.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        estimate : Estimate</span>
+<span class="sd">            Estimate object with the effect estimate mean  and uncertainty</span>
+<span class="sd">            interval.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;slopes&quot;</span><span class="p">,</span> <span class="s2">&quot;comparisons&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">comparison_type</span> <span class="ow">in</span> <span class="n">SUPPORTED_COMPARISONS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+
+        <span class="n">function</span> <span class="o">=</span> <span class="n">SUPPORTED_COMPARISONS</span><span class="p">[</span><span class="n">comparison_type</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;slopes&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimate_name</span> <span class="o">=</span> <span class="n">slope</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">estimate_name</span> <span class="o">=</span> <span class="n">comparison_type</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">draws</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">variable_data</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preds_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">idx</span><span class="p">]))</span>
+            <span class="n">select_draw</span> <span class="o">=</span> <span class="n">response_transforms</span><span class="p">(</span>
+                <span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">name_target</span><span class="p">]</span><span class="o">.</span><span class="n">sel</span><span class="p">({</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">name_obs</span><span class="p">:</span> <span class="n">mask</span><span class="p">})</span>
+            <span class="p">)</span>
+            <span class="n">select_draw</span> <span class="o">=</span> <span class="n">select_draw</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span>
+                <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">name_obs</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">select_draw</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">name_obs</span><span class="p">]))}</span>
+            <span class="p">)</span>
+            <span class="n">draws</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mask_</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">select_draw</span>
+
+            <span class="k">if</span> <span class="n">slope</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;eyex&quot;</span><span class="p">,</span> <span class="s2">&quot;dyex&quot;</span><span class="p">):</span>
+                <span class="n">variable_data</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;mask_</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preds_data</span><span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">preds_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+                <span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+
+        <span class="n">pairwise_variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_variable_values</span><span class="p">(</span><span class="n">draws</span><span class="p">)</span>
+
+        <span class="n">difference_mean</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">difference_bounds</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">pair</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">pairwise_variables</span><span class="p">):</span>
+            <span class="c1"># comparisons effects</span>
+            <span class="n">predictive_difference</span> <span class="o">=</span> <span class="n">function</span><span class="p">(</span><span class="n">draws</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">draws</span><span class="p">[</span><span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+            <span class="c1"># slope effects</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;slopes&quot;</span><span class="p">:</span>
+                <span class="n">predictive_difference</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_slope_estimate</span><span class="p">(</span>
+                    <span class="n">predictive_difference</span><span class="p">,</span> <span class="n">pair</span><span class="p">,</span> <span class="n">draws</span><span class="p">,</span> <span class="n">slope</span><span class="p">,</span> <span class="n">eps</span><span class="p">,</span> <span class="n">variable_data</span>
+                <span class="p">)</span>
+
+            <span class="n">difference_mean</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;estimate_</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">predictive_difference</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_hdi</span><span class="p">:</span>
+                <span class="n">difference_bounds</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;estimate_</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">predictive_difference</span><span class="p">,</span> <span class="n">prob</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">difference_bounds</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;estimate_</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">predictive_difference</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span>
+                    <span class="n">q</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">lower_bound</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">upper_bound</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimate</span> <span class="o">=</span> <span class="n">Estimate</span><span class="p">(</span><span class="n">difference_mean</span><span class="p">,</span> <span class="n">difference_bounds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_hdi</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">get_summary_df</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Builds the summary dataframe for &#39;comparisons&#39; and &#39;slopes&#39; effects. If</span>
+<span class="sd">        the number of values passed for the variable of interest is less then 2</span>
+<span class="sd">        for &#39;comparisons&#39; and &#39;slopes&#39;, then a subset of the &#39;preds&#39; data is used</span>
+<span class="sd">        to build the summary. If the effect kind is &#39;comparisons&#39; and more than</span>
+<span class="sd">        2 values are being compared, then the entire &#39;preds&#39; data is used. If the</span>
+<span class="sd">        effect kind is &#39;slopes&#39; and more than 2 values are being compared, then</span>
+<span class="sd">        only a subset of the &#39;preds&#39; data is used to build the summary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;comparisons&quot;</span><span class="p">:</span>
+            <span class="n">summary_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preds_data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+            <span class="n">covariates_cols</span> <span class="o">=</span> <span class="n">summary_df</span><span class="o">.</span><span class="n">columns</span>
+            <span class="n">contrast_values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">covariate_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">summary_df</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">contrast_values</span><span class="p">))</span>
+            <span class="n">summary_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">covariate_vals</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">covariates_cols</span><span class="p">)</span>
+            <span class="n">contrast_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span>
+                <span class="n">contrast_values</span><span class="p">,</span> <span class="n">summary_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="nb">len</span><span class="p">(</span><span class="n">contrast_values</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+            <span class="p">)</span>
+            <span class="n">contrast_values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">elem</span><span class="p">)</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">contrast_values</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">wrt</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
+                <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preds_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">idx</span><span class="p">]))</span>
+                <span class="n">wrt</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;draw_mask_</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preds_data</span><span class="p">[</span><span class="n">mask</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span>
+                    <span class="n">drop</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+                <span class="c1"># only need to get &quot;a&quot; dataframe since remaining N dataframes are identical</span>
+                <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">summary_df</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">preds_data</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+                        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="n">contrast_values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">wrt</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">summary_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;term&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">summary_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;estimate_type&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_name</span><span class="p">)</span>
+        <span class="n">summary_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">contrast_values</span><span class="p">)</span>
+        <span class="n">summary_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">summary_df</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span> <span class="s2">&quot;estimate&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate</span><span class="o">.</span><span class="n">mean</span><span class="p">)</span>
+        <span class="n">summary_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">summary_df</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">lower_bound_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate</span><span class="o">.</span><span class="n">lower</span>
+        <span class="p">)</span>
+        <span class="n">summary_df</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">summary_df</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">response</span><span class="o">.</span><span class="n">upper_bound_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate</span><span class="o">.</span><span class="n">higher</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">summary_df</span> <span class="o">=</span> <span class="n">summary_df</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contrast_values</span> <span class="o">=</span> <span class="n">contrast_values</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary_df</span>
+
+    <span class="k">def</span> <span class="nf">average_by</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">variable</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Uses the original &#39;summary_df&#39; to perform a marginal (if &#39;variable=True&#39;)</span>
+<span class="sd">        or group by average if covariate(s) are passed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        variable : Union[bool, str]</span>
+<span class="sd">            If &#39;True&#39;, then average over all covariates. If a string</span>
+<span class="sd">            is passed, then a group by average is performed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            A dataframe containing the marginal or group by average.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">variable</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">contrast_df_avg</span> <span class="o">=</span> <span class="n">average_over</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">summary_df</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">contrast_df_avg</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;term&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">contrast_df_avg</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;estimate_type&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="s2">&quot;slopes&quot;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">contrast_df_avg</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">contrast_values</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">contrast_df_avg</span> <span class="o">=</span> <span class="n">average_over</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">summary_df</span><span class="p">,</span> <span class="n">variable</span><span class="p">)</span>
+            <span class="n">contrast_df_avg</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;term&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">contrast_df_avg</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;estimate_type&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimate_name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">!=</span> <span class="s2">&quot;slopes&quot;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variable</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="n">contrast_df_avg</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">contrast_values</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">contrast_df_avg</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="predictions">
+<a class="viewcode-back" href="../../../api_reference.html#bambi.interpret.predictions">[docs]</a>
+<span class="k">def</span> <span class="nf">predictions</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
+    <span class="n">idata</span><span class="p">:</span> <span class="n">az</span><span class="o">.</span><span class="n">InferenceData</span><span class="p">,</span>
+    <span class="n">covariates</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span>
+    <span class="n">pps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">use_hdi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">prob</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">transforms</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute Conditional Adjusted Predictions</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : bambi.Model</span>
+<span class="sd">        The model for which we want to plot the predictions.</span>
+<span class="sd">    idata : arviz.InferenceData</span>
+<span class="sd">        The InferenceData object that contains the samples from the posterior distribution of</span>
+<span class="sd">        the model.</span>
+<span class="sd">    covariates : list or dict</span>
+<span class="sd">        A sequence of between one and three names of variables or a dict of length between one</span>
+<span class="sd">        and three.</span>
+<span class="sd">        If a sequence, the first variable is taken as the main variable and is mapped to the</span>
+<span class="sd">        horizontal axis. If present, the second name is a coloring/grouping variable,</span>
+<span class="sd">        and the third is mapped to different plot panels.</span>
+<span class="sd">        If a dictionary, keys must be taken from (&quot;main&quot;, &quot;group&quot;, &quot;panel&quot;) and the values</span>
+<span class="sd">        are the names of the variables.</span>
+<span class="sd">    target : str</span>
+<span class="sd">        Which model parameter to plot. Defaults to &#39;mean&#39;. Passing a parameter into target only</span>
+<span class="sd">        works when pps is False as the target may not be available in the posterior predictive</span>
+<span class="sd">        distribution.</span>
+<span class="sd">    pps: bool, optional</span>
+<span class="sd">        Whether to plot the posterior predictive samples. Defaults to ``False``.</span>
+<span class="sd">    use_hdi : bool, optional</span>
+<span class="sd">        Whether to compute the highest density interval (defaults to True) or the quantiles.</span>
+<span class="sd">    prob : float, optional</span>
+<span class="sd">        The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.</span>
+<span class="sd">        Changing the global variable ``az.rcParam[&quot;stats.hdi_prob&quot;]`` affects this default.</span>
+<span class="sd">    transforms : dict, optional</span>
+<span class="sd">        Transformations that are applied to each of the variables being plotted. The keys are the</span>
+<span class="sd">        name of the variables, and the values are functions to be applied. Defaults to ``None``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    cap_data : pandas.DataFrame</span>
+<span class="sd">        A DataFrame with the ``create_cap_data`` and model predictions.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If ``pps`` is ``True`` and ``target`` is not ``&quot;mean&quot;``.</span>
+<span class="sd">        If passed ``covariates`` is not in correct key, value format.</span>
+<span class="sd">        If length of ``covariates`` is not between 1 and 3.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">pps</span> <span class="ow">and</span> <span class="n">target</span> <span class="o">!=</span> <span class="s2">&quot;mean&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;When passing &#39;pps=True&#39;, target must be &#39;mean&#39;&quot;</span><span class="p">)</span>
+
+    <span class="n">covariate_kinds</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="s2">&quot;group&quot;</span><span class="p">,</span> <span class="s2">&quot;panel&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">covariates</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">covariates</span> <span class="o">=</span> <span class="n">listify</span><span class="p">(</span><span class="n">covariates</span><span class="p">)</span>
+        <span class="n">covariates</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">covariate_kinds</span><span class="p">,</span> <span class="n">covariates</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">covariate_kinds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">covariates</span>
+        <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">covariates</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">covariate_kinds</span><span class="p">))</span>
+
+    <span class="k">assert</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">covariates</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">3</span>
+
+    <span class="k">if</span> <span class="n">transforms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">transforms</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">prob</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;stats.hdi_prob&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">prob</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;prob&#39; must be greater than 0 and smaller than 1. It is </span><span class="si">{</span><span class="n">prob</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="n">cap_data</span> <span class="o">=</span> <span class="n">create_predictions_data</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">covariates</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">target</span> <span class="o">!=</span> <span class="s2">&quot;mean&quot;</span><span class="p">:</span>
+        <span class="n">component</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">components</span><span class="p">[</span><span class="n">target</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">component</span><span class="o">.</span><span class="n">alias</span><span class="p">:</span>
+            <span class="c1"># use only the aliased name (without appended target)</span>
+            <span class="n">response_name</span> <span class="o">=</span> <span class="n">get_aliased_name</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># use the default response &quot;y&quot; and append target</span>
+            <span class="n">response_name</span> <span class="o">=</span> <span class="n">get_aliased_name</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">response_term</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">response_name</span> <span class="o">=</span> <span class="n">get_aliased_name</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">response_term</span><span class="p">)</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">ResponseInfo</span><span class="p">(</span><span class="n">response_name</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+    <span class="n">response_transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">response_name</span><span class="p">,</span> <span class="n">identity</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pps</span><span class="p">:</span>
+        <span class="n">idata</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">cap_data</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;pps&quot;</span><span class="p">)</span>
+        <span class="n">y_hat</span> <span class="o">=</span> <span class="n">response_transform</span><span class="p">(</span><span class="n">idata</span><span class="o">.</span><span class="n">posterior_predictive</span><span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
+        <span class="n">y_hat_mean</span> <span class="o">=</span> <span class="n">y_hat</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">idata</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">cap_data</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">y_hat</span> <span class="o">=</span> <span class="n">response_transform</span><span class="p">(</span><span class="n">idata</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">name_target</span><span class="p">])</span>
+        <span class="n">y_hat_mean</span> <span class="o">=</span> <span class="n">y_hat</span><span class="o">.</span><span class="n">mean</span><span class="p">((</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">use_hdi</span> <span class="ow">and</span> <span class="n">pps</span><span class="p">:</span>
+        <span class="n">y_hat_bounds</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">y_hat</span><span class="p">,</span> <span class="n">prob</span><span class="p">)[</span><span class="n">response</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">elif</span> <span class="n">use_hdi</span><span class="p">:</span>
+        <span class="n">y_hat_bounds</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">hdi</span><span class="p">(</span><span class="n">y_hat</span><span class="p">,</span> <span class="n">prob</span><span class="p">)[</span><span class="n">response</span><span class="o">.</span><span class="n">name_target</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lower_bound</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">prob</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">upper_bound</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">lower_bound</span>
+        <span class="n">y_hat_bounds</span> <span class="o">=</span> <span class="n">y_hat</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="p">(</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">),</span> <span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;chain&quot;</span><span class="p">,</span> <span class="s2">&quot;draw&quot;</span><span class="p">))</span>
+
+    <span class="n">lower_bound</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">prob</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">upper_bound</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">lower_bound</span>
+    <span class="n">response</span><span class="o">.</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">upper_bound</span> <span class="o">=</span> <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span>
+
+    <span class="n">cap_data</span><span class="p">[</span><span class="s2">&quot;estimate&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_hat_mean</span>
+    <span class="n">cap_data</span><span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">lower_bound_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_hat_bounds</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">cap_data</span><span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">upper_bound_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">y_hat_bounds</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">cap_data</span></div>
+
+
+
+<div class="viewcode-block" id="comparisons">
+<a class="viewcode-back" href="../../../api_reference.html#bambi.interpret.comparisons">[docs]</a>
+<span class="k">def</span> <span class="nf">comparisons</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
+    <span class="n">idata</span><span class="p">:</span> <span class="n">az</span><span class="o">.</span><span class="n">InferenceData</span><span class="p">,</span>
+    <span class="n">contrast</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">],</span>
+    <span class="n">conditional</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">average_by</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">comparison_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;diff&quot;</span><span class="p">,</span>
+    <span class="n">use_hdi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">prob</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">transforms</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute Conditional Adjusted Comparisons</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : bambi.Model</span>
+<span class="sd">        The model for which we want to plot the predictions.</span>
+<span class="sd">    idata : arviz.InferenceData</span>
+<span class="sd">        The InferenceData object that contains the samples from the posterior distribution of</span>
+<span class="sd">        the model.</span>
+<span class="sd">    contrast : str, dict</span>
+<span class="sd">        The predictor name whose contrast we would like to compare.</span>
+<span class="sd">    conditional : str, dict, list</span>
+<span class="sd">        The covariates we would like to condition on.</span>
+<span class="sd">    average_by: str, list, bool, optional</span>
+<span class="sd">        The covariates we would like to average by. The passed covariate(s) will marginalize</span>
+<span class="sd">        over the other covariates in the model. If True, it averages over all covariates</span>
+<span class="sd">        in the model to obtain the average estimate. Defaults to ``None``.</span>
+<span class="sd">    comparison_type : str, optional</span>
+<span class="sd">        The type of comparison to plot. Defaults to &#39;diff&#39;.</span>
+<span class="sd">    use_hdi : bool, optional</span>
+<span class="sd">        Whether to compute the highest density interval (defaults to True) or the quantiles.</span>
+<span class="sd">    prob : float, optional</span>
+<span class="sd">        The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.</span>
+<span class="sd">        Changing the global variable ``az.rcParam[&quot;stats.hdi_prob&quot;]`` affects this default.</span>
+<span class="sd">    transforms : dict, optional</span>
+<span class="sd">        Transformations that are applied to each of the variables being plotted. The keys are the</span>
+<span class="sd">        name of the variables, and the values are functions to be applied. Defaults to ``None``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame</span>
+<span class="sd">        A dataframe with the comparison values, highest density interval, contrast name,</span>
+<span class="sd">        contrast value, and conditional values.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If `wrt` is a dict and length of ``contrast`` is greater than 1.</span>
+<span class="sd">        If `wrt` is a dict and length of ``contrast`` is greater than 2 and</span>
+<span class="sd">        ``conditional`` is ``None``.</span>
+<span class="sd">        If ``conditional`` is None and ``contrast`` is categorical with &gt; 2 values.</span>
+<span class="sd">        If ``comparison_type`` is not &#39;diff&#39; or &#39;ratio&#39;.</span>
+<span class="sd">        If ``prob`` is not &gt; 0 and &lt; 1.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">contrast_name</span> <span class="o">=</span> <span class="n">contrast</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">contrast</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">contrast</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Only one predictor can be passed to &#39;contrast&#39;. </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">contrast</span><span class="p">)</span><span class="si">}</span><span class="s2"> were passed.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">contrast_name</span><span class="p">,</span> <span class="n">contrast_values</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">contrast</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">contrast_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">conditional</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;&#39;conditional&#39; must be specified when &#39;contrast&#39; has more than 2 values.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">contrast_name</span><span class="si">}</span><span class="s2"> was passed </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">contrast_values</span><span class="p">)</span><span class="si">}</span><span class="s2"> values.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">conditional</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_categorical_dtype</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">contrast_name</span><span class="p">])</span> <span class="ow">or</span> <span class="n">is_string_dtype</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">contrast_name</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="n">num_levels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">contrast_name</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">num_levels</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;&#39;conditional&#39; must be specified when &#39;contrast&#39; has more than 2 values. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">contrast_name</span><span class="si">}</span><span class="s2"> has </span><span class="si">{</span><span class="n">num_levels</span><span class="si">}</span><span class="s2"> unique values.&quot;</span>
+                <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">comparison_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;diff&quot;</span><span class="p">,</span> <span class="s2">&quot;ratio&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;comparison_type&#39; must be &#39;diff&#39; or &#39;ratio&#39;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">prob</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;stats.hdi_prob&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">prob</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;prob&#39; must be greater than 0 and smaller than 1. It is </span><span class="si">{</span><span class="n">prob</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="n">lower_bound</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">prob</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">upper_bound</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">lower_bound</span>
+
+    <span class="n">contrast_info</span> <span class="o">=</span> <span class="n">VariableInfo</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">contrast</span><span class="p">,</span> <span class="s2">&quot;comparisons&quot;</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">conditional_info</span> <span class="o">=</span> <span class="n">ConditionalInfo</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">conditional</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">transforms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">transforms</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">response_name</span> <span class="o">=</span> <span class="n">get_aliased_name</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">response_term</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">ResponseInfo</span><span class="p">(</span>
+        <span class="n">response_name</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">lower_bound</span><span class="o">=</span><span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="o">=</span><span class="n">upper_bound</span>
+    <span class="p">)</span>
+    <span class="n">response_transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">response_name</span><span class="p">,</span> <span class="n">identity</span><span class="p">)</span>
+
+    <span class="c1"># &#39;comparisons&#39; not be limited to (&quot;main&quot;, &quot;group&quot;, &quot;panel&quot;)</span>
+    <span class="n">comparisons_data</span> <span class="o">=</span> <span class="n">create_differences_data</span><span class="p">(</span>
+        <span class="n">conditional_info</span><span class="p">,</span> <span class="n">contrast_info</span><span class="p">,</span> <span class="n">conditional_info</span><span class="o">.</span><span class="n">user_passed</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;comparisons&quot;</span>
+    <span class="p">)</span>
+    <span class="n">idata</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">comparisons_data</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">predictive_difference</span> <span class="o">=</span> <span class="n">PredictiveDifferences</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span>
+        <span class="n">comparisons_data</span><span class="p">,</span>
+        <span class="n">contrast_info</span><span class="p">,</span>
+        <span class="n">conditional_info</span><span class="p">,</span>
+        <span class="n">response</span><span class="p">,</span>
+        <span class="n">use_hdi</span><span class="p">,</span>
+        <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;comparisons&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">comparisons_summary</span> <span class="o">=</span> <span class="n">predictive_difference</span><span class="o">.</span><span class="n">get_estimate</span><span class="p">(</span>
+        <span class="n">idata</span><span class="p">,</span> <span class="n">response_transform</span><span class="p">,</span> <span class="n">comparison_type</span><span class="p">,</span> <span class="n">prob</span><span class="o">=</span><span class="n">prob</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">get_summary_df</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">average_by</span><span class="p">:</span>
+        <span class="n">comparisons_summary</span> <span class="o">=</span> <span class="n">predictive_difference</span><span class="o">.</span><span class="n">average_by</span><span class="p">(</span><span class="n">variable</span><span class="o">=</span><span class="n">average_by</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">comparisons_summary</span></div>
+
+
+
+<div class="viewcode-block" id="slopes">
+<a class="viewcode-back" href="../../../api_reference.html#bambi.interpret.slopes">[docs]</a>
+<span class="k">def</span> <span class="nf">slopes</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Model</span><span class="p">,</span>
+    <span class="n">idata</span><span class="p">:</span> <span class="n">az</span><span class="o">.</span><span class="n">InferenceData</span><span class="p">,</span>
+    <span class="n">wrt</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">],</span>
+    <span class="n">conditional</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">average_by</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">eps</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-4</span><span class="p">,</span>
+    <span class="n">slope</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;dydx&quot;</span><span class="p">,</span>
+    <span class="n">use_hdi</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">prob</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">transforms</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute Conditional Adjusted Slopes</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    model : bambi.Model</span>
+<span class="sd">        The model for which we want to plot the predictions.</span>
+<span class="sd">    idata : arviz.InferenceData</span>
+<span class="sd">        The InferenceData object that contains the samples from the posterior distribution of</span>
+<span class="sd">        the model.</span>
+<span class="sd">    wrt : str, dict</span>
+<span class="sd">        The slope of the regression with respect to (wrt) this predictor will be computed.</span>
+<span class="sd">    conditional : str, dict, list</span>
+<span class="sd">        The covariates we would like to condition on.</span>
+<span class="sd">    average_by: str, list, bool, optional</span>
+<span class="sd">        The covariates we would like to average by. The passed covariate(s) will marginalize</span>
+<span class="sd">        over the other covariates in the model. If True, it averages over all covariates</span>
+<span class="sd">        in the model to obtain the average estimate. Defaults to ``None``.</span>
+<span class="sd">    eps : float, optional</span>
+<span class="sd">        To compute the slope, &#39;wrt&#39; is evaluated at wrt +/- &#39;eps&#39;. The rate of change is then</span>
+<span class="sd">        computed as the difference between the two values divided by &#39;eps&#39;. Defaults to 1e-4.</span>
+<span class="sd">    slope: str, optional</span>
+<span class="sd">        The type of slope to compute. Defaults to &#39;dydx&#39;.</span>
+<span class="sd">        &#39;dydx&#39; represents a unit increase in &#39;wrt&#39; is associated with an n-unit change in</span>
+<span class="sd">        the response.</span>
+<span class="sd">        &#39;eyex&#39; represents a percentage increase in &#39;wrt&#39; is associated with an n-percent</span>
+<span class="sd">        change in the response.</span>
+<span class="sd">        &#39;eydx&#39; represents a unit increase in &#39;wrt&#39; is associated with an n-percent</span>
+<span class="sd">        change in the response.</span>
+<span class="sd">        &#39;dyex&#39; represents a percent change in &#39;wrt&#39; is associated with a unit increase</span>
+<span class="sd">        in the response.</span>
+<span class="sd">    use_hdi : bool, optional</span>
+<span class="sd">        Whether to compute the highest density interval (defaults to True) or the quantiles.</span>
+<span class="sd">    prob : float, optional</span>
+<span class="sd">        The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.</span>
+<span class="sd">        Changing the global variable ``az.rcParam[&quot;stats.hdi_prob&quot;]`` affects this default.</span>
+<span class="sd">    transforms : dict, optional</span>
+<span class="sd">        Transformations that are applied to each of the variables being plotted. The keys are the</span>
+<span class="sd">        name of the variables, and the values are functions to be applied. Defaults to ``None``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pandas.DataFrame</span>
+<span class="sd">        A dataframe with the comparison values, highest density interval, ``wrt`` name,</span>
+<span class="sd">        contrast value, and conditional values.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If length of ``wrt`` is greater than 1.</span>
+<span class="sd">        If ``conditional`` is ``None`` and ``wrt`` is passed more than 2 values.</span>
+<span class="sd">        If ``conditional`` is ``None`` and default ``wrt`` has more than 2 unique values.</span>
+<span class="sd">        If ``slope`` is not &#39;dydx&#39;, &#39;dyex&#39;, &#39;eyex&#39;, or &#39;eydx&#39;.</span>
+<span class="sd">        If ``prob`` is not &gt; 0 and &lt; 1.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wrt_name</span> <span class="o">=</span> <span class="n">wrt</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wrt</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">wrt</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Only one predictor can be passed to &#39;wrt&#39;. </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">wrt</span><span class="p">)</span><span class="si">}</span><span class="s2"> were passed.&quot;</span><span class="p">)</span>
+        <span class="n">wrt_name</span><span class="p">,</span> <span class="n">wrt_values</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">wrt</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wrt_values</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+            <span class="n">wrt_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">wrt_values</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">wrt_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">conditional</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;&#39;conditional&#39; must be specified when &#39;wrt&#39; has more than 2 values. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">wrt_name</span><span class="si">}</span><span class="s2"> was passed </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">wrt_values</span><span class="p">)</span><span class="si">}</span><span class="s2"> values.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">wrt</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">conditional</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_categorical_dtype</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">wrt_name</span><span class="p">])</span> <span class="ow">or</span> <span class="n">is_string_dtype</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">wrt_name</span><span class="p">]):</span>
+            <span class="n">num_levels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">wrt_name</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">num_levels</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;&#39;conditional&#39; must be specified when &#39;wrt&#39; has more than 2 values. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">wrt_name</span><span class="si">}</span><span class="s2"> has </span><span class="si">{</span><span class="n">num_levels</span><span class="si">}</span><span class="s2"> unique values.&quot;</span>
+                <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">slope</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;dydx&quot;</span><span class="p">,</span> <span class="s2">&quot;dyex&quot;</span><span class="p">,</span> <span class="s2">&quot;eyex&quot;</span><span class="p">,</span> <span class="s2">&quot;eydx&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;&#39;slope&#39; must be one of (&#39;dydx&#39;, &#39;dyex&#39;, &#39;eyex&#39;, &#39;eydx&#39;)&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">prob</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="n">az</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;stats.hdi_prob&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">prob</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;prob&#39; must be greater than 0 and smaller than 1. It is </span><span class="si">{</span><span class="n">prob</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># &#39;slopes&#39; should not be limited to (&quot;main&quot;, &quot;group&quot;, &quot;panel&quot;)</span>
+    <span class="n">conditional_info</span> <span class="o">=</span> <span class="n">ConditionalInfo</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">conditional</span><span class="p">)</span>
+
+    <span class="n">grid</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">conditional_info</span><span class="o">.</span><span class="n">covariates</span><span class="p">:</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1"># if wrt is categorical or string dtype, call &#39;comparisons&#39; to compute the</span>
+    <span class="c1"># difference between group means as the slope</span>
+    <span class="n">effect_type</span> <span class="o">=</span> <span class="s2">&quot;slopes&quot;</span>
+    <span class="k">if</span> <span class="n">is_categorical_dtype</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">wrt_name</span><span class="p">])</span> <span class="ow">or</span> <span class="n">is_string_dtype</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">wrt_name</span><span class="p">]):</span>
+        <span class="n">effect_type</span> <span class="o">=</span> <span class="s2">&quot;comparisons&quot;</span>
+        <span class="n">eps</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">wrt_info</span> <span class="o">=</span> <span class="n">VariableInfo</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">wrt</span><span class="p">,</span> <span class="n">effect_type</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
+
+    <span class="n">lower_bound</span> <span class="o">=</span> <span class="nb">round</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">prob</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">upper_bound</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">lower_bound</span>
+
+    <span class="k">if</span> <span class="n">transforms</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">transforms</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">response_name</span> <span class="o">=</span> <span class="n">get_aliased_name</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">response_component</span><span class="o">.</span><span class="n">response_term</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">ResponseInfo</span><span class="p">(</span><span class="n">response_name</span><span class="p">,</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">)</span>
+    <span class="n">response_transform</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">response_name</span><span class="p">,</span> <span class="n">identity</span><span class="p">)</span>
+
+    <span class="n">slopes_data</span> <span class="o">=</span> <span class="n">create_differences_data</span><span class="p">(</span>
+        <span class="n">conditional_info</span><span class="p">,</span> <span class="n">wrt_info</span><span class="p">,</span> <span class="n">conditional_info</span><span class="o">.</span><span class="n">user_passed</span><span class="p">,</span> <span class="n">effect_type</span>
+    <span class="p">)</span>
+    <span class="n">idata</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">idata</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">slopes_data</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">predictive_difference</span> <span class="o">=</span> <span class="n">PredictiveDifferences</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">,</span> <span class="n">slopes_data</span><span class="p">,</span> <span class="n">wrt_info</span><span class="p">,</span> <span class="n">conditional_info</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">use_hdi</span><span class="p">,</span> <span class="n">effect_type</span>
+    <span class="p">)</span>
+    <span class="n">slopes_summary</span> <span class="o">=</span> <span class="n">predictive_difference</span><span class="o">.</span><span class="n">get_estimate</span><span class="p">(</span>
+        <span class="n">idata</span><span class="p">,</span> <span class="n">response_transform</span><span class="p">,</span> <span class="s2">&quot;diff&quot;</span><span class="p">,</span> <span class="n">slope</span><span class="p">,</span> <span class="n">eps</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">get_summary_df</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">average_by</span><span class="p">:</span>
+        <span class="n">slopes_summary</span> <span class="o">=</span> <span class="n">predictive_difference</span><span class="o">.</span><span class="n">average_by</span><span class="p">(</span><span class="n">variable</span><span class="o">=</span><span class="n">average_by</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">slopes_summary</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+  <p class="copyright">
+    
+      © Copyright 2022, The developers of Bambi.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item"><p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
