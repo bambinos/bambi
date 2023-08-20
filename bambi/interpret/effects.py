@@ -412,6 +412,7 @@ def predictions(
     use_hdi: bool = True,
     prob=None,
     transforms=None,
+    return_posterior: bool = False,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Predictions
 
@@ -444,11 +445,17 @@ def predictions(
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to ``None``.
+    return_posterior : bool, optional
+        Whether to return the posterior samples with the data used to generate predictions.
+        Defaults to ``False``. Columns labeled '_obs' indicate data used to generate predictions.
+        The other columns correspond to the chain, draw, and parameter estimates for the model.
 
     Returns
     -------
     cap_data : pandas.DataFrame
         A DataFrame with the ``create_cap_data`` and model predictions.
+        Optional, if ``return_posterior`` is ``True``, then a dataframe with the
+        posterior samples and data used to generate predictions is also returned.
 
     Raises
     ------
@@ -518,11 +525,15 @@ def predictions(
     upper_bound = 1 - lower_bound
     response.lower_bound, response.upper_bound = lower_bound, upper_bound
 
-    cap_data["estimate"] = y_hat_mean
-    cap_data[response.lower_bound_name] = y_hat_bounds[0]
-    cap_data[response.upper_bound_name] = y_hat_bounds[1]
+    predictions_summary = cap_data.copy()
+    predictions_summary["estimate"] = y_hat_mean
+    predictions_summary[response.lower_bound_name] = y_hat_bounds[0]
+    predictions_summary[response.upper_bound_name] = y_hat_bounds[1]
 
-    return cap_data
+    if return_posterior:
+        return predictions_summary, get_posterior(response.name_obs, idata, cap_data)
+
+    return predictions_summary
 
 
 def comparisons(
@@ -568,12 +579,14 @@ def comparisons(
         Whether to return the posterior samples with the data used to generate predictions.
         Defaults to ``False``. Columns labeled '_obs' indicate data used to generate predictions.
         The other columns correspond to the chain, draw, and parameter estimates for the model.
+
     Returns
     -------
     pandas.DataFrame
         A dataframe with the comparison values, highest density interval, contrast name,
-        contrast value, and conditional values. Optional, if ``return_posterior`` is ``True``,
-        then a tuple of the dataframe and the posterior samples is returned.
+        contrast value, and conditional values. Optional, if ``return_posterior`` is
+        ``True``, then a dataframe with the posterior samples and data used to
+        generate predictions is also returned.
 
     Raises
     ------
@@ -672,6 +685,7 @@ def slopes(
     use_hdi: bool = True,
     prob: Union[float, None] = None,
     transforms: Union[dict, None] = None,
+    return_posterior: bool = False,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Slopes
 
@@ -708,15 +722,18 @@ def slopes(
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
         Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
-    transforms : dict, optional
-        Transformations that are applied to each of the variables being plotted. The keys are the
-        name of the variables, and the values are functions to be applied. Defaults to ``None``.
+    return_posterior : bool, optional
+        Whether to return the posterior samples with the data used to generate predictions.
+        Defaults to ``False``. Columns labeled '_obs' indicate data used to generate predictions.
+        The other columns correspond to the chain, draw, and parameter estimates for the model.
 
     Returns
     -------
     pandas.DataFrame
-        A dataframe with the comparison values, highest density interval, ``wrt`` name,
-        contrast value, and conditional values.
+        A dataframe with the comparison values, highest density interval, contrast name,
+        contrast value, and conditional values. Optional, if ``return_posterior`` is
+        ``True``, then a dataframe with the posterior samples and data used to
+        generate predictions is also returned.
 
     Raises
     ------
@@ -796,5 +813,8 @@ def slopes(
 
     if average_by:
         slopes_summary = predictive_difference.average_by(variable=average_by)
+
+    if return_posterior:
+        return slopes_summary, get_posterior(response.name_obs, idata, slopes_data)
 
     return slopes_summary
