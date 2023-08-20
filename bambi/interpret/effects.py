@@ -412,8 +412,8 @@ def predictions(
     use_hdi: bool = True,
     prob=None,
     transforms=None,
-    return_posterior: bool = False,
-) -> Union[pd.DataFrame, Tuple[pd.DataFrame, pd.DataFrame]]:
+    sample_new_groups=False,
+) -> pd.DataFrame:
     """Compute Conditional Adjusted Predictions
 
     Parameters
@@ -445,10 +445,9 @@ def predictions(
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to ``None``.
-    return_posterior : bool, optional
-        Whether to return the posterior samples with the data used to generate predictions.
-        Defaults to ``False``. Columns labeled '_obs' indicate data used to generate predictions.
-        The other columns correspond to the chain, draw, and parameter estimates for the model.
+    sample_new_groups : bool, optional
+        If the model contains group-level effects, and data is passed for unseen groups, whether
+        to sample from the new groups. Defaults to ``False``.
 
     Returns
     -------
@@ -534,10 +533,7 @@ def predictions(
     predictions_summary[response.lower_bound_name] = y_hat_bounds[0]
     predictions_summary[response.upper_bound_name] = y_hat_bounds[1]
 
-    if return_posterior:
-        return (predictions_summary, get_posterior(response.name_obs, idata, cap_data))
-
-    return predictions_summary
+    return cap_data
 
 
 def comparisons(
@@ -587,11 +583,13 @@ def comparisons(
         Whether to return the posterior samples with the data used to generate predictions.
         Defaults to ``False``. Columns labeled '_obs' indicate data used to generate predictions.
         The other columns correspond to the chain, draw, and parameter estimates for the model.
+
     Returns
     -------
     pandas.DataFrame
         A dataframe with the comparison values, highest density interval, contrast name,
-        contrast value, and conditional values.
+        contrast value, and conditional values. Optional, if ``return_posterior`` is ``True``,
+        then a tuple of the dataframe and the posterior samples is returned.
 
     Raises
     ------
@@ -689,8 +687,8 @@ def slopes(
     use_hdi: bool = True,
     prob: Union[float, None] = None,
     transforms: Union[dict, None] = None,
-    return_posterior: bool = False,
-) -> Union[pd.DataFrame, Tuple[pd.DataFrame, pd.DataFrame]]:
+    sample_new_groups: bool = False,
+) -> pd.DataFrame:
     """Compute Conditional Adjusted Slopes
 
     Parameters
@@ -726,10 +724,12 @@ def slopes(
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
         Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
-    return_posterior : bool, optional
-        Whether to return the posterior samples with the data used to generate predictions.
-        Defaults to ``False``. Columns labeled '_obs' indicate data used to generate predictions.
-        The other columns correspond to the chain, draw, and parameter estimates for the model.
+    transforms : dict, optional
+        Transformations that are applied to each of the variables being plotted. The keys are the
+        name of the variables, and the values are functions to be applied. Defaults to ``None``.
+    sample_new_groups : bool, optional
+        If the model contains group-level effects, and data is passed for unseen groups, whether
+        to sample from the new groups. Defaults to ``False``.
 
     Returns
     -------
@@ -819,8 +819,5 @@ def slopes(
 
     if average_by:
         slopes_summary = predictive_difference.average_by(variable=average_by)
-
-    if return_posterior:
-        return (slopes_summary, get_posterior(response.name_obs, idata, slopes_data))
 
     return slopes_summary
