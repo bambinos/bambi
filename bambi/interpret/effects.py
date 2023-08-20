@@ -550,8 +550,9 @@ def comparisons(
     use_hdi: bool = True,
     prob: Union[float, None] = None,
     transforms: Union[dict, None] = None,
+    sample_new_groups: bool = False,
     return_posterior: bool = False,
-) -> Union[pd.DataFrame, Tuple[pd.DataFrame, pd.DataFrame]]:
+) -> pd.DataFrame:
     """Compute Conditional Adjusted Comparisons
 
     Parameters
@@ -579,18 +580,18 @@ def comparisons(
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to ``None``.
+    sample_new_groups : bool, optional
+        If the model contains group-level effects, and data is passed for unseen groups, whether
+        to sample from the new groups. Defaults to ``False``.
     return_posterior : bool, optional
         Whether to return the posterior samples with the data used to generate predictions.
         Defaults to ``False``. Columns labeled '_obs' indicate data used to generate predictions.
         The other columns correspond to the chain, draw, and parameter estimates for the model.
-
     Returns
     -------
     pandas.DataFrame
         A dataframe with the comparison values, highest density interval, contrast name,
-        contrast value, and conditional values. Optional, if ``return_posterior`` is
-        ``True``, then a dataframe with the posterior samples and data used to
-        generate predictions is also returned.
+        contrast value, and conditional values.
 
     Raises
     ------
@@ -673,9 +674,6 @@ def comparisons(
 
     if average_by:
         comparisons_summary = predictive_difference.average_by(variable=average_by)
-
-    if return_posterior:
-        return (comparisons_summary, get_posterior(response.name_obs, idata, comparisons_data))
 
     return comparisons_summary
 
