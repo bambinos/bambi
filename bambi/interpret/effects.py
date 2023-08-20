@@ -14,6 +14,7 @@ from bambi.interpret.create_data import create_differences_data, create_predicti
 from bambi.interpret.utils import (
     average_over,
     ConditionalInfo,
+    get_posterior,
     identity,
     VariableInfo,
 )
@@ -534,6 +535,7 @@ def comparisons(
     use_hdi: bool = True,
     prob: Union[float, None] = None,
     transforms: Union[dict, None] = None,
+    return_posterior: bool = False,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Comparisons
 
@@ -562,12 +564,16 @@ def comparisons(
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to ``None``.
-
+    return_posterior : bool, optional
+        Whether to return the posterior samples with the data used to generate predictions.
+        Defaults to ``False``. Columns labeled '_obs' indicate data used to generate predictions.
+        The other columns correspond to the chain, draw, and parameter estimates for the model.
     Returns
     -------
     pandas.DataFrame
         A dataframe with the comparison values, highest density interval, contrast name,
-        contrast value, and conditional values.
+        contrast value, and conditional values. Optional, if ``return_posterior`` is ``True``,
+        then a tuple of the dataframe and the posterior samples is returned.
 
     Raises
     ------
@@ -648,6 +654,9 @@ def comparisons(
 
     if average_by:
         comparisons_summary = predictive_difference.average_by(variable=average_by)
+
+    if return_posterior:
+        return comparisons_summary, get_posterior(response.name_obs, idata, comparisons_data)
 
     return comparisons_summary
 
