@@ -3,9 +3,9 @@ project:
   output-dir: _site
 
 website:
-  title: "Bambi"
-  description: "Version, share, deploy, and monitor your Python models"
-  repo-url: https://github.com/rstudio/vetiver-python
+  title: ""
+  description: "BAyesian Model Building Interface in Python"
+  repo-url: https://github.com/bambinos/bambi
   page-navigation: true
   favicon: "logos/favicon.png"
   navbar:
@@ -15,20 +15,20 @@ website:
     logo-alt: "bambi-home"
     search: true
     right:
-      - text: "Reference"
+      - text: Reference
         href: api/
-      - text: "Examples"
+      - text: Examples
         href: notebooks/index.qmd
-      - text: Frequently Asked Questions
+      - text: FAQ
         file: faq.qmd
-      - text: "Changelog"
-        file: CHANGELOG.md
+      - text: Changelog
+        file: https://raw.githubusercontent.com/bambinos/bambi/main/docs/CHANGELOG.md
       - icon: github
         href: https://github.com/bambinos/bambi
 
   sidebar:
     - id: reference
-      contents: "_sidebar.yml"
+      contents: _sidebar.yml
     - id: examples
       collapse-level: 1
       contents:
@@ -68,7 +68,7 @@ website:
             - notebooks/plot_slopes.ipynb
 
 quartodoc:
-  style: "pkgdown"
+  style: pkgdown
   dir: api
   #title: "Bambi:v{{< env VERSION >}}"
   package: bambi # the name used to import the package
@@ -124,6 +124,7 @@ metadata-files:
 format:
   html:
     theme: cosmo
+    css: styles.css
 
 # https://github.com/machow/siuba.org
 # https://siuba.org/
