@@ -1,0 +1,129 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "Bambi"
+  description: "Version, share, deploy, and monitor your Python models"
+  repo-url: https://github.com/rstudio/vetiver-python
+  page-navigation: true
+  favicon: "logos/favicon.png"
+  navbar:
+    background: light
+    pinned: true
+    logo: "logos/RGB/Bambi_logo.png"
+    logo-alt: "bambi-home"
+    search: true
+    right:
+      - text: "Reference"
+        href: api/
+      - text: "Examples"
+        href: notebooks/index.qmd
+      - text: Frequently Asked Questions
+        file: faq.qmd
+      - text: "Changelog"
+        file: CHANGELOG.md
+      - icon: github
+        href: https://github.com/bambinos/bambi
+
+  sidebar:
+    - id: reference
+      contents: "_sidebar.yml"
+    - id: examples
+      collapse-level: 1
+      contents:
+        - notebooks/index.qmd
+        - section: Section 1
+          contents:
+            - notebooks/t-test.ipynb
+            - notebooks/ESCS_multiple_regression.ipynb
+            - notebooks/splines_cherry_blossoms.ipynb
+            - notebooks/multi-level_regression.ipynb
+            - notebooks/sleepstudy.ipynb
+            - notebooks/radon_example.ipynb
+            - notebooks/Strack_RRR_re_analysis.ipynb
+            - notebooks/shooter_crossed_random_ANOVA.ipynb
+            - notebooks/t_regression.ipynb
+        - section: Section 2
+          contents:
+            - notebooks/logistic_regression.ipynb
+            - notebooks/model_comparison.ipynb
+            - notebooks/hierarchical_binomial_bambi.ipynb
+            - notebooks/alternative_links_binary.ipynb
+            - notebooks/wald_gamma_glm.ipynb
+            - notebooks/negative_binomial.ipynb
+            - notebooks/beta_regression.ipynb
+            - notebooks/categorical_regression.ipynb
+            - notebooks/circular_regression.ipynb
+            - notebooks/quantile_regression.ipynb
+            - notebooks/distributional_models.ipynb
+        - section: Section 3
+          contents:
+            - notebooks/hsgp_1d.ipynb
+            - notebooks/hsgp_2d.ipynb
+        - section: Section 4
+          contents:
+            - notebooks/plot_predictions.ipynb
+            - notebooks/plot_comparisons.ipynb
+            - notebooks/plot_slopes.ipynb
+
+quartodoc:
+  style: "pkgdown"
+  dir: api
+  #title: "Bambi:v{{< env VERSION >}}"
+  package: bambi # the name used to import the package
+  sidebar: api/_sidebar.yml # write sidebar data to this file
+  sections:
+    - title: Model
+      desc: The basics
+      contents:
+        - Model
+        - Formula
+    - title: Setting up priors
+      desc: ""
+      contents:
+        - Prior
+    - title: Custom families
+      desc: ""
+      contents:
+        - Family
+        - Likelihood
+        - Link
+    - title: Plots
+      desc: ""
+      contents:
+        - interpret.plot_comparisons
+        - interpret.plot_predictions
+        - interpret.plot_slopes
+    - title: Interpretations
+      desc: ""
+      contents:
+        - interpret.comparisons
+        - interpret.predictions
+        - interpret.slopes
+    - title: Data
+      desc: ""
+      contents:
+        - clear_data_home
+        - load_data
+ 
+
+# Tell quarto to read the generated sidebar
+metadata-files:
+  - api/_sidebar.yml
+
+# filters:
+#   - interlinks
+
+# interlinks:
+#   sources: {}
+
+# profile:
+#   default: latest
+
+format:
+  html:
+    theme: cosmo
+
+# https://github.com/machow/siuba.org
+# https://siuba.org/

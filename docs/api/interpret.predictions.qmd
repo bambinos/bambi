@@ -1,0 +1,30 @@
+# interpret.predictions { #bambi.interpret.predictions }
+
+`interpret.predictions(model, idata, covariates, target='mean', pps=False, use_hdi=True, prob=None, transforms=None)`
+
+Compute Conditional Adjusted Predictions
+
+## Parameters
+
+| Name         | Type                | Description                                                                                                                                                                                                                                                                                                                                                                                                                               | Default    |
+|--------------|---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `model`      | bambi.Model         | The model for which we want to plot the predictions.                                                                                                                                                                                                                                                                                                                                                                                      | _required_ |
+| `idata`      | arviz.InferenceData | The InferenceData object that contains the samples from the posterior distribution of the model.                                                                                                                                                                                                                                                                                                                                          | _required_ |
+| `covariates` | list or dict        | A sequence of between one and three names of variables or a dict of length between one and three. If a sequence, the first variable is taken as the main variable and is mapped to the horizontal axis. If present, the second name is a coloring/grouping variable, and the third is mapped to different plot panels. If a dictionary, keys must be taken from ("main", "group", "panel") and the values are the names of the variables. | _required_ |
+| `target`     | str                 | Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only works when pps is False as the target may not be available in the posterior predictive distribution.                                                                                                                                                                                                                                              | `'mean'`   |
+| `pps`        | bool                | Whether to plot the posterior predictive samples. Defaults to ``False``.                                                                                                                                                                                                                                                                                                                                                                  | `False`    |
+| `use_hdi`    | bool                | Whether to compute the highest density interval (defaults to True) or the quantiles.                                                                                                                                                                                                                                                                                                                                                      | `True`     |
+| `prob`       | float               | The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.                                                                                                                                                                                                                                                             | `None`     |
+| `transforms` | dict                | Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to ``None``.                                                                                                                                                                                                                                                        | `None`     |
+
+## Returns
+
+| Type             | Description                                                     |
+|------------------|-----------------------------------------------------------------|
+| pandas.DataFrame | A DataFrame with the ``create_cap_data`` and model predictions. |
+
+## Raises
+
+| Type       | Description                                                                                                                                                                |
+|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ValueError | If ``pps`` is ``True`` and ``target`` is not ``"mean"``. If passed ``covariates`` is not in correct key, value format. If length of ``covariates`` is not between 1 and 3. |
