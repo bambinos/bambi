@@ -1,6 +1,8 @@
 project:
   type: website
   output-dir: _site
+  resources: 
+    - api/**
 
 website:
   title: ""
@@ -10,10 +12,10 @@ website:
   favicon: "logos/favicon.png"
   navbar:
     background: light
+    search: true
     pinned: true
     logo: "logos/RGB/Bambi_logo.png"
     logo-alt: "bambi-home"
-    search: true
     right:
       - text: Reference
         href: api/
@@ -30,6 +32,7 @@ website:
     - id: reference
       contents: _sidebar.yml
     - id: examples
+      style: floating
       collapse-level: 1
       contents:
         - notebooks/index.qmd
@@ -70,7 +73,6 @@ website:
 quartodoc:
   style: pkgdown
   dir: api
-  #title: "Bambi:v{{< env VERSION >}}"
   package: bambi # the name used to import the package
   sidebar: api/_sidebar.yml # write sidebar data to this file
   sections:
@@ -125,6 +127,4 @@ format:
   html:
     theme: cosmo
     css: styles.css
-
-# https://github.com/machow/siuba.org
-# https://siuba.org/
+    toc: true
