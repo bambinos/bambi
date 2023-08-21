@@ -280,7 +280,7 @@ random integer from random.org. The person with the closest circular distance, d
 as there may be ties resulting from candidates choosing the same number.
 * At the conclusion of voting, all the results will be posted. And at least 24 hours will be left to
 challenge the election result in case there were suspicions of irregularities or the process had not
-been correctly carriedout.
+been correctly carried out.
 
 #### Vote of No Confidence
 
