@@ -275,7 +275,7 @@ found to have the highest median-grade.
 * If ties are still present after this second round, the winner will be chosen at random. 
 Each person tied will pick an integer number in the `[1, 100]` interval and send it privately to the
 third party mediating the election. After receiving all the numbers, said third party will draw a 
-random integer from random.org. The person with theclosest circular distance, defined as 
+random integer from random.org. The person with the closest circular distance, defined as 
 `min(|a-b|, 100-|a-b|)`, will be selected. This process will be repeated as many times as necessary
 as there may be ties resulting from candidates choosing the same number.
 * At the conclusion of voting, all the results will be posted. And at least 24 hours will be left to
