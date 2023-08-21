@@ -44,7 +44,7 @@ a safe community.
 
 #### Recurrent Contributors
 
-Recurrent Contributors are those individuals who contribute recurrently to theproject and can 
+Recurrent Contributors are those individuals who contribute recurrently to the project and can 
 provide valuable insight on the project. They are therefore actively consulted and can participate 
 in the same communication channels as Core Contributors. However, unlike Core Contributors,
 Recurrent Contributors don't have voting, managing or writing rights.
