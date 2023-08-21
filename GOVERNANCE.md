@@ -268,7 +268,7 @@ ties and discriminate more among the tied candidates, this vote will be held by
 voters judge their suitability for office as either "Excellent", "Very Good", "Good", "Acceptable", 
 "Poor", or "Reject". Multiple candidates may be given the same grade by a voter. 
 The candidate with the highest median grade is the winner.
-* If more than one candidate has the same highest median-grade, the MJ winner isdiscovered by 
+* If more than one candidate has the same highest median-grade, the MJ winner is discovered by 
 removing (one-by-one) any grades equal in value to the shared median grade from each tied 
 candidate's total. This is repeated until only one of the previously tied candidates is currently 
 found to have the highest median-grade.
