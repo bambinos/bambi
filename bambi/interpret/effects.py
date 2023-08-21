@@ -413,7 +413,8 @@ def predictions(
     prob=None,
     transforms=None,
     sample_new_groups=False,
-) -> pd.DataFrame:
+    return_posterior: bool = False,
+) -> Union[pd.DataFrame, Tuple[pd.DataFrame, pd.DataFrame]]:
     """Compute Conditional Adjusted Predictions
 
     Parameters
@@ -533,7 +534,10 @@ def predictions(
     predictions_summary[response.lower_bound_name] = y_hat_bounds[0]
     predictions_summary[response.upper_bound_name] = y_hat_bounds[1]
 
-    return cap_data
+    if return_posterior:
+        return (predictions_summary, get_posterior(response.name_obs, idata, cap_data))
+
+    return predictions_summary
 
 
 def comparisons(
@@ -548,7 +552,7 @@ def comparisons(
     transforms: Union[dict, None] = None,
     sample_new_groups: bool = False,
     return_posterior: bool = False,
-) -> pd.DataFrame:
+) -> Union[pd.DataFrame, Tuple[pd.DataFrame, pd.DataFrame]]:
     """Compute Conditional Adjusted Comparisons
 
     Parameters
@@ -673,6 +677,9 @@ def comparisons(
     if average_by:
         comparisons_summary = predictive_difference.average_by(variable=average_by)
 
+    if return_posterior:
+        return (comparisons_summary, get_posterior(response.name_obs, idata, comparisons_data))
+
     return comparisons_summary
 
 
@@ -688,7 +695,8 @@ def slopes(
     prob: Union[float, None] = None,
     transforms: Union[dict, None] = None,
     sample_new_groups: bool = False,
-) -> pd.DataFrame:
+    return_posterior: bool = False,
+) -> Union[pd.DataFrame, Tuple[pd.DataFrame, pd.DataFrame]]:
     """Compute Conditional Adjusted Slopes
 
     Parameters
@@ -819,5 +827,8 @@ def slopes(
 
     if average_by:
         slopes_summary = predictive_difference.average_by(variable=average_by)
+
+    if return_posterior:
+        return (slopes_summary, get_posterior(response.name_obs, idata, slopes_data))
 
     return slopes_summary
