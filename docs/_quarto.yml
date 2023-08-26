@@ -1,6 +1,8 @@
 project:
   type: website
   output-dir: _site
+  pre-render: pre_render.py
+  #post-render: post_render.py
   resources: 
     - api/**
 
@@ -26,7 +28,7 @@ website:
       - text: FAQ
         file: faq.qmd
       - text: Changelog
-        file: https://raw.githubusercontent.com/bambinos/bambi/main/docs/CHANGELOG.md
+        file: CHANGELOG.md
       - icon: github
         href: https://github.com/bambinos/bambi
 
