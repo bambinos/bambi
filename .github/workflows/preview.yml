@@ -31,8 +31,12 @@ jobs:
           python -m pip install quartodoc==0.4.2
           python -m pip install griffe==0.32.3
 
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2   
+        with:
+          version: 1.2.280 # since this is my local version, we could change it
+
       - name: Build docs
-        uses: quarto-dev/quarto-actions/setup@v2
         run: |
           python -m quartodoc build --config docs/_quarto.yml
           quarto render docs
