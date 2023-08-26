@@ -185,3 +185,30 @@ a:hover {
   align-items: center;
 }
 
+
+/*Add hover effect to card*/
+.card {
+  transition: 
+    .3s transform cubic-bezier(.155, 1.105, .295, 1.12), 
+    .3s box-shadow,
+    .3s -webkit-transform cubic-bezier(.155,1.105,.295,1.12);
+}
+
+.card:hover{
+  transform: scale(1.02);
+  box-shadow: 0 10px 20px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
+}
+
+/*Make the entire card clickable*/
+.card {
+  position: relative;
+}
+
+.card a::before {
+  content: "";
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+}
