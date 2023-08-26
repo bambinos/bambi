@@ -34,13 +34,10 @@ jobs:
       - name: Build docs
         uses: quarto-dev/quarto-actions/setup@v2
         run: |
-	        python -m quartodoc build --config docs/_quarto.yml
-	        quarto render docs
+          python -m quartodoc build --config docs/_quarto.yml
+          quarto render docs
 
       - name: Deploy preview
         uses: rossjrw/pr-preview-action@v1
         with:
-          source-dir: ./docs/_site
-
-
-          
+          source-dir: ./docs/_site     
