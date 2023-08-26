@@ -6,6 +6,7 @@ shutil.copyfile("../CHANGELOG.md", "CHANGELOG.md")
 # Remove TOC from it
 lines = """---
 toc: false
+pagetitle: "Changelog"
 ---
 """
 with open("CHANGELOG.md", "r+") as file: 
