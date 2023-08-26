@@ -1,0 +1,37 @@
+# interpret.plot_predictions { #bambi.interpret.plot_predictions }
+
+`interpret.plot_predictions(model, idata, covariates, target='mean', pps=False, use_hdi=True, prob=None, transforms=None, legend=True, ax=None, fig_kwargs=None, subplot_kwargs=None)`
+
+Plot Conditional Adjusted Predictions
+
+## Parameters
+
+| Name             | Type                                  | Description                                                                                                                                                                                                                                                             | Default    |
+|------------------|---------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `model`          | bambi.Model                           | The model for which we want to plot the predictions.                                                                                                                                                                                                                    | _required_ |
+| `idata`          | arviz.InferenceData                   | The InferenceData object that contains the samples from the posterior distribution of the model.                                                                                                                                                                        | _required_ |
+| `covariates`     | list or dict                          | A sequence of between one and three names of variables in the model.                                                                                                                                                                                                    | _required_ |
+| `target`         | str                                   | Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only works when pps is False as the target may not be available in the posterior predictive distribution.                                                                            | `'mean'`   |
+| `pps`            | bool                                  | Whether to plot the posterior predictive samples. Defaults to ``False``.                                                                                                                                                                                                | `False`    |
+| `use_hdi`        | bool                                  | Whether to compute the highest density interval (defaults to True) or the quantiles.                                                                                                                                                                                    | `True`     |
+| `prob`           | float                                 | The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.                                                                                           | `None`     |
+| `legend`         | bool                                  | Whether to automatically include a legend in the plot. Defaults to ``True``.                                                                                                                                                                                            | `True`     |
+| `transforms`     | dict                                  | Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to ``None``.                                                                                      | `None`     |
+| `ax`             | matplotlib.axes._subplots.AxesSubplot | A matplotlib axes object or a sequence of them. If None, this function instantiates a new axes object. Defaults to ``None``.                                                                                                                                            | `None`     |
+| `fig_kwargs`     | optional                              | Keyword arguments passed to the matplotlib figure function as a dict. For example, ``fig_kwargs=dict(figsize=(11, 8)), sharey=True`` would make the figure 11 inches wide by 8 inches high and would share the y-axis values.                                           | `None`     |
+| `subplot_kwargs` | optional                              | Keyword arguments used to determine the covariates used for the horizontal, group, and panel axes. For example, ``subplot_kwargs=dict(main="x", group="y", panel="z")`` would plot the horizontal axis as ``x``, the color (hue) as ``y``, and the panel axis as ``z``. | `None`     |
+
+## Returns
+
+| Type                                                              | Description                           |
+|-------------------------------------------------------------------|---------------------------------------|
+| (matplotlib.figure.Figure, matplotlib.axes._subplots.AxesSubplot) | A tuple with the figure and the axes. |
+
+## Raises
+
+| Type       | Description                                                                                |
+|------------|--------------------------------------------------------------------------------------------|
+| ValueError | When ``level`` is not within 0 and 1. When the main covariate is not numeric or categoric. |
+
+TypeError
+    When ``covariates`` is not a string or a list of strings.

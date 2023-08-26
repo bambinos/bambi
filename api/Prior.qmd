@@ -1,0 +1,32 @@
+# Prior { #bambi.Prior }
+
+`priors.Prior(self, name, auto_scale=True, dist=None, **kwargs)`
+
+Abstract specification of a term prior.
+
+## Parameters
+
+| Name         | Type                                                         | Description                                                                                                                                              | Default    |
+|--------------|--------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `name`       | str                                                          | Name of prior distribution. Must be the name of a PyMC distribution (e.g., ``"Normal"``, ``"Bernoulli"``, etc.)                                          | _required_ |
+| `auto_scale` |                                                              | Whether to adjust the parameters of the prior or use them as passed. Default to ``True``.                                                                | `True`     |
+| `kwargs`     | dict                                                         | Optional keywords specifying the parameters of the named distribution.                                                                                   | `{}`       |
+| `dist`       | pymc.distributions.distribution.DistributionMeta or callable | A callable that returns a valid PyMC distribution. The signature must contain ``name``, ``dims``, and ``shape``, as well as its own keyworded arguments. | `None`     |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [update](#bambi.Prior.update) | Update the arguments of the prior with additional arguments. |
+
+### update { #bambi.Prior.update }
+
+`Prior.update(self, **kwargs)`
+
+Update the arguments of the prior with additional arguments.
+
+#### Parameters
+
+| Name     | Type   | Description                                      | Default   |
+|----------|--------|--------------------------------------------------|-----------|
+| `kwargs` | dict   | Optional keyword arguments to add to prior args. | `{}`      |

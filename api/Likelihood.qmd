@@ -1,0 +1,18 @@
+# Likelihood { #bambi.Likelihood }
+
+`families.Likelihood(self, name, params=None, parent=None, dist=None)`
+
+Representation of a Likelihood function for a Bambi model.
+
+Notes:
+* ``parent`` must be in ``params``
+* ``parent`` is inferred from the ``name`` if it is a known name
+
+## Parameters
+
+| Name     | Type                                                         | Description                                                                                                                                                | Default    |
+|----------|--------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `name`   | str                                                          | Name of the likelihood function. Must be a valid PyMC distribution name.                                                                                   | _required_ |
+| `params` | Sequence\[str\]                                              | The name of the parameters the likelihood function accepts.                                                                                                | `None`     |
+| `parent` | str                                                          | Optional specification of the name of the mean parameter in the likelihood. This is the parameter whose transformation is modeled by the linear predictor. | `None`     |
+| `dist`   | pymc.distributions.distribution.DistributionMeta or callable | Optional custom PyMC distribution that will be used to compute the likelihood.                                                                             | `None`     |

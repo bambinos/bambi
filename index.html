@@ -1,941 +1,417 @@
-
 <!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.280">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<html lang="en" >
+<title>Bambi - BAyesian Model-Building Interface in Python</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
 
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>BAyesian Model-Building Interface (Bambi) in Python &#8212; Bambi 0.13.0.dev documentation</title>
-  
-  
-  
-  <script data-cfasync="false">
-    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
-    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
-  </script>
-  
-  <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./logos/favicon.png" rel="icon" type="image/png">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
 
-  
-  <link href="_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
-  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
-<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
-  
-  <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+<link rel="stylesheet" href="styles.css">
+</head>
 
-    <script src="_static/documentation_options.js?v=3e2352eb"></script>
-    <script src="_static/doctools.js?v=888ff710"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Getting Started" href="notebooks/getting_started.html" />
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <meta name="docsearch:language" content="en"/>
-  </head>
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+<body class="nav-fixed fullcontent">
 
-  
-  
-  <a class="skip-link" href="#main-content">Skip to main content</a>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          name="__primary"
-          id="__primary"/>
-  <label class="overlay overlay-primary" for="__primary"></label>
-  
-  <input type="checkbox"
-          class="sidebar-toggle"
-          name="__secondary"
-          id="__secondary"/>
-  <label class="overlay overlay-secondary" for="__secondary"></label>
-  
-  <div class="search-button__wrapper">
-    <div class="search-button__overlay"></div>
-    <div class="search-button__search-container">
-<form class="bd-search d-flex align-items-center"
-      action="search.html"
-      method="get">
-  <i class="fa-solid fa-magnifying-glass"></i>
-  <input type="search"
-         class="form-control"
-         name="q"
-         id="search-input"
-         placeholder="Search the docs..."
-         aria-label="Search the docs..."
-         autocomplete="off"
-         autocorrect="off"
-         autocapitalize="off"
-         spellcheck="false"/>
-  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
-</form></div>
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a href="./index.html" class="navbar-brand navbar-brand-logo">
+    <img src="./logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo">
+    </a>
   </div>
-  
-    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
-<div class="bd-header__inner bd-page-width">
-  <label class="sidebar-toggle primary-toggle" for="__primary">
-    <span class="fa-solid fa-bars"></span>
-  </label>
-  
-  <div class="navbar-header-items__start">
-    
-      <div class="navbar-item">
-  
-
-<a class="navbar-brand logo" href="#">
-  
-  
-  
-  
-    
-    
-      
-    
-    
-    <img src="_static/Bambi_logo.png" class="logo__image only-light" alt="Logo image"/>
-    <script>document.write(`<img src="_static/Bambi_logo.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
-  
-  
-</a></div>
-    
-  </div>
-  
-  
-  <div class="col-lg-9 navbar-header-items">
-    
-    <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item"><nav class="navbar-nav">
-  <p class="sidebar-header-items__title"
-     role="heading"
-     aria-level="1"
-     aria-label="Site Navigation">
-    Site Navigation
-  </p>
-  <ul class="bd-navbar-elements navbar-nav">
-    
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="notebooks/getting_started.html">
-                        Getting Started
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="examples.html">
-                        Examples
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="api_reference.html">
-                        API Reference
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="faq.html">
-                        Frequently Asked Questions
-                      </a>
-                    </li>
-                
-  </ul>
-</nav></div>
-      
-    </div>
-    
-    
-    <div class="navbar-header-items__end">
-      
-        <div class="navbar-item navbar-persistent--container">
-          
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
-        </div>
-      
-      
-        <div class="navbar-item">
-<script>
-document.write(`
-  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
-    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
-    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
-  </button>
-`);
-</script></div>
-      
-        <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
-    aria-label="Icon Links">
-        <li class="nav-item">
-          
-          
-          
-          
-          
-          
-          
-          
-          <a href="https://github.com/bambinos/bambi" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github-square"></i></span>
-            <label class="sr-only">GitHub</label></a>
-        </li>
-        <li class="nav-item">
-          
-          
-          
-          
-          
-          
-          
-          
-          <a href="https://pypi.org/project/bambi/" title="PyPi" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fas fa-box"></i></span>
-            <label class="sr-only">PyPi</label></a>
-        </li>
-</ul></div>
-      
-    </div>
-    
-  </div>
-  
-  
-    <div class="navbar-persistent--mobile">
-<script>
-document.write(`
-  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <i class="fa-solid fa-magnifying-glass"></i>
-  </button>
-`);
-</script>
-    </div>
-  
-
-  
-    <label class="sidebar-toggle secondary-toggle" for="__secondary">
-      <span class="fa-solid fa-outdent"></span>
-    </label>
-  
-</div>
-
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./api/index.html">
+ <span class="menu-text">Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./notebooks/index.html">
+ <span class="menu-text">Examples</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./faq.html">
+ <span class="menu-text">FAQ</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./CHANGELOG.md">
+ <span class="menu-text">Changelog</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/bambinos/bambi"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
     </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">BAyesian Model-Building Interface in Python</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
   
-  <div class="bd-container">
-    <div class="bd-container__inner bd-page-width">
-      
-      <div class="bd-sidebar-primary bd-sidebar">
-        
-
-  
-  <div class="sidebar-header-items sidebar-primary__section">
-    
-    
-      <div class="sidebar-header-items__center">
-        
-          <div class="navbar-item"><nav class="navbar-nav">
-  <p class="sidebar-header-items__title"
-     role="heading"
-     aria-level="1"
-     aria-label="Site Navigation">
-    Site Navigation
-  </p>
-  <ul class="bd-navbar-elements navbar-nav">
-    
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="notebooks/getting_started.html">
-                        Getting Started
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="examples.html">
-                        Examples
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="api_reference.html">
-                        API Reference
-                      </a>
-                    </li>
-                
-
-                    <li class="nav-item">
-                      <a class="nav-link nav-internal" href="faq.html">
-                        Frequently Asked Questions
-                      </a>
-                    </li>
-                
-  </ul>
-</nav></div>
-        
-      </div>
-    
-    
-    
-      <div class="sidebar-header-items__end">
-        
-          <div class="navbar-item">
-<script>
-document.write(`
-  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
-    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
-    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
-  </button>
-`);
-</script></div>
-        
-          <div class="navbar-item"><ul class="navbar-icon-links navbar-nav"
-    aria-label="Icon Links">
-        <li class="nav-item">
-          
-          
-          
-          
-          
-          
-          
-          
-          <a href="https://github.com/bambinos/bambi" title="GitHub" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fab fa-github-square"></i></span>
-            <label class="sr-only">GitHub</label></a>
-        </li>
-        <li class="nav-item">
-          
-          
-          
-          
-          
-          
-          
-          
-          <a href="https://pypi.org/project/bambi/" title="PyPi" class="nav-link" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><span><i class="fas fa-box"></i></span>
-            <label class="sr-only">PyPi</label></a>
-        </li>
-</ul></div>
-        
-      </div>
     
   </div>
   
-    <div class="sidebar-primary-items__start sidebar-primary__section">
-        <div class="sidebar-primary-item">
-<div id="searchbox"></div></div>
-    </div>
-  
-  
-  <div class="sidebar-primary-items__end sidebar-primary__section">
-  </div>
-  
-  <div id="rtd-footer-container"></div>
 
+</header>
 
-      </div>
-      
-      <main id="main-content" class="bd-main">
-        
-        
-          <div class="bd-content">
-            <div class="bd-article-container">
-              
-              <div class="bd-header-article"></div>
-              
-              
-              
-                
-<div id="searchbox"></div>
-                <article class="bd-article" role="main">
-                  
-  <section id="bayesian-model-building-interface-bambi-in-python">
-<h1>BAyesian Model-Building Interface (Bambi) in Python<a class="headerlink" href="#bayesian-model-building-interface-bambi-in-python" title="Link to this heading">#</a></h1>
-<p><a class="reference external" href="https://badge.fury.io/py/bambi"><img alt="PyPI version" src="https://badge.fury.io/py/bambi.svg" /></a>
-<a class="reference external" href="https://github.com/bambinos/bambi"><img alt="Tests" src="https://github.com/bambinos/bambi/actions/workflows/test.yml/badge.svg" /></a>
-<a class="reference external" href="https://codecov.io/gh/bambinos/bambi"><img alt="Coverage" src="https://codecov.io/gh/bambinos/bambi/branch/main/graph/badge.svg?token=ZqH0KCLKAE" /></a>
-<a class="reference external" href="https://github.com/ambv/black"><img alt="Black" src="https://img.shields.io/badge/code%20style-black-000000.svg" /></a></p>
-<p>Bambi is a high-level Bayesian model-building interface written in Python. It works with the probabilistic programming frameworks <a class="reference external" href="https://www.pymc.io/">PyMC</a> and is designed to make it extremely easy to fit Bayesian mixed-effects models common in biology, social sciences and other disciplines.</p>
+<center>
+<img src="https://raw.githubusercontent.com/bambinos/bambi/main/docs/logos/RGB/Bambi_logo.png" width="400">
+</center>
+<center>
+<p><a href="https://badge.fury.io/py/bambi"><img src="https://badge.fury.io/py/bambi.svg" class="img-fluid" alt="PyPi version"></a> <a href="https://github.com/bambinos/bambi/actions/workflows/test.yml"><img src="https://github.com/bambinos/bambi/actions/workflows/test.yml/badge.svg" class="img-fluid" alt="Build Status"></a> <a href="https://codecov.io/gh/bambinos/bambi"><img src="https://codecov.io/gh/bambinos/bambi/branch/master/graph/badge.svg?token=ZqH0KCLKAE" class="img-fluid" alt="codecov"></a> <a href="https://github.com/ambv/black"><img src="https://img.shields.io/badge/code%20style-black-000000.svg" class="img-fluid" alt="Code style: black"></a></p>
+</center>
+<p>Bambi is a high-level Bayesian model-building interface written in Python. It works with the <a href="https://www.pymc.io/">PyMC</a> probabilistic programming framework and is designed to make it extremely easy to fit Bayesian mixed-effects models common in biology, social sciences and other disciplines.</p>
+<section id="dependencies" class="level2">
+<h2 class="anchored" data-anchor-id="dependencies">Dependencies</h2>
+<p>Bambi is tested on Python 3.8+ and depends on ArviZ, formulae, NumPy, pandas and PyMC (see <a href="https://github.com/bambinos/bambi/blob/main/pyproject.toml">pyproject.toml</a> for version information).</p>
 </section>
-<section id="dependencies">
-<h1>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">#</a></h1>
-<p>Bambi is tested on Python 3.8+ and depends on ArviZ, formulae, NumPy, pandas and PyMC (see <a class="reference external" href="https://github.com/bambinos/bambi/blob/main/pyproject.toml">pyproject.toml</a> for version information).</p>
-</section>
-<section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h1>
-<p>Bambi is available from the Python Package Index at <a class="reference external" href="https://pypi.org/project/bambi/">https://pypi.org/project/bambi/</a>, alternatively it can be installed using Conda.</p>
-<section id="pypi">
-<h2>PyPI<a class="headerlink" href="#pypi" title="Link to this heading">#</a></h2>
+<section id="installation" class="level2">
+<h2 class="anchored" data-anchor-id="installation">Installation</h2>
+<p>Bambi is available from the Python Package Index at <a href="https://pypi.org/project/bambi">https://pypi.org/project/bambi</a>, alternatively it can be installed using Conda.</p>
+<section id="pypi" class="level3">
+<h3 class="anchored" data-anchor-id="pypi">PyPI</h3>
 <p>The latest release of Bambi can be installed using pip:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>bambi
-</pre></div>
-</div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install bambi</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Alternatively, if you want the bleeding edge version of the package, you can install from GitHub:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/bambinos/bambi.git
-</pre></div>
-</div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install git+https://github.com/bambinos/bambi.git</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="conda">
-<h2>Conda<a class="headerlink" href="#conda" title="Link to this heading">#</a></h2>
+<section id="conda" class="level3">
+<h3 class="anchored" data-anchor-id="conda">Conda</h3>
 <p>If you use Conda, you can also install the latest release of Bambi with the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>bambi
-</pre></div>
-</div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">conda</span> install <span class="at">-c</span> conda-forge bambi</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 </section>
-<section id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h1>
+<section id="usage" class="level2">
+<h2 class="anchored" data-anchor-id="usage">Usage</h2>
 <p>A simple fixed effects model is shown in the example below.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">arviz</span> <span class="k">as</span> <span class="nn">az</span>
-<span class="kn">import</span> <span class="nn">bambi</span> <span class="k">as</span> <span class="nn">bmb</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-
-<span class="c1"># Read in a tab-delimited file containing our data</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="s1">&#39;my_data.txt&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
-
-<span class="c1"># Initialize the fixed effects only model</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">bmb</span><span class="o">.</span><span class="n">Model</span><span class="p">(</span><span class="s1">&#39;DV ~ IV1 + IV2&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
-
-<span class="c1"># Fit the model using 1000 on each of 4 chains</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">draws</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">chains</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-
-<span class="c1"># Use ArviZ to plot the results</span>
-<span class="n">az</span><span class="o">.</span><span class="n">plot_trace</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
-
-<span class="c1"># Key summary and diagnostic info on the model parameters</span>
-<span class="n">az</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>For a more in-depth introduction to Bambi see our <a class="reference external" href="https://github.com/bambinos/bambi#quickstart">Quickstart</a> or our set of example notebooks.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in a tab-delimited file containing our data</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_table(<span class="st">'my_data.txt'</span>, sep<span class="op">=</span><span class="st">'</span><span class="ch">\t</span><span class="st">'</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the fixed effects only model</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">'DV ~ IV1 + IV2'</span>, data)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model using 1000 on each of 4 chains</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit(draws<span class="op">=</span><span class="dv">1000</span>, chains<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Use ArviZ to plot the results</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>az.plot_trace(results)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Key summary and diagnostic info on the model parameters</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>az.summary(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>For a more in-depth introduction to Bambi see our <a href="https://github.com/bambinos/bambi#quickstart">Quickstart</a> or our set of example notebooks.</p>
 </section>
-<section id="citation">
-<h1>Citation<a class="headerlink" href="#citation" title="Link to this heading">#</a></h1>
+<section id="citation" class="level2">
+<h2 class="anchored" data-anchor-id="citation">Citation</h2>
 <p>If you use Bambi and want to cite it please use</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>@article{Capretto2022,
-        title={Bambi: A Simple Interface for Fitting Bayesian Linear Models in Python},
-        volume={103},
-        url={https://www.jstatsoft.org/index.php/jss/article/view/v103i15},
-        doi={10.18637/jss.v103.i15},
-        number={15},
-        journal={Journal of Statistical Software},
-        author={Capretto, Tomás and Piho, Camen and Kumar, Ravin and Westfall, Jacob and Yarkoni, Tal and Martin, Osvaldo A},
-        year={2022},
-        pages={1–29}
-        }
-</pre></div>
-</div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bib code-with-copy"><code class="sourceCode bibtex"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="va">@article</span>{</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="ot">Capretto2022</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">title</span>={Bambi: A Simple Interface for Fitting Bayesian Linear Models in Python},</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">volume</span>={103},</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">url</span>={https://www.jstatsoft.org/index.php/jss/article/view/v103i15},</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">doi</span>={10.18637/jss.v103.i15},</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">number</span>={15},</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">journal</span>={Journal of Statistical Software},</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">author</span>={Capretto, Tomás and Piho, Camen and Kumar, Ravin and Westfall, Jacob and Yarkoni, Tal and Martin, Osvaldo A},</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">year</span>={2022},</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">pages</span>={1–29}</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
-<section id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">#</a></h1>
-<p>We welcome contributions from interested individuals or groups! For information about contributing to Bambi, check out our instructions, policies, and guidelines <a class="reference external" href="https://github.com/bambinos/bambi/blob/main/docs/CONTRIBUTING.md">here</a>.</p>
+<section id="contributing" class="level2">
+<h2 class="anchored" data-anchor-id="contributing">Contributing</h2>
+<p>We welcome contributions from interested individuals or groups! For information about contributing to Bambi, check out our instructions, policies, and guidelines <a href="https://github.com/bambinos/bambi/blob/main/docs/CONTRIBUTING.md">here</a>.</p>
 </section>
-<section id="contributors">
-<h1>Contributors<a class="headerlink" href="#contributors" title="Link to this heading">#</a></h1>
-<p>See the <a class="reference external" href="https://github.com/bambinos/bambi/graphs/contributors">GitHub contributor page</a>.</p>
-</section>
-<section id="contents">
-<h1>Contents<a class="headerlink" href="#contents" title="Link to this heading">#</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="notebooks/getting_started.html">Getting Started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/getting_started.html#Quickstart">Quickstart</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/getting_started.html#User-Guide">User Guide</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/getting_started.html#Setup">Setup</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/getting_started.html#Creating-a-model">Creating a model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/getting_started.html#Data-format">Data format</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/getting_started.html#Formula-based-specification">Formula-based specification</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/getting_started.html#Coding-of-categorical-variables">Coding of categorical variables</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/getting_started.html#Fitting-the-model">Fitting the model</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/getting_started.html#Specifying-priors">Specifying priors</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/getting_started.html#Custom-Prior">Custom Prior</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/getting_started.html#Generalized-linear-mixed-models">Generalized linear mixed models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/getting_started.html#Families">Families</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/getting_started.html#Results">Results</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/getting_started.html#Plotting">Plotting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/getting_started.html#Summarizing">Summarizing</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/getting_started.html#Accessing-back-end-objects">Accessing back-end objects</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/t-test.html">Comparison of two means (T-test)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/t-test.html#Generate-data">Generate data</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/t-test.html#Model-1">Model 1</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/t-test.html#Analysis">Analysis</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/t-test.html#Model-2">Model 2</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/t-test.html#id1">Analysis</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/ESCS_multiple_regression.html">Multiple linear regression</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/ESCS_multiple_regression.html#Load-and-examine-Eugene-Springfield-community-sample-data">Load and examine Eugene-Springfield community sample data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/ESCS_multiple_regression.html#Specify-model-and-examine-priors">Specify model and examine priors</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/ESCS_multiple_regression.html#Examine-the-model-results">Examine the model results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/ESCS_multiple_regression.html#Summarize-effects-on-partial-correlation-scale">Summarize effects on partial correlation scale</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/ESCS_multiple_regression.html#Relative-importance:-Which-predictors-have-the-strongest-effects-(defined-in-terms-of-squared-partial-correlation?">Relative importance: Which predictors have the strongest effects (defined in terms of squared partial correlation?</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/ESCS_multiple_regression.html#Posterior-Predictive">Posterior Predictive</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/splines_cherry_blossoms.html">Regression splines (Cherry blossom example)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/splines_cherry_blossoms.html#Load-Cherry-Blossom-data">Load Cherry Blossom data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/splines_cherry_blossoms.html#Explore-the-data">Explore the data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/splines_cherry_blossoms.html#Determine-knots">Determine knots</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/splines_cherry_blossoms.html#The-model">The model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/splines_cherry_blossoms.html#Fit-model">Fit model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/splines_cherry_blossoms.html#Analisys-of-the-results">Analisys of the results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/splines_cherry_blossoms.html#Plot-predictions-and-credible-bands">Plot predictions and credible bands</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/splines_cherry_blossoms.html#Advanced:-Watch-out-the-underlying-design-matrix">Advanced: Watch out the underlying design matrix</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/splines_cherry_blossoms.html#Final-comments">Final comments</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/multi-level_regression.html">Hierarchical Linear Regression (Pigs dataset)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/multi-level_regression.html#Load-data">Load data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/multi-level_regression.html#Model">Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/multi-level_regression.html#Estimated-regression-line">Estimated regression line</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/sleepstudy.html">Hierarchical Linear Regression (Sleepstudy example)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/sleepstudy.html#Load-data">Load data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/sleepstudy.html#Explore-data">Explore data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/sleepstudy.html#The-model">The model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/sleepstudy.html#Analyze-results">Analyze results</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/radon_example.html">Hierarchical Linear Regression (Radon Contamination dataset)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/radon_example.html#Prepare-Notebook">Prepare Notebook</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/radon_example.html#Read-Data">Read Data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/radon_example.html#Preprocess-Data">Preprocess Data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/radon_example.html#EDA">EDA</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/radon_example.html#Models:-Conventional-Approaches">Models: Conventional Approaches</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/radon_example.html#Complete-Pooling">Complete Pooling</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/radon_example.html#No-Pooling">No Pooling</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/radon_example.html#Multilevel-and-hierarchical-models">Multilevel and hierarchical models</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/radon_example.html#Partial-pooling-model">Partial pooling model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/radon_example.html#County-specific-intercepts-and-common-predictors">County-specific intercepts and common predictors</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/radon_example.html#Varying-intercept-and-slope-model">Varying intercept and slope model</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/radon_example.html#Adding-group-level-predictors">Adding group-level predictors</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/radon_example.html#Summary">Summary</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/Strack_RRR_re_analysis.html">Bayesian Workflow (Strack RRR Analysis Replication)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/Strack_RRR_re_analysis.html#Reading-in-the-data">Reading in the data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/Strack_RRR_re_analysis.html#Reshaping-the-data">Reshaping the data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/Strack_RRR_re_analysis.html#Fitting-the-model">Fitting the model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/Strack_RRR_re_analysis.html#Inspecting-results">Inspecting results</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/Strack_RRR_re_analysis.html#Expanding-the-model">Expanding the model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/Strack_RRR_re_analysis.html#And-the-answer-is...">And the answer is…</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/shooter_crossed_random_ANOVA.html">Bayesian Workflow (Police Officer’s Dilemma)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/shooter_crossed_random_ANOVA.html#Load-and-examine-data">Load and examine data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/shooter_crossed_random_ANOVA.html#Fit-response-rate-models">Fit response rate models</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/shooter_crossed_random_ANOVA.html#Subject-specific-effects-only">Subject specific effects only</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/shooter_crossed_random_ANOVA.html#Stimulus-specific-effects">Stimulus specific effects</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/shooter_crossed_random_ANOVA.html#Fit-response-models">Fit response models</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/t_regression.html">Robust Linear Regression</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/logistic_regression.html">Logistic Regression (Vote intention with ANES data)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/logistic_regression.html#Load-and-examine-American-National-Election-Studies-(ANES)-data">Load and examine American National Election Studies (ANES) data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/logistic_regression.html#Build-clinton_model">Build <code class="docutils literal notranslate"><span class="pre">clinton_model</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/logistic_regression.html#Logistic-regression">Logistic regression</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/logistic_regression.html#Specify-and-fit-model-in-Bambi">Specify and fit model in Bambi</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/logistic_regression.html#Model-assessment">Model assessment</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/logistic_regression.html#Separation-plot">Separation plot</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/logistic_regression.html#\hat-\kappa-parameter"><span class="math notranslate nohighlight">\(\hat \kappa\)</span> parameter</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/logistic_regression.html#Run-Inference">Run Inference</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/logistic_regression.html#Spaghetti-plot-of-model-predictions">Spaghetti plot of model predictions</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/model_comparison.html">Logistic Regression and Model Comparison with Bambi and ArviZ</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/model_comparison.html#Adults-dataset">Adults dataset</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/model_comparison.html#The-model">The model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/model_comparison.html#Model-1:">Model 1:</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/model_comparison.html#Model-2">Model 2</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/model_comparison.html#Model-3">Model 3</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/model_comparison.html#Model-comparison">Model comparison</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/model_comparison.html#Probability-estimation">Probability estimation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/model_comparison.html#Final-remarks">Final remarks</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/hierarchical_binomial_bambi.html">Hierarchical Logistic regression with Binomial family</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/hierarchical_binomial_bambi.html#Problem-description">Problem description</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/hierarchical_binomial_bambi.html#Load-libraries-and-data">Load libraries and data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/hierarchical_binomial_bambi.html#Explore-our-data">Explore our data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/hierarchical_binomial_bambi.html#Non-hierarchical-model">Non-hierarchical model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/hierarchical_binomial_bambi.html#Hierarchical-model">Hierarchical model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/hierarchical_binomial_bambi.html#Compare-predictions">Compare predictions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/hierarchical_binomial_bambi.html#Footnotes">Footnotes</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/alternative_links_binary.html">Regression for Binary responses: Alternative link functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/alternative_links_binary.html#Generalized-linear-models-for-binary-response">Generalized linear models for binary response</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/alternative_links_binary.html#Load-data">Load data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/alternative_links_binary.html#Build-the-models">Build the models</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/alternative_links_binary.html#Logit-link">Logit link</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/alternative_links_binary.html#Probit-link">Probit link</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/alternative_links_binary.html#Cloglog-link">Cloglog link</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/alternative_links_binary.html#Results">Results</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/wald_gamma_glm.html">Wald and Gamma Regression (Australian insurance claims 2004-2005)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/wald_gamma_glm.html#Load-and-examine-Vehicle-insurance-data">Load and examine Vehicle insurance data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/wald_gamma_glm.html#Wald-family">Wald family</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/wald_gamma_glm.html#Gamma-family">Gamma family</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/wald_gamma_glm.html#Model-fit">Model fit</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/wald_gamma_glm.html#Wald">Wald</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/wald_gamma_glm.html#Gamma">Gamma</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/wald_gamma_glm.html#Model-comparison">Model comparison</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/negative_binomial.html">Negative Binomial Regression (Students absence example)</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/negative_binomial.html#Negative-binomial-distribution-review">Negative binomial distribution review</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/negative_binomial.html#Negative-binomial-in-GLM">Negative binomial in GLM</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/negative_binomial.html#Load-and-explore-Students-data">Load and explore Students data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/negative_binomial.html#Models">Models</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/negative_binomial.html#Model-1">Model 1</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/negative_binomial.html#Model-2">Model 2</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/negative_binomial.html#Model-fit">Model fit</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/negative_binomial.html#id1">Model 1</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/negative_binomial.html#id2">Model 2</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/negative_binomial.html#Explore-models">Explore models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/negative_binomial.html#Plot-predicted-mean-response">Plot predicted mean response</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/beta_regression.html">Beta Regression</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/beta_regression.html#Simulated-Beta-Distribution">Simulated Beta Distribution</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/beta_regression.html#Beta-Regression-with-Predictors">Beta Regression with Predictors</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/beta_regression.html#Example---Revisiting-Baseball-Data">Example - Revisiting Baseball Data</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/categorical_regression.html">Categorical Regression</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/categorical_regression.html#Example-with-toy-data">Example with toy data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/categorical_regression.html#The-iris-dataset">The iris dataset</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/categorical_regression.html#Using-numerical-and-categorical-predictors">Using numerical and categorical predictors</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/categorical_regression.html#References">References</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/circular_regression.html">Circular Regression</a></li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/quantile_regression.html">Quantile Regression</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/quantile_regression.html#Asymmetric-Laplace-distribution">Asymmetric Laplace distribution</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/distributional_models.html">Distributional models</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/distributional_models.html#Constant-alpha">Constant alpha</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/distributional_models.html#Varying-alpha">Varying alpha</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/distributional_models.html#Distributional-models-with-splines">Distributional models with splines</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/hsgp_1d.html">Gaussian Processes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/hsgp_1d.html#A-basic-example">A basic example</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/hsgp_1d.html#How-does-hsgp()-work?">How does <code class="docutils literal notranslate"><span class="pre">hsgp()</span></code> work?</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/hsgp_1d.html#HSGP-by-levels-of-a-categorical-covariate">HSGP by levels of a categorical covariate</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/hsgp_2d.html">Gaussian Processes in 2D</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/hsgp_2d.html#Isotropic-samples">Isotropic samples</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/hsgp_2d.html#A-single-group">A single group</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/hsgp_2d.html#Multiple-groups---same-covariance-function">Multiple groups - same covariance function</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/hsgp_2d.html#Multiple-groups---different-covariance-function">Multiple groups - different covariance function</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/hsgp_2d.html#Anisotropic-samples">Anisotropic samples</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/hsgp_2d.html#id1">A single group</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/hsgp_2d.html#id2">Multiple groups - same covariance function</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/hsgp_2d.html#id3">Multiple groups - different covariance function</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/hsgp_2d.html#A-more-complex-example:-Poisson-likelihood-with-group-specific-effects">A more complex example: Poisson likelihood with group-specific effects</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/plot_predictions.html">Plot Conditional Adjusted Predictions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/plot_predictions.html#Interpreting-Generalized-Linear-Models">Interpreting Generalized Linear Models</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/plot_predictions.html#Conditionally-Adjusted-Predictions">Conditionally Adjusted Predictions</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/plot_predictions.html#Computing-Adjusted-Predictions">Computing Adjusted Predictions</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/plot_predictions.html#Gaussian-Linear-Model">Gaussian Linear Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/plot_predictions.html#Negative-Binomial-Model">Negative Binomial Model</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/plot_predictions.html#Logistic-Regression">Logistic Regression</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/plot_predictions.html#Plotting-other-model-parameters">Plotting other model parameters</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/plot_comparisons.html">Plot Comparisons</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/plot_comparisons.html#Average-Predictive-Differences">Average Predictive Differences</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/plot_comparisons.html#Computing-Average-Predictive-Differences">Computing Average Predictive Differences</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/plot_comparisons.html#Zero-Inflated-Poisson">Zero Inflated Poisson</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/plot_comparisons.html#User-Provided-Values">User Provided Values</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/plot_comparisons.html#Multiple-contrast-values">Multiple contrast values</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/plot_comparisons.html#Default-contrast-and-conditional-values">Default contrast and conditional values</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/plot_comparisons.html#Unit-level-contrasts">Unit level contrasts</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/plot_comparisons.html#Logistic-Regression">Logistic Regression</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/plot_comparisons.html#Comparison-types">Comparison types</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="notebooks/plot_slopes.html">Plot Slopes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/plot_slopes.html#Interpretation-of-Regression-Coefficients">Interpretation of Regression Coefficients</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/plot_slopes.html#Interpreting-interaction-effects">Interpreting interaction effects</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/plot_slopes.html#Average-Predictive-Slopes">Average Predictive Slopes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/plot_slopes.html#Computing-Slopes">Computing Slopes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="notebooks/plot_slopes.html#Logistic-Regression">Logistic Regression</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/plot_slopes.html#User-provided-values">User provided values</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/plot_slopes.html#Multiple-slope-values">Multiple slope values</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/plot_slopes.html#Conditional-slopes">Conditional slopes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/plot_slopes.html#Unit-level-slopes">Unit level slopes</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/plot_slopes.html#Interpreting-coefficients-as-an-elasticity">Interpreting coefficients as an elasticity</a></li>
-<li class="toctree-l4"><a class="reference internal" href="notebooks/plot_slopes.html#Categorical-covariates">Categorical covariates</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#bambi-models"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.models</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#bambi.models.Model"><code class="docutils literal notranslate"><span class="pre">Model</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#bambi.models.Model.build"><code class="docutils literal notranslate"><span class="pre">Model.build()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#bambi.models.Model.fit"><code class="docutils literal notranslate"><span class="pre">Model.fit()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#bambi.models.Model.graph"><code class="docutils literal notranslate"><span class="pre">Model.graph()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#bambi.models.Model.plot_priors"><code class="docutils literal notranslate"><span class="pre">Model.plot_priors()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#bambi.models.Model.predict"><code class="docutils literal notranslate"><span class="pre">Model.predict()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#bambi.models.Model.prior_predictive"><code class="docutils literal notranslate"><span class="pre">Model.prior_predictive()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#bambi.models.Model.set_alias"><code class="docutils literal notranslate"><span class="pre">Model.set_alias()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#bambi.models.Model.set_priors"><code class="docutils literal notranslate"><span class="pre">Model.set_priors()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#bambi-priors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.priors</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#bambi.priors.Prior"><code class="docutils literal notranslate"><span class="pre">Prior</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#bambi.priors.Prior.update"><code class="docutils literal notranslate"><span class="pre">Prior.update()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#bambi.priors.PriorScaler"><code class="docutils literal notranslate"><span class="pre">PriorScaler</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#bambi-families"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.families</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#bambi.families.Family"><code class="docutils literal notranslate"><span class="pre">Family</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#bambi.families.Family.posterior_predictive"><code class="docutils literal notranslate"><span class="pre">Family.posterior_predictive()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api_reference.html#bambi.families.Family.set_default_priors"><code class="docutils literal notranslate"><span class="pre">Family.set_default_priors()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#bambi.families.Likelihood"><code class="docutils literal notranslate"><span class="pre">Likelihood</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#bambi.families.Link"><code class="docutils literal notranslate"><span class="pre">Link</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#bambi-data"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.data</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#bambi.data.clear_data_home"><code class="docutils literal notranslate"><span class="pre">clear_data_home()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#bambi.data.load_data"><code class="docutils literal notranslate"><span class="pre">load_data()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api_reference.html#bambi-plots"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bambi.plots</span></code></a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#bambi.interpret.comparisons"><code class="docutils literal notranslate"><span class="pre">comparisons()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#bambi.interpret.plot_comparisons"><code class="docutils literal notranslate"><span class="pre">plot_comparisons()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#bambi.interpret.plot_predictions"><code class="docutils literal notranslate"><span class="pre">plot_predictions()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#bambi.interpret.plot_slopes"><code class="docutils literal notranslate"><span class="pre">plot_slopes()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#bambi.interpret.predictions"><code class="docutils literal notranslate"><span class="pre">predictions()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="api_reference.html#bambi.interpret.slopes"><code class="docutils literal notranslate"><span class="pre">slopes()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="faq.html">Frequently Asked Questions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="faq.html#general-questions">General Questions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="faq.html#what-is-the-difference-between-bambi-and-pymc">What is the difference between Bambi and PyMC?</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="faq.html#inference-questions">Inference Questions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="faq.html#what-sampling-methods-are-available">What sampling methods are available?</a></li>
-<li class="toctree-l3"><a class="reference internal" href="faq.html#can-inference-in-bambi-be-sped-up-using-gpus-tpus">Can inference in Bambi be sped up using GPUs/TPUs?</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="faq.html#model-specification-questions">Model Specification Questions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="faq.html#my-data-has-a-non-normal-distributions-can-i-still-use-bambi">My data has a non-normal distributions, can I still use Bambi?</a></li>
-<li class="toctree-l3"><a class="reference internal" href="faq.html#how-do-i-find-out-what-priors-are-available">How do I find out what priors are available?</a></li>
-<li class="toctree-l3"><a class="reference internal" href="faq.html#does-bambi-come-with-pre-specified-regression-models">Does bambi come with pre-specified regression models?</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
-<section id="indices">
-<h1>Indices<a class="headerlink" href="#indices" title="Link to this heading">#</a></h1>
-<ul class="simple">
-<li><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></p></li>
-<li><p><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></p></li>
-</ul>
-</section>
+<section id="contributors" class="level2">
+<h2 class="anchored" data-anchor-id="contributors">Contributors</h2>
+<p>See the <a href="https://github.com/bambinos/bambi/graphs/contributors">GitHub contributor page</a>.</p>
 
 
-                </article>
-              
-              
-              
-                <footer class="bd-footer-article">
-                  
-<div class="footer-article-items footer-article__inner">
-  
-    <div class="footer-article-item"><!-- Previous / next buttons -->
-<div class="prev-next-area">
-    <a class="right-next"
-       href="notebooks/getting_started.html"
-       title="next page">
-      <div class="prev-next-info">
-        <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Getting Started</p>
-      </div>
-      <i class="fa-solid fa-angle-right"></i>
-    </a>
-</div></div>
-  
-</div>
+</section>
 
-                </footer>
-              
-            </div>
-            
-            
-              
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-  <div class="sidebar-secondary-item">
-  <div class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+      <div class="nav-footer-center">© Copyright 2023, The developers of Bambi.</div>
   </div>
-  <nav class="bd-toc-nav page-toc">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">BAyesian Model-Building Interface (Bambi) in Python</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#dependencies">Dependencies</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#installation">Installation</a><ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pypi">PyPI</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#conda">Conda</a></li>
-</ul>
-</li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#usage">Usage</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#citation">Citation</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing">Contributing</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#contributors">Contributors</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#contents">Contents</a></li>
-<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#indices">Indices</a></li>
-</ul>
+</footer>
 
-  </nav></div>
 
-  <div class="sidebar-secondary-item">
-  <div class="tocsection sourcelink">
-    <a href="_sources/index.rst.txt">
-      <i class="fa-solid fa-file-lines"></i> Show Source
-    </a>
-  </div>
-</div>
 
-</div></div>
-              
-            
-          </div>
-          <footer class="bd-footer-content">
-            
-          </footer>
-        
-      </main>
-    </div>
-  </div>
-  
-  <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script src="_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
-<script src="_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
-
-  <footer class="bd-footer">
-<div class="bd-footer__inner bd-page-width">
-  
-    <div class="footer-items__start">
-      
-        <div class="footer-item">
-  <p class="copyright">
-    
-      © Copyright 2022, The developers of Bambi.
-      <br/>
-    
-  </p>
-</div>
-      
-        <div class="footer-item">
-  <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
-    <br/>
-  </p>
-</div>
-      
-    </div>
-  
-  
-    <div class="footer-items__end">
-      
-        <div class="footer-item"><p class="theme-version">
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.13.3.
-</p></div>
-      
-    </div>
-  
-</div>
-
-  </footer>
-  </body>
-</html>
+</body></html>

@@ -1,0 +1,73 @@
+# Formula { #bambi.Formula }
+
+`Formula(self, formula, *additionals)`
+
+Model formula
+
+Allows to describe a model with multiple formulas. The first formula describes the response
+variable and its predictors. The following formulas describe predictors for other parameters
+of the likelihood function, allowing distributional models.
+
+## Parameters
+
+| Name           | Type   | Description                                                                         | Default    |
+|----------------|--------|-------------------------------------------------------------------------------------|------------|
+| `formula`      | str    | A model description written using the formula syntax from the ``formulae`` library. | _required_ |
+| `*additionals` | str    | Additional formulas that describe the                                               | `()`       |
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [check_additional](#bambi.Formula.check_additional) | Check if an additional formula matches the expected format |
+| [check_additionals](#bambi.Formula.check_additionals) | Check if the additional formulas match the expected format |
+| [get_all_formulas](#bambi.Formula.get_all_formulas) | Get all the model formulas |
+
+### check_additional { #bambi.Formula.check_additional }
+
+`Formula.check_additional(self, additional)`
+
+Check if an additional formula matches the expected format
+
+#### Parameters
+
+| Name         | Type   | Description                                       | Default    |
+|--------------|--------|---------------------------------------------------|------------|
+| `additional` | str    | A model formula that describes a model parameter. | _required_ |
+
+#### Raises
+
+| Type       | Description                                     |
+|------------|-------------------------------------------------|
+| ValueError | If the formula does not contain a response term |
+| ValueError | If the response term is not a plain name        |
+
+### check_additionals { #bambi.Formula.check_additionals }
+
+`Formula.check_additionals(self, additionals)`
+
+Check if the additional formulas match the expected format
+
+#### Parameters
+
+| Name          | Type                   | Description                                                                   | Default    |
+|---------------|------------------------|-------------------------------------------------------------------------------|------------|
+| `additionals` | typing.Sequence\[str\] | Model formulas that describe model parameters rather than a response variable | _required_ |
+
+#### Returns
+
+| Type                   | Description                                                |
+|------------------------|------------------------------------------------------------|
+| typing.Sequence\[str\] | If all formulas match the required format, it return them. |
+
+### get_all_formulas { #bambi.Formula.get_all_formulas }
+
+`Formula.get_all_formulas(self)`
+
+Get all the model formulas
+
+#### Returns
+
+| Type   | Description                      |
+|--------|----------------------------------|
+| list   | All the formulas in the instance |

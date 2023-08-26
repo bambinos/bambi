@@ -1,0 +1,80 @@
+# Family { #bambi.Family }
+
+`families.Family(self, name, likelihood, link)`
+
+A specification of model family.
+
+## Parameters
+
+| Name         | Type                                                                                   | Description                                                                                                                                                                                                                                                                         | Default    |
+|--------------|----------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `name`       | str                                                                                    | The name of the family. It can be any string.                                                                                                                                                                                                                                       | _required_ |
+| `likelihood` | Likelihood                                                                             | A ``bambi.families.Likelihood`` instance specifying the model likelihood function.                                                                                                                                                                                                  | _required_ |
+| `link`       | typing.Union\[str, typing.Dict\[str, typing.Union\[str, bambi.families.link.Link\]\]\] | The link function that's used for every parameter in the likelihood function. Keys are the names of the parameters and values are the link functions. These can be a ``str`` with a name or a ``bambi.families.Link`` instance. The link function transforms the linear predictors. | _required_ |
+
+## Examples
+
+```python
+>>> import bambi as bmb
+```
+
+Replicate the Gaussian built-in family.
+
+```python
+>>> sigma_prior = bmb.Prior("HalfNormal", sigma=1)
+>>> likelihood = bmb.Likelihood("Gaussian", params=["mu", "sigma"], parent="mu")
+>>> family = bmb.Family("gaussian", likelihood, "identity")
+>>> bmb.Model("y ~ x", data, family=family, priors={"sigma": sigma_prior})
+```
+
+Replicate the Bernoulli built-in family.
+
+```python
+>>> likelihood = bmb.Likelihood("Bernoulli", parent="p")
+>>> family = bmb.Family("bernoulli", likelihood, "logit")
+>>> bmb.Model("y ~ x", data, family=family)
+```
+
+## Methods
+
+| Name | Description |
+| --- | --- |
+| [posterior_predictive](#bambi.Family.posterior_predictive) | Get draws from the posterior predictive distribution |
+| [set_default_priors](#bambi.Family.set_default_priors) | Set default priors for non-parent parameters |
+
+### posterior_predictive { #bambi.Family.posterior_predictive }
+
+`Family.posterior_predictive(self, model, posterior, **kwargs)`
+
+Get draws from the posterior predictive distribution
+
+This function works for almost all the families. It grabs the draws for the parameters
+needed in the response distribution, and then gets samples from the posterior predictive
+distribution using `pm.draw()`. It won't work when the response distribution requires
+parameters that are not available in `posterior`.
+
+#### Parameters
+
+| Name        | Type           | Description                                                                                                                                                                                                          | Default    |
+|-------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `model`     | bambi.Model    | The model                                                                                                                                                                                                            | _required_ |
+| `posterior` | xarray.Dataset | The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them. | _required_ |
+| `kwargs`    |                | Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the 'n' in binomial models and multinomial models.                                  | `{}`       |
+
+#### Returns
+
+| Type             | Description                                                            |
+|------------------|------------------------------------------------------------------------|
+| xarray.DataArray | A data array with the draws from the posterior predictive distribution |
+
+### set_default_priors { #bambi.Family.set_default_priors }
+
+`Family.set_default_priors(self, priors)`
+
+Set default priors for non-parent parameters
+
+#### Parameters
+
+| Name     | Type   | Description                                                                              | Default    |
+|----------|--------|------------------------------------------------------------------------------------------|------------|
+| `priors` | dict   | The keys are the names of non-parent parameters and the values are their default priors. | _required_ |

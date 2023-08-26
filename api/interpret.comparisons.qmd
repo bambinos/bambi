@@ -1,0 +1,31 @@
+# interpret.comparisons { #bambi.interpret.comparisons }
+
+`interpret.comparisons(model, idata, contrast, conditional=None, average_by=None, comparison_type='diff', use_hdi=True, prob=None, transforms=None)`
+
+Compute Conditional Adjusted Comparisons
+
+## Parameters
+
+| Name              | Type                                  | Description                                                                                                                                                                                                                              | Default    |
+|-------------------|---------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `model`           | bambi.Model                           | The model for which we want to plot the predictions.                                                                                                                                                                                     | _required_ |
+| `idata`           | arviz.InferenceData                   | The InferenceData object that contains the samples from the posterior distribution of the model.                                                                                                                                         | _required_ |
+| `contrast`        | (str, dict)                           | The predictor name whose contrast we would like to compare.                                                                                                                                                                              | _required_ |
+| `conditional`     | (str, dict, list)                     | The covariates we would like to condition on.                                                                                                                                                                                            | `None`     |
+| `average_by`      | typing.Union\[str, list, bool, None\] | The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. If True, it averages over all covariates in the model to obtain the average estimate. Defaults to ``None``. | `None`     |
+| `comparison_type` | str                                   | The type of comparison to plot. Defaults to 'diff'.                                                                                                                                                                                      | `'diff'`   |
+| `use_hdi`         | bool                                  | Whether to compute the highest density interval (defaults to True) or the quantiles.                                                                                                                                                     | `True`     |
+| `prob`            | float                                 | The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.                                                            | `None`     |
+| `transforms`      | dict                                  | Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to ``None``.                                                       | `None`     |
+
+## Returns
+
+| Type             | Description                                                                                                              |
+|------------------|--------------------------------------------------------------------------------------------------------------------------|
+| pandas.DataFrame | A dataframe with the comparison values, highest density interval, contrast name, contrast value, and conditional values. |
+
+## Raises
+
+| Type       | Description                                                                                                                                                                                                                                                                                                                    |
+|------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ValueError | If `wrt` is a dict and length of ``contrast`` is greater than 1. If `wrt` is a dict and length of ``contrast`` is greater than 2 and ``conditional`` is ``None``. If ``conditional`` is None and ``contrast`` is categorical with > 2 values. If ``comparison_type`` is not 'diff' or 'ratio'. If ``prob`` is not > 0 and < 1. |
