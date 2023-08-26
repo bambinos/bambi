@@ -1,0 +1,46 @@
+# .github/workflows/preview.yml
+name: Deploy PR previews
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - closed
+
+concurrency: preview-${{ github.ref }}
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - name: Install quartodoc and griffe
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install quartodoc==0.4.2
+          python -m pip install griffe==0.32.3
+
+      - name: Build docs
+        uses: quarto-dev/quarto-actions/setup@v2
+        run: |
+	        python -m quartodoc build --config docs/_quarto.yml
+	        quarto render docs
+
+      - name: Deploy preview
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: ./docs/_site
+
+
+          
