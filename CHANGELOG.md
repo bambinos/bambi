@@ -10,6 +10,8 @@
 
 ### Maintenance and fixes
 
+* Bump `quartodoc` version to 0.6.1
+
 ### Documentation
 
 ### Deprecation
