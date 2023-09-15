@@ -341,7 +341,7 @@ def set_default_values(model: Model, data_dict: dict, kind: str) -> dict:
             dtype = str(model.data[name].dtype)
             if re.match(r"float*|int*", dtype):
                 data_dict[name] = np.mean(model.data[name])
-            elif dtype == "category" or dtype == "object":
+            elif dtype in ("category", "dtype"):
                 data_dict[name] = mode(model.data[name])
 
     if kind in ("comparisons", "slopes"):
