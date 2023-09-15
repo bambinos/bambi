@@ -11,9 +11,19 @@ from bambi.interpret import plot_comparisons, plot_predictions, plot_slopes
 
 @pytest.fixture(scope="module")
 def mtcars():
+    "Model with common level effects only"
     data = bmb.load_data('mtcars')
     data["am"] = pd.Categorical(data["am"], categories=[0, 1], ordered=True)
     model = bmb.Model("mpg ~ hp * drat * am", data)
+    idata = model.fit(tune=500, draws=500, random_seed=1234)
+    return model, idata
+
+
+@pytest.fixture(scope="module")
+def sleep_study():
+    "Model with common and group specific effects"
+    data = bmb.load_data('sleepstudy')
+    model = bmb.Model("Reaction ~ 1 + Days + (Days | Subject)", data)
     idata = model.fit(tune=500, draws=500, random_seed=1234)
     return model, idata
 
@@ -224,6 +234,19 @@ class TestCap:
 
         # Test user supplied target argument
         plot_predictions(model, idata, "x", "alpha", pps=False)
+    
+    
+    def test_group_effects(self, sleep_study):
+        model, idata = sleep_study
+        
+        # contains new unseen data
+        plot_predictions(model, idata, ["Days", "Subject"], sample_new_groups=True)
+
+        with pytest.raises(
+            ValueError, match="There are new groups for the factors \('Subject',\) and 'sample_new_groups' is False."
+        ):
+            # default: sample_new_groups=False
+            plot_predictions(model, idata, ["Days", "Subject"])
 
 
 class TestComparison:
@@ -294,6 +317,25 @@ class TestComparison:
         
         # unit level with average by
         plot_comparisons(model, idata, "hp", None, average_by)
+    
+    def test_group_effects(self, sleep_study):
+        model, idata = sleep_study
+
+        # contains new unseen data
+        plot_comparisons(model, idata, "Days", "Subject", sample_new_groups=True)
+        # user passed values seen in observed data
+        plot_comparisons(
+            model, 
+            idata, 
+            contrast={"Days": [2, 4]},
+            conditional={"Subject": [308, 335, 352, 372]}, 
+        )
+
+        with pytest.raises(
+            ValueError, match="There are new groups for the factors \('Subject',\) and 'sample_new_groups' is False."
+        ):
+            # default: sample_new_groups=False
+            plot_comparisons(model, idata, "Days", "Subject")
 
 
 class TestSlopes:
@@ -375,3 +417,22 @@ class TestSlopes:
 
         # unit level with average by
         plot_slopes(model, idata, "hp", None, average_by)
+    
+    def test_group_effects(self, sleep_study):
+        model, idata = sleep_study
+
+        # contains new unseen data
+        plot_slopes(model, idata, "Days", "Subject", sample_new_groups=True)
+        # user passed values seen in observed data
+        plot_slopes(
+            model,
+            idata,
+            wrt={"Days": 2},
+            conditional={"Subject": 308}
+        )
+
+        with pytest.raises(
+            ValueError, match="There are new groups for the factors \('Subject',\) and 'sample_new_groups' is False."
+        ):
+            # default: sample_new_groups=False
+            plot_slopes(model, idata, "Days", "Subject")
