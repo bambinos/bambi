@@ -94,7 +94,7 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">FAQ</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../CHANGELOG.md">
+    <a class="nav-link" href="../CHANGELOG.qmd">
  <span class="menu-text">Changelog</span></a>
   </li>  
   <li class="nav-item compact">
@@ -328,7 +328,7 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="odd">
 <td><code>average_by</code></td>
-<td>typing.Union[str, list]</td>
+<td>Union[str, list]</td>
 <td>The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. Defaults to <code>None</code>.</td>
 <td><code>None</code></td>
 </tr>
@@ -422,9 +422,12 @@ ul.task-list li input[type="checkbox"] {
 <td>ValueError</td>
 <td>If <code>conditional</code> and <code>average_by</code> are both <code>None</code>. If length of <code>conditional</code> is greater than 3 and <code>average_by</code> is <code>None</code>.</td>
 </tr>
+<tr class="even">
+<td>Warning</td>
+<td>If length of <code>contrast</code> is greater than 2.</td>
+</tr>
 </tbody>
 </table>
-<p>Warning If length of <code>contrast</code> is greater than 2.</p>
 
 
 </section>

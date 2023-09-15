@@ -157,7 +157,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
  <span class="menu-text">FAQ</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../CHANGELOG.md">
+    <a class="nav-link" href="../CHANGELOG.qmd">
  <span class="menu-text">Changelog</span></a>
   </li>  
   <li class="nav-item compact">
@@ -355,9 +355,9 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
-<col style="width: 3%">
-<col style="width: 22%">
-<col style="width: 70%">
+<col style="width: 4%">
+<col style="width: 13%">
+<col style="width: 79%">
 <col style="width: 3%">
 </colgroup>
 <thead>
@@ -383,7 +383,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </tr>
 <tr class="odd">
 <td><code>link</code></td>
-<td>typing.Union[str, typing.Dict[str, typing.Union[str, bambi.families.link.Link]]]</td>
+<td>Union[str, Dict[str, Union[str, Link]]]</td>
 <td>The link function that’s used for every parameter in the likelihood function. Keys are the names of the parameters and values are the link functions. These can be a <code>str</code> with a name or a <code>bambi.families.Link</code> instance. The link function transforms the linear predictors.</td>
 <td><em>required</em></td>
 </tr>
@@ -433,8 +433,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <table class="table">
 <colgroup>
 <col style="width: 5%">
-<col style="width: 6%">
-<col style="width: 83%">
+<col style="width: 5%">
+<col style="width: 84%">
 <col style="width: 4%">
 </colgroup>
 <thead>
@@ -454,7 +454,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </tr>
 <tr class="even">
 <td><code>posterior</code></td>
-<td>xarray.Dataset</td>
+<td>xr.Dataset</td>
 <td>The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them.</td>
 <td><em>required</em></td>
 </tr>
@@ -471,8 +471,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h4 class="anchored" data-anchor-id="returns">Returns</h4>
 <table class="table">
 <colgroup>
-<col style="width: 20%">
-<col style="width: 80%">
+<col style="width: 16%">
+<col style="width: 83%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -482,7 +482,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </thead>
 <tbody>
 <tr class="odd">
-<td>xarray.DataArray</td>
+<td>xr.DataArray</td>
 <td>A data array with the draws from the posterior predictive distribution</td>
 </tr>
 </tbody>

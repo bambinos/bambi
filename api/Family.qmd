@@ -6,11 +6,11 @@ A specification of model family.
 
 ## Parameters
 
-| Name         | Type                                                                                   | Description                                                                                                                                                                                                                                                                         | Default    |
-|--------------|----------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| `name`       | str                                                                                    | The name of the family. It can be any string.                                                                                                                                                                                                                                       | _required_ |
-| `likelihood` | Likelihood                                                                             | A ``bambi.families.Likelihood`` instance specifying the model likelihood function.                                                                                                                                                                                                  | _required_ |
-| `link`       | typing.Union\[str, typing.Dict\[str, typing.Union\[str, bambi.families.link.Link\]\]\] | The link function that's used for every parameter in the likelihood function. Keys are the names of the parameters and values are the link functions. These can be a ``str`` with a name or a ``bambi.families.Link`` instance. The link function transforms the linear predictors. | _required_ |
+| Name         | Type                                          | Description                                                                                                                                                                                                                                                                         | Default    |
+|--------------|-----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `name`       | str                                           | The name of the family. It can be any string.                                                                                                                                                                                                                                       | _required_ |
+| `likelihood` | Likelihood                                    | A ``bambi.families.Likelihood`` instance specifying the model likelihood function.                                                                                                                                                                                                  | _required_ |
+| `link`       | Union\[str, Dict\[str, Union\[str, Link\]\]\] | The link function that's used for every parameter in the likelihood function. Keys are the names of the parameters and values are the link functions. These can be a ``str`` with a name or a ``bambi.families.Link`` instance. The link function transforms the linear predictors. | _required_ |
 
 ## Examples
 
@@ -55,17 +55,17 @@ parameters that are not available in `posterior`.
 
 #### Parameters
 
-| Name        | Type           | Description                                                                                                                                                                                                          | Default    |
-|-------------|----------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
-| `model`     | bambi.Model    | The model                                                                                                                                                                                                            | _required_ |
-| `posterior` | xarray.Dataset | The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them. | _required_ |
-| `kwargs`    |                | Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the 'n' in binomial models and multinomial models.                                  | `{}`       |
+| Name        | Type        | Description                                                                                                                                                                                                          | Default    |
+|-------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `model`     | bambi.Model | The model                                                                                                                                                                                                            | _required_ |
+| `posterior` | xr.Dataset  | The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them. | _required_ |
+| `kwargs`    |             | Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the 'n' in binomial models and multinomial models.                                  | `{}`       |
 
 #### Returns
 
-| Type             | Description                                                            |
-|------------------|------------------------------------------------------------------------|
-| xarray.DataArray | A data array with the draws from the posterior predictive distribution |
+| Type         | Description                                                            |
+|--------------|------------------------------------------------------------------------|
+| xr.DataArray | A data array with the draws from the posterior predictive distribution |
 
 ### set_default_priors { #bambi.Family.set_default_priors }
 
