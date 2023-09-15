@@ -1,6 +1,7 @@
 # pylint: disable = too-many-function-args
 # pylint: disable = too-many-nested-blocks
 from dataclasses import dataclass, field
+import re
 from statistics import mode
 from typing import Union
 
@@ -211,17 +212,21 @@ def get_model_covariates(model: Model) -> np.ndarray:
     """
 
     terms = get_model_terms(model)
-    names = []
+    covariates = []
     for term in terms.values():
         if hasattr(term, "components"):
             for component in term.components:
                 # If the component is a function call, use the argument names
                 if isinstance(component, Call):
-                    names.append([arg.name for arg in component.call.args])
+                    covariates.append([arg.name for arg in component.call.args])
                 else:
-                    names.append([component.name])
+                    covariates.append([component.name])
+        elif hasattr(term, "factor"):
+            covariates.append(list(term.var_names))
 
-    return np.unique(names)
+    flatten_covariates = [item for sublist in covariates for item in sublist]
+
+    return np.unique(flatten_covariates)
 
 
 def get_covariates(covariates: dict) -> Covariates:
@@ -330,25 +335,14 @@ def set_default_values(model: Model, data_dict: dict, kind: str) -> dict:
         "slopes",
     ), "kind must be either 'comparisons', 'slopes', or 'predictions'"
 
-    terms = get_model_terms(model)
-
-    # Get default values for each variable in the model
-    for term in terms.values():
-        if hasattr(term, "components"):
-            for component in term.components:
-                # If the component is a function call, use the argument names
-                if isinstance(component, Call):
-                    names = [arg.name for arg in component.call.args]
-                else:
-                    names = [component.name]
-                for name in names:
-                    if name not in data_dict:
-                        # For numeric predictors, select the mean.
-                        if component.kind == "numeric":
-                            data_dict[name] = np.mean(model.data[name])
-                        # For categoric predictors, select the most frequent level.
-                        elif component.kind == "categoric":
-                            data_dict[name] = mode(model.data[name])
+    unique_covariates = get_model_covariates(model)
+    for name in unique_covariates:
+        if name not in data_dict:
+            dtype = str(model.data[name].dtype)
+            if re.match(r"float*|int*", dtype):
+                data_dict[name] = np.mean(model.data[name])
+            elif dtype == "category" or dtype == "object":
+                data_dict[name] = mode(model.data[name])
 
     if kind in ("comparisons", "slopes"):
         # if value in dict is not a list then convert to a list
