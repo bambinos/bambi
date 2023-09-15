@@ -10,9 +10,13 @@
 
 ### Maintenance and fixes
 
+* Bump `quartodoc` version to 0.6.1 (#720)
+
 ### Documentation
 
 ### Deprecation
+
+* Drop official suport for Python 3.8 (#720)
 
 
 ## 0.12.0
