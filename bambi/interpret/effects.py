@@ -504,11 +504,15 @@ def predictions(
     response_transform = transforms.get(response_name, identity)
 
     if pps:
-        idata = model.predict(idata, data=cap_data, inplace=False, kind="pps")
+        idata = model.predict(
+            idata, data=cap_data, sample_new_groups=sample_new_groups, inplace=False, kind="pps"
+        )
         y_hat = response_transform(idata.posterior_predictive[response.name])
         y_hat_mean = y_hat.mean(("chain", "draw"))
     else:
-        idata = model.predict(idata, data=cap_data, inplace=False)
+        idata = model.predict(
+            idata, data=cap_data, sample_new_groups=sample_new_groups, inplace=False
+        )
         y_hat = response_transform(idata.posterior[response.name_target])
         y_hat_mean = y_hat.mean(("chain", "draw"))
 
@@ -650,7 +654,9 @@ def comparisons(
     comparisons_data = create_differences_data(
         conditional_info, contrast_info, conditional_info.user_passed, kind="comparisons"
     )
-    idata = model.predict(idata, data=comparisons_data, inplace=False)
+    idata = model.predict(
+        idata, data=comparisons_data, sample_new_groups=sample_new_groups, inplace=False
+    )
 
     predictive_difference = PredictiveDifferences(
         model,
@@ -802,7 +808,9 @@ def slopes(
     slopes_data = create_differences_data(
         conditional_info, wrt_info, conditional_info.user_passed, effect_type
     )
-    idata = model.predict(idata, data=slopes_data, inplace=False)
+    idata = model.predict(
+        idata, data=slopes_data, sample_new_groups=sample_new_groups, inplace=False
+    )
 
     predictive_difference = PredictiveDifferences(
         model, slopes_data, wrt_info, conditional_info, response, use_hdi, effect_type

@@ -15,9 +15,19 @@ import bambi as bmb
 
 @pytest.fixture(scope="module")
 def mtcars():
+    "Model with common level effects only"
     data = bmb.load_data('mtcars')
     data["am"] = pd.Categorical(data["am"], categories=[0, 1], ordered=True)
     model = bmb.Model("mpg ~ hp * drat * am", data)
+    idata = model.fit(tune=500, draws=500, random_seed=1234)
+    return model, idata
+
+
+@pytest.fixture(scope="module")
+def sleep_study():
+    "Model with common and group specific effects"
+    data = bmb.load_data('sleepstudy')
+    model = bmb.Model("Reaction ~ 1 + Days + (Days | Subject)", data)
     idata = model.fit(tune=500, draws=500, random_seed=1234)
     return model, idata
 

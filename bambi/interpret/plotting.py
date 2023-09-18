@@ -86,6 +86,7 @@ def plot_predictions(
     idata: az.InferenceData,
     covariates: Union[str, list],
     target: str = "mean",
+    sample_new_groups: bool = False,
     pps: bool = False,
     use_hdi: bool = True,
     prob=None,
@@ -110,6 +111,9 @@ def plot_predictions(
         Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only
         works when pps is False as the target may not be available in the posterior predictive
         distribution.
+    sample_new_groups : bool, optional
+        If the model contains group-level effects, and data is passed for unseen groups, whether
+        to sample from the new groups. Defaults to ``False``.
     pps: bool, optional
         Whether to plot the posterior predictive samples. Defaults to ``False``.
     use_hdi : bool, optional
@@ -174,6 +178,7 @@ def plot_predictions(
         use_hdi=use_hdi,
         prob=prob,
         transforms=transforms,
+        sample_new_groups=sample_new_groups,
     )
 
     response_name = get_aliased_name(model.response_component.response_term)
@@ -219,6 +224,7 @@ def plot_comparisons(
     conditional: Union[str, dict, list, None] = None,
     average_by: Union[str, list] = None,
     comparison_type: str = "diff",
+    sample_new_groups: bool = False,
     use_hdi: bool = True,
     prob=None,
     legend: bool = True,
@@ -245,6 +251,9 @@ def plot_comparisons(
         over the other covariates in the model. Defaults to ``None``.
     comparison_type : str, optional
         The type of comparison to plot. Defaults to 'diff'.
+    sample_new_groups : bool, optional
+        If the model contains group-level effects, and data is passed for unseen groups, whether
+        to sample from the new groups. Defaults to ``False``.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
@@ -332,6 +341,7 @@ def plot_comparisons(
         use_hdi=use_hdi,
         prob=prob,
         transforms=transforms,
+        sample_new_groups=sample_new_groups,
     )
 
     return _plot_differences(
@@ -355,6 +365,7 @@ def plot_slopes(
     average_by: Union[str, list] = None,
     eps: float = 1e-4,
     slope: str = "dydx",
+    sample_new_groups: bool = False,
     use_hdi: bool = True,
     prob=None,
     transforms=None,
@@ -395,6 +406,9 @@ def plot_slopes(
         change in the response.
         'dyex' represents a percent change in 'wrt' is associated with a unit increase
         in the response.
+    sample_new_groups : bool, optional
+        If the model contains group-level effects, and data is passed for unseen groups, whether
+        to sample from the new groups. Defaults to ``False``.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
@@ -486,6 +500,7 @@ def plot_slopes(
         use_hdi=use_hdi,
         prob=prob,
         transforms=transforms,
+        sample_new_groups=sample_new_groups,
     )
 
     return _plot_differences(
