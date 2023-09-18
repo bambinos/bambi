@@ -282,15 +282,15 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="bambi.interpret.plot_predictions" class="level1">
 <h1>interpret.plot_predictions</h1>
-<p><code>interpret.plot_predictions(model, idata, covariates, target='mean', pps=False, use_hdi=True, prob=None, transforms=None, legend=True, ax=None, fig_kwargs=None, subplot_kwargs=None)</code></p>
+<p><code>interpret.plot_predictions(model, idata, covariates, target='mean', sample_new_groups=False, pps=False, use_hdi=True, prob=None, transforms=None, legend=True, ax=None, fig_kwargs=None, subplot_kwargs=None)</code></p>
 <p>Plot Conditional Adjusted Predictions</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
-<col style="width: 5%">
+<col style="width: 6%">
 <col style="width: 11%">
-<col style="width: 79%">
+<col style="width: 78%">
 <col style="width: 3%">
 </colgroup>
 <thead>
@@ -327,48 +327,54 @@ ul.task-list li input[type="checkbox"] {
 <td><code>'mean'</code></td>
 </tr>
 <tr class="odd">
+<td><code>sample_new_groups</code></td>
+<td>bool</td>
+<td>If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to <code>False</code>.</td>
+<td><code>False</code></td>
+</tr>
+<tr class="even">
 <td><code>pps</code></td>
 <td>bool</td>
 <td>Whether to plot the posterior predictive samples. Defaults to <code>False</code>.</td>
 <td><code>False</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>use_hdi</code></td>
 <td>bool</td>
 <td>Whether to compute the highest density interval (defaults to True) or the quantiles.</td>
 <td><code>True</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>prob</code></td>
 <td>float</td>
 <td>The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable <code>az.rcParam["stats.hdi_prob"]</code> affects this default.</td>
 <td><code>None</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>legend</code></td>
 <td>bool</td>
 <td>Whether to automatically include a legend in the plot. Defaults to <code>True</code>.</td>
 <td><code>True</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>transforms</code></td>
 <td>dict</td>
 <td>Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to <code>None</code>.</td>
 <td><code>None</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>ax</code></td>
 <td>matplotlib.axes._subplots.AxesSubplot</td>
 <td>A matplotlib axes object or a sequence of them. If None, this function instantiates a new axes object. Defaults to <code>None</code>.</td>
 <td><code>None</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>fig_kwargs</code></td>
 <td>optional</td>
 <td>Keyword arguments passed to the matplotlib figure function as a dict. For example, <code>fig_kwargs=dict(figsize=(11, 8)), sharey=True</code> would make the figure 11 inches wide by 8 inches high and would share the y-axis values.</td>
 <td><code>None</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>subplot_kwargs</code></td>
 <td>optional</td>
 <td>Keyword arguments used to determine the covariates used for the horizontal, group, and panel axes. For example, <code>subplot_kwargs=dict(main="x", group="y", panel="z")</code> would plot the horizontal axis as <code>x</code>, the color (hue) as <code>y</code>, and the panel axis as <code>z</code>.</td>

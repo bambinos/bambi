@@ -282,15 +282,15 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="bambi.interpret.slopes" class="level1">
 <h1>interpret.slopes</h1>
-<p><code>interpret.slopes(model, idata, wrt, conditional=None, average_by=None, eps=0.0001, slope='dydx', use_hdi=True, prob=None, transforms=None)</code></p>
+<p><code>interpret.slopes(model, idata, wrt, conditional=None, average_by=None, eps=0.0001, slope='dydx', use_hdi=True, prob=None, transforms=None, sample_new_groups=False)</code></p>
 <p>Compute Conditional Adjusted Slopes</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
-<col style="width: 2%">
+<col style="width: 4%">
 <col style="width: 6%">
-<col style="width: 88%">
+<col style="width: 87%">
 <col style="width: 2%">
 </colgroup>
 <thead>
@@ -361,6 +361,12 @@ ul.task-list li input[type="checkbox"] {
 <td>dict</td>
 <td>Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to <code>None</code>.</td>
 <td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>sample_new_groups</code></td>
+<td>bool</td>
+<td>If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to <code>False</code>.</td>
+<td><code>False</code></td>
 </tr>
 </tbody>
 </table>
