@@ -1,16 +1,12 @@
-"""
-This module contains tests for the plotting functions of the 'interpret'
-sub-package. In most cases, testing the plotting function implicitly tests
-the underlying functions that are called by the plotting functions (e.g., 
-'bmb.interpret.plot_slopes()' calls 'slopes()') as they share mostly the same 
-arguments.
-"""
+from os.path import dirname, join
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import pytest
 
 import bambi as bmb
+from bambi.interpret import plot_comparisons, plot_predictions, plot_slopes
 
 
 @pytest.fixture(scope="module")
@@ -45,91 +41,91 @@ class TestCommon:
     @pytest.mark.parametrize("pps", [False, True])
     def test_use_hdi(self, mtcars, pps):
         model, idata = mtcars
-        bmb.interpret.plot_comparisons(model, idata, "hp", "am", use_hdi=False)
-        bmb.interpret.plot_predictions(
+        plot_comparisons(model, idata, "hp", "am", use_hdi=False)
+        plot_predictions(
             model, 
             idata, 
             ["hp", "cyl", "gear"], 
             pps=pps,
             use_hdi=False
         )
-        bmb.interpret.plot_slopes(model, idata, "hp", "am", use_hdi=False)
+        plot_slopes(model, idata, "hp", "am", use_hdi=False)
         
     
     @pytest.mark.parametrize("pps", [False, True])
     def test_hdi_prob(self, mtcars, pps):
         model, idata = mtcars
-        bmb.interpret.plot_comparisons(model, idata, "am", "hp", prob=0.8)
-        bmb.interpret.plot_predictions(
+        plot_comparisons(model, idata, "am", "hp", prob=0.8)
+        plot_predictions(
             model, 
             idata,
             ["hp", "cyl", "gear"], 
             pps=pps, 
             prob=0.8
         )
-        bmb.interpret.plot_slopes(model, idata, "hp", "am", prob=0.8)
+        plot_slopes(model, idata, "hp", "am", prob=0.8)
 
         with pytest.raises(
             ValueError, match="'prob' must be greater than 0 and smaller than 1. It is 1.1."
         ):
-            bmb.interpret.plot_comparisons(model, idata, "am", "hp", prob=1.1)
-            bmb.interpret.plot_predictions(
+            plot_comparisons(model, idata, "am", "hp", prob=1.1)
+            plot_predictions(
                 model, 
                 idata, 
                 ["hp", "cyl", "gear"], 
                 pps=pps,
                 prob=1.1)
-            bmb.interpret.plot_slopes(model, idata, "hp", "am", prob=1.1)
+            plot_slopes(model, idata, "hp", "am", prob=1.1)
 
         with pytest.raises(
             ValueError, match="'prob' must be greater than 0 and smaller than 1. It is -0.1."
         ):
-            bmb.interpret.plot_comparisons(model, idata, "am", "hp", prob=-0.1)
-            bmb.interpret.plot_predictions(
+            plot_comparisons(model, idata, "am", "hp", prob=-0.1)
+            plot_predictions(
                 model, 
                 idata, 
                 ["hp", "cyl", "gear"], 
                 pps=pps,
                 prob=-0.1)
-            bmb.interpret.plot_slopes(model, idata, "hp", "am", prob=0.1)
+            plot_slopes(model, idata, "hp", "am", prob=0.1)
 
 
     @pytest.mark.parametrize("pps", [False, True])
     def test_legend(self, mtcars, pps):
         model, idata = mtcars
-        bmb.interpret.plot_comparisons(model, idata, "am", "hp", legend=False)
-        bmb.interpret.plot_predictions(model, idata, ["hp"], pps=pps,legend=False)
-        bmb.interpret.plot_slopes(model, idata, "hp", "am", legend=False)
+        plot_comparisons(model, idata, "am", "hp", legend=False)
+        plot_predictions(model, idata, ["hp"], pps=pps,legend=False)
+        plot_slopes(model, idata, "hp", "am", legend=False)
     
 
     @pytest.mark.parametrize("pps", [False, True])
     def test_ax(self, mtcars, pps):
         model, idata = mtcars
         fig, ax = plt.subplots()
-        fig_r, ax_r = bmb.interpret.plot_comparisons(model, idata, "am", "hp", ax=ax)
+        fig_r, ax_r = plot_comparisons(model, idata, "am", "hp", ax=ax)
 
         assert isinstance(ax_r, np.ndarray)
         assert fig is fig_r
         assert ax is ax_r[0]
 
         fig, ax = plt.subplots()
-        fig_r, ax_r = bmb.interpret.plot_predictions(model, idata, ["hp"], pps=pps, ax=ax)
+        fig_r, ax_r = plot_predictions(model, idata, ["hp"], pps=pps, ax=ax)
 
         assert isinstance(ax_r, np.ndarray)
         assert fig is fig_r
         assert ax is ax_r[0]
 
         fig, ax = plt.subplots()
-        fig_r, ax_r = bmb.interpret.plot_slopes(model, idata, "hp", "am", ax=ax)
+        fig_r, ax_r = plot_slopes(model, idata, "hp", "am", ax=ax)
 
         assert isinstance(ax_r, np.ndarray)
         assert fig is fig_r
         assert ax is ax_r[0]
 
 
-class TestPredictions:
+class TestCap:
     """
-    Tests the 'bmb.interpret.plot_predictions' function for different combinations of main, group,
+    Tests the 'plot_predictions' function for different combinations of main, group,
     and panel variables.
     """
     @pytest.mark.parametrize("pps", [False, True])
@@ -143,7 +139,7 @@ class TestPredictions:
     )
     def test_basic(self, mtcars, covariates, pps):
         model, idata = mtcars
-        bmb.interpret.plot_predictions(model, idata, covariates, pps=pps)
+        plot_predictions(model, idata, covariates, pps=pps)
 
 
     @pytest.mark.parametrize("pps", [False, True])
@@ -157,7 +153,7 @@ class TestPredictions:
     )
     def test_with_groups(self, mtcars, covariates, pps):
         model, idata = mtcars
-        bmb.interpret.plot_predictions(model, idata, covariates, pps=pps)
+        plot_predictions(model, idata, covariates, pps=pps)
 
 
     @pytest.mark.parametrize("pps", [False, True])
@@ -170,13 +166,13 @@ class TestPredictions:
     )
     def test_with_group_and_panel(self, mtcars, covariates, pps):
         model, idata = mtcars
-        bmb.interpret.plot_predictions(model, idata, covariates, pps=pps)
+        plot_predictions(model, idata, covariates, pps=pps)
 
 
     @pytest.mark.parametrize("pps", [False, True])
     def test_fig_kwargs(self, mtcars, pps):
         model, idata = mtcars
-        bmb.interpret.plot_predictions(
+        plot_predictions(
             model,
             idata,
             [ "hp", "cyl", "gear"],
@@ -188,7 +184,7 @@ class TestPredictions:
     @pytest.mark.parametrize("pps", [False, True])
     def test_subplot_kwargs(self, mtcars, pps):
         model, idata = mtcars
-        bmb.interpret.plot_predictions(
+        plot_predictions(
             model,
             idata,
             ["hp", "drat"],
@@ -207,7 +203,7 @@ class TestPredictions:
     )
     def test_transforms(self, mtcars, transforms, pps):
         model, idata = mtcars
-        bmb.interpret.plot_predictions(model, idata, ["hp"], pps=pps, transforms=transforms)
+        plot_predictions(model, idata, ["hp"], pps=pps, transforms=transforms)
 
 
     @pytest.mark.parametrize("pps", [False, True])
@@ -227,9 +223,9 @@ class TestPredictions:
         # Without alias
         idata = model.fit(tune=100, draws=100, random_seed=1234)
         # Test default target
-        bmb.interpret.plot_predictions(model, idata,  "x", pps=pps)
+        plot_predictions(model, idata,  "x", pps=pps)
         # Test user supplied target argument
-        bmb.interpret.plot_predictions(model, idata, "x", "alpha", pps=False)
+        plot_predictions(model, idata, "x", "alpha", pps=False)
 
         # With alias
         alias = {"alpha": {"Intercept": "sd_intercept", "x": "sd_x", "alpha": "sd_alpha"}}
@@ -237,12 +233,25 @@ class TestPredictions:
         idata = model.fit(tune=100, draws=100, random_seed=1234)
 
         # Test user supplied target argument
-        bmb.interpret.plot_predictions(model, idata, "x", "alpha", pps=False)
+        plot_predictions(model, idata, "x", "alpha", pps=False)
+    
+    
+    def test_group_effects(self, sleep_study):
+        model, idata = sleep_study
+        
+        # contains new unseen data
+        plot_predictions(model, idata, ["Days", "Subject"], sample_new_groups=True)
+
+        with pytest.raises(
+            ValueError, match="There are new groups for the factors \('Subject',\) and 'sample_new_groups' is False."
+        ):
+            # default: sample_new_groups=False
+            plot_predictions(model, idata, ["Days", "Subject"])
 
 
 class TestComparison:
     """
-    Tests the bmb.interpret.plot_comparisons function for different combinations of
+    Tests the plot_comparisons function for different combinations of
     contrast and conditional variables, and user inputs.
     """
     @pytest.mark.parametrize(
@@ -253,7 +262,7 @@ class TestComparison:
     )
     def test_basic(self, mtcars, contrast, conditional):
         model, idata = mtcars
-        bmb.interpret.plot_comparisons(model, idata, contrast, conditional)
+        plot_comparisons(model, idata, contrast, conditional)
     
 
     @pytest.mark.parametrize(
@@ -264,7 +273,7 @@ class TestComparison:
     )
     def test_with_groups(self, mtcars, contrast, conditional):
         model, idata = mtcars
-        bmb.interpret.plot_comparisons(model, idata, contrast, conditional)
+        plot_comparisons(model, idata, contrast, conditional)
     
 
     @pytest.mark.parametrize(
@@ -275,7 +284,7 @@ class TestComparison:
     )
     def test_with_user_values(self, mtcars, contrast, conditional):
         model, idata = mtcars
-        bmb.interpret.plot_comparisons(model, idata, contrast, conditional)
+        plot_comparisons(model, idata, contrast, conditional)
     
 
     @pytest.mark.parametrize(
@@ -285,7 +294,7 @@ class TestComparison:
     )
     def test_subplot_kwargs(self, mtcars, contrast, conditional, subplot_kwargs):
         model, idata = mtcars
-        bmb.interpret.plot_comparisons(model, idata, contrast, conditional, subplot_kwargs=subplot_kwargs)
+        plot_comparisons(model, idata, contrast, conditional, subplot_kwargs=subplot_kwargs)
 
     
     @pytest.mark.parametrize(
@@ -296,7 +305,7 @@ class TestComparison:
     )
     def test_transforms(self, mtcars, contrast, conditional, transforms):
         model, idata = mtcars
-        bmb.interpret.plot_comparisons(model, idata, contrast, conditional, transforms=transforms)
+        plot_comparisons(model, idata, contrast, conditional, transforms=transforms)
     
 
     @pytest.mark.parametrize("average_by", ["am", "drat", ["am", "drat"]])
@@ -304,15 +313,34 @@ class TestComparison:
         model, idata = mtcars
 
         # grid of values with average_by
-        bmb.interpret.plot_comparisons(model, idata, "hp", ["am", "drat"], average_by)
+        plot_comparisons(model, idata, "hp", ["am", "drat"], average_by)
         
         # unit level with average by
-        bmb.interpret.plot_comparisons(model, idata, "hp", None, average_by)
+        plot_comparisons(model, idata, "hp", None, average_by)
+    
+    def test_group_effects(self, sleep_study):
+        model, idata = sleep_study
+
+        # contains new unseen data
+        plot_comparisons(model, idata, "Days", "Subject", sample_new_groups=True)
+        # user passed values seen in observed data
+        plot_comparisons(
+            model, 
+            idata, 
+            contrast={"Days": [2, 4]},
+            conditional={"Subject": [308, 335, 352, 372]}, 
+        )
+
+        with pytest.raises(
+            ValueError, match="There are new groups for the factors \('Subject',\) and 'sample_new_groups' is False."
+        ):
+            # default: sample_new_groups=False
+            plot_comparisons(model, idata, "Days", "Subject")
 
 
 class TestSlopes:
     """
-    Tests the 'bmb.interpret.plot_slopes' function for different combinations, elasticity,
+    Tests the 'plot_slopes' function for different combinations, elasticity,
     and effect types (unit and average slopes) of 'wrt' and 'conditional' 
     variables.
     """
@@ -325,7 +353,7 @@ class TestSlopes:
     )
     def test_basic(self, mtcars, wrt, conditional):
         model, idata = mtcars
-        bmb.interpret.plot_slopes(model, idata, wrt, conditional)
+        plot_slopes(model, idata, wrt, conditional)
     
 
     @pytest.mark.parametrize(
@@ -336,7 +364,7 @@ class TestSlopes:
     )
     def test_with_groups(self, mtcars, wrt, conditional):
         model, idata = mtcars
-        bmb.interpret.plot_slopes(model, idata, wrt, conditional)
+        plot_slopes(model, idata, wrt, conditional)
     
 
     @pytest.mark.parametrize(
@@ -350,13 +378,13 @@ class TestSlopes:
     def test_with_user_values(self, mtcars, wrt, conditional, average_by):
         model, idata = mtcars
         # need to average by if greater than 1 value is passed with 'wrt'
-        bmb.interpret.plot_slopes(model, idata, wrt, conditional, average_by=average_by)
+        plot_slopes(model, idata, wrt, conditional, average_by=average_by)
     
     
     @pytest.mark.parametrize("slope", ["dydx", "dyex", "eyex", "eydx"])
     def test_elasticity(self, mtcars, slope):
         model, idata = mtcars
-        bmb.interpret.plot_slopes(model, idata, "hp", "drat", slope=slope)
+        plot_slopes(model, idata, "hp", "drat", slope=slope)
     
     
     @pytest.mark.parametrize(
@@ -366,7 +394,7 @@ class TestSlopes:
     )
     def test_subplot_kwargs(self, mtcars, wrt, conditional, subplot_kwargs):
         model, idata = mtcars
-        bmb.interpret.plot_slopes(model, idata, wrt, conditional, subplot_kwargs=subplot_kwargs)
+        plot_slopes(model, idata, wrt, conditional, subplot_kwargs=subplot_kwargs)
     
 
     @pytest.mark.parametrize(
@@ -377,7 +405,7 @@ class TestSlopes:
     )
     def test_transforms(self, mtcars, wrt, conditional, transforms):
         model, idata = mtcars
-        bmb.interpret.plot_slopes(model, idata, wrt, conditional, transforms=transforms)
+        plot_slopes(model, idata, wrt, conditional, transforms=transforms)
     
 
     @pytest.mark.parametrize("average_by", ["am", "drat", ["am", "drat"]])
@@ -385,7 +413,26 @@ class TestSlopes:
         model, idata = mtcars
 
         # grid of values with average_by
-        bmb.interpret.plot_slopes(model, idata, "hp", ["am", "drat"], average_by)
+        plot_slopes(model, idata, "hp", ["am", "drat"], average_by)
 
         # unit level with average by
-        bmb.interpret.plot_slopes(model, idata, "hp", None, average_by)
+        plot_slopes(model, idata, "hp", None, average_by)
+    
+    def test_group_effects(self, sleep_study):
+        model, idata = sleep_study
+
+        # contains new unseen data
+        plot_slopes(model, idata, "Days", "Subject", sample_new_groups=True)
+        # user passed values seen in observed data
+        plot_slopes(
+            model,
+            idata,
+            wrt={"Days": 2},
+            conditional={"Subject": 308}
+        )
+
+        with pytest.raises(
+            ValueError, match="There are new groups for the factors \('Subject',\) and 'sample_new_groups' is False."
+        ):
+            # default: sample_new_groups=False
+            plot_slopes(model, idata, "Days", "Subject")
