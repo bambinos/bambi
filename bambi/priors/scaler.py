@@ -108,7 +108,7 @@ class PriorScaler:
                     "Normal",
                     mu=mu,
                     sigma=1,
-                    transform=pm.distributions.transforms.univariate_ordered,
+                    transform=pm.distributions.transforms.ordered,
                 )
         elif isinstance(self.model.family, StoppingRatio):
             threshold = self.model.components["threshold"]
