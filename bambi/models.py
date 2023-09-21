@@ -86,6 +86,10 @@ class Model:
     noncentered : bool
         If ``True`` (default), uses a non-centered parameterization for normal hyperpriors on
         grouped parameters. If ``False``, naive (centered) parameterization is used.
+    center_predictors : bool
+        If ``True`` (default), and if there is an intercept in the common terms, the data is
+        centered by subtracting the mean. The centering is undone after sampling to provide
+        the actual intercept in all distributional components that have an intercept.
     extra_namespace : dict, optional
         Additional user supplied variables with transformations or data to include in the
         environment where the formula is evaluated. Defaults to `None`.
