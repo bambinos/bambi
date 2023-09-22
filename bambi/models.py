@@ -616,7 +616,7 @@ class Model:
         draws : int
             Number of draws to sample from the prior predictive distribution. Defaults to 5000.
         var_names : str or list
-            A list of names of variables for which to compute the posterior predictive
+            A list of names of variables for which to compute the prior predictive
             distribution. Defaults to ``None`` which means to include both observed and
             unobserved RVs.
         random_seed : int
