@@ -50,7 +50,7 @@ jobs:
         shell: bash -l {0}
         run: |
           echo "Running black..."
-          black bambi --check
+          black bambi --check --diff --color
 
           echo "Checking code style with pylint..."
           pylint bambi
