@@ -89,7 +89,7 @@ class Model:
     center_predictors : bool
         If ``True`` (default), and if there is an intercept in the common terms, the data is
         centered by subtracting the mean. The centering is undone after sampling to provide
-        the actual intercept in all distributional components that have an intercept.  Note 
+        the actual intercept in all distributional components that have an intercept. Note
         that this changes the interpretation of the prior on the intercept because it refers
         to the intercept of the centered data.
     extra_namespace : dict, optional
