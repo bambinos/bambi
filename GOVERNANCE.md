@@ -9,9 +9,9 @@ The main focus of The Project is in scientific and statistical computing.
 The Software developed by The Project is released under OSI approved open source licenses,
 developed openly and hosted in public GitHub repositories under the
 [bambinos GitHub organization](https://github.com/bambinos). 
-Examples of Project Software include the Bambi library and its documentation, etc.
+Examples of Project Software include the Bambi library and its documentation.
 The Services run by The Project consist of public websites and web-services that are hosted at 
-[https://bambinos.github.io/bambi](https://bambinos.github.io/bambi) and subdomains.
+[https://bambinos.github.io](https://bambinos.github.io) and subdomains.
 
 The Project is developed by a team of distributed developers, called Contributors. 
 Contributors are individuals who have contributed code, documentation, designs or other work to one 
@@ -35,12 +35,11 @@ keep the barrier between Contributors and Users as low as possible.
 * General Contributors
 * Recurrent Contributors
 * Core Contributors (of which Council members are also a part of)
-* Steering council <!-- Do we specify the number of persons?-->
+* Steering Council
 
 Anyone working with Bambi has the responsibility to personally uphold the Code of Conduct. 
 Core Contributors have the additional responsibility of _enforcing_ the Code of Conduct to maintain
 a safe community.
-
 
 #### Recurrent Contributors
 
@@ -60,12 +59,12 @@ advisory-like role, as they for example might not have the time availability or 
 responsibilities that come with being a Core Contributor.
 
 The process for new people to join the project as recurrent contributors is described at 
-{ref}`contributor_onboarding`. Recurrent or core contributors can nominate anyone to join the <!-- TODO reference -->
-project as a recurrent contributor.
+[New Contributor Nominations and Confirmation Process](#new-contributor-nominations-and-confirmation-process).
+Recurrent or Core Contributors can nominate anyone to join the project as a recurrent contributor.
 
 ##### Current Recurrent Contributors
 
-...
+The list of Recurrent Contributors will be created once after Core Contributors group is defined.
 
 #### Core Contributors
 
@@ -75,19 +74,18 @@ development etc. Core Contributors will be given the ability to manage the Bambi
 repository, including code merges to main. This does not necessarily mean Core Contributors
 must submit code, but more so signifies trust with the project as a whole.
 
-The process for new people to join the project as core contributors is described at 
-{ref}`contributor_onboarding`. <!-- TODO reference -->
-Only recurrent contributors are eligible to become core contributors, and only core contributors
-can nominate them.
+The process for new people to join the project as Core Contributors is described at 
+[New Contributor Nominations and Confirmation Process](#new-contributor-nominations-and-confirmation-process).
+Only Recurrent Contributors are eligible to become Core Contributors, and only Core Contributorscan nominate them.
 
 ##### Core Contributor Responsibilities
 
-* Enforce code of conduct
+* Enforce Code of Conduct
 * Maintain a check against Council
 
 ##### Current Core Contributors
 
-...
+TBD
 
 #### Council
 
@@ -96,7 +94,7 @@ contributions that are substantial in quality and quantity, and sustained over a
 The overall role of the Council is to ensure, taking input from the Community, the 
 long-term well-being of the project, both technically and as a community.
 
-During the everyday project activities, council members participate in all discussions, code review 
+During the everyday project activities, Council Members participate in all discussions, code review 
 and other project activities as peers with all other Contributors and the Community. 
 In these everyday activities, Council Members do not have any special power or privilege through 
 their membership on the Council. However, it is expected that because of the quality and quantity of
@@ -104,20 +102,26 @@ their contributions and their expert knowledge of the Project Software and Servi
 Members will provide useful guidance, both technical and in terms of project direction, 
 to potentially less experienced contributors.
 
+The Council will have between 4 and 7 members. No more than 2 Council Members can report to one 
+person or company (including Institutional Partners) through employment or contracting work 
+(including the reportee, i.e. the reportee + 1 is the max).
+
 #####  Council Responsibilities
 
 Council Members will have the responsibility of
 
-* Removing members, including Council Members, if they are in violation of the Code of Conduct or don't comply with this governance document
+* Removing members, including Council Members, if they are in violation of the Code of Conduct 
+or don't comply with this governance document.
 * Making decisions when regular community discussion does not produce consensus on an issue
-  in a reasonable time frame. See {ref}`council_decision_process` page for more details. <!-- TODO reference -->
+in a reasonable time frame. See [Council Decision Making Process](#council-decision-making-process) 
+page for more details.
 
-The council may choose to delegate these responsibilities to sub-committees. 
+The Council may choose to delegate these responsibilities to sub-committees. 
 If so, Council members must update this document to make the delegation clear.
 
 :::{important}
-Individual council members do not have the power to unilaterally wield these responsibilities. 
-The council as a whole must jointly make these decisions. 
+Individual Council Members do not have the power to unilaterally wield these responsibilities. 
+The Council as a whole must jointly make these decisions. 
 In other words, Council Members are first and foremost Core Contributors, but only when needed they 
 can collectively make decisions for the health of the project.
 :::
@@ -128,16 +132,15 @@ can collectively make decisions for the health of the project.
 
 * Council members term limits are 4 years, after which point their seat will come up for reelection.
 * Each year on April 7th council members will be asked to restate their commitment to being on the 
-council
+Council.
 * Attempts should be made to reach every council member over at least 2 communication media. 
 For example: email, Slack, phone, or GitHub.
-* If a council member does not restate their commitment their seat will be vacated.
+* If a Council Member does not restate their commitment their seat will be vacated.
 * Inactivity can be determined by lack of substantial contribution, including votes on council, 
 code or discussion contributions, contributions in the community or otherwise.
-* In the event of a vacancy in the council, an {ref}`election <council_selection>` will be held to 
-fill the position. <!-- TODO ref -->
+* In the event of a vacancy in the council, an [election](#council-selection-process) will be held 
+to fill the position.
 * There is no limit on the number of terms a Council Member can serve
-
 
 ##### Current Council members
 
@@ -156,7 +159,7 @@ issue, constraints on eligibility are detailed in the role descriptions.
 If nominated candidates accept their nomination (explicit comment approving nomination on the 
 issue or "thumbs-up" emoji on the same issue), then they can be considered by the Council: 
 on the first of the month following a nomination, the Council will vote on each nominee using 
-{ref}`this process <council_voting>`. <!-- TODO ref -->
+[this process](#voting-process).
 
 :::{note}
 In the case of recurring contributors, the nomination and voting process can be replaced
@@ -320,15 +323,8 @@ detailing the
 Core contributors can also voluntarily leave the project by notifying the community through a public
 means or by notifying the entire council.
 
-Unless they request otherwise, they will be listed on {ref}`emeritus` page. <!-- TODO ref -->
-
-#### Voting Criteria For Future Elections
-
-Voting for first election is restricted to establish stable governance, and to defer major decision to elected leaders
-* For the first election only the people registered following the guidelines in `elections/ArviZ_2020.md` can vote
-* In the first year, the council must determine voting eligibility for future elections between two criteria:
-  * Core contributors
-  * The contributing community at large
+Unless they request otherwise, they will be listed on the Emeritus team members page.
+<!-- TODO: Create Emeritus team members page -->
 
 ## Historical note
 
@@ -343,10 +339,3 @@ decisions and interacts with other institutions, we see a need for a more formal
 Moving forward The Project leadership will consist of a **TODO NAME** Council. 
 We view this governance model as the formalization of what we are already doing, rather than a 
 change in direction.
-
-
-<!-- NOTES:  
-
-Include something about our relationship with PyMC (PyMC helped us by giving us access to GSoC three times)
-How do we start a Council if we don't have 'core' contributors yet?
--->
