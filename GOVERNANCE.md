@@ -34,7 +34,7 @@ keep the barrier between Contributors and Users as low as possible.
 
 * General Contributors
 * Recurrent Contributors
-* Current Core Contributors (of which Council members are also a part of)
+* Core Contributors (of which Council members are also a part of)
 * Steering council <!-- Do we specify the number of persons?-->
 
 Anyone working with Bambi has the responsibility to personally uphold the Code of Conduct. 
