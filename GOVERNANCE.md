@@ -3,7 +3,7 @@
 ## The Project
 
 The Bambi Project (The Project) is an open source software project.
-The goal of The Project is to develop open source software and deploy open and public websites and 
+The goal of The Project is to develop open source software and deploy open and public content and 
 services for reproducible, exploratory and interactive computing.
 The main focus of The Project is in scientific and statistical computing.
 The Software developed by The Project is released under OSI approved open source licenses,
