@@ -108,13 +108,9 @@ to potentially less experienced contributors.
 
 Council Members will have the responsibility of
 
-* Removing members, including Council Members, if they are in violation of the Code of Conduct
+* Removing members, including Council Members, if they are in violation of the Code of Conduct or don't comply with this governance document
 * Making decisions when regular community discussion does not produce consensus on an issue
   in a reasonable time frame. See {ref}`council_decision_process` page for more details. <!-- TODO reference -->
-* Making decisions about strategic collaborations with other organizations or individuals.
-* Making decisions about the overall scope, vision and direction of the project.
-* Developing funding sources
-* Deciding how to disburse funds with consultation from Core Contributors
 
 The council may choose to delegate these responsibilities to sub-committees. 
 If so, Council members must update this document to make the delegation clear.
