@@ -941,11 +941,11 @@ def test_cumulative_family_priors(inhaler):
             "Normal",
             mu=[-0.5, 0, 0.5],
             sigma=1.5,
-            transform=pm.distributions.transforms.univariate_ordered,
+            transform=pm.distributions.transforms.ordered,
         )
     }
     model = bmb.Model(
-        "rating ~ period + carry + treat", inhaler, family="cumulative", priors=priors
+        "rating ~ 0 + period + carry + treat", inhaler, family="cumulative", priors=priors
     )
     model.fit(tune=100, draws=100)
 

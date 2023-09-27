@@ -1,0 +1,43 @@
+
+```{=html}
+
+<% for (const item of items) { %>
+
+<h2><%- item.category %></h2>
+
+<p><%- item.description %></p>
+
+<div class="list grid" style="column-gap: 10px;">
+
+<% for (const tile of item.tiles) { %>
+  <div class="card border-2 rounded-3 g-col-12 g-col-sm-6 g-col-md-4 mb-2" <%= metadataAttrs(tile) %>>
+    <div class="card-header py-1 px-2 border-bottom border-1 bg-light">
+      <small class="card-text inline-block">
+        <a href="<%- tile.href %>" class="listing-title"><%= tile.title %></a>
+        <% if (tile.code) { %> 
+        <a href="<%- tile.code %>" title="View source code" 
+          class="source-code card-text float-end inline-block">
+          <i class="bi-code-slash"></i>
+        </a>
+        <% } %>
+        <br>
+        <span class="text-muted listing-subtitle"><%= tile.subtitle %></span>
+      </small>
+    </div>
+    <div class="listing-image">
+      <a href="<%- tile.href %>">
+        <img src="<%- tile.thumbnail %>" alt="<%- tile.description %>" class="card-img-top"/>
+      </a>
+    </div>
+    <% if (tile.publicationdate) { %> 
+      <b class="listing-publicationdate"><%= tile.publicationdate %></b>
+    <% } %>
+    
+  </div>
+<% } %>
+
+</div>
+
+<% } %>
+
+```

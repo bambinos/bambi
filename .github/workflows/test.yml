@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.9", "3.10", "3.11"]
 
     name: Set up Python ${{ matrix.python-version }}
     steps:
@@ -50,7 +50,7 @@ jobs:
         shell: bash -l {0}
         run: |
           echo "Running black..."
-          black bambi --check
+          black bambi --check --diff --color
 
           echo "Checking code style with pylint..."
           pylint bambi

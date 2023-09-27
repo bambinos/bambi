@@ -13,7 +13,7 @@ Bambi is a high-level Bayesian model-building interface written in Python. It's 
 
 ## Installation
 
-Bambi requires a working Python interpreter (3.8+). We recommend installing Python and key numerical libraries using the [Anaconda Distribution](https://www.anaconda.com/products/individual#Downloads), which has one-click installers available on all major platforms.
+Bambi requires a working Python interpreter (3.9+). We recommend installing Python and key numerical libraries using the [Anaconda Distribution](https://www.anaconda.com/products/individual#Downloads), which has one-click installers available on all major platforms.
 
 Assuming a standard Python environment is installed on your machine (including pip), Bambi itself can be installed in one line using pip:
 

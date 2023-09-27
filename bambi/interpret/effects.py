@@ -411,6 +411,7 @@ def predictions(
     use_hdi: bool = True,
     prob=None,
     transforms=None,
+    sample_new_groups=False,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Predictions
 
@@ -443,6 +444,9 @@ def predictions(
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to ``None``.
+    sample_new_groups : bool, optional
+        If the model contains group-level effects, and data is passed for unseen groups, whether
+        to sample from the new groups. Defaults to ``False``.
 
     Returns
     -------
@@ -496,11 +500,15 @@ def predictions(
     response_transform = transforms.get(response_name, identity)
 
     if pps:
-        idata = model.predict(idata, data=cap_data, inplace=False, kind="pps")
+        idata = model.predict(
+            idata, data=cap_data, sample_new_groups=sample_new_groups, inplace=False, kind="pps"
+        )
         y_hat = response_transform(idata.posterior_predictive[response.name])
         y_hat_mean = y_hat.mean(("chain", "draw"))
     else:
-        idata = model.predict(idata, data=cap_data, inplace=False)
+        idata = model.predict(
+            idata, data=cap_data, sample_new_groups=sample_new_groups, inplace=False
+        )
         y_hat = response_transform(idata.posterior[response.name_target])
         y_hat_mean = y_hat.mean(("chain", "draw"))
 
@@ -534,6 +542,7 @@ def comparisons(
     use_hdi: bool = True,
     prob: Union[float, None] = None,
     transforms: Union[dict, None] = None,
+    sample_new_groups: bool = False,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Comparisons
 
@@ -562,6 +571,9 @@ def comparisons(
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to ``None``.
+    sample_new_groups : bool, optional
+        If the model contains group-level effects, and data is passed for unseen groups, whether
+        to sample from the new groups. Defaults to ``False``.
 
     Returns
     -------
@@ -631,7 +643,9 @@ def comparisons(
     comparisons_data = create_differences_data(
         conditional_info, contrast_info, conditional_info.user_passed, kind="comparisons"
     )
-    idata = model.predict(idata, data=comparisons_data, inplace=False)
+    idata = model.predict(
+        idata, data=comparisons_data, sample_new_groups=sample_new_groups, inplace=False
+    )
 
     predictive_difference = PredictiveDifferences(
         model,
@@ -663,6 +677,7 @@ def slopes(
     use_hdi: bool = True,
     prob: Union[float, None] = None,
     transforms: Union[dict, None] = None,
+    sample_new_groups: bool = False,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Slopes
 
@@ -702,6 +717,9 @@ def slopes(
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to ``None``.
+    sample_new_groups : bool, optional
+        If the model contains group-level effects, and data is passed for unseen groups, whether
+        to sample from the new groups. Defaults to ``False``.
 
     Returns
     -------
@@ -776,7 +794,9 @@ def slopes(
     slopes_data = create_differences_data(
         conditional_info, wrt_info, conditional_info.user_passed, effect_type
     )
-    idata = model.predict(idata, data=slopes_data, inplace=False)
+    idata = model.predict(
+        idata, data=slopes_data, sample_new_groups=sample_new_groups, inplace=False
+    )
 
     predictive_difference = PredictiveDifferences(
         model, slopes_data, wrt_info, conditional_info, response, use_hdi, effect_type
