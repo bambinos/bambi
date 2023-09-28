@@ -114,7 +114,7 @@ class PriorScaler:
             threshold = self.model.components["threshold"]
             if isinstance(threshold, ConstantComponent) and threshold.prior.auto_scale:
                 response_level_n = len(np.unique(self.response_component.response_term.data))
-                mu = np.round(np.linspace(-2, 2, num=response_level_n - 1), 2)
+                mu = np.zeros(response_level_n - 1)
                 threshold.prior = Prior("Normal", mu=mu, sigma=1)
 
     def scale(self):
