@@ -399,3 +399,54 @@ def get_group_offset(n, lower: float = 0.05, upper: float = 0.4) -> np.ndarray:
 
 def identity(x):
     return x
+
+
+def merge(y_hat_mean, y_hat_bounds, data):
+
+    idx_names = y_hat_mean.to_dataframe().index.names
+    yhat_df = (y_hat_mean
+        .to_dataframe()
+        .reset_index()
+        .set_index(idx_names)
+    )
+
+    lower_df = (
+        y_hat_bounds.sel(hdi="lower")
+        .to_dataframe()
+        .reset_index()
+        .set_index(idx_names)
+    )
+
+    higher_df = (
+        y_hat_bounds.sel(hdi="higher")
+        .to_dataframe()
+        .reset_index()
+        .set_index(idx_names)
+    )
+
+    bounds_df = pd.merge(
+        left=lower_df,
+        right=higher_df,
+        left_index=True,
+        right_index=True
+    )
+
+    preds_df = (
+        pd.merge(
+            left=yhat_df,
+            right=bounds_df,
+            left_index=True,
+            right_index=True
+            )
+        .reset_index()
+        .set_index(idx_names[0])
+    )
+
+    summary_df = pd.merge(
+        left=data,
+        right=preds_df,
+        left_index=True,
+        right_index=True
+    )
+
+    return summary_df.drop(columns=["hdi_x", "hdi_y"])

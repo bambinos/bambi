@@ -15,6 +15,7 @@ from bambi.interpret.utils import (
     average_over,
     ConditionalInfo,
     identity,
+    merge,
     VariableInfo,
 )
 from bambi.utils import get_aliased_name, listify
@@ -525,9 +526,20 @@ def predictions(
     upper_bound = 1 - lower_bound
     response.lower_bound, response.upper_bound = lower_bound, upper_bound
 
-    cap_data["estimate"] = y_hat_mean
-    cap_data[response.lower_bound_name] = y_hat_bounds[0]
-    cap_data[response.upper_bound_name] = y_hat_bounds[1]
+    if y_hat_mean.ndim > 1:
+        cap_data = merge(y_hat_mean, y_hat_bounds, cap_data)
+        cap_data = cap_data.rename(
+            columns={
+                f"{response.name}_dim": "estimate_dim",
+                f"{response.name_target}": "estimate",
+                f"{response.name_target}_x": response.lower_bound_name,
+                f"{response.name_target}_y": response.upper_bound_name
+            }
+        )
+    else:
+        cap_data["estimate"] = y_hat_mean
+        cap_data[response.lower_bound_name] = y_hat_bounds[0]
+        cap_data[response.upper_bound_name] = y_hat_bounds[1]
 
     return cap_data
 
