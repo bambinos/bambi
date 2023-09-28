@@ -322,6 +322,10 @@ def plot_comparisons(
                     "Must specify a covariate to 'average_by' when number of covariates"
                     "passed to 'conditional' is greater than 3."
                 )
+        if isinstance(conditional, dict):
+            for k,v in conditional:
+                conditional[k] = sroted(v)
+            
     if average_by is True:
         raise ValueError(
             "Plotting when 'average_by = True' is not possible as 'True' marginalizes "
