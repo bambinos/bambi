@@ -323,8 +323,8 @@ def plot_comparisons(
                     "passed to 'conditional' is greater than 3."
                 )
         if isinstance(conditional, dict):
-            for k, v in conditional.items():
-                conditional[k] = sorted(v)
+            for key, value in conditional.items():
+                conditional[key] = sorted(value)
 
     if average_by is True:
         raise ValueError(
