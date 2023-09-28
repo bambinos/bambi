@@ -324,7 +324,7 @@ def plot_comparisons(
                 )
         if isinstance(conditional, dict):
             for k, v in conditional.items():
-                conditional[k] = sroted(v)
+                conditional[k] = sorted(v)
             
     if average_by is True:
         raise ValueError(
