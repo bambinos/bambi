@@ -324,8 +324,8 @@ def plot_comparisons(
                 )
         if isinstance(conditional, dict):
             for k, v in conditional.items():
-                conditional[k] = sorted(v)
-            
+                conditional[k] = sort
+
     if average_by is True:
         raise ValueError(
             "Plotting when 'average_by = True' is not possible as 'True' marginalizes "
