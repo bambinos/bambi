@@ -124,7 +124,7 @@ class VariableInfo:
                                         predictor_data, self.eps, dtype
                                     )
                             elif component.kind == "categoric":
-                                values = get_unique_levels(predictor_data)
+                                values = np.unique(predictor_data)
 
         return values
 
@@ -375,17 +375,6 @@ def make_group_values(x: np.ndarray, groups_n: int = 5) -> np.ndarray:
     elif is_numeric_dtype(x):
         return np.quantile(x, np.linspace(0, 1, groups_n))
     raise ValueError("Group covariate must be numeric or categoric.")
-
-
-def get_unique_levels(x: np.ndarray) -> np.ndarray:
-    """
-    Get unique levels of a categoric variable.
-    """
-    if hasattr(x, "dtype") and hasattr(x.dtype, "categories"):
-        levels = np.array((x.dtype.categories))
-    else:
-        levels = np.unique(x)
-    return levels
 
 
 def get_group_offset(n, lower: float = 0.05, upper: float = 0.4) -> np.ndarray:

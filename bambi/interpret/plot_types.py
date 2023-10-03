@@ -3,7 +3,7 @@ from matplotlib.patches import Patch
 import numpy as np
 import pandas as pd
 
-from bambi.interpret.utils import Covariates, get_unique_levels, get_group_offset, identity
+from bambi.interpret.utils import Covariates, get_group_offset, identity
 
 
 def plot_numeric(
@@ -49,7 +49,7 @@ def plot_numeric(
         ax.fill_between(values_main, y_hat_bounds[0], y_hat_bounds[1], alpha=0.4)
     elif "group" in covariates and not "panel" in covariates:
         ax = axes[0]
-        colors = get_unique_levels(plot_data[color])
+        colors = np.unique(plot_data[color])
         for i, clr in enumerate(colors):
             idx = (plot_data[color] == clr).to_numpy()
             values_main = transform_main(plot_data.loc[idx, main])
@@ -62,7 +62,7 @@ def plot_numeric(
                 color=f"C{i}",
             )
     elif not "group" in covariates and "panel" in covariates:
-        panels = get_unique_levels(plot_data[panel])
+        panels = np.unique(plot_data[panel])
         for ax, pnl in zip(axes.ravel(), panels):
             idx = (plot_data[panel] == pnl).to_numpy()
             values_main = transform_main(plot_data.loc[idx, main])
@@ -70,8 +70,8 @@ def plot_numeric(
             ax.fill_between(values_main, y_hat_bounds[0][idx], y_hat_bounds[1][idx], alpha=0.4)
             ax.set(title=f"{panel} = {pnl}")
     elif "group" in covariates and "panel" in covariates:
-        colors = get_unique_levels(plot_data[color])
-        panels = get_unique_levels(plot_data[panel])
+        colors = np.unique(plot_data[color])
+        panels = np.unique(plot_data[panel])
         if color == panel:
             for i, (ax, pnl) in enumerate(zip(axes.ravel(), panels)):
                 idx = (plot_data[panel] == pnl).to_numpy()
@@ -138,20 +138,20 @@ def plot_categoric(covariates: Covariates, plot_data: pd.DataFrame, legend: bool
 
     main, color, panel = covariates.main, covariates.group, covariates.panel
     covariates = {k: v for k, v in vars(covariates).items() if v is not None}
-    main_levels = get_unique_levels(plot_data[main])
+    main_levels = np.unique(plot_data[main])
     main_levels_n = len(main_levels)
     idxs_main = np.arange(main_levels_n)
     y_hat_mean = plot_data["estimate"]
     y_hat_bounds = np.transpose(plot_data[plot_data.columns[-2:]].values)
 
     if "group" in covariates:
-        colors = get_unique_levels(plot_data[color])
+        colors = np.unique(plot_data[color])
         colors_n = len(colors)
         offset_bounds = get_group_offset(colors_n)
         colors_offset = np.linspace(-offset_bounds, offset_bounds, colors_n)
 
     if "panel" in covariates:
-        panels = get_unique_levels(plot_data[panel])
+        panels = np.unique(plot_data[panel])
 
     if len(covariates) == 1:
         ax = axes[0]

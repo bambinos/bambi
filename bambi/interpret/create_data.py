@@ -70,6 +70,11 @@ def _grid_level(
     elif kind == "slopes":
         pairwise_grid = enforce_dtypes(condition_info.model.data, pairwise_grid, variable_info.name)
 
+    # After computing default values, fractional values may have been computed.
+    # Enforcing the dtype of "int" may create duplicate rows as it will round
+    # the fractional values.
+    pairwise_grid = pairwise_grid.drop_duplicates()
+
     return pairwise_grid
 
 
