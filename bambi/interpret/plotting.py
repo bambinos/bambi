@@ -316,7 +316,7 @@ def plot_comparisons(
         raise ValueError("Must specify at least one of 'conditional' or 'average_by'.")
 
     if isinstance(conditional, dict):
-        conditional = {key: sorted(value) for key, value in conditional.items()}
+        conditional = {key: sorted(listify(value)) for key, value in conditional.items()}
     elif conditional is not None:
         conditional = listify(conditional)
         if len(conditional) > 3 and average_by is None:
@@ -474,7 +474,7 @@ def plot_slopes(
         raise ValueError("Must specify at least one of 'conditional' or 'average_by'.")
 
     if isinstance(conditional, dict):
-        conditional = {key: sorted(value) for key, value in conditional.items()}
+        conditional = {key: sorted(listify(value)) for key, value in conditional.items()}
     elif conditional is not None:
         conditional = listify(conditional)
         if len(conditional) > 3 and average_by is None:
