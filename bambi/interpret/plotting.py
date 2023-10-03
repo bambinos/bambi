@@ -323,8 +323,7 @@ def plot_comparisons(
                     "passed to 'conditional' is greater than 3."
                 )
         if isinstance(conditional, dict):
-            for key, value in conditional.items():
-                conditional[key] = sorted(value)
+            conditional = {key: sorted(value) for key, value in conditional.items()}
 
     if average_by is True:
         raise ValueError(
@@ -473,6 +472,7 @@ def plot_slopes(
 
     if conditional is None and average_by is None:
         raise ValueError("Must specify at least one of 'conditional' or 'average_by'.")
+    
     if conditional is not None:
         if not isinstance(conditional, str):
             if len(conditional) > 3 and average_by is None:
@@ -480,6 +480,8 @@ def plot_slopes(
                     "Must specify a covariate to 'average_by' when number of covariates"
                     "passed to 'conditional' is greater than 3."
                 )
+        if isinstance(conditional, dict):
+            conditional = {key: sorted(value) for key, value in conditional.items()}
 
     if average_by is True:
         raise ValueError(
