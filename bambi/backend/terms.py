@@ -441,7 +441,7 @@ class HSGPTerm:
             contribution = pt.concatenate(contribution_list)[indexes_to_unsort]
         # If there are no groups, it's a single dot product
         else:
-            contribution = phi @ coeffs
+            contribution = pt.dot(phi, coeffs)  # "@" operator is not working as expected
 
         output = pm.Deterministic(label, contribution, dims=contribution_dims)
         return output
