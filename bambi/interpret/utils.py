@@ -264,9 +264,9 @@ def enforce_dtypes(data: pd.DataFrame, df: pd.DataFrame, except_col=None) -> pd.
     observed_dtypes = data.dtypes
     for col in df.columns:
         if col in observed_dtypes.index and not except_col:
-            if observed_dtypes[col] == 'category':
+            if observed_dtypes[col] == "category":
                 # explicitly converts to category dtype
-                df[col] = df[col].astype('category')
+                df[col] = df[col].astype("category")
             else:
                 # casts the original dtype to the new data
                 df[col] = df[col].astype(observed_dtypes[col])
