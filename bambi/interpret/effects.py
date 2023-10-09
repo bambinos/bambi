@@ -670,7 +670,11 @@ def comparisons(
     )
 
     # returns empty list if model predictions do not have multiple dimensions
-    response_dim = idata.posterior.coords.get(response.name + "_dim", []).values
+    response_dim_key = response.name + "_dim"
+    if response_dim_key in idata.posterior.coords:
+        response_dim = idata.posterior.coords[response_dim_key].values
+    else:
+        response_dim = []
 
     predictive_difference = PredictiveDifferences(
         model,
@@ -820,7 +824,11 @@ def slopes(
     )
 
     # returns empty list if model predictions do not have multiple dimensions
-    response_dim = idata.posterior.coords.get(response.name + "_dim", []).values
+    response_dim_key = response.name + "_dim"
+    if response_dim_key in idata.posterior.coords:
+        response_dim = idata.posterior.coords[response_dim_key].values
+    else:
+        response_dim = []
 
     predictive_difference = PredictiveDifferences(
         model, slopes_data, wrt_info, conditional_info, response, use_hdi, effect_type
