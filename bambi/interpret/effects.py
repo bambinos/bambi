@@ -14,6 +14,7 @@ from bambi.interpret.create_data import create_differences_data, create_predicti
 from bambi.interpret.utils import (
     average_over,
     ConditionalInfo,
+    enforce_dtypes,
     identity,
     merge,
     VariableInfo,
@@ -320,7 +321,7 @@ class PredictiveDifferences:
 
         return self
 
-    def get_summary_df(self) -> pd.DataFrame:
+    def get_summary_df(self, response_dim) -> pd.DataFrame:
         """
         Builds the summary dataframe for 'comparisons' and 'slopes' effects. If
         the number of values passed for the variable of interest is less then 2
@@ -340,6 +341,18 @@ class PredictiveDifferences:
                 contrast_values, summary_df.shape[0] // len(contrast_values), axis=0
             )
             contrast_values = [tuple(elem) for elem in contrast_values]
+
+        elif len(response_dim) > 1:
+            summary_df = self.preds_data.drop(columns=self.variable.name).drop_duplicates()
+            covariates_cols = summary_df.columns
+            contrast_values = self.variable.values.flatten()
+            covariate_vals = np.repeat(summary_df.T, len(response_dim))
+            summary_df = pd.DataFrame(data=covariate_vals.T, columns=covariates_cols)
+            summary_df["estimate_dim"] = np.tile(
+                response_dim, summary_df.shape[0] // len(response_dim)
+            )
+            contrast_values = [tuple(contrast_values)] * summary_df.shape[0]
+
         else:
             wrt = {}
             for idx, _ in enumerate(self.variable.values):
@@ -474,12 +487,10 @@ def predictions(
 
     assert 1 <= len(covariates) <= 3
 
-    if transforms is None:
-        transforms = {}
+    transforms = transforms if transforms is not None else {}
 
     if prob is None:
         prob = az.rcParams["stats.hdi_prob"]
-
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
@@ -533,7 +544,7 @@ def predictions(
                 f"{response.name}_dim": "estimate_dim",
                 f"{response.name_target}": "estimate",
                 f"{response.name_target}_x": response.lower_bound_name,
-                f"{response.name_target}_y": response.upper_bound_name
+                f"{response.name_target}_y": response.upper_bound_name,
             }
         )
     else:
@@ -642,8 +653,7 @@ def comparisons(
     contrast_info = VariableInfo(model, contrast, "comparisons", eps=0.5)
     conditional_info = ConditionalInfo(model, conditional)
 
-    if transforms is None:
-        transforms = {}
+    transforms = transforms if transforms is not None else {}
 
     response_name = get_aliased_name(model.response_component.response_term)
     response = ResponseInfo(
@@ -659,6 +669,9 @@ def comparisons(
         idata, data=comparisons_data, sample_new_groups=sample_new_groups, inplace=False
     )
 
+    # returns empty list if model predictions do not have multiple dimensions
+    response_dim = idata.posterior.coords.get(response.name + "_dim", []).values
+
     predictive_difference = PredictiveDifferences(
         model,
         comparisons_data,
@@ -670,12 +683,12 @@ def comparisons(
     )
     comparisons_summary = predictive_difference.get_estimate(
         idata, response_transform, comparison_type, prob=prob
-    ).get_summary_df()
+    ).get_summary_df(response_dim)
 
     if average_by:
         comparisons_summary = predictive_difference.average_by(variable=average_by)
 
-    return comparisons_summary
+    return enforce_dtypes(comparisons_data, comparisons_summary)
 
 
 def slopes(
@@ -781,10 +794,7 @@ def slopes(
     # 'slopes' should not be limited to ("main", "group", "panel")
     conditional_info = ConditionalInfo(model, conditional)
 
-    grid = False
-    if conditional_info.covariates:
-        grid = True
-
+    grid = bool(conditional_info.covariates)
     # if wrt is categorical or string dtype, call 'comparisons' to compute the
     # difference between group means as the slope
     effect_type = "slopes"
@@ -796,8 +806,7 @@ def slopes(
     lower_bound = round((1 - prob) / 2, 4)
     upper_bound = 1 - lower_bound
 
-    if transforms is None:
-        transforms = {}
+    transforms = transforms if transforms is not None else {}
 
     response_name = get_aliased_name(model.response_component.response_term)
     response = ResponseInfo(response_name, "mean", lower_bound, upper_bound)
@@ -810,14 +819,17 @@ def slopes(
         idata, data=slopes_data, sample_new_groups=sample_new_groups, inplace=False
     )
 
+    # returns empty list if model predictions do not have multiple dimensions
+    response_dim = idata.posterior.coords.get(response.name + "_dim", []).values
+
     predictive_difference = PredictiveDifferences(
         model, slopes_data, wrt_info, conditional_info, response, use_hdi, effect_type
     )
     slopes_summary = predictive_difference.get_estimate(
         idata, response_transform, "diff", slope, eps
-    ).get_summary_df()
+    ).get_summary_df(response_dim)
 
     if average_by:
         slopes_summary = predictive_difference.average_by(variable=average_by)
 
-    return slopes_summary
+    return enforce_dtypes(slopes_data, slopes_summary)
