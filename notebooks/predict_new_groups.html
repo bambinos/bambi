@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.280">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bambi – predict_new_groups</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../notebooks/logistic_regression.html" rel="next">
+<link href="../notebooks/t_regression.html" rel="prev">
+<link href="../logos/favicon.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../logos/RGB/Bambi_logo.png" alt="bambi-home" class="navbar-logo">
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../api/index.html">
+ <span class="menu-text">Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../notebooks/index.html" aria-current="page">
+ <span class="menu-text">Examples</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../faq.html">
+ <span class="menu-text">FAQ</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../CHANGELOG.qmd">
+ <span class="menu-text">Changelog</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/bambinos/bambi"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+    <div class="container-fluid d-flex justify-content-between">
+      <h1 class="quarto-secondary-nav-title"></h1>
+      <button type="button" class="quarto-btn-toggle btn" aria-label="Show secondary navigation">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/index.html" class="sidebar-item-text sidebar-link">Examples gallery</a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">Linear regression models</a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/t-test.html" class="sidebar-item-text sidebar-link">Comparison of two means (T-test)</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/ESCS_multiple_regression.html" class="sidebar-item-text sidebar-link">Multiple linear regression</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/splines_cherry_blossoms.html" class="sidebar-item-text sidebar-link">Regression splines (Cherry blossom example)</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/multi-level_regression.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Pigs dataset)</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/sleepstudy.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Sleepstudy example)</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/radon_example.html" class="sidebar-item-text sidebar-link">Hierarchical Linear Regression (Radon Contamination dataset)</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/Strack_RRR_re_analysis.html" class="sidebar-item-text sidebar-link">Bayesian Workflow (Strack RRR Analysis Replication)</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/shooter_crossed_random_ANOVA.html" class="sidebar-item-text sidebar-link">Bayesian Workflow (Police Officer’s Dilemma)</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/t_regression.html" class="sidebar-item-text sidebar-link">Robust Linear Regression</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/predict_new_groups.html" class="sidebar-item-text sidebar-link active">Predict New Groups</a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="false">Generalized linear models</a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="false">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/logistic_regression.html" class="sidebar-item-text sidebar-link">Logistic Regression (Vote intention with ANES data)</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/model_comparison.html" class="sidebar-item-text sidebar-link">Logistic Regression and Model Comparison with Bambi and ArviZ</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/hierarchical_binomial_bambi.html" class="sidebar-item-text sidebar-link">Hierarchical Logistic regression with Binomial family</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/alternative_links_binary.html" class="sidebar-item-text sidebar-link">Regression for Binary responses: Alternative link functions</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/wald_gamma_glm.html" class="sidebar-item-text sidebar-link">Wald and Gamma Regression (Australian insurance claims 2004-2005)</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/negative_binomial.html" class="sidebar-item-text sidebar-link">Negative Binomial Regression (Students absence example)</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/beta_regression.html" class="sidebar-item-text sidebar-link">Beta Regression</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/categorical_regression.html" class="sidebar-item-text sidebar-link">Categorical Regression</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/circular_regression.html" class="sidebar-item-text sidebar-link">Circular Regression</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/quantile_regression.html" class="sidebar-item-text sidebar-link">Quantile Regression</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/mister_p.html" class="sidebar-item-text sidebar-link">Multilevel Regression and Post-stratification</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/ordinal_regression.html" class="sidebar-item-text sidebar-link">Ordinal Regression</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/zero_inflated_regression.html" class="sidebar-item-text sidebar-link">Zero inflated models</a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="false">More advanced models</a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="false">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/distributional_models.html" class="sidebar-item-text sidebar-link">Distributional models</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/hsgp_1d.html" class="sidebar-item-text sidebar-link">Gaussian Processes</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/hsgp_2d.html" class="sidebar-item-text sidebar-link">Gaussian Processes in 2D</a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="false">Tools to interpret model outputs</a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="false">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/plot_predictions.html" class="sidebar-item-text sidebar-link">Plot Conditional Adjusted Predictions</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/plot_comparisons.html" class="sidebar-item-text sidebar-link">Plot Comparisons</a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link">Plot Slopes</a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#predict-new-groups" id="toc-predict-new-groups" class="nav-link active" data-scroll-target="#predict-new-groups">Predict New Groups</a>
+  <ul class="collapse">
+  <li><a href="#hierarchical-models-and-predictions-at-multiple-levels" id="toc-hierarchical-models-and-predictions-at-multiple-levels" class="nav-link" data-scroll-target="#hierarchical-models-and-predictions-at-multiple-levels">Hierarchical models and predictions at multiple levels</a></li>
+  <li><a href="#sampling-new-groups-in-bambi" id="toc-sampling-new-groups-in-bambi" class="nav-link" data-scroll-target="#sampling-new-groups-in-bambi">Sampling new groups in Bambi</a></li>
+  <li><a href="#hierarchical-regression" id="toc-hierarchical-regression" class="nav-link" data-scroll-target="#hierarchical-regression">Hierarchical regression</a>
+  <ul class="collapse">
+  <li><a href="#the-osic-pulmonary-fibrosis-progression-dataset" id="toc-the-osic-pulmonary-fibrosis-progression-dataset" class="nav-link" data-scroll-target="#the-osic-pulmonary-fibrosis-progression-dataset">The OSIC pulmonary fibrosis progression dataset</a></li>
+  <li><a href="#partial-pooling-model" id="toc-partial-pooling-model" class="nav-link" data-scroll-target="#partial-pooling-model">Partial pooling model</a></li>
+  <li><a href="#model-criticism" id="toc-model-criticism" class="nav-link" data-scroll-target="#model-criticism">Model criticism</a></li>
+  <li><a href="#predict-observed-patients" id="toc-predict-observed-patients" class="nav-link" data-scroll-target="#predict-observed-patients">Predict observed patients</a></li>
+  <li><a href="#predict-new-patients" id="toc-predict-new-patients" class="nav-link" data-scroll-target="#predict-new-patients">Predict new patients</a></li>
+  </ul></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+
+<section id="predict-new-groups" class="level1">
+<h1>Predict New Groups</h1>
+<p>In Bambi, it is possible to perform predictions on new, unseen, groups of data that were not in the observed data used to fit the model with the argument <code>sample_new_groups</code> in the <code>model.predict()</code> method. This is useful in the context of hierarchical modeling, where groups are assumed to be a sample from a larger group.</p>
+<p>Below, it is first described how predictions at multiple levels and for unseen groups are possible with hierarchical models. Then, it is described how this is performed in Bambi. Lastly, a hierarchical model is developed to show how to use the <code>sample_new_groups</code> argument in the <code>model.predict()</code> method, and within the <code>interpret</code> sub-package. For users coming from <code>brms</code> in R, this is equivalent to the <code>sample_new_levels</code> argument.</p>
+<section id="hierarchical-models-and-predictions-at-multiple-levels" class="level2">
+<h2 class="anchored" data-anchor-id="hierarchical-models-and-predictions-at-multiple-levels">Hierarchical models and predictions at multiple levels</h2>
+<p>A feature of hierarchical models is that they are able to make predictions at multiple levels. For example, if we were to use the penguin <a href="https://www.kaggle.com/code/parulpandey/penguin-dataset-the-new-iris">dataset</a> to fit a hierchical regression to estimate the body mass of each penguin species given a set of predictors, we could estimate the mass of all penguins <strong>and</strong> each individual species at the same time. Thus, in this example, there are predictions for two levels: (1) the population level, and (2) the species level.</p>
+<p>Additionally, a hierarchical model can be used to make predictions for groups (levels) that were never seen before if a hyperprior is defined over the group-specific effect. With a hyperior defined on group-specific effects, the groups do not share one fixed parameter, but rather share a hyperprior distribution which describes the distribution for the parameter of the prior itself. Lets write a hierarchical model (without intercepts) with a hyperprior defined for group-specific effects in statistical notation so this concept becomes more clear:</p>
+<p><span class="math display">\[\beta_{\mu h} \sim \mathcal{N}(0, 10)\]</span> <span class="math display">\[\beta_{\sigma h} \sim \mathcal{HN}(10)\]</span> <span class="math display">\[\beta_{m} \sim \mathcal{N}(\beta_{\mu h}, \beta_{\sigma h})\]</span> <span class="math display">\[\sigma_{h} \sim \mathcal{HN}(10)\]</span> <span class="math display">\[\sigma_{m} \sim \mathcal{HN}(\sigma_{h})\]</span> <span class="math display">\[Y \sim \mathcal{N}(\beta_{m} * X_{m}, \sigma_{m})\]</span></p>
+<p>The parameters <span class="math inline">\(\beta_{\mu h}, \beta_{\sigma h}\)</span> of the group-specific effect prior <span class="math inline">\(\beta_{m}\)</span> come from hyperprior distributions. Thus, if we would like to make predictions for a new, unseen, group, we can do so by first sampling from these hyperprior distributions to obtain the parameters for the new group, and then sample from the posterior or posterior predictive distribution to obtain the estimates for the new group. For a more in depth explanation of hierarchical models in Bambi, see either: the <a href="https://bambinos.github.io/bambi/notebooks/radon_example.html#varying-intercept-and-slope-model">radon example</a>, or the <a href="https://bambinos.github.io/bambi/notebooks/sleepstudy.html">sleep study example</a>.</p>
+</section>
+<section id="sampling-new-groups-in-bambi" class="level2">
+<h2 class="anchored" data-anchor-id="sampling-new-groups-in-bambi">Sampling new groups in Bambi</h2>
+<p>If data with unseen groups are passed to the <code>new_data</code> argument of the <code>model.predict()</code> method, Bambi first needs to identify if that group exists, and if not, to evaluate the new group with the respective group-specific term. This evaluation updates the <a href="https://bambinos.github.io/bambi/notebooks/how_bambi_works.html#design-matrix">design matrix</a> initially used to fit the model with the new group(s). This is achieved with the <code>.evaluate_new_data</code> method in the <a href="https://github.com/bambinos/formulae">formulae</a> package.</p>
+<p>Once the design matrix has been updated, Bambi can perform predictions on the new, unseen, groups by specifying <code>sample_new_groups=True</code> in <code>model.predict()</code>. Each posterior sample for the new groups is drawn from the posterior draws of a randomly selected existing group. Since different groups may be selected at each draw, the end result represents the variation across existing groups.</p>
+</section>
+<section id="hierarchical-regression" class="level2">
+<h2 class="anchored" data-anchor-id="hierarchical-regression">Hierarchical regression</h2>
+<p>To demonstrate the <code>sample_new_groups</code> argument, we will develop a hierarchical model on the <a href="https://www.kaggle.com/c/osic-pulmonary-fibrosis-progression">OSIC Pulmonary Fibrosis Progression</a> dataset. Pulmonary fibrosis is a disorder with no known cause and no known cure, created by scarring of the lungs. Using a hierarchical model, the objective is to predict a patient’s severity of decline in lung function. Lung function is assessed based on output from a spirometer, which measures the forced vital capacity (FVC), i.e.&nbsp;the volume of air exhaled by the patient.</p>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>warnings.simplefilter(action<span class="op">=</span><span class="st">"ignore"</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING (pytensor.tensor.blas): Using NumPy C-API based implementation for BLAS functions.</code></pre>
+</div>
+</div>
+<section id="the-osic-pulmonary-fibrosis-progression-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="the-osic-pulmonary-fibrosis-progression-dataset">The OSIC pulmonary fibrosis progression dataset</h3>
+<p>In the dataset, we were provided with a baseline chest computerized tomography (CT) scan and associated clinical information for a set of patients where the columns represent the following</p>
+<ul>
+<li><code>patient</code>- a unique id for each patient</li>
+<li><code>weeks</code>- the relative number of weeks pre/post the baseline CT (may be negative)</li>
+<li><code>fvc</code> - the recorded lung capacity in millilitres (ml)</li>
+<li><code>percent</code>- a computed field which approximates the patient’s FVC as a percent of the typical FVC for a person of similar characteristics</li>
+<li><code>sex</code> - male or female</li>
+<li><code>smoking_status</code> - ex-smoker, never smoked, currently smokes</li>
+<li><code>age</code> - age of the patient</li>
+</ul>
+<p>A patient has an image acquired at time <code>week = 0</code> and has numerous follow up visits over the course of approximately 1-2 years, at which time their FVC is measured. Below, we randomly sample three patients and plot their FVC measurements over time.</p>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"https://gist.githubusercontent.com/ucals/"</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"2cf9d101992cb1b78c2cdd6e3bac6a4b/raw/"</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"43034c39052dcf97d4b894d2ec1bc3f90f3623d9/"</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">"osic_pulmonary_fibrosis.csv"</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>data.columns <span class="op">=</span> data.columns.<span class="bu">str</span>.lower()</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>data.columns <span class="op">=</span> data.columns.<span class="bu">str</span>.replace(<span class="st">"smokingstatus"</span>, <span class="st">"smoking_status"</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>patient</th>
+      <th>weeks</th>
+      <th>fvc</th>
+      <th>percent</th>
+      <th>age</th>
+      <th>sex</th>
+      <th>smoking_status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>ID00007637202177411956430</td>
+      <td>-4</td>
+      <td>2315</td>
+      <td>58.253649</td>
+      <td>79</td>
+      <td>Male</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>ID00007637202177411956430</td>
+      <td>5</td>
+      <td>2214</td>
+      <td>55.712129</td>
+      <td>79</td>
+      <td>Male</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>ID00007637202177411956430</td>
+      <td>7</td>
+      <td>2061</td>
+      <td>51.862104</td>
+      <td>79</td>
+      <td>Male</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>ID00007637202177411956430</td>
+      <td>9</td>
+      <td>2144</td>
+      <td>53.950679</td>
+      <td>79</td>
+      <td>Male</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>ID00007637202177411956430</td>
+      <td>11</td>
+      <td>2069</td>
+      <td>52.063412</td>
+      <td>79</td>
+      <td>Male</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1544</th>
+      <td>ID00426637202313170790466</td>
+      <td>13</td>
+      <td>2712</td>
+      <td>66.594637</td>
+      <td>73</td>
+      <td>Male</td>
+      <td>Never smoked</td>
+    </tr>
+    <tr>
+      <th>1545</th>
+      <td>ID00426637202313170790466</td>
+      <td>19</td>
+      <td>2978</td>
+      <td>73.126412</td>
+      <td>73</td>
+      <td>Male</td>
+      <td>Never smoked</td>
+    </tr>
+    <tr>
+      <th>1546</th>
+      <td>ID00426637202313170790466</td>
+      <td>31</td>
+      <td>2908</td>
+      <td>71.407524</td>
+      <td>73</td>
+      <td>Male</td>
+      <td>Never smoked</td>
+    </tr>
+    <tr>
+      <th>1547</th>
+      <td>ID00426637202313170790466</td>
+      <td>43</td>
+      <td>2975</td>
+      <td>73.052745</td>
+      <td>73</td>
+      <td>Male</td>
+      <td>Never smoked</td>
+    </tr>
+    <tr>
+      <th>1548</th>
+      <td>ID00426637202313170790466</td>
+      <td>59</td>
+      <td>2774</td>
+      <td>68.117081</td>
+      <td>73</td>
+      <td>Male</td>
+      <td>Never smoked</td>
+    </tr>
+  </tbody>
+</table>
+<p>1549 rows × 7 columns</p>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> label_encoder(labels):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">    Encode patient IDs as integers.</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">    """</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    unique_labels <span class="op">=</span> np.unique(labels)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    label_to_index <span class="op">=</span> {label: index <span class="cf">for</span> index, label <span class="kw">in</span> <span class="bu">enumerate</span>(unique_labels)}</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    encoded_labels <span class="op">=</span> labels.<span class="bu">map</span>(label_to_index)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> encoded_labels</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>predictors <span class="op">=</span> [<span class="st">"patient"</span>, <span class="st">"weeks"</span>, <span class="st">"fvc"</span>, <span class="st">"smoking_status"</span>]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"patient"</span>] <span class="op">=</span> label_encoder(data[<span class="st">'patient'</span>])</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"weeks"</span>] <span class="op">=</span> (data[<span class="st">"weeks"</span>] <span class="op">-</span> data[<span class="st">"weeks"</span>].<span class="bu">min</span>()) <span class="op">/</span> (</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    data[<span class="st">"weeks"</span>].<span class="bu">max</span>() <span class="op">-</span> data[<span class="st">"weeks"</span>].<span class="bu">min</span>()</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"fvc"</span>] <span class="op">=</span> (data[<span class="st">"fvc"</span>] <span class="op">-</span> data[<span class="st">"fvc"</span>].<span class="bu">min</span>()) <span class="op">/</span> (</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    data[<span class="st">"fvc"</span>].<span class="bu">max</span>() <span class="op">-</span> data[<span class="st">"fvc"</span>].<span class="bu">min</span>()</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> data[predictors]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>patient_id <span class="op">=</span> data.sample(n<span class="op">=</span><span class="dv">3</span>, random_state<span class="op">=</span><span class="dv">42</span>)[<span class="st">"patient"</span>].values</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">3</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, p <span class="kw">in</span> <span class="bu">enumerate</span>(patient_id):</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    patient_data <span class="op">=</span> data[data[<span class="st">"patient"</span>] <span class="op">==</span> p]</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    ax[i].scatter(patient_data[<span class="st">"weeks"</span>], patient_data[<span class="st">"fvc"</span>])</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    ax[i].set_xlabel(<span class="st">"weeks"</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    ax[i].set_ylabel(<span class="st">"fvc"</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    ax[i].set_title(<span class="ss">f"patient </span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="predict_new_groups_files/figure-html/cell-6-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>The plots show variability in FVC measurements, unequal time intervals between follow up visits, and different number of visits per patient. This is a good scenario to use a hierarchical model, where we can model the FVC measurements for each patient as a function of time, and also model the variability in the FVC measurements across patients.</p>
+</section>
+<section id="partial-pooling-model" class="level3">
+<h3 class="anchored" data-anchor-id="partial-pooling-model">Partial pooling model</h3>
+<p>The hierarchical model we will develop is a partially pooled model using the predictors <code>weeks</code>, <code>smoking_status</code>, and <code>patient</code> to predict the response <code>fvc</code>. We will estimate the following model with common and group-effects:</p>
+<ul>
+<li>common-effects: <code>weeks</code> and <code>smoking_status</code></li>
+<li>group-effects: the slope of <code>weeks</code> will vary by <code>patient</code></li>
+</ul>
+<p>Additionally, the global intercept is not included. Since the global intercept is excluded, <code>smoking_status</code> uses cell means encoding (i.e.&nbsp;the coefficient represents the estimate for each <code>smoking_status</code> category of the entire group). This logic also applies for <code>weeks</code>. However, a group-effect is also specified for <code>weeks</code>, which means that the association between <code>weeks</code> and the <code>fvc</code> is allowed to vary by individual <code>patients</code>.</p>
+<p>Below, the default prior for the group-effect sigma is changed from <code>HalfNormal</code> to a <code>Gamma</code> distribution. Additionally, the model graph shows the model has been reparameterized to be non-centered. This is the default when there are group-effects in Bambi.</p>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"weeks|patient"</span>: bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span>bmb.Prior(<span class="st">"Gamma"</span>, alpha<span class="op">=</span><span class="dv">3</span>, beta<span class="op">=</span><span class="dv">3</span>)),</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"fvc ~ 0 + weeks + smoking_status + (0 + weeks | patient)"</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    data, </span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    priors<span class="op">=</span>priors,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    categorical<span class="op">=</span>[<span class="st">"patient"</span>, <span class="st">"smoking_status"</span>],</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>model.build()</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<p><img src="predict_new_groups_files/figure-html/cell-7-output-1.svg" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>idata <span class="op">=</span> model.fit(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1500</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    tune<span class="op">=</span><span class="dv">1000</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    target_accept<span class="op">=</span><span class="fl">0.95</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">42</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    cores<span class="op">=</span><span class="dv">10</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Auto-assigning NUTS sampler...
+Initializing NUTS using jitter+adapt_diag...
+Multiprocess sampling (4 chains in 10 jobs)
+NUTS: [fvc_sigma, weeks, smoking_status, weeks|patient_sigma, weeks|patient_offset]</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+
+    <div>
+      <progress value="10000" class="" max="10000" style="width:300px; height:20px; vertical-align: middle;"></progress>
+      100.00% [10000/10000 00:10&lt;00:00 Sampling 4 chains, 0 divergences]
+    </div>
+    
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Sampling 4 chains for 1_000 tune and 1_500 draw iterations (4_000 + 6_000 draws total) took 10 seconds.</code></pre>
+</div>
+</div>
+</section>
+<section id="model-criticism" class="level3">
+<h3 class="anchored" data-anchor-id="model-criticism">Model criticism</h3>
+<p>Hierarchical models can induce difficult posterior geometries to sample from. Below, we quickly analyze the traces to ensure sampling went well.</p>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(idata)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="predict_new_groups_files/figure-html/cell-9-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Analyzing the marginal posteriors of <code>weeks</code> and <code>weeks|patient</code>, we see that the slope can be very different for some individuals. <code>weeks</code> indicates that as a population, the slope is negative. However, <code>weeks|patients</code> indicates some patients are negative, some are positive, and some are close to zero. Moreover, there are varying levels of uncertainty observed in the coefficients for the three different values of the <code>smoking_status</code> variable.</p>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>az.summary(idata, var_names<span class="op">=</span>[<span class="st">"weeks"</span>, <span class="st">"smoking_status"</span>, <span class="st">"fvc_sigma"</span>, <span class="st">"weeks|patient_sigma"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>mean</th>
+      <th>sd</th>
+      <th>hdi_3%</th>
+      <th>hdi_97%</th>
+      <th>mcse_mean</th>
+      <th>mcse_sd</th>
+      <th>ess_bulk</th>
+      <th>ess_tail</th>
+      <th>r_hat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>weeks</th>
+      <td>-0.116</td>
+      <td>0.036</td>
+      <td>-0.183</td>
+      <td>-0.048</td>
+      <td>0.002</td>
+      <td>0.001</td>
+      <td>447.0</td>
+      <td>836.0</td>
+      <td>1.01</td>
+    </tr>
+    <tr>
+      <th>smoking_status[Currently smokes]</th>
+      <td>0.398</td>
+      <td>0.017</td>
+      <td>0.364</td>
+      <td>0.429</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>3315.0</td>
+      <td>4274.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>smoking_status[Ex-smoker]</th>
+      <td>0.382</td>
+      <td>0.005</td>
+      <td>0.373</td>
+      <td>0.392</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>5104.0</td>
+      <td>4835.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>smoking_status[Never smoked]</th>
+      <td>0.291</td>
+      <td>0.007</td>
+      <td>0.277</td>
+      <td>0.305</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>3299.0</td>
+      <td>4290.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>fvc_sigma</th>
+      <td>0.077</td>
+      <td>0.001</td>
+      <td>0.074</td>
+      <td>0.080</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>8405.0</td>
+      <td>4362.0</td>
+      <td>1.00</td>
+    </tr>
+    <tr>
+      <th>weeks|patient_sigma</th>
+      <td>0.458</td>
+      <td>0.027</td>
+      <td>0.412</td>
+      <td>0.511</td>
+      <td>0.001</td>
+      <td>0.001</td>
+      <td>767.0</td>
+      <td>1559.0</td>
+      <td>1.01</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<p>The effective sample size (ESS) is much lower for the <code>weeks</code> and <code>weeks|patient_sigma</code> parameters. This can also be inferred visually by looking at the trace plots for these parameters above. There seems to be some autocorrelation in the samples for these parameters. However, for the sake of this example, we will not worry about this.</p>
+</section>
+<section id="predict-observed-patients" class="level3">
+<h3 class="anchored" data-anchor-id="predict-observed-patients">Predict observed patients</h3>
+<p>First, we will use the posterior distribution to plot the mean and 95% credible interval for the FVC measurements of the three randomly sampled patients above.</p>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.predict(idata, kind<span class="op">=</span><span class="st">"mean"</span>, inplace<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>fvc_mean <span class="op">=</span> az.extract(preds[<span class="st">"posterior"</span>])[<span class="st">"fvc_mean"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># plot posterior predictions</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize<span class="op">=</span>(<span class="dv">12</span>, <span class="dv">3</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, p <span class="kw">in</span> <span class="bu">enumerate</span>(patient_id):</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> data.index[data[<span class="st">"patient"</span>] <span class="op">==</span> p].tolist()</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    weeks <span class="op">=</span> data.loc[idx, <span class="st">"weeks"</span>].values</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    fvc <span class="op">=</span> data.loc[idx, <span class="st">"fvc"</span>].values</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    ax[i].scatter(weeks, fvc)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    az.plot_hdi(weeks, fvc_mean[idx].T, color<span class="op">=</span><span class="st">"C0"</span>, ax<span class="op">=</span>ax[i])</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    ax[i].plot(weeks, fvc_mean[idx].mean(axis<span class="op">=</span><span class="dv">1</span>), color<span class="op">=</span><span class="st">"C0"</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    ax[i].set_xlabel(<span class="st">"weeks"</span>)</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>    ax[i].set_ylabel(<span class="st">"fvc"</span>)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>    ax[i].set_title(<span class="ss">f"patient </span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="predict_new_groups_files/figure-html/cell-12-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>The plots show that the posterior estimates seem to fit the three patients well. Where there are more observations, the credible interval is smaller, and where there are fewer observations, the credible interval is larger. Next, we will predict new, unseen, patients.</p>
+</section>
+<section id="predict-new-patients" class="level3">
+<h3 class="anchored" data-anchor-id="predict-new-patients">Predict new patients</h3>
+<p>Imagine the cost of acquiring a CT scan increases dramatically, and we would like to interopolate the FVC measurement for a new patient with a given set of clinical information <code>smoking_status</code> and <code>weeks</code>. We achieve this by passing this data to the predict method and setting <code>sample_new_groups=True</code>. As outlined in the <em>Sampling new groups in Bambi</em> section, this new data is evaluated by <code>formulae</code> to update the design matrix, and then predictions are made for the new group by sampling from the posterior draws of a randomly selected existing group.</p>
+<p>Below, we will simulate a new patient and predict their FVC measurements over time. First, we will copy clinical data from patient 39 and use it for patient 176 (the new, unseen, patient). Subsequently, we will construct another new patient, with different clinical data.</p>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># copy patient 39 data to the new patient 176</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>patient_39 <span class="op">=</span> data[data[<span class="st">"patient"</span>] <span class="op">==</span> <span class="dv">39</span>].reset_index(drop<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> patient_39.copy()</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>new_data[<span class="st">"patient"</span>] <span class="op">=</span> <span class="dv">176</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> pd.concat([new_data, patient_39]).reset_index(drop<span class="op">=</span><span class="va">True</span>)[predictors]</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>new_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>patient</th>
+      <th>weeks</th>
+      <th>fvc</th>
+      <th>smoking_status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>176</td>
+      <td>0.355072</td>
+      <td>0.378141</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>176</td>
+      <td>0.376812</td>
+      <td>0.365937</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>176</td>
+      <td>0.391304</td>
+      <td>0.401651</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>176</td>
+      <td>0.405797</td>
+      <td>0.405958</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>176</td>
+      <td>0.420290</td>
+      <td>0.390883</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>176</td>
+      <td>0.456522</td>
+      <td>0.390165</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>176</td>
+      <td>0.543478</td>
+      <td>0.348528</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>176</td>
+      <td>0.637681</td>
+      <td>0.337581</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>176</td>
+      <td>0.746377</td>
+      <td>0.365219</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>176</td>
+      <td>0.775362</td>
+      <td>0.360014</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>39</td>
+      <td>0.355072</td>
+      <td>0.378141</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>39</td>
+      <td>0.376812</td>
+      <td>0.365937</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>39</td>
+      <td>0.391304</td>
+      <td>0.401651</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>39</td>
+      <td>0.405797</td>
+      <td>0.405958</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>39</td>
+      <td>0.420290</td>
+      <td>0.390883</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>39</td>
+      <td>0.456522</td>
+      <td>0.390165</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>39</td>
+      <td>0.543478</td>
+      <td>0.348528</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>39</td>
+      <td>0.637681</td>
+      <td>0.337581</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>39</td>
+      <td>0.746377</td>
+      <td>0.365219</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>39</td>
+      <td>0.775362</td>
+      <td>0.360014</td>
+      <td>Ex-smoker</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.predict(</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    idata, kind<span class="op">=</span><span class="st">"mean"</span>,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>new_data, </span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    sample_new_groups<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    inplace<span class="op">=</span><span class="va">False</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># utility func for plotting</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> plot_new_patient(idata, data, patient_ids):</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    fvc_mean <span class="op">=</span> az.extract(idata[<span class="st">"posterior"</span>])[<span class="st">"fvc_mean"</span>]</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    fig, ax <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">3</span>), sharey<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i, p <span class="kw">in</span> <span class="bu">enumerate</span>(patient_ids):</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>        idx <span class="op">=</span> data.index[data[<span class="st">"patient"</span>] <span class="op">==</span> p].tolist()</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>        weeks <span class="op">=</span> data.loc[idx, <span class="st">"weeks"</span>].values</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>        fvc <span class="op">=</span> data.loc[idx, <span class="st">"fvc"</span>].values</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> p <span class="op">==</span> patient_ids[<span class="dv">0</span>]:</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>            ax[i].scatter(weeks, fvc)</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>        az.plot_hdi(weeks, fvc_mean[idx].T, color<span class="op">=</span><span class="st">"C0"</span>, ax<span class="op">=</span>ax[i])</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>        ax[i].plot(weeks, fvc_mean[idx].mean(axis<span class="op">=</span><span class="dv">1</span>), color<span class="op">=</span><span class="st">"C0"</span>)</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>        ax[i].set_xlabel(<span class="st">"weeks"</span>)</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>        ax[i].set_ylabel(<span class="st">"fvc"</span>)</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>        ax[i].set_title(<span class="ss">f"patient </span><span class="sc">{</span>p<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>plot_new_patient(preds, new_data, [<span class="dv">39</span>, <span class="dv">176</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="predict_new_groups_files/figure-html/cell-16-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Although identical data was used for both patients, the variability increased consideribly for patient 176. However, the mean predictions for both patients appear to be almost identical. Now, lets construct a new patient with different clinical data and see how the predictions change. We will select 10 time of follow up visits at random, and set the <code>smoking_status = "Currently smokes"</code>.</p>
+<div class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>new_data.loc[new_data[<span class="st">"patient"</span>] <span class="op">==</span> <span class="dv">176</span>, <span class="st">"smoking_status"</span>] <span class="op">=</span> <span class="st">"Currently smokes"</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>weeks <span class="op">=</span> np.random.choice(<span class="bu">sorted</span>(model.data.weeks.unique()), size<span class="op">=</span><span class="dv">10</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>new_data.loc[new_data[<span class="st">"patient"</span>] <span class="op">==</span> <span class="dv">176</span>, <span class="st">"weeks"</span>] <span class="op">=</span> weeks </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>new_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>patient</th>
+      <th>weeks</th>
+      <th>fvc</th>
+      <th>smoking_status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>176</td>
+      <td>0.173913</td>
+      <td>0.378141</td>
+      <td>Currently smokes</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>176</td>
+      <td>0.137681</td>
+      <td>0.365937</td>
+      <td>Currently smokes</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>176</td>
+      <td>0.608696</td>
+      <td>0.401651</td>
+      <td>Currently smokes</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>176</td>
+      <td>0.717391</td>
+      <td>0.405958</td>
+      <td>Currently smokes</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>176</td>
+      <td>0.521739</td>
+      <td>0.390883</td>
+      <td>Currently smokes</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>176</td>
+      <td>0.246377</td>
+      <td>0.390165</td>
+      <td>Currently smokes</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>176</td>
+      <td>0.181159</td>
+      <td>0.348528</td>
+      <td>Currently smokes</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>176</td>
+      <td>0.702899</td>
+      <td>0.337581</td>
+      <td>Currently smokes</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>176</td>
+      <td>0.456522</td>
+      <td>0.365219</td>
+      <td>Currently smokes</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>176</td>
+      <td>0.333333</td>
+      <td>0.360014</td>
+      <td>Currently smokes</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>39</td>
+      <td>0.355072</td>
+      <td>0.378141</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>39</td>
+      <td>0.376812</td>
+      <td>0.365937</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>39</td>
+      <td>0.391304</td>
+      <td>0.401651</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>39</td>
+      <td>0.405797</td>
+      <td>0.405958</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>39</td>
+      <td>0.420290</td>
+      <td>0.390883</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>39</td>
+      <td>0.456522</td>
+      <td>0.390165</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>39</td>
+      <td>0.543478</td>
+      <td>0.348528</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>39</td>
+      <td>0.637681</td>
+      <td>0.337581</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>39</td>
+      <td>0.746377</td>
+      <td>0.365219</td>
+      <td>Ex-smoker</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>39</td>
+      <td>0.775362</td>
+      <td>0.360014</td>
+      <td>Ex-smoker</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<p>If we were to keep the default value of <code>sample_new_groups=False</code>, the following error would be raised: <code>ValueError: There are new groups for the factors ('patient',) and 'sample_new_groups' is False</code>. Thus, we set <code>sample_new_groups=True</code> and obtain predictions for the new patient.</p>
+<div class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>preds <span class="op">=</span> model.predict(</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    idata, kind<span class="op">=</span><span class="st">"mean"</span>,</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>new_data, </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    sample_new_groups<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    inplace<span class="op">=</span><span class="va">False</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>plot_new_patient(preds, new_data, [<span class="dv">39</span>, <span class="dv">176</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="predict_new_groups_files/figure-html/cell-19-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>With <code>smoking_status = "Currently smokes"</code>, and the time of follow up visit randomly selected, we can see that the intercept is slightly higher, and it appears that the slope is steeper for this new patient. Again, the variability is much higher for patient 176, and in particular, where there are fewer <code>fvc</code> measurements.</p>
+<section id="predict-new-patients-with-interpret" class="level4">
+<h4 class="anchored" data-anchor-id="predict-new-patients-with-interpret">Predict new patients with <code>interpret</code></h4>
+<p>The <code>interpret</code> sub-package in Bambi allows us to easily interpret the predictions for new patients. In particular, using <code>bmb.interpret.comparisons</code>, we can compare the predictions made for a new patient and an existing similar patient. Below, we will compare the predictions made for patient 176 and patient 39. We will use the same clinical data for both patients as we did in the first exampe above.</p>
+<div class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>time_of_follow_up <span class="op">=</span> <span class="bu">list</span>(new_data.query(<span class="st">"patient == 39"</span>)[<span class="st">"weeks"</span>].values)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>time_of_follow_up</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
+<pre><code>[0.35507246376811596,
+ 0.37681159420289856,
+ 0.391304347826087,
+ 0.4057971014492754,
+ 0.42028985507246375,
+ 0.45652173913043476,
+ 0.5434782608695652,
+ 0.6376811594202898,
+ 0.7463768115942029,
+ 0.7753623188405797]</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_comparisons(</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>    model,</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    idata,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span>{<span class="st">"patient"</span>: [<span class="dv">39</span>, <span class="dv">176</span>]},</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{<span class="st">"weeks"</span>: time_of_follow_up, <span class="st">"smoking_status"</span>: <span class="st">"Ex-smoker"</span>},</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    sample_new_groups<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"figsize"</span>: (<span class="dv">7</span>, <span class="dv">3</span>)}</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Difference in predictions for patient 176 vs 39"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="predict_new_groups_files/figure-html/cell-21-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<p>Referring to the plots where patient 39 and 176 use identical data, the mean <code>fvc</code> predictions “look” about the same. When this comparison is made quantitatively using the comparisons function, we can see that mean <code>fvc</code> measurements are slightly below 0.0, and have a constant slope across <code>weeks</code> indicating there is a slight difference in mean <code>fvc</code> measurements between the two patients.</p>
+</section>
+</section>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>In this notebook, it was shown how predictions at multiple levels and for unseen groups are possible with hierarchical models. To utilize this feature of hierarchical models, Bambi first updates the design matrix to include the new group. Then, predictions are made for the new group by sampling from the posterior draws of a randomly selected existing group.</p>
+<p>To predict new groups in Bambi, you can either: (1) create a dataset with new groups and pass it to the <code>model.predict()</code> method while specifying <code>sample_new_groups=True</code>, or (2) use the functions <code>comparisons</code> or <code>slopes</code> in the <code>interpret</code> sub-package with <code>sample_new_groups=True</code> to compare predictions or slopes for new groups and existing groups.</p>
+<div class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Last updated: Tue Oct 10 2023
+
+Python implementation: CPython
+Python version       : 3.11.0
+IPython version      : 8.13.2
+
+matplotlib: 3.7.1
+arviz     : 0.16.1
+pandas    : 2.1.0
+numpy     : 1.24.2
+bambi     : 0.13.0.dev0
+
+Watermark: 2.3.1
+</code></pre>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../notebooks/t_regression.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Robust Linear Regression</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../notebooks/logistic_regression.html" class="pagination-link">
+        <span class="nav-page-text">Logistic Regression (Vote intention with ANES data)</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+      <div class="nav-footer-center">© Copyright 2023, The developers of Bambi.</div>
+  </div>
+</footer>
+
+
+
+</body></html>
