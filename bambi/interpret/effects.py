@@ -321,16 +321,28 @@ class PredictiveDifferences:
 
         return self
 
-    def get_summary_df(self, response_dim) -> pd.DataFrame:
+    def get_summary_df(self, response_dim: np.ndarray) -> pd.DataFrame:
         """
-        Builds the summary dataframe for 'comparisons' and 'slopes' effects. If
-        the number of values passed for the variable of interest is less then 2
-        for 'comparisons' and 'slopes', then a subset of the 'preds' data is used
-        to build the summary. If the effect kind is 'comparisons' and more than
-        2 values are being compared, then the entire 'preds' data is used. If the
-        effect kind is 'slopes' and more than 2 values are being compared, then
-        only a subset of the 'preds' data is used to build the summary.
+        Builds the summary dataframe for 'comparisons' and 'slopes' effects.
+        There are four scenarios to consider:
+
+            1.) If the effect kind is 'comparisons' and more than 2 values are being
+            compared, then the entire 'preds' data is used.
+
+            2.) If the model predictions have multiple response levels, then 'preds' data
+            needs to be duplicated to match the number of response levels. E.g., 'preds'
+            data has 100 rows and 3 response levels, then the summary dataframe will have
+            300 rows since the model made a prediction for each response level for each
+            sample in 'preds'.
+
+            3.) If the effect kind is 'slopes' and more than 2 values are being compared, then
+            only a subset of the 'preds' data is used to build the summary.
+
+            4.) If the number of values passed for the variable of interest is less then 2
+            for 'comparisons' and 'slopes', then a subset of the 'preds' data is used
+            to build the summary.
         """
+        # Scenario 1
         if len(self.variable.values) > 2 and self.kind == "comparisons":
             summary_df = self.preds_data.drop(columns=self.variable.name).drop_duplicates()
             covariates_cols = summary_df.columns
@@ -341,7 +353,7 @@ class PredictiveDifferences:
                 contrast_values, summary_df.shape[0] // len(contrast_values), axis=0
             )
             contrast_values = [tuple(elem) for elem in contrast_values]
-
+        # Scenario 2
         elif len(response_dim) > 1:
             summary_df = self.preds_data.drop(columns=self.variable.name).drop_duplicates()
             covariates_cols = summary_df.columns
@@ -352,7 +364,7 @@ class PredictiveDifferences:
                 response_dim, summary_df.shape[0] // len(response_dim)
             )
             contrast_values = [tuple(contrast_values)] * summary_df.shape[0]
-
+        # Scenario 3 & 4
         else:
             wrt = {}
             for idx, _ in enumerate(self.variable.values):
@@ -669,12 +681,12 @@ def comparisons(
         idata, data=comparisons_data, sample_new_groups=sample_new_groups, inplace=False
     )
 
-    # returns empty list if model predictions do not have multiple dimensions
+    # returns empty array if model predictions do not have multiple dimensions
     response_dim_key = response.name + "_dim"
     if response_dim_key in idata.posterior.coords:
         response_dim = idata.posterior.coords[response_dim_key].values
     else:
-        response_dim = []
+        response_dim = np.empty(0)
 
     predictive_difference = PredictiveDifferences(
         model,
@@ -823,12 +835,12 @@ def slopes(
         idata, data=slopes_data, sample_new_groups=sample_new_groups, inplace=False
     )
 
-    # returns empty list if model predictions do not have multiple dimensions
+    # returns empty array if model predictions do not have multiple dimensions
     response_dim_key = response.name + "_dim"
     if response_dim_key in idata.posterior.coords:
         response_dim = idata.posterior.coords[response_dim_key].values
     else:
-        response_dim = []
+        response_dim = np.empty(0)
 
     predictive_difference = PredictiveDifferences(
         model, slopes_data, wrt_info, conditional_info, response, use_hdi, effect_type
