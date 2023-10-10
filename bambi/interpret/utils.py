@@ -9,6 +9,7 @@ import numpy as np
 from formulae.terms.call import Call
 import pandas as pd
 from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
+import xarray as xr
 
 from bambi import Model
 from bambi.utils import listify
@@ -257,20 +258,23 @@ def get_covariates(covariates: dict) -> Covariates:
     return Covariates(main, group, panel)
 
 
-def enforce_dtypes(data: pd.DataFrame, df: pd.DataFrame, except_col=None) -> pd.DataFrame:
+def enforce_dtypes(
+    observed_df: pd.DataFrame, new_df: pd.DataFrame, except_col=None
+) -> pd.DataFrame:
     """
-    Enforce dtypes of the original data to the new data.
+    Enforce dtypes of the observed data to the new data.
     """
-    observed_dtypes = data.dtypes
-    for col in df.columns:
+    observed_dtypes = observed_df.dtypes
+    for col in new_df.columns:
         if col in observed_dtypes.index and not except_col:
             if observed_dtypes[col] == "category":
                 # explicitly converts to category dtype
-                df[col] = df[col].astype("category")
+                new_df[col] = new_df[col].astype("category")
             else:
                 # casts the original dtype to the new data
-                df[col] = df[col].astype(observed_dtypes[col])
-    return df
+                new_df[col] = new_df[col].astype(observed_dtypes[col])
+    
+    return new_df
 
 
 def make_group_panel_values(
@@ -401,52 +405,26 @@ def identity(x):
     return x
 
 
-def merge(y_hat_mean, y_hat_bounds, data):
+def merge(y_hat_mean: xr.DataArray, y_hat_bounds: xr.DataArray, data: pd.DataFrame) -> pd.DataFrame:
+    """
+    Convert predictions ('y_hat_mean' and 'y_hat_bounds') into dataframes and join
+    with the original data used to perform predictions. This will "duplicate" the
+    data to ensure that the original data is aligned with each response dimension
+    (level).
+    """
 
     idx_names = y_hat_mean.to_dataframe().index.names
-    yhat_df = (y_hat_mean
-        .to_dataframe()
-        .reset_index()
-        .set_index(idx_names)
-    )
 
-    lower_df = (
-        y_hat_bounds.sel(hdi="lower")
-        .to_dataframe()
-        .reset_index()
-        .set_index(idx_names)
-    )
-
-    higher_df = (
-        y_hat_bounds.sel(hdi="higher")
-        .to_dataframe()
-        .reset_index()
-        .set_index(idx_names)
-    )
-
-    bounds_df = pd.merge(
-        left=lower_df,
-        right=higher_df,
-        left_index=True,
-        right_index=True
-    )
-
+    yhat_df = y_hat_mean.to_dataframe().reset_index().set_index(idx_names)
+    lower_df = y_hat_bounds.sel(hdi="lower").to_dataframe().reset_index().set_index(idx_names)
+    higher_df = y_hat_bounds.sel(hdi="higher").to_dataframe().reset_index().set_index(idx_names)
+    bounds_df = pd.merge(left=lower_df, right=higher_df, left_index=True, right_index=True)
     preds_df = (
-        pd.merge(
-            left=yhat_df,
-            right=bounds_df,
-            left_index=True,
-            right_index=True
-            )
+        pd.merge(left=yhat_df, right=bounds_df, left_index=True, right_index=True)
         .reset_index()
         .set_index(idx_names[0])
     )
 
-    summary_df = pd.merge(
-        left=data,
-        right=preds_df,
-        left_index=True,
-        right_index=True
-    )
+    summary_df = pd.merge(left=data, right=preds_df, left_index=True, right_index=True)
 
     return summary_df.drop(columns=["hdi_x", "hdi_y"])
