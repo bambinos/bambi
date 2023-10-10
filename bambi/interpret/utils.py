@@ -273,7 +273,7 @@ def enforce_dtypes(
             else:
                 # casts the original dtype to the new data
                 new_df[col] = new_df[col].astype(observed_dtypes[col])
-    
+
     return new_df
 
 
