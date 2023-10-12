@@ -13,12 +13,15 @@ from bambi.interpret.plot_types import plot_categoric, plot_numeric
 from bambi.interpret.utils import get_covariates, ConditionalInfo
 from bambi.utils import get_aliased_name, listify
 
+# TODO: aliases for type hints?
+# TODO: functions for error handling
+
 
 def _plot_differences(
     model: Model,
     conditional_info: ConditionalInfo,
     summary_df: pd.DataFrame,
-    average_by: Union[str, list] = None,
+    average_by: Union[str, list, None] = None,
     transforms=None,
     legend: bool = True,
     ax=None,
@@ -84,7 +87,8 @@ def _plot_differences(
 def plot_predictions(
     model: Model,
     idata: az.InferenceData,
-    covariates: Union[str, list],
+    conditional: Union[str, list, None] = None,
+    average_by: Union[str, list, None] = None,
     target: str = "mean",
     sample_new_groups: bool = False,
     pps: bool = False,
@@ -105,8 +109,12 @@ def plot_predictions(
     idata : arviz.InferenceData
         The InferenceData object that contains the samples from the posterior distribution of
         the model.
-    covariates : list or dict
+    conditional : str, list, optional
         A sequence of between one and three names of variables in the model.
+    average_by: str, list, bool, optional
+        The covariates we would like to average by. The passed covariate(s) will marginalize
+        over the other covariates in the model. If True, it averages over all covariates
+        in the model to obtain the average estimate. Defaults to ``None``.
     target : str
         Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only
         works when pps is False as the target may not be available in the posterior predictive
@@ -146,33 +154,37 @@ def plot_predictions(
     Raises
     ------
     ValueError
-        When ``level`` is not within 0 and 1.
-        When the main covariate is not numeric or categoric.
-
-    TypeError
-        When ``covariates`` is not a string or a list of strings.
+        If number of values passed with ``conditional`` is >= 2 and
+        ``average_by`` are both ``None``.
+        If ``conditional`` and ``average_by`` are both ``None``.
+        If length of ``conditional`` is greater than 3 and ``average_by`` is ``None``.
     """
 
-    covariate_kinds = ("main", "group", "panel")
-    if isinstance(covariates, dict):
-        raise TypeError("covariates must be a string or a list of strings.")
+    if conditional is None and average_by is None:
+        raise ValueError("Must specify at least one of 'conditional' or 'average_by'.")
 
-    if not isinstance(covariates, dict):
-        covariates = listify(covariates)
-        covariates = dict(zip(covariate_kinds, covariates))
-    else:
-        assert covariate_kinds[0] in covariates
-        assert set(covariates).issubset(set(covariate_kinds))
+    if isinstance(conditional, dict):
+        conditional = {key: sorted(listify(value)) for key, value in conditional.items()}
+    elif conditional is not None:
+        conditional = listify(conditional)
+        if len(conditional) > 3 and average_by is None:
+            raise ValueError(
+                "Must specify a covariate to 'average_by' when number of covariates"
+                "passed to 'conditional' is greater than 3."
+            )
 
-    assert 1 <= len(covariates) <= 3
-
-    if transforms is None:
-        transforms = {}
+    if average_by is True:
+        raise ValueError(
+            "Plotting when 'average_by = True' is not possible as 'True' marginalizes "
+            "over all covariates resulting in a single comparison estimate. "
+            "Please specify a covariate(s) to 'average_by'."
+        )
 
     cap_data = predictions(
-        model,
-        idata,
-        covariates,
+        model=model,
+        idata=idata,
+        conditional=conditional,
+        average_by=average_by,
         target=target,
         pps=pps,
         use_hdi=use_hdi,
@@ -181,12 +193,22 @@ def plot_predictions(
         sample_new_groups=sample_new_groups,
     )
 
-    response_name = get_aliased_name(model.response_component.response_term)
-    covariates = get_covariates(covariates)
+    conditional_info = ConditionalInfo(model, conditional)
 
-    if subplot_kwargs:
+    if (subplot_kwargs and not average_by) or (subplot_kwargs and average_by):
         for key, value in subplot_kwargs.items():
-            setattr(covariates, key, value)
+            conditional_info.covariates.update({key: value})
+        covariates = get_covariates(conditional_info.covariates)
+    elif average_by and not subplot_kwargs:
+        if not isinstance(average_by, list):
+            average_by = listify(average_by)
+        covariate_kinds = ("main", "group", "panel")
+        average_by = dict(zip(covariate_kinds, average_by))
+        covariates = get_covariates(average_by)
+    else:
+        covariates = get_covariates(conditional_info.covariates)
+
+    response_name = get_aliased_name(model.response_component.response_term)
 
     if ax is None:
         fig_kwargs = {} if fig_kwargs is None else fig_kwargs
@@ -222,7 +244,7 @@ def plot_comparisons(
     idata: az.InferenceData,
     contrast: Union[str, dict, list],
     conditional: Union[str, dict, list, None] = None,
-    average_by: Union[str, list] = None,
+    average_by: Union[str, list, None] = None,
     comparison_type: str = "diff",
     sample_new_groups: bool = False,
     use_hdi: bool = True,

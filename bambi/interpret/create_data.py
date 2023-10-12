@@ -61,14 +61,14 @@ def _grid_level(
 
     data_dict[variable_info.name] = variable_info.values
     comparison_data = set_default_values(condition_info.model, data_dict, kind=kind)
+
     # use cartesian product (cross join) to create pairwise grid
     keys, values = zip(*comparison_data.items())
     pairwise_grid = pd.DataFrame([dict(zip(keys, v)) for v in itertools.product(*values)])
+
     # can't enforce dtype on numeric 'wrt' as it may remove floating point epsilons
-    if kind == "comparisons":
-        pairwise_grid = enforce_dtypes(condition_info.model.data, pairwise_grid)
-    elif kind == "slopes":
-        pairwise_grid = enforce_dtypes(condition_info.model.data, pairwise_grid, variable_info.name)
+    except_col = None if kind == "comparisons" else {variable_info.name}
+    pairwise_grid = enforce_dtypes(condition_info.model.data, pairwise_grid, except_col)
 
     # After computing default values, fractional values may have been computed.
     # Enforcing the dtype of "int" may create duplicate rows as it will round
@@ -78,6 +78,7 @@ def _grid_level(
     return pairwise_grid
 
 
+# TODO: rename to _differences_unit_level???
 def _unit_level(variable_info: VariableInfo, kind: str) -> pd.DataFrame:
     """Creates the data for unit-level contrasts by using the observed (empirical)
     data. All covariates in the model are included in the data, except for the
@@ -143,34 +144,40 @@ def create_differences_data(
 
     if not condition_info.covariates:
         return _unit_level(variable_info, kind)
-    else:
-        return _grid_level(condition_info, variable_info, user_passed, kind)
+
+    return _grid_level(condition_info, variable_info, user_passed, kind)
 
 
-def create_predictions_data(model: Model, covariates: dict) -> pd.DataFrame:
-    """Creates a data grid for conditional adjusted predictions using the covariates
-    passed by the user.
+def create_predictions_data(condition_info: ConditionalInfo, model: Model) -> pd.DataFrame:
+    """Creates either unit level or grid level data for 'predictions' depending
+    if the user passed covariates.
 
     Parameters
     ----------
+    condition_info : ConditionalInfo
+        Information about the conditional argument passed into the plot
+        function.
     model : Model
         A fitted Bambi model.
-    covariates : dict
-        A dictionary of covariates passed by the user.
 
     Returns
     -------
     pd.DataFrame
         A dataframe containing the data used to generate predictions.
     """
+
+    if not condition_info.covariates:
+        return model.data
+
+    # TODO: move to _predictions_unit_level???
     data = model.data
-    covariates = get_covariates(covariates)
+    covariates = get_covariates(condition_info.covariates)
     main, group, panel = covariates.main, covariates.group, covariates.panel
 
-    main_values = make_main_values(data[main])
-    data_dict = {main: main_values}
-
-    data_dict = make_group_panel_values(data, data_dict, main, group, panel, kind="predictions")
+    data_dict = {main: make_main_values(data[main])}
+    data_dict.update(
+        make_group_panel_values(data, data_dict, main, group, panel, kind="predictions")
+    )
     data_dict = set_default_values(model, data_dict, kind="predictions")
 
     return enforce_dtypes(data, pd.DataFrame(data_dict))

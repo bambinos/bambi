@@ -21,6 +21,8 @@ from bambi.interpret.utils import (
 )
 from bambi.utils import get_aliased_name, listify
 
+# TODO: aliases for type hints?
+# TODO: functions for error handling
 
 SUPPORTED_SLOPES = ("dydx", "eyex")
 SUPPORTED_COMPARISONS = {
@@ -431,7 +433,8 @@ class PredictiveDifferences:
 def predictions(
     model: Model,
     idata: az.InferenceData,
-    covariates: Union[str, dict, list],
+    conditional: Union[str, list, None] = None,
+    average_by: Union[str, list, bool, None] = None,
     target: str = "mean",
     pps: bool = False,
     use_hdi: bool = True,
@@ -448,14 +451,12 @@ def predictions(
     idata : arviz.InferenceData
         The InferenceData object that contains the samples from the posterior distribution of
         the model.
-    covariates : list or dict
-        A sequence of between one and three names of variables or a dict of length between one
-        and three.
-        If a sequence, the first variable is taken as the main variable and is mapped to the
-        horizontal axis. If present, the second name is a coloring/grouping variable,
-        and the third is mapped to different plot panels.
-        If a dictionary, keys must be taken from ("main", "group", "panel") and the values
-        are the names of the variables.
+    conditional : str, list, optional
+        The covariates we would like to condition on.
+    average_by: str, list, bool, optional
+        The covariates we would like to average by. The passed covariate(s) will marginalize
+        over the other covariates in the model. If True, it averages over all covariates
+        in the model to obtain the average estimate. Defaults to ``None``.
     target : str
         Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only
         works when pps is False as the target may not be available in the posterior predictive
@@ -483,21 +484,14 @@ def predictions(
     ------
     ValueError
         If ``pps`` is ``True`` and ``target`` is not ``"mean"``.
-        If passed ``covariates`` is not in correct key, value format.
-        If length of ``covariates`` is not between 1 and 3.
     """
+
     if pps and target != "mean":
         raise ValueError("When passing 'pps=True', target must be 'mean'")
 
-    covariate_kinds = ("main", "group", "panel")
-    if not isinstance(covariates, dict):
-        covariates = listify(covariates)
-        covariates = dict(zip(covariate_kinds, covariates))
-    else:
-        assert covariate_kinds[0] in covariates
-        assert set(covariates).issubset(set(covariate_kinds))
+    # TODO: error handling
 
-    assert 1 <= len(covariates) <= 3
+    conditional_info = ConditionalInfo(model, conditional)
 
     transforms = transforms if transforms is not None else {}
 
@@ -506,7 +500,7 @@ def predictions(
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
-    cap_data = create_predictions_data(model, covariates)
+    cap_data = create_predictions_data(conditional_info, model)
 
     if target != "mean":
         component = model.components[target]
@@ -563,6 +557,9 @@ def predictions(
         cap_data["estimate"] = y_hat_mean
         cap_data[response.lower_bound_name] = y_hat_bounds[0]
         cap_data[response.upper_bound_name] = y_hat_bounds[1]
+
+    if average_by is not None:
+        cap_data = average_over(cap_data, covariate=average_by)
 
     return cap_data
 
