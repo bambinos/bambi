@@ -148,7 +148,7 @@ class ConditionalInfo:
     """
 
     model: Model
-    conditional: Union[str, dict, list]
+    conditional: Union[str, dict, list, None]
     covariates: dict = field(init=False)
     user_passed: bool = field(init=False)
 
