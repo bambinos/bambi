@@ -155,16 +155,16 @@ class TestPredictions:
     @pytest.mark.parametrize(
         "covariates",
         (
-            ["hp", "wt"],  # Main: numeric. Group: numeric
-            ["hp", "cyl"],  # Main: numeric. Group: categorical
-            ["gear", "wt"],  # Main: categorical. Group: numeric
-            ["gear", "cyl"],  # Main: categorical. Group: categorical
+            ["hp", "wt"],       # Main: numeric. Group: numeric
+            ["hp", "cyl"],      # Main: numeric. Group: categorical
+            ["gear", "wt"],     # Main: categorical. Group: numeric
+            ["gear", "cyl"],    # Main: categorical. Group: categorical
         ),
     )
     def test_with_groups(self, mtcars, covariates, pps):
         model, idata = mtcars
         plot_predictions(model, idata, covariates, pps=pps)
-
+    
     @pytest.mark.parametrize("pps", [False, True])
     @pytest.mark.parametrize(
         "covariates", (["hp", "cyl", "gear"], ["cyl", "hp", "gear"], ["cyl", "gear", "hp"])
@@ -172,7 +172,31 @@ class TestPredictions:
     def test_with_group_and_panel(self, mtcars, covariates, pps):
         model, idata = mtcars
         plot_predictions(model, idata, covariates, pps=pps)
+    
+    @pytest.mark.parametrize("pps", [False, True])
+    @pytest.mark.parametrize(
+        "conditional",
+        [
+            ({"hp": [110, 175], "am": [0, 1], "drat": [3, 4, 5]}),  
+            ({"hp": 150, "am": 1, "drat": [3, 4, 5]}),
+        ],
+    )
+    def test_with_user_values(self, mtcars, conditional, pps):
+        model, idata = mtcars
+        plot_predictions(model, idata, conditional=conditional, pps=pps)
 
+    @pytest.mark.parametrize(
+            "average_by", ["am", "drat", ["am", "drat"]]
+    )
+    def test_average_by(self, mtcars, average_by):
+        model, idata = mtcars
+
+        # grid of values with average_by
+        plot_predictions(model, idata, ["hp", "am", "drat"], average_by)
+
+        # unit level with average by
+        plot_predictions(model, idata, None, average_by)
+    
     @pytest.mark.parametrize("pps", [False, True])
     def test_fig_kwargs(self, mtcars, pps):
         model, idata = mtcars
@@ -227,7 +251,7 @@ class TestPredictions:
         # Test default target
         plot_predictions(model, idata, "x", pps=pps)
         # Test user supplied target argument
-        plot_predictions(model, idata, "x", "alpha", pps=False)
+        plot_predictions(model, idata, "x", target="alpha", pps=False)
 
         # With alias
         alias = {"alpha": {"Intercept": "sd_intercept", "x": "sd_x", "alpha": "sd_alpha"}}
@@ -235,7 +259,7 @@ class TestPredictions:
         idata = model.fit(tune=100, draws=100, random_seed=1234)
 
         # Test user supplied target argument
-        plot_predictions(model, idata, "x", "alpha", pps=False)
+        plot_predictions(model, idata, "x", target="alpha", pps=False)
 
     def test_group_effects(self, sleep_study):
         model, idata = sleep_study
