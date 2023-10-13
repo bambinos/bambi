@@ -13,9 +13,6 @@ from bambi.interpret.plot_types import plot_categoric, plot_numeric
 from bambi.interpret.utils import get_covariates, ConditionalInfo
 from bambi.utils import get_aliased_name, listify
 
-# TODO: aliases for type hints?
-# TODO: functions for error handling
-
 
 def _plot_differences(
     model: Model,
@@ -31,7 +28,6 @@ def _plot_differences(
     """
     Common function used for both 'plot_comparisons' and 'plot_slopes'.
     """
-
     if (subplot_kwargs and not average_by) or (subplot_kwargs and average_by):
         for key, value in subplot_kwargs.items():
             conditional_info.covariates.update({key: value})
@@ -87,7 +83,7 @@ def _plot_differences(
 def plot_predictions(
     model: Model,
     idata: az.InferenceData,
-    conditional: Union[str, list, None] = None,
+    conditional: Union[str, list, dict, None] = None,
     average_by: Union[str, list, None] = None,
     target: str = "mean",
     sample_new_groups: bool = False,
@@ -109,8 +105,9 @@ def plot_predictions(
     idata : arviz.InferenceData
         The InferenceData object that contains the samples from the posterior distribution of
         the model.
-    conditional : str, list, optional
-        A sequence of between one and three names of variables in the model.
+    conditional : str, list, dict, optional
+        The covariates we would like to condition on. If dict, keys are the covariate names and
+        values are the values to condition on.
     average_by: str, list, bool, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
         over the other covariates in the model. If True, it averages over all covariates
@@ -154,30 +151,31 @@ def plot_predictions(
     Raises
     ------
     ValueError
-        If number of values passed with ``conditional`` is >= 2 and
-        ``average_by`` are both ``None``.
         If ``conditional`` and ``average_by`` are both ``None``.
         If length of ``conditional`` is greater than 3 and ``average_by`` is ``None``.
+        If main covariate is not numeric or categoric.
     """
-
     if conditional is None and average_by is None:
         raise ValueError("Must specify at least one of 'conditional' or 'average_by'.")
 
     if isinstance(conditional, dict):
-        conditional = {key: sorted(listify(value)) for key, value in conditional.items()}
-    elif conditional is not None:
+        conditional = {
+            key: np.array(sorted(listify(value))).flatten() for key, value in conditional.items()
+        }
+    elif isinstance(conditional, str):
         conditional = listify(conditional)
-        if len(conditional) > 3 and average_by is None:
-            raise ValueError(
-                "Must specify a covariate to 'average_by' when number of covariates"
-                "passed to 'conditional' is greater than 3."
-            )
+
+    if conditional is not None and len(conditional) > 3 and average_by is None:
+        raise ValueError(
+            "Must specify a covariate to 'average_by' when number of covariates "
+            "passed to 'conditional' is greater than 3."
+        )
 
     if average_by is True:
         raise ValueError(
             "Plotting when 'average_by = True' is not possible as 'True' marginalizes "
-            "over all covariates resulting in a single comparison estimate. "
-            "Please specify a covariate(s) to 'average_by'."
+            "over all covariates resulting in a single prediction estimate. "
+            "Please pass a covariate(s) to 'average_by'."
         )
 
     cap_data = predictions(
@@ -194,6 +192,7 @@ def plot_predictions(
     )
 
     conditional_info = ConditionalInfo(model, conditional)
+    transforms = transforms if transforms is not None else {}
 
     if (subplot_kwargs and not average_by) or (subplot_kwargs and average_by):
         for key, value in subplot_kwargs.items():
@@ -267,7 +266,8 @@ def plot_comparisons(
     contrast : str, dict, list
         The predictor name whose contrast we would like to compare.
     conditional : str, dict, list
-        The covariates we would like to condition on.
+        The covariates we would like to condition on. If dict, keys are the covariate names and
+        values are the values to condition on.
     average_by: str, list, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
         over the other covariates in the model. Defaults to ``None``.
@@ -306,11 +306,11 @@ def plot_comparisons(
     Raises
     ------
     ValueError
+        If the number of contrast levels is greater than 2 and ``average_by`` is ``None``.
         If ``conditional`` and ``average_by`` are both ``None``.
         If length of ``conditional`` is greater than 3 and ``average_by`` is ``None``.
-
-    Warning
-        If length of ``contrast`` is greater than 2.
+        If ``average_by`` is ``True``.
+        If main covariate is not numeric or categoric.
     """
     contrast_name = contrast
     if isinstance(contrast, dict):
@@ -350,8 +350,8 @@ def plot_comparisons(
     if average_by is True:
         raise ValueError(
             "Plotting when 'average_by = True' is not possible as 'True' marginalizes "
-            "over all covariates resulting in a single comparison estimate. "
-            "Please specify a covariate(s) to 'average_by'."
+            "over all covariates resulting in a single prediction estimate. "
+            "Please pass a covariate(s) to 'average_by'."
         )
 
     conditional_info = ConditionalInfo(model, conditional)
@@ -413,7 +413,8 @@ def plot_slopes(
         If 'wrt' is numeric, the derivative is computed, else if string or categorical,
         'comparisons' is called to compute difference in group means.
     conditional : str, dict, list
-        The covariates we would like to condition on.
+        The covariates we would like to condition on. If dict, keys are the covariate names and
+        values are the values to condition on.
     average_by: str, list, bool, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
         over the other covariates in the model. If True, it averages over all covariates
@@ -464,11 +465,12 @@ def plot_slopes(
     Raises
     ------
     ValueError
-        If number of values passed with ``conditional`` is >= 2 and
-        ``average_by`` are both ``None``.
+        If the number of ``wrt`` values is greater than 2 and ``average_by`` is ``None``.
         If ``conditional`` and ``average_by`` are both ``None``.
         If length of ``conditional`` is greater than 3 and ``average_by`` is ``None``.
+        If ``average_by`` is ``True``.
         If ``slope`` is not one of ('dydx', 'dyex', 'eyex', 'eydx').
+        If main covariate is not numeric or categoric.
     """
     wrt_name = wrt
     if isinstance(wrt, dict):
@@ -508,8 +510,8 @@ def plot_slopes(
     if average_by is True:
         raise ValueError(
             "Plotting when 'average_by = True' is not possible as 'True' marginalizes "
-            "over all covariates resulting in a single slope estimate. "
-            "Please specify a covariate(s) to 'average_by'."
+            "over all covariates resulting in a single prediction estimate. "
+            "Please pass a covariate(s) to 'average_by'."
         )
 
     if slope not in ("dydx", "dyex", "eyex", "eydx"):

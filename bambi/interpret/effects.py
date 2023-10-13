@@ -19,10 +19,8 @@ from bambi.interpret.utils import (
     merge,
     VariableInfo,
 )
-from bambi.utils import get_aliased_name, listify
+from bambi.utils import get_aliased_name
 
-# TODO: aliases for type hints?
-# TODO: functions for error handling
 
 SUPPORTED_SLOPES = ("dydx", "eyex")
 SUPPORTED_COMPARISONS = {
@@ -415,7 +413,7 @@ class PredictiveDifferences:
             A dataframe containing the marginal or group by average.
         """
         if variable is True:
-            contrast_df_avg = average_over(self.summary_df, None)
+            contrast_df_avg = average_over(self.summary_df, "all")
             contrast_df_avg.insert(0, "term", self.variable.name)
             contrast_df_avg.insert(1, "estimate_type", self.estimate_name)
             if self.kind != "slopes" and len(self.variable.values) < 3:
@@ -433,7 +431,7 @@ class PredictiveDifferences:
 def predictions(
     model: Model,
     idata: az.InferenceData,
-    conditional: Union[str, list, None] = None,
+    conditional: Union[str, dict, list, None] = None,
     average_by: Union[str, list, bool, None] = None,
     target: str = "mean",
     pps: bool = False,
@@ -451,8 +449,9 @@ def predictions(
     idata : arviz.InferenceData
         The InferenceData object that contains the samples from the posterior distribution of
         the model.
-    conditional : str, list, optional
-        The covariates we would like to condition on.
+    conditional : str, list, dict, optional
+        The covariates we would like to condition on. If dict, keys are the covariate names and
+        values are the values to condition on.
     average_by: str, list, bool, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
         over the other covariates in the model. If True, it averages over all covariates
@@ -484,15 +483,21 @@ def predictions(
     ------
     ValueError
         If ``pps`` is ``True`` and ``target`` is not ``"mean"``.
+        If ``conditional`` is a list and the length is greater than 3.
+        If ``prob`` is not > 0 and < 1.
     """
-
     if pps and target != "mean":
         raise ValueError("When passing 'pps=True', target must be 'mean'")
 
-    # TODO: error handling
+    if isinstance(conditional, list):
+        if len(conditional) > 3:
+            raise ValueError(
+                f"Only 3 covariates can be passed to 'conditional'. {len(conditional)} "
+                "were passed. If you would like to pass more than 3 covariates, use "
+                "a dictionary."
+            )
 
     conditional_info = ConditionalInfo(model, conditional)
-
     transforms = transforms if transforms is not None else {}
 
     if prob is None:
@@ -500,7 +505,7 @@ def predictions(
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
-    cap_data = create_predictions_data(conditional_info, model)
+    cap_data = create_predictions_data(conditional_info, conditional_info.user_passed)
 
     if target != "mean":
         component = model.components[target]
@@ -521,13 +526,13 @@ def predictions(
         idata = model.predict(
             idata, data=cap_data, sample_new_groups=sample_new_groups, inplace=False, kind="pps"
         )
-        y_hat = response_transform(idata.posterior_predictive[response.name])
+        y_hat = response_transform(idata["posterior_predictive"][response.name])
         y_hat_mean = y_hat.mean(("chain", "draw"))
     else:
         idata = model.predict(
             idata, data=cap_data, sample_new_groups=sample_new_groups, inplace=False
         )
-        y_hat = response_transform(idata.posterior[response.name_target])
+        y_hat = response_transform(idata["posterior"][response.name_target])
         y_hat_mean = y_hat.mean(("chain", "draw"))
 
     if use_hdi and pps:
@@ -543,6 +548,7 @@ def predictions(
     upper_bound = 1 - lower_bound
     response.lower_bound, response.upper_bound = lower_bound, upper_bound
 
+    cap_data = cap_data.copy()
     if y_hat_mean.ndim > 1:
         cap_data = merge(y_hat_mean, y_hat_bounds, cap_data)
         cap_data = cap_data.rename(
@@ -559,6 +565,8 @@ def predictions(
         cap_data[response.upper_bound_name] = y_hat_bounds[1]
 
     if average_by is not None:
+        if average_by is True:
+            average_by = "all"
         cap_data = average_over(cap_data, covariate=average_by)
 
     return cap_data
@@ -587,8 +595,9 @@ def comparisons(
         the model.
     contrast : str, dict
         The predictor name whose contrast we would like to compare.
-    conditional : str, dict, list
-        The covariates we would like to condition on.
+    conditional : str, list, dict, optional
+        The covariates we would like to condition on. If dict, keys are the covariate names and
+        values are the values to condition on.
     average_by: str, list, bool, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
         over the other covariates in the model. If True, it averages over all covariates
@@ -620,10 +629,10 @@ def comparisons(
         If `wrt` is a dict and length of ``contrast`` is greater than 2 and
         ``conditional`` is ``None``.
         If ``conditional`` is None and ``contrast`` is categorical with > 2 values.
+        If ``conditional`` is a list and the length is greater than 3.
         If ``comparison_type`` is not 'diff' or 'ratio'.
         If ``prob`` is not > 0 and < 1.
     """
-
     contrast_name = contrast
     if isinstance(contrast, dict):
         if len(contrast) > 1:
@@ -635,6 +644,14 @@ def comparisons(
             raise ValueError(
                 "'conditional' must be specified when 'contrast' has more than 2 values."
                 f"{contrast_name} was passed {len(contrast_values)} values."
+            )
+
+    if isinstance(conditional, list):
+        if len(conditional) > 3:
+            raise ValueError(
+                f"Only 3 covariates can be passed to 'conditional'. {len(conditional)} "
+                "were passed. If you would like to pass more than 3 covariates, "
+                "use a dictionary."
             )
 
     if conditional is None:
@@ -728,8 +745,9 @@ def slopes(
         the model.
     wrt : str, dict
         The slope of the regression with respect to (wrt) this predictor will be computed.
-    conditional : str, dict, list
-        The covariates we would like to condition on.
+    conditional : str, list, dict, optional
+        The covariates we would like to condition on. If dict, keys are the covariate names and
+        values are the values to condition on.
     average_by: str, list, bool, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
         over the other covariates in the model. If True, it averages over all covariates
@@ -771,6 +789,7 @@ def slopes(
         If length of ``wrt`` is greater than 1.
         If ``conditional`` is ``None`` and ``wrt`` is passed more than 2 values.
         If ``conditional`` is ``None`` and default ``wrt`` has more than 2 unique values.
+        If ``conditional`` is a list and the length is greater than 3.
         If ``slope`` is not 'dydx', 'dyex', 'eyex', or 'eydx'.
         If ``prob`` is not > 0 and < 1.
     """
@@ -785,6 +804,14 @@ def slopes(
             raise ValueError(
                 f"'conditional' must be specified when 'wrt' has more than 2 values. "
                 f"{wrt_name} was passed {len(wrt_values)} values."
+            )
+
+    if isinstance(conditional, list):
+        if len(conditional) > 3:
+            raise ValueError(
+                f"Only 3 covariates can be passed to 'conditional'. {len(conditional)} "
+                " were passed. If you would like to pass more than 3 covariates, "
+                "use a dictionary."
             )
 
     if not isinstance(wrt, dict) and conditional is None:

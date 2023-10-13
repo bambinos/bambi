@@ -180,12 +180,12 @@ class Covariates:
     panel: Union[str, None]
 
 
-def average_over(data: pd.DataFrame, covariate: Union[str, list, None]) -> pd.DataFrame:
+def average_over(data: pd.DataFrame, covariate: Union[str, list]) -> pd.DataFrame:
     """
     Average estimates by specified covariate in the model. data.columns[-3:] are
     the columns: 'estimate', 'lower', and 'upper'.
     """
-    if covariate is None:
+    if covariate == "all":
         return pd.DataFrame(data[data.columns[-3:]].mean()).T
     else:
         return data.groupby(covariate, as_index=False)[data.columns[-3:]].mean()
@@ -359,6 +359,7 @@ def set_default_values(model: Model, data_dict: dict, kind: str) -> dict:
             if not isinstance(value, (list, np.ndarray)):
                 data_dict[key] = [value]
         return data_dict
+
     return data_dict
 
 
