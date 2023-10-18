@@ -64,7 +64,7 @@ Recurrent or Core Contributors can nominate anyone to join the project as a recu
 
 ##### Current Recurrent Contributors
 
-The list of Recurrent Contributors will be created once after Core Contributors group is defined.
+The list of Recurrent Contributors will be created after Core Contributors group is defined.
 
 #### Core Contributors
 
@@ -85,7 +85,10 @@ Only Recurrent Contributors are eligible to become Core Contributors, and only C
 
 ##### Current Core Contributors
 
-TBD
+* Gabriel Stechschulte ([@gstechschulte](https://github.com/gstechschulte))
+* Osvaldo Martin ([@aloctavodia](https://github.com/aloctavodia))
+* Ravin Kumar ([@canyon289](https://github.com/canyon289))
+* Tomás Capretto ([@tomicapretto](https://github.com/tomicapretto))
 
 #### Council
 
@@ -119,12 +122,10 @@ page for more details.
 The Council may choose to delegate these responsibilities to sub-committees. 
 If so, Council members must update this document to make the delegation clear.
 
-:::{important}
 Individual Council Members do not have the power to unilaterally wield these responsibilities. 
 The Council as a whole must jointly make these decisions. 
 In other words, Council Members are first and foremost Core Contributors, but only when needed they 
 can collectively make decisions for the health of the project.
-:::
 
 ##### Length of Tenure and Reverification
 
@@ -146,9 +147,10 @@ to fill the position.
 
 The current Council members are:
 
-* ...
-* ...
-* ...
+* Gabriel Stechschulte ([@gstechschulte](https://github.com/gstechschulte))
+* Osvaldo Martin ([@aloctavodia](https://github.com/aloctavodia))
+* Ravin Kumar ([@canyon289](https://github.com/canyon289))
+* Tomás Capretto ([@tomicapretto](https://github.com/tomicapretto))
 
 ### Election and decision making processes
 
@@ -161,12 +163,10 @@ issue or "thumbs-up" emoji on the same issue), then they can be considered by th
 on the first of the month following a nomination, the Council will vote on each nominee using 
 [this process](#voting-process).
 
-:::{note}
 In the case of recurring contributors, the nomination and voting process can be replaced
 by a somewhat similar selection process. Thus, for example, GSoC interns are considered
 recurrent contributors once accepted; similarly, contractors hired thanks to grants like CZI EOSS 
 or GSoD ones are also considered recurrent contributors once hired.
-:::
 
 Voting will be private with results published on the issue ticket. 
 In the case of a rejection, results must include the reasons behind the decision 
@@ -324,7 +324,6 @@ Core contributors can also voluntarily leave the project by notifying the commun
 means or by notifying the entire council.
 
 Unless they request otherwise, they will be listed on the Emeritus team members page.
-<!-- TODO: Create Emeritus team members page -->
 
 ## Historical note
 
