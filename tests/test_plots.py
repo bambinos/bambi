@@ -63,6 +63,7 @@ def food_choice():
 # Improvement:
 # * Test the actual plots are what we are indeed the desired result.
 # * Test using the dictionary and the list gives the same plot
+# * Use the same function for different models, e.g. average by, transforms, etc.
 
 
 class TestCommon:
@@ -194,7 +195,7 @@ class TestPredictions:
         # grid of values with average_by
         plot_predictions(model, idata, ["hp", "am", "drat"], average_by)
 
-        # unit level with average by
+        # unit level with average by covariates
         plot_predictions(model, idata, None, average_by)
     
     @pytest.mark.parametrize("pps", [False, True])
