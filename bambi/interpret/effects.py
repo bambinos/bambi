@@ -14,7 +14,9 @@ from bambi.interpret.create_data import create_differences_data, create_predicti
 from bambi.interpret.utils import (
     average_over,
     ConditionalInfo,
+    enforce_dtypes,
     identity,
+    merge,
     VariableInfo,
 )
 from bambi.utils import get_aliased_name, listify
@@ -319,16 +321,28 @@ class PredictiveDifferences:
 
         return self
 
-    def get_summary_df(self) -> pd.DataFrame:
+    def get_summary_df(self, response_dim: np.ndarray) -> pd.DataFrame:
         """
-        Builds the summary dataframe for 'comparisons' and 'slopes' effects. If
-        the number of values passed for the variable of interest is less then 2
-        for 'comparisons' and 'slopes', then a subset of the 'preds' data is used
-        to build the summary. If the effect kind is 'comparisons' and more than
-        2 values are being compared, then the entire 'preds' data is used. If the
-        effect kind is 'slopes' and more than 2 values are being compared, then
-        only a subset of the 'preds' data is used to build the summary.
+        Builds the summary dataframe for 'comparisons' and 'slopes' effects.
+        There are four scenarios to consider:
+
+            1.) If the effect kind is 'comparisons' and more than 2 values are being
+            compared, then the entire 'preds' data is used.
+
+            2.) If the model predictions have multiple response levels, then 'preds' data
+            needs to be duplicated to match the number of response levels. E.g., 'preds'
+            data has 100 rows and 3 response levels, then the summary dataframe will have
+            300 rows since the model made a prediction for each response level for each
+            sample in 'preds'.
+
+            3.) If the effect kind is 'slopes' and more than 2 values are being compared, then
+            only a subset of the 'preds' data is used to build the summary.
+
+            4.) If the number of values passed for the variable of interest is less then 2
+            for 'comparisons' and 'slopes', then a subset of the 'preds' data is used
+            to build the summary.
         """
+        # Scenario 1
         if len(self.variable.values) > 2 and self.kind == "comparisons":
             summary_df = self.preds_data.drop(columns=self.variable.name).drop_duplicates()
             covariates_cols = summary_df.columns
@@ -339,6 +353,18 @@ class PredictiveDifferences:
                 contrast_values, summary_df.shape[0] // len(contrast_values), axis=0
             )
             contrast_values = [tuple(elem) for elem in contrast_values]
+        # Scenario 2
+        elif len(response_dim) > 1:
+            summary_df = self.preds_data.drop(columns=self.variable.name).drop_duplicates()
+            covariates_cols = summary_df.columns
+            contrast_values = self.variable.values.flatten()
+            covariate_vals = np.repeat(summary_df.T, len(response_dim))
+            summary_df = pd.DataFrame(data=covariate_vals.T, columns=covariates_cols)
+            summary_df["estimate_dim"] = np.tile(
+                response_dim, summary_df.shape[0] // len(response_dim)
+            )
+            contrast_values = [tuple(contrast_values)] * summary_df.shape[0]
+        # Scenario 3 & 4
         else:
             wrt = {}
             for idx, _ in enumerate(self.variable.values):
@@ -473,12 +499,10 @@ def predictions(
 
     assert 1 <= len(covariates) <= 3
 
-    if transforms is None:
-        transforms = {}
+    transforms = transforms if transforms is not None else {}
 
     if prob is None:
         prob = az.rcParams["stats.hdi_prob"]
-
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
@@ -525,9 +549,20 @@ def predictions(
     upper_bound = 1 - lower_bound
     response.lower_bound, response.upper_bound = lower_bound, upper_bound
 
-    cap_data["estimate"] = y_hat_mean
-    cap_data[response.lower_bound_name] = y_hat_bounds[0]
-    cap_data[response.upper_bound_name] = y_hat_bounds[1]
+    if y_hat_mean.ndim > 1:
+        cap_data = merge(y_hat_mean, y_hat_bounds, cap_data)
+        cap_data = cap_data.rename(
+            columns={
+                f"{response.name}_dim": "estimate_dim",
+                f"{response.name_target}": "estimate",
+                f"{response.name_target}_x": response.lower_bound_name,
+                f"{response.name_target}_y": response.upper_bound_name,
+            }
+        )
+    else:
+        cap_data["estimate"] = y_hat_mean
+        cap_data[response.lower_bound_name] = y_hat_bounds[0]
+        cap_data[response.upper_bound_name] = y_hat_bounds[1]
 
     return cap_data
 
@@ -630,8 +665,7 @@ def comparisons(
     contrast_info = VariableInfo(model, contrast, "comparisons", eps=0.5)
     conditional_info = ConditionalInfo(model, conditional)
 
-    if transforms is None:
-        transforms = {}
+    transforms = transforms if transforms is not None else {}
 
     response_name = get_aliased_name(model.response_component.response_term)
     response = ResponseInfo(
@@ -647,6 +681,13 @@ def comparisons(
         idata, data=comparisons_data, sample_new_groups=sample_new_groups, inplace=False
     )
 
+    # returns empty array if model predictions do not have multiple dimensions
+    response_dim_key = response.name + "_dim"
+    if response_dim_key in idata.posterior.coords:
+        response_dim = idata.posterior.coords[response_dim_key].values
+    else:
+        response_dim = np.empty(0)
+
     predictive_difference = PredictiveDifferences(
         model,
         comparisons_data,
@@ -658,12 +699,12 @@ def comparisons(
     )
     comparisons_summary = predictive_difference.get_estimate(
         idata, response_transform, comparison_type, prob=prob
-    ).get_summary_df()
+    ).get_summary_df(response_dim)
 
     if average_by:
         comparisons_summary = predictive_difference.average_by(variable=average_by)
 
-    return comparisons_summary
+    return enforce_dtypes(comparisons_data, comparisons_summary)
 
 
 def slopes(
@@ -769,10 +810,7 @@ def slopes(
     # 'slopes' should not be limited to ("main", "group", "panel")
     conditional_info = ConditionalInfo(model, conditional)
 
-    grid = False
-    if conditional_info.covariates:
-        grid = True
-
+    grid = bool(conditional_info.covariates)
     # if wrt is categorical or string dtype, call 'comparisons' to compute the
     # difference between group means as the slope
     effect_type = "slopes"
@@ -784,8 +822,7 @@ def slopes(
     lower_bound = round((1 - prob) / 2, 4)
     upper_bound = 1 - lower_bound
 
-    if transforms is None:
-        transforms = {}
+    transforms = transforms if transforms is not None else {}
 
     response_name = get_aliased_name(model.response_component.response_term)
     response = ResponseInfo(response_name, "mean", lower_bound, upper_bound)
@@ -798,14 +835,21 @@ def slopes(
         idata, data=slopes_data, sample_new_groups=sample_new_groups, inplace=False
     )
 
+    # returns empty array if model predictions do not have multiple dimensions
+    response_dim_key = response.name + "_dim"
+    if response_dim_key in idata.posterior.coords:
+        response_dim = idata.posterior.coords[response_dim_key].values
+    else:
+        response_dim = np.empty(0)
+
     predictive_difference = PredictiveDifferences(
         model, slopes_data, wrt_info, conditional_info, response, use_hdi, effect_type
     )
     slopes_summary = predictive_difference.get_estimate(
         idata, response_transform, "diff", slope, eps
-    ).get_summary_df()
+    ).get_summary_df(response_dim)
 
     if average_by:
         slopes_summary = predictive_difference.average_by(variable=average_by)
 
-    return slopes_summary
+    return enforce_dtypes(slopes_data, slopes_summary)
