@@ -1,6 +1,6 @@
 # interpret.plot_predictions { #bambi.interpret.plot_predictions }
 
-`interpret.plot_predictions(model, idata, covariates, target='mean', sample_new_groups=False, pps=False, use_hdi=True, prob=None, transforms=None, legend=True, ax=None, fig_kwargs=None, subplot_kwargs=None)`
+`interpret.plot_predictions(model, idata, conditional=None, average_by=None, target='mean', sample_new_groups=False, pps=False, use_hdi=True, prob=None, transforms=None, legend=True, ax=None, fig_kwargs=None, subplot_kwargs=None)`
 
 Plot Conditional Adjusted Predictions
 
@@ -10,7 +10,8 @@ Plot Conditional Adjusted Predictions
 |---------------------|---------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
 | `model`             | bambi.Model                           | The model for which we want to plot the predictions.                                                                                                                                                                                                                    | _required_ |
 | `idata`             | arviz.InferenceData                   | The InferenceData object that contains the samples from the posterior distribution of the model.                                                                                                                                                                        | _required_ |
-| `covariates`        | list or dict                          | A sequence of between one and three names of variables in the model.                                                                                                                                                                                                    | _required_ |
+| `conditional`       | (str, list, dict)                     | The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.                                                                                                                                          | `None`     |
+| `average_by`        | Union\[str, list, None\]              | The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. If True, it averages over all covariates in the model to obtain the average estimate. Defaults to ``None``.                                | `None`     |
 | `target`            | str                                   | Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only works when pps is False as the target may not be available in the posterior predictive distribution.                                                                            | `'mean'`   |
 | `sample_new_groups` | bool                                  | If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to ``False``.                                                                                                                          | `False`    |
 | `pps`               | bool                                  | Whether to plot the posterior predictive samples. Defaults to ``False``.                                                                                                                                                                                                | `False`    |
@@ -30,7 +31,6 @@ Plot Conditional Adjusted Predictions
 
 ## Raises
 
-| Type       | Description                                                                                |
-|------------|--------------------------------------------------------------------------------------------|
-| ValueError | When ``level`` is not within 0 and 1. When the main covariate is not numeric or categoric. |
-| TypeError  | When ``covariates`` is not a string or a list of strings.                                  |
+| Type       | Description                                                                                                                                                                            |
+|------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ValueError | If ``conditional`` and ``average_by`` are both ``None``. If length of ``conditional`` is greater than 3 and ``average_by`` is ``None``. If main covariate is not numeric or categoric. |

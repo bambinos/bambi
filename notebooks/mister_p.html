@@ -423,7 +423,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 class="anchored" data-anchor-id="regression-and-effect-modification">Regression and Effect Modification</h2>
 <p>What are we even doing when we fit a regression model? Is a question that arises when first learning the tools of the trade and again when debugging strange results of your thousandth logistic regression model.</p>
 <p>This notebook is intended to showcase how regression can be seen as a method for automating the calculation of stratum specific conditional effects. Additionally, we’ll see how we can enrich regression models by a post-stratification adjustment with knowledge of the appropriate stratum specific weights. This technique of multilevel regression and post stratification (MrP) is often used in the context of national surveys where we have knowledge of the population weights appropriate to different demographic groups. It can be used in a wide variety of areas ranging from political polling to online market research. We will demonstrate how to fit and and assess these models using Bambi.</p>
-<div class="cell" data-execution_count="1">
+<div class="cell" data-execution_count="2">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
@@ -440,7 +440,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 class="anchored" data-anchor-id="risk-stratification">Risk Stratification</h2>
 <p>First consider this example of heart transplant patients adapted from Hernan and Robins’ excellent book <em>Causal Inference: What if</em>. Here we have a number of patients (anonymised with names for the Greek Gods). The data records the outcomes of a heart transplant program for those who were part of the program and those who were not. We also see the different risk levels of each patient assigned the treatment.</p>
 <p>What we want to show here is that a regression model fit to this data automatically accounts for the weighting appropriate to the different risk strata. The data is coded with 0-1 indicators for status. <code>Risk_Strata</code> is either 1 for higher risk or 0 for lower risk. <code>Outcome</code> is whether or not the patient died from the procedure, and <code>Treatment</code> is whether or not the patient received treatment.</p>
-<div class="cell" data-execution_count="2">
+<div class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.DataFrame(</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    {</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="st">"name"</span>: [</span>
@@ -474,7 +474,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"Treatment_x_Risk_Strata"</span>] <span class="op">=</span> df.Treatment <span class="op">*</span> df.Risk_Strata</span>
 <span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>df</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="3">
 
 <div>
 
@@ -656,10 +656,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <p>If the treatment assignment procedure involved complete randomisation then we might expect a reasonable balance of strata effects across the treated and non-treated. In this sample we see (perhaps counter intuitively) that the treatment seems to induce a higher rate of death than the non-treated group.</p>
-<div class="cell" data-execution_count="3">
+<div class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>simple_average <span class="op">=</span> df.groupby(<span class="st">"Treatment"</span>)[[<span class="st">"Outcome"</span>]].mean().rename({<span class="st">"Outcome"</span>: <span class="st">"Share"</span>}, axis<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>simple_average</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="3">
+<div class="cell-output cell-output-display" data-execution_count="4">
 
 <div>
 
@@ -689,7 +689,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <p>Which suggests an alarming causal effect whereby the treatment seems to increase risk of death in the population.</p>
-<div class="cell" data-execution_count="4">
+<div class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>causal_risk_ratio <span class="op">=</span> simple_average.iloc[<span class="dv">1</span>][<span class="st">"Share"</span>] <span class="op">/</span> simple_average.iloc[<span class="dv">0</span>][<span class="st">"Share"</span>]</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Causal Risk Ratio:"</span>, causal_risk_ratio)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -697,11 +697,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <p>This finding we know on inspection is driven by the imbalance in the risk strata across the treatment groups.</p>
-<div class="cell" data-execution_count="5">
+<div class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df.groupby(<span class="st">"Risk_Strata"</span>)[[<span class="st">"Treatment"</span>]].count().assign(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    proportion<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="st">"Treatment"</span>] <span class="op">/</span> <span class="bu">len</span>(df)</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="5">
+<div class="cell-output cell-output-display" data-execution_count="6">
 
 <div>
 
@@ -735,7 +735,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <p>We can correct for this by weighting the results by the share each group represents across the <code>Risk_Strata</code>. In other words when we correct for the population size at the different levels of risk we get a better estimate of the effect. First we see what the expected outcome is for each strata.</p>
-<div class="cell" data-execution_count="6">
+<div class="cell" data-execution_count="7">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>outcomes_controlled <span class="op">=</span> (</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    df.groupby([<span class="st">"Risk_Strata"</span>, <span class="st">"Treatment"</span>])[[<span class="st">"Outcome"</span>]]</span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    .mean()</span>
@@ -744,7 +744,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>outcomes_controlled</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="7">
 
 <div>
 
@@ -778,14 +778,14 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <p>Note how the expected outcomes are equal across the stratified groups. We can now combine these estimate with the population weights (derived earlier) in each segment to get our weighted average.</p>
-<div class="cell" data-execution_count="7">
+<div class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>weighted_avg <span class="op">=</span> outcomes_controlled.assign(formula<span class="op">=</span><span class="st">"0.4*0.25 + 0.6*0.66"</span>).assign(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    weighted_average<span class="op">=</span><span class="kw">lambda</span> x: x[<span class="dv">0</span>] <span class="op">*</span> (df[df[<span class="st">"Risk_Strata"</span>] <span class="op">==</span> <span class="dv">0</span>].shape[<span class="dv">0</span>] <span class="op">/</span> <span class="bu">len</span>(df))</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">+</span> x[<span class="dv">1</span>] <span class="op">*</span> (df[df[<span class="st">"Risk_Strata"</span>] <span class="op">==</span> <span class="dv">1</span>].shape[<span class="dv">0</span>] <span class="op">/</span> <span class="bu">len</span>(df))</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>weighted_avg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="7">
+<div class="cell-output cell-output-display" data-execution_count="8">
 
 <div>
 
@@ -827,7 +827,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 <p>From which we can derive a more sensible treatment effect.</p>
-<div class="cell" data-execution_count="8">
+<div class="cell" data-execution_count="9">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>causal_risk_ratio <span class="op">=</span> (</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    weighted_avg.iloc[<span class="dv">1</span>][<span class="st">"weighted_average"</span>] <span class="op">/</span> weighted_avg.iloc[<span class="dv">0</span>][<span class="st">"weighted_average"</span>]</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>)</span>
@@ -842,7 +842,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <h2 class="anchored" data-anchor-id="regression-as-stratification">Regression as Stratification</h2>
 <p>So far, so good. But so what?</p>
 <p>The point here is that the above series of steps can be difficult to accomplish with more complex sets of groups and risk profiles. So it’s useful to understand that regression can be used to automatically account for the variation in outcome effects across the different strata of our population. More prosaically, the example shows that it really matters what variables you put in your model.</p>
-<div class="cell" data-execution_count="9">
+<div class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>reg <span class="op">=</span> bmb.Model(<span class="st">"Outcome ~ 1 + Treatment"</span>, df)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> reg.fit()</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -851,9 +851,34 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
-Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Outcome_sigma, Intercept, Treatment]</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+
+    <div>
+      <progress value="8000" class="" max="8000" style="width:300px; height:20px; vertical-align: middle;"></progress>
+      100.00% [8000/8000 00:00&lt;00:00 Sampling 4 chains, 0 divergences]
+    </div>
+    
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.
@@ -862,76 +887,39 @@ Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (4 chains in 4 jobs)
 NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata]</code></pre>
 </div>
+<div class="cell-output cell-output-display">
+
+<style>
+    /* Turns off some styling */
+    progress {
+        /* gets rid of default border in Firefox and Opera. */
+        border: none;
+        /* Needs to be in here for Safari polyfill so background images work as expected. */
+        background-size: auto;
+    }
+    progress:not([value]), progress:not([value])::-webkit-progress-bar {
+        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
+    }
+    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
+        background: #F44336;
+    }
+</style>
+</div>
+<div class="cell-output cell-output-display">
+
+    <div>
+      <progress value="8000" class="" max="8000" style="width:300px; height:20px; vertical-align: middle;"></progress>
+      100.00% [8000/8000 00:01&lt;00:00 Sampling 4 chains, 0 divergences]
+    </div>
+    
+</div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 1 seconds.</code></pre>
 </div>
 </div>
 <p>We can now inspect the treatment effect and the implied causal risk ratio in each model. We can quickly recover that controlling for the <strong>right</strong> variables in our regression model automatically adjusts the treatment effect downwards towards 0.</p>
-<div class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>az.summary(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="10">
-
-<div>
-
-<table class="dataframe table table-sm table-striped">
-  <thead>
-    <tr>
-      <th></th>
-      <th>mean</th>
-      <th>sd</th>
-      <th>hdi_3%</th>
-      <th>hdi_97%</th>
-      <th>mcse_mean</th>
-      <th>mcse_sd</th>
-      <th>ess_bulk</th>
-      <th>ess_tail</th>
-      <th>r_hat</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>Intercept</th>
-      <td>0.428</td>
-      <td>0.203</td>
-      <td>0.060</td>
-      <td>0.823</td>
-      <td>0.003</td>
-      <td>0.002</td>
-      <td>4840.0</td>
-      <td>2982.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>Treatment</th>
-      <td>0.108</td>
-      <td>0.252</td>
-      <td>-0.357</td>
-      <td>0.584</td>
-      <td>0.004</td>
-      <td>0.004</td>
-      <td>4258.0</td>
-      <td>2731.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>Outcome_sigma</th>
-      <td>0.542</td>
-      <td>0.092</td>
-      <td>0.388</td>
-      <td>0.713</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>4073.0</td>
-      <td>2488.0</td>
-      <td>1.0</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-</div>
-</div>
 <div class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>az.summary(results_strata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>az.summary(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="11">
 
 <div>
@@ -954,62 +942,38 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>0.254</td>
-      <td>0.261</td>
-      <td>-0.233</td>
-      <td>0.743</td>
-      <td>0.005</td>
-      <td>0.004</td>
-      <td>2710.0</td>
-      <td>2648.0</td>
+      <td>0.433</td>
+      <td>0.208</td>
+      <td>0.052</td>
+      <td>0.829</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>4351.0</td>
+      <td>2913.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Treatment</th>
-      <td>-0.001</td>
-      <td>0.367</td>
-      <td>-0.653</td>
-      <td>0.730</td>
-      <td>0.008</td>
-      <td>0.006</td>
-      <td>2312.0</td>
-      <td>2648.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>Risk_Strata</th>
-      <td>0.405</td>
-      <td>0.395</td>
-      <td>-0.349</td>
-      <td>1.119</td>
-      <td>0.008</td>
-      <td>0.006</td>
-      <td>2274.0</td>
-      <td>2503.0</td>
-      <td>1.0</td>
-    </tr>
-    <tr>
-      <th>Treatment_x_Risk_Strata</th>
-      <td>0.010</td>
-      <td>0.496</td>
-      <td>-0.947</td>
-      <td>0.939</td>
-      <td>0.011</td>
-      <td>0.009</td>
-      <td>1986.0</td>
-      <td>2113.0</td>
+      <td>0.107</td>
+      <td>0.261</td>
+      <td>-0.399</td>
+      <td>0.584</td>
+      <td>0.004</td>
+      <td>0.004</td>
+      <td>4766.0</td>
+      <td>2830.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>Outcome_sigma</th>
-      <td>0.531</td>
-      <td>0.098</td>
-      <td>0.367</td>
-      <td>0.714</td>
-      <td>0.002</td>
+      <td>0.545</td>
+      <td>0.094</td>
+      <td>0.388</td>
+      <td>0.726</td>
       <td>0.001</td>
-      <td>2389.0</td>
-      <td>2533.0</td>
+      <td>0.001</td>
+      <td>4253.0</td>
+      <td>3314.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1018,6 +982,93 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 </div>
 </div>
 <div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>az.summary(results_strata)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+
+<div>
+
+<table class="dataframe table table-sm table-striped">
+  <thead>
+    <tr>
+      <th></th>
+      <th>mean</th>
+      <th>sd</th>
+      <th>hdi_3%</th>
+      <th>hdi_97%</th>
+      <th>mcse_mean</th>
+      <th>mcse_sd</th>
+      <th>ess_bulk</th>
+      <th>ess_tail</th>
+      <th>r_hat</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Intercept</th>
+      <td>0.246</td>
+      <td>0.271</td>
+      <td>-0.250</td>
+      <td>0.761</td>
+      <td>0.006</td>
+      <td>0.004</td>
+      <td>2234.0</td>
+      <td>2512.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>Treatment</th>
+      <td>-0.001</td>
+      <td>0.378</td>
+      <td>-0.701</td>
+      <td>0.716</td>
+      <td>0.009</td>
+      <td>0.006</td>
+      <td>1922.0</td>
+      <td>2064.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>Risk_Strata</th>
+      <td>0.416</td>
+      <td>0.403</td>
+      <td>-0.326</td>
+      <td>1.177</td>
+      <td>0.009</td>
+      <td>0.007</td>
+      <td>2122.0</td>
+      <td>2462.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>Treatment_x_Risk_Strata</th>
+      <td>0.002</td>
+      <td>0.504</td>
+      <td>-0.931</td>
+      <td>0.959</td>
+      <td>0.012</td>
+      <td>0.009</td>
+      <td>1792.0</td>
+      <td>2128.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>Outcome_sigma</th>
+      <td>0.533</td>
+      <td>0.100</td>
+      <td>0.368</td>
+      <td>0.727</td>
+      <td>0.002</td>
+      <td>0.001</td>
+      <td>2274.0</td>
+      <td>1786.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="cell" data-execution_count="13">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_forest(</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    [results, results_strata],</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    model_names<span class="op">=</span>[<span class="st">"naive_model"</span>, <span class="st">"stratified_model"</span>],</span>
@@ -1034,7 +1085,7 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 </div>
 </div>
 <p>We can even see this in the predicted outcomes for the model. This is an important step. The regression model automatically adjusts for the risk profile within the appropriate strata in the data “seen” by the model.</p>
-<div class="cell" data-execution_count="13">
+<div class="cell" data-execution_count="14">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>new_df <span class="op">=</span> df[[<span class="st">"Risk_Strata"</span>]].assign(Treatment<span class="op">=</span><span class="dv">1</span>).assign(Treatment_x_Risk_Strata<span class="op">=</span><span class="dv">1</span>)</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>new_preds <span class="op">=</span> reg_strata.predict(results_strata, kind<span class="op">=</span><span class="st">"pps"</span>, data<span class="op">=</span>new_df, inplace<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Expected Outcome in the Treated"</span>)</span>
@@ -1042,11 +1093,11 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 <div class="cell-output cell-output-stdout">
 <pre><code>Expected Outcome in the Treated</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="13">
-<pre><code>0.5068569705412103</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<pre><code>0.496535899999178</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="14">
+<div class="cell" data-execution_count="15">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>new_df <span class="op">=</span> df[[<span class="st">"Risk_Strata"</span>]].assign(Treatment<span class="op">=</span><span class="dv">0</span>).assign(Treatment_x_Risk_Strata<span class="op">=</span><span class="dv">0</span>)</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>new_preds <span class="op">=</span> reg_strata.predict(results_strata, kind<span class="op">=</span><span class="st">"pps"</span>, data<span class="op">=</span>new_df, inplace<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Expected Outcome in the Untreated"</span>)</span>
@@ -1055,16 +1106,16 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 <div class="cell-output cell-output-stdout">
 <pre><code>Expected Outcome in the Untreated</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="14">
-<pre><code>0.49944292437387866</code></pre>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<pre><code>0.4905238060849129</code></pre>
 </div>
 </div>
 <p>We can see these results more clearly using <code>bambi</code> model interpretation functions to see the predictions within a specific strata.</p>
-<div class="cell" data-execution_count="15">
+<div class="cell" data-execution_count="17">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">20</span>, <span class="dv">6</span>))</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>axs <span class="op">=</span> axs.flatten()</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(reg, results, covariates<span class="op">=</span>[<span class="st">"Treatment"</span>], ax<span class="op">=</span>axs[<span class="dv">0</span>])</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(reg_strata, results_strata, covariates<span class="op">=</span>[<span class="st">"Treatment"</span>], ax<span class="op">=</span>axs[<span class="dv">1</span>])</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(reg, results, conditional<span class="op">=</span>[<span class="st">"Treatment"</span>], ax<span class="op">=</span>axs[<span class="dv">0</span>])</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(reg_strata, results_strata, conditional<span class="op">=</span>[<span class="st">"Treatment"</span>], ax<span class="op">=</span>axs[<span class="dv">1</span>])</span>
 <span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">0</span>].set_title(<span class="st">"Non Stratified Regression </span><span class="ch">\n</span><span class="st"> Model Predictions"</span>)</span>
 <span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>axs[<span class="dv">1</span>].set_title(<span class="st">"Stratified Regression </span><span class="ch">\n</span><span class="st"> Model Predictions"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
@@ -1079,10 +1130,10 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 <p>In the context of national survey design there is always a concern that the sample respondents may be more or less representative of the population across different key demographics e.g.&nbsp;it’s unlikely we would put much faith in the survey’s accuracy if it had 90% male respondents on a question about the lived experience of women. Given that we can know before hand that certain demographic splits are not relective of the census data, we can use this information to appropriately re-weight the regressions fit to non-representative survey data.</p>
 <p>We’ll demonstrate the idea of multi-level regression and post-stratification adjustment by replicating some of the steps discussed in Martin, Philips and Gelmen’s <a href="https://bookdown.org/jl5522/MRP-case-studies/">“Multilevel Regression and Poststratification Case Studies”</a>.</p>
 <p>They cite data from the Cooperative Congressional Election Study (Schaffner, Ansolabehere, and Luks (2018)), a US nationwide survey designed by a consortium of 60 research teams and administered by YouGov. The outcome of interest is a binary question: Should employers decline coverage of abortions in insurance plans?</p>
-<div class="cell" data-execution_count="16">
+<div class="cell" data-execution_count="18">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>cces_all_df <span class="op">=</span> pd.read_csv(<span class="st">"data/mr_p_cces18_common_vv.csv.gz"</span>, low_memory<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>cces_all_df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="16">
+<div class="cell-output cell-output-display" data-execution_count="18">
 
 <div>
 
@@ -1243,7 +1294,7 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 <section id="cleaning-census-data" class="level3">
 <h3 class="anchored" data-anchor-id="cleaning-census-data">Cleaning Census Data</h3>
 <p>To prepare the census data for modelling we need to break the demographic data into appropriate stratum. We will break out these groupings as along broad categories familiar to audiences of election coverage news. Even these steps amount to a significant choice where we use our knowledge of pertinent demographics to decide upon the key strata we wish to represent in our model, as we seek to better predict and understand the voting outcome.</p>
-<div class="cell" data-execution_count="17">
+<div class="cell" data-execution_count="19">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>states <span class="op">=</span> [</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"AL"</span>,</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"AK"</span>,</span>
@@ -1354,7 +1405,7 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 <span id="cb26-108"><a href="#cb26-108" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-109"><a href="#cb26-109" aria-hidden="true" tabindex="-1"></a>cces_all_df <span class="op">=</span> clean_df(cces_all_df)</span>
 <span id="cb26-110"><a href="#cb26-110" aria-hidden="true" tabindex="-1"></a>cces_all_df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="17">
+<div class="cell-output cell-output-display" data-execution_count="19">
 
 <div>
 
@@ -1432,7 +1483,7 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 <section id="biased-sample" class="level3">
 <h3 class="anchored" data-anchor-id="biased-sample">Biased Sample</h3>
 <p>Consider a deliberately biased sample. Biased away from the census data and in this manner we show how to better recover population level estimates by incorporating details about the census population size across each of the stratum.</p>
-<div class="cell" data-execution_count="18">
+<div class="cell" data-execution_count="20">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>cces_df <span class="op">=</span> cces_all_df.merge(statelevel_predictors_df, left_on<span class="op">=</span><span class="st">"state"</span>, right_on<span class="op">=</span><span class="st">"state"</span>, how<span class="op">=</span><span class="st">"left"</span>)</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>cces_df[<span class="st">"weight"</span>] <span class="op">=</span> (</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    <span class="dv">5</span> <span class="op">*</span> cces_df[<span class="st">"repvote"</span>]</span>
@@ -1448,7 +1499,7 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 <span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>cces_df <span class="op">=</span> cces_df.sample(<span class="dv">5000</span>, weights<span class="op">=</span><span class="st">"weight"</span>, random_state<span class="op">=</span><span class="dv">1000</span>)</span>
 <span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>cces_df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="18">
+<div class="cell-output cell-output-display" data-execution_count="20">
 
 <div>
 
@@ -1543,7 +1594,7 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 <section id="visualise-the-bias" class="level3">
 <h3 class="anchored" data-anchor-id="visualise-the-bias">Visualise the Bias</h3>
 <p>Now we plot the outcome of expected shares within each demographic bucket across both the biased sample and the census data.</p>
-<div class="cell" data-execution_count="19">
+<div class="cell" data-execution_count="21">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>mosaic <span class="op">=</span> <span class="st">"""</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="st">    ABCD</span></span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="st">    EEEE</span></span>
@@ -1589,7 +1640,7 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 </div>
 </div>
 <p>We can see here how the proportions differ markedly across the census report and our biased sample in how they represent the preferential votes with each strata. We now try and quantify the overall differences between the biased sample and the census report. We calculate the expected proportions in each dataset and their standard error.</p>
-<div class="cell" data-execution_count="20">
+<div class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_se_bernoulli(p, n):</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> np.sqrt(p <span class="op">*</span> (<span class="dv">1</span> <span class="op">-</span> p) <span class="op">/</span> n)</span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1610,7 +1661,7 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 <span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> pd.DataFrame([sample_cces_all_estimate, sample_cces_estimate])</span>
 <span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>summary[<span class="st">"data"</span>] <span class="op">=</span> [<span class="st">"Full Data"</span>, <span class="st">"Biased Data"</span>]</span>
 <span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>summary</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="20">
+<div class="cell-output cell-output-display" data-execution_count="22">
 
 <div>
 
@@ -1648,7 +1699,7 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 <h2 class="anchored" data-anchor-id="modelling-the-data">Modelling the Data</h2>
 <p>To facilitate regression based stratification we first need a regression model. In our case we will ultimately fit a multi-level regression model with intercept terms for each for each of the groups in our demographic stratum. In this way we try to account for the appropriate set of variables (as in the example above) to better specify the effect modification due to membership within a particular demographic stratum.</p>
 <p>We will fit the model using <code>bambi</code> using the binomial link function on the biased sample data. But first we aggregate up by demographic strata and count the occurences within each strata.</p>
-<div class="cell" data-execution_count="21">
+<div class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>model_df <span class="op">=</span> (</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>    cces_df.groupby([<span class="st">"state"</span>, <span class="st">"eth"</span>, <span class="st">"male"</span>, <span class="st">"age"</span>, <span class="st">"edu"</span>], observed<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    .agg({<span class="st">"caseid"</span>: <span class="st">"nunique"</span>, <span class="st">"abortion"</span>: <span class="st">"sum"</span>})</span>
@@ -1660,7 +1711,7 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 <span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>model_df[<span class="st">"abortion"</span>] <span class="op">=</span> model_df[<span class="st">"abortion"</span>].astype(<span class="bu">int</span>)</span>
 <span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>model_df[<span class="st">"n"</span>] <span class="op">=</span> model_df[<span class="st">"n"</span>].astype(<span class="bu">int</span>)</span>
 <span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>model_df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="23">
 
 <div>
 
@@ -1749,7 +1800,7 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 <section id="fit-base-model-to-biased-sample" class="level3">
 <h3 class="anchored" data-anchor-id="fit-base-model-to-biased-sample">Fit Base Model to Biased Sample</h3>
 <p>Here we use some of bambi’s latest functionality to assess the interaction effects between the variables.</p>
-<div class="cell" data-execution_count="22">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>formula <span class="op">=</span> <span class="st">""" p(abortion, n) ~ C(state) + C(eth) + C(edu) + male + repvote"""</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>base_model <span class="op">=</span> bmb.Model(formula, model_df, family<span class="op">=</span><span class="st">"binomial"</span>)</span>
@@ -1760,61 +1811,51 @@ NUTS: [Outcome_sigma, Intercept, Treatment, Risk_Strata, Treatment_x_Risk_Strata
 <span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># inference_method="nuts_numpyro",</span></span>
 <span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>    idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>},</span>
 <span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [Intercept, C(state), C(eth), C(edu), male, repvote]</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 816 seconds.</code></pre>
-</div>
 </div>
 <p>We plot the predicted outcomes within each group using the <code>plot_predictions</code> function.</p>
-<div class="cell" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>mosaic <span class="op">=</span> <span class="st">"""</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="st">    AABB</span></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="st">    CCCC</span></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="st">    """</span></span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(layout<span class="op">=</span><span class="st">"constrained"</span>, figsize<span class="op">=</span>(<span class="dv">20</span>, <span class="dv">7</span>))</span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>axs <span class="op">=</span> fig.subplot_mosaic(mosaic)</span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(base_model, result, <span class="st">"eth"</span>, ax<span class="op">=</span>axs[<span class="st">"A"</span>])</span>
-<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(base_model, result, <span class="st">"edu"</span>, ax<span class="op">=</span>axs[<span class="st">"B"</span>])</span>
-<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(base_model, result, <span class="st">"state"</span>, ax<span class="op">=</span>axs[<span class="st">"C"</span>])</span>
-<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">"Plot Prediction per Class"</span>, fontsize<span class="op">=</span><span class="dv">20</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>mosaic <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="st">    AABB</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="st">    CCCC</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="st">    """</span></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>fig <span class="op">=</span> plt.figure(layout<span class="op">=</span><span class="st">"constrained"</span>, figsize<span class="op">=</span>(<span class="dv">20</span>, <span class="dv">7</span>))</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>axs <span class="op">=</span> fig.subplot_mosaic(mosaic)</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(base_model, result, <span class="st">"eth"</span>, ax<span class="op">=</span>axs[<span class="st">"A"</span>])</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(base_model, result, <span class="st">"edu"</span>, ax<span class="op">=</span>axs[<span class="st">"B"</span>])</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(base_model, result, <span class="st">"state"</span>, ax<span class="op">=</span>axs[<span class="st">"C"</span>])</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">"Plot Prediction per Class"</span>, fontsize<span class="op">=</span><span class="dv">20</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="mister_p_files/figure-html/cell-24-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>More interesting we can use the comparison functionality to compare differences in <code>eth</code> conditional on <code>age</code> and <code>edu</code>. Where we can see that the differences between ethnicities are pretty stable across all age groups, slightly shifted by within the <code>Post-grad</code> level of education.</p>
-<div class="cell" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_comparisons(</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>base_model,</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>result,</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span>{<span class="st">"eth"</span>: [<span class="st">"Black"</span>, <span class="st">"White"</span>]},</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>[<span class="st">"age"</span>, <span class="st">"edu"</span>],</span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    comparison_type<span class="op">=</span><span class="st">"diff"</span>,</span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    subplot_kwargs<span class="op">=</span>{<span class="st">"main"</span>: <span class="st">"age"</span>, <span class="st">"group"</span>: <span class="st">"edu"</span>},</span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"figsize"</span>: (<span class="dv">12</span>, <span class="dv">5</span>), <span class="st">"sharey"</span>: <span class="va">True</span>},</span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    legend<span class="op">=</span><span class="va">True</span>,</span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"Comparison of Difference in Ethnicity </span><span class="ch">\n</span><span class="st"> within Age and Educational Strata"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_comparisons(</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>base_model,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>result,</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span>{<span class="st">"eth"</span>: [<span class="st">"Black"</span>, <span class="st">"White"</span>]},</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>[<span class="st">"age"</span>, <span class="st">"edu"</span>],</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    comparison_type<span class="op">=</span><span class="st">"diff"</span>,</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    subplot_kwargs<span class="op">=</span>{<span class="st">"main"</span>: <span class="st">"age"</span>, <span class="st">"group"</span>: <span class="st">"edu"</span>},</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"figsize"</span>: (<span class="dv">12</span>, <span class="dv">5</span>), <span class="st">"sharey"</span>: <span class="va">True</span>},</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    legend<span class="op">=</span><span class="va">True</span>,</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_title(<span class="st">"Comparison of Difference in Ethnicity </span><span class="ch">\n</span><span class="st"> within Age and Educational Strata"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="mister_p_files/figure-html/cell-25-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>We can pull these specific estimates out into a table for closer inspection to see that the differences in response expected between the extremes of educational attainment are moderated by state iand race.</p>
-<div class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.comparisons(</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>base_model,</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>result,</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span>{<span class="st">"edu"</span>: [<span class="st">"Post-grad"</span>, <span class="st">"No HS"</span>]},</span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{<span class="st">"eth"</span>: [<span class="st">"Black"</span>, <span class="st">"White"</span>], <span class="st">"state"</span>: [<span class="st">"NY"</span>, <span class="st">"CA"</span>, <span class="st">"ID"</span>, <span class="st">"VA"</span>]},</span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    comparison_type<span class="op">=</span><span class="st">"diff"</span>,</span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.comparisons(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    model<span class="op">=</span>base_model,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    idata<span class="op">=</span>result,</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span>{<span class="st">"edu"</span>: [<span class="st">"Post-grad"</span>, <span class="st">"No HS"</span>]},</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{<span class="st">"eth"</span>: [<span class="st">"Black"</span>, <span class="st">"White"</span>], <span class="st">"state"</span>: [<span class="st">"NY"</span>, <span class="st">"CA"</span>, <span class="st">"ID"</span>, <span class="st">"VA"</span>]},</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    comparison_type<span class="op">=</span><span class="st">"diff"</span>,</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="25">
 
 <div>
@@ -1962,21 +2003,21 @@ NUTS: [Intercept, C(state), C(eth), C(edu), male, repvote]</code></pre>
 )
 \]</span></p>
 <p>Here we have used the fact that we can add components to the <span class="math inline">\(\alpha\)</span> intercept terms and interaction effects to express the stratum specific variation in the outcomes that we’ve seen in our exploratory work. Using the <code>bambi</code> formula syntax. We have:</p>
-<div class="cell" data-execution_count="26">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>capture</span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>formula <span class="op">=</span> <span class="st">""" p(abortion, n) ~ (1 | state) + (1 | eth) + (1 | edu) + male + repvote  + (1 | male:eth) + (1 | edu:age) + (1 | edu:eth)"""</span></span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>model_hierarchical <span class="op">=</span> bmb.Model(formula, model_df, family<span class="op">=</span><span class="st">"binomial"</span>)</span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> model_hierarchical.fit(</span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">100</span>,</span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>    target_accept<span class="op">=</span><span class="fl">0.99</span>,</span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>    inference_method<span class="op">=</span><span class="st">"nuts_numpyro"</span>,</span>
-<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>    idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>},</span>
-<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>capture</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>formula <span class="op">=</span> <span class="st">""" p(abortion, n) ~ (1 | state) + (1 | eth) + (1 | edu) + male + repvote  + (1 | male:eth) + (1 | edu:age) + (1 | edu:eth)"""</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>model_hierarchical <span class="op">=</span> bmb.Model(formula, model_df, family<span class="op">=</span><span class="st">"binomial"</span>)</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> model_hierarchical.fit(</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">100</span>,</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>    target_accept<span class="op">=</span><span class="fl">0.99</span>,</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>    inference_method<span class="op">=</span><span class="st">"nuts_numpyro"</span>,</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>    idata_kwargs<span class="op">=</span>{<span class="st">"log_likelihood"</span>: <span class="va">True</span>},</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="27">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>result</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>result</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="27">
 
 
@@ -4335,8 +4376,8 @@ dl.xr-attrs {
 .xr-wrap{width:700px!important;} </style>
 </div>
 </div>
-<div class="cell" data-execution_count="28">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>az.summary(result, var_names<span class="op">=</span>[<span class="st">"Intercept"</span>, <span class="st">"male"</span>, <span class="st">"1|edu"</span>, <span class="st">"1|eth"</span>, <span class="st">"repvote"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>az.summary(result, var_names<span class="op">=</span>[<span class="st">"Intercept"</span>, <span class="st">"male"</span>, <span class="st">"1|edu"</span>, <span class="st">"1|eth"</span>, <span class="st">"repvote"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="28">
 
 <div>
@@ -4507,17 +4548,17 @@ dl.xr-attrs {
 </div>
 </div>
 <p>The terms in the model formula allow for specific intercept terms across the demographic splits of <code>eth</code>, <code>edu</code>, and <code>state</code>. These represent stratum specific adjustments of the intercept term in the model. Similarly we invoke intercepts for the interaction terms of <code>age:edu</code>, <code>male:eth</code> and <code>edu:eth</code>. Each of these cohorts represents a share of the data in our sample.</p>
-<div class="cell" data-execution_count="29">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>model_hierarchical.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>model_hierarchical.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="29">
 <p><img src="mister_p_files/figure-html/cell-30-output-1.svg" class="img-fluid"></p>
 </div>
 </div>
 <p>We then predict the outcomes implied by the biased sample. These predictions are to be adjusted by what we take to be the share of that demographic cohort in population. We can plot the posterior predictive distribution against the observed data from our biased sample to see that we have generally good fit to the distribution.</p>
-<div class="cell" data-execution_count="30">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>model_hierarchical.predict(result, kind<span class="op">=</span><span class="st">"pps"</span>)</span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_ppc(result, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>), kind<span class="op">=</span><span class="st">"cumulative"</span>, observed_rug<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Posterior Predictive Checks </span><span class="ch">\n</span><span class="st"> On Biased Sample"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>model_hierarchical.predict(result, kind<span class="op">=</span><span class="st">"pps"</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> az.plot_ppc(result, figsize<span class="op">=</span>(<span class="dv">8</span>, <span class="dv">5</span>), kind<span class="op">=</span><span class="st">"cumulative"</span>, observed_rug<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Posterior Predictive Checks </span><span class="ch">\n</span><span class="st"> On Biased Sample"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="mister_p_files/figure-html/cell-31-output-1.png" class="img-fluid"></p>
 </div>
@@ -4526,28 +4567,28 @@ dl.xr-attrs {
 <section id="apply-the-post-stratification-weighting" class="level3">
 <h3 class="anchored" data-anchor-id="apply-the-post-stratification-weighting">Apply the Post-stratification Weighting</h3>
 <p>We now use the fitted model to predict the voting shares on the data where we use the genuine state numbers per strata. To do so we load data from the national census and augment our data set so as to be able to apply the appropriate weights.</p>
-<div class="cell" data-execution_count="31">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>poststrat_df <span class="op">=</span> pd.read_csv(<span class="st">"data/mr_p_poststrat_df.csv"</span>)</span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> poststrat_df.merge(</span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>    statelevel_predictors_df, left_on<span class="op">=</span><span class="st">"state"</span>, right_on<span class="op">=</span><span class="st">"state"</span>, how<span class="op">=</span><span class="st">"left"</span></span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>new_data.rename({<span class="st">"educ"</span>: <span class="st">"edu"</span>}, axis<span class="op">=</span><span class="dv">1</span>, inplace<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> model_df.merge(</span>
-<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>    new_data,</span>
-<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>    how<span class="op">=</span><span class="st">"left"</span>,</span>
-<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>    left_on<span class="op">=</span>[<span class="st">"state"</span>, <span class="st">"eth"</span>, <span class="st">"male"</span>, <span class="st">"age"</span>, <span class="st">"edu"</span>],</span>
-<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>    right_on<span class="op">=</span>[<span class="st">"state"</span>, <span class="st">"eth"</span>, <span class="st">"male"</span>, <span class="st">"age"</span>, <span class="st">"edu"</span>],</span>
-<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>).rename({<span class="st">"n_y"</span>: <span class="st">"n"</span>, <span class="st">"repvote_y"</span>: <span class="st">"repvote"</span>}, axis<span class="op">=</span><span class="dv">1</span>)[</span>
-<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"state"</span>, <span class="st">"eth"</span>, <span class="st">"male"</span>, <span class="st">"age"</span>, <span class="st">"edu"</span>, <span class="st">"n"</span>, <span class="st">"repvote"</span>]</span>
-<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>]</span>
-<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> new_data.merge(</span>
-<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a>    new_data.groupby(<span class="st">"state"</span>).agg({<span class="st">"n"</span>: <span class="st">"sum"</span>}).reset_index().rename({<span class="st">"n"</span>: <span class="st">"state_total"</span>}, axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a>new_data[<span class="st">"state_percent"</span>] <span class="op">=</span> new_data[<span class="st">"n"</span>] <span class="op">/</span> new_data[<span class="st">"state_total"</span>]</span>
-<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a>new_data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>poststrat_df <span class="op">=</span> pd.read_csv(<span class="st">"data/mr_p_poststrat_df.csv"</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> poststrat_df.merge(</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    statelevel_predictors_df, left_on<span class="op">=</span><span class="st">"state"</span>, right_on<span class="op">=</span><span class="st">"state"</span>, how<span class="op">=</span><span class="st">"left"</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>new_data.rename({<span class="st">"educ"</span>: <span class="st">"edu"</span>}, axis<span class="op">=</span><span class="dv">1</span>, inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> model_df.merge(</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>    new_data,</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>    how<span class="op">=</span><span class="st">"left"</span>,</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>    left_on<span class="op">=</span>[<span class="st">"state"</span>, <span class="st">"eth"</span>, <span class="st">"male"</span>, <span class="st">"age"</span>, <span class="st">"edu"</span>],</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>    right_on<span class="op">=</span>[<span class="st">"state"</span>, <span class="st">"eth"</span>, <span class="st">"male"</span>, <span class="st">"age"</span>, <span class="st">"edu"</span>],</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>).rename({<span class="st">"n_y"</span>: <span class="st">"n"</span>, <span class="st">"repvote_y"</span>: <span class="st">"repvote"</span>}, axis<span class="op">=</span><span class="dv">1</span>)[</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>    [<span class="st">"state"</span>, <span class="st">"eth"</span>, <span class="st">"male"</span>, <span class="st">"age"</span>, <span class="st">"edu"</span>, <span class="st">"n"</span>, <span class="st">"repvote"</span>]</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>]</span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>new_data <span class="op">=</span> new_data.merge(</span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>    new_data.groupby(<span class="st">"state"</span>).agg({<span class="st">"n"</span>: <span class="st">"sum"</span>}).reset_index().rename({<span class="st">"n"</span>: <span class="st">"state_total"</span>}, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>new_data[<span class="st">"state_percent"</span>] <span class="op">=</span> new_data[<span class="st">"n"</span>] <span class="op">/</span> new_data[<span class="st">"state_total"</span>]</span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a>new_data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="31">
 
 <div>
@@ -4634,9 +4675,9 @@ dl.xr-attrs {
 </div>
 </div>
 <p>This dataset is exactly the same structure and length as our input data to the fitted model. We have simply switched the observed counts across the demographic strata with the counts that reflect their proportion in the national survey. Additionally we have calculated the state totals and the share of each strata within the state. This will be important for later when we use this <code>state_percent</code> variable to calculate an adjusted MrP estimate of the predictions at a state level. We now use this data set with our fitted model to generate posterior predictive distribution.</p>
-<div class="cell" data-execution_count="32">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>result_adjust <span class="op">=</span> model_hierarchical.predict(result, data<span class="op">=</span>new_data, inplace<span class="op">=</span><span class="va">False</span>, kind<span class="op">=</span><span class="st">"pps"</span>)</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>result_adjust</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>result_adjust <span class="op">=</span> model_hierarchical.predict(result, data<span class="op">=</span>new_data, inplace<span class="op">=</span><span class="va">False</span>, kind<span class="op">=</span><span class="st">"pps"</span>)</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>result_adjust</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="32">
 
 
@@ -7463,58 +7504,58 @@ dl.xr-attrs {
 <section id="make-adjustments-by-state" class="level3">
 <h3 class="anchored" data-anchor-id="make-adjustments-by-state">Make Adjustments by State</h3>
 <p>We need to adjust each state specific strata by the weight appropriate for each state to post-stratify the estimates.To do so we extract the indices for each strata in our data on a state by state basis. Then we weight the predicted estimate by the appropriate percentage on a state basis and sum them to recover a state level estimate.</p>
-<div class="cell" data-execution_count="33">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>estimates <span class="op">=</span> []</span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>abortion_posterior_base <span class="op">=</span> az.extract(result, num_samples<span class="op">=</span><span class="dv">2000</span>)[<span class="st">"p(abortion, n)_mean"</span>]</span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>abortion_posterior_mrp <span class="op">=</span> az.extract(result_adjust, num_samples<span class="op">=</span><span class="dv">2000</span>)[<span class="st">"p(abortion, n)_mean"</span>]</span>
-<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> s <span class="kw">in</span> new_data[<span class="st">"state"</span>].unique():</span>
-<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> new_data.index[new_data[<span class="st">"state"</span>] <span class="op">==</span> s].tolist()</span>
-<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>    predicted_mrp <span class="op">=</span> (</span>
-<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>        ((abortion_posterior_mrp[idx].mean(dim<span class="op">=</span><span class="st">"sample"</span>) <span class="op">*</span> new_data.iloc[idx][<span class="st">"state_percent"</span>]))</span>
-<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>        .<span class="bu">sum</span>()</span>
-<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>        .item()</span>
-<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>    predicted_mrp_lb <span class="op">=</span> (</span>
-<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>        (</span>
-<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>            (</span>
-<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>                abortion_posterior_mrp[idx].quantile(<span class="fl">0.025</span>, dim<span class="op">=</span><span class="st">"sample"</span>)</span>
-<span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a>                <span class="op">*</span> new_data.iloc[idx][<span class="st">"state_percent"</span>]</span>
-<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a>            )</span>
-<span id="cb44-18"><a href="#cb44-18" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb44-19"><a href="#cb44-19" aria-hidden="true" tabindex="-1"></a>        .<span class="bu">sum</span>()</span>
-<span id="cb44-20"><a href="#cb44-20" aria-hidden="true" tabindex="-1"></a>        .item()</span>
-<span id="cb44-21"><a href="#cb44-21" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb44-22"><a href="#cb44-22" aria-hidden="true" tabindex="-1"></a>    predicted_mrp_ub <span class="op">=</span> (</span>
-<span id="cb44-23"><a href="#cb44-23" aria-hidden="true" tabindex="-1"></a>        (</span>
-<span id="cb44-24"><a href="#cb44-24" aria-hidden="true" tabindex="-1"></a>            (</span>
-<span id="cb44-25"><a href="#cb44-25" aria-hidden="true" tabindex="-1"></a>                abortion_posterior_mrp[idx].quantile(<span class="fl">0.975</span>, dim<span class="op">=</span><span class="st">"sample"</span>)</span>
-<span id="cb44-26"><a href="#cb44-26" aria-hidden="true" tabindex="-1"></a>                <span class="op">*</span> new_data.iloc[idx][<span class="st">"state_percent"</span>]</span>
-<span id="cb44-27"><a href="#cb44-27" aria-hidden="true" tabindex="-1"></a>            )</span>
-<span id="cb44-28"><a href="#cb44-28" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb44-29"><a href="#cb44-29" aria-hidden="true" tabindex="-1"></a>        .<span class="bu">sum</span>()</span>
-<span id="cb44-30"><a href="#cb44-30" aria-hidden="true" tabindex="-1"></a>        .item()</span>
-<span id="cb44-31"><a href="#cb44-31" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb44-32"><a href="#cb44-32" aria-hidden="true" tabindex="-1"></a>    predicted <span class="op">=</span> abortion_posterior_base[idx].mean().item()</span>
-<span id="cb44-33"><a href="#cb44-33" aria-hidden="true" tabindex="-1"></a>    base_lb <span class="op">=</span> abortion_posterior_base[idx].quantile(<span class="fl">0.025</span>).item()</span>
-<span id="cb44-34"><a href="#cb44-34" aria-hidden="true" tabindex="-1"></a>    base_ub <span class="op">=</span> abortion_posterior_base[idx].quantile(<span class="fl">0.975</span>).item()</span>
-<span id="cb44-35"><a href="#cb44-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-36"><a href="#cb44-36" aria-hidden="true" tabindex="-1"></a>    estimates.append(</span>
-<span id="cb44-37"><a href="#cb44-37" aria-hidden="true" tabindex="-1"></a>        [s, predicted, base_lb, base_ub, predicted_mrp, predicted_mrp_ub, predicted_mrp_lb]</span>
-<span id="cb44-38"><a href="#cb44-38" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb44-39"><a href="#cb44-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-40"><a href="#cb44-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-41"><a href="#cb44-41" aria-hidden="true" tabindex="-1"></a>state_predicted <span class="op">=</span> pd.DataFrame(</span>
-<span id="cb44-42"><a href="#cb44-42" aria-hidden="true" tabindex="-1"></a>    estimates,</span>
-<span id="cb44-43"><a href="#cb44-43" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span>[<span class="st">"state"</span>, <span class="st">"base_expected"</span>, <span class="st">"base_lb"</span>, <span class="st">"base_ub"</span>, <span class="st">"mrp_adjusted"</span>, <span class="st">"mrp_ub"</span>, <span class="st">"mrp_lb"</span>],</span>
-<span id="cb44-44"><a href="#cb44-44" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb44-45"><a href="#cb44-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-46"><a href="#cb44-46" aria-hidden="true" tabindex="-1"></a>state_predicted <span class="op">=</span> (</span>
-<span id="cb44-47"><a href="#cb44-47" aria-hidden="true" tabindex="-1"></a>    state_predicted.merge(cces_all_df.groupby(<span class="st">"state"</span>)[[<span class="st">"abortion"</span>]].mean().reset_index())</span>
-<span id="cb44-48"><a href="#cb44-48" aria-hidden="true" tabindex="-1"></a>    .sort_values(<span class="st">"mrp_adjusted"</span>)</span>
-<span id="cb44-49"><a href="#cb44-49" aria-hidden="true" tabindex="-1"></a>    .rename({<span class="st">"abortion"</span>: <span class="st">"census_share"</span>}, axis<span class="op">=</span><span class="dv">1</span>)</span>
-<span id="cb44-50"><a href="#cb44-50" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb44-51"><a href="#cb44-51" aria-hidden="true" tabindex="-1"></a>state_predicted.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>estimates <span class="op">=</span> []</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>abortion_posterior_base <span class="op">=</span> az.extract(result, num_samples<span class="op">=</span><span class="dv">2000</span>)[<span class="st">"p(abortion, n)_mean"</span>]</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>abortion_posterior_mrp <span class="op">=</span> az.extract(result_adjust, num_samples<span class="op">=</span><span class="dv">2000</span>)[<span class="st">"p(abortion, n)_mean"</span>]</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> s <span class="kw">in</span> new_data[<span class="st">"state"</span>].unique():</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>    idx <span class="op">=</span> new_data.index[new_data[<span class="st">"state"</span>] <span class="op">==</span> s].tolist()</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>    predicted_mrp <span class="op">=</span> (</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>        ((abortion_posterior_mrp[idx].mean(dim<span class="op">=</span><span class="st">"sample"</span>) <span class="op">*</span> new_data.iloc[idx][<span class="st">"state_percent"</span>]))</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>        .<span class="bu">sum</span>()</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>        .item()</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>    predicted_mrp_lb <span class="op">=</span> (</span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>        (</span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>            (</span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>                abortion_posterior_mrp[idx].quantile(<span class="fl">0.025</span>, dim<span class="op">=</span><span class="st">"sample"</span>)</span>
+<span id="cb42-16"><a href="#cb42-16" aria-hidden="true" tabindex="-1"></a>                <span class="op">*</span> new_data.iloc[idx][<span class="st">"state_percent"</span>]</span>
+<span id="cb42-17"><a href="#cb42-17" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb42-18"><a href="#cb42-18" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb42-19"><a href="#cb42-19" aria-hidden="true" tabindex="-1"></a>        .<span class="bu">sum</span>()</span>
+<span id="cb42-20"><a href="#cb42-20" aria-hidden="true" tabindex="-1"></a>        .item()</span>
+<span id="cb42-21"><a href="#cb42-21" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb42-22"><a href="#cb42-22" aria-hidden="true" tabindex="-1"></a>    predicted_mrp_ub <span class="op">=</span> (</span>
+<span id="cb42-23"><a href="#cb42-23" aria-hidden="true" tabindex="-1"></a>        (</span>
+<span id="cb42-24"><a href="#cb42-24" aria-hidden="true" tabindex="-1"></a>            (</span>
+<span id="cb42-25"><a href="#cb42-25" aria-hidden="true" tabindex="-1"></a>                abortion_posterior_mrp[idx].quantile(<span class="fl">0.975</span>, dim<span class="op">=</span><span class="st">"sample"</span>)</span>
+<span id="cb42-26"><a href="#cb42-26" aria-hidden="true" tabindex="-1"></a>                <span class="op">*</span> new_data.iloc[idx][<span class="st">"state_percent"</span>]</span>
+<span id="cb42-27"><a href="#cb42-27" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb42-28"><a href="#cb42-28" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb42-29"><a href="#cb42-29" aria-hidden="true" tabindex="-1"></a>        .<span class="bu">sum</span>()</span>
+<span id="cb42-30"><a href="#cb42-30" aria-hidden="true" tabindex="-1"></a>        .item()</span>
+<span id="cb42-31"><a href="#cb42-31" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb42-32"><a href="#cb42-32" aria-hidden="true" tabindex="-1"></a>    predicted <span class="op">=</span> abortion_posterior_base[idx].mean().item()</span>
+<span id="cb42-33"><a href="#cb42-33" aria-hidden="true" tabindex="-1"></a>    base_lb <span class="op">=</span> abortion_posterior_base[idx].quantile(<span class="fl">0.025</span>).item()</span>
+<span id="cb42-34"><a href="#cb42-34" aria-hidden="true" tabindex="-1"></a>    base_ub <span class="op">=</span> abortion_posterior_base[idx].quantile(<span class="fl">0.975</span>).item()</span>
+<span id="cb42-35"><a href="#cb42-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-36"><a href="#cb42-36" aria-hidden="true" tabindex="-1"></a>    estimates.append(</span>
+<span id="cb42-37"><a href="#cb42-37" aria-hidden="true" tabindex="-1"></a>        [s, predicted, base_lb, base_ub, predicted_mrp, predicted_mrp_ub, predicted_mrp_lb]</span>
+<span id="cb42-38"><a href="#cb42-38" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb42-39"><a href="#cb42-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-40"><a href="#cb42-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-41"><a href="#cb42-41" aria-hidden="true" tabindex="-1"></a>state_predicted <span class="op">=</span> pd.DataFrame(</span>
+<span id="cb42-42"><a href="#cb42-42" aria-hidden="true" tabindex="-1"></a>    estimates,</span>
+<span id="cb42-43"><a href="#cb42-43" aria-hidden="true" tabindex="-1"></a>    columns<span class="op">=</span>[<span class="st">"state"</span>, <span class="st">"base_expected"</span>, <span class="st">"base_lb"</span>, <span class="st">"base_ub"</span>, <span class="st">"mrp_adjusted"</span>, <span class="st">"mrp_ub"</span>, <span class="st">"mrp_lb"</span>],</span>
+<span id="cb42-44"><a href="#cb42-44" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb42-45"><a href="#cb42-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-46"><a href="#cb42-46" aria-hidden="true" tabindex="-1"></a>state_predicted <span class="op">=</span> (</span>
+<span id="cb42-47"><a href="#cb42-47" aria-hidden="true" tabindex="-1"></a>    state_predicted.merge(cces_all_df.groupby(<span class="st">"state"</span>)[[<span class="st">"abortion"</span>]].mean().reset_index())</span>
+<span id="cb42-48"><a href="#cb42-48" aria-hidden="true" tabindex="-1"></a>    .sort_values(<span class="st">"mrp_adjusted"</span>)</span>
+<span id="cb42-49"><a href="#cb42-49" aria-hidden="true" tabindex="-1"></a>    .rename({<span class="st">"abortion"</span>: <span class="st">"census_share"</span>}, axis<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb42-50"><a href="#cb42-50" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb42-51"><a href="#cb42-51" aria-hidden="true" tabindex="-1"></a>state_predicted.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="33">
 
 <div>
@@ -7599,63 +7640,63 @@ dl.xr-attrs {
 <section id="plot-the-effect-of-adjustment" class="level3">
 <h3 class="anchored" data-anchor-id="plot-the-effect-of-adjustment">Plot the Effect of Adjustment</h3>
 <p>These adjusted estimates can be plotted against the shares ascribed at the state level in the census. These adjustments provide a far better reflection of the national picture than the ones derived from model fitted to the biased sample.</p>
-<div class="cell" data-execution_count="34">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">17</span>, <span class="dv">10</span>))</span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>axs <span class="op">=</span> axs.flatten()</span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axs[<span class="dv">0</span>]</span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>ax1 <span class="op">=</span> axs[<span class="dv">1</span>]</span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>ax.scatter(</span>
-<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>], state_predicted[<span class="st">"base_expected"</span>], color<span class="op">=</span><span class="st">"red"</span>, label<span class="op">=</span><span class="st">"Biased Sample"</span></span>
-<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>ax.scatter(</span>
-<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>],</span>
-<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"mrp_adjusted"</span>],</span>
-<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"slateblue"</span>,</span>
-<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Mr P Adjusted"</span>,</span>
-<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a>ax.scatter(</span>
-<span id="cb45-15"><a href="#cb45-15" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>],</span>
-<span id="cb45-16"><a href="#cb45-16" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"census_share"</span>],</span>
-<span id="cb45-17"><a href="#cb45-17" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"darkgreen"</span>,</span>
-<span id="cb45-18"><a href="#cb45-18" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Census Aggregates"</span>,</span>
-<span id="cb45-19"><a href="#cb45-19" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb45-20"><a href="#cb45-20" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
-<span id="cb45-21"><a href="#cb45-21" aria-hidden="true" tabindex="-1"></a>ax.vlines(</span>
-<span id="cb45-22"><a href="#cb45-22" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>],</span>
-<span id="cb45-23"><a href="#cb45-23" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"mrp_adjusted"</span>],</span>
-<span id="cb45-24"><a href="#cb45-24" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"census_share"</span>],</span>
-<span id="cb45-25"><a href="#cb45-25" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"black"</span>,</span>
-<span id="cb45-26"><a href="#cb45-26" aria-hidden="true" tabindex="-1"></a>    linestyles<span class="op">=</span><span class="st">"--"</span>,</span>
-<span id="cb45-27"><a href="#cb45-27" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb45-28"><a href="#cb45-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb45-29"><a href="#cb45-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb45-30"><a href="#cb45-30" aria-hidden="true" tabindex="-1"></a>ax1.scatter(</span>
-<span id="cb45-31"><a href="#cb45-31" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>], state_predicted[<span class="st">"base_expected"</span>], color<span class="op">=</span><span class="st">"red"</span>, label<span class="op">=</span><span class="st">"Biased Sample"</span></span>
-<span id="cb45-32"><a href="#cb45-32" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb45-33"><a href="#cb45-33" aria-hidden="true" tabindex="-1"></a>ax1.scatter(</span>
-<span id="cb45-34"><a href="#cb45-34" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>],</span>
-<span id="cb45-35"><a href="#cb45-35" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"mrp_adjusted"</span>],</span>
-<span id="cb45-36"><a href="#cb45-36" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"slateblue"</span>,</span>
-<span id="cb45-37"><a href="#cb45-37" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Mr P Adjusted"</span>,</span>
-<span id="cb45-38"><a href="#cb45-38" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb45-39"><a href="#cb45-39" aria-hidden="true" tabindex="-1"></a>ax1.legend()</span>
-<span id="cb45-40"><a href="#cb45-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb45-41"><a href="#cb45-41" aria-hidden="true" tabindex="-1"></a>ax1.vlines(</span>
-<span id="cb45-42"><a href="#cb45-42" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>], state_predicted[<span class="st">"base_ub"</span>], state_predicted[<span class="st">"base_lb"</span>], color<span class="op">=</span><span class="st">"red"</span></span>
-<span id="cb45-43"><a href="#cb45-43" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb45-44"><a href="#cb45-44" aria-hidden="true" tabindex="-1"></a>ax1.vlines(</span>
-<span id="cb45-45"><a href="#cb45-45" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>],</span>
-<span id="cb45-46"><a href="#cb45-46" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"mrp_ub"</span>],</span>
-<span id="cb45-47"><a href="#cb45-47" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"mrp_lb"</span>],</span>
-<span id="cb45-48"><a href="#cb45-48" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"slateblue"</span>,</span>
-<span id="cb45-49"><a href="#cb45-49" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb45-50"><a href="#cb45-50" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"State"</span>)</span>
-<span id="cb45-51"><a href="#cb45-51" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Proportion"</span>)</span>
-<span id="cb45-52"><a href="#cb45-52" aria-hidden="true" tabindex="-1"></a>ax1.set_title(</span>
-<span id="cb45-53"><a href="#cb45-53" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Comparison of Uncertainty in Biased Predictions and Post-stratified Adjustment"</span>, fontsize<span class="op">=</span><span class="dv">15</span></span>
-<span id="cb45-54"><a href="#cb45-54" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb45-55"><a href="#cb45-55" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Comparison of Post-stratified Adjustment and Census Report"</span>, fontsize<span class="op">=</span><span class="dv">15</span>)</span>
-<span id="cb45-56"><a href="#cb45-56" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">"Proportion"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>fig, axs <span class="op">=</span> plt.subplots(<span class="dv">2</span>, <span class="dv">1</span>, figsize<span class="op">=</span>(<span class="dv">17</span>, <span class="dv">10</span>))</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>axs <span class="op">=</span> axs.flatten()</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>ax <span class="op">=</span> axs[<span class="dv">0</span>]</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>ax1 <span class="op">=</span> axs[<span class="dv">1</span>]</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>ax.scatter(</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>], state_predicted[<span class="st">"base_expected"</span>], color<span class="op">=</span><span class="st">"red"</span>, label<span class="op">=</span><span class="st">"Biased Sample"</span></span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>ax.scatter(</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>],</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"mrp_adjusted"</span>],</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"slateblue"</span>,</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Mr P Adjusted"</span>,</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>ax.scatter(</span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>],</span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"census_share"</span>],</span>
+<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"darkgreen"</span>,</span>
+<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Census Aggregates"</span>,</span>
+<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a>ax.legend()</span>
+<span id="cb43-21"><a href="#cb43-21" aria-hidden="true" tabindex="-1"></a>ax.vlines(</span>
+<span id="cb43-22"><a href="#cb43-22" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>],</span>
+<span id="cb43-23"><a href="#cb43-23" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"mrp_adjusted"</span>],</span>
+<span id="cb43-24"><a href="#cb43-24" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"census_share"</span>],</span>
+<span id="cb43-25"><a href="#cb43-25" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"black"</span>,</span>
+<span id="cb43-26"><a href="#cb43-26" aria-hidden="true" tabindex="-1"></a>    linestyles<span class="op">=</span><span class="st">"--"</span>,</span>
+<span id="cb43-27"><a href="#cb43-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb43-28"><a href="#cb43-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-29"><a href="#cb43-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-30"><a href="#cb43-30" aria-hidden="true" tabindex="-1"></a>ax1.scatter(</span>
+<span id="cb43-31"><a href="#cb43-31" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>], state_predicted[<span class="st">"base_expected"</span>], color<span class="op">=</span><span class="st">"red"</span>, label<span class="op">=</span><span class="st">"Biased Sample"</span></span>
+<span id="cb43-32"><a href="#cb43-32" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb43-33"><a href="#cb43-33" aria-hidden="true" tabindex="-1"></a>ax1.scatter(</span>
+<span id="cb43-34"><a href="#cb43-34" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>],</span>
+<span id="cb43-35"><a href="#cb43-35" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"mrp_adjusted"</span>],</span>
+<span id="cb43-36"><a href="#cb43-36" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"slateblue"</span>,</span>
+<span id="cb43-37"><a href="#cb43-37" aria-hidden="true" tabindex="-1"></a>    label<span class="op">=</span><span class="st">"Mr P Adjusted"</span>,</span>
+<span id="cb43-38"><a href="#cb43-38" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb43-39"><a href="#cb43-39" aria-hidden="true" tabindex="-1"></a>ax1.legend()</span>
+<span id="cb43-40"><a href="#cb43-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-41"><a href="#cb43-41" aria-hidden="true" tabindex="-1"></a>ax1.vlines(</span>
+<span id="cb43-42"><a href="#cb43-42" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>], state_predicted[<span class="st">"base_ub"</span>], state_predicted[<span class="st">"base_lb"</span>], color<span class="op">=</span><span class="st">"red"</span></span>
+<span id="cb43-43"><a href="#cb43-43" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb43-44"><a href="#cb43-44" aria-hidden="true" tabindex="-1"></a>ax1.vlines(</span>
+<span id="cb43-45"><a href="#cb43-45" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"state"</span>],</span>
+<span id="cb43-46"><a href="#cb43-46" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"mrp_ub"</span>],</span>
+<span id="cb43-47"><a href="#cb43-47" aria-hidden="true" tabindex="-1"></a>    state_predicted[<span class="st">"mrp_lb"</span>],</span>
+<span id="cb43-48"><a href="#cb43-48" aria-hidden="true" tabindex="-1"></a>    color<span class="op">=</span><span class="st">"slateblue"</span>,</span>
+<span id="cb43-49"><a href="#cb43-49" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb43-50"><a href="#cb43-50" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"State"</span>)</span>
+<span id="cb43-51"><a href="#cb43-51" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Proportion"</span>)</span>
+<span id="cb43-52"><a href="#cb43-52" aria-hidden="true" tabindex="-1"></a>ax1.set_title(</span>
+<span id="cb43-53"><a href="#cb43-53" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Comparison of Uncertainty in Biased Predictions and Post-stratified Adjustment"</span>, fontsize<span class="op">=</span><span class="dv">15</span></span>
+<span id="cb43-54"><a href="#cb43-54" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb43-55"><a href="#cb43-55" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Comparison of Post-stratified Adjustment and Census Report"</span>, fontsize<span class="op">=</span><span class="dv">15</span>)</span>
+<span id="cb43-56"><a href="#cb43-56" aria-hidden="true" tabindex="-1"></a>ax1.set_ylabel(<span class="st">"Proportion"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="mister_p_files/figure-html/cell-35-output-1.png" class="img-fluid"></p>
 </div>

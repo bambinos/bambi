@@ -322,8 +322,8 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td><code>conditional</code></td>
-<td>(str, dict, list)</td>
-<td>The covariates we would like to condition on.</td>
+<td>(str, list, dict)</td>
+<td>The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
@@ -396,8 +396,8 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="raises">Raises</h2>
 <table class="table">
 <colgroup>
-<col style="width: 4%">
-<col style="width: 95%">
+<col style="width: 3%">
+<col style="width: 96%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -408,7 +408,7 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td>ValueError</td>
-<td>If length of <code>wrt</code> is greater than 1. If <code>conditional</code> is <code>None</code> and <code>wrt</code> is passed more than 2 values. If <code>conditional</code> is <code>None</code> and default <code>wrt</code> has more than 2 unique values. If <code>slope</code> is not ‘dydx’, ‘dyex’, ‘eyex’, or ‘eydx’. If <code>prob</code> is not &gt; 0 and &lt; 1.</td>
+<td>If length of <code>wrt</code> is greater than 1. If <code>conditional</code> is <code>None</code> and <code>wrt</code> is passed more than 2 values. If <code>conditional</code> is <code>None</code> and default <code>wrt</code> has more than 2 unique values. If <code>conditional</code> is a list and the length is greater than 3. If <code>slope</code> is not ‘dydx’, ‘dyex’, ‘eyex’, or ‘eydx’. If <code>prob</code> is not &gt; 0 and &lt; 1.</td>
 </tr>
 </tbody>
 </table>

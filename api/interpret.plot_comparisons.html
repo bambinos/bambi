@@ -323,12 +323,12 @@ ul.task-list li input[type="checkbox"] {
 <tr class="even">
 <td><code>conditional</code></td>
 <td>(str, dict, list)</td>
-<td>The covariates we would like to condition on.</td>
+<td>The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
 <td><code>average_by</code></td>
-<td>Union[str, list]</td>
+<td>Union[str, list, None]</td>
 <td>The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. Defaults to <code>None</code>.</td>
 <td><code>None</code></td>
 </tr>
@@ -414,8 +414,8 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="raises">Raises</h2>
 <table class="table">
 <colgroup>
-<col style="width: 8%">
-<col style="width: 91%">
+<col style="width: 3%">
+<col style="width: 96%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -426,11 +426,7 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td>ValueError</td>
-<td>If <code>conditional</code> and <code>average_by</code> are both <code>None</code>. If length of <code>conditional</code> is greater than 3 and <code>average_by</code> is <code>None</code>.</td>
-</tr>
-<tr class="even">
-<td>Warning</td>
-<td>If length of <code>contrast</code> is greater than 2.</td>
+<td>If the number of contrast levels is greater than 2 and <code>average_by</code> is <code>None</code>. If <code>conditional</code> and <code>average_by</code> are both <code>None</code>. If length of <code>conditional</code> is greater than 3 and <code>average_by</code> is <code>None</code>. If <code>average_by</code> is <code>True</code>. If main covariate is not numeric or categoric.</td>
 </tr>
 </tbody>
 </table>

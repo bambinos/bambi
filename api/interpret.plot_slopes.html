@@ -323,7 +323,7 @@ ul.task-list li input[type="checkbox"] {
 <tr class="even">
 <td><code>conditional</code></td>
 <td>(str, dict, list)</td>
-<td>The covariates we would like to condition on.</td>
+<td>The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
@@ -432,7 +432,7 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td>ValueError</td>
-<td>If number of values passed with <code>conditional</code> is &gt;= 2 and <code>average_by</code> are both <code>None</code>. If <code>conditional</code> and <code>average_by</code> are both <code>None</code>. If length of <code>conditional</code> is greater than 3 and <code>average_by</code> is <code>None</code>. If <code>slope</code> is not one of (‘dydx’, ‘dyex’, ‘eyex’, ‘eydx’).</td>
+<td>If the number of <code>wrt</code> values is greater than 2 and <code>average_by</code> is <code>None</code>. If <code>conditional</code> and <code>average_by</code> are both <code>None</code>. If length of <code>conditional</code> is greater than 3 and <code>average_by</code> is <code>None</code>. If <code>average_by</code> is <code>True</code>. If <code>slope</code> is not one of (‘dydx’, ‘dyex’, ‘eyex’, ‘eydx’). If main covariate is not numeric or categoric.</td>
 </tr>
 </tbody>
 </table>

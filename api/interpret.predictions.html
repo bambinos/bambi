@@ -282,16 +282,16 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="bambi.interpret.predictions" class="level1">
 <h1>interpret.predictions</h1>
-<p><code>interpret.predictions(model, idata, covariates, target='mean', pps=False, use_hdi=True, prob=None, transforms=None, sample_new_groups=False)</code></p>
+<p><code>interpret.predictions(model, idata, conditional=None, average_by=None, target='mean', pps=False, use_hdi=True, prob=None, transforms=None, sample_new_groups=False)</code></p>
 <p>Compute Conditional Adjusted Predictions</p>
 <section id="parameters" class="level2">
 <h2 class="anchored" data-anchor-id="parameters">Parameters</h2>
 <table class="table">
 <colgroup>
+<col style="width: 7%">
+<col style="width: 10%">
+<col style="width: 78%">
 <col style="width: 4%">
-<col style="width: 4%">
-<col style="width: 88%">
-<col style="width: 2%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -315,42 +315,48 @@ ul.task-list li input[type="checkbox"] {
 <td><em>required</em></td>
 </tr>
 <tr class="odd">
-<td><code>covariates</code></td>
-<td>list or dict</td>
-<td>A sequence of between one and three names of variables or a dict of length between one and three. If a sequence, the first variable is taken as the main variable and is mapped to the horizontal axis. If present, the second name is a coloring/grouping variable, and the third is mapped to different plot panels. If a dictionary, keys must be taken from (“main”, “group”, “panel”) and the values are the names of the variables.</td>
-<td><em>required</em></td>
+<td><code>conditional</code></td>
+<td>(str, list, dict)</td>
+<td>The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.</td>
+<td><code>None</code></td>
 </tr>
 <tr class="even">
+<td><code>average_by</code></td>
+<td>Union[str, list, bool, None]</td>
+<td>The covariates we would like to average by. The passed covariate(s) will marginalize over the other covariates in the model. If True, it averages over all covariates in the model to obtain the average estimate. Defaults to <code>None</code>.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
 <td><code>target</code></td>
 <td>str</td>
 <td>Which model parameter to plot. Defaults to ‘mean’. Passing a parameter into target only works when pps is False as the target may not be available in the posterior predictive distribution.</td>
 <td><code>'mean'</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>pps</code></td>
 <td>bool</td>
 <td>Whether to plot the posterior predictive samples. Defaults to <code>False</code>.</td>
 <td><code>False</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>use_hdi</code></td>
 <td>bool</td>
 <td>Whether to compute the highest density interval (defaults to True) or the quantiles.</td>
 <td><code>True</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>prob</code></td>
 <td>float</td>
 <td>The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94. Changing the global variable <code>az.rcParam["stats.hdi_prob"]</code> affects this default.</td>
 <td><code>None</code></td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>transforms</code></td>
 <td>dict</td>
 <td>Transformations that are applied to each of the variables being plotted. The keys are the name of the variables, and the values are functions to be applied. Defaults to <code>None</code>.</td>
 <td><code>None</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>sample_new_groups</code></td>
 <td>bool</td>
 <td>If the model contains group-level effects, and data is passed for unseen groups, whether to sample from the new groups. Defaults to <code>False</code>.</td>
@@ -384,8 +390,8 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="raises">Raises</h2>
 <table class="table">
 <colgroup>
-<col style="width: 6%">
-<col style="width: 93%">
+<col style="width: 7%">
+<col style="width: 92%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -396,7 +402,7 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td>ValueError</td>
-<td>If <code>pps</code> is <code>True</code> and <code>target</code> is not <code>"mean"</code>. If passed <code>covariates</code> is not in correct key, value format. If length of <code>covariates</code> is not between 1 and 3.</td>
+<td>If <code>pps</code> is <code>True</code> and <code>target</code> is not <code>"mean"</code>. If <code>conditional</code> is a list and the length is greater than 3. If <code>prob</code> is not &gt; 0 and &lt; 1.</td>
 </tr>
 </tbody>
 </table>

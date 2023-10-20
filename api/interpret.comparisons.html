@@ -322,8 +322,8 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td><code>conditional</code></td>
-<td>(str, dict, list)</td>
-<td>The covariates we would like to condition on.</td>
+<td>(str, list, dict)</td>
+<td>The covariates we would like to condition on. If dict, keys are the covariate names and values are the values to condition on.</td>
 <td><code>None</code></td>
 </tr>
 <tr class="odd">
@@ -402,7 +402,7 @@ ul.task-list li input[type="checkbox"] {
 <tbody>
 <tr class="odd">
 <td>ValueError</td>
-<td>If <code>wrt</code> is a dict and length of <code>contrast</code> is greater than 1. If <code>wrt</code> is a dict and length of <code>contrast</code> is greater than 2 and <code>conditional</code> is <code>None</code>. If <code>conditional</code> is None and <code>contrast</code> is categorical with &gt; 2 values. If <code>comparison_type</code> is not ‘diff’ or ‘ratio’. If <code>prob</code> is not &gt; 0 and &lt; 1.</td>
+<td>If <code>wrt</code> is a dict and length of <code>contrast</code> is greater than 1. If <code>wrt</code> is a dict and length of <code>contrast</code> is greater than 2 and <code>conditional</code> is <code>None</code>. If <code>conditional</code> is None and <code>contrast</code> is categorical with &gt; 2 values. If <code>conditional</code> is a list and the length is greater than 3. If <code>comparison_type</code> is not ‘diff’ or ‘ratio’. If <code>prob</code> is not &gt; 0 and &lt; 1.</td>
 </tr>
 </tbody>
 </table>

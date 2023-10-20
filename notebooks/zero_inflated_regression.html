@@ -626,7 +626,7 @@ NUTS: [count_psi, Intercept, livebait, camper, persons, child]</code></pre>
 * To see a summary or plot of the posterior pass the object returned by .fit() to az.summary() or az.plot_trace()</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="9">
+<div class="cell" data-execution_count="4">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>formula <span class="op">=</span> bmb.Formula(</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"count ~ livebait + camper + persons + child"</span>, <span class="co"># parent parameter mu</span></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"psi ~ livebait + camper + persons + child"</span>    <span class="co"># non-parent parameter psi</span></span>
@@ -680,9 +680,9 @@ NUTS: [Intercept, livebait, camper, persons, child, psi_Intercept, psi_livebait,
 <pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 6 seconds.</code></pre>
 </div>
 </div>
-<div class="cell">
+<div class="cell" data-execution_count="5">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>zip_model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="9">
+<div class="cell-output cell-output-display" data-execution_count="5">
 <pre><code>       Formula: count ~ livebait + camper + persons + child
                 psi ~ livebait + camper + persons + child
         Family: zero_inflated_poisson
@@ -717,13 +717,13 @@ NUTS: [Intercept, livebait, camper, persons, child, psi_Intercept, psi_livebait,
 </div>
 </div>
 <p>Since each parameter has a different link function, and each parameter has a different meaning, we must be careful on how the coefficients are interpreted. Coefficients without the substring “psi” correspond to the <span class="math inline">\(\mu\)</span> parameter (the mean of the Poisson process) and are on the log scale. Coefficients with the substring “psi” correspond to the <span class="math inline">\(\psi\)</span> parameter (this can be thought of as the log-odds of non-zero data) and are on the logit scale. Interpreting these coefficients can be easier with the <code>interpret</code> sub-package. Below, we will show how to use this sub-package to interpret the coefficients conditional on a set of the predictors.</p>
-<div class="cell">
+<div class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>az.summary(</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    zip_idata, </span>
 <span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    var_names<span class="op">=</span>[<span class="st">"Intercept"</span>, <span class="st">"livebait"</span>, <span class="st">"camper"</span>, <span class="st">"persons"</span>, <span class="st">"child"</span>], </span>
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    filter_vars<span class="op">=</span><span class="st">"like"</span></span>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="11">
+<div class="cell-output cell-output-display" data-execution_count="6">
 
 <div>
 
@@ -872,13 +872,13 @@ NUTS: [Intercept, livebait, camper, persons, child, psi_Intercept, psi_livebait,
 <section id="interpret-model-parameters" class="level4">
 <h4 class="anchored" data-anchor-id="interpret-model-parameters">Interpret model parameters</h4>
 <p>Since we have fit a distributional model, we can leverage the <code>plot_predictions()</code> function in the <code>interpret</code> sub-package to visualize how the <span class="math inline">\(\text{ZIPoisson}\)</span> parameters <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\psi\)</span> vary as a covariate changes.</p>
-<div class="cell">
+<div class="cell" data-execution_count="8">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(nrows<span class="op">=</span><span class="dv">1</span>, ncols<span class="op">=</span><span class="dv">2</span>, figsize<span class="op">=</span>(<span class="dv">10</span>, <span class="dv">3</span>))</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
 <span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    zip_model,</span>
 <span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    zip_idata,</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    covariates<span class="op">=</span><span class="st">"persons"</span>,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="st">"persons"</span>,</span>
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    ax<span class="op">=</span>ax[<span class="dv">0</span>]</span>
 <span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>ax[<span class="dv">0</span>].set_ylabel(<span class="st">"mu (fish count)"</span>)</span>
@@ -887,7 +887,7 @@ NUTS: [Intercept, livebait, camper, persons, child, psi_Intercept, psi_livebait,
 <span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>bmb.interpret.plot_predictions(</span>
 <span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>    zip_model,</span>
 <span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    zip_idata,</span>
-<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    covariates<span class="op">=</span><span class="st">"persons"</span>,</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="st">"persons"</span>,</span>
 <span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>    target<span class="op">=</span><span class="st">"psi"</span>,</span>
 <span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>    ax<span class="op">=</span>ax[<span class="dv">1</span>]</span>
 <span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>)</span>
