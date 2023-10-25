@@ -37,7 +37,7 @@ keep the barrier between Contributors and Users as low as possible.
 * Core Contributors (of which Council members are also a part of)
 * Steering Council
 
-Anyone working with Bambi has the responsibility to personally uphold the Code of Conduct. 
+Anyone working with Bambi has the responsibility to personally uphold the [Code of Conduct](https://github.com/bambinos/bambi/blob/main/CODE_OF_CONDUCT.md). 
 Core Contributors have the additional responsibility of _enforcing_ the Code of Conduct to maintain
 a safe community.
 
