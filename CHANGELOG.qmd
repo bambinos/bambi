@@ -9,20 +9,45 @@ pagetitle: "Changelog"
 
 ### New features
 
-* Bambi now supports censored responses (#697)
-* Implement `"exponential"` and `"weibull"` families (#697)
-* Add `"kidney"` dataset (#697)
-
 ### Maintenance and fixes
-
-* Bump `quartodoc` version to 0.6.1 (#720)
 
 ### Documentation
 
 ### Deprecation
 
-* Drop official suport for Python 3.8 (#720)
+## 0.13.0
 
+This is the first version of Bambi that is released with a Governance structure. Added in #709.
+
+### New features
+
+* Bambi now supports censored responses (#697)
+* Implement `"exponential"` and `"weibull"` families (#697)
+* Add `"kidney"` dataset (#697)
+* Add `interpret` submodule (#684, #695, #699, #701, #732, #736)
+    * Implements `comparisons`, `predictions`, `slopes`, `plot_comparisons`, `plot_predictions`, and `plot_slopes`
+* Support censored families 
+
+### Maintenance and fixes
+
+* Bump `quartodoc` version to 0.6.1 (#720)
+* Replace `univariate_ordered` with `ordered` (#724)
+* Add missing docstring for `center_predictors` (#726)
+* Fix bugs in `plot_comparison` (#731)
+
+### Documentation
+
+* Add docstrings to utility functions (#696)
+* Migrate documentation to Quarto (#712)
+* Add case study for MRP (#716)
+* Add example about ordinal regression (#719)
+* Add example about zero inflated models (#725)
+* Add example about predictions for new groups (#734)
+
+### Deprecation
+
+* Drop official suport for Python 3.8 (#720)
+* Change `plots` submodule name to `interpret` (#705)
 
 ## 0.12.0
 
