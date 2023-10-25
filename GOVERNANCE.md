@@ -149,7 +149,6 @@ The current Council members are:
 
 * Gabriel Stechschulte ([@gstechschulte](https://github.com/gstechschulte))
 * Osvaldo Martin ([@aloctavodia](https://github.com/aloctavodia))
-* Ravin Kumar ([@canyon289](https://github.com/canyon289))
 * Tomás Capretto ([@tomicapretto](https://github.com/tomicapretto))
 
 ### Election and decision making processes
