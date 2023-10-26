@@ -13,6 +13,7 @@ import xarray as xr
 
 from bambi import Model
 from bambi.utils import listify
+from bambi.interpret.logs import log_interpret_defaults
 
 
 @dataclass
@@ -333,6 +334,7 @@ def make_group_panel_values(
     return data_dict
 
 
+@log_interpret_defaults
 def set_default_values(model: Model, data_dict: dict, kind: str) -> dict:
     """
     Set default values for each variable in the model if the user did not
