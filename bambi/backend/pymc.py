@@ -4,7 +4,7 @@ import traceback
 
 
 from copy import deepcopy
-from pkg_resources import get_distribution
+from importlib.metadata import version
 
 import numpy as np
 import pymc as pm
@@ -20,7 +20,7 @@ from bambi.utils import get_aliased_name
 _log = logging.getLogger("bambi")
 
 
-__version__ = get_distribution("bambi").version
+__version__ = version("bambi")
 
 
 class PyMCModel:

@@ -1,6 +1,6 @@
 import logging
 
-from pkg_resources import get_distribution
+from importlib.metadata import version
 
 from pymc import math
 
@@ -12,7 +12,7 @@ from .models import Model
 from .priors import Prior
 from . import interpret
 
-__version__ = get_distribution("bambi").version
+__version__ = version("bambi")
 
 __all__ = [
     "Model",

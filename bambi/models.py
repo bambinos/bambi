@@ -4,7 +4,7 @@ import logging
 import warnings
 
 from copy import deepcopy
-from pkg_resources import get_distribution
+from importlib.metadata import version
 
 import formulae as fm
 import pymc as pm
@@ -33,7 +33,7 @@ _log = logging.getLogger("bambi")
 
 ORDINAL_FAMILIES = (univariate.Cumulative, univariate.StoppingRatio)
 
-__version__ = get_distribution("bambi").version
+__version__ = version("bambi")
 
 
 class Model:
