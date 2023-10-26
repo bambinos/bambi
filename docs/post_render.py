@@ -1,4 +1,4 @@
 import os
 
 # Remove CHANGELOG
-os.remove("changelog.qmd")
+# os.remove("changelog.qmd")

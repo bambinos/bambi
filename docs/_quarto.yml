@@ -5,6 +5,13 @@ project:
   post-render: post_render.py
   resources: 
     - api/**
+  render:
+    - "*.qmd"
+    - "notebooks/*.ipynb"
+    # - "!ignored-dir/"
+    # - "!ignored-file.qmd"
+    # they should go after things we do want to render
+
 
 website:
   title: "Bambi"
@@ -73,6 +80,7 @@ website:
             - notebooks/distributional_models.ipynb
             - notebooks/hsgp_1d.ipynb
             - notebooks/hsgp_2d.ipynb
+            - notebooks/survival_model.ipynb
         - section: Tools to interpret model outputs
           contents:
               - notebooks/plot_predictions.ipynb
