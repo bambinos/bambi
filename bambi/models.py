@@ -4,6 +4,7 @@ import logging
 import warnings
 
 from copy import deepcopy
+from importlib.metadata import version
 
 import formulae as fm
 import pymc as pm
@@ -27,11 +28,12 @@ from bambi.utils import (
     remove_common_intercept,
     wrapify,
 )
-from bambi.version import __version__
 
 _log = logging.getLogger("bambi")
 
 ORDINAL_FAMILIES = (univariate.Cumulative, univariate.StoppingRatio)
+
+__version__ = version("bambi")
 
 
 class Model:

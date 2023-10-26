@@ -1,6 +1,8 @@
 [build-system]
 build-backend = "setuptools.build_meta"
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "setuptools_scm>=8"]
+
+[tool.setuptools_scm]
 
 [project]
 name = "bambi"
@@ -57,9 +59,6 @@ packages = [
     "bambi.priors", 
     "bambi.terms", 
 ]
-
-[tool.setuptools.dynamic]
-version = {file = "bambi/version.txt"}
 
 [tool.black]
 line-length = 100

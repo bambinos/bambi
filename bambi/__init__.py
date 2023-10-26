@@ -1,5 +1,7 @@
 import logging
 
+from importlib.metadata import version
+
 from pymc import math
 
 from .backend import PyMCModel
@@ -8,9 +10,9 @@ from .families import Family, Likelihood, Link
 from .formula import Formula
 from .models import Model
 from .priors import Prior
-from .version import __version__
 from . import interpret
 
+__version__ = version("bambi")
 
 __all__ = [
     "Model",

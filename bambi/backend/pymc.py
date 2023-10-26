@@ -2,7 +2,9 @@ import functools
 import logging
 import traceback
 
+
 from copy import deepcopy
+from importlib.metadata import version
 
 import numpy as np
 import pymc as pm
@@ -11,13 +13,14 @@ import pytensor.tensor as pt
 from pytensor.tensor.special import softmax
 
 
-from bambi import version
-
 from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
 from bambi.backend.model_components import ConstantComponent, DistributionalComponent
 from bambi.utils import get_aliased_name
 
 _log = logging.getLogger("bambi")
+
+
+__version__ = version("bambi")
 
 
 class PyMCModel:
@@ -238,8 +241,9 @@ class PyMCModel:
 
     def _clean_results(self, idata, omit_offsets, include_mean):
         for group in idata.groups():
+
             getattr(idata, group).attrs["modeling_interface"] = "bambi"
-            getattr(idata, group).attrs["modeling_interface_version"] = version.__version__
+            getattr(idata, group).attrs["modeling_interface_version"] = __version__
 
         if omit_offsets:
             offset_vars = [var for var in idata.posterior.data_vars if var.endswith("_offset")]
