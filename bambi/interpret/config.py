@@ -1,15 +1,19 @@
 import logging
 
-# TODO: passing a name to the logger does not work. I think this is because of
-# TODO: the "bambi" logger defined in bambi/__init__.py.
 
-
-class Config:
+class InterpretLogger:
     def __init__(self, messages=False):
         self.messages = messages
 
     def get_logger(self, name=None):
-        return logging.getLogger(name)
+        _log = logging.getLogger(name)
+
+        if not logging.root.handlers:
+            _log.setLevel(logging.INFO)
+            if len(_log.handlers) == 0:
+                _log.addHandler(logging.StreamHandler())
+
+        return _log
 
 
-logger = Config()
+logger = InterpretLogger()
