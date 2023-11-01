@@ -5,10 +5,10 @@ def log_interpret_defaults(func):
     """
     Decorator for functions that compute default values.
 
-    Logs outpout to console if `bmb.interpret.logger.messages = True` and when
-    default values are computed for the variable of interest, i.e., `contrast`
-    or `wrt` of `comparisons` and `slopes`, as well as the `conditional`
-    parameter of `comparisons`, `predictions`, and `slopes`.
+    Logs outpout to console if 'bmb.interpret.logger.messages = True' and when
+    default values are computed for the variable of interest, i.e., 'contrast'
+    or 'wrt' of 'comparisons' and 'slopes', as well as the 'conditional'
+    parameter of 'comparisons', 'predictions', and 'slopes'.
     """
     interpret_logger = logger.get_logger("interpret")
 
@@ -17,15 +17,14 @@ def log_interpret_defaults(func):
         if not logger.messages:
             return func(*args, **kwargs)
 
-        result = None
         name_key = None
         term_name = None
 
         if func.__name__ in ["set_default_values", "make_group_panel_values"]:
             data_dict = kwargs.get("data_dict", args[1])
             keys_before = set(data_dict.keys())
-            result = func(*args, **kwargs)
-            term_name = ", ".join(set(result.keys()) - keys_before)  # keys after
+            keys_after = set(func(*args, **kwargs).keys())
+            term_name = ", ".join(keys_after - keys_before)
 
             if len(term_name) > 0:
                 name_key = "unspecified" if func.__name__ == "set_default_values" else "group/panel"
