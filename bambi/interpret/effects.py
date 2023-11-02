@@ -75,7 +75,7 @@ class ResponseInfo:
 @dataclass
 class Estimate:
     """Stores the mean and bounds (uncertainty interval) of 'comparisons' and
-    'effects' estimates. Used in 'PredictiveDifferences' to store typed data
+    'slopes' estimates. Used in 'PredictiveDifferences' to store typed data
     for the summary dataframe.
 
     Parameters
@@ -608,7 +608,7 @@ def comparisons(
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
+        Changing the global variable ``az.rcParams["stats.hdi_prob"]`` affects this default.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to ``None``.
@@ -769,7 +769,7 @@ def slopes(
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
+        Changing the global variable ``az.rcParams["stats.hdi_prob"]`` affects this default.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
         name of the variables, and the values are functions to be applied. Defaults to ``None``.
@@ -870,7 +870,7 @@ def slopes(
         model, slopes_data, wrt_info, conditional_info, response, use_hdi, effect_type
     )
     slopes_summary = predictive_difference.get_estimate(
-        idata, response_transform, "diff", slope, eps
+        idata, response_transform, "diff", slope, eps, prob
     ).get_summary_df(response_dim)
 
     if average_by:
