@@ -825,7 +825,7 @@ def slopes(
 
     if slope not in ("dydx", "dyex", "eyex", "eydx"):
         raise ValueError("'slope' must be one of ('dydx', 'dyex', 'eyex', 'eydx')")
- 
+
     if prob is None:
         prob = az.rcParams["stats.hdi_prob"]
     if not 0 < prob < 1:
