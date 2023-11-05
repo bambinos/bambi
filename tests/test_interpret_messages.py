@@ -1,12 +1,8 @@
-import numpy as np
+import bambi as bmb
 import pandas as pd
-import matplotlib.pyplot as plt
 import pytest
 
-import bambi as bmb
 from bambi.interpret import plot_comparisons, plot_predictions, plot_slopes
-
-bmb.interpret.logger.messages = True
 
 
 @pytest.fixture(scope="module")
@@ -22,7 +18,7 @@ def mtcars():
 
 def test_predictions_list(mtcars, caplog):
     model, idata = mtcars
-    caplog.set_level("INFO", logger="interpret")
+    caplog.set_level("INFO", logger="__bambi_interpret__")
 
     # List of values with no unspecified covariates
     conditional = ["hp", "drat", "am"]
@@ -39,7 +35,7 @@ def test_predictions_list(mtcars, caplog):
 
 def test_predictions_list_unspecified(mtcars, caplog):
     model, idata = mtcars
-    caplog.set_level("INFO", logger="interpret")
+    caplog.set_level("INFO", logger="__bambi_interpret__")
 
     # List of values with unspecified covariates
     conditional = ["hp", "drat"]
@@ -57,7 +53,7 @@ def test_predictions_list_unspecified(mtcars, caplog):
 
 def test_predictions_dict_unspecified(mtcars, caplog):
     model, idata = mtcars
-    caplog.set_level("INFO", logger="interpret")
+    caplog.set_level("INFO", logger="__bambi_interpret__")
 
     # User passed values with unspecified covariates
     conditional = {"hp": [110, 175], "am": [0, 1]}
@@ -79,7 +75,7 @@ def test_predictions_dict_unspecified(mtcars, caplog):
 
 def test_comparisons_contrast_default(mtcars, caplog):
     model, idata = mtcars
-    caplog.set_level("INFO", logger="interpret")
+    caplog.set_level("INFO", logger="__bambi_interpret__")
 
     # List of values with no unspecified covariates
     plot_comparisons(model, idata, "hp", conditional=None, average_by="am")
@@ -93,7 +89,7 @@ def test_comparisons_contrast_default(mtcars, caplog):
 
 def test_slopes_wrt_default(mtcars, caplog):
     model, idata = mtcars
-    caplog.set_level("INFO", logger="interpret")
+    caplog.set_level("INFO", logger="__bambi_interpret__")
 
     # List of values with no unspecified covariates
     plot_slopes(model, idata, "hp", conditional=None, average_by="am")

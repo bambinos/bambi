@@ -4,6 +4,9 @@
 
 ### New features
 
+* Add configuration facilities to Bambi (#745) 
+* Interpet submodule now outputs informative messages when computing default values (#745) 
+
 ### Maintenance and fixes
 
 ### Documentation

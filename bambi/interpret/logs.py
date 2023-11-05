@@ -1,4 +1,6 @@
-from bambi.interpret import logger
+import logging
+
+from bambi import config
 
 
 def log_interpret_defaults(func):
@@ -10,11 +12,11 @@ def log_interpret_defaults(func):
     or 'wrt' of 'comparisons' and 'slopes', as well as the 'conditional'
     parameter of 'comparisons', 'predictions', and 'slopes'.
     """
-    interpret_logger = logger.get_logger("interpret")
+    logger = logging.getLogger("__bambi_interpret__")
 
     def wrapper(*args, **kwargs):
 
-        if not logger.messages:
+        if not config["INTERPRET_VERBOSE"]:
             return func(*args, **kwargs)
 
         arg_name = None
@@ -39,7 +41,7 @@ def log_interpret_defaults(func):
             covariate_name = args[0].name
 
         if arg_name:
-            interpret_logger.info("Default computed for %s variable: %s", arg_name, covariate_name)
+            logger.info("Default computed for %s variable: %s", arg_name, covariate_name)
 
         return func(*args, **kwargs)
 
