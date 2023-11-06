@@ -7,7 +7,7 @@ def log_interpret_defaults(func):
     """
     Decorator for functions that compute default values.
 
-    Logs output to console if 'bmb.interpret.logger.messages = True' and when
+    Logs output to console if 'bmb.config["INTERPRET_VERBOSE"] = True' and when
     default values are computed for the variable of interest, i.e., 'contrast'
     or 'wrt' of 'comparisons' and 'slopes', as well as the 'conditional'
     parameter of 'comparisons', 'predictions', and 'slopes'.
