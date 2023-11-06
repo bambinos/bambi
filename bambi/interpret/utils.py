@@ -13,6 +13,7 @@ import xarray as xr
 
 from bambi import Model
 from bambi.utils import listify
+from bambi.interpret.logs import log_interpret_defaults
 
 
 @dataclass
@@ -54,8 +55,8 @@ class VariableInfo:
     eps: Union[float, None] = None
     user_passed: bool = False
     name: str = field(init=False)
-    values: Union[int, float] = field(init=False)
-    passed_values: int = field(init=False)
+    values: Union[int, float, np.ndarray] = field(init=False)
+    passed_values: Union[int, float, np.ndarray] = field(init=False)
 
     def __post_init__(self):
         """
@@ -86,6 +87,7 @@ class VariableInfo:
     def epsilon_difference(self, x, eps) -> np.ndarray:
         return np.array([x, x + eps])
 
+    @log_interpret_defaults
     def set_default_variable_values(self) -> np.ndarray:
         """
         Returns default values for the variable of interest ('contrast' and 'wrt')
@@ -277,6 +279,7 @@ def enforce_dtypes(
     return new_df
 
 
+@log_interpret_defaults
 def make_group_panel_values(
     data: pd.DataFrame,
     data_dict: dict,
@@ -333,6 +336,7 @@ def make_group_panel_values(
     return data_dict
 
 
+@log_interpret_defaults
 def set_default_values(model: Model, data_dict: dict, kind: str) -> dict:
     """
     Set default values for each variable in the model if the user did not
@@ -363,7 +367,8 @@ def set_default_values(model: Model, data_dict: dict, kind: str) -> dict:
     return data_dict
 
 
-def make_main_values(x: np.ndarray, grid_n: int = 50) -> np.ndarray:
+@log_interpret_defaults
+def make_main_values(x: np.ndarray, _name: str, grid_n: int = 50) -> np.ndarray:
     """
     Compute main values based on original data using a grid of evenly spaced
     values for numeric predictors and unique levels for categoric predictors.

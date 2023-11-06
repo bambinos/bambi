@@ -81,7 +81,9 @@ def _grid_level(
             data_grid = _pairwise_grid(data_dict)
         else:
             # Compute a grid of values
-            main_values = make_main_values(condition_info.model.data[covariates.main])
+            main_values = make_main_values(
+                condition_info.model.data[covariates.main], covariates.main
+            )
             data_dict = {covariates.main: main_values}
             data_dict = make_group_panel_values(
                 condition_info.model.data,
@@ -99,7 +101,9 @@ def _grid_level(
             data_dict = {**condition_info.conditional}
         else:
             # Compute a grid of values
-            main_values = make_main_values(condition_info.model.data[covariates.main])
+            main_values = make_main_values(
+                condition_info.model.data[covariates.main], covariates.main
+            )
             data_dict = {covariates.main: main_values}
             data_dict = make_group_panel_values(
                 condition_info.model.data,
