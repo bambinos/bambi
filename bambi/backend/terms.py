@@ -276,6 +276,7 @@ class ResponseTerm:
 
         kwargs = self.robustify_dims(pymc_backend, kwargs)
 
+        # Handle censoring
         if self.term.is_censored:
             dims = kwargs.pop("dims", None)
             data_matrix = kwargs.pop("observed")
@@ -293,6 +294,34 @@ class ResponseTerm:
             upper = np.where(is_right_censored, observed, np.inf)
             stateless_dist = distribution.dist(**kwargs)
             dist_rv = pm.Censored(
+                self.name, stateless_dist, lower=lower, upper=upper, observed=observed, dims=dims
+            )
+
+        # Handle truncation
+        elif self.term.is_truncated:
+            dims = kwargs.pop("dims", None)
+            data_matrix = kwargs.pop("observed")
+
+            # Get values of the response variable
+            observed = np.squeeze(data_matrix[:, 0])
+
+            # Get truncation values
+            lower = np.squeeze(data_matrix[:, 1])
+            upper = np.squeeze(data_matrix[:, 2])
+
+            # Handle 'None' and scalars appropriately
+            if np.all(lower == -np.inf):
+                lower = None
+            elif np.all(lower == lower[0]):
+                lower = lower[0]
+
+            if np.all(upper == np.inf):
+                upper = None
+            elif np.all(upper == upper[0]):
+                upper = upper[0]
+
+            stateless_dist = distribution.dist(**kwargs)
+            dist_rv = pm.Truncated(
                 self.name, stateless_dist, lower=lower, upper=upper, observed=observed, dims=dims
             )
         else:
@@ -316,7 +345,7 @@ class ResponseTerm:
         if isinstance(self.family, (Multinomial, DirichletMultinomial)):
             return kwargs
 
-        if self.term.is_censored:
+        if self.term.is_censored or self.term.is_truncated:
             return kwargs
 
         dims, data = kwargs["dims"], kwargs["observed"]
