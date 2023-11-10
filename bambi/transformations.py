@@ -101,9 +101,9 @@ def truncated(x, lb=None, ub=None):
         if lower.ndim == 0:
             lower = np.full(len(x), lower)
         elif lower.ndim == 1:
-            assert len(lower) == len(x)
+            assert len(lower) == len(x), "The length of 'lb' must be equal to the one of 'x'"
         else:
-            raise ValueError("ups")
+            raise ValueError("'lb' must be 0 or 1 dimensional.")
     else:
         lower = np.full(len(x), -np.inf)
 
@@ -113,9 +113,9 @@ def truncated(x, lb=None, ub=None):
         if upper.ndim == 0:
             upper = np.full(len(x), upper)
         elif upper.ndim == 1:
-            assert len(upper) == len(x)
+            assert len(upper) == len(x), "The length of 'ub' must be equal to the one of 'x'"
         else:
-            raise ValueError("ups 2")
+            raise ValueError("'ub' must be 0 or 1 dimensional.")
     else:
         upper = np.full(len(x), np.inf)
 
