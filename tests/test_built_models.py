@@ -1047,3 +1047,29 @@ def test_censored_response():
     idata = model.fit(tune=100, draws=100, random_seed=121195)
     model.predict(idata, kind="pps")
     model.predict(idata, data=data, kind="pps")
+
+
+def test_truncated_response():
+    rng = np.random.default_rng(12345)
+    slope, intercept, sigma, N = 1, 0, 2, 200
+    x = rng.uniform(-10, 10, N)
+    y = rng.normal(loc=slope * x + intercept, scale=sigma)
+
+    def truncate_y(x, y, bounds):
+
+        return (x[keep], y[keep])
+
+    bounds = [-5, 5]
+    keep = (y >= bounds[0]) & (y <= bounds[1])
+    xt = x[keep]
+    yt = y[keep]
+
+    df = pd.DataFrame({"x": xt, "y": yt})
+    priors = {
+        "Intercept": bmb.Prior("Normal", mu=0, sigma=1),
+        "x": bmb.Prior("Normal", mu=0, sigma=1),
+        "sigma": bmb.Prior("HalfNormal", sigma=1),
+    }
+    model = bmb.Model("truncated(y, -5, 5) ~ x", df, priors=priors)
+    idata = model.fit(tune=100, draws=100, random_seed=1234)
+    model.predict(idata, kind="pps")

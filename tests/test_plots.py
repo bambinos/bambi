@@ -27,32 +27,150 @@ def sleep_study():
     idata = model.fit(tune=500, draws=500, random_seed=1234)
     return model, idata
 
+
 @pytest.fixture(scope="module")
 def food_choice():
     """
     Model a categorical response using the 'categorical' family to test 'interpret'
-    plotting functions for a model whose predictions have multiple response 
+    plotting functions for a model whose predictions have multiple response
     dimensions (levels).
     """
     length = [
-        1.3, 1.32, 1.32, 1.4, 1.42, 1.42, 1.47, 1.47, 1.5, 1.52, 1.63, 1.65, 1.65, 1.65, 1.65,
-        1.68, 1.7, 1.73, 1.78, 1.78, 1.8, 1.85, 1.93, 1.93, 1.98, 2.03, 2.03, 2.31, 2.36, 2.46,
-        3.25, 3.28, 3.33, 3.56, 3.58, 3.66, 3.68, 3.71, 3.89, 1.24, 1.3, 1.45, 1.45, 1.55, 1.6,
-        1.6, 1.65, 1.78, 1.78, 1.8, 1.88, 2.16, 2.26, 2.31, 2.36, 2.39, 2.41, 2.44, 2.56, 2.67,
-        2.72, 2.79, 2.84
+        1.3,
+        1.32,
+        1.32,
+        1.4,
+        1.42,
+        1.42,
+        1.47,
+        1.47,
+        1.5,
+        1.52,
+        1.63,
+        1.65,
+        1.65,
+        1.65,
+        1.65,
+        1.68,
+        1.7,
+        1.73,
+        1.78,
+        1.78,
+        1.8,
+        1.85,
+        1.93,
+        1.93,
+        1.98,
+        2.03,
+        2.03,
+        2.31,
+        2.36,
+        2.46,
+        3.25,
+        3.28,
+        3.33,
+        3.56,
+        3.58,
+        3.66,
+        3.68,
+        3.71,
+        3.89,
+        1.24,
+        1.3,
+        1.45,
+        1.45,
+        1.55,
+        1.6,
+        1.6,
+        1.65,
+        1.78,
+        1.78,
+        1.8,
+        1.88,
+        2.16,
+        2.26,
+        2.31,
+        2.36,
+        2.39,
+        2.41,
+        2.44,
+        2.56,
+        2.67,
+        2.72,
+        2.79,
+        2.84,
     ]
     choice = [
-        "I", "F", "F", "F", "I", "F", "I", "F", "I", "I", "I", "O", "O", "I", "F", "F",
-        "I", "O", "F", "O", "F", "F", "I", "F", "I", "F", "F", "F", "F", "F", "O", "O",
-        "F", "F", "F", "F", "O", "F", "F", "I", "I", "I", "O", "I", "I", "I", "F", "I",
-        "O", "I", "I", "F", "F", "F", "F", "F", "F", "F", "O", "F", "I", "F", "F"
+        "I",
+        "F",
+        "F",
+        "F",
+        "I",
+        "F",
+        "I",
+        "F",
+        "I",
+        "I",
+        "I",
+        "O",
+        "O",
+        "I",
+        "F",
+        "F",
+        "I",
+        "O",
+        "F",
+        "O",
+        "F",
+        "F",
+        "I",
+        "F",
+        "I",
+        "F",
+        "F",
+        "F",
+        "F",
+        "F",
+        "O",
+        "O",
+        "F",
+        "F",
+        "F",
+        "F",
+        "O",
+        "F",
+        "F",
+        "I",
+        "I",
+        "I",
+        "O",
+        "I",
+        "I",
+        "I",
+        "F",
+        "I",
+        "O",
+        "I",
+        "I",
+        "F",
+        "F",
+        "F",
+        "F",
+        "F",
+        "F",
+        "F",
+        "O",
+        "F",
+        "I",
+        "F",
+        "F",
     ]
     sex = ["Male"] * 32 + ["Female"] * 31
     data = pd.DataFrame({"choice": choice, "length": length, "sex": sex})
-    data["choice"]  = pd.Categorical(
+    data["choice"] = pd.Categorical(
         data["choice"].map({"I": "Invertebrates", "F": "Fish", "O": "Other"}),
         ["Other", "Invertebrates", "Fish"],
-        ordered=True
+        ordered=True,
     )
 
     model = bmb.Model("choice ~ length + sex", data, family="categorical")
@@ -156,16 +274,16 @@ class TestPredictions:
     @pytest.mark.parametrize(
         "covariates",
         (
-            ["hp", "wt"],       # Main: numeric. Group: numeric
-            ["hp", "cyl"],      # Main: numeric. Group: categorical
-            ["gear", "wt"],     # Main: categorical. Group: numeric
-            ["gear", "cyl"],    # Main: categorical. Group: categorical
+            ["hp", "wt"],  # Main: numeric. Group: numeric
+            ["hp", "cyl"],  # Main: numeric. Group: categorical
+            ["gear", "wt"],  # Main: categorical. Group: numeric
+            ["gear", "cyl"],  # Main: categorical. Group: categorical
         ),
     )
     def test_with_groups(self, mtcars, covariates, pps):
         model, idata = mtcars
         plot_predictions(model, idata, covariates, pps=pps)
-    
+
     @pytest.mark.parametrize("pps", [False, True])
     @pytest.mark.parametrize(
         "covariates", (["hp", "cyl", "gear"], ["cyl", "hp", "gear"], ["cyl", "gear", "hp"])
@@ -173,12 +291,12 @@ class TestPredictions:
     def test_with_group_and_panel(self, mtcars, covariates, pps):
         model, idata = mtcars
         plot_predictions(model, idata, covariates, pps=pps)
-    
+
     @pytest.mark.parametrize("pps", [False, True])
     @pytest.mark.parametrize(
         "conditional",
         [
-            ({"hp": [110, 175], "am": [0, 1], "drat": [3, 4, 5]}),  
+            ({"hp": [110, 175], "am": [0, 1], "drat": [3, 4, 5]}),
             ({"hp": 150, "am": 1, "drat": [3, 4, 5]}),
         ],
     )
@@ -186,9 +304,7 @@ class TestPredictions:
         model, idata = mtcars
         plot_predictions(model, idata, conditional=conditional, pps=pps)
 
-    @pytest.mark.parametrize(
-            "average_by", ["am", "drat", ["am", "drat"]]
-    )
+    @pytest.mark.parametrize("average_by", ["am", "drat", ["am", "drat"]])
     def test_average_by(self, mtcars, average_by):
         model, idata = mtcars
 
@@ -197,7 +313,7 @@ class TestPredictions:
 
         # unit level with average by covariates
         plot_predictions(model, idata, None, average_by)
-    
+
     @pytest.mark.parametrize("pps", [False, True])
     def test_fig_kwargs(self, mtcars, pps):
         model, idata = mtcars
@@ -274,14 +390,14 @@ class TestPredictions:
         ):
             # default: sample_new_groups=False
             plot_predictions(model, idata, ["Days", "Subject"])
-    
+
     @pytest.mark.parametrize(
-            "covariates",
-            (
-                "length",           # Main variable is numeric
-                "sex",              # Main variable is categorical
-                ["length", "sex"]   # Using both covariates
-            ),
+        "covariates",
+        (
+            "length",  # Main variable is numeric
+            "sex",  # Main variable is categorical
+            ["length", "sex"],  # Using both covariates
+        ),
     )
     def test_categorical_response(self, food_choice, covariates):
         model, idata = food_choice
@@ -372,13 +488,10 @@ class TestComparison:
         ):
             # default: sample_new_groups=False
             plot_comparisons(model, idata, "Days", "Subject")
-    
+
     @pytest.mark.parametrize(
-            "contrast, conditional",
-            [
-                ("sex", "length"),  # Categorical & numeric
-                ("length", "sex")   # Numeric & categorical
-            ]
+        "contrast, conditional",
+        [("sex", "length"), ("length", "sex")],  # Categorical & numeric  # Numeric & categorical
     )
     def test_categorical_response(self, food_choice, contrast, conditional):
         model, idata = food_choice
@@ -479,11 +592,8 @@ class TestSlopes:
             plot_slopes(model, idata, "Days", "Subject")
 
     @pytest.mark.parametrize(
-            "wrt, conditional",
-            [
-                ("sex", "length"),  # Categorical & numeric
-                ("length", "sex")   # Numeric & categorical
-            ]
+        "wrt, conditional",
+        [("sex", "length"), ("length", "sex")],  # Categorical & numeric  # Numeric & categorical
     )
     def test_categorical_response(self, food_choice, wrt, conditional):
         model, idata = food_choice
