@@ -147,8 +147,12 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
+    <a class="nav-link active" href="../notebooks/getting_started.html" aria-current="page">
+ <span class="menu-text">Getting Started</span></a>
+  </li>  
+  <li class="nav-item">
     <a class="nav-link" href="../api/index.html">
- <span class="menu-text">Reference</span></a>
+ <span class="menu-text">API Reference</span></a>
   </li>  
   <li class="nav-item">
     <a class="nav-link" href="../notebooks/index.html">
@@ -217,7 +221,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
 <section id="getting-started" class="level1">
 <h1>Getting Started</h1>
-<p>Bambi requires a working Python interpreter (3.7+). We recommend installing Python and key numerical libraries using the <a href="https://www.anaconda.com/products/individual">Anaconda Distribution</a>, which has one-click installers available on all major platforms.</p>
+<p>Bambi requires a working Python interpreter (3.8+). We recommend installing Python and key numerical libraries using the <a href="https://www.anaconda.com/products/individual">Anaconda Distribution</a>, which has one-click installers available on all major platforms.</p>
 <p>Assuming a standard Python environment is installed on your machine (including pip), Bambi itself can be installed in one line using pip:</p>
 <pre><code>pip install bambi</code></pre>
 <p>Alternatively, if you want the bleeding edge version of the package, you can install from GitHub:</p>
@@ -238,28 +242,33 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="setup" class="level3">
 <h3 class="anchored" data-anchor-id="setup">Setup</h3>
 <div class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>warnings.filterwarnings(<span class="st">"ignore"</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-execution_count="2">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>az.style.use(<span class="st">"arviz-darkgrid"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="creating-a-model" class="level3">
 <h3 class="anchored" data-anchor-id="creating-a-model">Creating a model</h3>
 <p>Creating a new model in Bambi is simple:</p>
-<div class="cell" data-execution_count="3">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in a tab-delimited file containing our data</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_table(<span class="st">"data/my_data.txt"</span>, sep<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the model</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"y ~ x + z"</span>, data)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect model object</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="3">
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in a tab-delimited file containing our data</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_table(<span class="st">"data/my_data.txt"</span>, sep<span class="op">=</span><span class="st">"</span><span class="ch">\t</span><span class="st">"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Initialize the model</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"y ~ x + z"</span>, data)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Inspect model object</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
 <pre><code>       Formula: y ~ x + z
         Family: gaussian
           Link: mu = identity
@@ -268,10 +277,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     target = mu
         Common-level effects
             Intercept ~ Normal(mu: 0.1852, sigma: 2.5649)
-            x ~ Normal(mu: 0, sigma: 2.231)
-            z ~ Normal(mu: 0, sigma: 2.4374)
+            x ~ Normal(mu: 0.0, sigma: 2.231)
+            z ~ Normal(mu: 0.0, sigma: 2.4374)
+        
         Auxiliary parameters
-            y_sigma ~ HalfStudentT(nu: 4, sigma: 1.013)</code></pre>
+            sigma ~ HalfStudentT(nu: 4.0, sigma: 1.013)</code></pre>
 </div>
 </div>
 <p>Typically, we will initialize a Bambi <code>Model</code> by passing it a model formula and a pandas <code>DataFrame</code>. Other arguments such as family, priors, and link are available. By default, it uses <code>family="gaussian"</code> which implies a linear regression with normal error. We get back a model that we can immediately fit by calling <code>model.fit()</code>.</p>
@@ -362,10 +372,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="formula-based-specification" class="level2">
 <h2 class="anchored" data-anchor-id="formula-based-specification">Formula-based specification</h2>
 <p>Models are specified in Bambi using a formula-based syntax similar to what one might find in R packages like lme4 or brms using the Python <a href="https://github.com/bambinos/formulae">formulae</a> library. A couple of examples illustrate the breadth of models that can be easily specified in Bambi:</p>
-<div class="cell" data-execution_count="4">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"data/rrr_long.csv"</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>data.head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="4">
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"data/rrr_long.csv"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>data.head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
 
 <div>
 
@@ -499,21 +509,21 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of rows with missing values</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>data.isna().<span class="bu">any</span>(axis<span class="op">=</span><span class="dv">1</span>).<span class="bu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="5">
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of rows with missing values</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>data.isna().<span class="bu">any</span>(axis<span class="op">=</span><span class="dv">1</span>).<span class="bu">sum</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
 <pre><code>401</code></pre>
 </div>
 </div>
 <p>We pass <code>dropna=True</code> to tell Bambi to drop rows containing missing values. The number of rows dropped is different from the number of rows with missing values because Bambi only considers columns involved in the model.</p>
-<div class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Common (or fixed) effects only</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>bmb.Model(<span class="st">"value ~ condition + age + gender"</span>, data, dropna<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Common (or fixed) effects only</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>bmb.Model(<span class="st">"value ~ condition + age + gender"</span>, data, dropna<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Automatically removing 33/6940 rows from the dataset.</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="7">
 <pre><code>       Formula: value ~ condition + age + gender
         Family: gaussian
           Link: mu = identity
@@ -522,20 +532,21 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     target = mu
         Common-level effects
             Intercept ~ Normal(mu: 4.5457, sigma: 28.4114)
-            condition ~ Normal(mu: 0, sigma: 12.0966)
-            age ~ Normal(mu: 0, sigma: 1.3011)
-            gender ~ Normal(mu: 0, sigma: 13.1286)
+            condition ~ Normal(mu: 0.0, sigma: 12.0966)
+            age ~ Normal(mu: 0.0, sigma: 1.3011)
+            gender ~ Normal(mu: 0.0, sigma: 13.1286)
+        
         Auxiliary parameters
-            value_sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)</code></pre>
+            sigma ~ HalfStudentT(nu: 4.0, sigma: 2.4186)</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Common effects and group specific (or random) intercepts for subject</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>bmb.Model(<span class="st">"value ~ condition + age + gender + (1|uid)"</span>, data, dropna<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Common effects and group specific (or random) intercepts for subject</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>bmb.Model(<span class="st">"value ~ condition + age + gender + (1|uid)"</span>, data, dropna<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Automatically removing 33/6940 rows from the dataset.</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="7">
+<div class="cell-output cell-output-display" data-execution_count="8">
 <pre><code>       Formula: value ~ condition + age + gender + (1|uid)
         Family: gaussian
           Link: mu = identity
@@ -544,24 +555,29 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     target = mu
         Common-level effects
             Intercept ~ Normal(mu: 4.5457, sigma: 28.4114)
-            condition ~ Normal(mu: 0, sigma: 12.0966)
-            age ~ Normal(mu: 0, sigma: 1.3011)
-            gender ~ Normal(mu: 0, sigma: 13.1286)
+            condition ~ Normal(mu: 0.0, sigma: 12.0966)
+            age ~ Normal(mu: 0.0, sigma: 1.3011)
+            gender ~ Normal(mu: 0.0, sigma: 13.1286)
         
         Group-level effects
-            1|uid ~ Normal(mu: 0, sigma: HalfNormal(sigma: 28.4114))
+            1|uid ~ Normal(mu: 0.0, sigma: HalfNormal(sigma: 28.4114))
+        
         Auxiliary parameters
-            value_sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)</code></pre>
+            sigma ~ HalfStudentT(nu: 4.0, sigma: 2.4186)</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Multiple, complex group specific effects with both</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co"># group specific slopes and group specific intercepts</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>bmb.Model(<span class="st">"value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)"</span>, data, dropna<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Multiple, complex group specific effects with both</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># group specific slopes and group specific intercepts</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>bmb.Model(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)"</span>, </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    data, </span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    dropna<span class="op">=</span><span class="va">True</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Automatically removing 33/6940 rows from the dataset.</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="8">
+<div class="cell-output cell-output-display" data-execution_count="9">
 <pre><code>       Formula: value ~ condition + age + gender + (1|uid) + (condition|study) + (condition|stimulus)
         Family: gaussian
           Link: mu = identity
@@ -570,22 +586,23 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     target = mu
         Common-level effects
             Intercept ~ Normal(mu: 4.5457, sigma: 28.4114)
-            condition ~ Normal(mu: 0, sigma: 12.0966)
-            age ~ Normal(mu: 0, sigma: 1.3011)
-            gender ~ Normal(mu: 0, sigma: 13.1286)
+            condition ~ Normal(mu: 0.0, sigma: 12.0966)
+            age ~ Normal(mu: 0.0, sigma: 1.3011)
+            gender ~ Normal(mu: 0.0, sigma: 13.1286)
         
         Group-level effects
-            1|uid ~ Normal(mu: 0, sigma: HalfNormal(sigma: 28.4114))
-            1|study ~ Normal(mu: 0, sigma: HalfNormal(sigma: 28.4114))
-            condition|study ~ Normal(mu: 0, sigma: HalfNormal(sigma: 12.0966))
-            1|stimulus ~ Normal(mu: 0, sigma: HalfNormal(sigma: 28.4114))
-            condition|stimulus ~ Normal(mu: 0, sigma: HalfNormal(sigma: 12.0966))
+            1|uid ~ Normal(mu: 0.0, sigma: HalfNormal(sigma: 28.4114))
+            1|study ~ Normal(mu: 0.0, sigma: HalfNormal(sigma: 28.4114))
+            condition|study ~ Normal(mu: 0.0, sigma: HalfNormal(sigma: 12.0966))
+            1|stimulus ~ Normal(mu: 0.0, sigma: HalfNormal(sigma: 28.4114))
+            condition|stimulus ~ Normal(mu: 0.0, sigma: HalfNormal(sigma: 12.0966))
+        
         Auxiliary parameters
-            value_sigma ~ HalfStudentT(nu: 4, sigma: 2.4186)</code></pre>
+            sigma ~ HalfStudentT(nu: 4.0, sigma: 2.4186)</code></pre>
 </div>
 </div>
 <p>Each of the above examples specifies a full model that can be fitted using PyMC by doing</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <section id="coding-of-categorical-variables" class="level3">
 <h3 class="anchored" data-anchor-id="coding-of-categorical-variables">Coding of categorical variables</h3>
 <p>When a categorical common effect with N levels is added to a model, by default, it is coded by N-1 dummy variables (i.e., reduced-rank coding). For example, suppose we write <code>"y ~ condition + age + gender"</code>, where condition is a categorical variable with 4 levels, and age and gender are continuous variables. Then our model would contain an intercept term (added to the model by default, as in R), three dummy-coded variables (each contrasting the first level of <code>condition</code> with one of the subsequent levels), and continuous predictors for age and gender. Suppose, however, that we would rather use full-rank coding of conditions. If we explicitly remove the intercept –as in <code>"y ~ 0 + condition + age + gender"</code>– then we get the desired effect. Now, the intercept is no longer included, and condition will be coded using 4 dummy indicators, each one coding for the presence or absence of the respective condition without reference to the other conditions.</p>
@@ -594,14 +611,16 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="fitting-the-model" class="level3">
 <h3 class="anchored" data-anchor-id="fitting-the-model">Fitting the model</h3>
 <p>Once a model is fully specified, we need to run the PyMC sampler to generate parameter estimates. If we’re using the one-line <code>fit()</code> interface, sampling will begin right away:</p>
-<div class="cell" data-execution_count="9">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"value ~ condition + age + gender + (1|uid)"</span>, data, dropna<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"value ~ condition + age + gender + (1|uid)"</span>, data, dropna<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Automatically removing 33/6940 rows from the dataset.
 Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (2 chains in 2 jobs)
+Initializing NUTS using jitter+adapt_diag...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Multiprocess sampling (2 chains in 2 jobs)
 NUTS: [value_sigma, Intercept, condition, age, gender, 1|uid_sigma, 1|uid_offset]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
@@ -626,33 +645,46 @@ NUTS: [value_sigma, Intercept, condition, age, gender, 1|uid_sigma, 1|uid_offset
 
     <div>
       <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:28&lt;00:00 Sampling 2 chains, 0 divergences]
+      100.00% [4000/4000 00:34&lt;00:00 Sampling 2 chains, 0 divergences]
     </div>
     
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 28 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 35 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <p>The above code obtains 1,000 draws (the default value) and return them as an <code>InferenceData</code> instance.</p>
-<p>.. tip:: InferenceData is a rich data structure to store and manipulate data such as posterior samples, prior/posterior predictive samples, observations, etc. It is based on <a href="https://docs.xarray.dev/en/stable/">xarray</a>, a library offering N-dimensional labeled arrays (you can think of it as a generalization of both Numpy arrays and Pandas dataframes). To learn how to perform common operations with InferenceData, like indexing, selection etc please check <a href="https://arviz-devs.github.io/arviz/getting_started/WorkingWithInferenceData.html">this</a> and for details of the InferenceData Schema see this <a href="https://arviz-devs.github.io/arviz/schema/schema.html">specification</a>.</p>
+<div class="callout-tip callout callout-style-default callout-captioned">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+Tip
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>InferenceData is a rich data structure to store and manipulate data such as posterior samples, prior/posterior predictive samples, observations, etc. It is based on <a href="https://docs.xarray.dev/en/stable/">xarray</a>, a library offering N-dimensional labeled arrays (you can think of it as a generalization of both Numpy arrays and Pandas dataframes). To learn how to perform common operations with InferenceData, like indexing, selection etc please check <a href="https://python.arviz.org/en/latest/getting_started/WorkingWithInferenceData.html">this</a> and for details of the InferenceData Schema see this <a href="https://python.arviz.org/en/latest/schema/schema.html">specification</a>.</p>
+</div>
+</div>
 <p>In this case, the <code>fit()</code> method accepts optional keyword arguments to pass onto PyMC’s <code>sample()</code> method, so any methods accepted by <code>sample()</code> can be specified here. We can also explicitly set the number of draws via the <code>draws</code> argument. For example, if we call <code>fit(draws=2000, chains=2)</code>, the PyMC sampler will sample two chains in parallel, drawing 2,000 draws for each one. We could also specify starting parameter values, the step function to use, and so on (for full details, see the <a href="https://www.pymc.io/projects/docs/en/stable/api/generated/pymc.sample.html#pymc.sample">PyMC documentation</a>).</p>
 <p>Alternatively, we can build a model, but not fit it.</p>
-<div class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"value ~ condition + age + gender + (1|uid)"</span>, data, dropna<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>model.build()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"value ~ condition + age + gender + (1|uid)"</span>, data, dropna<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>model.build()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Automatically removing 33/6940 rows from the dataset.</code></pre>
 </div>
 </div>
 <p>Building without sampling can be useful if we want to inspect the internal PyMC model before we start the (potentially long) sampling process. Once we’re satisfied, and wish to run the sampler, we can then simply call <code>model.fit()</code>, and the sampler will start running. Another good reason to build a model is to generate plot of the marginal priors using <code>model.plot_priors()</code>.</p>
-<div class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model.plot_priors()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>model.plot_priors()<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Sampling: [1|uid_sigma, Intercept, age, condition, gender, value_sigma]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="getting_started_files/figure-html/cell-12-output-2.png" class="img-fluid"></p>
+<p><img src="getting_started_files/figure-html/cell-13-output-2.png" class="img-fluid"></p>
 </div>
 </div>
 </section>
@@ -662,39 +694,13 @@ NUTS: [value_sigma, Intercept, condition, age, gender, 1|uid_sigma, 1|uid_offset
 <p>Bayesian inference requires one to specify prior probability distributions that represent the analyst’s belief (in advance of seeing the data) about the likely values of the model parameters. In practice, analysts often lack sufficient information to formulate well-defined priors, and instead opt to use “weakly informative” priors that mainly serve to keep the model from exploring completely pathological parts of the parameter space (e.g., when defining a prior on the distribution of human heights, a value of 3,000 cms should be assigned a probability of exactly 0).</p>
 <p>By default, Bambi will intelligently generate weakly informative priors for all model terms, by loosely scaling them to the observed data. Currently, Bambi uses a methodology very similar to the one described in the documentation of the R package <a href="https://mc-stan.org/rstanarm/articles/priors.html">rstanarm</a>. While the default priors will behave well in most typical settings, there are many cases where an analyst will want to specify their own priors–and in general, when informative priors are available, it’s a good idea to use them.</p>
 <p>Fortunately, Bambi is built on top of PyMC, which means that we can seamlessly use any of the over 40 <code>Distribution</code> classes defined in PyMC. We can specify such priors in Bambi using the <code>Prior</code> class, which initializes with a <code>name</code> argument (which must map on exactly to the name of a valid PyMC <code>Distribution</code>) followed by any of the parameters accepted by the corresponding <code>distribution</code>. For example:</p>
-<div class="cell" data-execution_count="12">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A Laplace prior with mean of 0 and scale of 10</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>my_favorite_prior <span class="op">=</span> bmb.Prior(<span class="st">"Laplace"</span>, mu<span class="op">=</span><span class="dv">0</span>, b<span class="op">=</span>bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">1</span>))</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the prior when adding a term to the model; more details on this below.</span></span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {<span class="st">"1|uid"</span>: my_favorite_prior}</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>bmb.Model(<span class="st">"value ~ condition + (1|uid)"</span>, data, priors<span class="op">=</span>priors, dropna<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Automatically removing 9/6940 rows from the dataset.</code></pre>
-</div>
-<div class="cell-output cell-output-display" data-execution_count="12">
-<pre><code>       Formula: value ~ condition + (1|uid)
-        Family: gaussian
-          Link: mu = identity
-  Observations: 6931
-        Priors: 
-    target = mu
-        Common-level effects
-            Intercept ~ Normal(mu: 4.5516, sigma: 8.4548)
-            condition ~ Normal(mu: 0, sigma: 12.1019)
-        
-        Group-level effects
-            1|uid ~ Laplace(mu: 0, b: HalfNormal(sigma: 1))
-        Auxiliary parameters
-            value_sigma ~ HalfStudentT(nu: 4, sigma: 2.4197)</code></pre>
-</div>
-</div>
-<p>Priors specified using the <code>Prior</code> class can be nested to arbitrary depths–meaning, we can set any of a given prior’s argument to point to another <code>Prior</code> instance. This is particularly useful when specifying hierarchical priors on group specific effects, where the individual group specific slopes or intercepts are constrained to share a common source distribution:</p>
 <div class="cell" data-execution_count="13">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>subject_sd <span class="op">=</span> bmb.Prior(<span class="st">"HalfCauchy"</span>, beta<span class="op">=</span><span class="dv">5</span>)</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>subject_prior <span class="op">=</span> bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sd<span class="op">=</span>subject_sd)</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {<span class="st">"1|uid"</span>: subject_prior}</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>bmb.Model(<span class="st">"value ~ condition + (1|uid)"</span>, data, priors<span class="op">=</span>priors, dropna<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A Laplace prior with mean of 0 and scale given by a HalfNormal with a scale of 1</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>my_favorite_prior <span class="op">=</span> bmb.Prior(<span class="st">"Laplace"</span>, mu<span class="op">=</span><span class="dv">0</span>, b<span class="op">=</span>bmb.Prior(<span class="st">"HalfNormal"</span>, sigma<span class="op">=</span><span class="dv">1</span>))</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the prior when adding a term to the model; more details on this below.</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {<span class="st">"1|uid"</span>: my_favorite_prior}</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>bmb.Model(<span class="st">"value ~ condition + (1|uid)"</span>, data, priors<span class="op">=</span>priors, dropna<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Automatically removing 9/6940 rows from the dataset.</code></pre>
 </div>
@@ -707,12 +713,40 @@ NUTS: [value_sigma, Intercept, condition, age, gender, 1|uid_sigma, 1|uid_offset
     target = mu
         Common-level effects
             Intercept ~ Normal(mu: 4.5516, sigma: 8.4548)
-            condition ~ Normal(mu: 0, sigma: 12.1019)
+            condition ~ Normal(mu: 0.0, sigma: 12.1019)
         
         Group-level effects
-            1|uid ~ Normal(mu: 0, sd: HalfCauchy(beta: 5))
+            1|uid ~ Laplace(mu: 0.0, b: HalfNormal(sigma: 1.0))
+        
         Auxiliary parameters
-            value_sigma ~ HalfStudentT(nu: 4, sigma: 2.4197)</code></pre>
+            sigma ~ HalfStudentT(nu: 4.0, sigma: 2.4197)</code></pre>
+</div>
+</div>
+<p>Priors specified using the <code>Prior</code> class can be nested to arbitrary depths–meaning, we can set any of a given prior’s argument to point to another <code>Prior</code> instance. This is particularly useful when specifying hierarchical priors on group specific effects, where the individual group specific slopes or intercepts are constrained to share a common source distribution:</p>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>subject_sd <span class="op">=</span> bmb.Prior(<span class="st">"HalfCauchy"</span>, beta<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>subject_prior <span class="op">=</span> bmb.Prior(<span class="st">"Normal"</span>, mu<span class="op">=</span><span class="dv">0</span>, sd<span class="op">=</span>subject_sd)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {<span class="st">"1|uid"</span>: subject_prior}</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>bmb.Model(<span class="st">"value ~ condition + (1|uid)"</span>, data, priors<span class="op">=</span>priors, dropna<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Automatically removing 9/6940 rows from the dataset.</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<pre><code>       Formula: value ~ condition + (1|uid)
+        Family: gaussian
+          Link: mu = identity
+  Observations: 6931
+        Priors: 
+    target = mu
+        Common-level effects
+            Intercept ~ Normal(mu: 4.5516, sigma: 8.4548)
+            condition ~ Normal(mu: 0.0, sigma: 12.1019)
+        
+        Group-level effects
+            1|uid ~ Normal(mu: 0.0, sd: HalfCauchy(beta: 5.0))
+        
+        Auxiliary parameters
+            sigma ~ HalfStudentT(nu: 4.0, sigma: 2.4197)</code></pre>
 </div>
 </div>
 <p>The above prior specification indicates that the individual subject intercepts are to be treated as if they are randomly sampled from the same underlying normal distribution, where the variance of that normal distribution is parameterized by a separate hyperprior (a half-cauchy with beta = 5).</p>
@@ -720,25 +754,25 @@ NUTS: [value_sigma, Intercept, condition, age, gender, 1|uid_sigma, 1|uid_offset
 <section id="custom-prior" class="level3">
 <h3 class="anchored" data-anchor-id="custom-prior">Custom Prior</h3>
 <p>Bambi’s priors are a thin layer on top of <a href="https://www.pymc.io/projects/docs/en/latest/api/distributions.html">PyMC distributions</a>. If you want to ask for a prior distribution by name, it must be the name of a PyMC distribution. But sometimes we want to use more complex distributions as priors. For all those cases, Bambi’s <code>Prior</code> class allow users to pass a function that returns a distribution that will be used as the prior. See the following example:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> CustomPrior(name, <span class="op">*</span>args, dims<span class="op">=</span><span class="va">None</span>, <span class="op">**</span>kwargs):</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pm.Normal(name, <span class="op">*</span>args, dims<span class="op">=</span>dims, <span class="op">**</span>kwargs)</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {<span class="st">"x"</span>: Prior(<span class="st">"CustomPrior"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">5</span>, dist<span class="op">=</span>CustomPrior)}</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> Model(<span class="st">"y ~ x"</span>, data, priors<span class="op">=</span>priors)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> CustomPrior(name, <span class="op">*</span>args, dims<span class="op">=</span><span class="va">None</span>, <span class="op">**</span>kwargs):</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pm.Normal(name, <span class="op">*</span>args, dims<span class="op">=</span>dims, <span class="op">**</span>kwargs)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>priors <span class="op">=</span> {<span class="st">"x"</span>: Prior(<span class="st">"CustomPrior"</span>, mu<span class="op">=</span><span class="dv">0</span>, sigma<span class="op">=</span><span class="dv">5</span>, dist<span class="op">=</span>CustomPrior)}</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> Model(<span class="st">"y ~ x"</span>, data, priors<span class="op">=</span>priors)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The example above is trival because it’s just a wrapper of the <code>pm.Normal</code> distribution. But we can use this pattern to construct more complex distributions, such as a Truncated Laplace distribution shown below.</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> TruncatedLaplace(name, mu,b,lower,upper,<span class="op">*</span>args, dims<span class="op">=</span><span class="va">None</span>, <span class="op">**</span>kwargs):</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    lap_dist <span class="op">=</span> pm.Laplace.dist(mu<span class="op">=</span>mu, b<span class="op">=</span>b)</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pm.Truncated(name, lap_dist, lower<span class="op">=</span>lower, upper<span class="op">=</span>upper, <span class="op">*</span>args, dims<span class="op">=</span>dims, <span class="op">**</span>kwargs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> TruncatedLaplace(name, mu,b,lower,upper,<span class="op">*</span>args, dims<span class="op">=</span><span class="va">None</span>, <span class="op">**</span>kwargs):</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    lap_dist <span class="op">=</span> pm.Laplace.dist(mu<span class="op">=</span>mu, b<span class="op">=</span>b)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pm.Truncated(name, lap_dist, lower<span class="op">=</span>lower, upper<span class="op">=</span>upper, <span class="op">*</span>args, dims<span class="op">=</span>dims, <span class="op">**</span>kwargs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>In summary, custom priors allow for greater flexibility by combining existing PyMC distributions in different ways. If you need to use a distribution that’s not implemented in PyMC, please check the <a href="https://www.pymc.io/projects/docs/en/latest/contributing/implementing_distribution.html">link</a> for further details.</p>
 </section>
 </section>
 <section id="generalized-linear-mixed-models" class="level2">
 <h2 class="anchored" data-anchor-id="generalized-linear-mixed-models">Generalized linear mixed models</h2>
 <p>Bambi supports the construction of mixed models with non-normal response distributions (i.e., generalized linear mixed models, or GLMMs). GLMMs are specified in the same way as LMMs, except that the user must specify the distribution to use for the response, and (optionally) the link function with which to transform the linear model prediction into the desired non-normal response. The easiest way to construct a GLMM is to simple set the <code>family</code> when creating the model:</p>
-<div class="cell" data-execution_count="14">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> bmb.load_data(<span class="st">"admissions"</span>)</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"admit ~ gre + gpa + rank"</span>, data, family<span class="op">=</span><span class="st">"bernoulli"</span>)</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> bmb.load_data(<span class="st">"admissions"</span>)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"admit ~ gre + gpa + rank"</span>, data, family<span class="op">=</span><span class="st">"bernoulli"</span>)</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Modeling the probability that admit==1
 Auto-assigning NUTS sampler...
@@ -768,15 +802,21 @@ NUTS: [Intercept, gre, gpa, rank]</code></pre>
 
     <div>
       <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:15&lt;00:00 Sampling 2 chains, 0 divergences]
+      100.00% [4000/4000 00:07&lt;00:00 Sampling 2 chains, 0 divergences]
     </div>
     
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 16 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 7 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
-<p>If no <code>link</code> argument is explicitly set (see below), the canonical link function (or an otherwise sensible default) will be used. The following table summarizes the currently available families and their associated links:</p>
+<p>If no <code>link</code> argument is explicitly set (see below), the canonical link function (or an otherwise sensible default) will be used.</p>
+</section>
+<section id="families" class="level2">
+<h2 class="anchored" data-anchor-id="families">Families</h2>
+<p>Following the convention used in many R packages, the response distribution to use for a GLMM is specified in a <code>Family</code> class that indicates how the response variable is distributed, as well as the link function transforming the linear response to a non-linear one.</p>
+<p>The following table summarizes the currently available families and their associated links:</p>
 <center>
 <table class="table">
 <colgroup>
@@ -828,14 +868,14 @@ NUTS: [Intercept, gre, gpa, rank]</code></pre>
 <td style="text-align: left;">logit</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">exponential</td>
-<td style="text-align: left;">Exponential</td>
-<td style="text-align: left;">log</td>
-</tr>
-<tr class="odd">
 <td style="text-align: left;">dirichlet_multinomial</td>
 <td style="text-align: left;">DirichletMultinomial</td>
 <td style="text-align: left;">logit</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">exponential</td>
+<td style="text-align: left;">Exponential</td>
+<td style="text-align: left;">log</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">gamma</td>
@@ -930,49 +970,54 @@ NUTS: [Intercept, gre, gpa, rank]</code></pre>
 </tbody>
 </table>
 </center>
-</section>
-<section id="families" class="level2">
-<h2 class="anchored" data-anchor-id="families">Families</h2>
-<p>Following the convention used in many R packages, the response distribution to use for a GLMM is specified in a <code>Family</code> class that indicates how the response variable is distributed, as well as the link function transforming the linear response to a non-linear one. Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility. In the following example, we show how the built-in Bernoulli family could be constructed on-the-fly:</p>
-<div class="cell" data-execution_count="15">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> special</span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Construct likelihood distribution ------------------------------</span></span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="co"># This must use a valid PyMC distribution name.</span></span>
-<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 'parent' is the name of the variable that represents the mean of the distribution. </span></span>
-<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="co"># The mean of the Bernoulli family is given by 'p'.</span></span>
-<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>likelihood <span class="op">=</span> bmb.Likelihood(<span class="st">"Bernoulli"</span>, parent<span class="op">=</span><span class="st">"p"</span>)</span>
-<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Set link function ----------------------------------------------</span></span>
-<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a><span class="co"># There are two alternative approaches.</span></span>
-<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Pass a name that is known by Bambi</span></span>
-<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>link <span class="op">=</span> bmb.Link(<span class="st">"logit"</span>)</span>
-<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Build everything from scratch</span></span>
-<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a><span class="co"># link: A function that maps the response to the linear predictor</span></span>
-<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a><span class="co"># linkinv: A function that maps the linear predictor to the response</span></span>
-<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a><span class="co"># linkinv_backend: A function that maps the linear predictor to the response</span></span>
-<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a><span class="co">#                  that works with PyTensor tensors.</span></span>
-<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a><span class="co">#                  bmb.math.sigmoid is a PyTensor tensor function wrapped by PyMC and Bambi </span></span>
-<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a>link <span class="op">=</span> bmb.Link(</span>
-<span id="cb39-21"><a href="#cb39-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"my_logit"</span>, </span>
-<span id="cb39-22"><a href="#cb39-22" aria-hidden="true" tabindex="-1"></a>    link<span class="op">=</span>special.expit,</span>
-<span id="cb39-23"><a href="#cb39-23" aria-hidden="true" tabindex="-1"></a>    linkinv<span class="op">=</span>special.logit,</span>
-<span id="cb39-24"><a href="#cb39-24" aria-hidden="true" tabindex="-1"></a>    linkinv_backend<span class="op">=</span>bmb.math.sigmoid</span>
-<span id="cb39-25"><a href="#cb39-25" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb39-26"><a href="#cb39-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-27"><a href="#cb39-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Construct the family -------------------------------------------</span></span>
-<span id="cb39-28"><a href="#cb39-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Families are defined by a name, a Likelihood and a Link.</span></span>
-<span id="cb39-29"><a href="#cb39-29" aria-hidden="true" tabindex="-1"></a>family <span class="op">=</span> bmb.Family(<span class="st">"bernoulli"</span>, likelihood, link)</span>
-<span id="cb39-30"><a href="#cb39-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-31"><a href="#cb39-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Now it's business as usual</span></span>
-<span id="cb39-32"><a href="#cb39-32" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"admit ~ gre + gpa + rank"</span>, data, family<span class="op">=</span>family)</span>
-<span id="cb39-33"><a href="#cb39-33" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Although the easiest way to specify a family is by name, using one of the options listed in the table above, users can also create and use their own family, providing enormous flexibility. In the following example, we show how the built-in Bernoulli family could be constructed on-the-fly:</p>
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> scipy <span class="im">import</span> special</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Construct likelihood distribution ------------------------------</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="co"># This must use a valid PyMC distribution name.</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 'parent' is the name of the variable that represents the mean of the distribution. </span></span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="co"># The mean of the Bernoulli family is given by 'p'.</span></span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>likelihood <span class="op">=</span> bmb.Likelihood(<span class="st">"Bernoulli"</span>, parent<span class="op">=</span><span class="st">"p"</span>)</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Set link function ----------------------------------------------</span></span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a><span class="co"># There are two alternative approaches.</span></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Pass a name that is known by Bambi</span></span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>link <span class="op">=</span> bmb.Link(<span class="st">"logit"</span>)</span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Build everything from scratch</span></span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a><span class="co"># link: A function that maps the response to the linear predictor</span></span>
+<span id="cb41-16"><a href="#cb41-16" aria-hidden="true" tabindex="-1"></a><span class="co"># linkinv: A function that maps the linear predictor to the response</span></span>
+<span id="cb41-17"><a href="#cb41-17" aria-hidden="true" tabindex="-1"></a><span class="co"># linkinv_backend: A function that maps the linear predictor to the response</span></span>
+<span id="cb41-18"><a href="#cb41-18" aria-hidden="true" tabindex="-1"></a><span class="co">#                  that works with PyTensor tensors.</span></span>
+<span id="cb41-19"><a href="#cb41-19" aria-hidden="true" tabindex="-1"></a><span class="co">#                  bmb.math.sigmoid is a PyTensor tensor function wrapped by PyMC and Bambi </span></span>
+<span id="cb41-20"><a href="#cb41-20" aria-hidden="true" tabindex="-1"></a>link <span class="op">=</span> bmb.Link(</span>
+<span id="cb41-21"><a href="#cb41-21" aria-hidden="true" tabindex="-1"></a>    <span class="st">"my_logit"</span>, </span>
+<span id="cb41-22"><a href="#cb41-22" aria-hidden="true" tabindex="-1"></a>    link<span class="op">=</span>special.logit,</span>
+<span id="cb41-23"><a href="#cb41-23" aria-hidden="true" tabindex="-1"></a>    linkinv<span class="op">=</span>special.expit,</span>
+<span id="cb41-24"><a href="#cb41-24" aria-hidden="true" tabindex="-1"></a>    linkinv_backend<span class="op">=</span>bmb.math.sigmoid</span>
+<span id="cb41-25"><a href="#cb41-25" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb41-26"><a href="#cb41-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-27"><a href="#cb41-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Construct the family -------------------------------------------</span></span>
+<span id="cb41-28"><a href="#cb41-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Families are defined by a name, a Likelihood and a Link.</span></span>
+<span id="cb41-29"><a href="#cb41-29" aria-hidden="true" tabindex="-1"></a>family <span class="op">=</span> bmb.Family(<span class="st">"bernoulli"</span>, likelihood, link)</span>
+<span id="cb41-30"><a href="#cb41-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-31"><a href="#cb41-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Now it's business as usual</span></span>
+<span id="cb41-32"><a href="#cb41-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Note: 'gre' is standardized to mean 0 and variance 1</span></span>
+<span id="cb41-33"><a href="#cb41-33" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> bmb.Model(<span class="st">"admit ~ scale(gre) + gpa + rank"</span>, data, family<span class="op">=</span>family)</span>
+<span id="cb41-34"><a href="#cb41-34" aria-hidden="true" tabindex="-1"></a>model.build()</span>
+<span id="cb41-35"><a href="#cb41-35" aria-hidden="true" tabindex="-1"></a>model.graph()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<p><img src="getting_started_files/figure-html/cell-17-output-1.svg" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> model.fit()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Auto-assigning NUTS sampler...
 Initializing NUTS using jitter+adapt_diag...
 Multiprocess sampling (2 chains in 2 jobs)
-NUTS: [Intercept, gre, gpa, rank]</code></pre>
+NUTS: [Intercept, scale(gre), gpa, rank]</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 
@@ -996,16 +1041,17 @@ NUTS: [Intercept, gre, gpa, rank]</code></pre>
 
     <div>
       <progress value="4000" class="" max="4000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [4000/4000 00:11&lt;00:00 Sampling 2 chains, 0 divergences]
+      100.00% [4000/4000 00:03&lt;00:00 Sampling 2 chains, 0 divergences]
     </div>
     
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 12 seconds.</code></pre>
+<pre><code>Sampling 2 chains for 1_000 tune and 1_000 draw iterations (2_000 + 2_000 draws total) took 4 seconds.
+We recommend running at least 4 chains for robust computation of convergence diagnostics</code></pre>
 </div>
 </div>
 <p>The above example produces results identical to simply setting <code>family='bernoulli'</code>.</p>
-<p>One complication in specifying a custom <code>Family</code> is that one must pass both a link function and an inverse link function which must be able to operate over PyTensor tensors rather than numpy arrays, so you’ll probably need to rely on tensor operations provided in <code>aesara.tensor</code> (many of which are also wrapped by PyMC) when defining a new link.</p>
+<p>One complication in specifying a custom <code>Family</code> is that one must pass both a link function and an inverse link function which must be able to operate over PyTensor tensors rather than numpy arrays, so you’ll probably need to rely on tensor operations provided in <code>pytensor.tensor</code> (many of which are also wrapped by PyMC) when defining a new link.</p>
 </section>
 <section id="results" class="level2">
 <h2 class="anchored" data-anchor-id="results">Results</h2>
@@ -1014,20 +1060,20 @@ NUTS: [Intercept, gre, gpa, rank]</code></pre>
 <section id="plotting" class="level2">
 <h2 class="anchored" data-anchor-id="plotting">Plotting</h2>
 <p>To visualize a plot of the posterior estimates and sample traces for all parameters, simply pass the <code>InferenceData</code> object to the arviz function <code>az._plot_trace</code>:</p>
-<div class="cell" data-execution_count="16">
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(results, compact<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>az.plot_trace(results, compact<span class="op">=</span><span class="va">False</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="getting_started_files/figure-html/cell-17-output-1.png" class="img-fluid"></p>
+<p><img src="getting_started_files/figure-html/cell-19-output-1.png" class="img-fluid"></p>
 </div>
 </div>
-<p>More details on this plot are available in the <a href="https://arviz-devs.github.io/arviz/_modules/arviz/plots/traceplot.html">ArviZ documentation</a>.</p>
+<p>More details on this plot are available in the <a href="https://python.arviz.org/en/latest/api/generated/arviz.plot_trace.html">ArviZ documentation</a>.</p>
 </section>
 <section id="summarizing" class="level2">
 <h2 class="anchored" data-anchor-id="summarizing">Summarizing</h2>
-<p>If you prefer numerical summaries of the posterior estimates, you can use the <code>az.summary()</code> function from <a href="https://arviz-devs.github.io/arviz/generated/arviz.summary.html#arviz.summary">ArviZ</a> which provides a pandas DataFrame with some key summary and diagnostics info on the model parameters, such as the 94% highest posterior density intervals</p>
-<div class="cell" data-execution_count="17">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>az.summary(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="17">
+<p>If you prefer numerical summaries of the posterior estimates, you can use the <code>az.summary()</code> function from <a href="https://python.arviz.org/en/latest/api/generated/arviz.summary.html">ArviZ</a> which provides a pandas DataFrame with some key summary and diagnostics info on the model parameters, such as the 94% highest posterior density intervals</p>
+<div class="cell" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>az.summary(results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
 
 <div>
 
@@ -1049,50 +1095,50 @@ NUTS: [Intercept, gre, gpa, rank]</code></pre>
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-3.510</td>
-      <td>1.172</td>
-      <td>-5.663</td>
-      <td>-1.414</td>
-      <td>0.018</td>
-      <td>0.014</td>
-      <td>4173.0</td>
-      <td>1944.0</td>
+      <td>-2.129</td>
+      <td>1.139</td>
+      <td>-4.216</td>
+      <td>0.117</td>
+      <td>0.024</td>
+      <td>0.017</td>
+      <td>2245.0</td>
+      <td>1512.0</td>
       <td>1.0</td>
     </tr>
     <tr>
-      <th>gre</th>
+      <th>scale(gre)</th>
+      <td>0.268</td>
+      <td>0.126</td>
+      <td>0.024</td>
+      <td>0.496</td>
+      <td>0.003</td>
       <td>0.002</td>
-      <td>0.001</td>
-      <td>0.000</td>
-      <td>0.004</td>
-      <td>0.000</td>
-      <td>0.000</td>
-      <td>2012.0</td>
-      <td>1462.0</td>
+      <td>2321.0</td>
+      <td>1658.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>gpa</th>
-      <td>0.793</td>
-      <td>0.328</td>
-      <td>0.181</td>
-      <td>1.406</td>
-      <td>0.006</td>
+      <td>0.787</td>
+      <td>0.323</td>
+      <td>0.131</td>
+      <td>1.335</td>
+      <td>0.007</td>
       <td>0.005</td>
-      <td>2769.0</td>
-      <td>1954.0</td>
+      <td>2119.0</td>
+      <td>1439.0</td>
       <td>1.0</td>
     </tr>
     <tr>
       <th>rank</th>
-      <td>-0.567</td>
+      <td>-0.566</td>
       <td>0.129</td>
-      <td>-0.815</td>
-      <td>-0.340</td>
+      <td>-0.813</td>
+      <td>-0.332</td>
       <td>0.003</td>
       <td>0.002</td>
-      <td>2125.0</td>
-      <td>1646.0</td>
+      <td>2584.0</td>
+      <td>1778.0</td>
       <td>1.0</td>
     </tr>
   </tbody>
@@ -1101,11 +1147,11 @@ NUTS: [Intercept, gre, gpa, rank]</code></pre>
 </div>
 </div>
 <p>If you want to view summaries or plots for specific parameters, you can pass a list of its names:</p>
-<div class="cell" data-execution_count="18">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># show the names of all variables stored in the InferenceData object</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(results.posterior.data_vars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="18">
-<pre><code>['Intercept', 'gre', 'gpa', 'rank']</code></pre>
+<div class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># show the names of all variables stored in the InferenceData object</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="bu">list</span>(results.posterior.data_vars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<pre><code>['Intercept', 'scale(gre)', 'gpa', 'rank']</code></pre>
 </div>
 </div>
 <p>You can find detailed, worked examples of fitting Bambi models and working with the results in the example notebooks <a href="../examples.html">here</a>.</p>
@@ -1113,35 +1159,55 @@ NUTS: [Intercept, gre, gpa, rank]</code></pre>
 <section id="accessing-back-end-objects" class="level2">
 <h2 class="anchored" data-anchor-id="accessing-back-end-objects">Accessing back-end objects</h2>
 <p>Bambi is just a high-level interface to PyMC. As such, Bambi internally stores virtually all objects generated by PyMC, making it easy for users to retrieve, inspect, and modify those objects. For example, the <code>Model</code> class created by PyMC (as opposed to the Bambi class of the same name) is accessible from <code>model.backend.model</code>.</p>
-<div class="cell" data-execution_count="19">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="bu">type</span>(model.backend.model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="19">
-<pre><code>pymc.model.Model</code></pre>
+<div class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="bu">type</span>(model.backend.model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
+<pre><code>pymc.model.core.Model</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="20">
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>model.backend.model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="20">
+<div class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>model.backend.model</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
 <p><span class="math display">\[
             \begin{array}{rcl}
-            \text{Intercept} &amp;\sim &amp; \operatorname{N}(0,~26.6)\\\text{gre} &amp;\sim &amp; \operatorname{N}(0,~0.0217)\\\text{gpa} &amp;\sim &amp; \operatorname{N}(0,~6.58)\\\text{rank} &amp;\sim &amp; \operatorname{N}(0,~2.65)\\\text{admit} &amp;\sim &amp; \operatorname{Bern}(f(\text{Intercept},~\text{rank},~\text{gpa},~\text{gre}))
+            \text{Intercept} &amp;\sim &amp; \operatorname{Normal}(0,~23.4)\\\text{scale(gre)} &amp;\sim &amp; \operatorname{Normal}(0,~2.5)\\\text{gpa} &amp;\sim &amp; \operatorname{Normal}(0,~6.58)\\\text{rank} &amp;\sim &amp; \operatorname{Normal}(0,~2.65)\\\text{admit} &amp;\sim &amp; \operatorname{Bernoulli}(f(\text{Intercept},~\text{rank},~\text{gpa},~\text{scale(gre)}))
             \end{array}
             \]</span></p>
 </div>
 </div>
-<div class="cell" data-execution_count="21">
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>model.backend.model.observed_RVs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="21">
-<pre><code>[admit ~ Bern(f(Intercept, rank, gpa, gre))]</code></pre>
+<div class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>model.backend.model.observed_RVs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="23">
+<pre><code>[admit ~ Bernoulli(f(Intercept, rank, gpa, scale(gre)))]</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="22">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>model.backend.model.unobserved_RVs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="22">
-<pre><code>[Intercept ~ N(0, 26.6),
- gre ~ N(0, 0.0217),
- gpa ~ N(0, 6.58),
- rank ~ N(0, 2.65)]</code></pre>
+<div class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>model.backend.model.unobserved_RVs</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="24">
+<pre><code>[Intercept ~ Normal(0, 23.4),
+ scale(gre) ~ Normal(0, 2.5),
+ gpa ~ Normal(0, 6.58),
+ rank ~ Normal(0, 2.65)]</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Last updated: Sat Nov 11 2023
+
+Python implementation: CPython
+Python version       : 3.10.6
+IPython version      : 8.5.0
+
+arviz : 0.16.1
+scipy : 1.11.2
+bambi : 0.13.1.dev7+gc6e5dbb5.d20231111
+numpy : 1.23.4
+pandas: 2.1.0
+
+Watermark: 2.4.3
+</code></pre>
 </div>
 </div>
 
