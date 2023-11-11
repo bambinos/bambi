@@ -615,7 +615,7 @@ def test_quantile_regression():
         > idata1.posterior["y_mean"].mean(("chain", "draw"))
     )
 
-
+# FIXME: MOVE SOMEWHERE
 def test_plot_priors(crossed_data):
     model = bmb.Model("Y ~ 0 + threecats", crossed_data)
     with pytest.raises(ValueError, match="Model is not built yet"):
@@ -623,7 +623,7 @@ def test_plot_priors(crossed_data):
     model.build()
     model.plot_priors()
 
-
+# FIXME: MOVE SOMEWHERE
 def test_model_graph(crossed_data):
     model = bmb.Model("Y ~ 0 + threecats", crossed_data)
     with pytest.raises(ValueError, match="Model is not built yet"):
@@ -631,7 +631,7 @@ def test_model_graph(crossed_data):
     model.build()
     model.graph()
 
-
+# FIXME: MOVE SOMEWHERE
 def test_potentials():
     data = pd.DataFrame(np.repeat((0, 1), (18, 20)), columns=["w"])
     priors = {"Intercept": bmb.Prior("Uniform", lower=0, upper=1)}
@@ -674,7 +674,7 @@ def test_binomial_regression():
     model = bmb.Model("prop(y, 62) ~ x", data, family="binomial")
     model.fit(draws=10, tune=10)
 
-
+# FIXME: Move somewhere
 @pytest.mark.skip(reason="this example no longer trigger the fallback to adapt_diag")
 def test_init_fallback(init_data, caplog):
     model = bmb.Model("od ~ temp + (1|source) + 0", init_data)
@@ -702,7 +702,7 @@ def test_categorical_family_categorical_predictors(categorical_family_categorica
     model = bmb.Model(formula, categorical_family_categorical_predictor, family="categorical")
     model.fit(draws=10, tune=10)
 
-
+# FIXME: Move somewhere
 def test_set_alias(data_100):
     model = bmb.Model("n1 ~ n2 + (n2|cat1)", data_100)
     aliases = {
@@ -717,7 +717,7 @@ def test_set_alias(data_100):
     new_names = set(["α", "β", "α_group", "α_group_σ", "β_group", "β_group_σ", "σ"])
     assert new_names.issubset(set(model.backend.model.named_vars))
 
-
+# FIXME: Add it to some regression family
 def test_fit_include_mean(crossed_data):
     draws = 500
     model = bmb.Model("Y ~ continuous * threecats", crossed_data)
