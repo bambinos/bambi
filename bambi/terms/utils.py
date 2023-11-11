@@ -30,3 +30,13 @@ def is_censored_response(term):
     if not is_call_component(component):
         return False
     return is_call_of_kind(component, "censored")
+
+
+def is_truncated_response(term):
+    """Determines if a formulae term represents a truncated response"""
+    if not is_single_component(term):
+        return False
+    component = term.components[0]  # get the first (and single) component
+    if not is_call_component(component):
+        return False
+    return is_call_of_kind(component, "truncated")

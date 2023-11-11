@@ -426,7 +426,6 @@ def test_data_is_copied():
     assert all(adults.dtypes[:3] == "object")
 
 
-@pytest.mark.skip(reason="Censored still not ported")
 def test_response_is_censored():
     df = pd.DataFrame(
         {
@@ -435,7 +434,13 @@ def test_response_is_censored():
         }
     )
     dm = bmb.Model("censored(x, status) ~ 1", df)
-    assert dm.response.is_censored
+    assert dm.response_component.response_term.is_censored is True
+
+
+def test_response_is_truncated():
+    df = pd.DataFrame({"x": [1, 2, 3, 4, 5]})
+    dm = bmb.Model("truncated(x, 5.5) ~ 1", df)
+    assert dm.response_component.response_term.is_truncated is True
 
 
 def test_custom_likelihood_function():

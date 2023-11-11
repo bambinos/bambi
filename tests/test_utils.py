@@ -5,7 +5,7 @@ import pandas as pd
 
 from bambi.utils import listify
 from bambi.backend.pymc import probit, cloglog
-from bambi.transformations import censored
+from bambi.transformations import censored, truncated
 
 
 def test_listify():
@@ -59,3 +59,44 @@ def test_censored():
 
     with pytest.raises(ValueError, match="needs 2 or 3 argument values"):
         censored(df["x"], df["x"], df["x"], df["x"])
+
+
+def test_truncated():
+    x = np.array([-3, -2, -1, 0, 0, 0, 1, 1, 2, 3])
+    lower = -5
+    upper = 4.5
+    lower_arr = np.array([-5] * 6 + [-4] * 4)
+    upper_arr = np.array([5] * 6 + [5.35] * 4)
+
+    # Arguments and expected outcomes
+    iterable = {
+        "lower": (lower, None, lower, lower_arr, None, lower_arr),
+        "upper": (None, upper, upper, None, upper_arr, upper_arr),
+        "elower": (lower, -np.inf, lower, lower_arr, -np.inf, lower_arr),
+        "eupper": (np.inf, upper, upper, np.inf, upper_arr, upper_arr),
+    }
+
+    for l, u, el, eu in zip(*iterable.values()):
+        result = truncated(x, lb=l, ub=u)
+        assert result.shape == (10, 3)
+        assert (result[:, 0] == x).all()
+        assert (result[:, 1] == el).all()
+        assert (result[:, 2] == eu).all()
+
+    with pytest.raises(ValueError, match="'lb' and 'ub' cannot both be None"):
+        truncated(x)
+
+    with pytest.raises(ValueError, match="'truncated' only works with 1-dimensional arrays"):
+        truncated(np.column_stack([x, x]))
+
+    with pytest.raises(AssertionError, match="The length of 'lb' must be equal to the one of 'x'"):
+        truncated(x, np.array([-5, -6]))
+
+    with pytest.raises(AssertionError, match="The length of 'ub' must be equal to the one of 'x'"):
+        truncated(x, ub=np.array([5, 6]))
+
+    with pytest.raises(ValueError, match="'lb' must be 0 or 1 dimensional."):
+        truncated(x, np.column_stack([lower_arr, lower_arr]))
+
+    with pytest.raises(ValueError, match="'ub' must be 0 or 1 dimensional."):
+        truncated(x, ub=np.column_stack([upper_arr, upper_arr]))

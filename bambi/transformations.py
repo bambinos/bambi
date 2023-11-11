@@ -68,6 +68,65 @@ def censored(*args):
 censored.__metadata__ = {"kind": "censored"}
 
 
+def truncated(x, lb=None, ub=None):
+    """Construct array for truncated response
+
+    Parameters
+    ----------
+    x : np.ndarray
+        The values of the truncated variable.
+    lb : int, float, np.ndarray
+        A number or an array indicating the lower truncation bound.
+    ub : int, float, np.ndarray
+        A number or an array indicating the upper truncation bound.
+
+    Returns
+    -------
+    np.ndarray
+        Array of shape (n, 3). The first column contains the values of the variable,
+        the second column the values for the lower bound, and the third variable
+        the values for the upper bound.
+    """
+    x = np.asarray(x)
+
+    if x.ndim != 1:
+        raise ValueError("'truncated' only works with 1-dimensional arrays")
+
+    if lb is None and ub is None:
+        raise ValueError("'lb' and 'ub' cannot both be None")
+
+    # Process lower bound so we get an 1d array with the adequate values
+    if lb is not None:
+        lower = np.asarray(lb)
+        if lower.ndim == 0:
+            lower = np.full(len(x), lower)
+        elif lower.ndim == 1:
+            assert len(lower) == len(x), "The length of 'lb' must be equal to the one of 'x'"
+        else:
+            raise ValueError("'lb' must be 0 or 1 dimensional.")
+    else:
+        lower = np.full(len(x), -np.inf)
+
+    # Process upper bound so we get an 1d array with the adequate values
+    if ub is not None:
+        upper = np.asarray(ub)
+        if upper.ndim == 0:
+            upper = np.full(len(x), upper)
+        elif upper.ndim == 1:
+            assert len(upper) == len(x), "The length of 'ub' must be equal to the one of 'x'"
+        else:
+            raise ValueError("'ub' must be 0 or 1 dimensional.")
+    else:
+        upper = np.full(len(x), np.inf)
+
+    # Construct output matrix
+    result = np.column_stack([x, lower, upper])
+
+    return result
+
+
+truncated.__metadata__ = {"kind": "truncated"}
+
 # pylint: disable = invalid-name
 @register_stateful_transform
 class HSGP:  # pylint: disable = too-many-instance-attributes
@@ -316,6 +375,7 @@ def get_distance(x):
 transformations_namespace = {
     "c": c,
     "censored": censored,
+    "truncated": truncated,
     "log": np.log,
     "log2": np.log2,
     "log10": np.log10,
