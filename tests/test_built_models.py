@@ -776,7 +776,7 @@ def test_group_specific_splines():
     model = bmb.Model("y ~ (bs(x, knots=knots, intercept=False, degree=1)|day)", data=x_check)
     model.build()
 
-
+# FIXME: Move to other part
 def test_2d_response_no_shape():
     """
     This tests whether a model where there's a single linear predictor and a response with
@@ -960,7 +960,7 @@ def test_predict_new_groups_fail(sleepstudy):
     with pytest.raises(ValueError, match=re.escape(to_match)):
         model.predict(idata, data=df_new)
 
-
+# FIXME: Move to new special place
 @pytest.mark.parametrize(
     "data,formula,family,df_new",
     [
@@ -1054,11 +1054,6 @@ def test_truncated_response():
     slope, intercept, sigma, N = 1, 0, 2, 200
     x = rng.uniform(-10, 10, N)
     y = rng.normal(loc=slope * x + intercept, scale=sigma)
-
-    def truncate_y(x, y, bounds):
-
-        return (x[keep], y[keep])
-
     bounds = [-5, 5]
     keep = (y >= bounds[0]) & (y <= bounds[1])
     xt = x[keep]
