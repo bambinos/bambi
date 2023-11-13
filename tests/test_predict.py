@@ -336,6 +336,7 @@ def test_posterior_predictive_multinomial(inhaler):
     model.predict(idata, kind="pps")
     assert np.all(idata.posterior_predictive["c(y1, y2, y3, y4)"].values.sum(-1).var((0, 1)) == 0)
 
+
 # FIXME: Move to otehr place
 def test_predict_include_group_specific():
     rng = np.random.default_rng(1234)
@@ -364,6 +365,7 @@ def test_predict_include_group_specific():
 
     # When we include group-specific terms, these predictions are different
     assert not (idata_1.posterior["y_mean"] == idata_1.posterior["y_mean"][:, :, 0]).all()
+
 
 # TODO: Move to otehr place
 def test_predict_offset():

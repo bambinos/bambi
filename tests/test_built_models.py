@@ -615,6 +615,7 @@ def test_quantile_regression():
         > idata1.posterior["y_mean"].mean(("chain", "draw"))
     )
 
+
 # FIXME: MOVE SOMEWHERE
 def test_plot_priors(crossed_data):
     model = bmb.Model("Y ~ 0 + threecats", crossed_data)
@@ -623,6 +624,7 @@ def test_plot_priors(crossed_data):
     model.build()
     model.plot_priors()
 
+
 # FIXME: MOVE SOMEWHERE
 def test_model_graph(crossed_data):
     model = bmb.Model("Y ~ 0 + threecats", crossed_data)
@@ -630,6 +632,7 @@ def test_model_graph(crossed_data):
         model.graph()
     model.build()
     model.graph()
+
 
 # FIXME: MOVE SOMEWHERE
 def test_potentials():
@@ -674,6 +677,7 @@ def test_binomial_regression():
     model = bmb.Model("prop(y, 62) ~ x", data, family="binomial")
     model.fit(draws=10, tune=10)
 
+
 # FIXME: Move somewhere
 @pytest.mark.skip(reason="this example no longer trigger the fallback to adapt_diag")
 def test_init_fallback(init_data, caplog):
@@ -702,6 +706,7 @@ def test_categorical_family_categorical_predictors(categorical_family_categorica
     model = bmb.Model(formula, categorical_family_categorical_predictor, family="categorical")
     model.fit(draws=10, tune=10)
 
+
 # FIXME: Move somewhere
 def test_set_alias(data_100):
     model = bmb.Model("n1 ~ n2 + (n2|cat1)", data_100)
@@ -716,6 +721,7 @@ def test_set_alias(data_100):
     model.build()
     new_names = set(["α", "β", "α_group", "α_group_σ", "β_group", "β_group_σ", "σ"])
     assert new_names.issubset(set(model.backend.model.named_vars))
+
 
 # FIXME: Add it to some regression family
 def test_fit_include_mean(crossed_data):
@@ -775,6 +781,7 @@ def test_group_specific_splines():
 
     model = bmb.Model("y ~ (bs(x, knots=knots, intercept=False, degree=1)|day)", data=x_check)
     model.build()
+
 
 # FIXME: Move to other part
 def test_2d_response_no_shape():
@@ -959,6 +966,7 @@ def test_predict_new_groups_fail(sleepstudy):
     to_match = "There are new groups for the factors ('Subject',) and 'sample_new_groups' is False."
     with pytest.raises(ValueError, match=re.escape(to_match)):
         model.predict(idata, data=df_new)
+
 
 # FIXME: Move to new special place
 @pytest.mark.parametrize(

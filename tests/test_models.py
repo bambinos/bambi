@@ -82,10 +82,17 @@ def gasoline_data():
 
 
 @pytest.fixture(scope="module")
-def inhaler():
+def inhaler_data():
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "inhaler.csv"))
     data["rating"] = pd.Categorical(data["rating"], categories=[1, 2, 3, 4])
+    return data
+
+
+@pytest.fixture(scope="module")
+def cat_response_cat_preds_data():
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "categorical_family_categorical_predictor.csv"))
     return data
 
 
@@ -735,31 +742,94 @@ class TestAsymmetricLaplace(FitPredictParent):
 
 
 class TestCategorical(FitPredictParent):
-    # FIXME
-    def test_categorical_family(self, inhaler):
-        model = bmb.Model("rating ~ period + carry + treat", inhaler, family="categorical")
-        model.fit(draws=10, tune=10)
+    def assert_mean_range(self, model, idata):
+        y_mean_name = model.response_component.response_term.name + "_mean"
+        y_mean_posterior = idata.posterior[y_mean_name].to_numpy()
+        assert ((0 < y_mean_posterior) & (y_mean_posterior < 1)).all()
 
-    def test_categorical_family_varying_intercept(inhaler):
-        model = bmb.Model(
-            "rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical"
-        )
-        model.fit(draws=10, tune=10)
+    def assert_posterior_predictive_range(self, model, idata, n):
+        y_name = model.response_component.response_term.name
+        y_posterior_predictive = idata.posterior_predictive[y_name].to_numpy()
+        assert set(np.unique(y_posterior_predictive)) == set(range(n))
 
-    def test_categorical_family_categorical_predictors(categorical_family_categorical_predictor):
+    def test_basic(self, inhaler_data):
+        model = bmb.Model("rating ~ period + carry + treat", inhaler_data, family="categorical")
+        idata = self.fit(model)
+
+        for name in ["Intercept", "period", "carry", "treat"]:
+            assert list(idata.posterior[name].coords) == ["chain", "draw", "rating_reduced_dim"]
+
+        assert list(idata.posterior.coords["rating_reduced_dim"].values) == ["2", "3", "4"]
+
+        idata = self.predict_oos(model, idata)
+        assert list(idata.posterior["rating_mean"].coords) == [
+            "chain",
+            "draw",
+            "rating_obs",
+            "rating_dim",
+        ]
+        assert list(idata.posterior.coords["rating_dim"].values) == ["1", "2", "3", "4"]
+        self.assert_mean_range(model, idata)
+        self.assert_posterior_predictive_range(model, idata, len(np.unique(inhaler_data["rating"])))
+
+    def test_varying_intercept(self, inhaler_data):
+        formula = "rating ~ period + carry + treat + (1|subject)"
+        model = bmb.Model(formula, inhaler_data, family="categorical")
+        idata = self.fit(model)
+
+        for name in ["Intercept", "period", "carry", "treat"]:
+            assert set(idata.posterior[name].coords) == {"chain", "draw", "rating_reduced_dim"}
+
+        assert set(idata.posterior["1|subject"].coords) == {
+            "chain",
+            "draw",
+            "rating_reduced_dim",
+            "subject__factor_dim",
+        }
+
+        assert (
+            idata.posterior["subject__factor_dim"].values
+            == np.unique(inhaler_data["subject"]).astype(str)
+        ).all()
+
+        assert list(idata.posterior.coords["rating_reduced_dim"].values) == ["2", "3", "4"]
+
+        idata = self.predict_oos(model, idata)
+        assert set(idata.posterior["rating_mean"].coords) == {
+            "chain",
+            "draw",
+            "rating_obs",
+            "rating_dim",
+        }
+        assert list(idata.posterior.coords["rating_dim"].values) == ["1", "2", "3", "4"]
+        self.assert_mean_range(model, idata)
+        self.assert_posterior_predictive_range(model, idata, len(np.unique(inhaler_data["rating"])))
+
+    def test_categorical_predictors(self, cat_response_cat_preds_data):
         formula = "response ~ group + city"
-        model = bmb.Model(formula, categorical_family_categorical_predictor, family="categorical")
-        model.fit(draws=10, tune=10)
+        model = bmb.Model(formula, cat_response_cat_preds_data, family="categorical")
+        idata = self.fit(model)
 
-    # FIXME
-    def test_posterior_predictive_categorical(inhaler):
-        model = bmb.Model("rating ~ period", data=inhaler, family="categorical")
-        idata = model.fit(tune=100, draws=100)
-        model.predict(idata, kind="pps")
-        pps = idata.posterior_predictive["rating"].to_numpy()
+        assert set(idata.posterior["group"].coords) == {
+            "chain",
+            "draw",
+            "response_reduced_dim",
+            "group_dim",
+        }
+        assert set(idata.posterior["city"].coords) == {
+            "chain",
+            "draw",
+            "response_reduced_dim",
+            "city_dim",
+        }
+        assert list(idata.posterior["group_dim"].values) == ["group 2", "group 3"]
+        assert list(idata.posterior["city_dim"].values) == ["Rosario", "San Luis"]
+        assert list(idata.posterior["response_reduced_dim"].values) == ["B", "C", "D"]
 
-        assert pps.shape[-1] == inhaler.shape[0]
-        assert (np.unique(pps) == [0, 1, 2, 3]).all()
+        idata = self.predict_oos(model, idata)
+        assert list(idata.posterior["response_dim"].values) == ["A", "B", "C", "D"]
+        self.assert_mean_range(model, idata)
+        self.assert_posterior_predictive_range(model, idata, 4)
 
 
 class TestZIPoisson(FitPredictParent):
@@ -793,31 +863,25 @@ class TestZIPoisson(FitPredictParent):
 
 
 class TestZIBinomial(FitPredictParent):
-    # FIXME: Use fixture data, drop pm.draw
+    # XFIXME: The test could be improved
     def test_zero_inflated_binomial(self):
         rng = np.random.default_rng(121195)
+        size = 100
+
+        x = np.sort(rng.uniform(0.2, 3, size=size))
+        y = rng.binomial(n=30, p=0.5, size=size)
+        df = pd.DataFrame({"x": x, "y": y})
 
         # Basic intercept-only model
-        y = pm.draw(pm.ZeroInflatedBinomial.dist(p=0.5, n=30, psi=0.7), draws=500, random_seed=1234)
-        df = pd.DataFrame({"y": y})
         model = bmb.Model("p(y, 30) ~ 1", df, family="zero_inflated_binomial")
-        idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
-        model.predict(idata, kind="pps")
+        idata = self.fit(model)
+        self.predict_oos(model, idata)
 
         # Distributional model
-        x = np.sort(rng.uniform(0.2, 3, size=500))
-        b0, b1 = -0.5, 0.5
-        a0, a1 = 2, -0.7
-        p = expit(b0 + b1 * x)
-        psi = expit(a0 + a1 * x)
-
-        y = pm.draw(pm.ZeroInflatedBinomial.dist(p=p, psi=psi, n=30))
-        df = pd.DataFrame({"y": y, "x": x})
-
         formula = bmb.Formula("prop(y, 30) ~ x", "psi ~ x")
         model = bmb.Model(formula, df, family="zero_inflated_binomial")
-        idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
-        model.predict(idata, kind="pps")
+        idata = self.fit(model)
+        self.predict_oos(model, idata)
 
 
 class TestZINegativeBinomial(FitPredictParent):
@@ -891,17 +955,17 @@ class TestOrdinal(FitPredictParent):
             ("sratio", "cloglog"),
         ],
     )
-    def test_ordinal_families(inhaler, family, link):
+    def test_ordinal_families(inhaler_data, family, link):
         # To have both numeric and categoric predictors
-        inhaler["carry"] = pd.Categorical(inhaler["carry"])
-        model = bmb.Model("rating ~ period + carry + treat", inhaler, family=family, link=link)
+        inhaler_data["carry"] = pd.Categorical(inhaler_data["carry"])
+        model = bmb.Model("rating ~ period + carry + treat", inhaler_data, family=family, link=link)
         idata = model.fit(tune=100, draws=100)
         model.predict(idata, kind="pps")
 
         assert np.allclose(idata.posterior["rating_mean"].sum("rating_dim").to_numpy(), 1)
         assert np.all(np.unique(idata.posterior_predictive["rating"]) == np.array([0, 1, 2, 3]))
 
-    def test_cumulative_family_priors(inhaler):
+    def test_cumulative_family_priors(inhaler_data):
         priors = {
             "threshold": bmb.Prior(
                 "Normal",
@@ -911,7 +975,7 @@ class TestOrdinal(FitPredictParent):
             )
         }
         model = bmb.Model(
-            "rating ~ 0 + period + carry + treat", inhaler, family="cumulative", priors=priors
+            "rating ~ 0 + period + carry + treat", inhaler_data, family="cumulative", priors=priors
         )
         model.fit(tune=100, draws=100)
 
@@ -1002,8 +1066,8 @@ class TestTruncatedResponse(FitPredictParent):
 
 class TestMultinomial(FitPredictParent):
     # FIXME
-    def test_predict_multinomial(inhaler):
-        df = inhaler.groupby(["treat", "carry", "rating"], as_index=False).size()
+    def test_predict_multinomial(inhaler_data):
+        df = inhaler_data.groupby(["treat", "carry", "rating"], as_index=False).size()
         df = df.pivot(index=["treat", "carry"], columns="rating", values="size").reset_index()
         df.columns = ["treat", "carry", "y1", "y2", "y3", "y4"]
 
@@ -1050,8 +1114,8 @@ class TestMultinomial(FitPredictParent):
         model.predict(idata)
         model.predict(idata, kind="pps")
 
-    def test_posterior_predictive_multinomial(inhaler):
-        df = inhaler.groupby(["treat", "carry", "rating"], as_index=False).size()
+    def test_posterior_predictive_multinomial(inhaler_data):
+        df = inhaler_data.groupby(["treat", "carry", "rating"], as_index=False).size()
         df = df.pivot(index=["treat", "carry"], columns="rating", values="size").reset_index()
         df.columns = ["treat", "carry", "y1", "y2", "y3", "y4"]
 
@@ -1067,8 +1131,8 @@ class TestMultinomial(FitPredictParent):
 
 
 # FIXME
-def test_posterior_predictive_dirichlet_multinomial(inhaler):
-    df = inhaler.groupby(["treat", "rating"], as_index=False).size()
+def test_posterior_predictive_dirichlet_multinomial(inhaler_data):
+    df = inhaler_data.groupby(["treat", "rating"], as_index=False).size()
     df = df.pivot(index=["treat"], columns="rating", values="size").reset_index()
     df.columns = ["treat", "y1", "y2", "y3", "y4"]
 
