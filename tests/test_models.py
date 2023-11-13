@@ -5,8 +5,10 @@ import pytest
 import bambi as bmb
 import numpy as np
 import pandas as pd
+import pymc as pm
 
 from bambi.terms import GroupSpecificTerm
+from scipy.special import expit
 
 TUNE = 50
 DRAWS = 50
@@ -42,29 +44,82 @@ def crossed_data():
     return data
 
 
-class FitPredictParent:
-    def fit_and_predict(self, model):
-        idata = model.fit(tune=TUNE, draws=DRAWS)
-        return idata
+@pytest.fixture(scope="module")
+def data_n100():
+    size = 100
+    rng = np.random.default_rng(121195)
+    data = pd.DataFrame(
+        {
+            "b1": rng.binomial(n=1, p=0.5, size=size),
+            "n1": rng.poisson(lam=2, size=size),
+            "n2": rng.poisson(lam=2, size=size),
+            "y1": rng.normal(size=size),
+            "y2": rng.normal(size=size),
+            "y3": rng.normal(size=size),
+            "cat2": rng.choice(["a", "b"], size=size),
+            "cat4": rng.choice(list("MNOP"), size=size),
+            "cat5": rng.choice(list("FGHIJK"), size=size),
+        }
+    )
+    return data
 
-# TODO: Add out of sample prediction
-class TestGaussianRegression(FitPredictParent):
+
+@pytest.fixture(scope="module")
+def beetle_data():
+    return pd.DataFrame(
+        {
+            "x": np.array([1.6907, 1.7242, 1.7552, 1.7842, 1.8113, 1.8369, 1.8610, 1.8839]),
+            "n": np.array([59, 60, 62, 56, 63, 59, 62, 60]),
+            "y": np.array([6, 13, 18, 28, 52, 53, 61, 60]),
+        }
+    )
+
+
+@pytest.fixture(scope="module")
+def gasoline_data():
+    data_dir = join(dirname(__file__), "data")
+    return pd.read_csv(join(data_dir, "gasoline.csv"))
+
+
+@pytest.fixture(scope="module")
+def inhaler():
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "inhaler.csv"))
+    data["rating"] = pd.Categorical(data["rating"], categories=[1, 2, 3, 4])
+    return data
+
+
+class FitPredictParent:
+    def fit(self, model, **kwargs):
+        return model.fit(tune=TUNE, draws=DRAWS, **kwargs)
+
+    def predict_oos(self, model, idata, data=None):
+        # Reuse the original data
+        if data is None:
+            data = model.data.head()
+        return model.predict(idata, kind="pps", data=data, inplace=False)
+
+
+class TestGaussian(FitPredictParent):
     def test_intercept_only_model(self, crossed_data):
         model = bmb.Model("Y ~ 1", crossed_data)
-        self.fit_and_predict(model)
+        idata = self.fit(model)
+        self.predict_oos(model, idata)
 
     def test_slope_only_model(self, crossed_data):
         model = bmb.Model("Y ~ 0 + continuous", crossed_data)
-        self.fit_and_predict(model)
+        idata = self.fit(model)
+        self.predict_oos(model, idata)
 
     def test_cell_means_parameterization(self, crossed_data):
         model = bmb.Model("Y ~ 0 + threecats", crossed_data)
-        idata = self.fit_and_predict(model)
+        idata = self.fit(model)
         assert list(idata.posterior["threecats_dim"]) == ["a", "b", "c"]
+        self.predict_oos(model, idata)
 
     def test_2_factors_saturated(self, crossed_data):
         model = bmb.Model("Y ~ threecats*fourcats", crossed_data)
-        idata = self.fit_and_predict(model)
+        idata = self.fit(model)
         assert list(idata.posterior.data_vars) == [
             "Intercept",
             "threecats",
@@ -82,10 +137,11 @@ class TestGaussianRegression(FitPredictParent):
             "c, c",
             "c, d",
         ]
+        self.predict_oos(model, idata)
 
     def test_2_factors_no_intercept(self, crossed_data):
         model = bmb.Model("Y ~ 0 + threecats*fourcats", crossed_data)
-        idata = self.fit_and_predict(model)
+        idata = self.fit(model)
         assert list(idata.posterior.data_vars) == [
             "threecats",
             "fourcats",
@@ -102,10 +158,11 @@ class TestGaussianRegression(FitPredictParent):
             "c, c",
             "c, d",
         ]
+        self.predict_oos(model, idata)
 
     def test_2_factors_cell_means(self, crossed_data):
         model = bmb.Model("Y ~ 0 + threecats:fourcats", crossed_data)
-        idata = self.fit_and_predict(model)
+        idata = self.fit(model)
         assert list(idata.posterior.data_vars) == ["threecats:fourcats", "Y_sigma"]
         assert list(idata.posterior["threecats:fourcats_dim"].values) == [
             "a, a",
@@ -121,12 +178,14 @@ class TestGaussianRegression(FitPredictParent):
             "c, c",
             "c, d",
         ]
+        self.predict_oos(model, idata)
 
     def test_cell_means_with_covariate(self, crossed_data):
         model = bmb.Model("Y ~ 0 + threecats + continuous", crossed_data)
-        idata = self.fit_and_predict(model)
+        idata = self.fit(model)
         assert list(idata.posterior.data_vars) == ["threecats", "continuous", "Y_sigma"]
         assert list(idata.posterior["threecats_dim"].values) == ["a", "b", "c"]
+        self.predict_oos(model, idata)
 
     def test_many_common_many_group_specific(self, crossed_data):
         # Comparing implicit/explicit intercepts for group specific effects work the same way.
@@ -151,10 +210,12 @@ class TestGaussianRegression(FitPredictParent):
         ]
 
         model0 = bmb.Model("Y ~ " + " + ".join(terms0), crossed_data)
-        self.fit_and_predict(model0)
+        idata0 = self.fit(model0)
+        self.predict_oos(model0, idata0)
 
         model1 = bmb.Model("Y ~ " + " + ".join(terms1), crossed_data)
-        self.fit_and_predict(model1)
+        idata1 = self.fit(model1)
+        self.predict_oos(model1, idata1)
 
         # Check that the group specific effects design matrices have the same shape
         X0 = pd.concat(
@@ -261,10 +322,12 @@ class TestGaussianRegression(FitPredictParent):
             "(threecats|site)",
         ]
         model0 = bmb.Model("Y ~ " + " + ".join(terms0), crossed_data)
-        self.fit_and_predict(model0)
+        idata0 = self.fit(model0)
+        self.predict_oos(model0, idata0)
 
         model1 = bmb.Model("Y ~ " + " + ".join(terms1), crossed_data)
-        self.fit_and_predict(model1)
+        idata1 = self.fit(model1)
+        self.predict_oos(model1, idata1)
 
         # check that the group specific effects design matrices have the same shape
         X0 = pd.concat(
@@ -339,7 +402,8 @@ class TestGaussianRegression(FitPredictParent):
 
     def test_group_specific_categorical_interaction(self, crossed_data):
         model = bmb.Model("Y ~ continuous + (threecats:fourcats|site)", crossed_data)
-        idata = self.fit_and_predict(model)
+        idata = self.fit(model)
+        self.predict_oos(model, idata)
 
         assert list(idata.posterior.data_vars) == [
             "Intercept",
@@ -375,85 +439,108 @@ class TestGaussianRegression(FitPredictParent):
         assert list(idata.posterior["site__factor_dim"].values) == ["0", "1", "2", "3", "4"]
 
 
-class TestLogisticRegression(FitPredictParent):
-
-    def test_logistic_regression_empty_index(self, data_100):
-        model = bmb.Model("b1 ~ n1", data_100, family="bernoulli")
-        idata = self.fit_and_predict(model)
-        # TODO: Test something in the outcome
-
-    def test_logistic_regression_good_numeric(self, data_100):
-        model = bmb.Model("b0 ~ n1", data_100, family="bernoulli")
-        idata = self.fit_and_predict(model)
-        # TODO: Test something in the outcome
-
-    def test_logistic_regression_bad_numeric(self):
-        error_msg = "Numeric response must be all 0 and 1 for 'bernoulli' family"
-        rng = np.random.default_rng(1234)
-        data = pd.DataFrame({"y": rng.choice([1, 2], 50), "x": rng.normal(size=50)})
-        with pytest.raises(ValueError, match=error_msg):
-            model = bmb.Model("y ~ x", data, family="bernoulli")
-            idata = self.fit_and_predict(model)
-
-    # FIXME
-    def test_binomial_regression():
-        data = pd.DataFrame(
-            {
-                "x": np.array([1.6907, 1.7242, 1.7552, 1.7842, 1.8113, 1.8369, 1.8610, 1.8839]),
-                "n": np.array([59, 60, 62, 56, 63, 59, 62, 60]),
-                "y": np.array([6, 13, 18, 28, 52, 53, 61, 60]),
-            }
-        )
-
-        model = bmb.Model("prop(y, n) ~ x", data, family="binomial")
-        model.fit(draws=10, tune=10)
-
-        # Using constant instead of variable in data frame
-        model = bmb.Model("prop(y, 62) ~ x", data, family="binomial")
-        model.fit(draws=10, tune=10)
-
-
-# TODO: Logistic -> Bernoulli and Binomial
-
 class TestBernoulli(FitPredictParent):
+    def assert_posterior_predictive_range(self, model, idata):
+        y_name = model.response_component.response_term.name
+        y_posterior_predictive = idata.posterior_predictive[y_name].to_numpy()
+        assert set(np.unique(y_posterior_predictive)) == {0, 1}
 
-    # TODO: Make this other types of models
-    # FIXME: This is the first place where we have out of sample predictions, we should test it
-    #        in more cases, possibly, add a method
-    def test_predict_bernoulli(data_bernoulli):
-        data = data_bernoulli
-        model = bmb.Model("y ~ x1*x2", data, family="bernoulli")
-        idata = model.fit(tune=100, draws=100, target_accept=0.9)
+    def assert_mean_range(self, model, idata):
+        y_mean_name = model.response_component.response_term.name + "_mean"
+        y_mean_posterior = idata.posterior[y_mean_name].to_numpy()
+        assert ((0 < y_mean_posterior) & (y_mean_posterior < 1)).all()
 
-        # In sample prediction
-        model.predict(idata, kind="mean")
+    def test_bernoulli_empty_index(self, data_n100):
+        model = bmb.Model("b1 ~ 1 + y1", data_n100, family="bernoulli")
+        idata = self.fit(model)
         model.predict(idata, kind="pps")
+        self.assert_mean_range(model, idata)
+        self.assert_posterior_predictive_range(model, idata)
 
-        assert (0 < idata.posterior["y_mean"]).all() & (idata.posterior["y_mean"] < 1).all()
-        assert (idata.posterior_predictive["y"].isin([0, 1])).all()
+        # out of sample prediction
+        idata = self.predict_oos(model, idata)
+        self.assert_mean_range(model, idata)
+        self.assert_posterior_predictive_range(model, idata)
+
+    def test_bernoulli_good_numeric(self, data_n100):
+        model = bmb.Model("b1 ~ y1", data_n100, family="bernoulli")
+        idata = self.fit(model)
+        model.predict(idata, kind="pps")
+        self.assert_mean_range(model, idata)
+        self.assert_posterior_predictive_range(model, idata)
+
+    def test_bernoulli_bad_numeric(self, data_n100):
+        error_msg = "Numeric response must be all 0 and 1 for 'bernoulli' family"
+        with pytest.raises(ValueError, match=error_msg):
+            model = bmb.Model("y1 ~ y2", data_n100, family="bernoulli")
+            self.fit(model)
+
+    def test_categorical_group_specific(self, data_n100):
+        # see https://github.com/bambinos/bambi/issues/447
+
+        formula = "b1 ~ 0 + cat2 + y2 + (0 + cat2|cat5) + (0 + y2| cat4 + cat5)"
+        model = bmb.Model(formula, data_n100, family="bernoulli")
+        idata = self.fit(model, chains=2)
+        idata = self.predict_oos(model, idata)
+
+        self.assert_mean_range(model, idata)
+        self.assert_posterior_predictive_range(model, idata)
+
+
+class TestBinomial(FitPredictParent):
+    def assert_mean_range(self, model, idata):
+        y_mean_name = model.response_component.response_term.name + "_mean"
+        y_mean_posterior = idata.posterior[y_mean_name].to_numpy()
+        assert ((0 < y_mean_posterior) & (y_mean_posterior < 1)).all()
+
+    def test_binomial_regression(self, beetle_data):
+        model = bmb.Model("prop(y, n) ~ x", beetle_data, family="binomial")
+        idata = self.fit(model)
+        model.predict(idata, kind="pps")
+        self.assert_mean_range(model, idata)
+        y_reshaped = beetle_data["n"].to_numpy()[None, None, :]
+
+        assert (idata.posterior_predictive["prop(y, n)"].to_numpy() <= y_reshaped).all()
+        assert (0 <= idata.posterior_predictive["prop(y, n)"].to_numpy()).all()
+
+        y_reshaped = beetle_data["n"].to_numpy()[None, None, :3]
+        idata = self.predict_oos(model, idata, data=model.data.head(3))
+        self.assert_mean_range(model, idata)
+        assert (idata.posterior_predictive["prop(y, n)"].to_numpy() <= y_reshaped).all()
+
+    def test_binomial_regression_constant(self, beetle_data):
+        # Uses a constant instead of variable in data frame
+        model = bmb.Model("prop(y, 62) ~ x", beetle_data, family="binomial")
+        idata = self.fit(model)
+        model.predict(idata, kind="pps")
+        self.assert_mean_range(model, idata)
+        assert (idata.posterior_predictive["prop(y, 62)"].to_numpy() <= 62).all()
+        assert (0 <= idata.posterior_predictive["prop(y, 62)"].to_numpy()).all()
 
         # Out of sample prediction
-        model.predict(idata, kind="mean", data=data.iloc[:20, :])
-        model.predict(idata, kind="pps", data=data.iloc[:20, :])
-
-        assert (0 < idata.posterior["y_mean"]).all() & (idata.posterior["y_mean"] < 1).all()
-        assert (idata.posterior_predictive["y"].isin([0, 1])).all()
+        idata = self.predict_oos(model, idata)
+        self.assert_mean_range(model, idata)
+        assert (idata.posterior_predictive["prop(y, 62)"].to_numpy() <= 62).all()
 
 
 class TestPoisson(FitPredictParent):
-
-    # TODO: create model fixture so it's used in several places
+    def assert_mean_range(self, model, idata):
+        y_mean_name = model.response_component.response_term.name + "_mean"
+        y_mean_posterior = idata.posterior[y_mean_name].to_numpy()
+        assert (y_mean_posterior > 0).all()
 
     def test_poisson_regression(self, crossed_data):
-        # TODO: fixme
-        # build model using fit and pymc
         crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
         model0 = bmb.Model("count ~ dummy + continuous + threecats", crossed_data, family="poisson")
-        model0.fit(tune=0, draws=1)
+        idata0 = self.fit(model0)
+        idata0 = self.predict_oos(model0, idata0)
+        self.assert_mean_range(model0, idata0)
 
         # build model using add
         model1 = bmb.Model("count ~ threecats + continuous + dummy", crossed_data, family="poisson")
-        model1.fit(tune=0, draws=1)
+        idata1 = self.fit(model1)
+        idata1 = self.predict_oos(model1, idata1)
+        self.assert_mean_range(model1, idata1)
 
         # check that term names agree
         assert set(model0.response_component.terms) == set(model1.response_component.terms)
@@ -501,56 +588,41 @@ class TestPoisson(FitPredictParent):
 
         assert all([dicts_close(priors0[x], priors1[x]) for x in priors0.keys()])
 
-
-    def test_prior_predictive(crossed_data):
-        crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
-        # New default priors are too wide for this case... something to keep investigating
-        model = bmb.Model(
-            "count ~ threecats + continuous + dummy",
-            crossed_data,
-            family="poisson",
-        )
-        model.build()
-        pps = model.prior_predictive(draws=500, random_seed=1234)
+        # Now test prior predictive
+        pps = model1.prior_predictive(draws=200, random_seed=1234)
 
         keys = ["Intercept", "threecats", "continuous", "dummy"]
-        shapes = [(1, 500), (1, 500, 2), (1, 500), (1, 500)]
+        shapes = [(1, 200), (1, 200, 2), (1, 200), (1, 200)]
 
         for key, shape in zip(keys, shapes):
             assert pps.prior[key].shape == shape
 
-        assert pps.prior_predictive["count"].shape == (1, 500, 120)
+        assert pps.prior_predictive["count"].shape == (1, 200, 120)
         assert pps.observed_data["count"].shape == (120,)
 
-        pps = model.prior_predictive(draws=500, var_names=["count"], random_seed=1234)
+        pps = model1.prior_predictive(draws=200, var_names=["count"], random_seed=1234)
         assert pps.groups() == ["prior_predictive", "observed_data"]
 
-        pps = model.prior_predictive(draws=500, var_names=["Intercept"], random_seed=1234)
+        pps = model1.prior_predictive(draws=200, var_names=["Intercept"], random_seed=1234)
         assert pps.groups() == ["prior", "observed_data"]
 
-    # TODO: implement
-    def test_posterior_predictive(crossed_data):
-        crossed_data["count"] = (crossed_data["Y"] - crossed_data["Y"].min()).round()
-        model = bmb.Model("count ~ threecats + continuous + dummy", crossed_data, family="poisson")
-        fitted = model.fit(tune=0, draws=10, chains=2)
-        pps = model.predict(fitted, kind="pps", inplace=False)
+        # Now test posterior predictive
+        # Fit again to make sure we fix the number of chainS
+        idata = model1.fit(tune=50, draws=50, chains=2)
+        pps = model1.predict(idata, kind="pps", inplace=False)
+        assert pps.posterior_predictive["count"].shape == (2, 50, 120)
 
-        assert pps.posterior_predictive["count"].shape == (2, 10, 120)
-
-        pps = model.predict(fitted, kind="pps", inplace=True)
-
+        pps = model1.predict(idata, kind="pps", inplace=True)
         assert pps is None
-        assert fitted.posterior_predictive["count"].shape == (2, 10, 120)
-    # TODO: Test out of sample predictions
+        assert idata.posterior_predictive["count"].shape == (2, 50, 120)
 
 
 class TestNegativeBinomial(FitPredictParent):
-    # FIXME
-    def test_predict_negativebinomial(data_count):
-        data = data_count
+    # To Do: Could be modified to follow the same format than the others
+    def test_predict_negativebinomial(self, data_n100):
 
-        model = bmb.Model("y ~ x", data, family="negativebinomial")
-        idata = model.fit(tune=100, draws=100)
+        model = bmb.Model("n1 ~ y1", data_n100, family="negativebinomial")
+        idata = self.fit(model)
 
         model.predict(idata, kind="mean")
         model.predict(idata, kind="pps")
@@ -558,78 +630,51 @@ class TestNegativeBinomial(FitPredictParent):
         assert (0 < idata.posterior["y_mean"]).all()
         assert (np.equal(np.mod(idata.posterior_predictive["y"].values, 1), 0)).all()
 
-        model.predict(idata, kind="mean", data=data.iloc[:20, :])
-        model.predict(idata, kind="pps", data=data.iloc[:20, :])
+        model.predict(idata, kind="mean", data=data_n100.iloc[:20, :])
+        model.predict(idata, kind="pps", data=data_n100.iloc[:20, :])
 
         assert (0 < idata.posterior["y_mean"]).all()
         assert (np.equal(np.mod(idata.posterior_predictive["y"].values, 1), 0)).all()
 
 
 class TestLaplace(FitPredictParent):
+    def test_laplace_regression(self, data_n100):
+        model = bmb.Model("y1 ~ y2", data_n100, family="laplace")
+        idata = self.fit(model)
+        assert set(idata.posterior.data_vars) == {"Intercept", "y2", "y1_b"}
+        assert (idata.posterior["y1_b"] > 0).all().item()
 
-    def test_laplace_regression(self, data_100):
-        model = bmb.Model("n1 ~ n2", data_100, family="laplace")
-        idata = self.fit_and_predict(model)
-        # TODO: test something?
+        idata = self.predict_oos(model, idata)
+        assert "y1_mean" in idata.posterior
 
 
 class TestGamma(FitPredictParent):
+    def test_gamma_regression(self, data_n100):
+        # Construct a positive variable
+        data_n100["o"] = np.exp(data_n100["y1"])
+        model = bmb.Model("o ~ y2 + y3 + n1 + cat4", data_n100, family="gamma", link="log")
+        idata = self.fit(model)
+        assert set(idata.posterior.data_vars) == {"Intercept", "y2", "y3", "n1", "cat4", "o_alpha"}
+        idata = self.predict_oos(model, idata)
+        assert (idata.posterior_predictive["o"] > 0).all().item()
 
-    # FIXME
-    def test_gamma_regression(dm):
-        # simulated data
-        rng = np.random.default_rng(1234)
-        a, b, N, shape_true = 0.5, 1.2, 100, 10  # alpha
-        x = rng.uniform(-1, 1, N)
-        y_true = np.exp(a + b * x)
-
-        y = rng.gamma(shape_true, y_true / shape_true, N)
-        data = pd.DataFrame({"x": x, "y": y})
-        model = bmb.Model("y ~ x", data, family="gamma", link="log")
-        model.fit(draws=10, tune=10)
-
-        # Real data, categorical predictor.
-        data = dm[["order", "ind_mg_dry"]]
-        model = bmb.Model("ind_mg_dry ~ order", data, family="gamma", link="log")
-        model.fit(draws=10, tune=10)
-
-    def test_predict_gamma(data_gamma):
-        data = data_gamma
-
-        model = bmb.Model("y ~ x", data, family="gamma", link="log")
-        idata = model.fit(tune=100, draws=100)
-
-        model.predict(idata, kind="mean")
-        model.predict(idata, kind="pps")
-
-        assert (0 < idata.posterior["y_mean"]).all()
-        assert (0 < idata.posterior_predictive["y"]).all()
-
-        model.predict(idata, kind="mean", data=data.iloc[:20, :])
-        model.predict(idata, kind="pps", data=data.iloc[:20, :])
-
-        assert (0 < idata.posterior["y_mean"]).all()
-        assert (0 < idata.posterior_predictive["y"]).all()
-
+    def test_gamma_regression_categoric(self, data_n100):
+        data_n100["o"] = np.exp(data_n100["y1"])
+        model = bmb.Model("o ~ 0 + cat2:cat4", data_n100, family="gamma", link="log")
+        idata = self.fit(model)
+        assert set(idata.posterior.data_vars) == {"cat2:cat4", "o_alpha"}
+        idata = self.predict_oos(model, idata)
+        assert (idata.posterior_predictive["o"] > 0).all().item()
 
 
 class TestBeta(FitPredictParent):
-    # FIXME
-    def test_beta_regression():
-        # FIXME
-        data_dir = join(dirname(__file__), "data")
-        data = pd.read_csv(join(data_dir, "gasoline.csv"))
-        model = bmb.Model("yield ~  temp + batch", data, family="beta", categorical="batch")
-        model.fit(draws=10, tune=10, target_accept=0.9)
+    def test_beta_regression(self, gasoline_data):
+        model = bmb.Model(
+            "yield ~  temp + batch", gasoline_data, family="beta", categorical="batch"
+        )
+        idata = self.fit(model, target_accept=0.9, random_seed=1234)
 
-
-
-    def test_predict_beta(data_beta):
-        data = data_beta
-        data["batch"] = pd.Categorical(data["batch"], [10, 1, 2, 3, 4, 5, 6, 7, 8, 9], ordered=True)
-        model = bmb.Model("yield ~ temp + batch", data, family="beta")
-        idata = model.fit(tune=100, draws=100, target_accept=0.90)
-
+        # To Do: Could be adjusted but this is what we had before
         model.predict(idata, kind="mean")
         model.predict(idata, kind="pps")
 
@@ -638,8 +683,8 @@ class TestBeta(FitPredictParent):
             idata.posterior_predictive["yield"] < 1
         ).all()
 
-        model.predict(idata, kind="mean", data=data.iloc[:20, :])
-        model.predict(idata, kind="pps", data=data.iloc[:20, :])
+        model.predict(idata, kind="mean", data=gasoline_data.iloc[:20, :])
+        model.predict(idata, kind="pps", data=gasoline_data.iloc[:20, :])
 
         assert (0 < idata.posterior["yield_mean"]).all() & (idata.posterior["yield_mean"] < 1).all()
         assert (0 < idata.posterior_predictive["yield"]).all() & (
@@ -648,21 +693,28 @@ class TestBeta(FitPredictParent):
 
 
 class TestStudentT(FitPredictParent):
-    # FIXME
-    def test_t_regression(data_100):
-        bmb.Model("n1 ~ n2", data_100, family="t").fit(draws=10, tune=10)
-    # TODO: test predictions
+    def test_t_regression(self, data_n100):
+        model = bmb.Model("y1 ~ y2", data_n100, family="t")
+        idata = self.fit(model)
+        assert set(idata.posterior.data_vars) == {"Intercept", "y2", "y1_nu", "y1_sigma"}
+        self.predict_oos(model, idata)
 
 
-class TestVonMisesRegression(FitPredictParent):
-    # FIXME
-    def test_vonmises_regression():
+class TestVonMises(FitPredictParent):
+    def test_vonmises_regression(self):
         rng = np.random.default_rng(1234)
         data = pd.DataFrame({"y": rng.vonmises(0, 1, size=100), "x": rng.normal(size=100)})
-        bmb.Model("y ~ x", data, family="vonmises").fit(draws=10, tune=10)
+        model = bmb.Model("y ~ x", data, family="vonmises")
+        idata = self.fit(model)
+        assert set(idata.posterior.data_vars) == {"Intercept", "x", "y_kappa"}
+        idata = self.predict_oos(model, idata)
+        assert (idata.posterior_predictive["y"].min() >= -np.pi).item() and (
+            idata.posterior_predictive["y"].max() <= np.pi
+        ).item()
 
 
-class TestAsymmetricLaplaceRegression(FitPredictParent):
+class TestAsymmetricLaplace(FitPredictParent):
+    # This test doesn't follow the previous pattern but it works...
     def test_quantile_regression():
         rng = np.random.default_rng(1234)
         x = rng.uniform(2, 10, 100)
@@ -681,19 +733,18 @@ class TestAsymmetricLaplaceRegression(FitPredictParent):
             > idata1.posterior["y_mean"].mean(("chain", "draw"))
         )
 
-class TestCategoricalRegression(FitPredictParent):
+
+class TestCategorical(FitPredictParent):
     # FIXME
-    def test_categorical_family(inhaler):
+    def test_categorical_family(self, inhaler):
         model = bmb.Model("rating ~ period + carry + treat", inhaler, family="categorical")
         model.fit(draws=10, tune=10)
-
 
     def test_categorical_family_varying_intercept(inhaler):
         model = bmb.Model(
             "rating ~ period + carry + treat + (1|subject)", inhaler, family="categorical"
         )
         model.fit(draws=10, tune=10)
-
 
     def test_categorical_family_categorical_predictors(categorical_family_categorical_predictor):
         formula = "response ~ group + city"
@@ -709,30 +760,6 @@ class TestCategoricalRegression(FitPredictParent):
 
         assert pps.shape[-1] == inhaler.shape[0]
         assert (np.unique(pps) == [0, 1, 2, 3]).all()
-
-    # FIXME
-    def test_predict_categorical_group_specific():
-        # see https://github.com/bambinos/bambi/issues/447
-        rng = np.random.default_rng(1234)
-        size = 100
-
-        data = pd.DataFrame(
-            {
-                "y": rng.choice([0, 1], size=size),
-                "x1": rng.choice(list("abcd"), size=size),
-                "x2": rng.choice(list("XY"), size=size),
-                "x3": rng.normal(size=size),
-            }
-        )
-
-        model = bmb.Model("y ~ x1 + (0 + x2|x1) + (0 + x3|x1 + x2)", data, family="bernoulli")
-
-        idata = model.fit(tune=100, draws=100, chains=2)
-
-        model.predict(idata, data=data)
-
-        assert idata.posterior.y_mean.values.shape == (2, 100, 100)
-        assert (idata.posterior.y_mean.values > 0).all() and (idata.posterior.y_mean.values < 1).all()
 
 
 class TestZIPoisson(FitPredictParent):
@@ -763,6 +790,7 @@ class TestZIPoisson(FitPredictParent):
         model = bmb.Model(formula, df, family="zero_inflated_poisson")
         idata = model.fit(chains=2, tune=200, draws=200, random_seed=121195)
         model.predict(idata, kind="pps")
+
 
 class TestZIBinomial(FitPredictParent):
     # FIXME: Use fixture data, drop pm.draw
@@ -799,7 +827,9 @@ class TestZINegativeBinomial(FitPredictParent):
 
         # Basic intercept-only model
         y = pm.draw(
-            pm.ZeroInflatedNegativeBinomial.dist(mu=5, alpha=30, psi=0.7), draws=500, random_seed=1234
+            pm.ZeroInflatedNegativeBinomial.dist(mu=5, alpha=30, psi=0.7),
+            draws=500,
+            random_seed=1234,
         )
         df = pd.DataFrame({"y": y})
         priors = {"alpha": bmb.Prior("HalfNormal", sigma=20)}
@@ -824,7 +854,6 @@ class TestZINegativeBinomial(FitPredictParent):
         model.predict(idata, kind="pps")
 
 
-
 class TestHurdle(FitPredictParent):
     # FIXME: Drop usage of pm.draw, use fixture data, parametrize test
     def test_hurlde_families():
@@ -847,7 +876,7 @@ class TestHurdle(FitPredictParent):
         model = bmb.Model("y ~ 1", df, family="hurdle_lognormal")
         idata = model.fit()
         model.predict(idata, kind="pps")
-        
+
 
 class TestOrdinal(FitPredictParent):
     # FIXME
@@ -863,11 +892,12 @@ class TestOrdinal(FitPredictParent):
         ],
     )
     def test_ordinal_families(inhaler, family, link):
-        data = inhaler.copy()
-        data["carry"] = pd.Categorical(data["carry"])  # To have both numeric and categoric predictors
-        model = bmb.Model("rating ~ period + carry + treat", data, family=family, link=link)
+        # To have both numeric and categoric predictors
+        inhaler["carry"] = pd.Categorical(inhaler["carry"])
+        model = bmb.Model("rating ~ period + carry + treat", inhaler, family=family, link=link)
         idata = model.fit(tune=100, draws=100)
         model.predict(idata, kind="pps")
+
         assert np.allclose(idata.posterior["rating_mean"].sum("rating_dim").to_numpy(), 1)
         assert np.all(np.unique(idata.posterior_predictive["rating"]) == np.array([0, 1, 2, 3]))
 
@@ -886,7 +916,6 @@ class TestOrdinal(FitPredictParent):
         model.fit(tune=100, draws=100)
 
 
-
 class TestCensoredResponses(FitPredictParent):
     def test_censored_response():
         data = bmb.load_data("kidney")
@@ -900,7 +929,11 @@ class TestCensoredResponses(FitPredictParent):
             "alpha": bmb.Prior("Gamma", alpha=3, beta=5),
         }
         model = bmb.Model(
-            "censored(time, status) ~ 1 + sex + age", data, family="weibull", link="log", priors=priors
+            "censored(time, status) ~ 1 + sex + age",
+            data,
+            family="weibull",
+            link="log",
+            priors=priors,
         )
         idata = model.fit(tune=100, draws=100, random_seed=121195)
         model.predict(idata, kind="pps")
@@ -913,7 +946,11 @@ class TestCensoredResponses(FitPredictParent):
             "alpha": bmb.Prior("Gamma", alpha=3, beta=5),
         }
         model = bmb.Model(
-            "censored(time, status) ~ 0 + sex + age", data, family="weibull", link="log", priors=priors
+            "censored(time, status) ~ 0 + sex + age",
+            data,
+            family="weibull",
+            link="log",
+            priors=priors,
         )
         idata = model.fit(tune=100, draws=100, random_seed=121195)
         model.predict(idata, kind="pps")
@@ -924,7 +961,9 @@ class TestCensoredResponses(FitPredictParent):
             "alpha": bmb.Prior("Gamma", alpha=3, beta=5),
             "sex": bmb.Prior("Normal", mu=0, sigma=1),
             "age": bmb.Prior("Normal", mu=0, sigma=1),
-            "1|patient": bmb.Prior("Normal", mu=0, sigma=bmb.Prior("InverseGamma", alpha=5, beta=10)),
+            "1|patient": bmb.Prior(
+                "Normal", mu=0, sigma=bmb.Prior("InverseGamma", alpha=5, beta=10)
+            ),
         }
         model = bmb.Model(
             "censored(time, status) ~ 1 + sex + age + (1|patient)",
@@ -1011,7 +1050,6 @@ class TestMultinomial(FitPredictParent):
         model.predict(idata)
         model.predict(idata, kind="pps")
 
-
     def test_posterior_predictive_multinomial(inhaler):
         df = inhaler.groupby(["treat", "carry", "rating"], as_index=False).size()
         df = df.pivot(index=["treat", "carry"], columns="rating", values="size").reset_index()
@@ -1023,7 +1061,9 @@ class TestMultinomial(FitPredictParent):
 
         # The sum across the columns of the response is the same for all the chain and draws.
         model.predict(idata, kind="pps")
-        assert np.all(idata.posterior_predictive["c(y1, y2, y3, y4)"].values.sum(-1).var((0, 1)) == 0)
+        assert np.all(
+            idata.posterior_predictive["c(y1, y2, y3, y4)"].values.sum(-1).var((0, 1)) == 0
+        )
 
 
 # FIXME
@@ -1067,11 +1107,8 @@ def test_posterior_predictive_beta_binomial():
     assert np.all(idata.posterior_predictive["prop(y, n)"].values <= n[np.newaxis, np.newaxis, :])
 
 
-
-
 # things like splines, include mean, etc
 class TestSpecificFeatures(FitPredictParent):
-
     def test_fit_include_mean(crossed_data):
         draws = 500
         model = bmb.Model("Y ~ continuous * threecats", crossed_data)
