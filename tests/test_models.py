@@ -1216,20 +1216,22 @@ class TestBetaBinomial(FitPredictParent):
 
 
 def test_wald_family(data_n100):
-    model = bmb.Model("y1 ~ y2", data_n100, family="wald", link="log")
-    idata = model.fit(tune=DRAWS, draws=DRAWS)
+    data_n100["y"] = np.exp(data_n100["y1"])
+    priors = {"common": bmb.Prior("Normal", mu=0, sigma=1)}
+    model = bmb.Model("y ~ y2", data_n100, family="wald", link="log", priors=priors)
+    idata = model.fit(tune=DRAWS, draws=DRAWS, random_seed=1234)
 
     model.predict(idata, kind="mean")
     model.predict(idata, kind="pps")
 
-    assert (0 < idata.posterior["y1_mean"]).all()
-    assert (0 < idata.posterior_predictive["y1"]).all()
+    assert (0 < idata.posterior["y_mean"]).all()
+    assert (0 < idata.posterior_predictive["y"]).all()
 
     model.predict(idata, kind="mean", data=data_n100.iloc[:20, :])
     model.predict(idata, kind="pps", data=data_n100.iloc[:20, :])
 
-    assert (0 < idata.posterior["y1_mean"]).all()
-    assert (0 < idata.posterior_predictive["y1"]).all()
+    assert (0 < idata.posterior["y_mean"]).all()
+    assert (0 < idata.posterior_predictive["y"]).all()
 
 
 def test_predict_include_group_specific():
@@ -1306,7 +1308,7 @@ def test_predict_new_groups_fail(sleepstudy):
             pd.DataFrame({"Days": [1, 2, 3], "Subject": ["x", "y", "z"]}),
         ),
         (
-            "inhaler",
+            "inhaler_data",
             "rating ~ 1 + period + treat + (1 + treat|subject)",
             "categorical",
             pd.DataFrame(
