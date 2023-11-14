@@ -5,6 +5,7 @@ import re
 from statistics import mode
 from typing import Union
 
+import arviz as az
 import numpy as np
 from formulae.terms.call import Call
 import pandas as pd
@@ -434,3 +435,19 @@ def merge(y_hat_mean: xr.DataArray, y_hat_bounds: xr.DataArray, data: pd.DataFra
     summary_df = pd.merge(left=data, right=preds_df, left_index=True, right_index=True)
 
     return summary_df.drop(columns=["hdi_x", "hdi_y"])
+
+
+def get_posterior(
+    response_obs: str, idata: az.InferenceData, pred_data: pd.DataFrame
+) -> pd.DataFrame:
+    """
+    Merges the posterior draws with the corresponding observation that produced
+    that draw.
+    """
+    posterior_df = idata.posterior.to_dataframe().reset_index()
+    posterior_df = posterior_df.set_index(response_obs)
+    posterior_df = posterior_df.merge(pred_data, left_index=True, right_index=True)
+    posterior_df = posterior_df.rename(columns=lambda x: x.replace("_x", ""))
+    posterior_df = posterior_df.rename(columns=lambda x: x.replace("_y", "_obs"))
+
+    return posterior_df.reset_index(drop=True)

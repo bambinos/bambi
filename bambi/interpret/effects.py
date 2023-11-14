@@ -1,3 +1,5 @@
+# pylint: disable=consider-iterating-dictionary
+# pylint: disable=too-many-instance-attributes
 # pylint: disable=ungrouped-imports
 from dataclasses import dataclass, field
 import itertools
@@ -15,6 +17,7 @@ from bambi.interpret.utils import (
     average_over,
     ConditionalInfo,
     enforce_dtypes,
+    get_posterior,
     identity,
     merge,
     VariableInfo,
@@ -122,8 +125,6 @@ class Estimate:
             ).flatten()
 
 
-# pylint: disable=consider-iterating-dictionary
-# pylint: disable=too-many-instance-attributes
 @dataclass
 class PredictiveDifferences:
     """Computes predictive differences and their uncertainty intervals for
@@ -439,6 +440,7 @@ def predictions(
     prob=None,
     transforms=None,
     sample_new_groups=False,
+    return_idata: bool = False,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Predictions
 
@@ -473,11 +475,16 @@ def predictions(
     sample_new_groups : bool, optional
         If the model contains group-level effects, and data is passed for unseen groups, whether
         to sample from the new groups. Defaults to ``False``.
+    return_idata : bool, optional
+        Whether to return the inference data from the InferenceData object with the predictions
+        and data used to generate those predictions. Defaults to ``False``.
 
     Returns
     -------
     cap_data : pandas.DataFrame
-        A DataFrame with the ``create_cap_data`` and model predictions.
+        A DataFrame with the ``create_cap_data`` and model predictions. If ``return_data`` is
+        ``True``, then this DataFrame also includes inference data, observed data, and parameter
+        estimates.
 
     Raises
     ------
@@ -535,6 +542,10 @@ def predictions(
         y_hat = response_transform(idata["posterior"][response.name_target])
         y_hat_mean = y_hat.mean(("chain", "draw"))
 
+    # early return to avoid the computation below
+    if return_idata:
+        return get_posterior(response.name_obs, idata, cap_data)
+
     if use_hdi and pps:
         y_hat_bounds = az.hdi(y_hat, prob)[response.name].T
     elif use_hdi:
@@ -583,6 +594,7 @@ def comparisons(
     prob: Union[float, None] = None,
     transforms: Union[dict, None] = None,
     sample_new_groups: bool = False,
+    return_idata: bool = False,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Comparisons
 
@@ -615,12 +627,16 @@ def comparisons(
     sample_new_groups : bool, optional
         If the model contains group-level effects, and data is passed for unseen groups, whether
         to sample from the new groups. Defaults to ``False``.
+    return_idata : bool, optional
+        Whether to return the inference data from the InferenceData object with the predictions
+        and data used to generate those predictions. Defaults to ``False``.
 
     Returns
     -------
     pandas.DataFrame
-        A dataframe with the comparison values, highest density interval, contrast name,
-        contrast value, and conditional values.
+        A dataframe with the comparison values, highest density interval, contrast name, contrast
+        value, and conditional values. If ``return_data`` is ``True``, then this DataFrame also
+        includes inference data, observed data, and parameter estimates.
 
     Raises
     ------
@@ -695,6 +711,10 @@ def comparisons(
         idata, data=comparisons_data, sample_new_groups=sample_new_groups, inplace=False
     )
 
+    # early return since 'PredictiveDifferences' does not need to be called
+    if return_idata:
+        return get_posterior(response.name_obs, idata, comparisons_data)
+
     # returns empty array if model predictions do not have multiple dimensions
     response_dim_key = response.name + "_dim"
     if response_dim_key in idata.posterior.coords:
@@ -733,6 +753,7 @@ def slopes(
     prob: Union[float, None] = None,
     transforms: Union[dict, None] = None,
     sample_new_groups: bool = False,
+    return_idata: bool = False,
 ) -> pd.DataFrame:
     """Compute Conditional Adjusted Slopes
 
@@ -776,12 +797,16 @@ def slopes(
     sample_new_groups : bool, optional
         If the model contains group-level effects, and data is passed for unseen groups, whether
         to sample from the new groups. Defaults to ``False``.
+    return_idata : bool, optional
+        Whether to return the inference data from the InferenceData object with the predictions
+        and data used to generate those predictions. Defaults to ``False``.
 
     Returns
     -------
     pandas.DataFrame
-        A dataframe with the comparison values, highest density interval, ``wrt`` name,
-        contrast value, and conditional values.
+        A dataframe with the slope values, highest density interval, with respect to name, with
+        respect to value, and conditional values. If ``return_data`` is ``True``, then this
+        DataFrame also includes inference data, observed data, and parameter estimates.
 
     Raises
     ------
@@ -858,6 +883,10 @@ def slopes(
     idata = model.predict(
         idata, data=slopes_data, sample_new_groups=sample_new_groups, inplace=False
     )
+
+    # early return since 'PredictiveDifferences' does not need to be called
+    if return_idata:
+        return get_posterior(response.name_obs, idata, slopes_data)
 
     # returns empty array if model predictions do not have multiple dimensions
     response_dim_key = response.name + "_dim"
