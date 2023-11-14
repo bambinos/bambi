@@ -5,6 +5,26 @@ import pandas as pd
 import pytest
 
 
+@pytest.fixture(scope="module")
+def data_n100():
+    size = 100
+    rng = np.random.default_rng(121195)
+    data = pd.DataFrame(
+        {
+            "b1": rng.binomial(n=1, p=0.5, size=size),
+            "n1": rng.poisson(lam=2, size=size),
+            "n2": rng.poisson(lam=2, size=size),
+            "y1": rng.normal(size=size),
+            "y2": rng.normal(size=size),
+            "y3": rng.normal(size=size),
+            "cat2": rng.choice(["a", "b"], size=size),
+            "cat4": rng.choice(list("MNOP"), size=size),
+            "cat5": rng.choice(list("FGHIJK"), size=size),
+        }
+    )
+    return data
+
+
 def test_laplace():
     data = pd.DataFrame(np.repeat((0, 1), (30, 60)), columns=["w"])
     priors = {"Intercept": bmb.Prior("Uniform", lower=0, upper=1)}
@@ -40,8 +60,8 @@ def test_vi():
         ("nuts_blackjax", {"chain_method": "vectorized"}),
     ],
 )
-def test_logistic_regression_categoric_alternative_samplers(data_100, args):
-    model = bmb.Model("b1 ~ n1", data_100, family="bernoulli")
+def test_logistic_regression_categoric_alternative_samplers(data_n100, args):
+    model = bmb.Model("b1 ~ n1", data_n100, family="bernoulli")
     model.fit(tune=50, draws=50, inference_method=args[0], **args[1])
 
 
@@ -53,6 +73,6 @@ def test_logistic_regression_categoric_alternative_samplers(data_100, args):
         ("nuts_blackjax", {"chain_method": "vectorized"}),
     ],
 )
-def test_regression_alternative_samplers(data_100, args):
-    model = bmb.Model("n1 ~ n2", data_100)
+def test_regression_alternative_samplers(data_n100, args):
+    model = bmb.Model("n1 ~ n2", data_n100)
     model.fit(tune=50, draws=50, inference_method=args[0], **args[1])
