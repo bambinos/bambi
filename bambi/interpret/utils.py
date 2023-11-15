@@ -394,16 +394,10 @@ def make_group_values(x: np.ndarray, groups_n: int = 5) -> np.ndarray:
 
 
 def get_group_offset(n, lower: float = 0.05, upper: float = 0.4) -> np.ndarray:
-    # Complementary log log function, scaled.
-    # See following code to have an idea of how this function looks like
-    # lower, upper = 0.05, 0.4
-    # x = np.linspace(2, 9)
-    # y = get_group_offset(x, lower, upper)
-    # fig, ax = plt.subplots(figsize=(8, 5))
-    # ax.plot(x, y)
-    # ax.axvline(2, color="k", ls="--")
-    # ax.axhline(lower, color="k", ls="--")
-    # ax.axhline(upper, color="k", ls="--")
+    """
+    When plotting categoric variables, this function computes the offset of the
+    stripplot points based on the number of groups ``n``.
+    """
     intercept, slope = 3.25, 1
     return lower + np.exp(-np.exp(intercept - slope * n)) * (upper - lower)
 
@@ -441,10 +435,15 @@ def get_posterior(
     response_obs: str, idata: az.InferenceData, pred_data: pd.DataFrame
 ) -> pd.DataFrame:
     """
-    Merges the posterior draws with the corresponding observation that produced
-    that draw.
+    Merges the posterior or posterior predictive draws with the corresponding
+    observation that produced that draw.
     """
-    posterior_df = idata.posterior.to_dataframe().reset_index()
+    # if `pps=True` in 'predictions', then use posterior predictive draws
+    if "posterior_predictive" in idata.groups():
+        posterior_df = idata.posterior_predictive.to_dataframe().reset_index()
+    else:
+        posterior_df = idata.posterior.to_dataframe().reset_index()
+
     posterior_df = posterior_df.set_index(response_obs)
     posterior_df = posterior_df.merge(pred_data, left_index=True, right_index=True)
     posterior_df = posterior_df.rename(columns=lambda x: x.replace("_x", ""))
