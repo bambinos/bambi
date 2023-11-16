@@ -1,3 +1,5 @@
+import inspect
+
 import pytensor.tensor as pt
 import pymc as pm
 
@@ -81,3 +83,39 @@ GP_KERNELS = {
     "Matern32": {"fn": matern32, "params": ("sigma", "ell")},
     "Matern52": {"fn": matern52, "params": ("sigma", "ell")},
 }
+
+
+def make_logp_and_random(dist):
+    def logp(value, weights, *dist_params):
+        return weights * dist.logp(value, *dist_params)
+
+    def random(*dist_params, rng=None, size=None):
+        # Weights don't make sense when generating new observations. 
+        # They are a property of actual observations
+        weights, *dist_params = dist_params
+        rng_fn = getattr(rng, dist.rv_op.name)
+        return rng_fn(*dist_params, size=size)
+    return logp, random
+
+
+def get_dist_args(dist):
+    args = inspect.getfullargspec(dist.dist).args
+    # Remove first argument, which is usually 'cls'
+    args.pop(0)
+    return args
+
+
+# logp, random = make_logp_and_random(pm.Normal)
+# args = get_dist_args(pm.Normal)
+
+# with pm.Model() as model:
+#     weights = 2
+#     mu = pm.Normal("mu", 0, 1)
+#     sigma = pm.HalfNormal("sigma", 1)
+#     params = {"sigma": sigma, "mu": mu}
+#     dist_params = [params.get(arg) for arg in args if arg in params]
+#     pm.CustomDist(
+#         "custom_dist", weights, *dist_params, random=random, logp=logp, observed=np.random.randn(100)
+#     )
+#     idata = pm.sample_prior_predictive()
+#     idata.extend(pm.sample(100))
