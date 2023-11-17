@@ -713,7 +713,8 @@ def comparisons(
 
     # early return since 'PredictiveDifferences' does not need to be called
     if return_idata:
-        return get_posterior(response.name_obs, idata, comparisons_data)
+        # return get_posterior(response.name_obs, idata, comparisons_data)
+        return comparisons_data, idata
 
     # returns empty array if model predictions do not have multiple dimensions
     response_dim_key = response.name + "_dim"
