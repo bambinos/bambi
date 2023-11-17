@@ -1,6 +1,8 @@
 import pytest
 
 import bambi as bmb
+import numpy as np
+import pandas as pd
 
 
 @pytest.fixture(scope="module")
@@ -11,6 +13,26 @@ def my_data():
 @pytest.fixture(scope="module")
 def anes():
     return bmb.load_data("ANES")
+
+
+@pytest.fixture(scope="module")
+def data_100():
+    size = 100
+    rng = np.random.default_rng(121195)
+    data = pd.DataFrame(
+        {
+            "n1": rng.normal(size=size),
+            "n2": rng.normal(size=size),
+            "n3": rng.normal(size=size),
+            "b0": rng.binomial(n=1, p=0.5, size=size),
+            "b1": rng.choice(["a", "b"], size=size),
+            "count1": rng.poisson(lam=2, size=size),
+            "count2": rng.poisson(lam=2, size=size),
+            "cat1": rng.choice(list("MNOP"), size=size),
+            "cat2": rng.choice(list("FGHIJK"), size=size),
+        }
+    )
+    return data
 
 
 def test_non_distributional_model(my_data):
@@ -126,3 +148,19 @@ def test_set_alias_warnings(my_data):
             print(model.constant_components)
         assert len(record) == 1
         assert str(record[0].message) == expected_warning
+
+
+# FIXME: Move somewhere
+def test_set_alias(data_100):
+    model = bmb.Model("n1 ~ n2 + (n2|cat1)", data_100)
+    aliases = {
+        "Intercept": "α",
+        "n2": "β",
+        "1|cat1": "α_group",
+        "n2|cat1": "β_group",
+        "sigma": "σ",
+    }
+    model.set_alias(aliases)
+    model.build()
+    new_names = set(["α", "β", "α_group", "α_group_σ", "β_group", "β_group_σ", "σ"])
+    assert new_names.issubset(set(model.backend.model.named_vars))

@@ -1,3 +1,5 @@
+import logging
+
 from functools import reduce
 from operator import add
 from os.path import dirname, join
@@ -57,6 +59,16 @@ def crossed_data():
     """
     data_dir = join(dirname(__file__), "data")
     data = pd.read_csv(join(data_dir, "crossed_random.csv"))
+    return data
+
+
+@pytest.fixture(scope="module")
+def init_data():
+    """
+    Data used to test initialization method
+    """
+    data_dir = join(dirname(__file__), "data")
+    data = pd.read_csv(join(data_dir, "obs.csv"))
     return data
 
 
@@ -207,7 +219,7 @@ def test_model_term_classes():
 
 def test_one_shot_formula_fit(diabetes_data):
     model = bmb.Model("S3 ~ S1 + S2", diabetes_data)
-    model.fit(draws=50)
+    model.fit(tune=100, draws=100)
     named_vars = model.backend.model.named_vars
     targets = ["S3", "S1", "Intercept"]
     assert len(set(named_vars.keys()) & set(targets)) == 3
@@ -467,3 +479,100 @@ def test_extra_namespace():
     model = bmb.Model(formula, data, family="poisson", link="log", extra_namespace=extra_namespace)
     term = model.response_component.terms["C(veh_body, levels=levels)"]
     assert (np.asarray(term.levels) == data["veh_body"].unique()).all()
+
+
+def test_drop_na(crossed_data, caplog):
+    crossed_data_missing = crossed_data.copy()
+    crossed_data_missing.loc[0, "Y"] = np.nan
+    crossed_data_missing.loc[1, "continuous"] = np.nan
+    crossed_data_missing.loc[2, "threecats"] = np.nan
+
+    with caplog.at_level(logging.INFO):
+        bmb.Model("Y ~ continuous + threecats", crossed_data_missing, dropna=True)
+        assert "Automatically removing 3/120 rows from the dataset." in caplog.text
+
+    with pytest.raises(ValueError, match="'data' contains 3 incomplete rows"):
+        bmb.Model("Y ~ continuous + threecats", crossed_data_missing)
+
+
+def test_plot_priors(crossed_data):
+    model = bmb.Model("Y ~ 0 + threecats", crossed_data)
+    with pytest.raises(ValueError, match="Model is not built yet"):
+        model.plot_priors()
+    model.build()
+    model.plot_priors()
+
+
+def test_model_graph(crossed_data):
+    model = bmb.Model("Y ~ 0 + threecats", crossed_data)
+    with pytest.raises(ValueError, match="Model is not built yet"):
+        model.graph()
+    model.build()
+    model.graph()
+
+
+def test_potentials():
+    data = pd.DataFrame(np.repeat((0, 1), (18, 20)), columns=["w"])
+    priors = {"Intercept": bmb.Prior("Uniform", lower=0, upper=1)}
+
+    potentials = [
+        (("Intercept", "Intercept"), lambda x, y: bmb.math.switch(x < 0.45, y, -np.inf)),
+        ("Intercept", lambda x: bmb.math.switch(x > 0.55, 0, -np.inf)),
+    ]
+
+    model = bmb.Model(
+        "w ~ 1",
+        data,
+        family="bernoulli",
+        link="identity",
+        priors=priors,
+        potentials=potentials,
+    )
+    model.build()
+    assert len(model.backend.model.potentials) == 2
+
+    pot0 = model.backend.model.potentials[0].get_parents()[0]
+    pot1 = model.backend.model.potentials[1].get_parents()[0]
+    assert pot0.__str__() == "Switch(Lt.0, Intercept, -inf)"
+    assert pot1.__str__() == "Switch(Gt.0, 0, -inf)"
+
+
+@pytest.mark.skip(reason="this example no longer trigger the fallback to adapt_diag")
+def test_init_fallback(init_data, caplog):
+    model = bmb.Model("od ~ temp + (1|source) + 0", init_data)
+    with caplog.at_level(logging.INFO):
+        model.fit(draws=100, init="auto")
+        assert "Initializing NUTS using jitter+adapt_diag..." in caplog.text
+        assert "The default initialization" in caplog.text
+        assert "Initializing NUTS using adapt_diag..." in caplog.text
+
+
+def test_2d_response_no_shape():
+    """
+    This tests whether a model where there's a single linear predictor and a response with
+    response.ndim > 1 works well, without Bambi causing any shape problems.
+    See https://github.com/bambinos/bambi/pull/629
+    Updated https://github.com/bambinos/bambi/pull/632
+    """
+
+    def fn(name, p, observed, **kwargs):
+        y = observed[:, 0].flatten()
+        n = observed[:, 1].flatten()
+        # It's the users' responsibility to take only the first dim
+        kwargs["dims"] = kwargs.get("dims")[0]
+        return pm.Binomial(name, p=p, n=n, observed=y, **kwargs)
+
+    likelihood = bmb.Likelihood("CustomBinomial", params=["p"], parent="p", dist=fn)
+    link = bmb.Link("logit")
+    family = bmb.Family("custom-binomial", likelihood, link)
+
+    data = pd.DataFrame(
+        {
+            "x": np.array([1.6907, 1.7242, 1.7552, 1.7842, 1.8113, 1.8369, 1.8610, 1.8839]),
+            "n": np.array([59, 60, 62, 56, 63, 59, 62, 60]),
+            "y": np.array([6, 13, 18, 28, 52, 53, 61, 60]),
+        }
+    )
+
+    model = bmb.Model("prop(y, n) ~ x", data, family=family)
+    model.fit(draws=10, tune=10)
