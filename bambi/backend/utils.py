@@ -85,37 +85,113 @@ GP_KERNELS = {
 }
 
 
-def make_logp_and_random(dist):
-    def logp(value, weights, *dist_params):
+def make_logp_and_random(dist: pm.Distribution):
+    """Create functions to compute a weighted logp and generate random draws for a distribution
+
+    Parameters
+    ----------
+    dist : pm.Distribution
+        The PyMC distribution for which we want to get the logp and random functions.
+
+    Returns
+    -------
+    A tuple with two functions. The first computes the logp, the second generates random draws.
+    """
+
+    def logp(value, *dist_params):
+        weights, *dist_params = dist_params
         return weights * dist.logp(value, *dist_params)
 
     def random(*dist_params, rng=None, size=None):
-        # Weights don't make sense when generating new observations. 
-        # They are a property of actual observations
-        weights, *dist_params = dist_params
+        # Weights don't make sense when generating new observations,
+        # they are a property of observations
+        _, *dist_params = dist_params
         rng_fn = getattr(rng, dist.rv_op.name)
         return rng_fn(*dist_params, size=size)
+
     return logp, random
 
 
-def get_dist_args(dist):
-    args = inspect.getfullargspec(dist.dist).args
-    # Remove first argument, which is usually 'cls'
-    args.pop(0)
-    return args
+def get_dist_args(dist: pm.Distribution) -> list[str]:
+    """Get the argument names of a PyMC distribution.
+
+    The argument names are the names of the parameters of the distribution.
+
+    Parameters
+    ----------
+    dist : pm.Distribution
+        The PyMC distribution for which we want to extract the argument names.
+
+    Returns
+    -------
+    list[str]
+        The names of the arguments.
+    """
+    # Get all args but the first one which is usually 'cls'
+    return inspect.getfullargspec(dist.dist).args[1:]
 
 
-# logp, random = make_logp_and_random(pm.Normal)
-# args = get_dist_args(pm.Normal)
+def make_weighted_distribution(dist: pm.Distribution):
+    logp, random = make_logp_and_random(dist)
+    dist_args = get_dist_args(dist)
+
+    # pylint: disable=protected-access
+    try:
+        dname = dist.rv_op._print_name[0] # pylint: disable=protected-access
+    except:
+        dname = "Dist"
+
+    class WeightedDistribution:
+        def __new__(cls, name, weights, **kwargs):
+            # Get parameter values in the order required by the distribution as they are passed
+            # by position to `pm.CustomDist`
+            dist_params = [kwargs.pop(arg) for arg in dist_args if arg in kwargs]
+            return pm.CustomDist(
+                name,
+                weights,
+                *dist_params,
+                logp=logp,
+                random=random,
+                class_name=f"Weighted{dname}",
+                **kwargs,
+            )
+
+        @classmethod
+        def dist(cls, **kwargs):
+            dist_params = [kwargs.pop(arg) for arg in dist_args if arg in kwargs]
+            if "weights" in kwargs:
+                dist_params.insert(0, kwargs.pop("weights"))
+            return pm.CustomDist.dist(
+                *dist_params, logp=logp, random=random, class_name=f"Weighted{dname}", **kwargs
+            )
+
+    return WeightedDistribution
+
+
+# WeightedNormal = make_weighted_distribution(pm.Normal)
 
 # with pm.Model() as model:
 #     weights = 2
 #     mu = pm.Normal("mu", 0, 1)
 #     sigma = pm.HalfNormal("sigma", 1)
-#     params = {"sigma": sigma, "mu": mu}
-#     dist_params = [params.get(arg) for arg in args if arg in params]
-#     pm.CustomDist(
-#         "custom_dist", weights, *dist_params, random=random, logp=logp, observed=np.random.randn(100)
-#     )
+#     WeightedNormal("y", weights, mu=mu, sigma=sigma, observed=np.random.randn(100))
 #     idata = pm.sample_prior_predictive()
 #     idata.extend(pm.sample(100))
+
+# pm.draw(WeightedNormal.dist(mu=0, sigma=1), draws=10)
+# pm.logp(WeightedNormal.dist(mu=0.25, sigma=2.5, weights=[1, 2.5]), value=[0, 0]).eval()
+# pm.logp(pm.Normal.dist(mu=0.25, sigma=2.5), value=[0, 0]).eval()
+
+# weights = 1 + np.random.poisson(lam=3, size=100)
+# y = np.random.exponential(scale=3, size=100)
+
+# WeightedExponential = make_weighted_dist(pm.Exponential)
+
+# with pm.Model() as model:
+#     lam = pm.math.exp(pm.Normal("log_lam", 1))
+#     WeightedExponential("y", weights, lam=lam, observed=y)
+#     idata = pm.sample_prior_predictive()
+#     idata.extend(pm.sample(100))
+# pm.draw(WeightedExponential.dist(lam=2), draws=10)
+# pm.logp(WeightedExponential.dist(lam=2, weights=[1, 2.5]), value=[1, 1]).eval()
+# pm.logp(pm.Exponential.dist(lam=2), value=[1, 1]).eval()
