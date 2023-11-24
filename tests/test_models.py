@@ -1336,7 +1336,6 @@ def test_predict_new_groups(data, formula, family, df_new, request):
     model.predict(idata, data=df_new, sample_new_groups=True)
 
 
-
 def test_weighted():
     weights = 1 + np.random.poisson(lam=3, size=100)
     y = np.random.exponential(scale=3, size=100)
