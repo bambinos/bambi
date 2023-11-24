@@ -2,10 +2,12 @@ import pytest
 
 import numpy as np
 import pandas as pd
+import pymc as pm
 
 from bambi.utils import listify
 from bambi.backend.pymc import probit, cloglog
-from bambi.transformations import censored, truncated
+from bambi.backend.utils import make_weighted_distribution
+from bambi.transformations import censored, truncated, weighted
 
 
 def test_listify():
@@ -100,3 +102,43 @@ def test_truncated():
 
     with pytest.raises(ValueError, match="'ub' must be 0 or 1 dimensional."):
         truncated(x, ub=np.column_stack([upper_arr, upper_arr]))
+
+
+def test_weighted():
+    rng = np.random.default_rng(1234)
+    weights = 1 + rng.poisson(lam=3, size=100)
+    weights_wrong = rng.normal(size=100)
+    y = rng.exponential(scale=3, size=100)
+    
+    out = weighted(y, weights)
+    assert out.shape == (100, 2)
+    assert (out[:, 0] == y).all()
+    assert (out[:, 1] == weights).all()
+
+    with pytest.raises(ValueError, match="Weights must be positive"):
+        weighted(y, weights_wrong)
+
+    # Draw function works and matches the non-weighted version
+    WeightedNormal = make_weighted_distribution(pm.Normal)
+    draws1 = pm.draw(WeightedNormal.dist(mu=0, sigma=1), draws=10, random_seed=1234)
+    draws2 = pm.draw(pm.Normal.dist(mu=0, sigma=1), draws=10, random_seed=1234)
+    assert np.allclose(draws1, draws2)
+
+    WeightedExponential = make_weighted_distribution(pm.Exponential)
+    draws1 = pm.draw(WeightedExponential.dist(lam=2.0), draws=10, random_seed=11)
+    draws2 = pm.draw(pm.Exponential.dist(lam=2.0), draws=10, random_seed=11)
+    assert np.allclose(draws1, draws2)
+
+    # Logp works and is propertly weighted
+    weights = np.array([0.5, 1.0, 3.2, 4.5, 1.0])
+    values = np.array([-2, -1, 0, 1.0, 2.0])
+    logp1 = pm.logp(WeightedNormal.dist(mu=0.5, sigma=0.3, weights=weights), value=values).eval()
+    logp2 = pm.logp(pm.Normal.dist(mu=0.5, sigma=0.3), value=values).eval()
+    assert np.allclose(logp1 / logp2, weights)
+
+    weights = np.array([1, 2.5, 2.5])
+    values = np.array([1, 1, 4.0])
+    logp1 = pm.logp(WeightedExponential.dist(lam=2, weights=weights), value=values).eval()
+    logp2 = pm.logp(pm.Exponential.dist(2), value=values).eval()
+
+    assert np.allclose(logp1 / logp2, weights)
