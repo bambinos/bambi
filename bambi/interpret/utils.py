@@ -1,14 +1,11 @@
 # pylint: disable = too-many-function-args
 # pylint: disable = too-many-nested-blocks
 from dataclasses import dataclass, field
-import re
-from statistics import mode
 from typing import Union
 
 import numpy as np
 from formulae.terms.call import Call
 import pandas as pd
-from pandas.api.types import is_categorical_dtype, is_numeric_dtype, is_string_dtype
 import xarray as xr
 
 from bambi import Model
@@ -160,12 +157,16 @@ class ConditionalInfo:
         or not.
         """
         covariate_kinds = ("main", "group", "panel")
-
         if not isinstance(self.conditional, dict):
             self.covariates = listify(self.conditional)
             self.covariates = dict(zip(covariate_kinds, self.covariates))
             self.user_passed = False
         elif isinstance(self.conditional, dict):
+            for key, value in self.conditional.items():
+                if not isinstance(value, (list, np.ndarray)):
+                    self.conditional[key] = listify(value)
+            self.conditional = {key: sorted(value) for key, value in self.conditional.items()}
+
             self.covariates = dict(zip(covariate_kinds, self.conditional))
             self.user_passed = True
 
@@ -277,119 +278,6 @@ def enforce_dtypes(
                 new_df[col] = new_df[col].astype(observed_dtypes[col])
 
     return new_df
-
-
-@log_interpret_defaults
-def make_group_panel_values(
-    data: pd.DataFrame,
-    data_dict: dict,
-    main: str,
-    group: Union[str, None],
-    panel: Union[str, None],
-    kind: str,
-    groups_n: int = 5,
-) -> dict:
-    """
-    Compute group and panel values based on original data.
-    """
-
-    # If available, obtain groups for grouping variable
-    if group:
-        group_values = make_group_values(data[group], groups_n)
-        group_n = len(group_values)
-
-    # If available, obtain groups for panel variable. Same logic than grouping applies
-    if panel:
-        panel_values = make_group_values(data[panel], groups_n)
-        panel_n = len(panel_values)
-
-    main_values = data_dict[main]
-    main_n = len(main_values)
-
-    if kind == "predictions":
-        if group and not panel:
-            main_values = np.tile(main_values, group_n)
-            group_values = np.repeat(group_values, main_n)
-            data_dict.update({main: main_values, group: group_values})
-        elif not group and panel:
-            main_values = np.tile(main_values, panel_n)
-            panel_values = np.repeat(panel_values, main_n)
-            data_dict.update({main: main_values, panel: panel_values})
-        elif group and panel:
-            if group == panel:
-                main_values = np.tile(main_values, group_n)
-                group_values = np.repeat(group_values, main_n)
-                data_dict.update({main: main_values, group: group_values})
-            else:
-                main_values = np.tile(np.tile(main_values, group_n), panel_n)
-                group_values = np.tile(np.repeat(group_values, main_n), panel_n)
-                panel_values = np.repeat(panel_values, main_n * group_n)
-                data_dict.update({main: main_values, group: group_values, panel: panel_values})
-    elif kind in ("comparisons", "slopes"):
-        # for comparisons and slopes, we need unique values for numeric and categorical
-        # group/panel covariates since we iterate over pairwise combinations of values
-        if group and not panel:
-            data_dict.update({group: np.unique(group_values)})
-        elif group and panel:
-            data_dict.update({group: np.unique(group_values), panel: np.unique(panel_values)})
-
-    return data_dict
-
-
-@log_interpret_defaults
-def set_default_values(model: Model, data_dict: dict, kind: str) -> dict:
-    """
-    Set default values for each variable in the model if the user did not
-    pass them in the data_dict.
-    """
-    assert kind in (
-        "comparisons",
-        "predictions",
-        "slopes",
-    ), "kind must be either 'comparisons', 'slopes', or 'predictions'"
-
-    unique_covariates = get_model_covariates(model)
-    for name in unique_covariates:
-        if name not in data_dict:
-            dtype = str(model.data[name].dtype)
-            if re.match(r"float*|int*", dtype):
-                data_dict[name] = np.mean(model.data[name])
-            elif dtype in ("category", "dtype"):
-                data_dict[name] = mode(model.data[name])
-
-    if kind in ("comparisons", "slopes"):
-        # if value in dict is not a list then convert to a list
-        for key, value in data_dict.items():
-            if not isinstance(value, (list, np.ndarray)):
-                data_dict[key] = [value]
-        return data_dict
-
-    return data_dict
-
-
-@log_interpret_defaults
-def make_main_values(x: np.ndarray, _name: str, grid_n: int = 50) -> np.ndarray:
-    """
-    Compute main values based on original data using a grid of evenly spaced
-    values for numeric predictors and unique levels for categoric predictors.
-    """
-    if is_numeric_dtype(x):
-        return np.linspace(np.min(x), np.max(x), grid_n)
-    elif is_string_dtype(x) or is_categorical_dtype(x):
-        return np.unique(x)
-    raise ValueError("Main covariate must be numeric or categoric.")
-
-
-def make_group_values(x: np.ndarray, groups_n: int = 5) -> np.ndarray:
-    """
-    Compute group values based on original data using unique levels for
-    categoric predictors and quantiles for numeric predictors.
-    """
-    if is_string_dtype(x) or is_categorical_dtype(x):
-        return np.unique(x)
-    elif is_numeric_dtype(x):
-        return np.quantile(x, np.linspace(0, 1, groups_n))
-    raise ValueError("Group covariate must be numeric or categoric.")
 
 
 def get_group_offset(n, lower: float = 0.05, upper: float = 0.4) -> np.ndarray:
