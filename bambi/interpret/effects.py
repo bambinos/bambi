@@ -505,7 +505,7 @@ def predictions(
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
-    cap_data = create_predictions_data(conditional_info, conditional_info.user_passed)
+    cap_data = create_predictions_data(conditional_info)
 
     if target != "mean":
         component = model.components[target]
@@ -680,7 +680,6 @@ def comparisons(
     conditional_info = ConditionalInfo(model, conditional)
 
     transforms = transforms if transforms is not None else {}
-
     response_name = get_aliased_name(model.response_component.response_term)
     response = ResponseInfo(
         response_name, target="mean", lower_bound=lower_bound, upper_bound=upper_bound
@@ -689,7 +688,7 @@ def comparisons(
 
     # 'comparisons' not be limited to ("main", "group", "panel")
     comparisons_data = create_differences_data(
-        conditional_info, contrast_info, conditional_info.user_passed, kind="comparisons"
+        conditional_info, contrast_info, effect_type="comparisons"
     )
     idata = model.predict(
         idata, data=comparisons_data, sample_new_groups=sample_new_groups, inplace=False
@@ -847,14 +846,11 @@ def slopes(
     upper_bound = 1 - lower_bound
 
     transforms = transforms if transforms is not None else {}
-
     response_name = get_aliased_name(model.response_component.response_term)
     response = ResponseInfo(response_name, "mean", lower_bound, upper_bound)
     response_transform = transforms.get(response_name, identity)
 
-    slopes_data = create_differences_data(
-        conditional_info, wrt_info, conditional_info.user_passed, effect_type
-    )
+    slopes_data = create_differences_data(conditional_info, wrt_info, effect_type)
     idata = model.predict(
         idata, data=slopes_data, sample_new_groups=sample_new_groups, inplace=False
     )
