@@ -19,11 +19,11 @@ def data_grid(
     model: Model,
     conditional: Union[str, list, dict],
     variable: Union[str, dict, None] = None,
-    grid_type: str = "pairwise",
     effect_type: Union[str, None] = None,
     eps: Union[float, None] = None,
+    **kwargs,
 ):
-    """Create a pairwise grid of data using the covariates passed into the 'conditional'
+    """Create a pairwise grid of data using the covariates passed to the 'conditional'
     and optional 'variable' argument. Variables not passed in 'conditional', but are terms
     in the Bambi model, are set to typical values (e.g., mean, mode).
 
@@ -37,15 +37,15 @@ def data_grid(
     variable: str, dict, optional
         The variable of interest. This is 'contrast' for 'comparisons', 'wrt' for 'slopes', and
         'None' for 'predictions'. If dict, keys are the covariate names and values are the values.
-    grid_type : str, optional
-        The type of grid to create. Either 'pairwise' or 'expand'. Defaults to 'pairwise'.
-        'pairwise' creates a dataframe with pairwise combinations of values.
     effect_type : str, optional
         The type of effect the data may be used for. This argument is useful for if the data
         will be used to compute 'comparisons' or 'slopes' and a parameter is passed to 'variable'
         as it determines the default 'eps' value. Defaults to None.
     eps : float, optional
         The epsilon value used to compute 'comparisons' or 'slopes'. Defaults to None.
+    **kwargs : dict
+        Optional keywords arguments passed to 'create_grid' to determine the number of values `num`
+        to return when computing a `np.linspace` grid.
 
     Returns
     -------
@@ -56,15 +56,17 @@ def data_grid(
     Raises
     ------
     ValueError
-        If 'grid_type' is not 'pairwise' or 'expand'.
+        If 'variable' and 'effect_type' not in ["comparisons", "slopes", "predictions"].
     TypeError
-        If 'conditional' is not of type str, list, or dict.
-        If 'variable' is not of type str, dict, or None.
         If 'conditional' is a dict and the values are not of type int, float, list, or np.ndarray.
         If 'conditional' is a list and the elements are not of type str.
+        If 'variable' is a dict and there is more than one key.
+
     """
-    if grid_type not in ["pairwise", "expand"]:
-        raise ValueError("'grid_type' must be either 'pairwise' or 'expand'")
+    if variable and effect_type not in ["comparisons", "slopes", "predictions"]:
+        raise ValueError(
+            f"'effect_type' must be either 'comparisons' or 'slopes'. Received: {effect_type}"
+        )
 
     if isinstance(conditional, dict):
         for value in conditional.values():
@@ -79,7 +81,6 @@ def data_grid(
             if not isinstance(value, str):
                 raise TypeError(f"Elements of list must be of type str. Received: {type(value)}")
 
-    # TODO: fix TypeError
     conditional = ConditionalInfo(model, conditional)
 
     if variable:
@@ -87,11 +88,10 @@ def data_grid(
             if len(variable) > 1:
                 raise ValueError("Variable dictionary must have only one key.")
 
-        # TODO: fix TypeErrors
         grid = bool(conditional.covariates)
         variable = VariableInfo(model, variable, kind=effect_type, eps=eps, grid=grid)
 
-    return create_grid(conditional, variable, grid_type=grid_type)
+    return create_grid(conditional, variable, **kwargs)
 
 
 def _prepare_idata(idata: InferenceData, data: xr.Dataset) -> InferenceData:
@@ -148,7 +148,7 @@ def select_draws(
     group: str = "posterior",
 ) -> xr.DataArray:
     """Select posterior or posterior predictive draws conditioned on the observation
-    that produced that draw.
+    that produced that draw by passing a `condition` dictionary.
 
     Parameters
     ----------

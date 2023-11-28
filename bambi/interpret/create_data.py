@@ -31,19 +31,19 @@ def create_grid(condition, variable, **kwargs) -> pd.DataFrame:
     Values for the grid are either:
         1.) computed using an equally spaced grid (`np.linspace`), mean, and or mode depending on
             the covariate dtype.
-        2.) a user specified value or range of values.
+        2.) a user specified value or range of values if `condition.user_passed = True`
 
     Parameters
     ----------
     condition : ConditionalInfo
-        Information about the conditional argument passed into the plot
-        function.
+        Information about data passed to the conditional parameter of 'comparisons',
+        'predictions', or 'slopes' related functions.
     variable : VariableInfo, optional
-        Information about the variable of interest. This is 'contrast' for
-        'comparisons', 'wrt' for 'slopes', and 'None' for 'predictions'.
+        Information about data passed to the variable of interest parameter. This
+        is 'contrast' for 'comparisons', 'wrt' for 'slopes', and 'None' for 'predictions'.
     **kwargs : dict
-        Optional keywords specifying the type of grid to create 'grid_type'
-        and or the effect type 'effect_type' being computed.
+        Optional keywords arguments such as 'effect' (the effect type being computed),
+        and 'num' (the number of values to return when computing a `np.linspace` grid).
 
     Returns
     -------
@@ -53,18 +53,16 @@ def create_grid(condition, variable, **kwargs) -> pd.DataFrame:
     model, observed_data = condition.model, condition.model.data
 
     if condition.user_passed:
-        # TODO: FIX THIS!!!
-        # data_dict = {**condition.covariates}
+        # shallow copy of user-passed data dictionary
         data_dict = {**condition.conditional}
     else:
         data_dict = {}
-        # TODO: FIX THIS!!!
-        # for covariate in condition.covariates:
+        # values here are the names of the covariates
         for covariate in condition.covariates.values():
             x = observed_data[covariate]
-
+            num = kwargs.get("num", 50)
             if is_numeric_dtype(x) or is_float_dtype(x):
-                values = np.linspace(np.min(x), np.max(x), 50)
+                values = np.linspace(np.min(x), np.max(x), num)
             elif is_integer_dtype(x):
                 values = np.quantile(x, np.linspace(0, 1, 5))
             elif is_categorical_dtype(x) or is_string_dtype(x) or is_object_dtype(x):
@@ -79,26 +77,21 @@ def create_grid(condition, variable, **kwargs) -> pd.DataFrame:
     if variable:
         data_dict[variable.name] = variable.values
 
-    # Set typical values as defaults for unspecified covariates
+    # set typical values as defaults for unspecified covariates
     data_dict = set_default_values(model, data_dict)
-
-    # TODO: expand() for 'predictions' so predictions data is not a pairwise grid
-    # if grid_type == "expand":
-    #     data_grid = _expand_grid()
-    # else:
     data_grid = _pairwise_grid(data_dict)
 
-    # Can't enforce dtype on 'with respect to' variable for 'slopes' as it
+    # can't enforce dtype on 'with respect to' variable for 'slopes' as it
     # may remove floating point in the epsilon
-    effect_kind = kwargs.get("effect_kind", None)
-    if effect_kind == "slopes":
+    effect_type = kwargs.get("effect", None)
+    if effect_type == "slopes":
         except_col = variable.name
     else:
         except_col = None
 
     data_grid = enforce_dtypes(observed_data, data_grid, except_col)
 
-    # After computing default values, fractional values may have been computed.
+    # after computing default values, fractional values may have been computed.
     # Enforcing the dtype of "int" may create duplicate rows as it will round
     # the fractional values.
     data_grid = data_grid.drop_duplicates()
@@ -150,7 +143,6 @@ def _differences_unit_level(variable_info: VariableInfo, effect_type: str) -> pd
     """
     covariates = get_model_covariates(variable_info.model)
     df = variable_info.model.data[covariates].drop(labels=variable_info.name, axis=1)
-
     variable_vals = variable_info.values
 
     if effect_type == "comparisons":
@@ -162,12 +154,9 @@ def _differences_unit_level(variable_info: VariableInfo, effect_type: str) -> pd
         unit_level_df_dict[f"contrast_{idx}"] = df.copy()
         unit_level_df_dict[f"contrast_{idx}"][variable_info.name] = value
 
-    # After inserting the variable of interest's values, duplicate rows may have
-    # been introduced if that value was already present in the data. Dropping
-    # duplicates ensures that the data is the same length as the original data.
-    unit_level_df = pd.concat(unit_level_df_dict.values()).drop_duplicates().reset_index(drop=True)
+    unit_level_df = pd.concat(unit_level_df_dict.values())
 
-    return unit_level_df
+    return unit_level_df.reset_index(drop=True)
 
 
 def create_differences_data(
@@ -198,7 +187,7 @@ def create_differences_data(
     if not condition_info.covariates:
         return _differences_unit_level(variable_info, effect_type)
 
-    return create_grid(condition_info, variable_info, effect_type=effect_type)
+    return create_grid(condition_info, variable_info, effect=effect_type)
 
 
 def create_predictions_data(condition_info: ConditionalInfo) -> pd.DataFrame:
@@ -219,7 +208,7 @@ def create_predictions_data(condition_info: ConditionalInfo) -> pd.DataFrame:
         is returned. Otherwise, a grid of values is created using the covariates
         passed into the `conditional` argument.
     """
-    # Unit level data uses the observed (empirical) data
+    # unit level data uses the observed (empirical) data
     if not condition_info.covariates:
         covariates = get_model_covariates(condition_info.model)
         return condition_info.model.data[covariates]
@@ -233,7 +222,7 @@ def set_default_values(model: Model, data_dict: dict) -> dict:
     Set default values for each variable in the model if the user did not
     pass them in the data_dict.
     """
-    # Set unspecified covariates to "typical" values
+    # set unspecified covariates to "typical" values
     unique_covariates = get_model_covariates(model)
     for name in unique_covariates:
         if name not in data_dict:
