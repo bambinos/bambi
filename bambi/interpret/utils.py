@@ -119,7 +119,7 @@ class VariableInfo:
                                     predictor_data = np.mean(predictor_data)
                                 if self.kind == "slopes":
                                     values = self.epsilon_difference(predictor_data, self.eps)
-                                elif self.kind == "comparisons":
+                                if self.kind == "comparisons":
                                     values = self.centered_difference(
                                         predictor_data, self.eps, dtype
                                     )
@@ -153,29 +153,44 @@ class ConditionalInfo:
 
     def __post_init__(self):
         """
-        Sets the covariates attributes based on if the user passed a dictionary
-        or not.
+        Maps covariates to 'main', 'group', and 'panel' in the order they are passed
+        to the 'conditional' argument.
+
+        By default, the first three elements (covariates) are mapped to 'main', 'group',
+        and 'panel'. If the user passes more than three covariates, the remaining
+        are mapped to 'covariate_4', 'covariate_5', etc. to ensure they are
+        not dropped due to non-unique keys.
         """
         covariate_kinds = ("main", "group", "panel")
+
         if not isinstance(self.conditional, dict):
-            self.covariates = listify(self.conditional)
-            self.covariates = dict(zip(covariate_kinds, self.covariates))
+            self.conditional = listify(self.conditional)
+            covariate_names = self.conditional
             self.user_passed = False
         elif isinstance(self.conditional, dict):
+            covariate_names = list(self.conditional.keys())
             for key, value in self.conditional.items():
                 if not isinstance(value, (list, np.ndarray)):
                     self.conditional[key] = listify(value)
-            self.conditional = {key: sorted(value) for key, value in self.conditional.items()}
 
-            self.covariates = dict(zip(covariate_kinds, self.conditional))
+            # sort values b/c of matplotlib plotting behavior when calling `plot_categorical`
+            self.conditional = {key: sorted(value) for key, value in self.conditional.items()}
             self.user_passed = True
+
+        self.covariates = dict(zip(covariate_kinds, self.conditional))
+
+        # adds unique keys to the covariates dict if the user passed more than three covariates
+        extra_covariates = covariate_names[len(covariate_kinds) :]
+        if extra_covariates:
+            for index, extra in enumerate(extra_covariates, start=1):
+                self.covariates[f"covariate_{index}"] = extra
 
 
 @dataclass
 class Covariates:
     """
     Stores the 'main', 'group', and 'panel' covariates from the 'conditional'
-    argument in 'slopes' and 'comparisons'.
+    argument in 'plot_comparisons', 'plot_predictions', 'plot_slopes'.
     """
 
     main: str
@@ -220,7 +235,7 @@ def get_model_covariates(model: Model) -> np.ndarray:
     for term in terms.values():
         if hasattr(term, "components"):
             for component in term.components:
-                # If the component is a function call, use the argument names
+                # if the component is a function call, use the argument names
                 if isinstance(component, Call):
                     covariates.append([arg.name for arg in component.call.args])
                 else:
@@ -281,16 +296,10 @@ def enforce_dtypes(
 
 
 def get_group_offset(n, lower: float = 0.05, upper: float = 0.4) -> np.ndarray:
-    # Complementary log log function, scaled.
-    # See following code to have an idea of how this function looks like
-    # lower, upper = 0.05, 0.4
-    # x = np.linspace(2, 9)
-    # y = get_group_offset(x, lower, upper)
-    # fig, ax = plt.subplots(figsize=(8, 5))
-    # ax.plot(x, y)
-    # ax.axvline(2, color="k", ls="--")
-    # ax.axhline(lower, color="k", ls="--")
-    # ax.axhline(upper, color="k", ls="--")
+    """
+    When plotting categorical variables, this function computes the offset of the
+    stripplot points based on the number of groups ``n``.
+    """
     intercept, slope = 3.25, 1
     return lower + np.exp(-np.exp(intercept - slope * n)) * (upper - lower)
 
