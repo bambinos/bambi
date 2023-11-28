@@ -5,10 +5,11 @@ import pymc as pm
 import pytensor.tensor as pt
 
 from bambi.backend.utils import (
-    has_hyperprior,
-    get_distribution_from_prior,
     get_distribution_from_likelihood,
+    get_distribution_from_prior,
     get_linkinv,
+    has_hyperprior,
+    make_weighted_distribution,
     GP_KERNELS,
 )
 from bambi.families.multivariate import MultivariateFamily, Multinomial, DirichletMultinomial
@@ -324,6 +325,21 @@ class ResponseTerm:
             dist_rv = pm.Truncated(
                 self.name, stateless_dist, lower=lower, upper=upper, observed=observed, dims=dims
             )
+
+        # Handle weighted responses
+        elif self.term.is_weighted:
+            dims = kwargs.pop("dims", None)
+            data_matrix = kwargs.pop("observed")
+
+            # Get values of the response variable
+            observed = np.squeeze(data_matrix[:, 0])
+
+            # Get weights
+            weights = np.squeeze(data_matrix[:, 1])
+
+            # Get a weighted version of the response distribution
+            weighted_dist = make_weighted_distribution(distribution)
+            dist_rv = weighted_dist(self.name, weights, **kwargs, observed=observed, dims=dims)
         else:
             dist_rv = distribution(self.name, **kwargs)
 
@@ -345,7 +361,7 @@ class ResponseTerm:
         if isinstance(self.family, (Multinomial, DirichletMultinomial)):
             return kwargs
 
-        if self.term.is_censored or self.term.is_truncated:
+        if self.term.is_censored or self.term.is_truncated or self.term.is_weighted:
             return kwargs
 
         dims, data = kwargs["dims"], kwargs["observed"]

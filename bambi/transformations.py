@@ -69,7 +69,7 @@ censored.__metadata__ = {"kind": "censored"}
 
 
 def truncated(x, lb=None, ub=None):
-    """Construct array for truncated response
+    """Construct array for a truncated response
 
     Parameters
     ----------
@@ -126,6 +126,34 @@ def truncated(x, lb=None, ub=None):
 
 
 truncated.__metadata__ = {"kind": "truncated"}
+
+
+def weighted(x, weights):
+    """Construct array for a weighted response
+
+    Parameters
+    ----------
+    x : np.ndarray
+        The values of the truncated variable.
+    weights : np.ndarray
+        The weight of each value in `x`.
+
+    Returns
+    ------
+    np.ndarray
+        Array of shape (n, 2). The first column contains the values of the `x` array and the second
+        contains the values of `weights`.
+    """
+    x = np.asarray(x)
+    weights = np.asarray(weights)
+
+    if any(weights < 0):
+        raise ValueError("Weights must be positive.")
+
+    return np.column_stack([x, weights])
+
+
+weighted.__metadata__ = {"kind": "weighted"}
 
 # pylint: disable = invalid-name
 @register_stateful_transform
@@ -376,6 +404,7 @@ transformations_namespace = {
     "c": c,
     "censored": censored,
     "truncated": truncated,
+    "weighted": weighted,
     "log": np.log,
     "log2": np.log2,
     "log10": np.log10,

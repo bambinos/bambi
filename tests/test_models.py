@@ -1334,3 +1334,13 @@ def test_predict_new_groups(data, formula, family, df_new, request):
     model = bmb.Model(formula, data, family=family)
     idata = model.fit(tune=100, draws=100)
     model.predict(idata, data=df_new, sample_new_groups=True)
+
+
+def test_weighted():
+    weights = 1 + np.random.poisson(lam=3, size=100)
+    y = np.random.exponential(scale=3, size=100)
+    data = pd.DataFrame({"w": weights, "y": y})
+    model = bmb.Model("weighted(y, w) ~ 1", data, family="exponential")
+    idata = model.fit(tune=TUNE, draws=DRAWS)
+    model.predict(idata, kind="pps")
+    model.predict(idata, kind="pps", data=data)
