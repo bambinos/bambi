@@ -342,7 +342,7 @@ class PredictiveDifferences:
             for 'comparisons' and 'slopes', then a subset of the 'preds' data is used
             to build the summary.
         """
-        # Scenario 1
+        # scenario 1
         if len(self.variable.values) > 2 and self.kind == "comparisons":
             summary_df = self.preds_data.drop(columns=self.variable.name).drop_duplicates()
             covariates_cols = summary_df.columns
@@ -353,7 +353,7 @@ class PredictiveDifferences:
                 contrast_values, summary_df.shape[0] // len(contrast_values), axis=0
             )
             contrast_values = [tuple(elem) for elem in contrast_values]
-        # Scenario 2
+        # scenario 2
         elif len(response_dim) > 1:
             summary_df = self.preds_data.drop(columns=self.variable.name).drop_duplicates()
             covariates_cols = summary_df.columns
@@ -364,7 +364,7 @@ class PredictiveDifferences:
                 response_dim, summary_df.shape[0] // len(response_dim)
             )
             contrast_values = [tuple(contrast_values)] * summary_df.shape[0]
-        # Scenario 3 & 4
+        # scenario 3 & 4
         else:
             wrt = {}
             for idx, _ in enumerate(self.variable.values):
@@ -686,7 +686,6 @@ def comparisons(
     )
     response_transform = transforms.get(response_name, identity)
 
-    # 'comparisons' not be limited to ("main", "group", "panel")
     comparisons_data = create_differences_data(
         conditional_info, contrast_info, effect_type="comparisons"
     )
@@ -830,7 +829,6 @@ def slopes(
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
-    # 'slopes' should not be limited to ("main", "group", "panel")
     conditional_info = ConditionalInfo(model, conditional)
 
     grid = bool(conditional_info.covariates)
@@ -863,7 +861,7 @@ def slopes(
         response_dim = np.empty(0)
 
     predictive_difference = PredictiveDifferences(
-        model, slopes_data, wrt_info, conditional_info, response, use_hdi, effect_type
+        model, slopes_data, wrt_info, conditional_info, response, use_hdi, kind=effect_type
     )
     slopes_summary = predictive_difference.get_estimate(
         idata, response_transform, "diff", slope, eps, prob
