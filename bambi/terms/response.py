@@ -2,7 +2,12 @@ import formulae.terms
 
 from bambi.terms.base import BaseTerm
 
-from bambi.terms.utils import is_censored_response, is_truncated_response, is_weighted_response
+from bambi.terms.utils import (
+    is_censored_response,
+    is_constrained_response,
+    is_truncated_response,
+    is_weighted_response,
+)
 
 
 class ResponseTerm(BaseTerm):
@@ -10,6 +15,7 @@ class ResponseTerm(BaseTerm):
         self.term = response.term.term
         self.family = family
         self.is_censored = is_censored_response(self.term)
+        self.is_constrained = is_constrained_response(self.term)
         self.is_truncated = is_truncated_response(self.term)
         self.is_weighted = is_weighted_response(self.term)
 

@@ -42,6 +42,16 @@ def is_truncated_response(term):
     return is_call_of_kind(component, "truncated")
 
 
+def is_constrained_response(term):
+    """Determines if a formulae term represents a constrained response"""
+    if not is_single_component(term):
+        return False
+    component = term.components[0]  # get the first (and single) component
+    if not is_call_component(component):
+        return False
+    return is_call_of_kind(component, "constrained")
+
+
 def is_weighted_response(term):
     """Determines if a formulae term represents a weighted response"""
     if not is_single_component(term):
