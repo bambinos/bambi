@@ -5,7 +5,7 @@ from formulae.transforms import register_stateful_transform
 
 
 def c(*args):  # pylint: disable=invalid-name
-    """Concatenate columns into a 2D NumPy Array"""
+    """Concatenate columns into a 2D NumPy Array."""
     return np.column_stack(args)
 
 
@@ -21,7 +21,7 @@ def censored(*args):
     upper bound, only if it's interval censoring, and the third argument contains the censoring
     statuses.
 
-    Valid censoring statuses are
+    Valid censoring statuses are:
 
     * "left": left censoring
     * "none": no censoring
@@ -199,49 +199,49 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
         Parameters
         ----------
         m : int, Sequence[int], ndarray
-            The number of basis vectors. See `HSGP.reconciliate_shape` to see how it is
+            The number of basis vectors. See ``HSGP.reconciliate_shape`? to see how it is
             broadcasted/recycled.
         L : float, Sequence[float], Sequence[Sequence[float]], ndarray, optional
-            The boundary of the variable space. See `HSGP.reconciliate_shape` to see how it is
-            broadcasted/recycled. Defaults to `None`.
+            The boundary of the variable space. See ``HSGP.reconciliate_shape`` to see how it is
+            broadcasted/recycled. Defaults to ``None``.
         c : float, Sequence[float], Sequence[Sequence[float]], ndarray, optional
-            The proportion extension factor. Se `HSGP.reconciliate_shape` to see how it is
-            broadcasted/recycled. Defaults to `None`.
+            The proportion extension factor. Se ``HSGP.reconciliate_shape`` to see how it is
+            broadcasted/recycled. Defaults to ``None``.
         by : array-like, optional
             The values of a variable to group by. It is used to create a HSGP term by group.
-            Defaults to `None`.
+            Defaults to ``None``.
         cov : str, optional
             The name of the covariance function to use. Defaults to "ExpQuad".
         share_cov : bool, optional
-            Whether to share the same covariance function for every group. Defaults to `True`.
+            Whether to share the same covariance function for every group. Defaults to ``True``.
         scale : bool, optional
-            When `True`, the predictors are be rescaled such that the largest Euclidean
+            When ``True``, the predictors are be rescaled such that the largest Euclidean
             distance between two points is 1. This adjustment often improves the sampling speed and
             convergence. The rescaling also impacts the estimated length-scale parameters,
             which will resemble those of the scaled predictors rather than the original predictors
-            when `scale` is `True`. Defaults to `None`, which means the behavior depends on whether
-            custom priors are passed or not. If custom priors are used, `None` is translated to
-            `False`. If automatic priors are used, `None` is translated to `True`.
+            when `scale` is ``True``. Defaults to ``None``, which means the behavior depends on whether
+            custom priors are passed or not. If custom priors are used, ``None`` is translated to
+            `False`. If automatic priors are used, ``None`` is translated to ``True``.
         iso : bool, optional
             Determines whether to use an isotropic or non-isotropic Gaussian Process.
             If isotropic, the same level of smoothing is applied to all predictors,
             while non-isotropic GPs allow different levels of smoothing for individual predictors.
-            This parameter is ignored if only one predictor is supplied. Defaults to `True`.
+            This parameter is ignored if only one predictor is supplied. Defaults to ``True``.
         drop_first : bool, optional
-            Whether to ignore the first basis vector or not. Defaults to `False`.
+            Whether to ignore the first basis vector or not. Defaults to ``False``.
         centered : bool, optional
-            Whether to use the centered or the non-centered parametrization. Defaults to `False`.
+            Whether to use the centered or the non-centered parametrization. Defaults to ``False``.
 
         Returns
         -------
         values
             A NumPy array of shape (observations_n, variables_n) or
-            (observations_n, variables_n + 1) if `by` is not None.
+            (observations_n, variables_n + 1) if ``by`` is not ``None``.
 
         Raises
         ------
         ValueError
-            When both `L` and `c` are `None` or when both of them are not `None` at the same time.
+            When both ``L`` and ``c`` are ``None`` or when both of them are not ``None`` at the same time.
         """
         values = np.column_stack(x)
 
@@ -304,19 +304,19 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
         """Reshapes a value considering the number of variables and groups
 
         Parameter values such as `m`, `L`, and `c` may be different for the different variables and
-        groups. Internally, the shape of these objects is always `(groups_n, variables_n)`.
+        groups. Internally, the shape of these objects is always ``(groups_n, variables_n)``.
         This method contains the logic used to map user supplied values, which may be of different
-        shape and nature, into an object of shape `(groups_n, variables_n)`.
+        shape and nature, into an object of shape ``(groups_n, variables_n)``.
 
         The behavior of the method depends on the type of `value` in the following way.
         If value is of type...
         * `int`: the same value is recycled for all variables and groups.
         * `Sequence[int]`: it represents the values by variable and it is recycled for all groups.
         * `Sequence[Sequence[int]]`: it represents the values by variable and by group and thus
-        no recycling applies. Must be of shape `(groups_n, variables_n)`.
-        * `ndarray`:
-            * If one dimensional, it behaves as `Sequence[int]`
-            * If two dimensional, it behaves as `Sequence[Sequence[int]]`
+        no recycling applies. Must be of shape ``(groups_n, variables_n)``.
+        * ``ndarray``:
+            * If one dimensional, it behaves as ``Sequence[int]``
+            * If two dimensional, it behaves as ``Sequence[Sequence[int]]``
         """
         value = np.asarray(value)
         shape = value.shape
@@ -339,17 +339,17 @@ def as_matrix(x):
     Parameters
     ----------
     x : np.ndarray
-        Array
+        Array.
 
     Returns
     -------
     np.ndarray
-        A two dimensional array
+        A two dimensional array.
 
     Raises
     ------
     ValueError
-        If the input has more than two dimensions
+        If the input has more than two dimensions.
     """
     x = np.atleast_1d(x)
     if x.ndim == 1:
@@ -367,7 +367,7 @@ def mean_by_group(values, group):
     values : np.ndarray
         A 2 dimensional array. Rows indicate observations and columns indicate different variables.
     group : sequence
-        A sequence that indicates to which group each observation belongs to. If `None`, then
+        A sequence that indicates to which group each observation belongs to. If ``None``, then
         no group exists.
 
     Returns

@@ -37,7 +37,7 @@ __version__ = version("bambi")
 
 
 class Model:
-    """Specification of model class.
+    """Specification of model class
 
     Parameters
     ----------
@@ -96,7 +96,7 @@ class Model:
         to the intercept of the centered data.
     extra_namespace : dict, optional
         Additional user supplied variables with transformations or data to include in the
-        environment where the formula is evaluated. Defaults to `None`.
+        environment where the formula is evaluated. Defaults to ``None``.
     """
 
     # pylint: disable=too-many-instance-attributes
@@ -240,7 +240,7 @@ class Model:
         random_seed=None,
         **kwargs,
     ):
-        """Fit the model using PyMC.
+        """Fit the model using PyMC
 
         Parameters
         ----------
@@ -348,20 +348,20 @@ class Model:
         )
 
     def build(self):
-        """Set up the model for sampling/fitting.
+        """Set up the model for sampling/fitting
 
         Creates an instance of the underlying PyMC model and adds all the necessary terms to it.
 
         Returns
         -------
-        None
+        ``None``.
         """
         self.backend = PyMCModel()
         self.backend.build(self)
         self.built = True
 
     def set_priors(self, priors=None, common=None, group_specific=None):
-        """Set priors for one or more existing terms.
+        """Set priors for one or more existing terms
 
         Parameters
         ----------
@@ -375,7 +375,7 @@ class Model:
 
         Returns
         -------
-        None
+        ``None``.
         """
         kwargs = dict(zip(["priors", "common", "group_specific"], [priors, common, group_specific]))
         self._added_priors.update(kwargs)
@@ -442,7 +442,7 @@ class Model:
                         component.update_priors(prior)
 
     def _set_family(self, family, link):
-        """Set the Family of the model.
+        """Set the Family of the model
 
         Parameters
         ----------
@@ -460,7 +460,7 @@ class Model:
 
         Returns
         -------
-        None
+        ``None``.
         """
 
         # If string, get builtin family
@@ -495,7 +495,7 @@ class Model:
 
         Returns
         -------
-        None
+        ``None``.
         """
         if not isinstance(aliases, dict):
             raise ValueError(f"'aliases' must be a dictionary, not a {type(aliases)}.")
@@ -663,7 +663,7 @@ class Model:
 
         Returns
         -------
-        axes: matplotlib axes
+        axes: matplotlib axes.
         """
         self._check_built()
 

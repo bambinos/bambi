@@ -29,7 +29,7 @@ DISTRIBUTIONS = {
 
 
 class Likelihood:
-    """Representation of a Likelihood function for a Bambi model.
+    """Representation of a Likelihood function for a Bambi model
 
     Notes:
     * ``parent`` must be in ``params``

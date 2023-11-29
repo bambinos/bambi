@@ -18,7 +18,7 @@ from bambi.interpret.utils import (
 
 def _pairwise_grid(data_dict: dict) -> pd.DataFrame:
     """Creates a pairwise grid (cartesian product) of data by using the
-    key-values of the dictionary.
+    key-values of the dictionary
 
     Parameters
     ----------
@@ -44,9 +44,11 @@ def _grid_level(
     kind: str,
 ) -> pd.DataFrame:
     """Creates a "grid" of data by using the covariates passed into the
-    `conditional` argument. Values for the grid are either: (1) computed
-    using a equally spaced grid, mean, and or mode (depending on the
-    covariate dtype), and (2) a user specified value or range of values.
+    `conditional` argument
+
+    Values for the grid are either: (1) computed using a equally spaced
+    grid, mean, and or mode (depending on the covariate dtype), and (2)
+    a user specified value or range of values.
 
     Parameters
     ----------
@@ -131,8 +133,9 @@ def _grid_level(
 
 
 def _differences_unit_level(variable_info: VariableInfo, kind: str) -> pd.DataFrame:
-    """Creates the data for unit-level contrasts by using the observed (empirical)
-    data. All covariates in the model are included in the data, except for the
+    """Creates the data for unit-level contrasts by using the observed (empirical) data
+
+    All covariates in the model are included in the data, except for the
     contrast predictor. The contrast predictor is replaced with either: (1) the
     default contrast value, or (2) the user specified contrast value.
 
@@ -204,7 +207,7 @@ def create_differences_data(
 
 def create_predictions_data(condition_info: ConditionalInfo, user_passed: bool) -> pd.DataFrame:
     """Creates either unit level or grid level data for 'predictions' depending
-    if the user passed covariates.
+    if the user passed covariates
 
     Parameters
     ----------

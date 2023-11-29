@@ -13,7 +13,7 @@ class ConstantComponent:
     """Constant model components
 
     This is a component for a target parameter that has no predictors. This could be seen as
-    an intercept-only model for that parameter. For example, tis is the case for sigma when
+    an intercept-only model for that parameter. For example, this is the case for sigma when
     a non-distributional Normal linear regression model is used.
 
     Parameters
@@ -21,9 +21,9 @@ class ConstantComponent:
     name : str
         The name of the component. For example "sigma", "alpha", or "kappa".
     priors : bambi.priors.Prior
-        The prior distribution for the parameter
+        The prior distribution for the parameter.
     spec : bambi.Model
-        The Bambi model
+        The Bambi model.
     """
 
     def __init__(self, name, prior, spec):
@@ -55,7 +55,7 @@ class DistributionalComponent:
         auxiliary parameter (``"param"``). When ``"data"`` this is actually modeling the "parent"
         parameter of the family.
     spec : bambi.Model
-        The Bambi model
+        The Bambi model.
     """
 
     def __init__(self, design, priors, response_name, response_kind, spec):
@@ -555,5 +555,5 @@ def prepare_prior(prior, kind, auto_scale):
     elif isinstance(prior, Prior):
         prior.auto_scale = False
     else:
-        raise ValueError("'prior' must be instance of Prior or None.")
+        raise ValueError("'prior' must be instance of Prior or ``None``.")
     return prior

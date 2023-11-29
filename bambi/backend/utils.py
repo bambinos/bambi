@@ -57,7 +57,7 @@ def get_linkinv(link, invlinks):
     Returns
     -------
         callable
-        The link function
+        The link function.
     """
     # If the name is in the backend, get it from there
     if link.name in invlinks:
@@ -97,7 +97,7 @@ def make_weighted_logp(dist: pm.Distribution):
 
     Returns
     -------
-    A function that computes the weighted logp
+    A function that computes the weighted logp.
     """
 
     def logp(value, *dist_params, weights):
@@ -108,7 +108,7 @@ def make_weighted_logp(dist: pm.Distribution):
 
 
 def get_dist_args(dist: pm.Distribution) -> list[str]:
-    """Get the argument names of a PyMC distribution.
+    """Get the argument names of a PyMC distribution
 
     The argument names are the names of the parameters of the distribution.
 
