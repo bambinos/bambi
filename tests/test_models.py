@@ -1132,6 +1132,33 @@ class TestTruncatedResponse(FitPredictParent):
         assert isinstance(model.backend.model.observed_RVs[0]._owner.op, pm.TruncatedNormal.rv_type)
 
 
+class TestConstrainedResponse(FitPredictParent):
+    def test_constrained_response(self, truncated_data):
+        priors = {
+            "Intercept": bmb.Prior("Normal", mu=0, sigma=1),
+            "x": bmb.Prior("Normal", mu=0, sigma=1),
+            "sigma": bmb.Prior("HalfNormal", sigma=1),
+        }
+        model = bmb.Model("constrained(y, -5) ~ x", truncated_data, priors=priors)
+        idata = self.fit(model, random_seed=121195)
+        idata = self.predict_oos(model, idata)
+        assert idata.posterior_predictive["constrained(y, -5)"].to_numpy().min() > -5
+
+
+        model = bmb.Model("constrained(y, ub=5) ~ x", truncated_data, priors=priors)
+        idata = self.fit(model, random_seed=121195)
+        idata = self.predict_oos(model, idata)
+        assert idata.posterior_predictive["constrained(y, ub=5)"].to_numpy().max() < 5
+
+        model = bmb.Model("constrained(y, -5, 5) ~ x", truncated_data, priors=priors)
+        idata = self.fit(model, random_seed=121195)
+        idata = self.predict_oos(model, idata)
+        assert idata.posterior_predictive["constrained(y, -5, 5)"].to_numpy().min() > -5
+        assert idata.posterior_predictive["constrained(y, -5, 5)"].to_numpy().max() < 5
+
+
+
+
 class TestMultinomial(FitPredictParent):
     def assert_posterior_predictive(self, model, idata):
         y_name = model.response_component.response_term.name

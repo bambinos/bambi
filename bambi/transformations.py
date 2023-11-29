@@ -137,8 +137,11 @@ def constrained(x, lb=None, ub=None):
 
     `lb` and `ub` can only be scalar values.
     """
-    assert lb is None or isinstance(lb, (int, float))
-    assert ub is None or isinstance(ub, (int, float))
+    if not (lb is None or isinstance(lb, (int, float))):
+        raise ValueError("'lb' must be None or scalar.")
+
+    if not (ub is None or isinstance(ub, (int, float))):
+        raise ValueError("'ub' must be None or scalar.")
     return truncated(x, lb, ub)
 
 

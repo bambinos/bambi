@@ -7,6 +7,7 @@
 * Add configuration facilities to Bambi (#745) 
 * Interpet submodule now outputs informative messages when computing default values (#745) 
 * Bambi supports weighted responses (#761)
+* Bambi supports constrained responses (#764)
 
 ### Maintenance and fixes
 
