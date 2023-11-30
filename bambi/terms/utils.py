@@ -3,12 +3,12 @@ from formulae.terms.call_resolver import get_function_from_module
 
 
 def is_single_component(term) -> bool:
-    """Determines if formulae term contains a single component"""
+    """Determines if formulae term contains a single component."""
     return hasattr(term, "components") and len(term.components) == 1
 
 
 def is_call_component(component) -> bool:
-    """Determines if formulae component is the result of a function call"""
+    """Determines if formulae component is the result of a function call."""
     return isinstance(component, fm.terms.call.Call)
 
 
@@ -23,7 +23,7 @@ def is_call_of_kind(call, kind):
 
 
 def is_censored_response(term):
-    """Determines if a formulae term represents a censored response"""
+    """Determines if a formulae term represents a censored response."""
     if not is_single_component(term):
         return False
     component = term.components[0]  # get the first (and single) component
@@ -33,7 +33,7 @@ def is_censored_response(term):
 
 
 def is_truncated_response(term):
-    """Determines if a formulae term represents a truncated response"""
+    """Determines if a formulae term represents a truncated response."""
     if not is_single_component(term):
         return False
     component = term.components[0]  # get the first (and single) component
@@ -43,7 +43,7 @@ def is_truncated_response(term):
 
 
 def is_weighted_response(term):
-    """Determines if a formulae term represents a weighted response"""
+    """Determines if a formulae term represents a weighted response."""
     if not is_single_component(term):
         return False
     component = term.components[0]  # get the first (and single) component

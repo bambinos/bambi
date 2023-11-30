@@ -8,7 +8,7 @@ from bambi.utils import multilinify, indentify
 
 
 def force_within_unit_interval(x):
-    """Make sure data in unit interval is in (0, 1)"""
+    """Make sure data in unit interval is in (0, 1)."""
     eps = np.finfo(float).eps
     x[x == 0] = eps
     x[x == 1] = 1 - eps
@@ -16,7 +16,7 @@ def force_within_unit_interval(x):
 
 
 def force_greater_than_zero(x):
-    """Make sure data in positive reals is in (0, infty)"""
+    """Make sure data in positive reals is in (0, infty)."""
     eps = np.finfo(float).eps
     x[x == 0] = eps
     return x
@@ -33,32 +33,32 @@ def cloglog(mu):
 
 
 def invcloglog(eta):
-    """Inverse of the cloglog function that ensures result is in (0, 1)"""
+    """Inverse of the cloglog function that ensures result is in (0, 1)."""
     result = 1 - np.exp(-np.exp(eta))
     return force_within_unit_interval(result)
 
 
 def probit(mu):
-    """Probit function that ensures the input is in (0, 1)"""
+    """Probit function that ensures the input is in (0, 1)."""
     mu = force_within_unit_interval(mu)
     return 2**0.5 * special.erfinv(2 * mu - 1)  # pylint: disable=no-member
 
 
 def invprobit(eta):
-    """Inverse of the probit function that ensures result is in (0, 1)"""
+    """Inverse of the probit function that ensures result is in (0, 1)."""
     result = 0.5 + 0.5 * special.erf(eta / 2**0.5)  # pylint: disable=no-member
     return force_within_unit_interval(result)
 
 
 def expit(eta):
-    """Expit function that ensures result is in (0, 1)"""
+    """Expit function that ensures result is in (0, 1)."""
     result = special.expit(eta)  # pylint: disable=no-member
     result = force_within_unit_interval(result)
     return result
 
 
 def logit(mu):
-    """Logit function that ensures the input is in (0, 1)"""
+    """Logit function that ensures the input is in (0, 1)."""
     mu = force_within_unit_interval(mu)
     return special.logit(mu)  # pylint: disable=no-member
 
@@ -115,7 +115,7 @@ LINKS = {
 
 
 class Link:
-    """Representation of a link function.
+    """Representation of a link function
 
     This object contains two main functions. One is the link function itself, the function
     that maps values in the response scale to the linear predictor, and the other is the inverse

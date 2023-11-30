@@ -20,10 +20,11 @@ from bambi.interpret.logs import log_interpret_defaults
 class VariableInfo:
     """
     Stores information about the variable (covariate) passed into the 'contrast'
-    or 'wrt' argument for comparisons and slopes. Depending on the effect type
-    ('slopes' or 'comparisons'), the values attribute is either: (1) the values
-    passed with the 'contrast' or 'wrt' argument, or (2) default are values
-    computed by calling 'set_default_variable_values()'.
+    or 'wrt' argument for comparisons and slopes
+
+    Depending on the effect type ('slopes' or 'comparisons'), the values attribute
+    is either: (1) the values passed with the 'contrast' or 'wrt' argument, or (2)
+    default are values computed by calling 'set_default_variable_values()'.
 
     'VariableInfo' is used to create 'slopes' and 'comparisons' data as well as
     computing the estimates for the 'slopes' and 'comparisons' effects.
@@ -91,17 +92,18 @@ class VariableInfo:
     def set_default_variable_values(self) -> np.ndarray:
         """
         Returns default values for the variable of interest ('contrast' and 'wrt')
-        for the 'slopes' and 'comparisons' effects depending on the dtype of the
-        variable of interest, effect type, and if self.grid is True. The scenarios
-        are described below:
+        for the 'slopes' and 'comparisons' effects.
+
+        Depends on the dtype of the variable of interest, effect type, and if
+        self.grid is ``True``. The scenarios are described below:
 
         If numeric dtype and kind is 'comparisons', the returned value is a
         centered difference based on the mean of `variable'.
 
         If numeric dtype and kind is 'slopes', the returned value is an epsilon
-        difference based on the mean of `variable'.
+        difference based on the mean of 'variable'.
 
-        If categoric dtype the returned value is the unique levels of `variable'.
+        If categoric dtype the returned value is the unique levels of 'variable'.
         """
         terms = get_model_terms(self.model)
         # get default values for each variable in the model
@@ -136,7 +138,7 @@ class VariableInfo:
 class ConditionalInfo:
     """
     Stores information about the conditional (covariates) passed into the
-    'conditional' argument for 'comparisons' and 'slopes' effects.
+    'conditional' argument for 'comparisons' and 'slopes' effects
 
     'ConditionalInfo' is used to create 'slopes' and 'comparisons' data as well
     as computing the estimates for the 'slopes' and 'comparisons' effects.

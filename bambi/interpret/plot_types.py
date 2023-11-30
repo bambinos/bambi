@@ -13,7 +13,7 @@ def plot_numeric(
     legend: bool = True,
     axes=None,
 ):
-    """Plotting of numeric data types.
+    """Plotting of numeric data types
 
     Parameters
     ----------
@@ -24,11 +24,11 @@ def plot_numeric(
         function.
     transforms : dict
         Transformations that are applied to each of the variables being plotted. The keys are the
-        name of the variables, and the values are functions to be applied. Defaults to `None`.
+        name of the variables, and the values are functions to be applied. Defaults to ``None``.
     legend : bool, optional
-        Whether to include a legend in the plot. Default to `True`.
+        Whether to include a legend in the plot. Default to ``True``.
     axes : np.ndarray, optional
-        Array of axes. Defaults to `None`.
+        Array of axes. Defaults to ``None``.
 
     Returns
     -------
@@ -158,7 +158,7 @@ def plot_numeric(
 
 
 def plot_categoric(covariates: Covariates, plot_data: pd.DataFrame, legend: bool = True, axes=None):
-    """Plotting of categorical data types.
+    """Plotting of categorical data types
 
     Parameters
     ----------
@@ -168,9 +168,9 @@ def plot_categoric(covariates: Covariates, plot_data: pd.DataFrame, legend: bool
         The data created by the `create_cap_data` or `create_comparisons_data`
         function.
     legend : bool, optional
-        Whether to include a legend in the plot. Default to `True`.
+        Whether to include a legend in the plot. Default to ``True``.
     axes : np.ndarray, optional
-        Array of axes. Defaults to `None`.
+        Array of axes. Defaults to ``None``.
 
     Returns
     -------

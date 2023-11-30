@@ -3,7 +3,7 @@ import pytensor
 
 
 class Prior:
-    """Abstract specification of a term prior.
+    """Abstract specification of a term prior
 
     Parameters
     ----------
@@ -27,7 +27,7 @@ class Prior:
         self.dist = dist
 
     def update(self, **kwargs):
-        """Update the arguments of the prior with additional arguments.
+        """Update the arguments of the prior with additional arguments
 
         Parameters
         ----------

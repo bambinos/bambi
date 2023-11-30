@@ -48,7 +48,7 @@ class PyMCModel:
         self.components = {}
 
     def build(self, spec):
-        """Compile the PyMC model from an abstract model specification.
+        """Compile the PyMC model from an abstract model specification
 
         Parameters
         ----------
@@ -132,7 +132,7 @@ class PyMCModel:
         response_component.build_response(self, spec)
 
     def build_potentials(self, spec):
-        """Add potentials to the PyMC model.
+        """Add potentials to the PyMC model
 
         Potentials are arbitrary quantities that are added to the model log likelihood.
         See 'Factor Potentials' in
@@ -313,7 +313,7 @@ class PyMCModel:
         return self.vi_approx
 
     def _run_laplace(self, draws, omit_offsets, include_mean):
-        """Fit a model using a Laplace approximation.
+        """Fit a model using a Laplace approximation
 
         Mainly for pedagogical use, provides reasonable results for approximately
         Gaussian posteriors. The approximation can be very poor for some models
@@ -369,12 +369,12 @@ class PyMCModel:
 
 
 def _posterior_samples_to_idata(samples, model):
-    """Create InferenceData from samples.
+    """Create InferenceData from samples
 
     Parameters
     ----------
     samples: array
-        Posterior samples
+        Posterior samples.
     model: PyMC model
 
     Returns
