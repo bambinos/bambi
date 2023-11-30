@@ -219,9 +219,10 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
             distance between two points is 1. This adjustment often improves the sampling speed and
             convergence. The rescaling also impacts the estimated length-scale parameters,
             which will resemble those of the scaled predictors rather than the original predictors
-            when `scale` is ``True``. Defaults to ``None``, which means the behavior depends on whether
-            custom priors are passed or not. If custom priors are used, ``None`` is translated to
-            `False`. If automatic priors are used, ``None`` is translated to ``True``.
+            when `scale` is ``True``. Defaults to ``None``, which means the behavior depends on
+            whether custom priors are passed or not. If custom priors are used, ``None`` is
+            translated to ``False``. If automatic priors are used, ``None`` is translated to
+            ``True``.
         iso : bool, optional
             Determines whether to use an isotropic or non-isotropic Gaussian Process.
             If isotropic, the same level of smoothing is applied to all predictors,
@@ -241,7 +242,8 @@ class HSGP:  # pylint: disable = too-many-instance-attributes
         Raises
         ------
         ValueError
-            When both ``L`` and ``c`` are ``None`` or when both of them are not ``None`` at the same time.
+            When both ``L`` and ``c`` are ``None`` or when both of them are not ``None`` at the
+            same time.
         """
         values = np.column_stack(x)
 
