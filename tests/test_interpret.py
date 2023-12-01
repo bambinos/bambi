@@ -9,6 +9,7 @@ import pytest
 import bambi as bmb
 from bambi.interpret.helpers import data_grid, select_draws
 
+
 CHAINS = 4
 TUNE = 500
 DRAWS = 500
@@ -31,7 +32,7 @@ def mtcars():
 # grid of data passing an argument to 'conditional' with no regard to the effect
 # type, and (2) the ability to create a grid of data with respect to an effect
 # type by passing an argument to 'conditional', 'variable', and 'effect_type'.
-# The tests below test these functionalities.
+# The tests below test these two functionalities.
 # -------------------------------------------------------------------
 
 
@@ -45,22 +46,30 @@ def mtcars():
         # user-passed for 'hp', 'drat', and 'am'
         ({"hp": np.linspace(50, 350, 7), "drat": [2.5, 3.5], "am": [0, 1]}),
     ],
-    ids=["1", "2", "3"],
+    ids=["defaults", "defaults_and_user_passed", "user_passed"],
 )
 def test_data_grid_no_effect(request, mtcars, conditional):
     model, idata = mtcars
     grid = data_grid(model, conditional)
 
     id = request.node.name
-    if id == "1":
+    if id == "defaults":
         assert grid.shape == (48, 3)
         assert grid.columns.tolist() == ["hp", "drat", "am"]
-    elif id == "2":
+    elif id == "defaults_and_user_passed":
         assert grid.shape == (14, 3)
         assert grid.columns.tolist() == ["hp", "drat", "am"]
-    elif id == "3":
+    elif id == "user_passed":
         assert grid.shape == (28, 3)
         assert grid.columns.tolist() == ["hp", "drat", "am"]
+
+
+def test_data_grid_no_effect_kwargs(request, mtcars):
+    model, idata = mtcars
+    grid = data_grid(model, ["hp", "drat"], num=10)
+
+    assert grid.shape == (100, 3)
+    assert grid.columns.tolist() == ["hp", "drat", "am"]
 
 
 @pytest.mark.parametrize(
@@ -73,22 +82,24 @@ def test_data_grid_no_effect(request, mtcars, conditional):
         # user-passed for 'conditional' and default value for 'variable'
         ({"drat": np.arange(1, 5, 1), "am": np.array([0, 1])}, "hp"),
     ],
-    ids=["1", "2", "3"],
+    ids=["defaults", "user_passed", "defaults_and_user_passed"],
 )
 def test_data_grid_comparisons(request, mtcars, conditional, variable):
     model, idata = mtcars
     grid = data_grid(model, conditional, variable=variable, effect_type="comparisons")
 
     id = request.node.name
-    if id == "1":
+    if id == "defaults":
         assert grid.shape == (200, 3)
         assert grid.columns.tolist() == ["drat", "am", "hp"]
-    elif id == "2" or id == "3":
+    elif id == "user_passed" or id == "defaults_and_user_passed":
         assert grid.shape == (16, 3)
         assert grid.columns.tolist() == ["drat", "am", "hp"]
 
     with pytest.raises(
-        ValueError, match="'effect_type' must be specified if argument for 'variable' is passed."
+        ValueError,
+        match="'If passing an argument to 'variable', the parameter 'effect_type' must be either "
+        f"'comparisons' or 'slopes'. Received: {None}",
     ):
         data_grid(model, conditional, variable=variable, effect_type=None)
 
@@ -103,24 +114,43 @@ def test_data_grid_comparisons(request, mtcars, conditional, variable):
         # user-passed for 'conditional' and default value for 'variable'
         ({"drat": np.arange(1, 5, 1), "am": np.array([0, 1])}, "hp"),
     ],
-    ids=["1", "2", "3"],
+    ids=["defaults", "user_passed", "defaults_and_user_passed"],
 )
 def test_data_grid_slopes(request, mtcars, conditional, variable):
     model, idata = mtcars
     grid = data_grid(model, conditional, variable=variable, effect_type="slopes")
 
     id = request.node.name
-    if id == "1":
+    if id == "defaults":
         assert grid.shape == (200, 3)
         assert grid.columns.tolist() == ["drat", "am", "hp"]
-    elif id == "2" or id == "3":
+    elif id == "user_passed" or id == "defaults_and_user_passed":
         assert grid.shape == (16, 3)
         assert grid.columns.tolist() == ["drat", "am", "hp"]
 
     with pytest.raises(
-        ValueError, match="'effect_type' must be specified if argument for 'variable' is passed."
+        ValueError,
+        match="'If passing an argument to 'variable', the parameter 'effect_type' must be either "
+        f"'comparisons' or 'slopes'. Received: {None}",
     ):
         data_grid(model, conditional, variable=variable, effect_type=None)
+
+
+@pytest.mark.parametrize(
+    "effect_type, eps", [("comparisons", 1), ("slopes", 1e-2)], ids=["comparisons", "slopes"]
+)
+def test_data_grid_eps(request, mtcars, effect_type, eps):
+    model, idata = mtcars
+    grid = data_grid(model, ["drat", "am"], "hp", effect_type, eps=eps)
+    unit_difference = np.unique(np.abs(np.diff(grid["hp"])))
+
+    id = request.node.name
+    if id == "comparisons":
+        # centered difference 'eps' of 1 adds and subtracts 1 to the default "hp" value
+        assert unit_difference == np.array([2])
+    elif id == "slopes":
+        # finite difference 'eps' of 1e-2 adds 0.01 to the default "hp" value
+        assert unit_difference == np.array([0.01])
 
 
 # -------------------------------------------------------------------
@@ -129,21 +159,21 @@ def test_data_grid_slopes(request, mtcars, conditional, variable):
 # Select posterior or posterior predictive draws conditioned on the
 # observation that produced that draw by passing a `condition` dictionary.
 # `data_grid` is used to create the grid of data that is passed to `model.predict`.
-# Then, a variety of 'condition' dictionaries are passed to `select_draws` to
-# test the output shape of the draws is correct.
+# Then, different 'condition' dictionaries are passed to `select_draws` to
+# ensure the output shape of the selected draws is correct.
 # -------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
     "condition",
     [
-        ({"hp": 225}),
+        ({"hp": 250}),
         ({"drat": 2.5}),
         ({"hp": 250, "drat": 2.5}),
     ],
     ids=["1", "2", "3"],
 )
-def test_select_draws_no_effect(request, mtcars, conditional, condition):
+def test_select_draws_no_effect(request, mtcars, condition):
     model, idata = mtcars
 
     conditional = {"hp": np.linspace(50, 350, 7), "drat": [2.5, 3.5], "am": [0, 1]}
@@ -155,8 +185,8 @@ def test_select_draws_no_effect(request, mtcars, conditional, condition):
     # (CHAINS, DRAWS, n) where n is the number of observations that satisfy the condition
     id = request.node.name
     if id == "1":
-        assert draws.shape == (CHAINS, DRAWS, 2)
+        assert draws.shape == (CHAINS, DRAWS, 4)
     elif id == "2":
-        assert draws.shape == (CHAINS, DRAWS, 7)
+        assert draws.shape == (CHAINS, DRAWS, 14)
     elif id == "3":
-        assert draws.shape == (CHAINS, DRAWS, 1)
+        assert draws.shape == (CHAINS, DRAWS, 2)
