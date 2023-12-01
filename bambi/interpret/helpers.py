@@ -23,15 +23,15 @@ def data_grid(
     eps: Union[float, None] = None,
     **kwargs,
 ):
-    """Create a pairwise grid of data using the covariates passed to the 'conditional'
-    and optional 'variable' argument. Variables not passed in 'conditional', but are terms
-    in the Bambi model, are set to typical values (e.g., mean, mode).
+    """Create a pairwise grid of data using the covariates passed to the 'conditional' and optional
+    'variable' argument. Covariates not passed to 'conditional', but are terms in the Bambi model,
+    are set to typical values (e.g., mean or mode).
 
     Parameters
     ----------
     model : Model
         Bambi Model object.
-    conditional : str, list, dict, optional
+    conditional : str, list, dict
         The covariates we would like to condition on. If dict, keys are the covariate names and
         values are the values to condition on.
     variable: str, dict, optional
@@ -42,10 +42,11 @@ def data_grid(
         will be used to compute 'comparisons' or 'slopes' and a parameter is passed to 'variable'
         as it determines the default 'eps' value. Defaults to None.
     eps : float, optional
-        The epsilon value used to compute 'comparisons' or 'slopes'. Defaults to None.
+        The epsilon value used to compute 'comparisons' or 'slopes'. If 'effect_type' is True,
+        'comparisons' defaults to `0.5` and 'slopes' defaults to `1e-4`.
     **kwargs : dict
         Optional keywords arguments passed to 'create_grid' to determine the number of values `num`
-        to return when computing a `np.linspace` grid.
+        to return when computing a `np.linspace` grid for default values.
 
     Returns
     -------
@@ -65,7 +66,8 @@ def data_grid(
     """
     if variable and effect_type not in ["comparisons", "slopes", "predictions"]:
         raise ValueError(
-            f"'effect_type' must be either 'comparisons' or 'slopes'. Received: {effect_type}"
+            "'If passing an argument to 'variable', the parameter 'effect_type' must be either "
+            f"'comparisons' or 'slopes'. Received: {effect_type}"
         )
 
     if isinstance(conditional, dict):
@@ -82,11 +84,17 @@ def data_grid(
                 raise TypeError(f"Elements of list must be of type str. Received: {type(value)}")
 
     conditional = ConditionalInfo(model, conditional)
+    kwargs["effect_type"] = effect_type
 
     if variable:
         if isinstance(variable, dict):
             if len(variable) > 1:
                 raise ValueError("Variable dictionary must have only one key.")
+
+        if not eps and effect_type == "comparisons":
+            eps = 0.5
+        elif not eps and effect_type == "slopes":
+            eps = 1e-4
 
         grid = bool(conditional.covariates)
         variable = VariableInfo(model, variable, kind=effect_type, eps=eps, grid=grid)

@@ -1,4 +1,6 @@
 import itertools
+
+from typing import Union
 from statistics import mode
 
 import numpy as np
@@ -24,13 +26,16 @@ from bambi.interpret.utils import (
 from bambi.interpret.logs import log_interpret_defaults
 
 
-def create_grid(condition, variable, **kwargs) -> pd.DataFrame:
-    """Creates a grid of data by using the covariates passed into the
-    'conditional' and 'variable' argument.
+@log_interpret_defaults
+def create_grid(
+    condition: ConditionalInfo, variable: Union[VariableInfo, None] = None, **kwargs
+) -> pd.DataFrame:
+    """Creates a grid of data by using the covariates passed into the 'conditional'
+    and  'variable' argument.
 
     Values for the grid are either:
-        1.) computed using an equally spaced grid (`np.linspace`), mean, and or mode depending on
-            the covariate dtype.
+        1.) computed using an equally spaced grid (`np.linspace`), mean, and or mode
+            depending on the covariate dtype.
         2.) a user specified value or range of values if `condition.user_passed = True`
 
     Parameters
@@ -42,7 +47,7 @@ def create_grid(condition, variable, **kwargs) -> pd.DataFrame:
         Information about data passed to the variable of interest parameter. This
         is 'contrast' for 'comparisons', 'wrt' for 'slopes', and 'None' for 'predictions'.
     **kwargs : dict
-        Optional keywords arguments such as 'effect' (the effect type being computed),
+        Optional keywords arguments such as 'effect_type' (the effect being computed),
         and 'num' (the number of values to return when computing a `np.linspace` grid).
 
     Returns
@@ -83,8 +88,8 @@ def create_grid(condition, variable, **kwargs) -> pd.DataFrame:
 
     # can't enforce dtype on 'with respect to' variable for 'slopes' as it
     # may remove floating point in the epsilon
-    effect_type = kwargs.get("effect", None)
-    if effect_type == "slopes":
+    effect = kwargs.get("effect_type", None)
+    if effect == "slopes":
         except_col = variable.name
     else:
         except_col = None
@@ -187,7 +192,7 @@ def create_differences_data(
     if not condition_info.covariates:
         return _differences_unit_level(variable_info, effect_type)
 
-    return create_grid(condition_info, variable_info, effect=effect_type)
+    return create_grid(condition_info, variable_info, effect_type=effect_type)
 
 
 def create_predictions_data(condition_info: ConditionalInfo) -> pd.DataFrame:
