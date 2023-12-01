@@ -455,36 +455,36 @@ def predictions(
     average_by: str, list, bool, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
         over the other covariates in the model. If True, it averages over all covariates
-        in the model to obtain the average estimate. Defaults to ``None``.
+        in the model to obtain the average estimate. Defaults to `None`.
     target : str
         Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only
         works when pps is False as the target may not be available in the posterior predictive
         distribution.
     pps: bool, optional
-        Whether to plot the posterior predictive samples. Defaults to ``False``.
+        Whether to plot the posterior predictive samples. Defaults to `False`.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
+        Changing the global variable `az.rcParam["stats.hdi_prob"]` affects this default.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
-        name of the variables, and the values are functions to be applied. Defaults to ``None``.
+        name of the variables, and the values are functions to be applied. Defaults to `None`.
     sample_new_groups : bool, optional
         If the model contains group-level effects, and data is passed for unseen groups, whether
-        to sample from the new groups. Defaults to ``False``.
+        to sample from the new groups. Defaults to `False`.
 
     Returns
     -------
     cap_data : pandas.DataFrame
-        A DataFrame with the ``create_cap_data`` and model predictions.
+        A DataFrame with the `create_cap_data` and model predictions.
 
     Raises
     ------
     ValueError
-        If ``pps`` is ``True`` and ``target`` is not ``"mean"``.
-        If ``conditional`` is a list and the length is greater than 3.
-        If ``prob`` is not > 0 and < 1.
+        If `pps` is `True` and `target` is not `"mean"`.
+        If `conditional` is a list and the length is greater than 3.
+        If `prob` is not > 0 and < 1.
     """
     if pps and target != "mean":
         raise ValueError("When passing 'pps=True', target must be 'mean'")
@@ -601,20 +601,20 @@ def comparisons(
     average_by: str, list, bool, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
         over the other covariates in the model. If True, it averages over all covariates
-        in the model to obtain the average estimate. Defaults to ``None``.
+        in the model to obtain the average estimate. Defaults to `None`.
     comparison_type : str, optional
         The type of comparison to plot. Defaults to 'diff'.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable ``az.rcParams["stats.hdi_prob"]`` affects this default.
+        Changing the global variable `az.rcParams["stats.hdi_prob"]` affects this default.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
-        name of the variables, and the values are functions to be applied. Defaults to ``None``.
+        name of the variables, and the values are functions to be applied. Defaults to `None`.
     sample_new_groups : bool, optional
         If the model contains group-level effects, and data is passed for unseen groups, whether
-        to sample from the new groups. Defaults to ``False``.
+        to sample from the new groups. Defaults to `False`.
 
     Returns
     -------
@@ -625,13 +625,13 @@ def comparisons(
     Raises
     ------
     ValueError
-        If `wrt` is a dict and length of ``contrast`` is greater than 1.
-        If `wrt` is a dict and length of ``contrast`` is greater than 2 and
-        ``conditional`` is ``None``.
-        If ``conditional`` is None and ``contrast`` is categorical with > 2 values.
-        If ``conditional`` is a list and the length is greater than 3.
-        If ``comparison_type`` is not 'diff' or 'ratio'.
-        If ``prob`` is not > 0 and < 1.
+        If `wrt` is a dict and length of `contrast` is greater than 1.
+        If `wrt` is a dict and length of `contrast` is greater than 2 and
+        `conditional` is `None`.
+        If `conditional` is None and `contrast` is categorical with > 2 values.
+        If `conditional` is a list and the length is greater than 3.
+        If `comparison_type` is not 'diff' or 'ratio'.
+        If `prob` is not > 0 and < 1.
     """
     contrast_name = contrast
     if isinstance(contrast, dict):
@@ -749,7 +749,7 @@ def slopes(
     average_by: str, list, bool, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
         over the other covariates in the model. If True, it averages over all covariates
-        in the model to obtain the average estimate. Defaults to ``None``.
+        in the model to obtain the average estimate. Defaults to `None`.
     eps : float, optional
         To compute the slope, 'wrt' is evaluated at wrt +/- 'eps'. The rate of change is then
         computed as the difference between the two values divided by 'eps'. Defaults to 1e-4.
@@ -767,29 +767,29 @@ def slopes(
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable ``az.rcParams["stats.hdi_prob"]`` affects this default.
+        Changing the global variable `az.rcParams["stats.hdi_prob"]` affects this default.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
-        name of the variables, and the values are functions to be applied. Defaults to ``None``.
+        name of the variables, and the values are functions to be applied. Defaults to `None`.
     sample_new_groups : bool, optional
         If the model contains group-level effects, and data is passed for unseen groups, whether
-        to sample from the new groups. Defaults to ``False``.
+        to sample from the new groups. Defaults to `False`.
 
     Returns
     -------
     pandas.DataFrame
-        A dataframe with the comparison values, highest density interval, ``wrt`` name,
+        A dataframe with the comparison values, highest density interval, `wrt` name,
         contrast value, and conditional values.
 
     Raises
     ------
     ValueError
-        If length of ``wrt`` is greater than 1.
-        If ``conditional`` is ``None`` and ``wrt`` is passed more than 2 values.
-        If ``conditional`` is ``None`` and default ``wrt`` has more than 2 unique values.
-        If ``conditional`` is a list and the length is greater than 3.
-        If ``slope`` is not 'dydx', 'dyex', 'eyex', or 'eydx'.
-        If ``prob`` is not > 0 and < 1.
+        If length of `wrt` is greater than 1.
+        If `conditional` is `None` and `wrt` is passed more than 2 values.
+        If `conditional` is `None` and default `wrt` has more than 2 unique values.
+        If `conditional` is a list and the length is greater than 3.
+        If `slope` is not 'dydx', 'dyex', 'eyex', or 'eydx'.
+        If `prob` is not > 0 and < 1.
     """
     wrt_name = wrt
     if isinstance(wrt, dict):
