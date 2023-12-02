@@ -132,8 +132,9 @@ class Family:
             A data array with the draws from the posterior predictive distribution
         """
         response_dist = get_response_dist(model.family)
+        response_term = model.response_component.response_term
         params = model.family.likelihood.params
-        response_aliased_name = get_aliased_name(model.response_component.response_term)
+        response_aliased_name = get_aliased_name(response_term)
 
         kwargs.pop("data", None)  # Remove the 'data' kwarg
         dont_reshape = kwargs.pop("dont_reshape", [])
@@ -181,7 +182,18 @@ class Family:
         if hasattr(model.family, "transform_kwargs"):
             kwargs = model.family.transform_kwargs(kwargs)
 
-        output_array = pm.draw(response_dist.dist(**kwargs))
+        # Handle constrained responses
+        if response_term.is_constrained:
+            # Bounds are scalars, we can safely pick them from the first row
+            lower, upper = response_term.data[0, 1:]
+            lower = lower if lower != -np.inf else None
+            upper = upper if upper != np.inf else None
+            output_array = pm.draw(
+                pm.Truncated.dist(response_dist.dist(**kwargs), lower=lower, upper=upper)
+            )
+        else:
+            output_array = pm.draw(response_dist.dist(**kwargs))
+
         output_coords_all = xr.merge(output_dataset_list).coords
 
         coord_names = ["chain", "draw", response_aliased_name + "_obs"]

@@ -128,6 +128,26 @@ def truncated(x, lb=None, ub=None):
 truncated.__metadata__ = {"kind": "truncated"}
 
 
+def constrained(x, lb=None, ub=None):
+    """Construct an array for a constrained response
+
+    It's exactly like truncated, but it's interpreted by Bambi in a different way as this
+    one truncates/constrains the bounds of a probability distribution, while `truncated()` is
+    interpreted as the missing data mechanism.
+
+    `lb` and `ub` can only be scalar values.
+    """
+    if not (lb is None or isinstance(lb, (int, float))):
+        raise ValueError("'lb' must be None or scalar.")
+
+    if not (ub is None or isinstance(ub, (int, float))):
+        raise ValueError("'ub' must be None or scalar.")
+    return truncated(x, lb, ub)
+
+
+constrained.__metadata__ = {"kind": "constrained"}
+
+
 def weighted(x, weights):
     """Construct array for a weighted response
 
@@ -403,6 +423,7 @@ def get_distance(x):
 transformations_namespace = {
     "c": c,
     "censored": censored,
+    "constrained": constrained,
     "truncated": truncated,
     "weighted": weighted,
     "log": np.log,

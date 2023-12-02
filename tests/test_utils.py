@@ -7,7 +7,7 @@ import pymc as pm
 from bambi.utils import listify
 from bambi.backend.pymc import probit, cloglog
 from bambi.backend.utils import make_weighted_distribution
-from bambi.transformations import censored, truncated, weighted
+from bambi.transformations import censored, constrained, truncated, weighted
 
 
 def test_listify():
@@ -102,6 +102,34 @@ def test_truncated():
 
     with pytest.raises(ValueError, match="'ub' must be 0 or 1 dimensional."):
         truncated(x, ub=np.column_stack([upper_arr, upper_arr]))
+
+
+def test_constrained():
+    x = np.array([-3, -2, -1, 0, 0, 0, 1, 1, 2, 3])
+    lower = -5
+    upper = 4.5
+   
+    # Arguments and expected outcomes
+    iterable = {
+        "lower": (lower, None, lower),
+        "upper": (None, upper, upper),
+        "elower": (lower, -np.inf, lower),
+        "eupper": (np.inf, upper, upper),
+    }
+
+    for l, u, el, eu in zip(*iterable.values()):
+        result = constrained(x, lb=l, ub=u)
+        assert result.shape == (10, 3)
+        assert (result[:, 0] == x).all()
+        assert (result[:, 1] == el).all()
+        assert (result[:, 2] == eu).all()
+
+    with pytest.raises(ValueError, match="'lb' must be None or scalar."):
+        constrained(x, np.array([lower, lower]))
+
+    
+    with pytest.raises(ValueError, match="'ub' must be None or scalar."):
+        constrained(x, ub=np.array([upper, upper]))
 
 
 def test_weighted():

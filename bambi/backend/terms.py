@@ -326,6 +326,34 @@ class ResponseTerm:
                 self.name, stateless_dist, lower=lower, upper=upper, observed=observed, dims=dims
             )
 
+        # Handle constrained responses (through truncated distributions)
+        elif self.term.is_constrained:
+            dims = kwargs.pop("dims", None)
+            data_matrix = kwargs.pop("observed")
+
+            # Get values of the response variable
+            observed = np.squeeze(data_matrix[:, 0])
+
+            # Get truncation values
+            lower = np.squeeze(data_matrix[:, 1])
+            upper = np.squeeze(data_matrix[:, 2])
+
+            # Handle 'None' and scalars appropriately
+            if np.all(lower == -np.inf):
+                lower = None
+            elif np.all(lower == lower[0]):
+                lower = lower[0]
+
+            if np.all(upper == np.inf):
+                upper = None
+            elif np.all(upper == upper[0]):
+                upper = upper[0]
+
+            stateless_dist = distribution.dist(**kwargs)
+            dist_rv = pm.Truncated(
+                self.name, stateless_dist, lower=lower, upper=upper, observed=observed, dims=dims
+            )
+
         # Handle weighted responses
         elif self.term.is_weighted:
             dims = kwargs.pop("dims", None)
@@ -340,6 +368,7 @@ class ResponseTerm:
             # Get a weighted version of the response distribution
             weighted_dist = make_weighted_distribution(distribution)
             dist_rv = weighted_dist(self.name, weights, **kwargs, observed=observed, dims=dims)
+        # All of the other response kinds are "not special" and thus are handled the same way
         else:
             dist_rv = distribution(self.name, **kwargs)
 
@@ -361,7 +390,12 @@ class ResponseTerm:
         if isinstance(self.family, (Multinomial, DirichletMultinomial)):
             return kwargs
 
-        if self.term.is_censored or self.term.is_truncated or self.term.is_weighted:
+        if (
+            self.term.is_censored
+            or self.term.is_truncated
+            or self.term.is_weighted
+            or self.term.is_constrained
+        ):
             return kwargs
 
         dims, data = kwargs["dims"], kwargs["observed"]
