@@ -368,6 +368,7 @@ class ResponseTerm:
             # Get a weighted version of the response distribution
             weighted_dist = make_weighted_distribution(distribution)
             dist_rv = weighted_dist(self.name, weights, **kwargs, observed=observed, dims=dims)
+        # All of the other response kinds are "not special" and thus are handled the same way
         else:
             dist_rv = distribution(self.name, **kwargs)
 

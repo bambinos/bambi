@@ -2,22 +2,17 @@ import formulae.terms
 
 from bambi.terms.base import BaseTerm
 
-from bambi.terms.utils import (
-    is_censored_response,
-    is_constrained_response,
-    is_truncated_response,
-    is_weighted_response,
-)
+from bambi.terms.utils import is_response_of_kind
 
 
 class ResponseTerm(BaseTerm):
     def __init__(self, response, family):
         self.term = response.term.term
         self.family = family
-        self.is_censored = is_censored_response(self.term)
-        self.is_constrained = is_constrained_response(self.term)
-        self.is_truncated = is_truncated_response(self.term)
-        self.is_weighted = is_weighted_response(self.term)
+        self.is_censored = is_response_of_kind(self.term, "censored")
+        self.is_constrained = is_response_of_kind(self.term, "constrained")
+        self.is_truncated = is_response_of_kind(self.term, "truncated")
+        self.is_weighted = is_response_of_kind(self.term, "weighted")
 
     @property
     def term(self):
@@ -87,23 +82,3 @@ class ResponseTerm(BaseTerm):
             else:
                 extras += [f"reference: {self.reference}"]
         return self.make_str(extras)
-
-
-# Categorical
-# -> Nominal
-#   -> Binary
-# -> Ordinal
-
-# These aren't actually used to do something with data, but mostly to give information to the user
-# Well, the ordinal kind can be useful as well.
-# class Categorical:
-#     pass
-
-# class Nominal(Categorical):
-#     pass
-
-# class Ordinal(Categorical):
-#     pass
-
-# class Binary(Nominal):
-#     pass
