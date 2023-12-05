@@ -12,7 +12,7 @@ from bambi.interpret.create_data import create_grid
 from bambi.interpret.utils import ConditionalInfo, VariableInfo
 
 # ignore ArviZ user warning about 'data' not being in the InferenceData group scheme
-warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", message="The group data is not defined in the InferenceData scheme")
 
 
 def data_grid(
@@ -131,10 +131,10 @@ def _prepare_idata(idata: InferenceData, data: xr.Dataset) -> InferenceData:
         coordinate_name = list(idata["observed_data"].coords)
         del idata.observed_data
         idata.add_groups(data=data)
-    elif "data" in idata.groups():
-        coordinate_name = list(idata["observed_data"].coords)
-        del idata.data
-        idata.add_groups(data=data)
+    # elif "data" in idata.groups():
+    #     coordinate_name = list(idata["data"].coords)
+    #     del idata.data
+    #     idata.add_groups(data=data)
     else:
         raise ValueError("InferenceData object does not contain a 'data' or 'observed_data' group.")
 
@@ -143,7 +143,7 @@ def _prepare_idata(idata: InferenceData, data: xr.Dataset) -> InferenceData:
     coordinate_name = coordinate_name[0]
 
     # rename index to match coordinate name in other InferenceData groups
-    idata.data = idata.data.rename({"index": coordinate_name})  # type: ignore
+    idata.data = idata.data.rename({"index": coordinate_name})
 
     return idata
 
