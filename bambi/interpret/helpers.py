@@ -12,7 +12,9 @@ from bambi.interpret.create_data import create_grid
 from bambi.interpret.utils import ConditionalInfo, VariableInfo
 
 # ignore ArviZ user warning about 'data' not being in the InferenceData group scheme
-warnings.filterwarnings("ignore", message="The group data is not defined in the InferenceData scheme")
+warnings.filterwarnings(
+    "ignore", message="The group data is not defined in the InferenceData scheme"
+)
 
 
 def data_grid(
