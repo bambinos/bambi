@@ -342,7 +342,7 @@ class PredictiveDifferences:
             for 'comparisons' and 'slopes', then a subset of the 'preds' data is used
             to build the summary.
         """
-        # Scenario 1
+        # scenario 1
         if len(self.variable.values) > 2 and self.kind == "comparisons":
             summary_df = self.preds_data.drop(columns=self.variable.name).drop_duplicates()
             covariates_cols = summary_df.columns
@@ -353,7 +353,7 @@ class PredictiveDifferences:
                 contrast_values, summary_df.shape[0] // len(contrast_values), axis=0
             )
             contrast_values = [tuple(elem) for elem in contrast_values]
-        # Scenario 2
+        # scenario 2
         elif len(response_dim) > 1:
             summary_df = self.preds_data.drop(columns=self.variable.name).drop_duplicates()
             covariates_cols = summary_df.columns
@@ -364,7 +364,7 @@ class PredictiveDifferences:
                 response_dim, summary_df.shape[0] // len(response_dim)
             )
             contrast_values = [tuple(contrast_values)] * summary_df.shape[0]
-        # Scenario 3 & 4
+        # scenario 3 & 4
         else:
             wrt = {}
             for idx, _ in enumerate(self.variable.values):
@@ -455,36 +455,36 @@ def predictions(
     average_by: str, list, bool, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
         over the other covariates in the model. If True, it averages over all covariates
-        in the model to obtain the average estimate. Defaults to ``None``.
+        in the model to obtain the average estimate. Defaults to `None`.
     target : str
         Which model parameter to plot. Defaults to 'mean'. Passing a parameter into target only
         works when pps is False as the target may not be available in the posterior predictive
         distribution.
     pps: bool, optional
-        Whether to plot the posterior predictive samples. Defaults to ``False``.
+        Whether to plot the posterior predictive samples. Defaults to `False`.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable ``az.rcParam["stats.hdi_prob"]`` affects this default.
+        Changing the global variable `az.rcParam["stats.hdi_prob"]` affects this default.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
-        name of the variables, and the values are functions to be applied. Defaults to ``None``.
+        name of the variables, and the values are functions to be applied. Defaults to `None`.
     sample_new_groups : bool, optional
         If the model contains group-level effects, and data is passed for unseen groups, whether
-        to sample from the new groups. Defaults to ``False``.
+        to sample from the new groups. Defaults to `False`.
 
     Returns
     -------
     cap_data : pandas.DataFrame
-        A DataFrame with the ``create_cap_data`` and model predictions.
+        A DataFrame with the `create_cap_data` and model predictions.
 
     Raises
     ------
     ValueError
-        If ``pps`` is ``True`` and ``target`` is not ``"mean"``.
-        If ``conditional`` is a list and the length is greater than 3.
-        If ``prob`` is not > 0 and < 1.
+        If `pps` is `True` and `target` is not `"mean"`.
+        If `conditional` is a list and the length is greater than 3.
+        If `prob` is not > 0 and < 1.
     """
     if pps and target != "mean":
         raise ValueError("When passing 'pps=True', target must be 'mean'")
@@ -505,7 +505,7 @@ def predictions(
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
-    cap_data = create_predictions_data(conditional_info, conditional_info.user_passed)
+    cap_data = create_predictions_data(conditional_info)
 
     if target != "mean":
         component = model.components[target]
@@ -601,20 +601,20 @@ def comparisons(
     average_by: str, list, bool, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
         over the other covariates in the model. If True, it averages over all covariates
-        in the model to obtain the average estimate. Defaults to ``None``.
+        in the model to obtain the average estimate. Defaults to `None`.
     comparison_type : str, optional
         The type of comparison to plot. Defaults to 'diff'.
     use_hdi : bool, optional
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable ``az.rcParams["stats.hdi_prob"]`` affects this default.
+        Changing the global variable `az.rcParams["stats.hdi_prob"]` affects this default.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
-        name of the variables, and the values are functions to be applied. Defaults to ``None``.
+        name of the variables, and the values are functions to be applied. Defaults to `None`.
     sample_new_groups : bool, optional
         If the model contains group-level effects, and data is passed for unseen groups, whether
-        to sample from the new groups. Defaults to ``False``.
+        to sample from the new groups. Defaults to `False`.
 
     Returns
     -------
@@ -625,13 +625,13 @@ def comparisons(
     Raises
     ------
     ValueError
-        If `wrt` is a dict and length of ``contrast`` is greater than 1.
-        If `wrt` is a dict and length of ``contrast`` is greater than 2 and
-        ``conditional`` is ``None``.
-        If ``conditional`` is None and ``contrast`` is categorical with > 2 values.
-        If ``conditional`` is a list and the length is greater than 3.
-        If ``comparison_type`` is not 'diff' or 'ratio'.
-        If ``prob`` is not > 0 and < 1.
+        If `wrt` is a dict and length of `contrast` is greater than 1.
+        If `wrt` is a dict and length of `contrast` is greater than 2 and
+        `conditional` is `None`.
+        If `conditional` is None and `contrast` is categorical with > 2 values.
+        If `conditional` is a list and the length is greater than 3.
+        If `comparison_type` is not 'diff' or 'ratio'.
+        If `prob` is not > 0 and < 1.
     """
     contrast_name = contrast
     if isinstance(contrast, dict):
@@ -680,16 +680,14 @@ def comparisons(
     conditional_info = ConditionalInfo(model, conditional)
 
     transforms = transforms if transforms is not None else {}
-
     response_name = get_aliased_name(model.response_component.response_term)
     response = ResponseInfo(
         response_name, target="mean", lower_bound=lower_bound, upper_bound=upper_bound
     )
     response_transform = transforms.get(response_name, identity)
 
-    # 'comparisons' not be limited to ("main", "group", "panel")
     comparisons_data = create_differences_data(
-        conditional_info, contrast_info, conditional_info.user_passed, kind="comparisons"
+        conditional_info, contrast_info, effect_type="comparisons"
     )
     idata = model.predict(
         idata, data=comparisons_data, sample_new_groups=sample_new_groups, inplace=False
@@ -751,7 +749,7 @@ def slopes(
     average_by: str, list, bool, optional
         The covariates we would like to average by. The passed covariate(s) will marginalize
         over the other covariates in the model. If True, it averages over all covariates
-        in the model to obtain the average estimate. Defaults to ``None``.
+        in the model to obtain the average estimate. Defaults to `None`.
     eps : float, optional
         To compute the slope, 'wrt' is evaluated at wrt +/- 'eps'. The rate of change is then
         computed as the difference between the two values divided by 'eps'. Defaults to 1e-4.
@@ -769,29 +767,29 @@ def slopes(
         Whether to compute the highest density interval (defaults to True) or the quantiles.
     prob : float, optional
         The probability for the credibility intervals. Must be between 0 and 1. Defaults to 0.94.
-        Changing the global variable ``az.rcParams["stats.hdi_prob"]`` affects this default.
+        Changing the global variable `az.rcParams["stats.hdi_prob"]` affects this default.
     transforms : dict, optional
         Transformations that are applied to each of the variables being plotted. The keys are the
-        name of the variables, and the values are functions to be applied. Defaults to ``None``.
+        name of the variables, and the values are functions to be applied. Defaults to `None`.
     sample_new_groups : bool, optional
         If the model contains group-level effects, and data is passed for unseen groups, whether
-        to sample from the new groups. Defaults to ``False``.
+        to sample from the new groups. Defaults to `False`.
 
     Returns
     -------
     pandas.DataFrame
-        A dataframe with the comparison values, highest density interval, ``wrt`` name,
+        A dataframe with the comparison values, highest density interval, `wrt` name,
         contrast value, and conditional values.
 
     Raises
     ------
     ValueError
-        If length of ``wrt`` is greater than 1.
-        If ``conditional`` is ``None`` and ``wrt`` is passed more than 2 values.
-        If ``conditional`` is ``None`` and default ``wrt`` has more than 2 unique values.
-        If ``conditional`` is a list and the length is greater than 3.
-        If ``slope`` is not 'dydx', 'dyex', 'eyex', or 'eydx'.
-        If ``prob`` is not > 0 and < 1.
+        If length of `wrt` is greater than 1.
+        If `conditional` is `None` and `wrt` is passed more than 2 values.
+        If `conditional` is `None` and default `wrt` has more than 2 unique values.
+        If `conditional` is a list and the length is greater than 3.
+        If `slope` is not 'dydx', 'dyex', 'eyex', or 'eydx'.
+        If `prob` is not > 0 and < 1.
     """
     wrt_name = wrt
     if isinstance(wrt, dict):
@@ -831,7 +829,6 @@ def slopes(
     if not 0 < prob < 1:
         raise ValueError(f"'prob' must be greater than 0 and smaller than 1. It is {prob}.")
 
-    # 'slopes' should not be limited to ("main", "group", "panel")
     conditional_info = ConditionalInfo(model, conditional)
 
     grid = bool(conditional_info.covariates)
@@ -847,14 +844,11 @@ def slopes(
     upper_bound = 1 - lower_bound
 
     transforms = transforms if transforms is not None else {}
-
     response_name = get_aliased_name(model.response_component.response_term)
     response = ResponseInfo(response_name, "mean", lower_bound, upper_bound)
     response_transform = transforms.get(response_name, identity)
 
-    slopes_data = create_differences_data(
-        conditional_info, wrt_info, conditional_info.user_passed, effect_type
-    )
+    slopes_data = create_differences_data(conditional_info, wrt_info, effect_type)
     idata = model.predict(
         idata, data=slopes_data, sample_new_groups=sample_new_groups, inplace=False
     )
@@ -867,7 +861,7 @@ def slopes(
         response_dim = np.empty(0)
 
     predictive_difference = PredictiveDifferences(
-        model, slopes_data, wrt_info, conditional_info, response, use_hdi, effect_type
+        model, slopes_data, wrt_info, conditional_info, response, use_hdi, kind=effect_type
     )
     slopes_summary = predictive_difference.get_estimate(
         idata, response_transform, "diff", slope, eps, prob

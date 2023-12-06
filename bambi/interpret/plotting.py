@@ -337,9 +337,7 @@ def plot_comparisons(
     if conditional is None and average_by is None:
         raise ValueError("Must specify at least one of 'conditional' or 'average_by'.")
 
-    if isinstance(conditional, dict):
-        conditional = {key: sorted(listify(value)) for key, value in conditional.items()}
-    elif conditional is not None:
+    if conditional is not None and not isinstance(conditional, dict):
         conditional = listify(conditional)
         if len(conditional) > 3 and average_by is None:
             raise ValueError(
@@ -475,10 +473,8 @@ def plot_slopes(
     wrt_name = wrt
     if isinstance(wrt, dict):
         wrt_name, wrt_value = next(iter(wrt.items()))
-
         if not isinstance(wrt_value, (list, np.ndarray)):
             wrt_value = [wrt_value]
-
         if len(wrt_value) > 2 and average_by is None:
             raise ValueError(
                 "When plotting with more than 2 values for 'wrt', you must "
@@ -497,9 +493,7 @@ def plot_slopes(
     if conditional is None and average_by is None:
         raise ValueError("Must specify at least one of 'conditional' or 'average_by'.")
 
-    if isinstance(conditional, dict):
-        conditional = {key: sorted(listify(value)) for key, value in conditional.items()}
-    elif conditional is not None:
+    if conditional is not None and not isinstance(conditional, dict):
         conditional = listify(conditional)
         if len(conditional) > 3 and average_by is None:
             raise ValueError(
