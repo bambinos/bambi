@@ -92,6 +92,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <script src="../site_libs/quarto-search/fuse.min.js"></script>
 <script src="../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../">
+<link href="../notebooks/interpret_advanced_usage.html" rel="next">
 <link href="../notebooks/plot_comparisons.html" rel="prev">
 <link href="../logos/favicon.png" rel="icon" type="image/png">
 <script src="../site_libs/quarto-html/quarto.js"></script>
@@ -385,6 +386,11 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <a href="../notebooks/plot_slopes.html" class="sidebar-item-text sidebar-link active">Plot Slopes</a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/interpret_advanced_usage.html" class="sidebar-item-text sidebar-link">Interpret Advanced Usage</a>
+  </div>
+</li>
       </ul>
   </li>
     </ul>
@@ -466,14 +472,21 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>In the case of (1) and (2) above, Bambi assembles all pairwise combinations (transitions) of <span class="math inline">\(w\)</span> and <span class="math inline">\(c\)</span> into a new “hypothetical” dataset. In (3), Bambi uses the original <span class="math inline">\(c\)</span>, and adds a small amount <span class="math inline">\(\epsilon\)</span> to each unit of observation’s <span class="math inline">\(w\)</span>. In each scenario, predictions are made on the data using the fitted model. Once the predictions are made, comparisons are computed using the posterior samples by taking the difference in the predicted outcome for each pair of transitions and dividing by <span class="math inline">\(\epsilon\)</span>. The average of these slopes is the average predictive slopes.</p>
 <p>For variables <span class="math inline">\(w\)</span> with a string or categorical data type, the <code>comparisons</code> function is called to compute the expected difference in group means. Please refer to the <a href="https://bambinos.github.io/bambi/notebooks/plot_comparisons.html">comparisons</a> documentation for more details.</p>
 <p>Below, we present several examples showing how to use Bambi to perform these computations for us, and to return either a summary dataframe, or a visualization of the results.</p>
-<div class="cell" data-execution_count="4">
+<div class="cell" data-execution_count="1">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> arviz <span class="im">as</span> az</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>warnings.simplefilter(action<span class="op">=</span><span class="st">"ignore"</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> bambi <span class="im">as</span> bmb</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>warnings.simplefilter(action<span class="op">=</span><span class="st">"ignore"</span>, category<span class="op">=</span><span class="pp">FutureWarning</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext autoreload</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>autoreload <span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>WARNING (pytensor.tensor.blas): Using NumPy C-API based implementation for BLAS functions.</code></pre>
+</div>
 </div>
 </section>
 <section id="logistic-regression" class="level2">
@@ -487,13 +500,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <li><code>educ</code>: years of education of the household head</li>
 </ul>
 <p>First, a logistic regression model with no interactions is fit to the data. Subsequently, to demonstrate the benefits of <code>plot_slopes</code> in interpreting interactions, we will fit a logistic regression model with an interaction term.</p>
-<div class="cell" data-execution_count="5">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"http://www.stat.columbia.edu/~gelman/arm/examples/arsenic/wells.dat"</span>, sep<span class="op">=</span><span class="st">" "</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"switch"</span>] <span class="op">=</span> pd.Categorical(data[<span class="st">"switch"</span>])</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"dist100"</span>] <span class="op">=</span> data[<span class="st">"dist"</span>] <span class="op">/</span> <span class="dv">100</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"educ4"</span>] <span class="op">=</span> data[<span class="st">"educ"</span>] <span class="op">/</span> <span class="dv">4</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="5">
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"http://www.stat.columbia.edu/~gelman/arm/examples/arsenic/wells.dat"</span>, sep<span class="op">=</span><span class="st">" "</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"switch"</span>] <span class="op">=</span> pd.Categorical(data[<span class="st">"switch"</span>])</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"dist100"</span>] <span class="op">=</span> data[<span class="st">"dist"</span>] <span class="op">/</span> <span class="dv">100</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"educ4"</span>] <span class="op">=</span> data[<span class="st">"educ"</span>] <span class="op">/</span> <span class="dv">4</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>data.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
 
 <div>
 
@@ -566,19 +579,19 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="6">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>well_model <span class="op">=</span> bmb.Model(</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"switch ~ dist100 + arsenic + educ4"</span>,</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    data,</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"bernoulli"</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>well_idata <span class="op">=</span> well_model.fit(</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1000</span>, </span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    target_accept<span class="op">=</span><span class="fl">0.95</span>, </span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">1234</span>, </span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>well_model <span class="op">=</span> bmb.Model(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"switch ~ dist100 + arsenic + educ4"</span>,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    data,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"bernoulli"</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>well_idata <span class="op">=</span> well_model.fit(</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">1000</span>, </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    target_accept<span class="op">=</span><span class="fl">0.95</span>, </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">1234</span>, </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Modeling the probability that switch==0
 Auto-assigning NUTS sampler...
@@ -622,31 +635,31 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <p>For example, if we wanted to compute the slope of the probability of switching wells for a typical <code>arsenic</code> value of <span class="math inline">\(1.3\)</span> conditional on a range of <code>dist</code> and <code>educ</code> values, we would pass the following dictionary in the code block below. By default, for <span class="math inline">\(w\)</span>, Bambi compares <span class="math inline">\(w^\text{value}\)</span> to <span class="math inline">\(w^{\text{value} + \epsilon}\)</span> where <span class="math inline">\(\epsilon =\)</span> <code>1e-4</code>. However, the value for <span class="math inline">\(\epsilon\)</span> can be changed by passing a value to the argument <code>eps</code>.</p>
 <p>Thus, in this example, <span class="math inline">\(w^\text{value} = 1.3\)</span> and <span class="math inline">\(w^{\text{value} + \epsilon} = 1.3001\)</span>. The user is not limited to passing a list for the values. A <code>np.array</code> can also be used. Furthermore, Bambi by default, maps the order of the dict keys to the main, group, and panel of the matplotlib figure. Below, since <code>dist100</code> is the first key, this is used for the x-axis, and <code>educ4</code> is used for the group (color). If a third key was passed, it would be used for the panel (facet).</p>
 <div class="cell" data-execution_count="7">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    well_model,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    well_idata,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    wrt<span class="op">=</span>{<span class="st">"arsenic"</span>: <span class="fl">1.3</span>},</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{<span class="st">"dist100"</span>: [<span class="fl">0.20</span>, <span class="fl">0.50</span>, <span class="fl">0.80</span>], <span class="st">"educ4"</span>: [<span class="fl">1.00</span>, <span class="fl">1.20</span>, <span class="fl">2.00</span>]},</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>fig.axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Slope of Well Switching Probability"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    well_model,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    well_idata,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    wrt<span class="op">=</span>{<span class="st">"arsenic"</span>: <span class="fl">1.3</span>},</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{<span class="st">"dist100"</span>: [<span class="fl">0.20</span>, <span class="fl">0.50</span>, <span class="fl">0.80</span>], <span class="st">"educ4"</span>: [<span class="fl">1.00</span>, <span class="fl">1.20</span>, <span class="fl">2.00</span>]},</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>fig.axes[<span class="dv">0</span>].set_ylabel(<span class="st">"Slope of Well Switching Probability"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="plot_slopes_files/figure-html/cell-5-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>The plot above shows that, for example, conditional on <code>dist100</code> <span class="math inline">\(= 0.2\)</span> and <code>educ4</code> <span class="math inline">\(= 1.0\)</span> a unit increase in <code>arsenic</code> is associated with households being <span class="math inline">\(11\)</span>% less likely to switch wells. Notice that even though we fit a logistic regression model where the coefficients are on the log-odds scale, the <code>slopes</code> function returns the slope on the probability scale. Thus, we can interpret the y-axis (slope) as the expected change in the probability of switching wells for a unit increase in <code>arsenic</code> conditional on the specified covariates.</p>
 <p><code>slopes</code> can be called directly to view a summary dataframe that includes the term name, estimate type (discussed in detail in the <em>interpreting coefficients as an elasticity</em> section), values <span class="math inline">\(w\)</span> used to compute the estimate, the specified conditional covariates <span class="math inline">\(c\)</span>, and the expected slope of the outcome with the uncertainty interval (by default the <span class="math inline">\(94\)</span>% highest density interval is computed).</p>
-<div class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.slopes(</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    well_model,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    well_idata,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    wrt<span class="op">=</span>{<span class="st">"arsenic"</span>: <span class="fl">1.5</span>},</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"dist100"</span>: [<span class="fl">0.20</span>, <span class="fl">0.50</span>, <span class="fl">0.80</span>], </span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"educ4"</span>: [<span class="fl">1.00</span>, <span class="fl">1.20</span>, <span class="fl">2.00</span>]</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="8">
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.slopes(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    well_model,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    well_idata,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    wrt<span class="op">=</span>{<span class="st">"arsenic"</span>: <span class="fl">1.5</span>},</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"dist100"</span>: [<span class="fl">0.20</span>, <span class="fl">0.50</span>, <span class="fl">0.80</span>], </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"educ4"</span>: [<span class="fl">1.00</span>, <span class="fl">1.20</span>, <span class="fl">2.00</span>]</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
 
 <div>
 
@@ -774,19 +787,19 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <section id="multiple-slope-values" class="level3">
 <h3 class="anchored" data-anchor-id="multiple-slope-values">Multiple slope values</h3>
 <p>Users can also compute slopes on multiple values for <code>wrt</code>. For example, if we want to compute the slope of <span class="math inline">\(y\)</span> with respect to <code>arsenic</code> <span class="math inline">\(= 1.5\)</span>, <span class="math inline">\(2.0\)</span>, and <span class="math inline">\(2.5\)</span>, simply pass a list or numpy array as the dictionary values for <code>wrt</code>. Keeping the conditional covariate and values the same, the following slope estimates are computed below.</p>
-<div class="cell" data-execution_count="8">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>multiple_values <span class="op">=</span> bmb.interpret.slopes(</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    well_model,</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    well_idata,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    wrt<span class="op">=</span>{<span class="st">"arsenic"</span>: [<span class="fl">1.5</span>, <span class="fl">2.0</span>, <span class="fl">2.5</span>]},</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"dist100"</span>: [<span class="fl">0.20</span>, <span class="fl">0.50</span>, <span class="fl">0.80</span>], </span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"educ4"</span>: [<span class="fl">1.00</span>, <span class="fl">1.20</span>, <span class="fl">2.00</span>]</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>multiple_values.head(<span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="8">
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>multiple_values <span class="op">=</span> bmb.interpret.slopes(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    well_model,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    well_idata,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    wrt<span class="op">=</span>{<span class="st">"arsenic"</span>: [<span class="fl">1.5</span>, <span class="fl">2.0</span>, <span class="fl">2.5</span>]},</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"dist100"</span>: [<span class="fl">0.20</span>, <span class="fl">0.50</span>, <span class="fl">0.80</span>], </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"educ4"</span>: [<span class="fl">1.00</span>, <span class="fl">1.20</span>, <span class="fl">2.00</span>]</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>multiple_values.head(<span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
 
 <div>
 
@@ -881,20 +894,20 @@ NUTS: [Intercept, dist100, arsenic, educ4]</code></pre>
 <section id="conditional-slopes" class="level3">
 <h3 class="anchored" data-anchor-id="conditional-slopes">Conditional slopes</h3>
 <p>As stated in the <em>interpreting interaction effects</em> section, interpreting coefficients of multiple interaction terms can be difficult and cumbersome. Thus, <code>plot_slopes</code> provides an effective way to visualize the conditional slopes of the interaction effects. Below, we will use the same well switching dataset, but with interaction terms. Specifically, one interaction is added between <code>dist100</code> and <code>educ4</code>, and another between <code>arsenic</code> and <code>educ4</code>.</p>
-<div class="cell" data-execution_count="10">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>well_model_interact <span class="op">=</span> bmb.Model(</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"switch ~ dist100 + arsenic + educ4 + dist100:educ4 + arsenic:educ4"</span>,</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    data,</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"bernoulli"</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>well_idata_interact <span class="op">=</span> well_model_interact.fit(</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">500</span>, </span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    tune<span class="op">=</span><span class="dv">500</span>,</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    target_accept<span class="op">=</span><span class="fl">0.95</span>, </span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">1234</span>, </span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>well_model_interact <span class="op">=</span> bmb.Model(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"switch ~ dist100 + arsenic + educ4 + dist100:educ4 + arsenic:educ4"</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>data,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    family<span class="op">=</span><span class="st">"bernoulli"</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>well_idata_interact <span class="op">=</span> well_model_interact.fit(</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    draws<span class="op">=</span><span class="dv">500</span>, </span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    tune<span class="op">=</span><span class="dv">500</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    target_accept<span class="op">=</span><span class="fl">0.95</span>, </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">1234</span>, </span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Modeling the probability that switch==0
 Auto-assigning NUTS sampler...
@@ -932,10 +945,10 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <pre><code>Sampling 4 chains for 500 tune and 500 draw iterations (2_000 + 2_000 draws total) took 2 seconds.</code></pre>
 </div>
 </div>
-<div class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># summary of coefficients</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>az.summary(well_idata_interact)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="11">
+<div class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># summary of coefficients</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>az.summary(well_idata_interact)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="20">
 
 <div>
 
@@ -957,75 +970,75 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
   <tbody>
     <tr>
       <th>Intercept</th>
-      <td>-0.097</td>
-      <td>0.122</td>
-      <td>-0.322</td>
-      <td>0.137</td>
+      <td>-0.117</td>
+      <td>0.177</td>
+      <td>-0.450</td>
+      <td>0.222</td>
+      <td>0.005</td>
       <td>0.003</td>
-      <td>0.002</td>
-      <td>2259.0</td>
-      <td>2203.0</td>
-      <td>1.0</td>
+      <td>1317.0</td>
+      <td>1366.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>dist100</th>
-      <td>1.320</td>
-      <td>0.175</td>
-      <td>0.982</td>
-      <td>1.640</td>
-      <td>0.004</td>
-      <td>0.003</td>
-      <td>2085.0</td>
-      <td>2457.0</td>
-      <td>1.0</td>
+      <td>1.500</td>
+      <td>0.243</td>
+      <td>1.082</td>
+      <td>1.997</td>
+      <td>0.008</td>
+      <td>0.006</td>
+      <td>949.0</td>
+      <td>1080.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>arsenic</th>
-      <td>-0.398</td>
-      <td>0.061</td>
-      <td>-0.521</td>
-      <td>-0.291</td>
-      <td>0.001</td>
-      <td>0.001</td>
-      <td>2141.0</td>
-      <td>2558.0</td>
-      <td>1.0</td>
+      <td>-0.514</td>
+      <td>0.090</td>
+      <td>-0.690</td>
+      <td>-0.349</td>
+      <td>0.003</td>
+      <td>0.002</td>
+      <td>1209.0</td>
+      <td>1269.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>educ4</th>
-      <td>0.102</td>
-      <td>0.080</td>
-      <td>-0.053</td>
-      <td>0.246</td>
+      <td>0.118</td>
+      <td>0.111</td>
+      <td>-0.087</td>
+      <td>0.331</td>
+      <td>0.003</td>
       <td>0.002</td>
-      <td>0.001</td>
-      <td>1935.0</td>
-      <td>2184.0</td>
-      <td>1.0</td>
+      <td>1170.0</td>
+      <td>1102.0</td>
+      <td>1.00</td>
     </tr>
     <tr>
       <th>dist100:educ4</th>
-      <td>-0.330</td>
-      <td>0.106</td>
-      <td>-0.528</td>
-      <td>-0.136</td>
-      <td>0.002</td>
-      <td>0.002</td>
-      <td>2070.0</td>
-      <td>2331.0</td>
-      <td>1.0</td>
+      <td>-0.364</td>
+      <td>0.148</td>
+      <td>-0.628</td>
+      <td>-0.075</td>
+      <td>0.005</td>
+      <td>0.004</td>
+      <td>855.0</td>
+      <td>1076.0</td>
+      <td>1.01</td>
     </tr>
     <tr>
       <th>arsenic:educ4</th>
-      <td>-0.079</td>
-      <td>0.043</td>
-      <td>-0.161</td>
-      <td>-0.000</td>
+      <td>-0.062</td>
+      <td>0.060</td>
+      <td>-0.172</td>
+      <td>0.055</td>
+      <td>0.002</td>
       <td>0.001</td>
-      <td>0.001</td>
-      <td>2006.0</td>
-      <td>2348.0</td>
-      <td>1.0</td>
+      <td>1078.0</td>
+      <td>1258.0</td>
+      <td>1.00</td>
     </tr>
   </tbody>
 </table>
@@ -1035,40 +1048,41 @@ NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code><
 <p>The coefficients of the linear model are shown in the table above. The interaction coefficents indicate the slope varies in a continuous fashion with the continuous variable.</p>
 <p>A negative value for <code>arsenic:dist100</code> indicates that the “effect” of arsenic on the outcome is less negative as distance from the well increases. Similarly, a negative value for <code>arsenic:educ4</code> indicates that the “effect” of arsenic on the outcome is more negative as education increases. Remember, these coefficients are still on the logit scale. Furthermore, as more variables and interaction terms are added to the model, interpreting these coefficients becomes more difficult.</p>
 <p>Thus, lets use <code>plot_slopes</code> to visually see how the slope changes with respect to <code>arsenic</code> conditional on <code>dist100</code> and <code>educ4</code> changing. Notice in the code block below how parameters are passed to the <code>subplot_kwargs</code> and <code>fig_kwargs</code> arguments. At times, it can be useful to pass specific <code>group</code> and <code>panel</code> arguments to aid in the interpretation of the plot. Therefore, <code>subplot_kwargs</code> allows the user to manipulate the plotting by passing a dictionary where the keys are <code>{"main": ..., "group": ..., "panel": ...}</code> and the values are the names of the covariates to be plotted. <code>fig_kwargs</code> are figure level key word arguments such as <code>figsize</code> and <code>sharey</code>.</p>
-<div class="cell" data-execution_count="11">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    wrt<span class="op">=</span><span class="st">"arsenic"</span>,</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>[<span class="st">"dist100"</span>, <span class="st">"educ4"</span>],</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    subplot_kwargs<span class="op">=</span>{<span class="st">"main"</span>: <span class="st">"dist100"</span>, <span class="st">"group"</span>: <span class="st">"educ4"</span>, <span class="st">"panel"</span>: <span class="st">"educ4"</span>},</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"figsize"</span>: (<span class="dv">16</span>, <span class="dv">4</span>), <span class="st">"sharey"</span>: <span class="va">True</span>},</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>    legend<span class="op">=</span><span class="va">False</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Default computed for wrt variable: arsenic
-Default computed for main variable: dist100
-Default computed for group/panel variable: educ4</code></pre>
-</div>
+<div class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    wrt<span class="op">=</span><span class="st">"arsenic"</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"dist100"</span>: np.linspace(<span class="dv">0</span>, <span class="dv">4</span>, <span class="dv">50</span>),</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"educ4"</span>: np.arange(<span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">1</span>)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    subplot_kwargs<span class="op">=</span>{<span class="st">"main"</span>: <span class="st">"dist100"</span>, <span class="st">"group"</span>: <span class="st">"educ4"</span>, <span class="st">"panel"</span>: <span class="st">"educ4"</span>},</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"figsize"</span>: (<span class="dv">16</span>, <span class="dv">6</span>), <span class="st">"sharey"</span>: <span class="va">True</span>, <span class="st">"tight_layout"</span>: <span class="va">True</span>},</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    legend<span class="op">=</span><span class="va">False</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="plot_slopes_files/figure-html/cell-10-output-2.png" class="img-fluid"></p>
+<p><img src="plot_slopes_files/figure-html/cell-10-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>Before we talk about the plot, you will notice that some messages have been logged to the console. By default <code>interpret</code> is <em>verbose</em> and logs a message to the console if a default value is computed for covariates in <code>conditional</code> and <code>wrt</code>. This is useful because unless the documentation is read, it can be difficult to tell which covariates are having default values computed for. Thus, Bambi has a config file <code>bmb.config["INTERPRET_VERBOSE"]</code> where we can specify whether or not to log messages. By default, this is set to true. To turn off logging, set <code>bmb.config["INTERPRET_VERBOSE"] = False</code>. From here on, we will turn off logging.</p>
 <p>With interaction terms now defined, it can be seen how the slope of the outcome with respect to <code>arsenic</code> differ depending on the value of <code>educ4</code>. Especially in the case of <code>educ4</code> <span class="math inline">\(= 4.25\)</span>, the slope is more “constant”, but with greater uncertainty. Lets compare this with the model that does not include any interaction terms.</p>
-<div class="cell" data-execution_count="12">
+<div class="cell" data-execution_count="22">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>bmb.config[<span class="st">"INTERPRET_VERBOSE"</span>] <span class="op">=</span> <span class="va">False</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="13">
+<div class="cell" data-execution_count="23">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    well_model,</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    well_idata,</span>
 <span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    wrt<span class="op">=</span><span class="st">"arsenic"</span>,</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>[<span class="st">"dist100"</span>, <span class="st">"educ4"</span>],</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    subplot_kwargs<span class="op">=</span>{<span class="st">"main"</span>: <span class="st">"dist100"</span>, <span class="st">"group"</span>: <span class="st">"educ4"</span>, <span class="st">"panel"</span>: <span class="st">"educ4"</span>},</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"figsize"</span>: (<span class="dv">16</span>, <span class="dv">4</span>), <span class="st">"sharey"</span>: <span class="va">True</span>},</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    legend<span class="op">=</span><span class="va">False</span></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"dist100"</span>: np.linspace(<span class="dv">0</span>, <span class="dv">4</span>, <span class="dv">50</span>),</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"educ4"</span>: np.arange(<span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">1</span>)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    subplot_kwargs<span class="op">=</span>{<span class="st">"main"</span>: <span class="st">"dist100"</span>, <span class="st">"group"</span>: <span class="st">"educ4"</span>, <span class="st">"panel"</span>: <span class="st">"educ4"</span>},</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"figsize"</span>: (<span class="dv">16</span>, <span class="dv">6</span>), <span class="st">"sharey"</span>: <span class="va">True</span>, <span class="st">"tight_layout"</span>: <span class="va">True</span>},</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    legend<span class="op">=</span><span class="va">False</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="plot_slopes_files/figure-html/cell-12-output-1.png" class="img-fluid"></p>
 </div>
@@ -1078,7 +1092,7 @@ Default computed for group/panel variable: educ4</code></pre>
 <section id="unit-level-slopes" class="level3">
 <h3 class="anchored" data-anchor-id="unit-level-slopes">Unit level slopes</h3>
 <p>Evaluating average predictive slopes at central values for the conditional covariates <span class="math inline">\(c\)</span> can be problematic when the inputs have a large variance since no single central value (mean, median, etc.) is representative of the covariate. This is especially true when <span class="math inline">\(c\)</span> exhibits bi or multimodality. Thus, it may be desireable to use the empirical distribution of <span class="math inline">\(c\)</span> to compute the predictive slopes, and then average over a specific or set of covariates to obtain average slopes. To achieve unit level slopes, do not pass a parameter into <code>conditional</code> and or specify <code>None</code>.</p>
-<div class="cell" data-execution_count="14">
+<div class="cell" data-execution_count="24">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>unit_level <span class="op">=</span> bmb.interpret.slopes(</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1092,7 +1106,7 @@ Default computed for group/panel variable: educ4</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>True</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="14">
+<div class="cell-output cell-output-display" data-execution_count="24">
 
 <div>
 
@@ -1115,120 +1129,120 @@ Default computed for group/panel variable: educ4</code></pre>
       <th>0</th>
       <td>arsenic</td>
       <td>dydx</td>
-      <td>(2.36, 2.3601)</td>
-      <td>0.16826</td>
-      <td>0.00</td>
-      <td>-0.084280</td>
-      <td>-0.105566</td>
-      <td>-0.063403</td>
+      <td>(2.19, 2.1901)</td>
+      <td>0.44629</td>
+      <td>2.50</td>
+      <td>-0.129122</td>
+      <td>-0.160397</td>
+      <td>-0.095716</td>
     </tr>
     <tr>
       <th>1</th>
       <td>arsenic</td>
       <td>dydx</td>
-      <td>(0.71, 0.7101)</td>
-      <td>0.47322</td>
+      <td>(1.51, 1.5101)</td>
+      <td>0.32249</td>
       <td>0.00</td>
-      <td>-0.097837</td>
-      <td>-0.125057</td>
-      <td>-0.070959</td>
+      <td>-0.122982</td>
+      <td>-0.164771</td>
+      <td>-0.083558</td>
     </tr>
     <tr>
       <th>2</th>
       <td>arsenic</td>
       <td>dydx</td>
-      <td>(2.07, 2.0701)</td>
-      <td>0.20967</td>
-      <td>2.50</td>
-      <td>-0.118093</td>
-      <td>-0.139848</td>
-      <td>-0.093442</td>
+      <td>(0.63, 0.6301)</td>
+      <td>0.19921</td>
+      <td>1.00</td>
+      <td>-0.143040</td>
+      <td>-0.173520</td>
+      <td>-0.111401</td>
     </tr>
     <tr>
       <th>3</th>
       <td>arsenic</td>
       <td>dydx</td>
-      <td>(1.15, 1.1501)</td>
-      <td>0.21486</td>
-      <td>3.00</td>
-      <td>-0.150638</td>
-      <td>-0.194765</td>
-      <td>-0.108946</td>
+      <td>(0.75, 0.7501)</td>
+      <td>0.53544</td>
+      <td>2.50</td>
+      <td>-0.166454</td>
+      <td>-0.216468</td>
+      <td>-0.114219</td>
     </tr>
     <tr>
       <th>4</th>
       <td>arsenic</td>
       <td>dydx</td>
-      <td>(1.1, 1.1001)</td>
-      <td>0.40874</td>
-      <td>3.50</td>
-      <td>-0.161272</td>
-      <td>-0.214761</td>
-      <td>-0.108663</td>
+      <td>(1.01, 1.0101)</td>
+      <td>0.05358</td>
+      <td>0.00</td>
+      <td>-0.118757</td>
+      <td>-0.157194</td>
+      <td>-0.074935</td>
     </tr>
     <tr>
       <th>5</th>
       <td>arsenic</td>
       <td>dydx</td>
-      <td>(3.9, 3.9001)</td>
-      <td>0.69518</td>
-      <td>2.25</td>
-      <td>-0.073908</td>
-      <td>-0.080525</td>
-      <td>-0.067493</td>
+      <td>(0.74, 0.7401)</td>
+      <td>0.32587</td>
+      <td>1.25</td>
+      <td>-0.147418</td>
+      <td>-0.176669</td>
+      <td>-0.114935</td>
     </tr>
     <tr>
       <th>6</th>
       <td>arsenic</td>
       <td>dydx</td>
-      <td>(2.97, 2.9701000000000004)</td>
-      <td>0.80711</td>
-      <td>1.00</td>
-      <td>-0.108482</td>
-      <td>-0.123517</td>
-      <td>-0.093042</td>
+      <td>(4.35, 4.350099999999999)</td>
+      <td>0.36181</td>
+      <td>2.00</td>
+      <td>-0.049172</td>
+      <td>-0.057212</td>
+      <td>-0.040185</td>
     </tr>
     <tr>
       <th>7</th>
       <td>arsenic</td>
       <td>dydx</td>
-      <td>(3.24, 3.2401000000000004)</td>
-      <td>0.55146</td>
-      <td>2.50</td>
-      <td>-0.088049</td>
-      <td>-0.097939</td>
-      <td>-0.078020</td>
+      <td>(4.54, 4.5401)</td>
+      <td>0.30681</td>
+      <td>1.25</td>
+      <td>-0.047353</td>
+      <td>-0.053571</td>
+      <td>-0.040729</td>
     </tr>
     <tr>
       <th>8</th>
       <td>arsenic</td>
       <td>dydx</td>
-      <td>(3.28, 3.2801)</td>
-      <td>0.52647</td>
-      <td>0.00</td>
-      <td>-0.087388</td>
-      <td>-0.107331</td>
-      <td>-0.068076</td>
+      <td>(2.47, 2.4701000000000004)</td>
+      <td>0.32265</td>
+      <td>1.25</td>
+      <td>-0.110712</td>
+      <td>-0.128014</td>
+      <td>-0.093747</td>
     </tr>
     <tr>
       <th>9</th>
       <td>arsenic</td>
       <td>dydx</td>
-      <td>(2.52, 2.5201000000000002)</td>
-      <td>0.75072</td>
-      <td>0.00</td>
-      <td>-0.099035</td>
-      <td>-0.129517</td>
-      <td>-0.073222</td>
+      <td>(3.57, 3.5701)</td>
+      <td>0.04755</td>
+      <td>1.25</td>
+      <td>-0.060246</td>
+      <td>-0.068420</td>
+      <td>-0.053363</td>
     </tr>
   </tbody>
 </table>
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="12">
+<div class="cell" data-execution_count="25">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>well_model_interact.data.head(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="12">
+<div class="cell-output cell-output-display" data-execution_count="25">
 
 <div>
 
@@ -1247,104 +1261,104 @@ Default computed for group/panel variable: educ4</code></pre>
   </thead>
   <tbody>
     <tr>
-      <th>1</th>
+      <th>2659</th>
       <td>1</td>
-      <td>2.36</td>
-      <td>16.826000</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0.16826</td>
-      <td>0.00</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>1</td>
-      <td>0.71</td>
-      <td>47.321999</td>
-      <td>0</td>
-      <td>0</td>
-      <td>0.47322</td>
-      <td>0.00</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>0</td>
-      <td>2.07</td>
-      <td>20.966999</td>
+      <td>2.19</td>
+      <td>44.629002</td>
       <td>0</td>
       <td>10</td>
-      <td>0.20967</td>
+      <td>0.44629</td>
       <td>2.50</td>
     </tr>
     <tr>
-      <th>4</th>
+      <th>1204</th>
       <td>1</td>
-      <td>1.15</td>
-      <td>21.486000</td>
+      <td>1.51</td>
+      <td>32.249001</td>
+      <td>1</td>
       <td>0</td>
-      <td>12</td>
-      <td>0.21486</td>
-      <td>3.00</td>
+      <td>0.32249</td>
+      <td>0.00</td>
     </tr>
     <tr>
-      <th>5</th>
-      <td>1</td>
-      <td>1.10</td>
-      <td>40.874001</td>
-      <td>1</td>
-      <td>14</td>
-      <td>0.40874</td>
-      <td>3.50</td>
-    </tr>
-    <tr>
-      <th>6</th>
-      <td>1</td>
-      <td>3.90</td>
-      <td>69.517998</td>
-      <td>1</td>
-      <td>9</td>
-      <td>0.69518</td>
-      <td>2.25</td>
-    </tr>
-    <tr>
-      <th>7</th>
-      <td>1</td>
-      <td>2.97</td>
-      <td>80.710999</td>
-      <td>1</td>
+      <th>2308</th>
+      <td>0</td>
+      <td>0.63</td>
+      <td>19.921000</td>
+      <td>0</td>
       <td>4</td>
-      <td>0.80711</td>
+      <td>0.19921</td>
       <td>1.00</td>
     </tr>
     <tr>
-      <th>8</th>
-      <td>1</td>
-      <td>3.24</td>
-      <td>55.146000</td>
+      <th>2428</th>
       <td>0</td>
+      <td>0.75</td>
+      <td>53.543999</td>
+      <td>1</td>
       <td>10</td>
-      <td>0.55146</td>
+      <td>0.53544</td>
       <td>2.50</td>
     </tr>
     <tr>
-      <th>9</th>
-      <td>1</td>
-      <td>3.28</td>
-      <td>52.646999</td>
+      <th>526</th>
+      <td>0</td>
+      <td>1.01</td>
+      <td>5.358000</td>
       <td>1</td>
       <td>0</td>
-      <td>0.52647</td>
+      <td>0.05358</td>
       <td>0.00</td>
     </tr>
     <tr>
-      <th>10</th>
+      <th>242</th>
       <td>1</td>
-      <td>2.52</td>
-      <td>75.071999</td>
+      <td>0.74</td>
+      <td>32.587002</td>
       <td>1</td>
+      <td>5</td>
+      <td>0.32587</td>
+      <td>1.25</td>
+    </tr>
+    <tr>
+      <th>2606</th>
+      <td>1</td>
+      <td>4.35</td>
+      <td>36.181000</td>
       <td>0</td>
-      <td>0.75072</td>
-      <td>0.00</td>
+      <td>8</td>
+      <td>0.36181</td>
+      <td>2.00</td>
+    </tr>
+    <tr>
+      <th>643</th>
+      <td>1</td>
+      <td>4.54</td>
+      <td>30.681000</td>
+      <td>0</td>
+      <td>5</td>
+      <td>0.30681</td>
+      <td>1.25</td>
+    </tr>
+    <tr>
+      <th>1549</th>
+      <td>0</td>
+      <td>2.47</td>
+      <td>32.264999</td>
+      <td>0</td>
+      <td>5</td>
+      <td>0.32265</td>
+      <td>1.25</td>
+    </tr>
+    <tr>
+      <th>2740</th>
+      <td>1</td>
+      <td>3.57</td>
+      <td>4.755000</td>
+      <td>1</td>
+      <td>5</td>
+      <td>0.04755</td>
+      <td>1.25</td>
     </tr>
   </tbody>
 </table>
@@ -1355,7 +1369,7 @@ Default computed for group/panel variable: educ4</code></pre>
 <section id="marginalizing-over-covariates" class="level4">
 <h4 class="anchored" data-anchor-id="marginalizing-over-covariates">Marginalizing over covariates</h4>
 <p>Since the empirical distrubution is used for computing the average predictive slopes, the same number of rows (<span class="math inline">\(3020\)</span>) is returned as the data used to fit the model. To average over a covariate, use the <code>average_by</code> argument. If <code>True</code> is passed, then <code>slopes</code> averages over all covariates. Else, if a single or list of covariates are passed, then <code>slopes</code> averages by the covariates passed.</p>
-<div class="cell" data-execution_count="15">
+<div class="cell" data-execution_count="26">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.slopes(</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1363,7 +1377,7 @@ Default computed for group/panel variable: educ4</code></pre>
 <span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="va">True</span></span>
 <span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="15">
+<div class="cell-output cell-output-display" data-execution_count="26">
 
 <div>
 
@@ -1383,9 +1397,9 @@ Default computed for group/panel variable: educ4</code></pre>
       <th>0</th>
       <td>arsenic</td>
       <td>dydx</td>
-      <td>-0.111342</td>
-      <td>-0.134846</td>
-      <td>-0.088171</td>
+      <td>-0.127551</td>
+      <td>-0.160444</td>
+      <td>-0.093784</td>
     </tr>
   </tbody>
 </table>
@@ -1393,12 +1407,12 @@ Default computed for group/panel variable: educ4</code></pre>
 </div>
 </div>
 <p>The code block above is equivalent to taking the mean of the <code>estimate</code> and uncertainty columns. For example:</p>
-<div class="cell" data-execution_count="14">
+<div class="cell" data-execution_count="27">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>unit_level[[<span class="st">"estimate"</span>, <span class="st">"lower_3.0%"</span>, <span class="st">"upper_97.0%"</span>]].mean()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="14">
-<pre><code>estimate      -0.111342
-lower_3.0%    -0.134846
-upper_97.0%   -0.088171
+<div class="cell-output cell-output-display" data-execution_count="27">
+<pre><code>estimate      -0.127551
+lower_3.0%    -0.160444
+upper_97.0%   -0.093784
 dtype: float64</code></pre>
 </div>
 </div>
@@ -1406,7 +1420,7 @@ dtype: float64</code></pre>
 <section id="average-by-subgroups" class="level4">
 <h4 class="anchored" data-anchor-id="average-by-subgroups">Average by subgroups</h4>
 <p>Averaging over all covariates may not be desired, and you would rather average by a group or specific covariate. To perform averaging by subgroups, users can pass a single or list of covariates to <code>average_by</code> to average over specific covariates. For example, if we wanted to average by <code>educ4</code>:</p>
-<div class="cell" data-execution_count="16">
+<div class="cell" data-execution_count="28">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># average by educ4</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>bmb.interpret.slopes(</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
@@ -1415,7 +1429,7 @@ dtype: float64</code></pre>
 <span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="st">"educ4"</span></span>
 <span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="16">
+<div class="cell-output cell-output-display" data-execution_count="28">
 
 <div>
 
@@ -1437,169 +1451,169 @@ dtype: float64</code></pre>
       <td>arsenic</td>
       <td>dydx</td>
       <td>0.00</td>
-      <td>-0.092389</td>
-      <td>-0.119320</td>
-      <td>-0.068167</td>
+      <td>-0.114469</td>
+      <td>-0.150676</td>
+      <td>-0.078639</td>
     </tr>
     <tr>
       <th>1</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>0.25</td>
-      <td>-0.101704</td>
-      <td>-0.126096</td>
-      <td>-0.076910</td>
+      <td>-0.130916</td>
+      <td>-0.169176</td>
+      <td>-0.091776</td>
     </tr>
     <tr>
       <th>2</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>0.50</td>
-      <td>-0.102112</td>
-      <td>-0.122443</td>
-      <td>-0.082142</td>
+      <td>-0.124030</td>
+      <td>-0.153207</td>
+      <td>-0.094285</td>
     </tr>
     <tr>
       <th>3</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>0.75</td>
-      <td>-0.106004</td>
-      <td>-0.124247</td>
-      <td>-0.088132</td>
+      <td>-0.122760</td>
+      <td>-0.149194</td>
+      <td>-0.098292</td>
     </tr>
     <tr>
       <th>4</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>1.00</td>
-      <td>-0.110580</td>
-      <td>-0.127803</td>
-      <td>-0.093221</td>
+      <td>-0.129400</td>
+      <td>-0.155829</td>
+      <td>-0.102841</td>
     </tr>
     <tr>
       <th>5</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>1.25</td>
-      <td>-0.112334</td>
-      <td>-0.128771</td>
-      <td>-0.094870</td>
+      <td>-0.127170</td>
+      <td>-0.151142</td>
+      <td>-0.101722</td>
     </tr>
     <tr>
       <th>6</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>1.50</td>
-      <td>-0.114875</td>
-      <td>-0.132652</td>
-      <td>-0.096790</td>
+      <td>-0.132069</td>
+      <td>-0.157954</td>
+      <td>-0.104550</td>
     </tr>
     <tr>
       <th>7</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>1.75</td>
-      <td>-0.122557</td>
-      <td>-0.142921</td>
-      <td>-0.101423</td>
+      <td>-0.137053</td>
+      <td>-0.165037</td>
+      <td>-0.105561</td>
     </tr>
     <tr>
       <th>8</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>2.00</td>
-      <td>-0.125187</td>
-      <td>-0.148096</td>
-      <td>-0.101350</td>
+      <td>-0.140081</td>
+      <td>-0.172672</td>
+      <td>-0.103777</td>
     </tr>
     <tr>
       <th>9</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>2.25</td>
-      <td>-0.125367</td>
-      <td>-0.150676</td>
-      <td>-0.099852</td>
+      <td>-0.136278</td>
+      <td>-0.173375</td>
+      <td>-0.101215</td>
     </tr>
     <tr>
       <th>10</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>2.50</td>
-      <td>-0.130748</td>
-      <td>-0.159912</td>
-      <td>-0.101058</td>
+      <td>-0.139632</td>
+      <td>-0.180047</td>
+      <td>-0.098404</td>
     </tr>
     <tr>
       <th>11</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>2.75</td>
-      <td>-0.137422</td>
-      <td>-0.170662</td>
-      <td>-0.102995</td>
+      <td>-0.153269</td>
+      <td>-0.202273</td>
+      <td>-0.104104</td>
     </tr>
     <tr>
       <th>12</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>3.00</td>
-      <td>-0.136103</td>
-      <td>-0.172119</td>
-      <td>-0.099548</td>
+      <td>-0.146033</td>
+      <td>-0.195693</td>
+      <td>-0.093097</td>
     </tr>
     <tr>
       <th>13</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>3.25</td>
-      <td>-0.156941</td>
-      <td>-0.202215</td>
-      <td>-0.107625</td>
+      <td>-0.162131</td>
+      <td>-0.224284</td>
+      <td>-0.100161</td>
     </tr>
     <tr>
       <th>14</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>3.50</td>
-      <td>-0.142571</td>
-      <td>-0.186079</td>
-      <td>-0.098362</td>
+      <td>-0.152834</td>
+      <td>-0.212448</td>
+      <td>-0.090461</td>
     </tr>
     <tr>
       <th>15</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>3.75</td>
-      <td>-0.138336</td>
-      <td>-0.181042</td>
-      <td>-0.093120</td>
+      <td>-0.144096</td>
+      <td>-0.200710</td>
+      <td>-0.082893</td>
     </tr>
     <tr>
       <th>16</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>4.00</td>
-      <td>-0.138152</td>
-      <td>-0.185974</td>
-      <td>-0.089611</td>
+      <td>-0.137381</td>
+      <td>-0.203622</td>
+      <td>-0.070478</td>
     </tr>
     <tr>
       <th>17</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>4.25</td>
-      <td>-0.176623</td>
-      <td>-0.244273</td>
-      <td>-0.107141</td>
+      <td>-0.187189</td>
+      <td>-0.278350</td>
+      <td>-0.083767</td>
     </tr>
   </tbody>
 </table>
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="17">
+<div class="cell" data-execution_count="29">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># average by both educ4 and dist100</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>bmb.interpret.slopes(</span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
@@ -1608,7 +1622,7 @@ dtype: float64</code></pre>
 <span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span>[<span class="st">"educ4"</span>, <span class="st">"dist100"</span>]</span>
 <span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="17">
+<div class="cell-output cell-output-display" data-execution_count="29">
 
 <div>
 
@@ -1631,50 +1645,50 @@ dtype: float64</code></pre>
       <td>arsenic</td>
       <td>dydx</td>
       <td>0.00</td>
-      <td>0.00591</td>
-      <td>-0.085861</td>
-      <td>-0.109133</td>
-      <td>-0.061614</td>
+      <td>0.02409</td>
+      <td>-0.121559</td>
+      <td>-0.164432</td>
+      <td>-0.079044</td>
     </tr>
     <tr>
       <th>1</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>0.00</td>
-      <td>0.02409</td>
-      <td>-0.096272</td>
-      <td>-0.127518</td>
-      <td>-0.069670</td>
+      <td>0.02454</td>
+      <td>-0.052945</td>
+      <td>-0.063185</td>
+      <td>-0.041371</td>
     </tr>
     <tr>
       <th>2</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>0.00</td>
-      <td>0.02454</td>
-      <td>-0.056617</td>
-      <td>-0.065433</td>
-      <td>-0.046970</td>
+      <td>0.02791</td>
+      <td>-0.124374</td>
+      <td>-0.168024</td>
+      <td>-0.081240</td>
     </tr>
     <tr>
       <th>3</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>0.00</td>
-      <td>0.02791</td>
-      <td>-0.097646</td>
-      <td>-0.128131</td>
-      <td>-0.069660</td>
+      <td>0.03380</td>
+      <td>-0.122091</td>
+      <td>-0.164796</td>
+      <td>-0.079337</td>
     </tr>
     <tr>
       <th>4</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>0.00</td>
-      <td>0.03252</td>
-      <td>-0.076300</td>
-      <td>-0.095832</td>
-      <td>-0.057900</td>
+      <td>0.03612</td>
+      <td>-0.115350</td>
+      <td>-0.153084</td>
+      <td>-0.073624</td>
     </tr>
     <tr>
       <th>...</th>
@@ -1687,63 +1701,63 @@ dtype: float64</code></pre>
       <td>...</td>
     </tr>
     <tr>
-      <th>2992</th>
+      <th>1491</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>4.00</td>
       <td>1.13727</td>
-      <td>-0.070078</td>
-      <td>-0.094698</td>
-      <td>-0.046623</td>
+      <td>-0.070647</td>
+      <td>-0.105976</td>
+      <td>-0.037434</td>
     </tr>
     <tr>
-      <th>2993</th>
+      <th>1492</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>4.00</td>
       <td>1.14418</td>
-      <td>-0.125547</td>
-      <td>-0.172943</td>
-      <td>-0.075368</td>
+      <td>-0.132963</td>
+      <td>-0.200970</td>
+      <td>-0.061558</td>
     </tr>
     <tr>
-      <th>2994</th>
+      <th>1493</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>4.00</td>
       <td>1.25308</td>
-      <td>-0.156780</td>
-      <td>-0.218836</td>
-      <td>-0.088258</td>
+      <td>-0.167529</td>
+      <td>-0.252454</td>
+      <td>-0.073173</td>
     </tr>
     <tr>
-      <th>2995</th>
+      <th>1494</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>4.00</td>
       <td>1.67025</td>
-      <td>-0.161465</td>
-      <td>-0.227211</td>
-      <td>-0.085394</td>
+      <td>-0.170250</td>
+      <td>-0.268071</td>
+      <td>-0.076301</td>
     </tr>
     <tr>
-      <th>2996</th>
+      <th>1495</th>
       <td>arsenic</td>
       <td>dydx</td>
       <td>4.25</td>
       <td>0.29633</td>
-      <td>-0.176623</td>
-      <td>-0.244273</td>
-      <td>-0.107141</td>
+      <td>-0.187189</td>
+      <td>-0.278350</td>
+      <td>-0.083767</td>
     </tr>
   </tbody>
 </table>
-<p>2997 rows × 7 columns</p>
+<p>1496 rows × 7 columns</p>
 </div>
 </div>
 </div>
 <p>It is still possible to use <code>plot_slopes</code> when passing an argument to <code>average_by</code>. In the plot below, the empirical distribution is used to compute unit level slopes with respect to <code>arsenic</code> and then averaged over <code>educ4</code> to obtain the average predictive slopes.</p>
-<div class="cell" data-execution_count="18">
+<div class="cell" data-execution_count="30">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1774,7 +1788,7 @@ dtype: float64</code></pre>
 </ul>
 <p><span class="math display">\[\frac{\partial \hat{y}}{\partial x_1} * x_1\]</span></p>
 <p>Below, each code cell shows the same model, and <code>wrt</code> and <code>conditional</code> argument, but with a different elasticity (<code>slope</code>) argument. By default, <code>dydx</code> (a derivative with no post-processing) is used.</p>
-<div class="cell" data-execution_count="19">
+<div class="cell" data-execution_count="31">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.slopes(</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1783,7 +1797,7 @@ dtype: float64</code></pre>
 <span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="va">True</span></span>
 <span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="19">
+<div class="cell-output cell-output-display" data-execution_count="31">
 
 <div>
 
@@ -1803,16 +1817,16 @@ dtype: float64</code></pre>
       <th>0</th>
       <td>arsenic</td>
       <td>eyex</td>
-      <td>-0.525124</td>
-      <td>-0.652708</td>
-      <td>-0.396082</td>
+      <td>-0.664831</td>
+      <td>-0.867586</td>
+      <td>-0.461033</td>
     </tr>
   </tbody>
 </table>
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="20">
+<div class="cell" data-execution_count="32">
 <div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.slopes(</span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1821,7 +1835,7 @@ dtype: float64</code></pre>
 <span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="va">True</span></span>
 <span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="20">
+<div class="cell-output cell-output-display" data-execution_count="32">
 
 <div>
 
@@ -1841,16 +1855,16 @@ dtype: float64</code></pre>
       <th>0</th>
       <td>arsenic</td>
       <td>eydx</td>
-      <td>-0.286753</td>
-      <td>-0.351592</td>
-      <td>-0.220459</td>
+      <td>-0.352009</td>
+      <td>-0.452965</td>
+      <td>-0.251448</td>
     </tr>
   </tbody>
 </table>
 </div>
 </div>
 </div>
-<div class="cell" data-execution_count="21">
+<div class="cell" data-execution_count="33">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>bmb.interpret.slopes(</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
@@ -1859,7 +1873,7 @@ dtype: float64</code></pre>
 <span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="va">None</span>,</span>
 <span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="va">True</span></span>
 <span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="21">
+<div class="cell-output cell-output-display" data-execution_count="33">
 
 <div>
 
@@ -1879,9 +1893,9 @@ dtype: float64</code></pre>
       <th>0</th>
       <td>arsenic</td>
       <td>dyex</td>
-      <td>-0.167616</td>
-      <td>-0.201147</td>
-      <td>-0.134605</td>
+      <td>-0.190065</td>
+      <td>-0.236576</td>
+      <td>-0.142506</td>
     </tr>
   </tbody>
 </table>
@@ -1889,17 +1903,20 @@ dtype: float64</code></pre>
 </div>
 </div>
 <p><code>slope</code> is also an argument for <code>plot_slopes</code>. Below, we visualize the elasticity with respect to <code>arsenic</code> conditional on a range of <code>dist100</code> and <code>educ4</code> values (notice this is the same plot as in the <em>conditional slopes</em> section).</p>
-<div class="cell" data-execution_count="22">
+<div class="cell" data-execution_count="34">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
 <span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    wrt<span class="op">=</span><span class="st">"arsenic"</span>,</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>[<span class="st">"dist100"</span>, <span class="st">"educ4"</span>],</span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    slope<span class="op">=</span><span class="st">"eyex"</span>,</span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    subplot_kwargs<span class="op">=</span>{<span class="st">"main"</span>: <span class="st">"dist100"</span>, <span class="st">"group"</span>: <span class="st">"educ4"</span>, <span class="st">"panel"</span>: <span class="st">"educ4"</span>},</span>
-<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"figsize"</span>: (<span class="dv">16</span>, <span class="dv">4</span>), <span class="st">"sharey"</span>: <span class="va">True</span>},</span>
-<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    legend<span class="op">=</span><span class="va">False</span></span>
-<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span>{</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>        <span class="st">"dist100"</span>: np.linspace(<span class="dv">0</span>, <span class="dv">4</span>, <span class="dv">50</span>),</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>        <span class="st">"educ4"</span>: np.arange(<span class="dv">0</span>, <span class="dv">5</span>, <span class="dv">1</span>)</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    slope<span class="op">=</span><span class="st">"eyex"</span>,</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>    subplot_kwargs<span class="op">=</span>{<span class="st">"main"</span>: <span class="st">"dist100"</span>, <span class="st">"group"</span>: <span class="st">"educ4"</span>, <span class="st">"panel"</span>: <span class="st">"educ4"</span>},</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    fig_kwargs<span class="op">=</span>{<span class="st">"figsize"</span>: (<span class="dv">16</span>, <span class="dv">6</span>), <span class="st">"sharey"</span>: <span class="va">True</span>, <span class="st">"tight_layout"</span>: <span class="va">True</span>},</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    legend<span class="op">=</span><span class="va">False</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="plot_slopes_files/figure-html/cell-23-output-1.png" class="img-fluid"></p>
 </div>
@@ -1908,13 +1925,13 @@ dtype: float64</code></pre>
 <section id="categorical-covariates" class="level3">
 <h3 class="anchored" data-anchor-id="categorical-covariates">Categorical covariates</h3>
 <p>As mentioned in the <em>computing slopes</em> section, if you pass a variable with a string or categorical data type, the <code>comparisons</code> function will be called to compute the expected difference in group means. Here, we fit the same interaction model as above, albeit, by specifying <code>educ4</code> as an ordinal data type.</p>
-<div class="cell" data-execution_count="23">
+<div class="cell" data-execution_count="35">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> pd.read_csv(<span class="st">"http://www.stat.columbia.edu/~gelman/arm/examples/arsenic/wells.dat"</span>, sep<span class="op">=</span><span class="st">" "</span>)</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"switch"</span>] <span class="op">=</span> pd.Categorical(data[<span class="st">"switch"</span>])</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"dist100"</span>] <span class="op">=</span> data[<span class="st">"dist"</span>] <span class="op">/</span> <span class="dv">100</span></span>
 <span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"educ4"</span>] <span class="op">=</span> pd.Categorical(data[<span class="st">"educ"</span>] <span class="op">/</span> <span class="dv">4</span>, ordered<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell" data-execution_count="24">
+<div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>well_model_interact <span class="op">=</span> bmb.Model(</span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"switch ~ dist100 + arsenic + educ4 + dist100:educ4 + arsenic:educ4"</span>,</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    data,</span>
@@ -1927,93 +1944,62 @@ dtype: float64</code></pre>
 <span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>    random_seed<span class="op">=</span><span class="dv">1234</span>, </span>
 <span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>    chains<span class="op">=</span><span class="dv">4</span></span>
 <span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Modeling the probability that switch==0
-Auto-assigning NUTS sampler...
-Initializing NUTS using jitter+adapt_diag...
-Multiprocess sampling (4 chains in 4 jobs)
-NUTS: [Intercept, dist100, arsenic, educ4, dist100:educ4, arsenic:educ4]</code></pre>
-</div>
-<div class="cell-output cell-output-display">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
-</div>
-<div class="cell-output cell-output-display">
-
-    <div>
-      <progress value="8000" class="" max="8000" style="width:300px; height:20px; vertical-align: middle;"></progress>
-      100.00% [8000/8000 05:18&lt;00:00 Sampling 4 chains, 0 divergences]
-    </div>
-    
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Sampling 4 chains for 1_000 tune and 1_000 draw iterations (4_000 + 4_000 draws total) took 319 seconds.</code></pre>
-</div>
 </div>
 <div class="cell" data-execution_count="25">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    wrt<span class="op">=</span><span class="st">"educ4"</span>,</span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="st">"dist100"</span>,</span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="st">"dist100"</span></span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    wrt<span class="op">=</span><span class="st">"educ4"</span>,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="st">"dist100"</span>,</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="st">"dist100"</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="plot_slopes_files/figure-html/cell-26-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>As the model was fit with <code>educ4</code> as a categorical data type, Bambi recognized this, and calls <code>comparisons</code> to compute the differences between each level of <code>educ4</code>. As <code>educ4</code> contains many category levels, a covariate must be passed to <code>average_by</code> in order to perform plotting. Below, we can see this plot is equivalent to <code>plot_comparisons</code>.</p>
 <div class="cell" data-execution_count="26">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_comparisons(</span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"educ4"</span>,</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="st">"dist100"</span>,</span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="st">"dist100"</span></span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_comparisons(</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    contrast<span class="op">=</span><span class="st">"educ4"</span>,</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="st">"dist100"</span>,</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="st">"dist100"</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="plot_slopes_files/figure-html/cell-27-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>However, computing the predictive difference between each <code>educ4</code> level may not be desired. Thus, in <code>plot_slopes</code>, as in <code>plot_comparisons</code>, if <code>wrt</code> is a categorical or string data type, it is possible to specify the <code>wrt</code> values. For example, if we wanted to compute the expected difference in probability of switching wells for when <code>educ4</code> is <span class="math inline">\(4\)</span> versus <span class="math inline">\(1\)</span> conditional on a range of <code>dist100</code> and <code>arsenic</code> values, we would pass the following dictionary in the code block below. Please refer to the <a href="https://bambinos.github.io/bambi/notebooks/plot_comparisons.html">comparisons</a> documentation for more details.</p>
 <div class="cell" data-execution_count="27">
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    wrt<span class="op">=</span>{<span class="st">"educ4"</span>: [<span class="dv">1</span>, <span class="dv">4</span>]},</span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="st">"dist100"</span>,</span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="st">"dist100"</span></span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> bmb.interpret.plot_slopes(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    well_model_interact,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>    well_idata_interact,</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    wrt<span class="op">=</span>{<span class="st">"educ4"</span>: [<span class="dv">1</span>, <span class="dv">4</span>]},</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>    conditional<span class="op">=</span><span class="st">"dist100"</span>,</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>    average_by<span class="op">=</span><span class="st">"dist100"</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>fig.set_size_inches(<span class="dv">7</span>, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
 <p><img src="plot_slopes_files/figure-html/cell-28-output-1.png" class="img-fluid"></p>
 </div>
 </div>
-<div class="cell" data-execution_count="1">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>load_ext watermark</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="op">%</span>watermark <span class="op">-</span>n <span class="op">-</span>u <span class="op">-</span>v <span class="op">-</span>iv <span class="op">-</span>w</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Last updated: Mon Nov 06 2023
+<pre><code>Last updated: Mon Dec 04 2023
 
 Python implementation: CPython
 Python version       : 3.11.0
 IPython version      : 8.13.2
+
+pandas: 2.1.0
+numpy : 1.24.2
+bambi : 0.13.0.dev0
+arviz : 0.16.1
 
 Watermark: 2.3.1
 </code></pre>
@@ -2166,6 +2152,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
+      <a href="../notebooks/interpret_advanced_usage.html" class="pagination-link">
+        <span class="nav-page-text">Interpret Advanced Usage</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
   </div>
 </nav>
 </div> <!-- /content -->
