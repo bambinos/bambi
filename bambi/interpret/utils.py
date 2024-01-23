@@ -238,7 +238,6 @@ def get_model_covariates(model: Model) -> np.ndarray:
             for component in term.components:
                 # if the component is a function call, use the argument names
                 if isinstance(component, Call):
-                    # covariates.append([arg.name for arg in component.call.args])
                     covariates.append(
                         [arg.name for arg in component.call.args if isinstance(arg, LazyVariable)]
                     )
