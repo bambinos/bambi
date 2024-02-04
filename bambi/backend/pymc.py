@@ -247,10 +247,6 @@ class PyMCModel:
                         f"'mcmc', 'nuts_numpyro' or 'nuts_blackjax'"
                     )
         
-        # TODO: xarray does not like the InferenceData object returned by bayeux
-        if "bayeux" not in sampler_backend:
-            idata = self._clean_results(idata, omit_offsets, include_mean)
-        
         return idata
 
     def _clean_results(self, idata, omit_offsets, include_mean):
