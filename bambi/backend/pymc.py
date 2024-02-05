@@ -23,6 +23,23 @@ _log = logging.getLogger("bambi")
 __version__ = version("bambi")
 
 
+PYMC_SAMPLERS = ["mcmc"]
+BAYEUX_SAMPLERS = [
+    "blackjax_hmc",
+    "blackjax_chees_hmc",
+    "blackjax_meads_hmc",
+    "blackjax_nuts",
+    "blackjax_hmc_pathfinder",
+    "blackjax_nuts_pathfinder",
+    "flowmc_rqspline_hmc",
+    "flowmc_rqspline_mala",
+    "flowmc_realnvp_hmc",
+    "flowmc_realnvp_mala",
+    "numpyro_hmc",
+    "numpyro_nuts",
+]
+
+
 class PyMCModel:
     """PyMC model-fitting backend."""
 
@@ -95,7 +112,7 @@ class PyMCModel:
         """Run PyMC sampler."""
         inference_method = inference_method.lower()
         # NOTE: Methods return different types of objects (idata, approximation, and dictionary)
-        if inference_method in ["mcmc", "nuts_numpyro", "nuts_blackjax", "bayeux_blackjax_hmc"]:
+        if inference_method in (PYMC_SAMPLERS + BAYEUX_SAMPLERS):
             result = self._run_mcmc(
                 draws,
                 tune,
@@ -169,84 +186,56 @@ class PyMCModel:
         sampler_backend="mcmc",
         **kwargs,
     ):
-        # bayeux does not want the PyMC model to be within a context manager
-        if sampler_backend == "bayeux_blackjax_hmc":             
-            import bayeux as bx
-            import jax
- 
-            # TODO: Think how to better map bayeux samplers to `inference_method` arg.
-
-            bx_model = bx.Model.from_pymc(self.model)
-            idata = bx_model.mcmc.blackjax_hmc(seed=jax.random.key(0))
-        else:
+        if sampler_backend in PYMC_SAMPLERS:
             with self.model:
-                if sampler_backend == "mcmc":
-                    try:
+                try:
+                    idata = pm.sample(
+                        draws=draws,
+                        tune=tune,
+                        discard_tuned_samples=discard_tuned_samples,
+                        init=init,
+                        n_init=n_init,
+                        chains=chains,
+                        cores=cores,
+                        random_seed=random_seed,
+                        **kwargs,
+                    )
+                except (RuntimeError, ValueError):
+                    if (
+                        "ValueError: Mass matrix contains" in traceback.format_exc()
+                        and init == "auto"
+                    ):
+                        _log.info(
+                            "\nThe default initialization using init='auto' has failed, trying to "
+                            "recover by switching to init='adapt_diag'",
+                        )
                         idata = pm.sample(
                             draws=draws,
                             tune=tune,
                             discard_tuned_samples=discard_tuned_samples,
-                            init=init,
+                            init="adapt_diag",
                             n_init=n_init,
                             chains=chains,
                             cores=cores,
                             random_seed=random_seed,
                             **kwargs,
                         )
-                    except (RuntimeError, ValueError):
-                        if (
-                            "ValueError: Mass matrix contains" in traceback.format_exc()
-                            and init == "auto"
-                        ):
-                            _log.info(
-                                "\nThe default initialization using init='auto' has failed, trying to "
-                                "recover by switching to init='adapt_diag'",
-                            )
-                            idata = pm.sample(
-                                draws=draws,
-                                tune=tune,
-                                discard_tuned_samples=discard_tuned_samples,
-                                init="adapt_diag",
-                                n_init=n_init,
-                                chains=chains,
-                                cores=cores,
-                                random_seed=random_seed,
-                                **kwargs,
-                            )
-                        else:
-                            raise
-                elif sampler_backend == "nuts_numpyro":
-                    import pymc.sampling_jax  # pylint: disable=import-outside-toplevel
+                    else:
+                        raise
+        elif sampler_backend in BAYEUX_SAMPLERS:
+            import bayeux as bx
+            import jax
 
-                    if not chains:
-                        # sample_numpyro_nuts does not handle chains = None like pm.sample does
-                        chains = 4
-                    idata = pymc.sampling_jax.sample_numpyro_nuts(
-                        draws=draws,
-                        tune=tune,
-                        chains=chains,
-                        random_seed=random_seed,
-                        **kwargs,
-                    )
-                elif sampler_backend == "nuts_blackjax":
-                    import pymc.sampling_jax  # pylint: disable=import-outside-toplevel
+            bx_model = bx.Model.from_pymc(self.model)
+            bx_sampler = getattr(bx_model.mcmc, sampler_backend)
+            idata = bx_sampler(seed=jax.random.key(0), **kwargs)
+        else:
+            raise ValueError(
+                f"sampler_backend value {sampler_backend} is not valid. Please choose one of"
+                f"{PYMC_SAMPLERS + BAYEUX_SAMPLERS}"
+            )
 
-                    # sample_blackjax_nuts does not handle chains = None like pm.sample does
-                    if not chains:
-                        chains = 4
-                    idata = pymc.sampling_jax.sample_blackjax_nuts(
-                        draws=draws,
-                        tune=tune,
-                        chains=chains,
-                        random_seed=random_seed,
-                        **kwargs,
-                    )
-                else:
-                    raise ValueError(
-                        f"sampler_backend value {sampler_backend} is not valid. Please choose one of"
-                        f"'mcmc', 'nuts_numpyro' or 'nuts_blackjax'"
-                    )
-        
+        idata = self._clean_results(idata, omit_offsets, include_mean)
         return idata
 
     def _clean_results(self, idata, omit_offsets, include_mean):
@@ -316,7 +305,7 @@ class PyMCModel:
             self.spec.predict(idata)
 
         return idata
-    
+
     def _run_vi(self, **kwargs):
         with self.model:
             self.vi_approx = pm.fit(**kwargs)
