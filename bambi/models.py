@@ -266,7 +266,7 @@ class Model:
             using the ``fit`` function.
             Finally, ``"laplace"``, in which case a Laplace approximation is used and is not
             recommended other than for pedagogical use.
-            To use the PyMC numpyro and blackjax samplers, use ``nuts_numpyro`` or ``nuts_blackjax``
+            To use the PyMC numpyro and blackjax samplers, use ``numpyro_nuts`` or ``blackjax_nuts``
             respectively. Both methods will only work if you can use NUTS sampling, so your model
             must be differentiable.
         init : str
@@ -306,7 +306,7 @@ class Model:
         Returns
         -------
         An ArviZ ``InferenceData`` instance if inference_method is  ``"mcmc"`` (default),
-        "nuts_numpyro", "nuts_blackjax" or "laplace".
+        "numpyro_nuts", "blackjax_nuts" or "laplace".
         An ``Approximation`` object if  ``"vi"``.
         """
         method = kwargs.pop("method", None)
