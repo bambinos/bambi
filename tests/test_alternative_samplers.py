@@ -56,8 +56,8 @@ def test_vi():
     "args",
     [
         ("mcmc", {}),
-        ("nuts_numpyro", {"chain_method": "vectorized"}),
-        ("nuts_blackjax", {"chain_method": "vectorized"}),
+        ("numpyro_nuts", {"chain_method": "vectorized"}),
+        ("blackjax_nuts", {"chain_method": "vectorized"}),
     ],
 )
 def test_logistic_regression_categoric_alternative_samplers(data_n100, args):
@@ -69,8 +69,8 @@ def test_logistic_regression_categoric_alternative_samplers(data_n100, args):
     "args",
     [
         ("mcmc", {}),
-        ("nuts_numpyro", {"chain_method": "vectorized"}),
-        ("nuts_blackjax", {"chain_method": "vectorized"}),
+        ("numpyro_nuts", {"chain_method": "vectorized"}),
+        ("blackjax_nuts", {"chain_method": "vectorized"}),
     ],
 )
 def test_regression_alternative_samplers(data_n100, args):
