@@ -221,6 +221,7 @@ class PyMCModel:
                             random_seed=random_seed,
                             **kwargs,
                         )
+                        idata_from = "pymc"
                     else:
                         raise
         elif sampler_backend in BAYEUX_SAMPLERS:
@@ -230,16 +231,17 @@ class PyMCModel:
             bx_model = bx.Model.from_pymc(self.model)
             bx_sampler = getattr(bx_model.mcmc, sampler_backend)
             idata = bx_sampler(seed=jax.random.key(0), **kwargs)
+            idata_from = "bayeux"
         else:
             raise ValueError(
                 f"sampler_backend value {sampler_backend} is not valid. Please choose one of"
                 f"{PYMC_SAMPLERS + BAYEUX_SAMPLERS}"
             )
 
-        # idata = self._clean_results(idata, omit_offsets, include_mean)
+        idata = self._clean_results(idata, omit_offsets, include_mean, idata_from)
         return idata
 
-    def _clean_results(self, idata, omit_offsets, include_mean):
+    def _clean_results(self, idata, omit_offsets, include_mean, idata_from):
         for group in idata.groups():
 
             getattr(idata, group).attrs["modeling_interface"] = "bambi"
@@ -258,16 +260,12 @@ class PyMCModel:
 
         dims_original = list(self.model.coords)
 
-        # Identify bayeux idata and use regex to remove the trailing numeric suffix from the dims
-        # TODO: Will "_0" always be the minimum dim suffix, i.e. "_1", "_2", ...?
-        if [dim for dim in idata.posterior.dims if dim.endswith("_0")]:
-            bayeux_orig_dims = [
-                dim for dim in idata.posterior.dims if not dim.startswith(("chain", "draw"))
-            ]
-            bayeux_cleaned_dims = [re.sub(r"_\d", "", element) for element in bayeux_orig_dims]
-
-            for orig, renamed in zip(bayeux_orig_dims, bayeux_cleaned_dims):
-                idata.posterior = idata.posterior.rename_dims({orig: renamed})
+        # Identify bayeux idata and rename dims and coordinates to match PyMC model
+        if idata_from == "bayeux":
+            pymc_model_dims = [dim for dim in dims_original if "_obs" not in dim]
+            bayeux_dims = [dim for dim in idata.posterior.dims if not dim.startswith(("chain", "draw"))]
+            cleaned_dims = dict(zip(bayeux_dims, pymc_model_dims))
+            idata = idata.rename(cleaned_dims)
 
         # Discard dims that are in the model but unused in the posterior
         dims_original = [dim for dim in dims_original if dim in idata.posterior.dims]
