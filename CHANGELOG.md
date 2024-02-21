@@ -13,6 +13,8 @@
 
 ### Documentation
 
+* Our Code of Conduct now includes how to send a report (#783)
+
 ### Deprecation
 
 ## 0.13.0
