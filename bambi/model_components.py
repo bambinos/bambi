@@ -292,7 +292,6 @@ class DistributionalComponent:
         # Remove columns of X that are associated with HSGP contributions
         # All the slices _must be_ deleted at the same time. Otherwise the slice objects don't
         # reflect the right columns of X at the time they're used
-        # TODO: test this
         if hsgp_slices:
             X = np.delete(X, np.r_[tuple(hsgp_slices)], axis=1)
 
