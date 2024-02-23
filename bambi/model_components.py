@@ -239,11 +239,12 @@ class DistributionalComponent:
             X = np.delete(X, term_slice, axis=1)
 
         # Add HSGP components contribution to the linear predictor
+        hsgp_slices = []
         for term_name, term in self.hsgp_terms.items():
             # Extract data for the HSGP component from the design matrix
             term_slice = self.design.common.slices[term_name]
             x_slice = X[:, term_slice]
-            X = np.delete(X, term_slice, axis=1)
+            hsgp_slices.append(term_slice)
             term_aliased_name = get_aliased_name(term)
             hsgp_to_stack_dims = (f"{term_aliased_name}_weights_dim",)
 
@@ -287,6 +288,13 @@ class DistributionalComponent:
 
             # Add contribution to the linear predictor
             linear_predictor += hsgp_contribution
+
+        # Remove columns of X that are associated with HSGP contributions
+        # All the slices _must be_ deleted at the same time. Otherwise the slice objects don't
+        # reflect the right columns of X at the time they're used
+        # TODO: test this
+        if hsgp_slices:
+            X = np.delete(X, np.r_[tuple(hsgp_slices)], axis=1)
 
         if self.common_terms or self.intercept_term:
             # Create DataArray
