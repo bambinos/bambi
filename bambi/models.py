@@ -7,6 +7,7 @@ from copy import deepcopy
 from importlib.metadata import version
 
 import formulae as fm
+import numpy as np
 import pymc as pm
 import pandas as pd
 
@@ -874,6 +875,81 @@ class Model:
             idata.posterior_predictive = idata.posterior_predictive.assign_attrs(
                 modeling_interface="bambi", modeling_interface_version=__version__
             )
+
+        if inplace:
+            return None
+        else:
+            return idata
+
+    def compute_log_likelihood(
+        self, idata, data=None, inplace=True, include_group_specific=True, sample_new_groups=False
+    ):
+
+        if not inplace:
+            idata = deepcopy(idata)
+
+        response_aliased_name = get_aliased_name(self.response_component.response_term)
+
+        means_dict = {}
+        hsgp_dict = {}
+        response_dim = response_aliased_name + "_obs"
+        for name, component in self.distributional_components.items():
+            if name == self.response_name:
+                var_name = response_aliased_name + "_mean"
+            else:
+                if component.alias:
+                    var_name = component.alias
+                else:
+                    var_name = f"{response_aliased_name}_{name}"
+
+            means_dict[var_name] = component.predict(
+                idata, data, include_group_specific, hsgp_dict, sample_new_groups
+            )
+
+            # Drop var/dim if already present. Needed for out-of-sample predictions.
+            if var_name in idata.posterior.data_vars:
+                idata.posterior = idata.posterior.drop_vars(var_name)
+
+        if response_dim in idata.posterior.dims:
+            idata.posterior = idata.posterior.drop_dims(response_dim)
+
+        # Use the first DataArray to get the number of observations
+        obs_n = len(list(means_dict.values())[0].coords.get(response_dim))
+        idata.posterior = idata.posterior.assign_coords({response_dim: list(range(obs_n))})
+
+        for name, value in means_dict.items():
+            idata.posterior[name] = value
+
+        # Add HSGP contributions to the posterior dataset
+        for component in self.distributional_components.values():
+            for name, hsgp_contribution in hsgp_dict.items():
+                term = component.hsgp_terms.get(name, None)
+                if term is None:
+                    continue
+                term_aliased_name = get_aliased_name(term)
+                idata.posterior[term_aliased_name] = hsgp_contribution.transpose(
+                    "chain", "draw", ...
+                )
+
+        # Get the values of the outcome variable
+        if data is None:
+            y_values = np.squeeze(self.response_component.response_term.data)
+        else:
+            # TODO: This is very simple, not going to work with non 1d response and/or aliases
+            y_values = np.array(data[self.response_component.response_term.name])
+
+        required_kwargs = {"model": self, "posterior": idata.posterior, "y_values": y_values}
+        optional_kwargs = {"data": data}
+
+        log_likelihood = self.family.log_likelihood(**required_kwargs, **optional_kwargs)
+        log_likelihood = log_likelihood.to_dataset(name=response_aliased_name)
+
+        if "log_likelihood" in idata:
+            del idata.log_likelihood
+        idata.add_groups({"log_likelihood": log_likelihood})
+        idata.log_likelihood = idata.log_likelihood.assign_attrs(
+            modeling_interface="bambi", modeling_interface_version=__version__
+        )
 
         if inplace:
             return None

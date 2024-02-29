@@ -211,6 +211,87 @@ class Family:
             output_coords[coord_name] = output_coords_all[coord_name]
         return xr.DataArray(output_array, coords=output_coords)
 
+    def log_likelihood(self, model, posterior, y_values, **kwargs):
+        response_dist = get_response_dist(model.family)
+        response_term = model.response_component.response_term
+        params = model.family.likelihood.params
+        response_aliased_name = get_aliased_name(response_term)
+
+        kwargs.pop("data", None)  # Remove the 'data' kwarg
+        dont_reshape = kwargs.pop("dont_reshape", [])
+        output_dataset_list = []
+
+        # In the posterior xr.Dataset we need to consider aliases,
+        # but we don't use aliases when passing kwargs to the PyMC distribution.
+        for param in params:
+            # Extract posterior draws for the parent parameter
+            if param == model.family.likelihood.parent:
+                component = model.components[model.response_name]
+                var_name = response_aliased_name + "_mean"
+                kwargs[param] = posterior[var_name].to_numpy()
+                output_dataset_list.append(posterior[var_name])
+            else:
+                # Extract posterior draws for non-parent parameters
+                component = model.components[param]
+                if component.alias:
+                    var_name = component.alias
+                else:
+                    var_name = f"{response_aliased_name}_{param}"
+
+                if var_name in posterior:
+                    kwargs[param] = posterior[var_name].to_numpy()
+                    output_dataset_list.append(posterior[var_name])
+                elif hasattr(component, "prior") and isinstance(component.prior, (int, float)):
+                    kwargs[param] = np.asarray(component.prior)
+                else:
+                    raise ValueError(
+                        "Non-parent parameter not found in posterior."
+                        "This error shouldn't have happened!"
+                    )
+
+        # Determine the array with largest number of dimensions
+        ndims_max = max(x.ndim for x in kwargs.values())
+
+        # Append a dimension when needed. Required to make `pm.draw()` work.
+        # However, some distributions like Multinomial, require some parameters to be of a smaller
+        # dimension than others (n.ndim <= p.ndim - 1) so we don't reshape those.
+        for key, values in kwargs.items():
+            if key in dont_reshape:
+                continue
+            kwargs[key] = expand_array(values, ndims_max)
+
+        if hasattr(model.family, "transform_kwargs"):
+            kwargs = model.family.transform_kwargs(kwargs)
+
+        # Handle constrained responses
+        if response_term.is_constrained:
+            # Bounds are scalars, we can safely pick them from the first row
+            lower, upper = response_term.data[0, 1:]
+            lower = lower if lower != -np.inf else None
+            upper = upper if upper != np.inf else None
+            output_array = pm.logp(
+                pm.Truncated.dist(response_dist.dist(**kwargs), lower=lower, upper=upper), y_values
+            ).eval()
+        else:
+            output_array = pm.logp(response_dist.dist(**kwargs), y_values).eval()
+
+        output_coords_all = xr.merge(output_dataset_list).coords
+
+        coord_names = ["chain", "draw", response_aliased_name + "_obs"]
+        is_multivariate = hasattr(model.family, "KIND") and model.family.KIND == "Multivariate"
+
+        if is_multivariate:
+            coord_names.append(response_aliased_name + "_dim")
+        elif hasattr(model.family, "create_extra_pps_coord"):
+            new_coords = model.family.create_extra_pps_coord()
+            coord_names.append(response_aliased_name + "_dim")
+            output_coords_all[response_aliased_name + "_dim"] = new_coords
+
+        output_coords = {}
+        for coord_name in coord_names:
+            output_coords[coord_name] = output_coords_all[coord_name]
+        return xr.DataArray(output_array, coords=output_coords)
+
     def __str__(self):
         msg_list = [f"Family: {self.name}", f"Likelihood: {self.likelihood}", f"Link: {self.link}"]
         return "\n".join(msg_list)
