@@ -236,10 +236,19 @@ def get_model_covariates(model: Model) -> np.ndarray:
     for term in terms.values():
         if hasattr(term, "components"):
             for component in term.components:
-                # if the component is a function call, use the argument names
+                # if the component is a function call, look for relevant argument names
                 if isinstance(component, Call):
+                    # Add variable names passed as unnamed arguments
                     covariates.append(
                         [arg.name for arg in component.call.args if isinstance(arg, LazyVariable)]
+                    )
+                    # Add variable names passed as named arguments
+                    covariates.append(
+                        [
+                            kwarg_value.name
+                            for kwarg_value in component.call.kwargs.values()
+                            if isinstance(kwarg_value, LazyVariable)
+                        ]
                     )
                 else:
                     covariates.append([component.name])
