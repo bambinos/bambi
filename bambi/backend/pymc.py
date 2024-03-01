@@ -1,8 +1,8 @@
 import functools
+import importlib
 import logging
-import re
+import operator
 import traceback
-
 
 from copy import deepcopy
 from importlib.metadata import version
@@ -13,7 +13,6 @@ import pymc as pm
 import pytensor.tensor as pt
 from pytensor.tensor.special import softmax
 
-
 from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
 from bambi.backend.model_components import ConstantComponent, DistributionalComponent
 from bambi.utils import get_aliased_name
@@ -22,23 +21,6 @@ _log = logging.getLogger("bambi")
 
 
 __version__ = version("bambi")
-
-
-PYMC_SAMPLERS = ["mcmc"]
-BAYEUX_SAMPLERS = [
-    "blackjax_hmc",
-    "blackjax_chees_hmc",
-    "blackjax_meads_hmc",
-    "blackjax_nuts",
-    "blackjax_hmc_pathfinder",
-    "blackjax_nuts_pathfinder",
-    "flowmc_rqspline_hmc",
-    "flowmc_rqspline_mala",
-    "flowmc_realnvp_hmc",
-    "flowmc_realnvp_mala",
-    "numpyro_hmc",
-    "numpyro_nuts",
-]
 
 
 class PyMCModel:
@@ -64,6 +46,8 @@ class PyMCModel:
         self.model = None
         self.spec = None
         self.components = {}
+        self.bayeux_methods = _get_bayeux_methods()
+        self.pymc_methods =  {"mcmc": ["mcmc"], "vi": ["vi"]}
 
     def build(self, spec):
         """Compile the PyMC model from an abstract model specification.
@@ -113,7 +97,7 @@ class PyMCModel:
         """Run PyMC sampler."""
         inference_method = inference_method.lower()
         # NOTE: Methods return different types of objects (idata, approximation, and dictionary)
-        if inference_method in (PYMC_SAMPLERS + BAYEUX_SAMPLERS):
+        if inference_method in (self.pymc_methods["mcmc"] + self.bayeux_methods["mcmc"]):
             result = self._run_mcmc(
                 draws,
                 tune,
@@ -128,10 +112,12 @@ class PyMCModel:
                 inference_method,
                 **kwargs,
             )
-        elif inference_method == "vi":
-            result = self._run_vi(**kwargs)
+        elif inference_method in (self.pymc_methods["vi"] + self.bayeux_methods["vi"]):
+            result = self._run_vi(inference_method, random_seed, **kwargs)
         elif inference_method == "laplace":
             result = self._run_laplace(draws, omit_offsets, include_mean)
+        elif inference_method in self.bayeux_methods["optimize"]:
+            result = self._optimize(inference_method, random_seed, **kwargs)
         else:
             raise NotImplementedError(f"'{inference_method}' method has not been implemented")
 
@@ -187,7 +173,7 @@ class PyMCModel:
         sampler_backend="mcmc",
         **kwargs,
     ):
-        if sampler_backend in PYMC_SAMPLERS:
+        if sampler_backend in self.pymc_methods["mcmc"]:
             with self.model:
                 try:
                     idata = pm.sample(
@@ -221,21 +207,25 @@ class PyMCModel:
                             random_seed=random_seed,
                             **kwargs,
                         )
-                        idata_from = "pymc"
                     else:
                         raise
-        elif sampler_backend in BAYEUX_SAMPLERS:
+                idata_from = "pymc"
+        elif sampler_backend in self.bayeux_methods["mcmc"]:
             import bayeux as bx
             import jax
+            
+            # Seed is required for bayeux
+            if random_seed is None:
+                random_seed = 0
 
             bx_model = bx.Model.from_pymc(self.model)
-            bx_sampler = getattr(bx_model.mcmc, sampler_backend)
-            idata = bx_sampler(seed=jax.random.key(0), **kwargs)
+            bx_sampler = operator.attrgetter(sampler_backend)(bx_model.mcmc)
+            idata = bx_sampler(seed=jax.random.key(random_seed), **kwargs)
             idata_from = "bayeux"
         else:
             raise ValueError(
                 f"sampler_backend value {sampler_backend} is not valid. Please choose one of"
-                f"{PYMC_SAMPLERS + BAYEUX_SAMPLERS}"
+                f" {self.pymc_methods['mcmc'] + self.bayeux_methods['mcmc']}"
             )
 
         idata = self._clean_results(idata, omit_offsets, include_mean, idata_from)
@@ -263,7 +253,9 @@ class PyMCModel:
         # Identify bayeux idata and rename dims and coordinates to match PyMC model
         if idata_from == "bayeux":
             pymc_model_dims = [dim for dim in dims_original if "_obs" not in dim]
-            bayeux_dims = [dim for dim in idata.posterior.dims if not dim.startswith(("chain", "draw"))]
+            bayeux_dims = [
+                dim for dim in idata.posterior.dims if not dim.startswith(("chain", "draw"))
+            ]
             cleaned_dims = dict(zip(bayeux_dims, pymc_model_dims))
             idata = idata.rename(cleaned_dims)
 
@@ -281,7 +273,6 @@ class PyMCModel:
         idata.posterior = idata.posterior.transpose(*dims_new)
 
         # Compute the actual intercept in all distributional components that have an intercept
-
         for pymc_component in self.distributional_components.values():
             bambi_component = pymc_component.component
             if (
@@ -316,17 +307,35 @@ class PyMCModel:
 
         return idata
 
-    def _run_vi(self, **kwargs):
-        with self.model:
-            self.vi_approx = pm.fit(**kwargs)
-        return self.vi_approx
+    def _run_vi(self, inference_method, random_seed, **kwargs):
+        if inference_method in self.pymc_methods["vi"]:
+            with self.model:
+                self.vi_approx = pm.fit(**kwargs)
+            return self.vi_approx
+        elif inference_method in self.bayeux_methods["vi"]:
+            import bayeux as bx
+            import jax
+
+            # Seed is required for bayeux
+            if random_seed is None:
+                random_seed = 0
+
+            bx_model = bx.Model.from_pymc(self.model)
+            bx_vi = operator.attrgetter(inference_method)(bx_model.vi)
+            idata = bx_vi(seed=jax.random.key(random_seed), **kwargs)
+            return idata
+        else:
+            raise ValueError(
+                f"inference_method value {inference_method} is not valid. Please choose one of"
+                f" {self.pymc_methods['vi'] + self.bayeux_methods['vi']}"
+            )
 
     def _run_laplace(self, draws, omit_offsets, include_mean):
         """Fit a model using a Laplace approximation.
 
         Mainly for pedagogical use, provides reasonable results for approximately
         Gaussian posteriors. The approximation can be very poor for some models
-        like hierarchical ones. Use ``mcmc``, ``nuts_numpyro``, ``nuts_blackjax``
+        like hierarchical ones. Use ``mcmc``, ``numpyro_nuts``, ``blackjax_nuts``
         or ``vi`` for better approximations.
 
         Parameters
@@ -361,8 +370,27 @@ class PyMCModel:
         samples = np.random.multivariate_normal(modes, cov, size=draws)
 
         idata = _posterior_samples_to_idata(samples, self.model)
-        idata = self._clean_results(idata, omit_offsets, include_mean)
+        idata = self._clean_results(idata, omit_offsets, include_mean, idata_from="pymc")
         return idata
+
+    def _optimize(self, inference_method, random_seed, **kwargs):
+        if inference_method in self.bayeux_methods["optimize"]:
+            import bayeux as bx
+            import jax
+
+            # Seed is required for bayeux
+            if random_seed is None:
+                random_seed = 0
+
+            bx_model = bx.Model.from_pymc(self.model)
+            bx_optimize = operator.attrgetter(inference_method)(bx_model.optimize)
+            opt_results = bx_optimize(seed=jax.random.key(random_seed), **kwargs)
+            return opt_results
+        else:
+            raise ValueError(
+                f"inference_method value {inference_method} is not valid. Please choose one of"
+                f" {self.bayeux_methods['optimize']}"
+            )
 
     @property
     def response_component(self):
@@ -415,3 +443,30 @@ def _posterior_samples_to_idata(samples, model):
 
     idata = pm.to_inference_data(pm.backends.base.MultiTrace([strace]), model=model)
     return idata
+
+
+def _get_bayeux_methods():
+    """Gets a dictionary of usable bayeux methods if the bayeux package is installed
+    within the user's environment.
+
+    Returns
+    -------
+    dict
+        A dict where the keys are the module names and the values are the methods
+        available in that module.
+    """
+    bx_methods = {}
+    if importlib.util.find_spec("bayeux") is None:
+        return bx_methods
+
+    import bayeux as bx
+
+    bx_methods = {}
+    for module in bx._src.bayeux._MODULES:
+        mname = module.__name__.split(".")[-1]
+        bx_modules = []
+        for k in module.__all__:
+            bx_modules.append(getattr(module, k).name)
+        bx_methods[mname] = bx_modules
+
+    return bx_methods
