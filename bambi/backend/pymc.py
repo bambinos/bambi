@@ -220,7 +220,7 @@ class PyMCModel:
             bx_sampler = operator.attrgetter(sampler_backend)(
                 bx_model.mcmc
             )  # pylint: disable=no-member
-            idata = bx_sampler(seed=jax.random.key(random_seed), **kwargs)
+            idata = bx_sampler(seed=jax.random.PRNGKey(random_seed), **kwargs)
             idata_from = "bayeux"
         else:
             raise ValueError(
@@ -431,14 +431,5 @@ def _get_bayeux_methods():
         for k in module.__all__:
             bx_modules.append(getattr(module, k).name)
         bx_methods[mname] = bx_modules
-
-    # TFP based methods do not work with Bambi models yet
-    tfp_mcmc = ["tfp_hmc", "tfp_nuts", "tfp_snaper_hmc"]
-    for method in tfp_mcmc:
-        bx_methods["mcmc"].remove(method)
-
-    tfp_vi = ["tfp_factored_surrogate_posterior"]
-    for method in tfp_vi:
-        bx_methods["vi"].remove(method)
 
     return bx_methods
