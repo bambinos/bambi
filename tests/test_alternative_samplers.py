@@ -6,8 +6,9 @@ import pandas as pd
 import pytest
 
 
-# Tensorflow probability based samplers do not work with Bambi models yet.
-MCMC_METHODS = [getattr(bx.mcmc, k).name for k in bx.mcmc.__all__ if "tfp" not in getattr(bx.mcmc, k).name ]
+MCMC_METHODS = [getattr(bx.mcmc, k).name for k in bx.mcmc.__all__]
+MCMC_METHODS_FILTERED = [i for i in MCMC_METHODS if not any(x in i for x in ("flowmc", "chees", "meads"))]
+
 
 @pytest.fixture(scope="module")
 def data_n100():
@@ -55,8 +56,8 @@ def test_vi():
         (mode_n.item(), std_n.item()), (mode_a.item(), std_a.item()), decimal=2
     )
 
-
-@pytest.mark.parametrize("sampler", MCMC_METHODS)
+# 
+@pytest.mark.parametrize("sampler", MCMC_METHODS_FILTERED)
 def test_logistic_regression_categoric_alternative_samplers(data_n100, sampler):
     model = bmb.Model("b1 ~ n1", data_n100, family="bernoulli")
     model.fit(inference_method=sampler)
