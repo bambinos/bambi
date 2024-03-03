@@ -47,7 +47,7 @@ class PyMCModel:
         self.spec = None
         self.components = {}
         self.bayeux_methods = _get_bayeux_methods()
-        self.pymc_methods = {"mcmc": ["mcmc"]}
+        self.pymc_methods = {"mcmc": ["mcmc"], "vi": ["vi"]}
 
     def build(self, spec):
         """Compile the PyMC model from an abstract model specification.
@@ -112,7 +112,7 @@ class PyMCModel:
                 inference_method,
                 **kwargs,
             )
-        elif inference_method == "vi":
+        elif inference_method in self.pymc_methods["vi"]:
             result = self._run_vi(**kwargs)
         elif inference_method == "laplace":
             result = self._run_laplace(draws, omit_offsets, include_mean)
@@ -212,15 +212,19 @@ class PyMCModel:
             import bayeux as bx  # pylint: disable=import-outside-toplevel
             import jax  # pylint: disable=import-outside-toplevel
 
-            # Seed is required for bayeux
-            if random_seed is None:
-                random_seed = 0
+            # Set the seed for reproducibility if provided
+            if random_seed is not None:
+                if not isinstance(random_seed, int):
+                    random_seed = random_seed[0]
+                np.random.seed(random_seed)
+
+            jax_seed = jax.random.PRNGKey(np.random.randint(2**32 - 1))
 
             bx_model = bx.Model.from_pymc(self.model)
             bx_sampler = operator.attrgetter(sampler_backend)(
-                bx_model.mcmc
-            )  # pylint: disable=no-member
-            idata = bx_sampler(seed=jax.random.PRNGKey(random_seed), **kwargs)
+                bx_model.mcmc  # pylint: disable=no-member
+            )
+            idata = bx_sampler(seed=jax_seed, **kwargs)
             idata_from = "bayeux"
         else:
             raise ValueError(
@@ -317,8 +321,8 @@ class PyMCModel:
 
         Mainly for pedagogical use, provides reasonable results for approximately
         Gaussian posteriors. The approximation can be very poor for some models
-        like hierarchical ones. Use ``mcmc``, ``numpyro_nuts``, ``blackjax_nuts``
-        or ``vi`` for better approximations.
+        like hierarchical ones. Use ``mcmc``, ``vi``, or JAX based MCMC methods
+        for better approximations.
 
         Parameters
         ----------
@@ -366,6 +370,10 @@ class PyMCModel:
     @property
     def distributional_components(self):
         return {k: v for k, v in self.components.items() if isinstance(v, DistributionalComponent)}
+
+    @property
+    def inference_methods(self):
+        return {"pymc": self.pymc_methods, "bayeux": self.bayeux_methods}
 
 
 def _posterior_samples_to_idata(samples, model):
@@ -424,12 +432,5 @@ def _get_bayeux_methods():
 
     import bayeux as bx  # pylint: disable=import-outside-toplevel
 
-    bx_methods = {}
-    for module in bx._src.bayeux._MODULES:  # pylint: disable=protected-access
-        mname = module.__name__.rsplit(".", maxsplit=1)[-1]
-        bx_modules = []
-        for k in module.__all__:
-            bx_modules.append(getattr(module, k).name)
-        bx_methods[mname] = bx_modules
-
-    return bx_methods
+    # Dummy log density to get access to all methods
+    return bx.Model(lambda x: -(x**2), 0.0).methods
