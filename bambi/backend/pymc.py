@@ -3,6 +3,7 @@ import importlib
 import logging
 import operator
 import traceback
+import warnings
 
 from copy import deepcopy
 from importlib.metadata import version
@@ -96,6 +97,14 @@ class PyMCModel:
     ):
         """Run PyMC sampler."""
         inference_method = inference_method.lower()
+        
+        if inference_method == "nuts_numpyro":
+            inference_method = "numpyro_nuts"
+            warnings.warn("'nuts_numpyro' has been replaced by 'numpyro_nuts' and will be removed in a future release", category=FutureWarning)
+        elif inference_method == "nuts_blackjax":
+            inference_method = "blackjax_nuts"
+            warnings.warn("'nuts_blackjax' has been replaced by 'blackjax_nuts' and will be removed in a future release", category=FutureWarning)
+
         # NOTE: Methods return different types of objects (idata, approximation, and dictionary)
         if inference_method in (self.pymc_methods["mcmc"] + self.bayeux_methods["mcmc"]):
             result = self._run_mcmc(
@@ -426,9 +435,8 @@ def _get_bayeux_methods():
         A dict where the keys are the module names and the values are the methods
         available in that module.
     """
-    bx_methods = {}
     if importlib.util.find_spec("bayeux") is None:
-        return bx_methods
+        return {"mcmc": []}
 
     import bayeux as bx  # pylint: disable=import-outside-toplevel
 
