@@ -97,13 +97,21 @@ class PyMCModel:
     ):
         """Run PyMC sampler."""
         inference_method = inference_method.lower()
-        
+
         if inference_method == "nuts_numpyro":
             inference_method = "numpyro_nuts"
-            warnings.warn("'nuts_numpyro' has been replaced by 'numpyro_nuts' and will be removed in a future release", category=FutureWarning)
+            warnings.warn(
+                "'nuts_numpyro' has been replaced by 'numpyro_nuts' and will be "
+                "removed in a future release",
+                category=FutureWarning,
+            )
         elif inference_method == "nuts_blackjax":
             inference_method = "blackjax_nuts"
-            warnings.warn("'nuts_blackjax' has been replaced by 'blackjax_nuts' and will be removed in a future release", category=FutureWarning)
+            warnings.warn(
+                "'nuts_blackjax' has been replaced by 'blackjax_nuts' and will "
+                "be removed in a future release",
+                category=FutureWarning,
+            )
 
         # NOTE: Methods return different types of objects (idata, approximation, and dictionary)
         if inference_method in (self.pymc_methods["mcmc"] + self.bayeux_methods["mcmc"]):
