@@ -38,6 +38,7 @@ jobs:
         run: |
           conda install -c conda-forge python-graphviz
           conda install pip
+          pip install --upgrade setuptools # TODO: make conditional on Python version
           pip install .
           pip install .[dev]
           pip install .[jax]
