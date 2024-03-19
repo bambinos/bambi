@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.10", "3.11", "3.12"]
 
     name: Set up Python ${{ matrix.python-version }}
     steps:
@@ -38,6 +38,7 @@ jobs:
         run: |
           conda install -c conda-forge python-graphviz
           conda install pip
+          pip install --upgrade setuptools # TODO: make conditional on Python version
           pip install .
           pip install .[dev]
           pip install .[jax]

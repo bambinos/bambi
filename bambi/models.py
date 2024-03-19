@@ -266,9 +266,9 @@ class Model:
             using the ``fit`` function.
             Finally, ``"laplace"``, in which case a Laplace approximation is used and is not
             recommended other than for pedagogical use.
-            To use the PyMC numpyro and blackjax samplers, use ``nuts_numpyro`` or ``nuts_blackjax``
-            respectively. Both methods will only work if you can use NUTS sampling, so your model
-            must be differentiable.
+            To get a list of JAX based inference methods, call
+            ``model.backend.inference_methods['bayeux']``. This will return a dictionary of the
+            available methods such as ``blackjax_nuts``, ``numpyro_nuts``, among others.
         init : str
             Initialization method. Defaults to ``"auto"``. The available methods are:
             * auto: Use ``"jitter+adapt_diag"`` and if this method fails it uses ``"adapt_diag"``.
@@ -306,7 +306,8 @@ class Model:
         Returns
         -------
         An ArviZ ``InferenceData`` instance if inference_method is  ``"mcmc"`` (default),
-        "nuts_numpyro", "nuts_blackjax" or "laplace".
+        "laplace", or one of the MCMC methods in
+        ``model.backend.inference_methods['bayeux']['mcmc]``.
         An ``Approximation`` object if  ``"vi"``.
         """
         method = kwargs.pop("method", None)
