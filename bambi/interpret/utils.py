@@ -102,6 +102,7 @@ class VariableInfo:
 
         If categoric dtype the returned value is the unique levels of `variable'.
         """
+        values = None  # Otherwise pylint complains
         terms = get_model_terms(self.model)
         # get default values for each variable in the model
         for term in terms.values():

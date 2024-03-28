@@ -13,33 +13,27 @@ class BaseTerm(ABC):
 
     @property
     @abstractmethod
-    def term(self):
-        ...
+    def term(self): ...
 
     @property
     @abstractmethod
-    def data(self):
-        ...
+    def data(self): ...
 
     @property
     @abstractmethod
-    def name(self):
-        ...
+    def name(self): ...
 
     @property
     @abstractmethod
-    def shape(self):
-        ...
+    def shape(self): ...
 
     @property
     @abstractmethod
-    def levels(self):
-        ...
+    def levels(self): ...
 
     @property
     @abstractmethod
-    def categorical(self):
-        ...
+    def categorical(self): ...
 
     @property
     def alias(self):
