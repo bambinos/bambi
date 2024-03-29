@@ -801,15 +801,37 @@ class Model:
 
         return idata
 
+    @overload
     def predict(
         self,
-        idata,
-        kind="mean",
-        data=None,
-        inplace=True,
-        include_group_specific=True,
-        sample_new_groups=False,
-    ):
+        idata: InferenceData,
+        kind: Literal["mean", "pps"] = "mean",
+        data: Optional[pd.DataFrame] = None,
+        inplace: Literal[True] = True,
+        include_group_specific: bool = True,
+        sample_new_groups: bool = False,
+    ) -> None: ...
+
+    @overload
+    def predict(
+        self,
+        idata: InferenceData,
+        kind: Literal["mean", "pps"] = "mean",
+        data: Optional[pd.DataFrame] = None,
+        inplace: Literal[False] = False,
+        include_group_specific: bool = True,
+        sample_new_groups: bool = False,
+    ) -> InferenceData: ...
+
+    def predict(
+        self,
+        idata: InferenceData,
+        kind: Literal["mean", "pps"] = "mean",
+        data: Optional[pd.DataFrame] = None,
+        inplace: bool = True,
+        include_group_specific: bool = True,
+        sample_new_groups: bool = False,
+    ) -> Optional[InferenceData]:
         """Predict method for Bambi models
 
         Obtains in-sample and out-of-sample predictions from a fitted Bambi model.
