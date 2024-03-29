@@ -1,6 +1,7 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
 import logging
+from typing import Literal, Optional, overload
 import warnings
 
 from copy import deepcopy
@@ -11,6 +12,7 @@ import pymc as pm
 import pandas as pd
 
 from arviz.plots import plot_posterior
+from arviz import InferenceData
 
 from bambi.backend import PyMCModel
 from bambi.defaults import get_builtin_family
@@ -225,21 +227,57 @@ class Model:
         # Build priors
         self._build_priors()
 
+    @overload
     def fit(
         self,
-        draws=1000,
-        tune=1000,
-        discard_tuned_samples=True,
-        omit_offsets=True,
-        include_mean=False,
-        inference_method="mcmc",
-        init="auto",
-        n_init=50000,
-        chains=None,
-        cores=None,
-        random_seed=None,
+        draws: int = 1000,
+        tune: int = 1000,
+        discard_tuned_samples: bool = True,
+        omit_offsets: bool = True,
+        include_mean: bool = False,
+        inference_method: Literal["mcmc", "blackjax_nuts", "numpyro_nuts", "laplace"] = "mcmc",
+        init: str = "auto",
+        n_init: int = 50000,
+        chains: Optional[int] = None,
+        cores: Optional[int] = None,
+        random_seed: Optional[int] = None,
         **kwargs,
-    ):
+    ) -> InferenceData: ...
+
+    @overload
+    def fit(
+        self,
+        draws: int = 1000,
+        tune: int = 1000,
+        discard_tuned_samples: bool = True,
+        omit_offsets: bool = True,
+        include_mean: bool = False,
+        inference_method: Literal["vi"] = ...,
+        init: str = "auto",
+        n_init: int = 50000,
+        chains: Optional[int] = None,
+        cores: Optional[int] = None,
+        random_seed: Optional[int] = None,
+        **kwargs,
+    ) -> pm.MeanField: ...
+
+    def fit(
+        self,
+        draws: int = 1000,
+        tune: int = 1000,
+        discard_tuned_samples: bool = True,
+        omit_offsets: bool = True,
+        include_mean: bool = False,
+        inference_method: Literal[
+            "mcmc", "blackjax_nuts", "numpyro_nuts", "vi", "laplace"
+        ] = "mcmc",
+        init: str = "auto",
+        n_init: int = 50000,
+        chains: Optional[int] = None,
+        cores: Optional[int] = None,
+        random_seed: Optional[int] = None,
+        **kwargs,
+    ) -> InferenceData | pm.MeanField:
         """Fit the model using PyMC.
 
         Parameters
