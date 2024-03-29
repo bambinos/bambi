@@ -512,7 +512,7 @@ ul.task-list li input[type="checkbox"] {
 <tr class="even">
 <td><code>inference_method</code></td>
 <td>str</td>
-<td>The method to use for fitting the model. By default, <code>"mcmc"</code>. This automatically assigns a MCMC method best suited for each kind of variables, like NUTS for continuous variables and Metropolis for non-binary discrete ones. Alternatively, <code>"vi"</code>, in which case the model will be fitted using variational inference as implemented in PyMC using the <code>fit</code> function. Finally, <code>"laplace"</code>, in which case a Laplace approximation is used and is not recommended other than for pedagogical use. To use the PyMC numpyro and blackjax samplers, use <code>nuts_numpyro</code> or <code>nuts_blackjax</code> respectively. Both methods will only work if you can use NUTS sampling, so your model must be differentiable.</td>
+<td>The method to use for fitting the model. By default, <code>"mcmc"</code>. This automatically assigns a MCMC method best suited for each kind of variables, like NUTS for continuous variables and Metropolis for non-binary discrete ones. Alternatively, <code>"vi"</code>, in which case the model will be fitted using variational inference as implemented in PyMC using the <code>fit</code> function. Finally, <code>"laplace"</code>, in which case a Laplace approximation is used and is not recommended other than for pedagogical use. To get a list of JAX based inference methods, call <code>model.backend.inference_methods['bayeux']</code>. This will return a dictionary of the available methods such as <code>blackjax_nuts</code>, <code>numpyro_nuts</code>, among others.</td>
 <td><code>'mcmc'</code></td>
 </tr>
 <tr class="odd">
@@ -573,10 +573,14 @@ ul.task-list li input[type="checkbox"] {
 <td></td>
 </tr>
 <tr class="even">
-<td>“nuts_numpyro”, “nuts_blackjax” or “laplace”.</td>
+<td>“laplace”, or one of the MCMC methods in</td>
 <td></td>
 </tr>
 <tr class="odd">
+<td><code>model.backend.inference_methods\['bayeux'\]\['mcmc\]</code>.</td>
+<td></td>
+</tr>
+<tr class="even">
 <td>An <code>Approximation</code> object if <code>"vi"</code>.</td>
 <td></td>
 </tr>
