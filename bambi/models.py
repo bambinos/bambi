@@ -1,7 +1,7 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
 import logging
-from typing import Literal, Optional, Union, overload
+from typing import Callable, Literal, Optional, Union, overload
 import warnings
 
 from copy import deepcopy
@@ -104,18 +104,18 @@ class Model:
     # pylint: disable=too-many-instance-attributes
     def __init__(
         self,
-        formula,
-        data,
-        family="gaussian",
-        priors=None,
-        link=None,
-        categorical=None,
-        potentials=None,
-        dropna=False,
-        auto_scale=True,
-        noncentered=True,
-        center_predictors=True,
-        extra_namespace=None,
+        formula: Union[str, Formula],
+        data: pd.DataFrame,
+        family: Union[str, Family] = "gaussian",
+        priors: Optional[dict[str, Prior]] = None,
+        link: Optional[Union[str, dict[str, str]]] = None,
+        categorical: Optional[Union[str, list[str]]] = None,
+        potentials: Optional[list[tuple[str, Callable]]] = None,
+        dropna: bool = False,
+        auto_scale: bool = True,
+        noncentered: bool = True,
+        center_predictors: bool = True,
+        extra_namespace: Optional[dict] = None,
     ):
         # attributes that are set later
         self.components = {}  # Constant and Distributional components
