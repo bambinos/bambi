@@ -1,7 +1,7 @@
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
 import logging
-from typing import Literal, Optional, overload
+from typing import Literal, Optional, Union, overload
 import warnings
 
 from copy import deepcopy
@@ -760,7 +760,13 @@ class Model:
             )
         return axes
 
-    def prior_predictive(self, draws=500, var_names=None, omit_offsets=True, random_seed=None):
+    def prior_predictive(
+        self,
+        draws: int = 500,
+        var_names: Optional[Union[str, list[str]]] = None,
+        omit_offsets: bool = True,
+        random_seed: Optional[int] = None,
+    ) -> InferenceData:
         """Generate samples from the prior predictive distribution.
 
         Parameters
