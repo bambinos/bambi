@@ -1,7 +1,9 @@
 import functools
+import importlib
 import logging
+import operator
 import traceback
-
+import warnings
 
 from copy import deepcopy
 from importlib.metadata import version
@@ -11,7 +13,6 @@ import pymc as pm
 
 import pytensor.tensor as pt
 from pytensor.tensor.special import softmax
-
 
 from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
 from bambi.backend.model_components import ConstantComponent, DistributionalComponent
@@ -46,6 +47,8 @@ class PyMCModel:
         self.model = None
         self.spec = None
         self.components = {}
+        self.bayeux_methods = _get_bayeux_methods()
+        self.pymc_methods = {"mcmc": ["mcmc"], "vi": ["vi"]}
 
     def build(self, spec):
         """Compile the PyMC model from an abstract model specification.
@@ -94,8 +97,24 @@ class PyMCModel:
     ):
         """Run PyMC sampler."""
         inference_method = inference_method.lower()
+
+        if inference_method == "nuts_numpyro":
+            inference_method = "numpyro_nuts"
+            warnings.warn(
+                "'nuts_numpyro' has been replaced by 'numpyro_nuts' and will be "
+                "removed in a future release",
+                category=FutureWarning,
+            )
+        elif inference_method == "nuts_blackjax":
+            inference_method = "blackjax_nuts"
+            warnings.warn(
+                "'nuts_blackjax' has been replaced by 'blackjax_nuts' and will "
+                "be removed in a future release",
+                category=FutureWarning,
+            )
+
         # NOTE: Methods return different types of objects (idata, approximation, and dictionary)
-        if inference_method in ["mcmc", "nuts_numpyro", "nuts_blackjax"]:
+        if inference_method in (self.pymc_methods["mcmc"] + self.bayeux_methods["mcmc"]):
             result = self._run_mcmc(
                 draws,
                 tune,
@@ -110,7 +129,7 @@ class PyMCModel:
                 inference_method,
                 **kwargs,
             )
-        elif inference_method == "vi":
+        elif inference_method in self.pymc_methods["vi"]:
             result = self._run_vi(**kwargs)
         elif inference_method == "laplace":
             result = self._run_laplace(draws, omit_offsets, include_mean)
@@ -169,8 +188,8 @@ class PyMCModel:
         sampler_backend="mcmc",
         **kwargs,
     ):
-        with self.model:
-            if sampler_backend == "mcmc":
+        if sampler_backend in self.pymc_methods["mcmc"]:
+            with self.model:
                 try:
                     idata = pm.sample(
                         draws=draws,
@@ -205,41 +224,35 @@ class PyMCModel:
                         )
                     else:
                         raise
-            elif sampler_backend == "nuts_numpyro":
-                import pymc.sampling_jax  # pylint: disable=import-outside-toplevel
+                idata_from = "pymc"
+        elif sampler_backend in self.bayeux_methods["mcmc"]:
+            import bayeux as bx  # pylint: disable=import-outside-toplevel
+            import jax  # pylint: disable=import-outside-toplevel
 
-                if not chains:
-                    # sample_numpyro_nuts does not handle chains = None like pm.sample does
-                    chains = 4
-                idata = pymc.sampling_jax.sample_numpyro_nuts(
-                    draws=draws,
-                    tune=tune,
-                    chains=chains,
-                    random_seed=random_seed,
-                    **kwargs,
-                )
-            elif sampler_backend == "nuts_blackjax":
-                import pymc.sampling_jax  # pylint: disable=import-outside-toplevel
+            # Set the seed for reproducibility if provided
+            if random_seed is not None:
+                if not isinstance(random_seed, int):
+                    random_seed = random_seed[0]
+                np.random.seed(random_seed)
 
-                # sample_blackjax_nuts does not handle chains = None like pm.sample does
-                if not chains:
-                    chains = 4
-                idata = pymc.sampling_jax.sample_blackjax_nuts(
-                    draws=draws,
-                    tune=tune,
-                    chains=chains,
-                    random_seed=random_seed,
-                    **kwargs,
-                )
-            else:
-                raise ValueError(
-                    f"sampler_backend value {sampler_backend} is not valid. Please choose one of"
-                    f"'mcmc', 'nuts_numpyro' or 'nuts_blackjax'"
-                )
-        idata = self._clean_results(idata, omit_offsets, include_mean)
+            jax_seed = jax.random.PRNGKey(np.random.randint(2**32 - 1))
+
+            bx_model = bx.Model.from_pymc(self.model)
+            bx_sampler = operator.attrgetter(sampler_backend)(
+                bx_model.mcmc  # pylint: disable=no-member
+            )
+            idata = bx_sampler(seed=jax_seed, **kwargs)
+            idata_from = "bayeux"
+        else:
+            raise ValueError(
+                f"sampler_backend value {sampler_backend} is not valid. Please choose one of"
+                f" {self.pymc_methods['mcmc'] + self.bayeux_methods['mcmc']}"
+            )
+
+        idata = self._clean_results(idata, omit_offsets, include_mean, idata_from)
         return idata
 
-    def _clean_results(self, idata, omit_offsets, include_mean):
+    def _clean_results(self, idata, omit_offsets, include_mean, idata_from):
         for group in idata.groups():
 
             getattr(idata, group).attrs["modeling_interface"] = "bambi"
@@ -258,6 +271,15 @@ class PyMCModel:
 
         dims_original = list(self.model.coords)
 
+        # Identify bayeux idata and rename dims and coordinates to match PyMC model
+        if idata_from == "bayeux":
+            pymc_model_dims = [dim for dim in dims_original if "_obs" not in dim]
+            bayeux_dims = [
+                dim for dim in idata.posterior.dims if not dim.startswith(("chain", "draw"))
+            ]
+            cleaned_dims = dict(zip(bayeux_dims, pymc_model_dims))
+            idata = idata.rename(cleaned_dims)
+
         # Discard dims that are in the model but unused in the posterior
         dims_original = [dim for dim in dims_original if dim in idata.posterior.dims]
 
@@ -272,7 +294,6 @@ class PyMCModel:
         idata.posterior = idata.posterior.transpose(*dims_new)
 
         # Compute the actual intercept in all distributional components that have an intercept
-
         for pymc_component in self.distributional_components.values():
             bambi_component = pymc_component.component
             if (
@@ -317,8 +338,8 @@ class PyMCModel:
 
         Mainly for pedagogical use, provides reasonable results for approximately
         Gaussian posteriors. The approximation can be very poor for some models
-        like hierarchical ones. Use ``mcmc``, ``nuts_numpyro``, ``nuts_blackjax``
-        or ``vi`` for better approximations.
+        like hierarchical ones. Use ``mcmc``, ``vi``, or JAX based MCMC methods
+        for better approximations.
 
         Parameters
         ----------
@@ -352,7 +373,7 @@ class PyMCModel:
         samples = np.random.multivariate_normal(modes, cov, size=draws)
 
         idata = _posterior_samples_to_idata(samples, self.model)
-        idata = self._clean_results(idata, omit_offsets, include_mean)
+        idata = self._clean_results(idata, omit_offsets, include_mean, idata_from="pymc")
         return idata
 
     @property
@@ -366,6 +387,10 @@ class PyMCModel:
     @property
     def distributional_components(self):
         return {k: v for k, v in self.components.items() if isinstance(v, DistributionalComponent)}
+
+    @property
+    def inference_methods(self):
+        return {"pymc": self.pymc_methods, "bayeux": self.bayeux_methods}
 
 
 def _posterior_samples_to_idata(samples, model):
@@ -406,3 +431,22 @@ def _posterior_samples_to_idata(samples, model):
 
     idata = pm.to_inference_data(pm.backends.base.MultiTrace([strace]), model=model)
     return idata
+
+
+def _get_bayeux_methods():
+    """Gets a dictionary of usable bayeux methods if the bayeux package is installed
+    within the user's environment.
+
+    Returns
+    -------
+    dict
+        A dict where the keys are the module names and the values are the methods
+        available in that module.
+    """
+    if importlib.util.find_spec("bayeux") is None:
+        return {"mcmc": []}
+
+    import bayeux as bx  # pylint: disable=import-outside-toplevel
+
+    # Dummy log density to get access to all methods
+    return bx.Model(lambda x: -(x**2), 0.0).methods
