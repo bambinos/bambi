@@ -32,32 +32,50 @@ Bambi requires working versions of ArviZ, formulae, NumPy, pandas and PyMC. Depe
 In the following two examples we assume the following basic setup
 
 ```python
+import arviz as az
 import bambi as bmb
 import numpy as np
 import pandas as pd
+```
 
+### Linear regression
+
+A simple fixed effect model is shown in the example below.
+
+```python
+#### Read in a database from the package content
+data = bmb.load_data("sleepstudy")
+
+# Initialize the fixed effect only model
+model = bmb.Model('Reaction ~ Days', data)
+print(model) # Get model description
+
+# Fit the model using 1000 on each chain
+results = model.fit(draws=1000)
+
+# Key summary and diagnostic info on the model parameters
+az.summary(results)
+
+# Use ArviZ to plot the results
+az.plot_trace(results)
+```
+
+First, we create and build a Bambi `Model`. Then, the function `model.fit` tells the sampler to start
+running and it returns an `InferenceData` object, which can be passed to several ArviZ functions
+such as `az.summary()` to get a summary of the parameters distribution and sample diagnostics or
+`az.plot_trace()` to visualize them.
+
+### Logistic regression
+
+In this example we will use a simulated dataset created as shown below.
+
+```python
 data = pd.DataFrame({
-    "y": np.random.normal(size=50),
     "g": np.random.choice(["Yes", "No"], size=50),
     "x1": np.random.normal(size=50),
     "x2": np.random.normal(size=50)
 })
 ```
-
-### Linear regression
-
-```python
-model = bmb.Model("y ~ x1 + x2", data)
-fitted = model.fit()
-```
-
-In the first line we create and build a Bambi `Model`. The second line tells the sampler to start
-running and it returns an `InferenceData` object, which can be passed to several ArviZ functions
-such as `az.summary()` to get a summary of the parameters distribution and sample diagnostics or
- `az.plot_trace()` to visualize them.
-
-
-### Logistic regression
 
 Here we just add the `family` argument set to `"bernoulli"` to tell Bambi we are modelling a binary
 response. By default, it uses a logit link. We can also use some syntax sugar to specify which event
@@ -65,11 +83,16 @@ we want to model. We just say `g['Yes']` and Bambi will understand we want to mo
 of a `"Yes"` response. But this notation is not mandatory. If we use `"g ~ x1 + x2"`, Bambi will
 pick one of the events to model and will inform us which one it picked.
 
-
 ```python
 model = bmb.Model("g['Yes'] ~ x1 + x2", data, family="bernoulli")
 fitted = model.fit()
 ```
+
+After this, we can evaluate the model as before. 
+
+### More
+
+There are many additional examples in our [Examples](https://bambinos.github.io/bambi/notebooks/) webpage. 
 
 ## Documentation
 
