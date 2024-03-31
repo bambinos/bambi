@@ -1,8 +1,13 @@
 import bambi as bmb
+import bayeux as bx
 import numpy as np
 import pandas as pd
 
 import pytest
+
+
+MCMC_METHODS = [getattr(bx.mcmc, k).name for k in bx.mcmc.__all__]
+MCMC_METHODS_FILTERED = [i for i in MCMC_METHODS if not any(x in i for x in ("flowmc", "chees", "meads"))]
 
 
 @pytest.fixture(scope="module")
@@ -51,28 +56,14 @@ def test_vi():
         (mode_n.item(), std_n.item()), (mode_a.item(), std_a.item()), decimal=2
     )
 
-
-@pytest.mark.parametrize(
-    "args",
-    [
-        ("mcmc", {}),
-        ("nuts_numpyro", {"chain_method": "vectorized"}),
-        ("nuts_blackjax", {"chain_method": "vectorized"}),
-    ],
-)
-def test_logistic_regression_categoric_alternative_samplers(data_n100, args):
+# 
+@pytest.mark.parametrize("sampler", MCMC_METHODS_FILTERED)
+def test_logistic_regression_categoric_alternative_samplers(data_n100, sampler):
     model = bmb.Model("b1 ~ n1", data_n100, family="bernoulli")
-    model.fit(tune=50, draws=50, inference_method=args[0], **args[1])
+    model.fit(inference_method=sampler)
 
 
-@pytest.mark.parametrize(
-    "args",
-    [
-        ("mcmc", {}),
-        ("nuts_numpyro", {"chain_method": "vectorized"}),
-        ("nuts_blackjax", {"chain_method": "vectorized"}),
-    ],
-)
-def test_regression_alternative_samplers(data_n100, args):
+@pytest.mark.parametrize("sampler", MCMC_METHODS)
+def test_regression_alternative_samplers(data_n100, sampler):
     model = bmb.Model("n1 ~ n2", data_n100)
-    model.fit(tune=50, draws=50, inference_method=args[0], **args[1])
+    model.fit(inference_method=sampler)

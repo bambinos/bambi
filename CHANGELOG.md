@@ -11,7 +11,11 @@
 
 ### Maintenance and fixes
 
+* Fix bug in predictions with models using HSGP (#780)
+
 ### Documentation
+
+* Our Code of Conduct now includes how to send a report (#783)
 
 ### Deprecation
 

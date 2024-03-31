@@ -178,6 +178,37 @@ def food_choice():
     return model, idata
 
 
+@pytest.fixture(scope="module")
+def formulae_transform():
+    """
+    A model with a 'formulae' stateful transformation (polynomial) on a term.
+    """
+    np.random.seed(0)
+    x1 = np.random.normal(size=100)
+    x2 = np.random.normal(size=100)
+    y = 2 + 3*x1 + 1.5*x1**2 + 2*x2 + np.random.normal(scale=1, size=100)
+    data = pd.DataFrame({'x1': x1, "x2": x2, 'y': y})
+    model = bmb.Model('y ~ poly(x1, 2) + x2', data)
+    idata = model.fit(tune=500, draws=500, random_seed=1234)
+    return model, idata
+
+
+@pytest.fixture(scope="module")
+def nonformulae_transform():
+    """
+    A model with a non-formulae transformation on a term. 
+    """
+    np.random.seed(0)
+    x1 = np.random.uniform(1, 50, 50)
+    noise = np.random.normal(0, 1, 50)
+    y = 3 * np.log(x1) + noise
+    data = pd.DataFrame({'x1': x1, 'y': y})
+
+    model = bmb.Model('y ~ np.log(x1)', data)
+    idata = model.fit(tune=500, draws=500, random_seed=1234)
+    return model, idata
+
+
 # Improvement:
 # * Test the actual plots are what we are indeed the desired result.
 # * Test using the dictionary and the list gives the same plot
@@ -402,6 +433,18 @@ class TestPredictions:
     def test_categorical_response(self, food_choice, covariates):
         model, idata = food_choice
         plot_predictions(model, idata, covariates)
+    
+    
+    def test_term_transformations(self, formulae_transform, nonformulae_transform):
+        model, idata = formulae_transform
+
+        # Test that the plot works with a formulae transformation
+        plot_predictions(model, idata, ["x2", "x1"])
+
+        model, idata = nonformulae_transform
+    
+        # Test that the plot works with a non-formulae transformation
+        plot_predictions(model, idata, "x1")
 
 
 class TestComparison:

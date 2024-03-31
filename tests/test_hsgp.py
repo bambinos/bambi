@@ -300,3 +300,35 @@ def test_minimal_1d_predicts(data_1d_single_group):
     new_idata = model.predict(idata, data=new_data, kind="pps", inplace=False)
     assert new_idata.posterior_predictive["y"].dims == ("chain", "draw", "y_obs")
     assert new_idata.posterior_predictive["y"].to_numpy().shape == (2, 500, 10)
+
+
+def test_multiple_hsgp_and_by(data_1d_multiple_groups):
+    rng = np.random.default_rng(1234)
+    df = data_1d_multiple_groups.copy()
+    df["fac2"] = rng.choice(["a", "b", "c"], size=df.shape[0])
+
+    formula = "y ~ 1 + x0 + hsgp(x1, by=fac, m=10, c=2) + hsgp(x1, by=fac2, m=10, c=2)"
+    model = bmb.Model(
+        formula=formula,
+        data=df,
+        categorical=["fac"],
+    )
+    idata = model.fit(tune=400, draws=200, target_accept=0.9)
+
+    bmb.interpret.plot_predictions(
+        model, 
+        idata, 
+        conditional="x1", 
+        subplot_kwargs={"main": "x1", "group": "fac2", "panel": "fac2"},
+    );
+
+    bmb.interpret.plot_predictions(
+        model, 
+        idata, 
+        conditional={
+            "x1": np.linspace(0, 1, num=100),
+            "fac2": ["a", "b", "c"]
+        }, 
+        legend=False,
+        subplot_kwargs={"main": "x1", "group": "fac2", "panel": "fac2"},
+    );

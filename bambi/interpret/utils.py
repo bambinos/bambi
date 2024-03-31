@@ -4,9 +4,11 @@ from dataclasses import dataclass, field
 from typing import Union
 
 import numpy as np
-from formulae.terms.call import Call
 import pandas as pd
 import xarray as xr
+
+from formulae.terms.call import Call
+from formulae.terms.call_resolver import LazyVariable
 
 from bambi import Model
 from bambi.utils import listify
@@ -100,6 +102,7 @@ class VariableInfo:
 
         If categoric dtype the returned value is the unique levels of `variable'.
         """
+        values = None  # Otherwise pylint complains
         terms = get_model_terms(self.model)
         # get default values for each variable in the model
         for term in terms.values():
@@ -229,15 +232,25 @@ def get_model_covariates(model: Model) -> np.ndarray:
     """
     Return covariates specified in the model.
     """
-
     terms = get_model_terms(model)
     covariates = []
     for term in terms.values():
         if hasattr(term, "components"):
             for component in term.components:
-                # if the component is a function call, use the argument names
+                # if the component is a function call, look for relevant argument names
                 if isinstance(component, Call):
-                    covariates.append([arg.name for arg in component.call.args])
+                    # Add variable names passed as unnamed arguments
+                    covariates.append(
+                        [arg.name for arg in component.call.args if isinstance(arg, LazyVariable)]
+                    )
+                    # Add variable names passed as named arguments
+                    covariates.append(
+                        [
+                            kwarg_value.name
+                            for kwarg_value in component.call.kwargs.values()
+                            if isinstance(kwarg_value, LazyVariable)
+                        ]
+                    )
                 else:
                     covariates.append([component.name])
         elif hasattr(term, "factor"):
