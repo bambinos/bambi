@@ -638,19 +638,29 @@ class TestBinomial(FitPredictParent):
         self.assert_mean_range(model, idata)
         assert (idata.posterior_predictive["prop(y, n)"].to_numpy() <= y_reshaped).all()
 
+        # Test log-likelihood computation
+        model.compute_log_likelihood(idata)
+        idata_2 = model.compute_log_likelihood(idata, data=beetle_data, inplace=False)
+        assert (idata_2.log_likelihood["prop(y, n)"] == idata.log_likelihood["prop(y, n)"]).all().item()
+
     def test_binomial_regression_constant(self, beetle_data):
         # Uses a constant instead of variable in data frame
-        model = bmb.Model("prop(y, 62) ~ x", beetle_data, family="binomial")
+        model = bmb.Model("p(y, 62) ~ x", beetle_data, family="binomial")
         idata = self.fit(model)
         model.predict(idata, kind="pps")
         self.assert_mean_range(model, idata)
-        assert (idata.posterior_predictive["prop(y, 62)"].to_numpy() <= 62).all()
-        assert (0 <= idata.posterior_predictive["prop(y, 62)"].to_numpy()).all()
+        assert (idata.posterior_predictive["p(y, 62)"].to_numpy() <= 62).all()
+        assert (0 <= idata.posterior_predictive["p(y, 62)"].to_numpy()).all()
 
         # Out of sample prediction
         idata = self.predict_oos(model, idata)
         self.assert_mean_range(model, idata)
-        assert (idata.posterior_predictive["prop(y, 62)"].to_numpy() <= 62).all()
+        assert (idata.posterior_predictive["p(y, 62)"].to_numpy() <= 62).all()
+
+        # Test log-likelihood computation
+        model.compute_log_likelihood(idata)
+        idata_2 = model.compute_log_likelihood(idata, data=beetle_data, inplace=False)
+        assert (idata_2.log_likelihood["p(y, 62)"] == idata.log_likelihood["p(y, 62)"]).all().item()
 
 
 class TestPoisson(FitPredictParent):
@@ -787,6 +797,11 @@ class TestGamma(FitPredictParent):
         assert set(idata.posterior.data_vars) == {"Intercept", "y2", "y3", "n1", "cat4", "o_alpha"}
         idata = self.predict_oos(model, idata)
         assert (idata.posterior_predictive["o"] > 0).all().item()
+
+        # Compute log likelihood
+        model.compute_log_likelihood(idata)
+        idata_2 = model.compute_log_likelihood(idata, data=data_n100, inplace=False)
+        assert (idata.log_likelihood["o"] == idata_2.log_likelihood["o"]).all().item()
 
     def test_gamma_regression_categoric(self, data_n100):
         data_n100["o"] = np.exp(data_n100["y1"])
@@ -1178,6 +1193,12 @@ class TestMultinomial(FitPredictParent):
         idata = self.fit(model, random_seed=121195)
         idata = self.predict_oos(model, idata, data=model.data)
         self.assert_posterior_predictive(model, idata)
+
+        # Log likelihood computation
+        model.compute_log_likelihood(idata)
+        idata_2 = model.compute_log_likelihood(idata, data=multinomial_data, inplace=False)
+        name = "c(y1, y2, y3, y4)"
+        assert (idata.log_likelihood[name] == idata_2.log_likelihood[name]).all().item()
 
     def test_categorical_predictors(self, multinomial_data):
         multinomial_data["treat"] = multinomial_data["treat"].replace({-0.5: "A", 0.5: "B"})

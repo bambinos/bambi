@@ -190,3 +190,13 @@ def remove_common_intercept(dm: fm.matrices.DesignMatrices) -> fm.matrices.Desig
     intercept_slice = dm.common.slices.pop("Intercept")
     dm.common.design_matrix = np.delete(dm.common.design_matrix, intercept_slice, axis=1)
     return dm
+
+
+def response_evaluate_new_data(model, data):
+    # Probably we need formulae to have an "evaluate_new_data" on the response
+    # It would save us from having to do this.
+    name = model.response_component.design.response.name
+
+    # We add an intercept to have a valid formula, but it's not used
+    dm = fm.design_matrices(name + " ~ 1", data, env=model.response_component.design.env)
+    return np.asarray(dm.response)
