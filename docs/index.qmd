@@ -25,7 +25,7 @@ social sciences and other disciplines.
 
 ## Dependencies
 
-Bambi is tested on Python 3.9+ and depends on ArviZ, formulae, NumPy, pandas and PyMC 
+Bambi is tested on Python 3.10+ and depends on ArviZ, formulae, NumPy, pandas and PyMC 
 (see [pyproject.toml](https://github.com/bambinos/bambi/blob/main/pyproject.toml) 
 for version information).
 
@@ -58,7 +58,7 @@ If you use Conda, you can also install the latest release of Bambi with the foll
 conda install -c conda-forge bambi
 ```
 
-## Examples of usage
+## Examples
 
 In the following two examples we assume the following basic setup
 
@@ -71,15 +71,20 @@ import pandas as pd
 
 ### Linear regression
 
-A simple fixed effect model is shown in the example below.
+A simple fixed effects model is shown in the example below.
 
 ```python
-#### Read in a database from the package content
+# Read in a dataset from the package content
 data = bmb.load_data("sleepstudy")
 
-# Initialize the fixed effect only model
+# See first rows
+data.head()
+ 
+# Initialize the fixed effects only model
 model = bmb.Model('Reaction ~ Days', data)
-print(model) # Get model description
+
+# Get model description
+print(model)
 
 # Fit the model using 1000 on each chain
 results = model.fit(draws=1000)
@@ -90,8 +95,36 @@ az.summary(results)
 # Use ArviZ to plot the results
 az.plot_trace(results)
 ```
+``` 
+   Reaction  Days  Subject
+0  249.5600     0      308
+1  258.7047     1      308
+2  250.8006     2      308
+3  321.4398     3      308
+4  356.8519     4      308
+```
+```
+       Formula: Reaction ~ Days
+        Family: gaussian
+          Link: mu = identity
+  Observations: 180
+        Priors:
+    target = mu
+        Common-level effects
+            Intercept ~ Normal(mu: 298.5079, sigma: 261.0092)
+            Days ~ Normal(mu: 0.0, sigma: 48.8915)
 
-First, we create and build a Bambi `Model`. Then, the function `model.fit` tells the sampler to start
+        Auxiliary parameters
+            sigma ~ HalfStudentT(nu: 4.0, sigma: 56.1721)
+```
+```
+                   mean     sd   hdi_3%  hdi_97%  mcse_mean  mcse_sd  ess_bulk  ess_tail  r_hat
+Intercept       251.552  6.658  238.513  263.417      0.083    0.059    6491.0    2933.0    1.0
+Days             10.437  1.243    8.179   12.793      0.015    0.011    6674.0    3242.0    1.0
+Reaction_sigma   47.949  2.550   43.363   52.704      0.035    0.025    5614.0    2974.0    1.0
+```
+
+First, we create and build a Bambi `Model`. Then, the method `model.fit()` tells the sampler to start
 running and it returns an `InferenceData` object, which can be passed to several ArviZ functions
 such as `az.summary()` to get a summary of the parameters distribution and sample diagnostics or
 `az.plot_trace()` to visualize them.
@@ -123,16 +156,13 @@ After this, we can evaluate the model as before.
 
 ### More
 
-There are many additional examples in our [Examples](https://bambinos.github.io/bambi/notebooks/) webpage. 
-
-For a more in-depth introduction to Bambi see our 
-[Quickstart](https://github.com/bambinos/bambi#quickstart) or our set of example notebooks.
+For a more in-depth introduction to Bambi see our [Quickstart](https://github.com/bambinos/bambi#quickstart) and check the notebooks in the [Examples](https://bambinos.github.io/bambi/notebooks/) webpage.
 
 ## Citation
 
 If you use Bambi and want to cite it please use
 
-```bib
+```bibtex
 @article{
     Capretto2022,
     title={Bambi: A Simple Interface for Fitting Bayesian Linear Models in Python},
