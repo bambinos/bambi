@@ -22,19 +22,19 @@ class BinomialBaseFamily(UnivariateFamily):
         trials = trials[np.newaxis, np.newaxis, :]
         return super().posterior_predictive(model, posterior, n=trials)
 
-    def compute_log_likelihood(self, model, posterior, **kwargs):
-        # WIP FIXME
-        data = kwargs["data"]
-        y = kwargs["y"]
-
+    def compute_log_likelihood(self, model, posterior, data):
         if data is None:
+            y = model.response_component.response_term.data[:, 0]
             trials = model.response_component.response_term.data[:, 1]
         else:
+            # FIXME: how to get the values of 'y'
+            y = ...
             trials = model.response_component.design.response.evaluate_new_data(data).astype(int)
 
         # Prepend 'draw' and 'chain' dimensions
+        y = y[np.newaxis, np.newaxis, :]
         trials = trials[np.newaxis, np.newaxis, :]
-        return super().compute_log_likelihood(model, posterior, y, n=trials)
+        return super().compute_log_likelihood(model, posterior, y=y, n=trials)
 
     @staticmethod
     def transform_backend_kwargs(kwargs):

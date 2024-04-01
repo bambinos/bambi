@@ -880,18 +880,8 @@ class Model:
             idata, data, include_group_specific, sample_new_groups
         )
 
-        # Get the values of the outcome variable
-        if data is None:
-            y_values = np.squeeze(self.response_component.response_term.data)
-        else:
-            # TODO: This is very simple, not going to work with non direct responses or > 1d models
-            # For example, how would this work for the Binomial family? It's not trivial.
-            y_values = np.array(data[self.response_component.response_term.name])
-
-        required_kwargs = {"model": self, "posterior": idata.posterior, "y_values": y_values}
-        optional_kwargs = {"data": data, "y": y_values}
-
-        log_likelihood = self.family.log_likelihood(**required_kwargs, **optional_kwargs)
+        required_kwargs = {"model": self, "posterior": idata.posterior, "data": data}
+        log_likelihood = self.family.log_likelihood(**required_kwargs)
         log_likelihood = log_likelihood.to_dataset(name=response_aliased_name)
 
         if "log_likelihood" in idata:

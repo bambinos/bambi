@@ -149,7 +149,7 @@ class Family:
 
         return xr.DataArray(output_array, coords=coords)
 
-    def log_likelihood(self, model, posterior, y_values, **kwargs):
+    def log_likelihood(self, model, posterior, data, **kwargs):
         """Evaluate the model log-likelihood
 
         This method uses `pm.logp()`.
@@ -173,6 +173,16 @@ class Family:
             A data array with the value of the log-likelihood for each chain, draw, and value
             of the response variable.
         """
+        # Child classes pass "y_values" through the "y" kwarg
+        y_values = kwargs.pop("y", None)
+
+        # Get the values of the outcome variable
+        if y_values is None:  # when it's not handled by the specific family
+            if data is None:
+                y_values = np.squeeze(model.response_component.response_term.data)
+            else:
+                y_values = np.array(data[model.response_component.response_term.name])
+
         response_dist = get_response_dist(model.family)
         response_term = model.response_component.response_term
         kwargs, coords = self._make_dist_kwargs_and_coords(model, posterior, **kwargs)
