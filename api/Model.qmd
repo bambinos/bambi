@@ -26,6 +26,7 @@ Specification of model class.
 | Name | Description |
 | --- | --- |
 | [build](#bambi.Model.build) | Set up the model for sampling/fitting. |
+| [compute_log_likelihood](#bambi.Model.compute_log_likelihood) | Compute the model's log-likelihood |
 | [fit](#bambi.Model.fit) | Fit the model using PyMC. |
 | [graph](#bambi.Model.graph) | Produce a graphviz Digraph from a built Bambi model. |
 | [plot_priors](#bambi.Model.plot_priors) | Samples from the prior distribution and plots its marginals. |
@@ -47,6 +48,28 @@ Creates an instance of the underlying PyMC model and adds all the necessary term
 | Type   | Description   |
 |--------|---------------|
 | None   |               |
+
+### compute_log_likelihood { #bambi.Model.compute_log_likelihood }
+
+`Model.compute_log_likelihood(self, idata, data=None, inplace=True)`
+
+Compute the model's log-likelihood
+
+NOTE: This is a new feature and it may not work in all cases.
+
+#### Parameters
+
+| Name      | Type                     | Description                                                                                                                                                                 | Default    |
+|-----------|--------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `idata`   | InferenceData            | The `InferenceData` instance returned by `.fit()`.                                                                                                                          | _required_ |
+| `data`    | pandas.DataFrame or None | An optional data frame with values for the predictors and the response on which the model's log-likelihood function is evaluated. If omitted, the original dataset is used. | `None`     |
+| `inplace` | bool                     | If True` it will modify `idata` in-place. Otherwise, it will return a copy of `idata` with the `log_likelihood` group added.                                                | `True`     |
+
+#### Returns
+
+| Type                  | Description   |
+|-----------------------|---------------|
+| InferenceData or None |               |
 
 ### fit { #bambi.Model.fit }
 

@@ -276,6 +276,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
   <ul class="collapse">
   <li><a href="#bambi.Model.build" id="toc-bambi.Model.build" class="nav-link" data-scroll-target="#bambi.Model.build">build</a></li>
+  <li><a href="#bambi.Model.compute_log_likelihood" id="toc-bambi.Model.compute_log_likelihood" class="nav-link" data-scroll-target="#bambi.Model.compute_log_likelihood">compute_log_likelihood</a></li>
   <li><a href="#bambi.Model.fit" id="toc-bambi.Model.fit" class="nav-link" data-scroll-target="#bambi.Model.fit">fit</a></li>
   <li><a href="#bambi.Model.graph" id="toc-bambi.Model.graph" class="nav-link" data-scroll-target="#bambi.Model.graph">graph</a></li>
   <li><a href="#bambi.Model.plot_priors" id="toc-bambi.Model.plot_priors" class="nav-link" data-scroll-target="#bambi.Model.plot_priors">plot_priors</a></li>
@@ -405,30 +406,34 @@ ul.task-list li input[type="checkbox"] {
 <td>Set up the model for sampling/fitting.</td>
 </tr>
 <tr class="even">
+<td><a href="#bambi.Model.compute_log_likelihood">compute_log_likelihood</a></td>
+<td>Compute the model’s log-likelihood</td>
+</tr>
+<tr class="odd">
 <td><a href="#bambi.Model.fit">fit</a></td>
 <td>Fit the model using PyMC.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="#bambi.Model.graph">graph</a></td>
 <td>Produce a graphviz Digraph from a built Bambi model.</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="#bambi.Model.plot_priors">plot_priors</a></td>
 <td>Samples from the prior distribution and plots its marginals.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="#bambi.Model.predict">predict</a></td>
 <td>Predict method for Bambi models</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="#bambi.Model.prior_predictive">prior_predictive</a></td>
 <td>Generate samples from the prior predictive distribution.</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><a href="#bambi.Model.set_alias">set_alias</a></td>
 <td>Set aliases for the terms and auxiliary parameters in the model</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><a href="#bambi.Model.set_priors">set_priors</a></td>
 <td>Set priors for one or more existing terms.</td>
 </tr>
@@ -457,12 +462,74 @@ ul.task-list li input[type="checkbox"] {
 </table>
 </section>
 </section>
+<section id="bambi.Model.compute_log_likelihood" class="level3">
+<h3 class="anchored" data-anchor-id="bambi.Model.compute_log_likelihood">compute_log_likelihood</h3>
+<p><code>Model.compute_log_likelihood(self, idata, data=None, inplace=True)</code></p>
+<p>Compute the model’s log-likelihood</p>
+<p>NOTE: This is a new feature and it may not work in all cases.</p>
+<section id="parameters-1" class="level4">
+<h4 class="anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="table">
+<colgroup>
+<col style="width: 4%">
+<col style="width: 11%">
+<col style="width: 77%">
+<col style="width: 5%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>idata</code></td>
+<td>InferenceData</td>
+<td>The <code>InferenceData</code> instance returned by <code>.fit()</code>.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td><code>data</code></td>
+<td>pandas.DataFrame or None</td>
+<td>An optional data frame with values for the predictors and the response on which the model’s log-likelihood function is evaluated. If omitted, the original dataset is used.</td>
+<td><code>None</code></td>
+</tr>
+<tr class="odd">
+<td><code>inplace</code></td>
+<td>bool</td>
+<td>If True<code>it will modify</code>idata<code>in-place. Otherwise, it will return a copy of</code>idata<code>with the</code>log_likelihood<code>group added.                                                |</code>True`</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-1" class="level4">
+<h4 class="anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>InferenceData or None</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
 <section id="bambi.Model.fit" class="level3">
 <h3 class="anchored" data-anchor-id="bambi.Model.fit">fit</h3>
 <p><code>Model.fit(self, draws=1000, tune=1000, discard_tuned_samples=True, omit_offsets=True, include_mean=False, inference_method='mcmc', init='auto', n_init=50000, chains=None, cores=None, random_seed=None, **kwargs)</code></p>
 <p>Fit the model using PyMC.</p>
-<section id="parameters-1" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-1">Parameters</h4>
+<section id="parameters-2" class="level4">
+<h4 class="anchored" data-anchor-id="parameters-2">Parameters</h4>
 <table class="table">
 <colgroup>
 <col style="width: 1%">
@@ -554,8 +621,8 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-1" class="level4">
-<h4 class="anchored" data-anchor-id="returns-1">Returns</h4>
+<section id="returns-2" class="level4">
+<h4 class="anchored" data-anchor-id="returns-2">Returns</h4>
 <table class="table">
 <colgroup>
 <col style="width: 84%">
@@ -594,8 +661,8 @@ ul.task-list li input[type="checkbox"] {
 <p>Produce a graphviz Digraph from a built Bambi model.</p>
 <p>Requires graphviz, which may be installed most easily with <code>conda install -c conda-forge python-graphviz</code></p>
 <p>Alternatively, you may install the <code>graphviz</code> binaries yourself, and then <code>pip install graphviz</code> to get the python bindings. See http://graphviz.readthedocs.io/en/stable/manual.html for more information.</p>
-<section id="parameters-2" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-2">Parameters</h4>
+<section id="parameters-3" class="level4">
+<h4 class="anchored" data-anchor-id="parameters-3">Parameters</h4>
 <table class="table">
 <colgroup>
 <col style="width: 4%">
@@ -645,8 +712,8 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-2" class="level4">
-<h4 class="anchored" data-anchor-id="returns-2">Returns</h4>
+<section id="returns-3" class="level4">
+<h4 class="anchored" data-anchor-id="returns-3">Returns</h4>
 <table class="table">
 <thead>
 <tr class="header">
@@ -684,8 +751,8 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="bambi.Model.plot_priors">plot_priors</h3>
 <p><code>Model.plot_priors(self, draws=5000, var_names=None, random_seed=None, figsize=None, textsize=None, hdi_prob=None, round_to=2, point_estimate='mean', kind='kde', bins=None, omit_offsets=True, omit_group_specific=True, ax=None, **kwargs)</code></p>
 <p>Samples from the prior distribution and plots its marginals.</p>
-<section id="parameters-3" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-3">Parameters</h4>
+<section id="parameters-4" class="level4">
+<h4 class="anchored" data-anchor-id="parameters-4">Parameters</h4>
 <table class="table">
 <colgroup>
 <col style="width: 6%">
@@ -789,8 +856,8 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-3" class="level4">
-<h4 class="anchored" data-anchor-id="returns-3">Returns</h4>
+<section id="returns-4" class="level4">
+<h4 class="anchored" data-anchor-id="returns-4">Returns</h4>
 <table class="table">
 <thead>
 <tr class="header">
@@ -812,8 +879,8 @@ ul.task-list li input[type="checkbox"] {
 <p><code>Model.predict(self, idata, kind='mean', data=None, inplace=True, include_group_specific=True, sample_new_groups=False)</code></p>
 <p>Predict method for Bambi models</p>
 <p>Obtains in-sample and out-of-sample predictions from a fitted Bambi model.</p>
-<section id="parameters-4" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-4">Parameters</h4>
+<section id="parameters-5" class="level4">
+<h4 class="anchored" data-anchor-id="parameters-5">Parameters</h4>
 <table class="table">
 <colgroup>
 <col style="width: 5%">
@@ -869,8 +936,8 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-4" class="level4">
-<h4 class="anchored" data-anchor-id="returns-4">Returns</h4>
+<section id="returns-5" class="level4">
+<h4 class="anchored" data-anchor-id="returns-5">Returns</h4>
 <table class="table">
 <thead>
 <tr class="header">
@@ -891,8 +958,8 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="bambi.Model.prior_predictive">prior_predictive</h3>
 <p><code>Model.prior_predictive(self, draws=500, var_names=None, omit_offsets=True, random_seed=None)</code></p>
 <p>Generate samples from the prior predictive distribution.</p>
-<section id="parameters-5" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-5">Parameters</h4>
+<section id="parameters-6" class="level4">
+<h4 class="anchored" data-anchor-id="parameters-6">Parameters</h4>
 <table class="table">
 <colgroup>
 <col style="width: 8%">
@@ -936,8 +1003,8 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-5" class="level4">
-<h4 class="anchored" data-anchor-id="returns-5">Returns</h4>
+<section id="returns-6" class="level4">
+<h4 class="anchored" data-anchor-id="returns-6">Returns</h4>
 <table class="table">
 <colgroup>
 <col style="width: 13%">
@@ -962,8 +1029,8 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="bambi.Model.set_alias">set_alias</h3>
 <p><code>Model.set_alias(self, aliases)</code></p>
 <p>Set aliases for the terms and auxiliary parameters in the model</p>
-<section id="parameters-6" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-6">Parameters</h4>
+<section id="parameters-7" class="level4">
+<h4 class="anchored" data-anchor-id="parameters-7">Parameters</h4>
 <table class="table">
 <colgroup>
 <col style="width: 9%">
@@ -989,8 +1056,8 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-6" class="level4">
-<h4 class="anchored" data-anchor-id="returns-6">Returns</h4>
+<section id="returns-7" class="level4">
+<h4 class="anchored" data-anchor-id="returns-7">Returns</h4>
 <table class="table">
 <thead>
 <tr class="header">
@@ -1011,8 +1078,8 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="bambi.Model.set_priors">set_priors</h3>
 <p><code>Model.set_priors(self, priors=None, common=None, group_specific=None)</code></p>
 <p>Set priors for one or more existing terms.</p>
-<section id="parameters-7" class="level4">
-<h4 class="anchored" data-anchor-id="parameters-7">Parameters</h4>
+<section id="parameters-8" class="level4">
+<h4 class="anchored" data-anchor-id="parameters-8">Parameters</h4>
 <table class="table">
 <colgroup>
 <col style="width: 7%">
@@ -1050,8 +1117,8 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="returns-7" class="level4">
-<h4 class="anchored" data-anchor-id="returns-7">Returns</h4>
+<section id="returns-8" class="level4">
+<h4 class="anchored" data-anchor-id="returns-8">Returns</h4>
 <table class="table">
 <thead>
 <tr class="header">

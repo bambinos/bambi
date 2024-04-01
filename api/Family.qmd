@@ -39,8 +39,31 @@ Replicate the Bernoulli built-in family.
 
 | Name | Description |
 | --- | --- |
+| [log_likelihood](#bambi.Family.log_likelihood) | Evaluate the model log-likelihood |
 | [posterior_predictive](#bambi.Family.posterior_predictive) | Get draws from the posterior predictive distribution |
 | [set_default_priors](#bambi.Family.set_default_priors) | Set default priors for non-parent parameters |
+
+### log_likelihood { #bambi.Family.log_likelihood }
+
+`Family.log_likelihood(self, model, posterior, data, **kwargs)`
+
+Evaluate the model log-likelihood
+
+This method uses `pm.logp()`.
+
+#### Parameters
+
+| Name        | Type        | Description                                                                                                                                                                                                          | Default    |
+|-------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| `model`     | bambi.Model | The model                                                                                                                                                                                                            | _required_ |
+| `posterior` | xr.Dataset  | The xarray dataset that contains the draws for all the parameters in the posterior. It must contain the parameters that are needed in the distribution of the response, or the parameters that allow to derive them. | _required_ |
+| `kwargs`    |             | Parameters that are used to get draws but do not appear in the posterior object or other configuration parameters. For instance, the 'n' in binomial models and multinomial models.                                  | `{}`       |
+
+#### Returns
+
+| Type         | Description                                                                                                 |
+|--------------|-------------------------------------------------------------------------------------------------------------|
+| xr.DataArray | A data array with the value of the log-likelihood for each chain, draw, and value of the response variable. |
 
 ### posterior_predictive { #bambi.Family.posterior_predictive }
 
