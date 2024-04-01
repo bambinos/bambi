@@ -4,7 +4,7 @@ import scipy.special as sp
 import xarray as xr
 
 from bambi.families.family import Family
-from bambi.utils import get_aliased_name
+from bambi.utils import get_aliased_name, response_evaluate_new_data
 
 
 class UnivariateFamily(Family):
@@ -22,19 +22,19 @@ class BinomialBaseFamily(UnivariateFamily):
         trials = trials[np.newaxis, np.newaxis, :]
         return super().posterior_predictive(model, posterior, n=trials)
 
-    def compute_log_likelihood(self, model, posterior, data):
+    def log_likelihood(self, model, posterior, data, **kwargs):
         if data is None:
             y = model.response_component.response_term.data[:, 0]
             trials = model.response_component.response_term.data[:, 1]
         else:
-            # FIXME: how to get the values of 'y'
-            y = ...
-            trials = model.response_component.design.response.evaluate_new_data(data).astype(int)
+            output = response_evaluate_new_data(model, data).astype(int)
+            y = output[:, 0]
+            trials = output[:, 1]
 
         # Prepend 'draw' and 'chain' dimensions
         y = y[np.newaxis, np.newaxis, :]
         trials = trials[np.newaxis, np.newaxis, :]
-        return super().compute_log_likelihood(model, posterior, y=y, n=trials)
+        return super().log_likelihood(model, posterior, data=None, y=y, n=trials, **kwargs)
 
     @staticmethod
     def transform_backend_kwargs(kwargs):

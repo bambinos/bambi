@@ -5,7 +5,7 @@ import pymc as pm
 import xarray as xr
 
 from bambi.families.link import Link
-from bambi.utils import get_auxiliary_parameters, get_aliased_name
+from bambi.utils import get_auxiliary_parameters, get_aliased_name, response_evaluate_new_data
 
 
 class Family:
@@ -181,11 +181,15 @@ class Family:
             if data is None:
                 y_values = np.squeeze(model.response_component.response_term.data)
             else:
-                y_values = np.array(data[model.response_component.response_term.name])
+                y_values = response_evaluate_new_data(model, data)
 
         response_dist = get_response_dist(model.family)
         response_term = model.response_component.response_term
         kwargs, coords = self._make_dist_kwargs_and_coords(model, posterior, **kwargs)
+
+        # If it's multivariate, it's going to have a fourth coord, but we actually don't need it
+        # We just need "chain", "draw", "obs"
+        coords = dict(list(coords.items())[:3])
 
         # Handle constrained responses
         if response_term.is_constrained:

@@ -7,7 +7,6 @@ from copy import deepcopy
 from importlib.metadata import version
 
 import formulae as fm
-import numpy as np
 import pymc as pm
 import pandas as pd
 
@@ -845,6 +844,8 @@ class Model:
 
     def compute_log_likelihood(self, idata, data=None, inplace=True):
         """Compute the model's log-likelihood
+
+        NOTE: This is a new feature and it may not work in all cases.
 
         Parameters
         ----------
