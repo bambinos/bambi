@@ -133,54 +133,7 @@ class Family:
         """
         response_dist = get_response_dist(model.family)
         response_term = model.response_component.response_term
-        params = model.family.likelihood.params
-        response_aliased_name = get_aliased_name(response_term)
-
-        kwargs.pop("data", None)  # Remove the 'data' kwarg
-        dont_reshape = kwargs.pop("dont_reshape", [])
-        output_dataset_list = []
-
-        # In the posterior xr.Dataset we need to consider aliases,
-        # but we don't use aliases when passing kwargs to the PyMC distribution.
-        for param in params:
-            # Extract posterior draws for the parent parameter
-            if param == model.family.likelihood.parent:
-                component = model.components[model.response_name]
-                var_name = response_aliased_name + "_mean"
-                kwargs[param] = posterior[var_name].to_numpy()
-                output_dataset_list.append(posterior[var_name])
-            else:
-                # Extract posterior draws for non-parent parameters
-                component = model.components[param]
-                if component.alias:
-                    var_name = component.alias
-                else:
-                    var_name = f"{response_aliased_name}_{param}"
-
-                if var_name in posterior:
-                    kwargs[param] = posterior[var_name].to_numpy()
-                    output_dataset_list.append(posterior[var_name])
-                elif hasattr(component, "prior") and isinstance(component.prior, (int, float)):
-                    kwargs[param] = np.asarray(component.prior)
-                else:
-                    raise ValueError(
-                        "Non-parent parameter not found in posterior."
-                        "This error shouldn't have happened!"
-                    )
-
-        # Determine the array with largest number of dimensions
-        ndims_max = max(x.ndim for x in kwargs.values())
-
-        # Append a dimension when needed. Required to make `pm.draw()` work.
-        # However, some distributions like Multinomial, require some parameters to be of a smaller
-        # dimension than others (n.ndim <= p.ndim - 1) so we don't reshape those.
-        for key, values in kwargs.items():
-            if key in dont_reshape:
-                continue
-            kwargs[key] = expand_array(values, ndims_max)
-
-        if hasattr(model.family, "transform_kwargs"):
-            kwargs = model.family.transform_kwargs(kwargs)
+        kwargs, coords = self._make_dist_kwargs_and_coords(model, posterior, **kwargs)
 
         # Handle constrained responses
         if response_term.is_constrained:
@@ -194,74 +147,35 @@ class Family:
         else:
             output_array = pm.draw(response_dist.dist(**kwargs))
 
-        output_coords_all = xr.merge(output_dataset_list).coords
-
-        coord_names = ["chain", "draw", response_aliased_name + "_obs"]
-        is_multivariate = hasattr(model.family, "KIND") and model.family.KIND == "Multivariate"
-
-        if is_multivariate:
-            coord_names.append(response_aliased_name + "_dim")
-        elif hasattr(model.family, "create_extra_pps_coord"):
-            new_coords = model.family.create_extra_pps_coord()
-            coord_names.append(response_aliased_name + "_dim")
-            output_coords_all[response_aliased_name + "_dim"] = new_coords
-
-        output_coords = {}
-        for coord_name in coord_names:
-            output_coords[coord_name] = output_coords_all[coord_name]
-        return xr.DataArray(output_array, coords=output_coords)
+        return xr.DataArray(output_array, coords=coords)
 
     def log_likelihood(self, model, posterior, y_values, **kwargs):
+        """Evaluate the model log-likelihood
+
+        This method uses `pm.logp()`.
+
+        Parameters
+        ----------
+        model : bambi.Model
+            The model
+        posterior : xr.Dataset
+            The xarray dataset that contains the draws for all the parameters in the posterior.
+            It must contain the parameters that are needed in the distribution of the response, or
+            the parameters that allow to derive them.
+        kwargs :
+            Parameters that are used to get draws but do not appear in the posterior object or
+            other configuration parameters.
+            For instance, the 'n' in binomial models and multinomial models.
+
+        Returns
+        -------
+        xr.DataArray
+            A data array with the value of the log-likelihood for each chain, draw, and value
+            of the response variable.
+        """
         response_dist = get_response_dist(model.family)
         response_term = model.response_component.response_term
-        params = model.family.likelihood.params
-        response_aliased_name = get_aliased_name(response_term)
-
-        kwargs.pop("data", None)  # Remove the 'data' kwarg
-        dont_reshape = kwargs.pop("dont_reshape", [])
-        output_dataset_list = []
-
-        # In the posterior xr.Dataset we need to consider aliases,
-        # but we don't use aliases when passing kwargs to the PyMC distribution.
-        for param in params:
-            # Extract posterior draws for the parent parameter
-            if param == model.family.likelihood.parent:
-                component = model.components[model.response_name]
-                var_name = response_aliased_name + "_mean"
-                kwargs[param] = posterior[var_name].to_numpy()
-                output_dataset_list.append(posterior[var_name])
-            else:
-                # Extract posterior draws for non-parent parameters
-                component = model.components[param]
-                if component.alias:
-                    var_name = component.alias
-                else:
-                    var_name = f"{response_aliased_name}_{param}"
-
-                if var_name in posterior:
-                    kwargs[param] = posterior[var_name].to_numpy()
-                    output_dataset_list.append(posterior[var_name])
-                elif hasattr(component, "prior") and isinstance(component.prior, (int, float)):
-                    kwargs[param] = np.asarray(component.prior)
-                else:
-                    raise ValueError(
-                        "Non-parent parameter not found in posterior."
-                        "This error shouldn't have happened!"
-                    )
-
-        # Determine the array with largest number of dimensions
-        ndims_max = max(x.ndim for x in kwargs.values())
-
-        # Append a dimension when needed. Required to make `pm.draw()` work.
-        # However, some distributions like Multinomial, require some parameters to be of a smaller
-        # dimension than others (n.ndim <= p.ndim - 1) so we don't reshape those.
-        for key, values in kwargs.items():
-            if key in dont_reshape:
-                continue
-            kwargs[key] = expand_array(values, ndims_max)
-
-        if hasattr(model.family, "transform_kwargs"):
-            kwargs = model.family.transform_kwargs(kwargs)
+        kwargs, coords = self._make_dist_kwargs_and_coords(model, posterior, **kwargs)
 
         # Handle constrained responses
         if response_term.is_constrained:
@@ -275,7 +189,76 @@ class Family:
         else:
             output_array = pm.logp(response_dist.dist(**kwargs), y_values).eval()
 
-        output_coords_all = xr.merge(output_dataset_list).coords
+        return xr.DataArray(output_array, coords=coords)
+
+    def _make_dist_kwargs_and_coords(self, model, posterior, **kwargs):
+        """Get kwargs and coordinates
+
+        This utility method generates two things:
+
+        * A dictionary that maps the names of the likelihood parameters to draws from the
+        posterior distribtuion.
+        * An `xr.Coordinates` object with the coordinates required for the response. For example:
+        `(chain, draw, y_obs)` or `(chain, draw, y_obs, y_dim)`.
+
+        It was created to abstract repetitive logic used in both `.posterior_predictive()` and
+        `log_likelihood()`.
+        """
+        response_term = model.response_component.response_term
+        response_aliased_name = get_aliased_name(response_term)
+        params = model.family.likelihood.params
+
+        # Remove the 'data' kwarg
+        kwargs.pop("data", None)
+
+        # Get list of variables to ignore when reshaping
+        dont_reshape = kwargs.pop("dont_reshape", [])
+
+        # Collect coordinates from all the likelihood parameters
+        params_coords = xr.Coordinates()
+
+        for param in params:
+            # In the posterior xr.Dataset we need to consider aliases,
+            # but we can't use aliases when passing kwargs to the PyMC distribution.
+            if param == model.family.likelihood.parent:
+                component = model.components[model.response_name]
+                var_name = response_aliased_name + "_mean"
+            else:
+                component = model.components[param]
+                if component.alias:
+                    var_name = component.alias
+                else:
+                    var_name = f"{response_aliased_name}_{param}"
+
+            # Get posterior draws or a constant array if it was set to a constant in the prior
+            if var_name in posterior:
+                kwargs[param] = posterior[var_name].to_numpy()
+                params_coords = params_coords.merge(posterior[var_name].coords)
+            elif hasattr(component, "prior") and isinstance(component.prior, (int, float)):
+                kwargs[param] = np.asarray(component.prior)
+            else:
+                raise ValueError(
+                    "Non-parent parameter not found in posterior."
+                    "This error shouldn't have happened!"
+                )
+
+        # Determine the array with largest number of dimensions
+        ndims_max = max(x.ndim for x in kwargs.values())
+
+        # Append a dimension when needed. Required to make `pm.logp()` and `pm.draw()` work.
+        # However, some distributions like Multinomial, require some parameters to be of a smaller
+        # dimension than others (n.ndim <= p.ndim - 1) so we don't reshape those.
+        for key, values in kwargs.items():
+            if key in dont_reshape:
+                continue
+            kwargs[key] = expand_array(values, ndims_max)
+
+        # Sometimes the model uses a parametrization but we evaluate logp using another one
+        if hasattr(model.family, "transform_kwargs"):
+            kwargs = model.family.transform_kwargs(kwargs)
+
+        # Get the actual coords as 'params_coords' is an object of type Dataset
+        params_coords = params_coords.coords
 
         coord_names = ["chain", "draw", response_aliased_name + "_obs"]
         is_multivariate = hasattr(model.family, "KIND") and model.family.KIND == "Multivariate"
@@ -285,12 +268,13 @@ class Family:
         elif hasattr(model.family, "create_extra_pps_coord"):
             new_coords = model.family.create_extra_pps_coord()
             coord_names.append(response_aliased_name + "_dim")
-            output_coords_all[response_aliased_name + "_dim"] = new_coords
+            params_coords[response_aliased_name + "_dim"] = new_coords
 
-        output_coords = {}
+        coords = {}
         for coord_name in coord_names:
-            output_coords[coord_name] = output_coords_all[coord_name]
-        return xr.DataArray(output_array, coords=output_coords)
+            coords[coord_name] = params_coords[coord_name]
+
+        return kwargs, coords
 
     def __str__(self):
         msg_list = [f"Family: {self.name}", f"Likelihood: {self.likelihood}", f"Link: {self.link}"]

@@ -22,6 +22,20 @@ class BinomialBaseFamily(UnivariateFamily):
         trials = trials[np.newaxis, np.newaxis, :]
         return super().posterior_predictive(model, posterior, n=trials)
 
+    def compute_log_likelihood(self, model, posterior, **kwargs):
+        # WIP FIXME
+        data = kwargs["data"]
+        y = kwargs["y"]
+
+        if data is None:
+            trials = model.response_component.response_term.data[:, 1]
+        else:
+            trials = model.response_component.design.response.evaluate_new_data(data).astype(int)
+
+        # Prepend 'draw' and 'chain' dimensions
+        trials = trials[np.newaxis, np.newaxis, :]
+        return super().compute_log_likelihood(model, posterior, y, n=trials)
+
     @staticmethod
     def transform_backend_kwargs(kwargs):
         observed = kwargs.pop("observed")

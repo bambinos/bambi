@@ -817,53 +817,14 @@ class Model:
         if not inplace:
             idata = deepcopy(idata)
 
-        response_aliased_name = get_aliased_name(self.response_component.response_term)
-
-        # ALWAYS predict the mean response
-        means_dict = {}
-        # To store the HSGP contributions that are also added to the posterior dataset
-        hsgp_dict = {}
-        response_dim = response_aliased_name + "_obs"
-        for name, component in self.distributional_components.items():
-            if name == self.response_name:
-                var_name = response_aliased_name + "_mean"
-            else:
-                if component.alias:
-                    var_name = component.alias
-                else:
-                    var_name = f"{response_aliased_name}_{name}"
-
-            means_dict[var_name] = component.predict(
-                idata, data, include_group_specific, hsgp_dict, sample_new_groups
-            )
-
-            # Drop var/dim if already present. Needed for out-of-sample predictions.
-            if var_name in idata.posterior.data_vars:
-                idata.posterior = idata.posterior.drop_vars(var_name)
-
-        if response_dim in idata.posterior.dims:
-            idata.posterior = idata.posterior.drop_dims(response_dim)
-
-        # Use the first DataArray to get the number of observations
-        obs_n = len(list(means_dict.values())[0].coords.get(response_dim))
-        idata.posterior = idata.posterior.assign_coords({response_dim: list(range(obs_n))})
-
-        for name, value in means_dict.items():
-            idata.posterior[name] = value
-
-        # Add HSGP contributions to the posterior dataset
-        for component in self.distributional_components.values():
-            for name, hsgp_contribution in hsgp_dict.items():
-                term = component.hsgp_terms.get(name, None)
-                if term is None:
-                    continue
-                term_aliased_name = get_aliased_name(term)
-                idata.posterior[term_aliased_name] = hsgp_contribution.transpose(
-                    "chain", "draw", ...
-                )
+        # Populate the posterior in the InferenceData object with the likelihood parameters
+        idata = self._compute_likelihood_params(
+            idata, data, include_group_specific, sample_new_groups
+        )
 
         # Only if requested predict the predictive distribution
         if kind == "pps":
+            response_aliased_name = get_aliased_name(self.response_component.response_term)
             required_kwargs = {"model": self, "posterior": idata.posterior}
             optional_kwargs = {"data": data}
 
@@ -882,18 +843,90 @@ class Model:
         else:
             return idata
 
-    def compute_log_likelihood(
-        self, idata, data=None, inplace=True, include_group_specific=True, sample_new_groups=False
-    ):
+    def compute_log_likelihood(self, idata, data=None, inplace=True):
+        """Compute the model's log-likelihood
+
+        Parameters
+        ----------
+        idata : InferenceData
+            The `InferenceData` instance returned by `.fit()`.
+        data : pandas.DataFrame or None
+            An optional data frame with values for the predictors and the response on which
+            the model's log-likelihood function is evaluated.
+            If omitted, the original dataset is used.
+        inplace : bool
+            If True` it will modify `idata` in-place. Otherwise, it will return a copy of
+            `idata` with the `log_likelihood` group added.
+
+        Returns
+        -------
+        InferenceData or None
+        """
+
+        # These are not formal parameters because it does not make sense to...
+        #   1. compute the log-likelihood omitting the group-specific components of the model.
+        #   2. compute the log-likelihood on unseen groups.
+        include_group_specific = True
+        sample_new_groups = False
+
+        # Get the aliased response name
+        response_aliased_name = get_aliased_name(self.response_component.response_term)
 
         if not inplace:
             idata = deepcopy(idata)
 
-        response_aliased_name = get_aliased_name(self.response_component.response_term)
+        # Populate the posterior in the InferenceData object with the likelihood parameters
+        idata = self._compute_likelihood_params(
+            idata, data, include_group_specific, sample_new_groups
+        )
 
+        # Get the values of the outcome variable
+        if data is None:
+            y_values = np.squeeze(self.response_component.response_term.data)
+        else:
+            # TODO: This is very simple, not going to work with non direct responses or > 1d models
+            # For example, how would this work for the Binomial family? It's not trivial.
+            y_values = np.array(data[self.response_component.response_term.name])
+
+        required_kwargs = {"model": self, "posterior": idata.posterior, "y_values": y_values}
+        optional_kwargs = {"data": data, "y": y_values}
+
+        log_likelihood = self.family.log_likelihood(**required_kwargs, **optional_kwargs)
+        log_likelihood = log_likelihood.to_dataset(name=response_aliased_name)
+
+        if "log_likelihood" in idata:
+            del idata.log_likelihood
+
+        idata.add_groups({"log_likelihood": log_likelihood})
+        idata.log_likelihood = idata.log_likelihood.assign_attrs(
+            modeling_interface="bambi", modeling_interface_version=__version__
+        )
+
+        if inplace:
+            return None
+        else:
+            return idata
+
+    def _compute_likelihood_params(
+        self,
+        idata,
+        data=None,
+        include_group_specific=True,
+        sample_new_groups=False,
+    ):
+        """Computes the parameters of the likelihood (response distribution)
+
+        This is a utility function that populates the posterior group in the InferenceData object
+        with variables required by the model likelihood. This is useful for both posterior
+        predictive sampling and the computation of the log-likelihood function.
+
+        It returns the updated InferenceData object.
+        """
+        response_aliased_name = get_aliased_name(self.response_component.response_term)
         means_dict = {}
-        hsgp_dict = {}
+        hsgp_dict = {}  # To store the HSGP contributions (they are added to the posterior dataset)
         response_dim = response_aliased_name + "_obs"
+
         for name, component in self.distributional_components.items():
             if name == self.response_name:
                 var_name = response_aliased_name + "_mean"
@@ -932,30 +965,7 @@ class Model:
                     "chain", "draw", ...
                 )
 
-        # Get the values of the outcome variable
-        if data is None:
-            y_values = np.squeeze(self.response_component.response_term.data)
-        else:
-            # TODO: This is very simple, not going to work with non 1d response and/or aliases
-            y_values = np.array(data[self.response_component.response_term.name])
-
-        required_kwargs = {"model": self, "posterior": idata.posterior, "y_values": y_values}
-        optional_kwargs = {"data": data}
-
-        log_likelihood = self.family.log_likelihood(**required_kwargs, **optional_kwargs)
-        log_likelihood = log_likelihood.to_dataset(name=response_aliased_name)
-
-        if "log_likelihood" in idata:
-            del idata.log_likelihood
-        idata.add_groups({"log_likelihood": log_likelihood})
-        idata.log_likelihood = idata.log_likelihood.assign_attrs(
-            modeling_interface="bambi", modeling_interface_version=__version__
-        )
-
-        if inplace:
-            return None
-        else:
-            return idata
+        return idata
 
     def graph(self, formatting="plain", name=None, figsize=None, dpi=300, fmt="png"):
         """Produce a graphviz Digraph from a built Bambi model.
