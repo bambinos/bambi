@@ -13,6 +13,7 @@
 ### Maintenance and fixes
 
 * Fix bug in predictions with models using HSGP (#780)
+* Fix `get_model_covariates()` utility function (#801)
 
 ### Documentation
 

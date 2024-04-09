@@ -2,12 +2,14 @@
 This module contains tests for the helper functions of the 'interpret' sub-package.
 Tests here do not test any of the plotting functionality.
 """
+
 import numpy as np
 import pandas as pd
 import pytest
 
 import bambi as bmb
 from bambi.interpret.helpers import data_grid, select_draws
+from bambi.interpret.utils import get_model_covariates
 
 
 CHAINS = 4
@@ -190,3 +192,18 @@ def test_select_draws_no_effect(request, mtcars, condition):
         assert draws.shape == (CHAINS, DRAWS, 14)
     elif id == "3":
         assert draws.shape == (CHAINS, DRAWS, 2)
+
+
+# ------------------------------------------------------------------------------------------------ #
+#                                         Tests for utils                                          #
+# ------------------------------------------------------------------------------------------------ #
+
+
+def test_get_model_covariates():
+    """Tests `get_model_covariates()` does not include non-covariate names"""
+    # See issue 797
+    df = pd.DataFrame({"y": np.arange(10), "x": np.random.normal(size=10)})
+    knots = np.linspace(np.min(df["x"]), np.max(df["x"]), 4 + 2)[1:-1]
+    formula = "y ~ 1 + bs(x, degree=3, knots=knots)"
+    model = bmb.Model(formula, df)
+    assert set(get_model_covariates(model)) == {"x"}
