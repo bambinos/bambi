@@ -154,6 +154,11 @@ class DistributionalComponent:
             elif isinstance(bmb_model.family, (MultivariateFamily, Categorical)):
                 self.output += coef * predictor[:, np.newaxis]
             else:
+                # FIXME: here we see why it fails
+                print("coef shape", coef.shape.eval())
+                print("coef squeezed shape", coef.squeeze().shape.eval())
+                print("predictor shape", predictor.shape)
+                print((coef * predictor).shape.eval())
                 self.output += coef * predictor
 
     def build_response(self, pymc_backend, bmb_model):

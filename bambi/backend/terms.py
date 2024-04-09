@@ -112,6 +112,8 @@ class GroupSpecificTerm:
         dims = list(self.coords) + response_dims
         # Squeeze ensures we don't have a shape of (n, 1) when we mean (n, )
         # This happens with categorical predictors with two levels and intercept.
+        # FIXME: This is not working anymore!
+        # See https://github.com/pymc-devs/pymc/issues/7246
         coef = self.build_distribution(self.term.prior, label, dims=dims, **kwargs).squeeze()
         coef = coef[self.term.group_index]
 
