@@ -110,11 +110,13 @@ class GroupSpecificTerm:
             response_dims = list(spec.response_component.response_term.coords)
 
         dims = list(self.coords) + response_dims
+        coef = self.build_distribution(self.term.prior, label, dims=dims, **kwargs)
+
         # Squeeze ensures we don't have a shape of (n, 1) when we mean (n, )
         # This happens with categorical predictors with two levels and intercept.
-        # FIXME: This is not working anymore!
         # See https://github.com/pymc-devs/pymc/issues/7246
-        coef = self.build_distribution(self.term.prior, label, dims=dims, **kwargs).squeeze()
+        if len(coef.shape.eval()) == 2 and coef.shape.eval()[-1] == 1:
+            coef = pt.specify_broadcastable(coef, 1).squeeze()
         coef = coef[self.term.group_index]
 
         return coef, predictor
