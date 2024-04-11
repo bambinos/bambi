@@ -14,6 +14,8 @@
 
 * Fix bug in predictions with models using HSGP (#780)
 * Fix `get_model_covariates()` utility function (#801)
+* Upgrade PyMC dependency to >= 5.13 (#803)
+* Use `pm.compute_deterministics()` to compute deterministics when bayeux based samplers are used (#803)
 
 ### Documentation
 
