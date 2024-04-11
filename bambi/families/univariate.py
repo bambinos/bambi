@@ -403,7 +403,7 @@ class StoppingRatio(UnivariateFamily):
     def transform_backend_kwargs(kwargs):
         # P(Y = k) = F(threshold_k - eta) * \prod_{j=1}^{k-1}{1 - F(threshold_j - eta)}
         p = kwargs.pop("p")
-        n_columns = p.type.shape[-1]
+        n_columns = p.shape.eval()[-1]
         p = pt.concatenate(
             [
                 pt.shape_padright(p[..., 0]),
