@@ -20,30 +20,30 @@ class Multinomial(MultivariateFamily):
     def transform_linear_predictor(
         model, linear_predictor: xr.DataArray, posterior: xr.DataArray
     ) -> xr.DataArray:  # pylint: disable = unused-variable
-        response_name = get_aliased_name(model.response_component.response_term)
+        response_name = get_aliased_name(model.response_component.termm)
         response_levels_dim = response_name + "_reduced_dim"
         linear_predictor = linear_predictor.pad({response_levels_dim: (1, 0)}, constant_values=0)
         return linear_predictor
 
     def transform_coords(self, model, mean):
         # The mean has the reference level in the dimension, a new name is needed
-        response_name = get_aliased_name(model.response_component.response_term)
+        response_name = get_aliased_name(model.response_component.termm)
         response_levels_dim = response_name + "_reduced_dim"
         response_levels_dim_complete = response_name + "_dim"
-        levels_complete = model.response_component.response_term.levels
+        levels_complete = model.response_component.termm.levels
         mean = mean.rename({response_levels_dim: response_levels_dim_complete})
         mean = mean.assign_coords({response_levels_dim_complete: levels_complete})
         return mean
 
     def posterior_predictive(self, model, posterior, **kwargs):
-        n = model.response_component.response_term.data.sum(1).astype(int)
+        n = model.response_component.termm.data.sum(1).astype(int)
         dont_reshape = ["n"]
         return super().posterior_predictive(model, posterior, n=n, dont_reshape=dont_reshape)
 
     def log_likelihood(self, model, posterior, data, **kwargs):
         if data is None:
-            y = model.response_component.response_term.data
-            trials = model.response_component.response_term.data.sum(1).astype(int)
+            y = model.response_component.termm.data
+            trials = model.response_component.termm.data.sum(1).astype(int)
         else:
             y = response_evaluate_new_data(model, data).astype(int)
             trials = y.sum(1).astype(int)
@@ -91,7 +91,7 @@ class DirichletMultinomial(MultivariateFamily):
     SUPPORTED_LINKS = {"a": ["log"]}
 
     def posterior_predictive(self, model, posterior, **kwargs):
-        n = model.response_component.response_term.data.sum(1).astype(int)
+        n = model.response_component.termm.data.sum(1).astype(int)
         dont_reshape = ["n"]
         return super().posterior_predictive(model, posterior, n=n, dont_reshape=dont_reshape)
 

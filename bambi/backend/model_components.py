@@ -18,11 +18,7 @@ class ConstantComponent:
         self.output = 0
 
     def build(self, pymc_backend, bmb_model):
-        response_aliased_name = get_aliased_name(bmb_model.response_component.response_term)
-        if self.component.alias:
-            label = self.component.alias
-        else:
-            label = f"{response_aliased_name}_{self.component.name}"
+        label = self.component.alias if self.component.alias else self.component.name
 
         # NOTE: This could be handled in a different manner in the future, only applies to
         # thresholds and assumes we always do it when using ordinal families.
@@ -78,7 +74,7 @@ class DistributionalComponent:
         """Add common (fixed) terms to the PyMC model.
 
         We have linear predictors of the form 'X @ b + Z @ u'.
-        This creates the 'b' parameter vector in PyMC, computes `X @ b`, and adds it to ``self.mu``.
+        This creates the 'b' parameter vector in PyMC, computes `X @ b`, and adds it to `self.mu`.
 
         Parameters
         ----------
@@ -118,7 +114,7 @@ class DistributionalComponent:
         """Add HSGP (Hilbert-Space Gaussian Process approximation) terms to the PyMC model.
 
         The linear predictor 'X @ b + Z @ u' can be augmented with non-parametric HSGP terms
-        'f(x)'. This creates the 'f(x)' and adds it ``self.output``.
+        'f(x)'. This creates the 'f(x)' and adds it `self.output`.
         """
         for term in self.component.hsgp_terms.values():
             hsgp_term = HSGPTerm(term)
@@ -132,7 +128,7 @@ class DistributionalComponent:
 
         We have linear predictors of the form 'X @ b + Z @ u'.
         This creates the 'u' parameter vector in PyMC, computes `Z @ u`, and adds it to
-        ``self.output``.
+        `self.output`.
         """
         for term in self.component.group_specific_terms.values():
             group_specific_term = GroupSpecificTerm(term, bmb_model.noncentered)
@@ -166,8 +162,7 @@ class DistributionalComponent:
 
     def add_response_coords(self, pymc_backend, bmb_model):
         response_term = bmb_model.response_component.response_term
-        response_name = get_aliased_name(response_term)
-        dim_name = f"{response_name}_obs"
+        dim_name = "__obs__"
         dim_value = np.arange(response_term.shape[0])
         pymc_backend.model.add_coords({dim_name: dim_value})
 
@@ -183,7 +178,7 @@ class DistributionalComponent:
 #     Parameters
 #     ----------
 #     terms: list
-#         A list of terms that share a common grouper (i.e. ``1|Group`` and ``Variable|Group`` in
+#         A list of terms that share a common grouper (i.e. `1|Group` and `Variable|Group` in
 #         formula notation).
 #     eta: num
 #         The value for the eta parameter in the LKJ distribution.
@@ -191,7 +186,7 @@ class DistributionalComponent:
 #     Parameters
 #     ----------
 #     mu
-#         The contribution to the linear predictor of the roup-specific terms in ``terms``.
+#         The contribution to the linear predictor of the roup-specific terms in `terms`.
 #     """
 
 #     # Parameters

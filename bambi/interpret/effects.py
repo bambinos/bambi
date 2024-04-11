@@ -67,7 +67,7 @@ class ResponseInfo:
         else:
             self.name_target = f"{self.name}_{self.target}"
 
-        self.name_obs = f"{self.name}_obs"
+        self.name_obs = "__obs__"
         self.lower_bound_name = f"lower_{self.lower_bound * 100}%"
         self.upper_bound_name = f"upper_{self.upper_bound * 100}%"
 

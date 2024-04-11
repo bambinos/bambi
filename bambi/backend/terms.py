@@ -238,7 +238,7 @@ class ResponseTerm:
             kwargs[name] = component.output
 
         # Distributional parameters. A link funciton is used.
-        dims = (f"{self.name}_obs",)
+        dims = ("__obs__",)
         for name, component in pymc_backend.distributional_components.items():
             bmb_component = bmb_model.components[name]
             if bmb_component.response_term:  # The response is added later
@@ -452,12 +452,9 @@ class HSGPTerm:
         # Get the covariance functions (it's possibly more than one)
         covariance_functions = self.get_covariance_functions()
 
-        # Get dimension name for the response
-        response_name = get_aliased_name(bmb_model.response_component.response_term)
-
         # Prepare dims
         coeff_dims = (f"{label}_weights_dim",)
-        contribution_dims = (f"{response_name}_obs",)
+        contribution_dims = ("__obs__",)
 
         # Data may be scaled so the maximum Euclidean distance between two points is 1
         if self.term.scale_predictors:

@@ -283,7 +283,7 @@ class PyMCModel:
             cleaned_dims = {
                 f"{dim}_0": dim
                 for dim in dims_original
-                if not dim.endswith("_obs") and f"{dim}_0" in idata.posterior.dims
+                if dim != "__obs__" and f"{dim}_0" in idata.posterior.dims
             }
             idata = idata.rename(cleaned_dims)
 

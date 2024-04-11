@@ -14,7 +14,7 @@ from arviz.plots import plot_posterior
 
 from bambi.backend import PyMCModel
 from bambi.defaults import get_builtin_family
-from bambi.model_components import ConstantComponent, DistributionalComponent
+from bambi.model_components import ConstantComponent, DistributionalComponent, ResponseComponent
 from bambi.families import Family, univariate
 from bambi.formula import Formula, check_ordinal_formula
 from bambi.priors import Prior, PriorScaler
@@ -22,7 +22,6 @@ from bambi.transformations import transformations_namespace
 from bambi.utils import (
     clean_formula_lhs,
     get_aliased_name,
-    get_auxiliary_parameters,
     indentify,
     listify,
     remove_common_intercept,
@@ -177,19 +176,22 @@ class Model:
                 "Please specify an outcome variable using the formula interface."
             )
 
-        # This response_name allows to grab the response component from the `.components` dict
-        self.response_name = design.response.name
-        if self.response_name in priors:
-            response_prior = priors[self.response_name]
+        # TODO: update examples
+        if self.family.likelihood.parent in priors:
+            parent_priors = priors[self.family.likelihood.parent]
         else:
-            response_prior = priors
+            parent_priors = priors
 
-        self.components[self.response_name] = DistributionalComponent(
-            design, response_prior, self.response_name, "data", self
+        # Add response component
+        self.response_component = ResponseComponent(design.response, self)
+
+        # Add component for parent parameter
+        self.components[self.family.likelihood.parent] = DistributionalComponent(
+            self.family.likelihood.parent, design, parent_priors, self, is_parent=True
         )
 
         # Get auxiliary parameters, so we add either distributional components or constant ones
-        auxiliary_parameters = list(get_auxiliary_parameters(self.family))
+        auxiliary_parameters = list(self.family.auxiliary_parameters)
 
         ## Other components
         ### Distributional
@@ -207,11 +209,11 @@ class Model:
             )
 
             # If priors were not passed, pass an empty dictionary
-            component_prior = priors.get(name, {})
+            component_priors = priors.get(name, {})
 
             # Create distributional component
             self.components[name] = DistributionalComponent(
-                design, component_prior, name, "parameter", self
+                name, design, component_priors, self, is_parent=False
             )
 
             # Remove parameter name from the list
@@ -231,7 +233,7 @@ class Model:
         tune=1000,
         discard_tuned_samples=True,
         omit_offsets=True,
-        include_mean=False,
+        include_mean=False,  # TODO, what do we do with this argument?
         inference_method="mcmc",
         init="auto",
         n_init=50000,
@@ -326,11 +328,10 @@ class Model:
 
         # Tell user which event is being modeled
         if isinstance(self.family, univariate.Bernoulli):
-            response = self.components[self.response_name]
             _log.info(
                 "Modeling the probability that %s==%s",
-                response.response_term.name,
-                str(response.response_term.success),
+                self.response_component.term.name,
+                str(self.response_component.term.success),
             )
 
         return self.backend.run(
@@ -415,26 +416,28 @@ class Model:
 
         Runs during ``Model._build_priors()``.
         """
-        # 'common' and 'group_specific' only apply to the response component
+        # 'common' and 'group_specific' only apply to the parent component
+        parent_component = self.components[self.family.likelihood.parent]
         if common is not None:
-            for term in self.response_component.common_terms.values():
+            for term in parent_component.common_terms.values():
                 term.prior = common
 
         if group_specific is not None:
-            for term in self.response_component.group_specific_terms.values():
+            for term in parent_component.group_specific_terms.values():
                 term.prior = group_specific
 
         if priors is not None:
             priors = deepcopy(priors)
 
-            # The only distributional component is the response term
+            # The only distributional component is the parent term
             if len(self.distributional_components) == 1:
+                # Update priors of the constant components
                 for name, component in self.constant_components.items():
                     prior = priors.pop(name) if name in priors else None
                     if prior:
                         component.update_priors(prior)
-                # Pass all the other priors to the response component
-                self.response_component.update_priors(priors)
+                # Pass all the other priors to the parent component
+                parent_component.update_priors(priors)
             # There are more than one distributional components.
             else:
                 for name, component in self.components.items():
@@ -501,7 +504,6 @@ class Model:
         if not isinstance(aliases, dict):
             raise ValueError(f"'aliases' must be a dictionary, not a {type(aliases)}.")
 
-        response_name = get_aliased_name(self.response_component.response_term)
         # Keep track of any passed aliases that are not used
         missing_names = []
 
@@ -515,39 +517,42 @@ class Model:
         #     * There's unavoidable redundancy in the response name
         #       {"y": {"y": "alias"}, "sigma": {"sigma": "alias"}}
         if len(self.distributional_components) == 1:  # pylint: disable=too-many-nested-blocks
+            parent_component = self.components[self.family.likelihood.parent]
             for name, alias in aliases.items():
                 assert isinstance(alias, str)
 
                 # Monitor if this particular alias is used
                 is_used = False
 
-                if name in self.response_component.terms:
-                    self.response_component.terms[name].alias = alias
+                if name in parent_component.terms:
+                    parent_component.terms[name].alias = alias
                     is_used = True
 
-                if name in self.constant_components:
-                    self.constant_components[name].alias = alias
-                    is_used = True
-
-                if name == response_name:
-                    self.response_component.response_term.alias = alias
+                if name in parent_component.constant_components:
+                    parent_component.constant_components[name].alias = alias
                     is_used = True
 
                 # Now add aliases for hyperpriors in group specific terms
-                for term in self.response_component.group_specific_terms.values():
+                for term in parent_component.group_specific_terms.values():
                     if name in term.prior.args:
                         term.hyperprior_alias = {name: alias}
                         is_used = True
 
+                if name == self.response_component.response.name:
+                    self.response_component.term.alias = alias
+                    is_used = True
+
                 # Add any aliases not used in prior logic to unused alias list
                 if is_used is False:
                     missing_names.append(name)
-
         else:
             for component_name, component_aliases in aliases.items():
                 if component_name in self.constant_components:
                     assert isinstance(component_aliases, str)
                     self.constant_components[component_name].alias = component_aliases
+                elif component_name == self.response_component.response.name:
+                    assert isinstance(component_aliases, str)
+                    self.response_component.term.alias = alias
                 else:
                     assert isinstance(component_aliases, dict)
                     assert component_name in self.distributional_components
@@ -560,7 +565,7 @@ class Model:
                             is_used = True
 
                         # Useful for non-response distributional components
-                        if name == component.response_name:
+                        if name == component.name:
                             component.alias = alias
                             is_used = True
 
@@ -766,7 +771,7 @@ class Model:
     def predict(
         self,
         idata,
-        kind="mean",
+        kind="params",
         data=None,
         inplace=True,
         include_group_specific=True,
@@ -810,8 +815,22 @@ class Model:
         -------
         InferenceData or None
         """
-        if kind not in ("mean", "pps"):
-            raise ValueError("'kind' must be one of 'mean' or 'pps'")
+        # NOTE: 'outcome' better than 'response'?
+        if kind not in ("mean", "pps", "params", "response"):
+            raise ValueError("'kind' must be one of 'params' or 'response'")
+
+        if kind == "mean":
+            kind = "params"
+            warnings.warn(
+                "'mean' has been replaced by 'params' and is not going to work in the future",
+                FutureWarning,
+            )
+        if kind == "pps":
+            kind = "response"
+            warnings.warn(
+                "'pps' has been replaced by 'response' and is not going to work in the future",
+                FutureWarning,
+            )
 
         if not inplace:
             idata = deepcopy(idata)
@@ -822,17 +841,20 @@ class Model:
         )
 
         # Only if requested predict the predictive distribution
-        if kind == "pps":
-            response_aliased_name = get_aliased_name(self.response_component.response_term)
+        if kind == "response":
+            response_aliased_name = get_aliased_name(self.response_component.term)
             required_kwargs = {"model": self, "posterior": idata.posterior}
             optional_kwargs = {"data": data}
 
-            pps = self.family.posterior_predictive(**required_kwargs, **optional_kwargs)
-            pps = pps.to_dataset(name=response_aliased_name)
+            posterior_predictive = self.family.posterior_predictive(
+                **required_kwargs, **optional_kwargs
+            )
+            posterior_predictive = posterior_predictive.to_dataset(name=response_aliased_name)
 
             if "posterior_predictive" in idata:
                 del idata.posterior_predictive
-            idata.add_groups({"posterior_predictive": pps})
+
+            idata.add_groups({"posterior_predictive": posterior_predictive})
             idata.posterior_predictive = idata.posterior_predictive.assign_attrs(
                 modeling_interface="bambi", modeling_interface_version=__version__
             )
@@ -871,7 +893,7 @@ class Model:
         sample_new_groups = False
 
         # Get the aliased response name
-        response_aliased_name = get_aliased_name(self.response_component.response_term)
+        response_aliased_name = get_aliased_name(self.response_component.term)
 
         if not inplace:
             idata = deepcopy(idata)
@@ -913,20 +935,12 @@ class Model:
 
         It returns the updated InferenceData object.
         """
-        response_aliased_name = get_aliased_name(self.response_component.response_term)
         means_dict = {}
         hsgp_dict = {}  # To store the HSGP contributions (they are added to the posterior dataset)
-        response_dim = response_aliased_name + "_obs"
+        response_dim = "__obs__"
 
         for name, component in self.distributional_components.items():
-            if name == self.response_name:
-                var_name = response_aliased_name + "_mean"
-            else:
-                if component.alias:
-                    var_name = component.alias
-                else:
-                    var_name = f"{response_aliased_name}_{name}"
-
+            var_name = component.alias if component.alias else name
             means_dict[var_name] = component.predict(
                 idata, data, include_group_specific, hsgp_dict, sample_new_groups
             )
@@ -1036,13 +1050,14 @@ class Model:
         parent_name = self.family.likelihood.parent
         formulas = self.formula.get_all_formulas()
         family_name = self.family.name
+        parent_component = self.components[parent_name]
 
         links = [
             f"{key} = {value.name}"
             for key, value in self.family.link.items()
             if key == parent_name or key in self.distributional_components
         ]
-        observations = self.response_component.response_term.data.shape[0]
+        observations = self.response_component.term.data.shape[0]
 
         header_dict = {
             "Formula: ": formulas,
@@ -1057,8 +1072,13 @@ class Model:
         for key, value in header_dict.items():
             output_list.append(key.rjust(width) + spacer.join(listify(value)))
 
-        # Build priors section
-        priors_dict = {parent_name: make_priors_summary(self.response_component)}
+        # Build priors section. Make sure the parent component goes first.
+        priors_dict = {parent_name: make_priors_summary(parent_component)}
+
+        for name, component in self.distributional_components.items():
+            if component.is_parent:
+                continue
+            priors_dict[name] = make_priors_summary(component)
 
         if self.constant_components:
             aux_str = "\n".join(
@@ -1066,11 +1086,6 @@ class Model:
             )
             aux_str = "Auxiliary parameters\n" + wrapify(indentify(aux_str, 4), 100, 4)
             priors_dict[parent_name] = priors_dict[parent_name] + "\n\n" + aux_str
-
-        for name, component in self.distributional_components.items():
-            if component.response_kind == "data":
-                continue
-            priors_dict[name] = make_priors_summary(component)
 
         for key, value in priors_dict.items():
             priors_dict[key] = indentify(value, 4)
@@ -1091,10 +1106,6 @@ class Model:
 
     def __repr__(self):
         return self.__str__()
-
-    @property
-    def response_component(self):
-        return self.components[self.response_name]
 
     @property
     def constant_components(self):
