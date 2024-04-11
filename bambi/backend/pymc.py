@@ -62,7 +62,7 @@ class PyMCModel:
         self.model = pm.Model()
         self.components = {}
 
-        for name, values in spec.response_component.response_term.coords.items():
+        for name, values in spec.response_component.term.coords.items():
             if name not in self.model.coords:
                 self.model.add_coords({name: values})
 
@@ -147,6 +147,7 @@ class PyMCModel:
         spec : bambi.Modelf
             The model.
         """
+        print(self.components)
         response_component = self.components[spec.response_name]
         response_component.build_response(self, spec)
 
@@ -320,7 +321,7 @@ class PyMCModel:
                 for term in bambi_component.common_terms.values():
                     common_terms.append(get_aliased_name(term))
 
-                response_coords = self.spec.response_component.response_term.coords
+                response_coords = self.spec.response_component.term.coords
                 if response_coords:
                     # Grab the first object in a dictionary
                     levels = list(response_coords.values())[0]

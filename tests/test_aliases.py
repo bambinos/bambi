@@ -42,17 +42,17 @@ def test_non_distributional_model(my_data):
     idata = model.fit(tune=100, draws=100)
     model.predict(idata)
 
-    assert list(idata.posterior.coords) == ["chain", "draw", "y_obs"]
-    assert set(idata.posterior.data_vars) == {"Intercept", "x", "y_mean", "y_sigma"}
-    assert list(idata.posterior["y_mean"].coords) == ["chain", "draw", "y_obs"]
+    assert list(idata.posterior.coords) == ["chain", "draw", "__obs__"]
+    assert set(idata.posterior.data_vars) == {"Intercept", "x", "mu", "sigma"}
+    assert list(idata.posterior["mu"].coords) == ["chain", "draw", "__obs__"]
 
     # Model with alises
     model.set_alias({"Intercept": "a", "x": "b", "sigma": "s", "y": "response"})
     idata = model.fit(tune=100, draws=100)
     model.predict(idata)
-    assert list(idata.posterior.coords) == ["chain", "draw", "response_obs"]
-    assert set(idata.posterior.data_vars) == {"a", "b", "response_mean", "s"}
-    assert list(idata.posterior["response_mean"].coords) == ["chain", "draw", "response_obs"]
+    assert list(idata.posterior.coords) == ["chain", "draw", "__obs__"]
+    assert set(idata.posterior.data_vars) == {"a", "b", "mu", "s"}
+    assert list(idata.posterior["mu"].coords) == ["chain", "draw", "__obs__"]
 
 
 def test_distributional_model(my_data):
