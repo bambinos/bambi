@@ -1,5 +1,4 @@
 import functools
-import importlib
 import logging
 import operator
 import traceback
@@ -14,6 +13,7 @@ import pymc as pm
 import pytensor.tensor as pt
 from pytensor.tensor.special import softmax
 
+from bambi.backend.inference_methods import inference_methods
 from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
 from bambi.backend.model_components import ConstantComponent, DistributionalComponent
 from bambi.utils import get_aliased_name
@@ -47,8 +47,8 @@ class PyMCModel:
         self.model = None
         self.spec = None
         self.components = {}
-        self.bayeux_methods = _get_bayeux_methods()
-        self.pymc_methods = {"mcmc": ["mcmc"], "vi": ["vi"]}
+        self.bayeux_methods = inference_methods.names["bayeux"]
+        self.pymc_methods = inference_methods.names["pymc"]
 
     def build(self, spec):
         """Compile the PyMC model from an abstract model specification.
@@ -338,8 +338,7 @@ class PyMCModel:
 
         Mainly for pedagogical use, provides reasonable results for approximately
         Gaussian posteriors. The approximation can be very poor for some models
-        like hierarchical ones. Use ``mcmc``, ``vi``, or JAX based MCMC methods
-        for better approximations.
+        like hierarchical ones. Use MCMC or VI methods for better approximations.
 
         Parameters
         ----------
@@ -388,10 +387,6 @@ class PyMCModel:
     def distributional_components(self):
         return {k: v for k, v in self.components.items() if isinstance(v, DistributionalComponent)}
 
-    @property
-    def inference_methods(self):
-        return {"pymc": self.pymc_methods, "bayeux": self.bayeux_methods}
-
 
 def _posterior_samples_to_idata(samples, model):
     """Create InferenceData from samples.
@@ -431,22 +426,3 @@ def _posterior_samples_to_idata(samples, model):
 
     idata = pm.to_inference_data(pm.backends.base.MultiTrace([strace]), model=model)
     return idata
-
-
-def _get_bayeux_methods():
-    """Gets a dictionary of usable bayeux methods if the bayeux package is installed
-    within the user's environment.
-
-    Returns
-    -------
-    dict
-        A dict where the keys are the module names and the values are the methods
-        available in that module.
-    """
-    if importlib.util.find_spec("bayeux") is None:
-        return {"mcmc": []}
-
-    import bayeux as bx  # pylint: disable=import-outside-toplevel
-
-    # Dummy log density to get access to all methods
-    return bx.Model(lambda x: -(x**2), 0.0).methods
