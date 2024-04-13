@@ -15,7 +15,6 @@ from bambi.backend.utils import (
 from bambi.families.multivariate import MultivariateFamily, Multinomial, DirichletMultinomial
 from bambi.families.univariate import Categorical
 from bambi.priors import Prior
-from bambi.utils import get_aliased_name
 
 
 class CommonTerm:
@@ -173,7 +172,7 @@ class InterceptTerm:
     Parameters
     ----------
     term : bambi.terms.Term
-        An object representing the intercept. This has ``.kind == "intercept"``
+        An object representing the intercept. This has `.kind == "intercept"`
     """
 
     def __init__(self, term):
@@ -228,7 +227,7 @@ class ResponseTerm:
             The response distribution
         """
         data = np.squeeze(self.term.data)
-        parent = self.family.likelihood.parent
+        parent_name = self.family.likelihood.parent
 
         # Auxiliary parameters
         kwargs = {}
@@ -241,11 +240,7 @@ class ResponseTerm:
         dims = ("__obs__",)
         for name, component in pymc_backend.distributional_components.items():
             bmb_component = bmb_model.components[name]
-            if bmb_component.response_term:  # The response is added later
-                continue
-            aliased_name = (
-                bmb_component.alias if bmb_component.alias else bmb_component.response_name
-            )
+            aliased_name = bmb_component.alias if bmb_component.alias else bmb_component.name
             linkinv = get_linkinv(self.family.link[name], pymc_backend.INVLINKS)
             kwargs[name] = pm.Deterministic(aliased_name, linkinv(component.output), dims=dims)
 
@@ -253,17 +248,11 @@ class ResponseTerm:
         kwargs["observed"] = data
         kwargs["dims"] = dims
 
+        # TODO: This can go into 'transform_backend_kwargs'
         # The linear predictor for the parent parameter (usually the mean)
-        eta = pymc_backend.distributional_components[self.term.name].output
-
+        eta = pymc_backend.distributional_components[parent_name].output
         if hasattr(self.family, "transform_backend_eta"):
-            eta = self.family.transform_backend_eta(eta, kwargs)
-
-        # Take the inverse link function that maps from linear predictor to the parent of likelihood
-        linkinv = get_linkinv(self.family.link[parent], pymc_backend.INVLINKS)
-
-        # Add parent parameter after the applying the linkinv transformation
-        kwargs[parent] = linkinv(eta)
+            kwargs[parent_name] = self.family.transform_backend_eta(eta, kwargs)
 
         # Build the response distribution
         dist = self.build_response_distribution(kwargs, pymc_backend)
@@ -445,7 +434,7 @@ class HSGPTerm:
             if self.term.by_levels is not None:
                 self.coords[f"{self.term.alias}_by"] = self.coords.pop(f"{self.term.name}_by")
 
-    def build(self, bmb_model):
+    def build(self):
         # Get the name of the term
         label = self.name
 

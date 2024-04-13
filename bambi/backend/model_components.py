@@ -6,7 +6,6 @@ from bambi.backend.terms import CommonTerm, GroupSpecificTerm, HSGPTerm, Interce
 from bambi.backend.utils import get_distribution_from_prior
 from bambi.families.multivariate import MultivariateFamily
 from bambi.families.univariate import Categorical, Cumulative, StoppingRatio
-from bambi.utils import get_aliased_name
 
 
 ORDINAL_FAMILIES = (Cumulative, StoppingRatio)
@@ -54,7 +53,7 @@ class DistributionalComponent:
             self.build_intercept(bmb_model)
             self.build_offsets()
             self.build_common_terms(pymc_backend, bmb_model)
-            self.build_hsgp_terms(pymc_backend, bmb_model)
+            self.build_hsgp_terms(pymc_backend)
             self.build_group_specific_terms(pymc_backend, bmb_model)
 
     def build_intercept(self, bmb_model):
@@ -110,7 +109,7 @@ class DistributionalComponent:
             # Add term to linear predictor
             self.output += pt.dot(data, coefs)
 
-    def build_hsgp_terms(self, pymc_backend, bmb_model):
+    def build_hsgp_terms(self, pymc_backend):
         """Add HSGP (Hilbert-Space Gaussian Process approximation) terms to the PyMC model.
 
         The linear predictor 'X @ b + Z @ u' can be augmented with non-parametric HSGP terms
@@ -121,7 +120,7 @@ class DistributionalComponent:
             for name, values in hsgp_term.coords.items():
                 if name not in pymc_backend.model.coords:
                     pymc_backend.model.add_coords({name: values})
-            self.output += hsgp_term.build(bmb_model)
+            self.output += hsgp_term.build()
 
     def build_group_specific_terms(self, pymc_backend, bmb_model):
         """Add group-specific (random or varying) terms to the PyMC model.
@@ -152,19 +151,21 @@ class DistributionalComponent:
             else:
                 self.output += coef * predictor
 
-    def build_response(self, pymc_backend, bmb_model):
-        # Extract the response term from the Bambi family
-        response_term = bmb_model.response_component.term
-
-        # Create and build the response term
-        response_term = ResponseTerm(response_term, bmb_model.family)
-        response_term.build(pymc_backend, bmb_model)
-
     def add_response_coords(self, pymc_backend, bmb_model):
         response_term = bmb_model.response_component.term
         dim_name = "__obs__"
         dim_value = np.arange(response_term.shape[0])
         pymc_backend.model.add_coords({dim_name: dim_value})
+
+
+class ResponseComponent:
+    def __init__(self, component):
+        self.component = component
+
+    def build(self, pymc_backend, bmb_model):
+        # Create and build the response term
+        response_term = ResponseTerm(self.component.term, bmb_model.family)
+        response_term.build(pymc_backend, bmb_model)
 
 
 # # NOTE: Here for historical reasons, not supposed to work now at least for now

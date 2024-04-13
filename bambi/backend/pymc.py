@@ -10,12 +10,17 @@ from importlib.metadata import version
 
 import numpy as np
 import pymc as pm
-
 import pytensor.tensor as pt
+
+from pymc.util import get_default_varnames
 from pytensor.tensor.special import softmax
 
 from bambi.backend.links import cloglog, identity, inverse_squared, logit, probit, arctan_2
-from bambi.backend.model_components import ConstantComponent, DistributionalComponent
+from bambi.backend.model_components import (
+    ConstantComponent,
+    DistributionalComponent,
+    ResponseComponent,
+)
 from bambi.utils import get_aliased_name
 
 _log = logging.getLogger("bambi")
@@ -47,6 +52,7 @@ class PyMCModel:
         self.model = None
         self.spec = None
         self.components = {}
+        self.response_component = None
         self.bayeux_methods = _get_bayeux_methods()
         self.pymc_methods = {"mcmc": ["mcmc"], "vi": ["vi"]}
 
@@ -55,8 +61,8 @@ class PyMCModel:
 
         Parameters
         ----------
-        spec: bambi.Model
-            A Bambi ``Model`` instance containing the abstract specification of the model
+        spec : bambi.Model
+            A Bambi `Model` instance containing the abstract specification of the model
             to compile.
         """
         self.model = pm.Model()
@@ -67,15 +73,21 @@ class PyMCModel:
                 self.model.add_coords({name: values})
 
         with self.model:
+            # Add constant components
             for name, component in spec.constant_components.items():
                 self.components[name] = ConstantComponent(component)
                 self.components[name].build(self, spec)
 
+            # Add distributional components
             for name, component in spec.distributional_components.items():
                 self.components[name] = DistributionalComponent(component)
                 self.components[name].build(self, spec)
 
-            self.build_response(spec)
+            # Add response
+            self.response_component = ResponseComponent(spec.response_component)
+            self.response_component.build(self, spec)
+
+            # Add potentials
             self.build_potentials(spec)
 
         self.spec = spec
@@ -139,18 +151,6 @@ class PyMCModel:
         self.fit = True
         return result
 
-    def build_response(self, spec):
-        """Add response term to the PyMC model
-
-        Parameters
-        ----------
-        spec : bambi.Modelf
-            The model.
-        """
-        print(self.components)
-        response_component = self.components[spec.response_name]
-        response_component.build_response(self, spec)
-
     def build_potentials(self, spec):
         """Add potentials to the PyMC model.
 
@@ -190,6 +190,19 @@ class PyMCModel:
         **kwargs,
     ):
         if sampler_backend in self.pymc_methods["mcmc"]:
+            # Don't include the parameters of the likelihood, which are deterministics.
+            # They can take lot of space in the trace and increase RAM requirements.
+            vars_to_sample = get_default_varnames(
+                self.model.unobserved_value_vars, include_transformed=False
+            )
+            vars_to_sample = [variable.name for variable in vars_to_sample]
+
+            for name, variable in self.model.named_vars.items():
+                is_likelihood_param = name in self.spec.family.likelihood.params
+                is_deterministic = variable in self.model.deterministics
+                if is_likelihood_param and is_deterministic:
+                    vars_to_sample.remove(name)
+
             with self.model:
                 try:
                     idata = pm.sample(
@@ -201,6 +214,7 @@ class PyMCModel:
                         chains=chains,
                         cores=cores,
                         random_seed=random_seed,
+                        var_names=vars_to_sample,
                         **kwargs,
                     )
                 except (RuntimeError, ValueError):
@@ -221,6 +235,7 @@ class PyMCModel:
                             chains=chains,
                             cores=cores,
                             random_seed=random_seed,
+                            var_names=vars_to_sample,
                             **kwargs,
                         )
                     else:
@@ -255,9 +270,19 @@ class PyMCModel:
 
     def _clean_results(self, idata, omit_offsets, include_mean, idata_from):
         # Before doing anything, make sure we compute deterministics.
+        # But, don't include those determinisics for parameters of the likelihood.
         if idata_from == "bayeux":
+            var_names = [
+                v.name
+                for v in self.model.deterministics
+                if v.name not in self.spec.family.likelihood.params
+            ]
             idata.posterior = pm.compute_deterministics(
-                idata.posterior, model=self.model, merge_dataset=True, progressbar=False
+                idata.posterior,
+                var_names=var_names,
+                model=self.model,
+                merge_dataset=True,
+                progressbar=False,
             )
 
         for group in idata.groups():
@@ -267,15 +292,6 @@ class PyMCModel:
         if omit_offsets:
             offset_vars = [var for var in idata.posterior.data_vars if var.endswith("_offset")]
             idata.posterior = idata.posterior.drop_vars(offset_vars)
-
-        # NOTE:
-        # This has not had an effect for a while since we haven't been supporting LKJ prior lately.
-
-        # Drop variables and dimensions associated with LKJ prior
-        # vars_to_drop = [var for var in idata.posterior.data_vars if var.startswith("_LKJ")]
-        # dims_to_drop = [dim for dim in idata.posterior.dims if dim.startswith("_LKJ")]
-        # idata.posterior = idata.posterior.drop_vars(vars_to_drop)
-        # idata.posterior = idata.posterior.drop_dims(dims_to_drop)
 
         dims_original = list(self.model.coords)
 
@@ -334,6 +350,7 @@ class PyMCModel:
                 center_factor = np.dot(X.mean(0), coefs).reshape(shape)
                 idata.posterior[name] = idata.posterior[name] - center_factor
 
+        # TODO: decide how we update this
         if include_mean:
             self.spec.predict(idata)
 
@@ -349,7 +366,7 @@ class PyMCModel:
 
         Mainly for pedagogical use, provides reasonable results for approximately
         Gaussian posteriors. The approximation can be very poor for some models
-        like hierarchical ones. Use ``mcmc``, ``vi``, or JAX based MCMC methods
+        like hierarchical ones. Use `mcmc`, `vi`, or JAX based MCMC methods
         for better approximations.
 
         Parameters
@@ -357,7 +374,7 @@ class PyMCModel:
         draws: int
             The number of samples to draw from the posterior distribution.
         omit_offsets: bool
-            Omits offset terms in the ``InferenceData`` object returned when the model includes
+            Omits offset terms in the `InferenceData` object returned when the model includes
             group specific effects.
         include_mean: bool
             Compute the posterior of the mean response.
@@ -386,10 +403,6 @@ class PyMCModel:
         idata = _posterior_samples_to_idata(samples, self.model)
         idata = self._clean_results(idata, omit_offsets, include_mean, idata_from="pymc")
         return idata
-
-    @property
-    def response_component(self):
-        return self.components[self.spec.response_name]
 
     @property
     def constant_components(self):
