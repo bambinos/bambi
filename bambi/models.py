@@ -515,7 +515,7 @@ class Model:
         #     * If it's a distributional component, the value must be a dictionary
         #        * Here, names are term names, and values are their aliases
         #     * There's unavoidable redundancy in the response name
-        #       {"y": {"y": "alias"}, "sigma": {"sigma": "alias"}}
+        #       "sigma": {"sigma": "alias"}}
         if len(self.distributional_components) == 1:  # pylint: disable=too-many-nested-blocks
             parent_component = self.components[self.family.likelihood.parent]
             for name, alias in aliases.items():
@@ -524,12 +524,19 @@ class Model:
                 # Monitor if this particular alias is used
                 is_used = False
 
-                if name in parent_component.terms:
-                    parent_component.terms[name].alias = alias
+                # If it's the name of the parent parameter
+                if name == self.family.likelihood.parent:
+                    parent_component.alias = alias
                     is_used = True
 
-                if name in parent_component.constant_components:
-                    parent_component.constant_components[name].alias = alias
+                if name in self.constant_components:
+                    assert isinstance(alias, str)
+                    self.constant_components[name].alias = alias
+                    is_used = True
+
+                # If it's a term name
+                if name in parent_component.terms:
+                    parent_component.terms[name].alias = alias
                     is_used = True
 
                 # Now add aliases for hyperpriors in group specific terms
@@ -538,6 +545,7 @@ class Model:
                         term.hyperprior_alias = {name: alias}
                         is_used = True
 
+                # If it's the name of the response
                 if name == self.response_component.response.name:
                     self.response_component.term.alias = alias
                     is_used = True
@@ -552,7 +560,7 @@ class Model:
                     self.constant_components[component_name].alias = component_aliases
                 elif component_name == self.response_component.response.name:
                     assert isinstance(component_aliases, str)
-                    self.response_component.term.alias = alias
+                    self.response_component.term.alias = component_aliases
                 else:
                     assert isinstance(component_aliases, dict)
                     assert component_name in self.distributional_components
