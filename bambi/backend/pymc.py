@@ -371,12 +371,12 @@ class PyMCModel:
 
         Parameters
         ----------
-        draws: int
+        draws : int
             The number of samples to draw from the posterior distribution.
-        omit_offsets: bool
+        omit_offsets : bool
             Omits offset terms in the `InferenceData` object returned when the model includes
             group specific effects.
-        include_mean: bool
+        include_mean : bool
             Compute the posterior of the mean response.
 
         Returns
@@ -386,6 +386,14 @@ class PyMCModel:
         with self.model:
             maps = pm.find_MAP()
             n_maps = deepcopy(maps)
+
+            # Remove deterministics for parent parameters
+            n_maps = {
+                key: value
+                for key, value in n_maps.items()
+                if key not in self.spec.family.likelihood.params
+            }
+
             for m in maps:
                 if pm.util.is_transformed_name(m):
                     n_maps.pop(pm.util.get_untransformed_name(m))
@@ -397,6 +405,9 @@ class PyMCModel:
 
         cov = np.linalg.inv(hessian)
         modes = np.concatenate([np.atleast_1d(v) for v in n_maps.values()])
+
+        print(cov.shape)
+        print(modes.shape)
 
         samples = np.random.multivariate_normal(modes, cov, size=draws)
 
@@ -422,9 +433,9 @@ def _posterior_samples_to_idata(samples, model):
 
     Parameters
     ----------
-    samples: array
+    samples : array
         Posterior samples
-    model: PyMC model
+    model : PyMC model
 
     Returns
     -------

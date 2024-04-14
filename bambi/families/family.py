@@ -226,7 +226,7 @@ class Family:
         * A dictionary that maps the names of the likelihood parameters to draws from the
         posterior distribtuion.
         * An `xr.Coordinates` object with the coordinates required for the response. For example:
-        `(chain, draw, y_obs)` or `(chain, draw, y_obs, y_dim)`.
+        `(chain, draw, __obs__)` or `(chain, draw, __obs__, y_dim)`.
 
         It was created to abstract repetitive logic used in both `.posterior_predictive()` and
         `log_likelihood()`.

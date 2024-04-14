@@ -29,7 +29,6 @@ def data_n100():
     )
     return data
 
-
 def test_laplace():
     data = pd.DataFrame(np.repeat((0, 1), (30, 60)), columns=["w"])
     priors = {"Intercept": bmb.Prior("Uniform", lower=0, upper=1)}

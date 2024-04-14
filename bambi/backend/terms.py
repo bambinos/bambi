@@ -187,6 +187,9 @@ class InterceptTerm:
             dist = dist(label, dims=dims, **self.term.prior.args)[np.newaxis, :]
         else:
             dist = dist(label, **self.term.prior.args)
+            # TODO: check if this brings the desired result
+            # Multiply it by vector of ones so it then has the proper length
+            dist = dist * np.ones((spec.response_component.term.data.shape[0],))
         return dist
 
     @property
