@@ -54,7 +54,7 @@ class InferenceMethods:
         """
         if method in self.bayeux_methods.get("mcmc"):
             bx_method = operator.attrgetter(method)(
-                self.bayeux_model.mcmc # pylint: disable=no-member
+                self.bayeux_model.mcmc  # pylint: disable=no-member
             )
             return bx_method.get_kwargs()
         elif method in self.pymc_methods.get("mcmc"):
