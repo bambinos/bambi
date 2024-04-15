@@ -7,7 +7,9 @@ import pytest
 
 
 MCMC_METHODS = [getattr(bx.mcmc, k).name for k in bx.mcmc.__all__]
-MCMC_METHODS_FILTERED = [i for i in MCMC_METHODS if not any(x in i for x in ("flowmc", "chees", "meads"))]
+MCMC_METHODS_FILTERED = [
+    i for i in MCMC_METHODS if not any(x in i for x in ("flowmc", "chees", "meads"))
+]
 
 
 @pytest.fixture(scope="module")
@@ -30,7 +32,7 @@ def data_n100():
     return data
 
 
-def test_inference_method_names():
+def test_inference_method_names_and_kwargs():
     names = bmb.inference_methods.names
 
     # Check PyMC inference method family
@@ -39,6 +41,13 @@ def test_inference_method_names():
 
     # Check bayeu inference method family. Currently, only MCMC methods are supported
     assert "mcmc" in names["bayeux"].keys()
+
+    # Ensure get_kwargs method raises an error if a non-supported method name is passed
+    with pytest.raises(
+        ValueError,
+        match="Inference method 'not_a_method' not found in the list of available methods. Use `bmb.inference_methods.names` to list the available methods.",
+    ):
+        bmb.inference_methods.get_kwargs("not_a_method")
 
 
 def test_laplace():
