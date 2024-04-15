@@ -267,7 +267,7 @@ class Model:
             Finally, ``"laplace"``, in which case a Laplace approximation is used and is not
             recommended other than for pedagogical use.
             To get a list of JAX based inference methods, call
-            ``model.backend.inference_methods['bayeux']``. This will return a dictionary of the
+            ``bmb.inference_methods.names['bayeux']``. This will return a dictionary of the
             available methods such as ``blackjax_nuts``, ``numpyro_nuts``, among others.
         init : str
             Initialization method. Defaults to ``"auto"``. The available methods are:
@@ -307,7 +307,7 @@ class Model:
         -------
         An ArviZ ``InferenceData`` instance if inference_method is  ``"mcmc"`` (default),
         "laplace", or one of the MCMC methods in
-        ``model.backend.inference_methods['bayeux']['mcmc]``.
+        ``bmb.inference_methods.names['bayeux']['mcmc]``.
         An ``Approximation`` object if  ``"vi"``.
         """
         method = kwargs.pop("method", None)
